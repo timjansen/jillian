@@ -1,10 +1,10 @@
 /* 
- * Parser for JEL
+ * Parser and Interpreter for JEL
  */
 
 'use strict';
 
-const tokenizer = require('tokenizer.js');
+const tokenizer = require('./tokenizer.js');
 
 const binaryOperators = { // op->precedence
   '=': 10,
@@ -60,14 +60,14 @@ const IF_STOP = {'then': true, 'else': true};
 const THEN_STOP = {'else': true};
 const WITH_STOP = {':': true, ',': true};
 
-class Parser {
+class JEL {
   constructor(input) {
     this.tokens = tokenizer.tokenize(input);
-    return this.parseExpression();
+    this.parseTree = this.parseExpression();
   }
-  
+    
   parseExpression(precedence = 0, stopOps = NO_STOP) {
-    const token = this.this.tokens.next();
+    const token = this.tokens.next();
     if (!token) 
       throw "Unexpected end, expected another token";
     if (token.type) // if type is set, tokenizer resolved it already: it's a literal.
@@ -186,4 +186,4 @@ class Parser {
   
 }
 
-exports.Parser = Parser;
+module.exports = JEL;

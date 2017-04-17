@@ -37,22 +37,6 @@ describe('jelTokenizer', ()=>{
       assert.equal(t.next(), undefined);
     });
 
-    it('should provide mem()', ()=>{
-      const t = jt.tokenize('1 2 3 4');
-      const f1 = t.mem();
-      assert.equal(t.next().value, 1);
-      const f2 = t.mem();
-      assert.equal(t.next().value, 2);
-      assert.equal(t.next().value, 3);
-      f2();
-      assert.equal(t.next().value, 2);
-      f1();
-      assert.equal(t.next().value, 1);
-      assert.equal(t.next().value, 2);
-      f1();
-      assert.equal(t.next().value, 1);
-    });
-
   });
 });
 
