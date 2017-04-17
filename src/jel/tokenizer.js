@@ -12,28 +12,28 @@ const constants = {'null': null, 'true': true, 'false': false};
 
 const jelTokenizer = {
   tokenize(input) {
-    //          Operator                                                                    Identifier-like    number                             back-quoted      single-quoted   double-quoted        illegal
-    const re = /(\(|\)|\.\*|:|\.|,|\+|-|\*|\/|@|=>|==|<==|>==|!==|<<|>>|=|!=|>=|<=|>|<)|([a-zA-Z_$][\w_$]*)|([+-]?\d+(?:\.\d+)?(?:e[+-]?\d+)?)|(`(?:\\.|[^`])*`|'(?:\\.|[^'])*'|"(?:\\.|[^"])*")|\s+|(.+)/g;
+    //          Number                             Operator                                                                  Identifier-like     back-quoted      single-quoted   double-quoted        illegal
+    const re = /([+-]?\d+(?:\.\d+)?(?:e[+-]?\d+)?)|(\(|\)|\.\*|:|\.|,|\+|-|\*|\/|@|=>|==|<==|>==|!==|<<|>>|=|!=|>=|<=|>|<|!)|([a-zA-Z_$][\w_$]*)|(`(?:\\.|[^`])*`|'(?:\\.|[^'])*'|"(?:\\.|[^"])*")|\s+|(.+)/g;
     // groups:
-    // group 1: operator
-    // group 2: identifier
-    // group 3: number
+    // group 1: number
+    // group 2: operator
+    // group 3: identifier
     // group 4: quoted string
     // group 5: illegal char
     
     let matches, tokensLeft = 2000;
     const tokens = [];
     while ((matches = re.exec(input)) && tokensLeft--) {
-      if (matches[1])
-        tokens.push({value: matches[1], operator: true});
-      else if (matches[2] && matches[2] in constants)
-        tokens.push({value: constants[matches[2]], type: 'literal'});
-      else if (matches[2] && matches[2] in wordOperators)
+      if (matches[2])
         tokens.push({value: matches[2], operator: true});
-      else if (matches[2])
-        tokens.push({value: matches[2], identifier: true});
+      else if (matches[3] && matches[3] in constants)
+        tokens.push({value: constants[matches[3]], type: 'literal'});
+      else if (matches[3] && matches[3] in wordOperators)
+        tokens.push({value: matches[3], operator: true});
       else if (matches[3])
-        tokens.push({value: parseFloat(matches[3]), type: 'literal'});
+        tokens.push({value: matches[3], identifier: true});
+      else if (matches[1])
+        tokens.push({value: parseFloat(matches[1]), type: 'literal'});
       else if (matches[4])
         tokens.push({value: matches[4].replace(/^.|.$/g, ''), type: 'literal'});
       else if (matches[5])

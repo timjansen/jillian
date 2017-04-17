@@ -13,6 +13,7 @@ describe('jelTokenizer', ()=>{
 
      it('should parse operators', ()=>{
       assert.deepEqual(jt.tokenize('<=+').tokens, [{value: '<=', operator: true}, {value: '+', operator: true}]);
+      assert.deepEqual(jt.tokenize('!a').tokens, [{value: '!', operator: true}, {value: 'a', identifier: true}]);
     });
 
     it('should parse identifiers', ()=>{
@@ -25,7 +26,7 @@ describe('jelTokenizer', ()=>{
     });
     
     it('should provide peek() and next()', ()=>{
-      const t = jt.tokenize('1 2 3 4');
+      const t = jt.tokenize('1 2 3 4 -5');
       assert.equal(t.peek().value, 1);
       assert.equal(t.peek().value, 1);
       assert.equal(t.next().value, 1);
@@ -33,6 +34,7 @@ describe('jelTokenizer', ()=>{
       assert.equal(t.peek().value, 3);
       assert.equal(t.next().value, 3);
       assert.equal(t.next().value, 4);
+      assert.equal(t.next().value, -5);
       assert.equal(t.peek(), undefined);
       assert.equal(t.next(), undefined);
     });
