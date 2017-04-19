@@ -148,7 +148,7 @@ class JEL {
     if (!opPrecedence)
       throw "Unexpected token " + binOpToken;
     
-    if (opPrecedence < precedence)
+    if (opPrecedence <= precedence)
       return left;
     
     this.tokens.next();
