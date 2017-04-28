@@ -65,11 +65,15 @@ class JEL {
     this.tokens = tokenizer.tokenize(input);
     this.parseTree = this.parseExpression();
   }
-    
+  
+  throwParseException(token, msg) {
+    throw new Error(msg + '\n' + token ? JSON.stringify(token) : '');
+  }
+  
   parseExpression(precedence = 0, stopOps = NO_STOP) {
     const token = this.tokens.next();
     if (!token) 
-      throw "Unexpected end, expected another token";
+      this.throwParseException(token, "Unexpected end, expected another token");
     if (token.type) // if type is set, tokenizer resolved it already: it's a literal.
       return this.tryBinaryOps(token, precedence, stopOps);
     if (token.identifier) {
@@ -87,25 +91,25 @@ class JEL {
         if (lambda)
           return this.tryBinaryOps(lambda, precedence, stopOps);
         else
-          return this.parseExpression(PARENS_PRECEDENCE, stopOps);
+          return this.parseExpression(PARENS_PRECEDENCE, PARENS_STOP);
       }
       else if (token.value == '@') {
         let t2 = this.tokens.next();
         if (!t2 || !t2.identifier)
-          throw "Expected identifier after '@' for reference.";
+          this.throwParseException(token, "Expected identifier after '@' for reference.");
         return this.tryBinaryOps({type: 'reference', name: t2.value}, precedence, stopOps);
       }
       else if (token.value == 'if') {
         let cond = this.parseExpression(IF_PRECEDENCE, IF_STOP), thenV, elseV;
         let t2 = this.tokens.next();
         if (!t2 || !t2.operator || !IF_STOP[t2.value])
-          throw "Expected 'else' or 'then' after 'if' condition.";
+          this.throwParseException(t2 || token, "Expected 'else' or 'then' after 'if' condition.");
         if (t2.value == 'then') {
           thenV = this.parseExpression(IF_PRECEDENCE, IF_STOP);
         }
         let t3 = this.tokens.next();
         if (!t3 || !t3.operator || t3.value != 'else')
-          throw "Expected 'else' after 'if'/'then' condition.";
+          this.throwParseException(t3 || token, "Expected 'else' after 'if'/'then' condition.");
         elseV = this.parseExpression(IF_PRECEDENCE, THEN_STOP);
         return this.tryBinaryOps({type: 'condition', condition: cond, then: thenV, else: elseV}, precedence, stopOps);
 
@@ -115,24 +119,24 @@ class JEL {
         while (true) {
           const name = this.tokens.next();
           if (!name || !name.identifier)
-            throw "Expected identifier for variable.";
+            this.throwParseException(name || token, "Expected identifier for variable.");
           const eq = this.tokens.next();
           if (!eq || !eq.operator || eq.value != '=')
-            throw "Expected equals sign after variable name.";
+            this.throwParseException(eq || name, "Expected equals sign after variable name.");
           const expression = this.parseExpression(precedence, WITH_STOP);
           if (!expression)
-            throw "Expression ended unexpectedly.";
+            this.throwParseException(eq, "Expression ended unexpectedly.");
           assignments.push({name, expression});
           const terminator = this.tokens.next();
           if (!terminator || !terminator.operator || !WITH_STOP[terminator.value])
-            throw "Expected comma or colon after expression in 'with' statement.";
+            this.throwParseException(terminator|| expression, "Expected comma or colon after expression in 'with' statement.");
           if (terminator.value == ':')
             break;
         }
         return {type: 'with', assignments, expression: this.parseExpression(precedence, stopOps)};
       }
     }
-    throw "Unexpected token: " + token;
+    this.throwParseException(token, "Unexpected token");
   }
    
   // called after an potential left operand for a binary op
@@ -146,7 +150,7 @@ class JEL {
     
     const opPrecedence = binaryOperators[binOpToken.value];
     if (!opPrecedence)
-      throw "Unexpected token " + binOpToken;
+      this.throwParseException(binOpToken, "Unexpected token");
     
     if (opPrecedence <= precedence)
       return left;
@@ -164,21 +168,23 @@ class JEL {
       args = [argName];
     }
     else {
+      var tok = this.tokens.copy();
       args = [];
       while (true) {
-        const name = this.tokens.next();
+        const name = tok.next();
         if (!name || !name.identifier)
           return null;
         args.push(name.value);
-        const terminator = this.tokens.next();
+        const terminator = tok.next();
         if (!terminator || !terminator.operator || !PARAMETER_STOP[terminator.value])
           return null;
         if (terminator.value == ')')
           break;
       }  
-      const ld = this.tokens.peek();
+      const ld = tok.next();
       if (!ld || !ld.operator || ld.value != '=>')
         return null;
+      this.tokens = tok;
       return {type: 'lambda', args, expression: this.parseExpression(precedence, stopOps)};
     }
 

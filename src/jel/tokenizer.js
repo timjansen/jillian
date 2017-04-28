@@ -42,7 +42,8 @@ const jelTokenizer = {
     return {tokens, 
             i: 0, 
             next() {return tokens[this.i++];}, 
-            peek() {return tokens[this.i];}
+            peek() {return tokens[this.i];},
+            copy() {return {tokens, i: this.i, next: this.next, peek: this.peek, copy: this.copy, set: this.set};}
     };
   }, 
 

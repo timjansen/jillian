@@ -14,6 +14,7 @@ describe('jelTokenizer', ()=>{
      it('should parse operators', ()=>{
       assert.deepEqual(jt.tokenize('<=+').tokens, [{value: '<=', operator: true}, {value: '+', operator: true}]);
       assert.deepEqual(jt.tokenize('!a').tokens, [{value: '!', operator: true}, {value: 'a', identifier: true}]);
+      assert.deepEqual(jt.tokenize('(a)').tokens, [{value: '(', operator: true}, {value: 'a', identifier: true}, {value: ')', operator: true}]);
     });
 
     it('should parse identifiers', ()=>{
@@ -38,7 +39,24 @@ describe('jelTokenizer', ()=>{
       assert.equal(t.peek(), undefined);
       assert.equal(t.next(), undefined);
     });
+    
+    it('should provide copy()', ()=>{
+      const t = jt.tokenize('1 2 3 4 -5');
+      assert.equal(t.next().value, 1);
+      const t2 = t.copy();
+      assert.equal(t2.next().value, 2);
+      assert.equal(t2.next().value, 3);
+      assert.equal(t.next().value, 2);
+      assert.equal(t.next().value, 3);
+      assert.equal(t.next().value, 4);
+      assert.equal(t2.next().value, 4);
+      assert.equal(t.next().value, -5);
+      assert.equal(t.next(), undefined);
+      assert.equal(t2.next().value, -5);
+      assert.equal(t2.next(), undefined);
+    });
 
+    
   });
 });
 
