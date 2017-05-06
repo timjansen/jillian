@@ -28,7 +28,9 @@ const binaryOperators = { // op->precedence
   '*': 14,
   '/': 14,
   '%': 14,
-
+  
+  '(': 18,
+  
   'map': 16,
   'filter': 16,
   'collect': 16,
@@ -58,7 +60,8 @@ const PARENS_STOP = {')': true};
 const PARAMETER_STOP = {')': true, ',': true};
 const IF_STOP = {'then': true, 'else': true};
 const THEN_STOP = {'else': true};
-const WITH_STOP = {':': true, ',': true};
+const WITH_STOP = {'=>': true, ',': true};
+
 
 class JEL {
   constructor(input) {
@@ -67,7 +70,7 @@ class JEL {
   }
   
   throwParseException(token, msg) {
-    throw new Error(msg + '\n' + token ? JSON.stringify(token) : '');
+    throw new Error(msg + '\n' + (token ? JSON.stringify(token) : ''))
   }
   
   parseExpression(precedence = 0, stopOps = NO_STOP) {
@@ -120,17 +123,17 @@ class JEL {
           const name = this.tokens.next();
           if (!name || !name.identifier)
             this.throwParseException(name || token, "Expected identifier for variable.");
-          const eq = this.tokens.next();
-          if (!eq || !eq.operator || eq.value != '=')
-            this.throwParseException(eq || name, "Expected equals sign after variable name.");
+          const colon = this.tokens.next();
+          if (!colon || !colon.operator || colon.value != ':')
+            this.throwParseException(colon || name, "Expected colon after variable name.");
           const expression = this.parseExpression(precedence, WITH_STOP);
           if (!expression)
-            this.throwParseException(eq, "Expression ended unexpectedly.");
+            this.throwParseException(colon, "Expression ended unexpectedly.");
           assignments.push({name, expression});
           const terminator = this.tokens.next();
           if (!terminator || !terminator.operator || !WITH_STOP[terminator.value])
-            this.throwParseException(terminator|| expression, "Expected comma or colon after expression in 'with' statement.");
-          if (terminator.value == ':')
+            this.throwParseException(terminator|| expression, "Expected arrow or colon after expression in 'with' statement.");
+          if (terminator.value == '=>')
             break;
         }
         return {type: 'with', assignments, expression: this.parseExpression(precedence, stopOps)};
@@ -139,7 +142,7 @@ class JEL {
     this.throwParseException(token, "Unexpected token");
   }
    
-  // called after an potential left operand for a binary op
+  // called after an potential left operand for a binary op (or function call)
   tryBinaryOps(left, precedence, stopOps) {
     const binOpToken = this.tokens.peek();
     if (!binOpToken)
@@ -156,40 +159,98 @@ class JEL {
       return left;
     
     this.tokens.next();
-    return this.tryBinaryOps({type: 'operator', operator: binOpToken.value, left, right: this.parseExpression(binaryOperators[binOpToken.value], stopOps)}, precedence, stopOps);
+    
+    if (binOpToken.value == '{') 
+      return this.tryBinaryOps(this.parseCall(left), precedence, stopOps);
+    else
+      return this.tryBinaryOps({type: 'operator', operator: binOpToken.value, left, right: this.parseExpression(binaryOperators[binOpToken.value], stopOps)}, precedence, stopOps);
   }
   
   tryLambda(argName, precedence, stopOps) {
     let args;
+    const tok = this.tokens.copy();
     if (argName) {
-      const ld = this.tokens.peek();
+      const ld = tok.next();
       if (!ld || !ld.operator || ld.value != '=>')
         return null;
       args = [argName];
     }
     else {
-      var tok = this.tokens.copy();
       args = [];
-      while (true) {
-        const name = tok.next();
-        if (!name || !name.identifier)
-          return null;
-        args.push(name.value);
-        const terminator = tok.next();
-        if (!terminator || !terminator.operator || !PARAMETER_STOP[terminator.value])
-          return null;
-        if (terminator.value == ')')
-          break;
+      const emptyArgsPeek = tok.peek();
+      if (!emptyArgsPeek)
+        return null;
+
+      if (emptyArgsPeek.operator && emptyArgsPeek.value == ')') {
+        tok.next();
+      }
+      else
+        while (true) {
+          const name = tok.next();
+          if (!name || !name.identifier)
+             return null;
+          args.push(name.value);
+          const terminator = tok.next();
+          if (!terminator || !terminator.operator || !PARAMETER_STOP[terminator.value])
+            return null;
+          if (terminator.value == ')')
+            break;
       }  
       const ld = tok.next();
       if (!ld || !ld.operator || ld.value != '=>')
         return null;
-      this.tokens = tok;
-      return {type: 'lambda', args, expression: this.parseExpression(precedence, stopOps)};
     }
-
+    this.tokens = tok;
+    return {type: 'lambda', args, expression: this.parseExpression(precedence, stopOps)};
   }
   
+  parseCall(left) {
+    const argList = [];
+
+    while (true) {
+      const tok = this.tokens.copy();
+      const preview = tok.next();
+      if (!preview)
+        this.throwParseException(null, 'Unexpected end of expression in the middle of function call');
+        
+      if (preview.operator && preview.value == ')') {
+        this.tokens = tok;
+        return {type: 'call', argList, left};
+      }
+      
+      if (preview.identifier) {
+          const colon = tok.next();
+          if (colon && colon.operator && colon.value == ':')
+            break;
+      }
+      argList.push(this.parseExpression(PARENS_PRECEDENCE, PARAMETER_STOP));
+
+      const separator = this.tokens.next();
+      if (!separator || !separator.operator || !PARAMETER_STOP[separator.value])
+        this.throwParseException(separator, "Expected another argument");
+    }
+ 
+    const argNames = {};
+    while (true) {
+      const name = this.tokens.next();
+      if (!name || !name.identifier)
+        this.throwParseException(name, "Expected identifier for named argument");
+      if (name in argNames)
+        this.throwParseException(name, "Duplicate name in named arguments");
+      const colon = this.tokens.next();
+      if (!colon.operator || colon.value != ':')
+        this.throwParseException(colon || name, "Expected colon after identifier for named argument");
+      argNames[name] = this.parseExpression(PARENS_PRECEDENCE, PARAMETER_STOP);
+
+      const next = this.tokens.next();
+      if (next && next.operator && next.value == ')')
+        break;
+      if (!!next || !next.operator || next.value != ',')
+        this.throwParseException(next || colon, "Expected another argument");
+    }
+    return {type: 'call', argList, argNames, left};
+  }
+
 }
 
 module.exports = JEL;

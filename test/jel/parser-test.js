@@ -38,6 +38,15 @@ describe('jelParser', ()=>{
       assert.deepEqual(new JEL('(a+b)+c+(((d*e)))').parseTree, new JEL('a+b+c+d*e').parseTree);
     });
 
+    it('should support lambdas', ()=>{
+      assert.deepEqual(new JEL('x=>1').parseTree, {type: 'lambda', args: ['x'], expression: {type: 'literal', value: 1}});
+      assert.deepEqual(new JEL('()=>1').parseTree, {type: 'lambda', args: [], expression: {type: 'literal', value: 1}});
+      assert.deepEqual(new JEL('(a, b)=>a+b').parseTree, {type: 'lambda', args: ['a', 'b'], expression: {type: 'operator', operator: '+', left: {type: 'variable', name: 'a'}, right: {type: 'variable', name: 'b'}}});
+    });
+
+    it('should support function calls', ()=>{
+    });
+    
   });
 });
 
