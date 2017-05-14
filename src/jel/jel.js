@@ -160,7 +160,7 @@ class JEL {
     
     this.tokens.next();
     
-    if (binOpToken.value == '{') 
+    if (binOpToken.value == '(') 
       return this.tryBinaryOps(this.parseCall(left), precedence, stopOps);
     else
       return this.tryBinaryOps({type: 'operator', operator: binOpToken.value, left, right: this.parseExpression(binaryOperators[binOpToken.value], stopOps)}, precedence, stopOps);

@@ -1,0 +1,10 @@
+// Simplified without range
+50
+
+// Min/max range
+{min: 45, max: 55} // min/max are inclusive
+{min: 2}  // open-ended
+
+// Accuracy-based
+{value: 50, accuracy: 5}
+

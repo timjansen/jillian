@@ -1,0 +1,23 @@
+////// Angle type
+
+// Default angle in degrees (any number allowed)
+90
+-45
+360
+
+// With accuracy
+{value: 93, accuracy: 3}
+
+// With minutes/seconds
+{value: 60, minutes: 12, seconds: 13} // default accuracy: 1 second
+{value: 60, minutes: 12, seconds: 13, accuracy: 0.01} // accuracy: 0.01 deg
+
+// With types
+{value: -0.75, unit: 'turns'}                  // accuracy: 0
+{value: -0.75, unit: 'turns', accuracy: 0.01}  // accuracy: 0.01 turns
+{value: 1, unit: 'radian'}                     // accuracy: 0
+{value: 1, unit: 'radian', accuracy: 0.01}     // accuracy: 0.01 radian
+{value: 2, unit: 'piRadian'}                   // piRadian is the radian divided by Math.Pi. accuracy: 0
+
+
+

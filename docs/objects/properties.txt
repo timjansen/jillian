@@ -1,0 +1,94 @@
+// Property Mixins
+
+// Variations for categories
+// 'fixed' - if the value is always the same (100%) or a sample taken
+// 'fixedMin' - minimum fixed, for ranges
+// 'fixedMax' - maximum fixed
+// 'typical' - if there is an unchangable typical value (95%)
+// 'typicalMin' - minimum typical, for ranges of typical values
+// 'typicalMax' - maximum typical
+// 'extremeMin' - minimum atypical (less than 5%)
+// 'extremeMax' - maximum atypical (less than 5%)
+
+
+// example of variations:
+{
+  'fixedMin': {height: 2, length: 4, width: 1},
+  'fixedMax': {height: 2.4, length: 4.2, width: 1.1},
+}
+
+
+// describes the dimensions of a thing
+dimension: {
+  categoryVariations: ['fixed', 'fixedMin', 'fixedMax', 'typical', 'typicalMin', 'typicalMax', 'extremeMin', 'extremeMax'],
+  properties: {
+    height: 'lengthType', 
+    length: 'lengthType', 
+    width: 'lengthType'
+  }
+}
+
+location: {
+  categoryVariations: ['fixed', 'typical'],
+  valueType: 'locationType'
+}
+
+// for giving a typical price of something (not a concrete price - that would be an offer)
+approximatePrice: {
+  categoryVariations: ['fixed', 'fixedMin', 'fixedMax', 'typical', 'typicalMin', 'typicalMax', 'extremeMin', 'extremeMax'],
+  valueType: 'currencyType'
+}
+
+// The weight of something
+weight: {
+  categoryVariations: ['fixed', 'fixedMin', 'fixedMax', 'typical', 'typicalMin', 'typicalMax', 'extremeMin', 'extremeMax'],
+  valueType: 'massType'
+}
+
+// The duration of something
+duration: {
+  categoryVariations: ['fixed', 'fixedMin', 'fixedMax', 'typical', 'typicalMin', 'typicalMax', 'extremeMin', 'extremeMax'],
+  valueType: 'durationType'
+}
+
+// Describes a (standard) temperature
+temperature: {
+  categoryVariations: ['fixed', 'fixedMin', 'fixedMax', 'typical', 'typicalMin', 'typicalMax', 'extremeMin', 'extremeMax'],
+  valueType: 'temperatureType'
+}
+
+// Biological gender
+bioGender: {
+  categoryVariations: ['fixed', 'typical'],
+  valueType: {limited: 'string', options: ['male', 'female']}
+}
+
+// Age (of a thing or lifeform)
+maxAge: {
+  categoryVariations: ['fixed', 'fixedMin', 'fixedMax', 'typical', 'typicalMin', 'typicalMax', 'extremeMin', 'extremeMax'],
+  valueType: 'number'
+}
+
+// Maximum velocity the subject is capable of
+maxVelocity: {
+  categoryVariations: ['fixed', 'fixedMin', 'fixedMax', 'typical', 'typicalMin', 'typicalMax', 'extremeMin', 'extremeMax'],
+  valueType: 'velocityType'
+}
+
+spicyHeat: {
+  categoryVariations: ['fixed', 'fixedMin', 'fixedMax', 'typical', 'typicalMin', 'typicalMax', 'extremeMin', 'extremeMax'],
+  valueType: 'spicyHeatType'
+}
+
+// The color of a thing, including patterns
+color: {
+  ..
+}
+
+TODO custom(eg when to greet someone)
+Origin
+Formality 0-1
+
+
+
+

@@ -1,0 +1,12 @@
+Object: super class for category, thing, relationship...
+
+Type hierarchy:
+Object
++ Category
+
+In addition to properties inherited from Object:
+	type: 'category' or 'relationshipCategory'
+	superCategory: the ref to the super category
+	
+	instanceProperties: a map of properties the instances must have. Can contain default values. Null means instance has to define it.
+		

@@ -1,0 +1,26 @@
+////// Length type
+
+// Default length, in m, without accuracy (default: 0.5m)
+1
+5
+200
+
+// With accuracy
+{value: 200, accuracy: 0.1}
+
+// Imperial
+{miles: 2, yard: 3, inch: 5}
+
+// With primary unit
+// Effect of the primary unit is a) it defines a default accuracy and b) it is the preferred way of displaying it
+{value: 100, unit: "mm"} // default accuracy: 0.5mm
+{value: 100, accuracy: 2, unit: "mm"} // accuracy: 2mm
+{value: 20, unit: "M"} // nautical mile. accuracy: 0.5nm
+{value: 2, unit: "au"} // astronomical unit. accuracy: 0.5au
+{value: 2, unit: "ly"} // lightyear. accuracy: 0.5ly
+{value: 2, unit: "km"} // kilometer. accuracy: 0.5km
+{value: 2.5, unit: "cm"} // centimeter. accuracy: 0.5km
+{value: 2.5, unit: "m"}  // meter. accuracy: 0.5km
+
+// Fractions: mostly for displaying
+{numerator: 2, denominator: 3, unit: "inch"}

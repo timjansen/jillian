@@ -1,0 +1,14 @@
+Relationship extends Object
+
+
+Type hierarchy:
+Object
++ Relationship
+
+Properties:
+
+{
+	category: refType that describes the relationship,e.g. creator, biofather, biomother, owner...
+	to: refType
+}
+

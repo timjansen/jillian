@@ -1,0 +1,25 @@
+////// Area type
+
+
+// Default area unit in m^3. Default accuracy: 0.
+45
+
+// With accuracy
+{value: 0.5, accuracy: 0.1}                // accuracy: 0.1sqm
+
+
+// With types
+{value: 120, unit: 'sqm'}                // accuracy: 0.5 sqm
+{value: 120, unit: 'sqm', accuracy: 0.1} // accuracy: 0.1 sqm
+{value: 330, unit: 'sqcm'}               // square centimeter              
+{value: 330, unit: 'sqkm'}               // square kilometer
+{value: 330, unit: 'sqft'}               // square feet
+{value: 330, unit: 'sqyd'}               // square yard              
+{value: 330, unit: 'sqml'}               // square miles
+{value: 1, unit: 'hectare'}              // square miles
+{value: 1, unit: 'acre'}                 // acre
+{value: 1, unit: 'barn'}  
+
+
+
+

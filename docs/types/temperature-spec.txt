@@ -1,0 +1,16 @@
+////// Temperature type
+
+// Default temperature in kelvin
+0
+500
+
+// With types
+{value: 300, unit: 'k'}                // accuracy: 0.5 kelvin
+{value: 300, unit: 'k', accuracy: 0.1} // accuracy: 0.1 kelvin
+{value: 22, unit: 'c'}                 // accuracy: 0.5 celsius
+{value: 22, unit: 'c', accuracy: 0.1}  // accuracy: 0.1 celsius
+{value: 75, unit: 'f'}                 // accuracy: 0.5 fahrenheit
+{value: 75, unit: 'f', accuracy: 0.1}  // accuracy: 0.1 fahrenheit
+
+
+

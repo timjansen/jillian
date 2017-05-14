@@ -1,0 +1,21 @@
+////// Energy type
+
+// Default energy in Joule (any number allowed). Accuracy 0.5 by default.
+17
+155
+
+
+// With accuracy
+{value: 93, accuracy: 3}
+
+// With types
+{value: 17, unit: 'J'}                       // accuracy: 0.5 kcal
+{value: 1200, unit: 'kcal'}                  // accuracy: 0.5 kcal
+{value: 1200, unit: 'kcal', accuracy: 0.01}  // accuracy: 0.01 kcal
+{value: 34, unit: 'btu'}                     // accuracy: 0.5 btu
+{value: 34, unit: 'btu', accuracy: 0.01}     // accuracy: 0.01 btu
+{value: 1, unit: 'kWh'}                      // accuracy: 0.5
+{value: 1, unit: 'kWh', accuracy: 0.01}      // accuracy: 0.01 kWh
+
+
+

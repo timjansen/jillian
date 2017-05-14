@@ -45,6 +45,12 @@ describe('jelParser', ()=>{
     });
 
     it('should support function calls', ()=>{
+      assert.deepEqual(new JEL('f()').parseTree, {type: 'call', argList: [], left: {type: 'variable', name: 'f'}});
+      assert.deepEqual(new JEL('f(2)').parseTree, {type: 'call', argList: [{type: 'literal', value: 2}], left: {type: 'variable', name: 'f'}});
+      assert.deepEqual(new JEL('f("foo", 2)').parseTree, {type: 'call', argList: [{type: 'literal', value: 'foo'}, {type: 'literal', value: 2}], left: {type: 'variable', name: 'f'}});
+
+      assert.deepEqual(new JEL('f(a: 5)').parseTree, {type: 'call', argList: [], argNames: {a: {type: 'literal', value: 5}}, left: {type: 'variable', name: 'f'}});
+      assert.deepEqual(new JEL('f("foo", 4, a: 5, b: "bar")').parseTree, {type: 'call', argList: [], argNames: {a: {type: 'literal', value: 5}}, left: {type: 'variable', name: 'f'}});
     });
     
   });

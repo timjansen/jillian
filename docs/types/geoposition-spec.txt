@@ -1,0 +1,14 @@
+////// Geoposition type
+
+// Properties
+elevation: 'lengthType'  // optional. 
+accuracyElevation: 'lengthType' // optional. Default: 1m
+latitude: 'angleType'
+longitude: 'angleType'
+accuracyPosition: 'lengthType'  // optional. Default: 5m.
+
+
+Methods:
+isIn(Location) - true if the position is in the location
+
+
