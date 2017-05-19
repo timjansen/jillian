@@ -76,7 +76,7 @@
 //  Const Assignment: with x: 4+4, y:6+6 => c
 //  {
 //     type: 'with',
-//     assignments: [{name: '<name>', expression: <expression>}],
+//     assignments: [{name: '<name>', expression: <expression>}],  // order is important, because expressions may access previous variable names
 //     expression: <expression>
 //  }
 

@@ -12,8 +12,8 @@ const constants = {'null': null, 'true': true, 'false': false};
 
 const jelTokenizer = {
   tokenize(input) {
-    //          Number                             Operator                                                                  Identifier-like     back-quoted      single-quoted   double-quoted        illegal
-    const re = /([+-]?\d+(?:\.\d+)?(?:e[+-]?\d+)?)|(\(|\)|\.\*|:|\.|,|\+|-|\*|\/|@|=>|==|<==|>==|!==|<<|>>|=|!=|>=|<=|>|<|!)|([a-zA-Z_$][\w_$]*)|(`(?:\\.|[^`])*`|'(?:\\.|[^'])*'|"(?:\\.|[^"])*")|\s+|(.+)/g;
+    //          Number                        Operator                                                                  Identifier-like     back-quoted      single-quoted   double-quoted        illegal
+    const re = /(\d+(?:\.\d+)?(?:e[+-]?\d+)?)|(\(|\)|\.\*|:|\.|,|\+|-|\*|\/|@|=>|==|<==|>==|!==|<<|>>|=|!=|>=|<=|>|<|!)|([a-zA-Z_$][\w_$]*)|(`(?:\\.|[^`])*`|'(?:\\.|[^'])*'|"(?:\\.|[^"])*")|\s+|(.+)/g;
     // groups:
     // group 1: number
     // group 2: operator
@@ -43,7 +43,8 @@ const jelTokenizer = {
             i: 0, 
             next() {return tokens[this.i++];}, 
             peek() {return tokens[this.i];},
-            copy() {return {tokens, i: this.i, next: this.next, peek: this.peek, copy: this.copy, set: this.set};}
+            last() {return tokens[this.i-1];},
+            copy() {return {tokens, i: this.i, next: this.next, peek: this.peek, copy: this.copy, set: this.set, last: this.last};}
     };
   }, 
 

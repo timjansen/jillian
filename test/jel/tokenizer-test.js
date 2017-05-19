@@ -25,34 +25,47 @@ describe('jelTokenizer', ()=>{
       assert.deepEqual(jt.tokenize('3.5 null true "hello" `hi`').tokens, [{value: 3.5, type: 'literal'}, {value: null, type: 'literal'}, {value: true, type: 'literal'},
                                                                          {value: 'hello', type: 'literal'}, {value: 'hi', type: 'literal'}]);
     });
+
+    it('should parse expressions', ()=>{
+      assert.deepEqual(jt.tokenize('a+1').tokens, [{value: 'a', identifier: true}, {value: '+', operator: true}, {value: 1, type: 'literal'}]);
+      assert.deepEqual(jt.tokenize('a-1').tokens, [{value: 'a', identifier: true}, {value: '-', operator: true}, {value: 1, type: 'literal'}]);
+      assert.deepEqual(jt.tokenize('a + 1').tokens, [{value: 'a', identifier: true}, {value: '+', operator: true}, {value: 1, type: 'literal'}]);
+      assert.deepEqual(jt.tokenize('a  -  1').tokens, [{value: 'a', identifier: true}, {value: '-', operator: true}, {value: 1, type: 'literal'}]);
+    });
+
     
-    it('should provide peek() and next()', ()=>{
-      const t = jt.tokenize('1 2 3 4 -5');
+    it('should provide peek(), last() and next()', ()=>{
+      const t = jt.tokenize('1 2 3 4 5');
       assert.equal(t.peek().value, 1);
       assert.equal(t.peek().value, 1);
+      assert.equal(t.last(), null);
       assert.equal(t.next().value, 1);
+      assert.equal(t.last().value, 1);
       assert.equal(t.next().value, 2);
+      assert.equal(t.last().value, 2);
       assert.equal(t.peek().value, 3);
       assert.equal(t.next().value, 3);
       assert.equal(t.next().value, 4);
-      assert.equal(t.next().value, -5);
+      assert.equal(t.last().value, 4);
+      assert.equal(t.next().value, 5);
       assert.equal(t.peek(), undefined);
       assert.equal(t.next(), undefined);
     });
     
     it('should provide copy()', ()=>{
-      const t = jt.tokenize('1 2 3 4 -5');
+      const t = jt.tokenize('1 2 3 4 5');
       assert.equal(t.next().value, 1);
       const t2 = t.copy();
+      assert(t2.next && t2.last && t2.peek && t2.copy);
       assert.equal(t2.next().value, 2);
       assert.equal(t2.next().value, 3);
       assert.equal(t.next().value, 2);
       assert.equal(t.next().value, 3);
       assert.equal(t.next().value, 4);
       assert.equal(t2.next().value, 4);
-      assert.equal(t.next().value, -5);
+      assert.equal(t.next().value, 5);
       assert.equal(t.next(), undefined);
-      assert.equal(t2.next().value, -5);
+      assert.equal(t2.next().value, 5);
       assert.equal(t2.next(), undefined);
     });
 
