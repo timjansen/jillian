@@ -115,29 +115,6 @@
 // Other operators: 'abs' (absolute value). Works with numbers.
 
 
-// List operators
-// ------------
-
-// Single operand:
-// 'count' returns the number of list entries
-// 'exists' like count>0
-// 'max'/'min'/'avg' finds max/min/avg values in the list, optionally after mapping
-// 'same' checks whether all returned entries are the same
-// 'first' finds the first match
-
-// Two operands:
-// 'at' returns the elemnt at the given 0-based index (undef is there is none)
-// 'skip' skips the given number of elements. Empty list if all are skipped. Ignored if negative.
-// 'truncate' cuts off the list after the given number of entries. empty list of the number is larger than the list size.
-
-// Lambda-based. 
-// For lambda ops, 'right' is a lambda expression that takes the input value as first and a status object {index: 0, size: 10, first: true, last: false} as second:
-// 'map' changes values. 
-// 'filter' returns the list entries after calling map and filter, returns list
-// 'collect' merges the list like Minified's collect, returns list
-// 'sort' sorts the list. Lamba gets two values to compare. false if smaller, true if larger.
-
-
 // Examples
 // -----------
 {

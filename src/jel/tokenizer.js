@@ -6,14 +6,13 @@ Tokenizes a JEL input string.
 */
 'use strict';
 
-const wordOperators = {and:1, or:1, xor:1, not:1, 'instanceof':1, derivativeof:1, abs: 1, count:1, exists:1, avg:1, max:1, min:1, same:1, first:1, map:1, filter:1, collect:1, sort:1,
-                      'if':1, 'then': 1, 'else': 1, with: 1};
+const wordOperators = {'instanceof': 1, derivativeof: 1, 'if': 1, 'then': 1, 'else': 1, with: 1};
 const constants = {'null': null, 'true': true, 'false': false};
 
 const jelTokenizer = {
   tokenize(input) {
-    //          Number                        Operator                                                                  Identifier-like     back-quoted      single-quoted   double-quoted        illegal
-    const re = /(\d+(?:\.\d+)?(?:e[+-]?\d+)?)|(\(|\)|\.\*|:|\.|,|\+|-|\*|\/|@|=>|==|<==|>==|!==|<<|>>|=|!=|>=|<=|>|<|!)|([a-zA-Z_$][\w_$]*)|(`(?:\\.|[^`])*`|'(?:\\.|[^'])*'|"(?:\\.|[^"])*")|\s+|(.+)/g;
+    //          Number                        Operator                                                                                     Identifier-like     back-quoted      single-quoted   double-quoted        illegal
+    const re = /(\d+(?:\.\d+)?(?:e[+-]?\d+)?)|(\(|\)|\[|\]|\.\*|:|\.|,|\+|-|\*|\/|@|=>|==|<==|>==|!==|<<|>>|=|!=|>=|<=|>|<|!|\|\||\&\&|\^)|([a-zA-Z_$][\w_$]*)|(`(?:\\.|[^`])*`|'(?:\\.|[^'])*'|"(?:\\.|[^"])*")|\s+|(.+)/g;
     // groups:
     // group 1: number
     // group 2: operator

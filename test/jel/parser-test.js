@@ -21,7 +21,7 @@ describe('jelParser', function() {
 
     it('should parse some unary operations', function() {
       assert.deepEqual(new JEL('!a').parseTree, {type: 'operator', operator: '!', operand: {type: 'variable', name: 'a'}});
-      assert.deepEqual(new JEL('abs -5').parseTree, {type: 'operator', operator: 'abs', operand: {type: 'literal', value: -5}});
+      assert.deepEqual(new JEL('!-5').parseTree, {type: 'operator', operator: '!', operand: {type: 'literal', value: -5}});
     });
     
     it('should parse some binary operations', function() {

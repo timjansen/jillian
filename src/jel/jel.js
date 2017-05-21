@@ -30,27 +30,12 @@ const binaryOperators = { // op->precedence
   '%': 14,
   
   '(': 18,
-  
-  'map': 16,
-  'filter': 16,
-  'collect': 16,
-  'sort': 16,
-  'at': 16,
-  'skip': 16,
-  'truncate': 16,
+  '[': 18
 };
 const unaryOperators = { // op->precedence
   '-': 16,
   '+': 16,
-  '!': 16,
-  'abs': 16,
-  'count': 16,
-  'exists': 16,
-  'max': 16,
-  'min': 16,
-  'avg': 16,
-  'same': 16,
-  'first': 16
+  '!': 16
 };
 
 const IF_PRECEDENCE = 4; 
