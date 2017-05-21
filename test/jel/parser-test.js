@@ -62,14 +62,10 @@ describe('jelParser', function() {
       assert.deepEqual(new JEL('((a, b)=>a+b)(1,2)').parseTree, {type: 'call', argList: [{type: 'literal', value: 1},  {type: 'literal', value: 2}], left: {type: 'lambda', args: ['a', 'b'], expression: {type: 'operator', operator: '+', left: {type: 'variable', name: 'a'}, right: {type: 'variable', name: 'b'}}}});
     });
 
-    it('should support if/else', function() {
-      assert.deepEqual(new JEL('if a else b').parseTree, {type: 'condition', condition: {type: 'variable', name: 'a'}, else: {type: 'variable', name: 'b'}});
-      assert.deepEqual(new JEL('if (a!=0) else b').parseTree, {type: 'condition', condition: {type: 'operator', operator: '!=', left: {type: 'variable', name: 'a'}, right:{type: 'literal', value: 0}}, else: {type: 'variable', name: 'b'}});
-    });
-
     it('should support if/then/else', function() {
       assert.deepEqual(new JEL('if a then b else c').parseTree, {type: 'condition', condition: {type: 'variable', name: 'a'}, then: {type: 'variable', name: 'b'}, else: {type: 'variable', name: 'c'}});
       assert.deepEqual(new JEL('if (a!=0) then ((b)) else f()').parseTree, {type: 'condition', condition: {type: 'operator', operator: '!=', left: {type: 'variable', name: 'a'}, right: {type: 'literal', value: 0}}, then: {type: 'variable', name: 'b'}, else: {type: 'call', argList: [], left: {type: 'variable', name: 'f'}}});
+      assert.throws(()=>new JEL('if a else b'));
     });  
     
     it('should support with', function() {

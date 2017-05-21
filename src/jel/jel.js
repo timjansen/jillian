@@ -45,7 +45,7 @@ const WITH_PRECEDENCE = 4;
 const NO_STOP = {};
 const PARENS_STOP = {')': true};
 const PARAMETER_STOP = {')': true, ',': true};
-const IF_STOP = {'then': true, 'else': true};
+const IF_STOP = {'then': true};
 const THEN_STOP = {'else': true};
 const WITH_STOP = {'=>': true, ',': true};
 const COLON = {':': true};
@@ -102,13 +102,10 @@ class JEL {
       }
       else if (token.value == 'if') {
         const cond = this.parseExpression(IF_PRECEDENCE, IF_STOP);
-        if (this.expectOp(IF_STOP, "Expected 'then' or 'else'").value == 'then') {
-          const thenV = this.parseExpression(IF_PRECEDENCE, THEN_STOP);
-          this.expectOp(THEN_STOP, "Expected 'else' after 'if'/'then' condition.");
-          return this.tryBinaryOps({type: 'condition', condition: cond, then: thenV, else: this.parseExpression(IF_PRECEDENCE)}, precedence, stopOps);
-        }
-        else
-          return this.tryBinaryOps({type: 'condition', condition: cond, else: this.parseExpression(IF_PRECEDENCE)}, precedence, stopOps);
+        this.expectOp(IF_STOP, "Expected 'then'");
+        const thenV = this.parseExpression(IF_PRECEDENCE, THEN_STOP);
+        this.expectOp(THEN_STOP, "Expected 'else' after 'if'/'then' condition.");
+        return this.tryBinaryOps({type: 'condition', condition: cond, then: thenV, else: this.parseExpression(IF_PRECEDENCE)}, precedence, stopOps);
       }
       else if (token.value == 'with') {
         const assignments = [];

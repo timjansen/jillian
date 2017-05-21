@@ -69,7 +69,7 @@
 //  {
 //     type: 'condition',
 //     condition: <expression>,  // the expression to execute. Evaluated to boolean using JS rules.
-//     then: <expression>     ,  // optional: what to return if the expression was true. Default: the condition's return value.
+//     then: <expression>     ,  // what to return if the expression was true. Default: the condition's return value.
 //     else: <expression>        // what to return if the expression was false. 
 //  }
 //
