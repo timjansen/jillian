@@ -81,7 +81,12 @@ describe('jelParser', function() {
       assert.throws(()=>new JEL('with _:2 => 2').parseTree);
     });
 
-  
+    it('should support lists', function() {
+      assert.deepEqual(new JEL('[]').parseTree, {type: 'list', elements: []});
+      assert.deepEqual(new JEL('[a]').parseTree, {type: 'list', elements: [{type: 'variable', name: 'a'}]});
+      assert.deepEqual(new JEL('[a+2,a]').parseTree, {type: 'list', elements: [{type: 'operator', operator: '+', left: {type: 'variable', name: 'a'}, right: {type: 'literal', value: 2}}, {type: 'variable', name: 'a'}]});
+    });
+
   });
 });
 

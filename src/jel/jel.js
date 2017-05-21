@@ -44,6 +44,8 @@ const WITH_PRECEDENCE = 4;
 
 const NO_STOP = {};
 const PARENS_STOP = {')': true};
+const LIST_ENTRY_STOP = {']': true, ',': true};
+const LIST_STOP = {']': true};
 const PARAMETER_STOP = {')': true, ',': true};
 const IF_STOP = {'then': true};
 const THEN_STOP = {'else': true};
@@ -92,6 +94,22 @@ class JEL {
           const e = this.parseExpression(PARENS_PRECEDENCE, PARENS_STOP);
           this.expectOp(PARENS_STOP, "Expected closing parens");
           return this.tryBinaryOps(e, precedence, stopOps);
+        }
+      }
+      else if (token.value == '[') {
+        const possibleEOL = this.tokens.peek();
+        if (!possibleEOL)
+          this.throwParseException(token, "Unexpexted end, list not closed");
+        if (possibleEOL.operator && possibleEOL.value == ']') {
+          this.tokens.next();
+          return this.tryBinaryOps({type: 'list', elements: []}, precedence, stopOps);
+        }
+
+        const list = [];
+        while (true) {
+          list.push(this.parseExpression(PARENS_PRECEDENCE, LIST_ENTRY_STOP));
+          if (this.expectOp(LIST_ENTRY_STOP, "Expecting comma or end of list").value == ']')
+            return this.tryBinaryOps({type: 'list', elements: list}, precedence, stopOps);
         }
       }
       else if (token.value == '@') {
