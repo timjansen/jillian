@@ -130,7 +130,9 @@ class JEL {
         while (true) {
           const name = this.tokens.next();
           if (!name || !name.identifier)
-            this.throwParseException(name || token, "Expected identifier for variable.");
+            this.throwParseException(name || token, "Expected identifier for constant.");
+          if (/(^[A-Z])|(^_$)/.test(name.value))
+            this.throwParseException(name || token, `llegal name ${name.value}, must not start constant with capital letter or be the underscore.`);
           const colon = this.expectOp(COLON, "Expected colon after variable name.");
           const expression = this.parseExpression(WITH_PRECEDENCE, WITH_STOP);
           if (!expression)

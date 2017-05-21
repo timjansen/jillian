@@ -79,7 +79,13 @@
 //     assignments: [{name: '<name>', expression: <expression>}],  // order is important, because expressions may access previous variable names
 //     expression: <expression>
 //  }
-
+//
+//  List: ( [1, 'foo', f()] )
+//  {
+//     type: 'list',
+//     elements: [<expression>..]
+//  }
+//
 
 // Operators
 // ---------

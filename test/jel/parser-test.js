@@ -79,6 +79,13 @@ describe('jelParser', function() {
       assert.deepEqual(new JEL('with a: 1 => a=>2').parseTree, {type: 'with', assignments: [{name: 'a', expression: {type: 'literal', value: 1}}], expression: {type: 'lambda', args: ['a'], expression: {type: 'literal', value: 2}}});
       assert.deepEqual(new JEL('with a:1, b: (c => d) => b').parseTree, {type: 'with', assignments: [{name: 'a', expression: {type: 'literal', value: 1}}, {name: 'b', expression: {type: 'lambda', args: ['c'], expression: {type: 'variable', name: 'd'}}}], expression: {type: 'variable', name: 'b'}});
     });
+
+    it('allows only lower-case variables', function() {
+      assert.throws(()=>new JEL('with A: 1 => a').parseTree);
+      assert.throws(()=>new JEL('with _:2 => 2').parseTree);
+    });
+
+  
   });
 });
 
