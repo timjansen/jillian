@@ -7,13 +7,13 @@
 const tokenizer = require('./tokenizer.js');
 
 const binaryOperators = { // op->precedence
-  '=': 10,
+  '==': 10,
   '<': 11,
   '>': 11,
   '>=': 11,
   '<=': 11,
   '!=': 10,
-  '==': 10,
+  '===': 10,
   '<<': 11,
   '>>': 11,
   '>==': 11,
@@ -49,8 +49,8 @@ const LIST_STOP = {']': true};
 const PARAMETER_STOP = {')': true, ',': true};
 const IF_STOP = {'then': true};
 const THEN_STOP = {'else': true};
-const WITH_STOP = {'=>': true, ',': true};
-const COLON = {':': true};
+const WITH_STOP = {':': true, ',': true};
+const EQUAL = {'=': true};
 
 class JEL {
   constructor(input) {
@@ -133,13 +133,13 @@ class JEL {
             this.throwParseException(name || token, "Expected identifier for constant.");
           if (/(^[A-Z])|(^_$)/.test(name.value))
             this.throwParseException(name || token, `llegal name ${name.value}, must not start constant with capital letter or be the underscore.`);
-          const colon = this.expectOp(COLON, "Expected colon after variable name.");
+          const eq = this.expectOp(EQUAL, "Expected equal sign after variable name.");
           const expression = this.parseExpression(WITH_PRECEDENCE, WITH_STOP);
           if (!expression)
-            this.throwParseException(colon, "Expression ended unexpectedly.");
+            this.throwParseException(eq, "Expression ended unexpectedly.");
           assignments.push({name: name.value, expression});
-          const terminator = this.expectOp(WITH_STOP, "Expected arrow or colon after expression in 'with' statement.");
-          if (terminator.value == '=>')
+          const terminator = this.expectOp(WITH_STOP, "Expected colon or equal sign after expression in 'with' statement.");
+          if (terminator.value == ':')
             return {type: 'with', assignments, expression: this.parseExpression(precedence, stopOps)};
         }
       }
@@ -226,13 +226,13 @@ class JEL {
       if (!namePreview)
         this.throwParseException(null, 'Unexpected end of expression in the middle of function call');
       if (namePreview.identifier) {
-          const colon = tok.next();
-          if (colon && colon.operator && colon.value == ':')
+          const eq = tok.next();
+          if (eq && eq.operator && eq.value == '=')
             break;
       }
       argList.push(this.parseExpression(PARENS_PRECEDENCE, PARAMETER_STOP));
       
-      const separator = this.expectOp(PARAMETER_STOP, "Expected ')' or ':'");
+      const separator = this.expectOp(PARAMETER_STOP, "Expected ')' or '='");
       if (separator.value == ')')
         return {type: 'call', argList, left};
     }
@@ -244,10 +244,10 @@ class JEL {
         this.throwParseException(name, "Expected identifier for named argument");
       if (name in argNames)
         this.throwParseException(name, "Duplicate name in named arguments");
-      this.expectOp(COLON, "Expected colon after identifier for named argument");
+      this.expectOp(EQUAL, "Expected equal sign after identifier for named argument");
       argNames[name.value] = this.parseExpression(PARENS_PRECEDENCE, PARAMETER_STOP);
 
-      const next = this.expectOp(PARAMETER_STOP, "Expected ')' or ':'");
+      const next = this.expectOp(PARAMETER_STOP, "Expected ')' or '='");
       if (next && next.operator && next.value == ')')
         break;
     }

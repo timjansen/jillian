@@ -45,8 +45,8 @@ describe('jelParser', function() {
       assert.deepEqual(new JEL('f(2)').parseTree, {type: 'call', argList: [{type: 'literal', value: 2}], left: {type: 'variable', name: 'f'}});
       assert.deepEqual(new JEL('f("foo", 2)').parseTree, {type: 'call', argList: [{type: 'literal', value: 'foo'}, {type: 'literal', value: 2}], left: {type: 'variable', name: 'f'}});
 
-      assert.deepEqual(new JEL('f(a: 5)').parseTree, {type: 'call', argList: [], argNames: {a: {type: 'literal', value: 5}}, left: {type: 'variable', name: 'f'}});
-      assert.deepEqual(new JEL('f("foo", 4, a: 5, b: "bar")').parseTree, {type: 'call', argList: [{type: 'literal', value: 'foo'}, {type: 'literal', value: 4}], argNames: {a: {type: 'literal', value: 5}, b: {type: 'literal', value: 'bar'}}, left: {type: 'variable', name: 'f'}});
+      assert.deepEqual(new JEL('f(a=5)').parseTree, {type: 'call', argList: [], argNames: {a: {type: 'literal', value: 5}}, left: {type: 'variable', name: 'f'}});
+      assert.deepEqual(new JEL('f("foo", 4, a = 5, b = "bar")').parseTree, {type: 'call', argList: [{type: 'literal', value: 'foo'}, {type: 'literal', value: 4}], argNames: {a: {type: 'literal', value: 5}, b: {type: 'literal', value: 'bar'}}, left: {type: 'variable', name: 'f'}});
 
       assert.deepEqual(new JEL('(f)()').parseTree, {type: 'call', argList: [], left: {type: 'variable', name: 'f'}});
       assert.deepEqual(new JEL('g(a=>2)').parseTree, {type: 'call', argList: [{type: 'lambda', args: ['a'], expression:  {type: 'literal', value: 2}}], left: {type: 'variable', name: 'g'}});
@@ -69,16 +69,16 @@ describe('jelParser', function() {
     });  
     
     it('should support with', function() {
-      assert.deepEqual(new JEL('with a: 1 => a').parseTree, {type: 'with', assignments: [{name: 'a', expression: {type: 'literal', value: 1}}], expression: {type: 'variable', name: 'a'}});
-      assert.deepEqual(new JEL('with a:1,b:2=>b').parseTree, {type: 'with', assignments: [{name: 'a', expression: {type: 'literal', value: 1}}, {name: 'b', expression: {type: 'literal', value: 2}}], expression: {type: 'variable', name: 'b'}});
-      assert.deepEqual(new JEL('with a:1, b: a + 2 => b').parseTree, {type: 'with', assignments: [{name: 'a', expression: {type: 'literal', value: 1}}, {name: 'b', expression: {type: 'operator', operator: '+', left: {type: 'variable', name: 'a'}, right: {type: 'literal', value: 2}}}], expression: {type: 'variable', name: 'b'}});
-      assert.deepEqual(new JEL('with a: 1 => a=>2').parseTree, {type: 'with', assignments: [{name: 'a', expression: {type: 'literal', value: 1}}], expression: {type: 'lambda', args: ['a'], expression: {type: 'literal', value: 2}}});
-      assert.deepEqual(new JEL('with a:1, b: (c => d) => b').parseTree, {type: 'with', assignments: [{name: 'a', expression: {type: 'literal', value: 1}}, {name: 'b', expression: {type: 'lambda', args: ['c'], expression: {type: 'variable', name: 'd'}}}], expression: {type: 'variable', name: 'b'}});
+      assert.deepEqual(new JEL('with a=1: a').parseTree, {type: 'with', assignments: [{name: 'a', expression: {type: 'literal', value: 1}}], expression: {type: 'variable', name: 'a'}});
+      assert.deepEqual(new JEL('with a=1,b=2:b').parseTree, {type: 'with', assignments: [{name: 'a', expression: {type: 'literal', value: 1}}, {name: 'b', expression: {type: 'literal', value: 2}}], expression: {type: 'variable', name: 'b'}});
+      assert.deepEqual(new JEL('with a=1, b=a + 2: b').parseTree, {type: 'with', assignments: [{name: 'a', expression: {type: 'literal', value: 1}}, {name: 'b', expression: {type: 'operator', operator: '+', left: {type: 'variable', name: 'a'}, right: {type: 'literal', value: 2}}}], expression: {type: 'variable', name: 'b'}});
+      assert.deepEqual(new JEL('with a=1 : a=>2').parseTree, {type: 'with', assignments: [{name: 'a', expression: {type: 'literal', value: 1}}], expression: {type: 'lambda', args: ['a'], expression: {type: 'literal', value: 2}}});
+      assert.deepEqual(new JEL('with a=1, b=c=>d : b').parseTree, {type: 'with', assignments: [{name: 'a', expression: {type: 'literal', value: 1}}, {name: 'b', expression: {type: 'lambda', args: ['c'], expression: {type: 'variable', name: 'd'}}}], expression: {type: 'variable', name: 'b'}});
     });
 
     it('allows only lower-case variables', function() {
-      assert.throws(()=>new JEL('with A: 1 => a').parseTree);
-      assert.throws(()=>new JEL('with _:2 => 2').parseTree);
+      assert.throws(()=>new JEL('with A= 1 => a').parseTree);
+      assert.throws(()=>new JEL('with _=2 => 2').parseTree);
     });
 
     it('should support lists', function() {

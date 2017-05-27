@@ -50,7 +50,7 @@
 //     name: 'a'
 //  }
 //
-//  Calls: ( a.b() )
+//  Calls: ( a.b(), f(1, 2, 3), f(a=2, b=4) )
 //  {
 //     type: 'call',
 //     left: <expression>,
@@ -73,7 +73,7 @@
 //     else: <expression>        // what to return if the expression was false. 
 //  }
 //
-//  Const Assignment: with x: 4+4, y:6+6 => c
+//  Const Assignment: with x=4+4, y=6+6: c
 //  {
 //     type: 'with',
 //     assignments: [{name: '<name>', expression: <expression>}],  // order is important, because expressions may access previous variable names
@@ -93,10 +93,10 @@
 // Comparison operators with values in 'left'/'right'. 'left' and 'right' can be lists. The first value that is not undefined is taken.
 // Checks values within accuracies. e.g. {value: 100, accuracy: 2}={value: 103, acccuracy: 2}
 // When using locations, equal is true if one operand is within another / the geoposition matches. A location is smaller if it is contained in the other location.
-// '=', '<', '>', '>=', '<=', '!='
+// '==', '<', '>', '>=', '<=', '!='
 
 // Like above, but ignores accuracy. {value: 100, accuracy: 2}!=={value: 103, acccuracy: 2}
-// '==', '<<', '>>', '>==', '<==', '!=='
+// '===', '<<', '>>', '>==', '<==', '!=='
 
 // Logical operators with several 'operands'. Boolean conversion follows Java standards.
 // '&&', '||'
@@ -107,12 +107,11 @@
 // Special operator 'instanceof' ('left'/'right'): checks whether instance 'left' is an instance of category 'right', using category property (directly or indirectly)
 // Special operator 'derivativeof' ('left'/'right'): checks whether instance 'right' is based on the instance 'left' (this is for objects derived objects, especially in different realities)
 
-// Algorithmic operators with 'left'/'right': '+', *', '/', '&'. Work with numbers, prices.
+// Algorithmic operators with 'left'/'right': '+', *', '/', '%'. Work with numbers, prices.
 
 // Difference operator with 'left'/'right': '-'
 // Can work with numbers, time (return diff in ms), calendar date (return diff in days), geopositions (return diff in meters), prices (same currency?)
 
-// Other operators: 'abs' (absolute value). Works with numbers.
 
 
 // Examples

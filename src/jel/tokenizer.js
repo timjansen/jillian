@@ -1,8 +1,6 @@
 /*
 Tokenizes a JEL input string.
 
-
-
 */
 'use strict';
 
@@ -11,8 +9,8 @@ const constants = {'null': null, 'true': true, 'false': false};
 
 const jelTokenizer = {
   tokenize(input) {
-    //          Number                        Operator                                                                                     Identifier-like     back-quoted      single-quoted   double-quoted        illegal
-    const re = /(\d+(?:\.\d+)?(?:e[+-]?\d+)?)|(\(|\)|\[|\]|\.\*|:|\.|,|\+|-|\*|\/|@|=>|==|<==|>==|!==|<<|>>|=|!=|>=|<=|>|<|!|\|\||\&\&|\^)|([a-zA-Z_$][\w_$]*)|(`(?:\\.|[^`])*`|'(?:\\.|[^'])*'|"(?:\\.|[^"])*")|\s+|(.+)/g;
+    //          Number                        Operator                                                                                        Identifier-like     back-quoted      single-quoted   double-quoted        illegal
+    const re = /(\d+(?:\.\d+)?(?:e[+-]?\d+)?)|(\(|\)|\[|\]|\.\*|:|\.|,|\+|-|\*|\/|%|@|=>|==|<==|>==|!==|<<|>>|===|=|!=|>=|<=|>|<|!|\|\||\&\&)|([a-zA-Z_$][\w_$]*)|(`(?:\\.|[^`])*`|'(?:\\.|[^'])*'|"(?:\\.|[^"])*")|\s+|(.+)/g;
     // groups:
     // group 1: number
     // group 2: operator
