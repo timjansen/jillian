@@ -1,0 +1,5 @@
+
+
+class Statement extends Sentence {
+}
+

@@ -8,8 +8,9 @@ Rules for input phrases:
 - [[word]] is an optional word
 - [[word|word|word]] are several optional words (only one match)
 - {name: @type} is a named type instance (variable)
+- {name: @type|@type} allows more tha one type (variable)
 
-Example: [What's|What is|Whats] (the) {time: @currentTime} 
+Example: [What's|What is|Whats] [[the]] {time: @currentTime} 
 
 
 Additional conditions allow to further restrict matches, e.g. by requiring dependencies between variables.
