@@ -1,4 +1,8 @@
 
+/**
+ * Represents a range of numeric values. Numbers can be primitive numbers of UnitValues. 
+ * Ranges can be open-ended by passing a null for the min and/or max.
+ */
 class Range extends Type {
 	constructor(min, max) {
 		this.min = min; // inclusive; may be null for unbounded

@@ -74,12 +74,16 @@ class Type {
 		return nativeOp(left);
 	}
 	
-	op(operator) {
+	op(operator, right) {
 		throw new Error(`Operator "${operator}" is not supported for this type`);
 	}
 
 	singleOp(operator) {
 		throw new Error(`Operator "${operator}" is not supported for this type`);
+	}
+
+	toBoolean() {
+		throw new Error(`Boolean conversion not supported for this type`);
 	}
 
 }
