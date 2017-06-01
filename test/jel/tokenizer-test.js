@@ -22,15 +22,15 @@ describe('jelTokenizer', function() {
     });
 
     it('should parse literals', function() {
-      assert.deepEqual(jt.tokenize('3.5 null true "hello" `hi`').tokens, [{value: 3.5, type: 'literal'}, {value: null, type: 'literal'}, {value: true, type: 'literal'},
-                                                                         {value: 'hello', type: 'literal'}, {value: 'hi', type: 'literal'}]);
+      assert.deepEqual(jt.tokenize('3.5 null true "hello" `hi` \'huhu\'').tokens, [{value: 3.5, literal: true}, {value: null, literal: true}, {value: true, literal: true},
+                                                                         {value: 'hello', literal: true}, {value: 'hi', literal: true}, {value: 'huhu', literal: true}, ]);
     });
 
     it('should parse expressions', function() {
-      assert.deepEqual(jt.tokenize('a+1').tokens, [{value: 'a', identifier: true}, {value: '+', operator: true}, {value: 1, type: 'literal'}]);
-      assert.deepEqual(jt.tokenize('a-1').tokens, [{value: 'a', identifier: true}, {value: '-', operator: true}, {value: 1, type: 'literal'}]);
-      assert.deepEqual(jt.tokenize('a + 1').tokens, [{value: 'a', identifier: true}, {value: '+', operator: true}, {value: 1, type: 'literal'}]);
-      assert.deepEqual(jt.tokenize('a  -  1').tokens, [{value: 'a', identifier: true}, {value: '-', operator: true}, {value: 1, type: 'literal'}]);
+      assert.deepEqual(jt.tokenize('a+1').tokens, [{value: 'a', identifier: true}, {value: '+', operator: true}, {value: 1, literal: true}]);
+      assert.deepEqual(jt.tokenize('a-1').tokens, [{value: 'a', identifier: true}, {value: '-', operator: true}, {value: 1, literal: true}]);
+      assert.deepEqual(jt.tokenize('a + 1').tokens, [{value: 'a', identifier: true}, {value: '+', operator: true}, {value: 1, literal: true}]);
+      assert.deepEqual(jt.tokenize('a  -  1').tokens, [{value: 'a', identifier: true}, {value: '-', operator: true}, {value: 1, literal: true}]);
     });
 
     

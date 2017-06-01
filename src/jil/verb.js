@@ -1,8 +1,9 @@
 
 // Abstract base class for all verbs
-class Verb {
+class Verb extends JelType {
  
   constructor(who, tense = Verb.PRESENT, continous = false, completed = false, intention = false, ability = false, obligation = 0, adverbs = []) {
+    super();
     this.who = who; // who is acting
   }
 }

@@ -24,17 +24,17 @@ const jelTokenizer = {
       if (matches[2])
         tokens.push({value: matches[2], operator: true});
       else if (matches[3] && matches[3] in constants)
-        tokens.push({value: constants[matches[3]], type: 'literal'});
+        tokens.push({value: constants[matches[3]], literal: true});
       else if (matches[3] && matches[3] in wordOperators)
         tokens.push({value: matches[3], operator: true});
       else if (matches[3])
         tokens.push({value: matches[3], identifier: true});
       else if (matches[1])
-        tokens.push({value: parseFloat(matches[1]), type: 'literal'});
+        tokens.push({value: parseFloat(matches[1]), literal: true});
       else if (matches[4])
-        tokens.push({value: matches[4].replace(/^.|.$/g, ''), type: 'literal'});
+        tokens.push({value: matches[4].replace(/^.|.$/g, ''), literal: true});
       else if (matches[5])
-        throw "Unsupported token found: " + matches[5];
+        throw new Error(`Unsupported token found: "${matches[5]}"`);
     }
     return {tokens, 
             i: 0, 

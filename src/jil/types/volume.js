@@ -23,6 +23,10 @@ class Volume extends ImperialUnitValue {
 			return value * this.FLOZ_UNITS[fromUnit] / this.FLOZ_UNITS[toUnit];
 		return super.convertValue(value, fromUnit, toUnit);
 	}
+	
+	static create(value, unit, accuracy) {
+		return new Volume(value, unit, accuracy);
+	}
 }
 
 Length.prototype.PRIMARY_UNIT = 'cbm';

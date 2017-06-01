@@ -7,9 +7,10 @@ const ACCURACY_FACTOR = 0.9999999;  // to avoid rounding issues with fuzzy compa
  * They mus also set the constant PRIMARY_UNIT. To use automatic conversion, they should provide a table 
  * UNITS that maps types to the PRIMARY_UNIT.
  */
-class UnitValue extends Type {
+class UnitValue extends JelType {
 	
 	constructor(value, unit, accuracy) {
+		super();
 		this.value = value;
 		this.unit = unit;
 		this.accuracy = accuracy;

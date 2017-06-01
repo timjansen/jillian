@@ -28,8 +28,14 @@ class Length extends ImperialUnitValue {
 		}
 		super.op(operator, right);
 	}
+	
+	static create(value, unit, accuracy) {
+		return new Length(value, unit, accuracy);
+	}
+
 }
 
 Length.prototype.PRIMARY_UNIT = 'm';
 Length.prototype.IMPERIAL_UNITS = IMPERIAL_UNITS;
 Length.prototype.UNITS = UNITS;
+

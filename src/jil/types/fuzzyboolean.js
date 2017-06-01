@@ -3,8 +3,9 @@
  * Represents a boolean type that has, beside clear true and false, also a notion of 'barely true' and 'barely false'.
  * Ranges can be open-ended by passing a null for the min and/or max.
  */
-class FuzzyBoolean extends Type {
+class FuzzyBoolean extends JelType {
 	constructor(state, diff) {
+		super();
 		if (typeof state == 'boolean')
 			this.state = state ? FuzzyBoolean.CLEARLY_TRUE : FuzzyBoolean.CLEARLY_FALSE;
 		else
@@ -45,14 +46,16 @@ class FuzzyBoolean extends Type {
 	toBoolean() {
 		return this.state >= FuzzyBoolean.BARELY_TRUE;
 	}
+	
+	static create(state, diff) {
+		return new FuzzyBoolean(state, diff);
+	}
 }
 
 FuzzyBoolean.CLEARLY_FALSE = 0;
 FuzzyBoolean.BARELY_FALSE = 1;
 FuzzyBoolean.BARLEY_TRUE = 2;
 FuzzyBoolean.CLEARLY_TRUE = 3;
-
-
 
 
 		

@@ -1,4 +1,4 @@
-
+'use strict';
 
 const REVERSIBLE_OPS = {
 	'+': '+',
@@ -44,13 +44,15 @@ const SINGLE_NATIVE_OPS = {
 	'+': (l)=>+l
 }
 
-
-class Type {
+/**
+ * This is the base class for all objects that can be accessed by JEL. It implements operators and other functions required in JEL.
+ */
+class JelType {
 	static op(operator, left, right) {
-		if (left instanceof Type)
+		if (left instanceof JelType)
 			return left.op(operator, right);
-		else if (operator in REVERSIBLE_OPS && right instanceof Type) 
-			return op(REVERSIBLE_OPS[operator], right, left);
+		else if (operator in REVERSIBLE_OPS && right instanceof JelType) 
+			return JelType.op(REVERSIBLE_OPS[operator], right, left);
 		else if (left == null)
 			return left; 
 		else if (right == null)
@@ -63,7 +65,7 @@ class Type {
 	}
 	
 	static singleOp(operator, left) {
-		if (left instanceof Type)
+		if (left instanceof JelType)
 			return left.singleOp(operator);
 		else if (left == null)
 			return left; 
@@ -72,6 +74,13 @@ class Type {
 		if (!nativeOp)
 			throw new Error(`Operator "${operator}" is not supported for primitive types`);
 		return nativeOp(left);
+	}
+	
+	static toBoolean(obj) {
+		if (obj instanceof JelType)
+			return obj.toBoolean();
+		else
+			return !!obj;
 	}
 	
 	op(operator, right) {
@@ -85,6 +94,11 @@ class Type {
 	toBoolean() {
 		throw new Error(`Boolean conversion not supported for this type`);
 	}
+	
+	getSerializationProperties() {
+		throw new Error(`getSerializationProperties() not implemented in ${this.constructor.name}`);
+	}
 
 }
 
+module.exports = JelType;

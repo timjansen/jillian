@@ -5,6 +5,19 @@
 'use strict';
 
 const tokenizer = require('./tokenizer.js');
+const Context = require('./context.js');
+const JelType = require('./type.js');
+const JelNode = require('./node.js');
+const Literal = require('./nodes/literal.js');
+const Variable = require('./nodes/variable.js');
+const Operator = require('./nodes/operator.js');
+const List = require('./nodes/list.js');
+const Reference = require('./nodes/reference.js');
+const Condition = require('./nodes/condition.js');
+const Assignment = require('./nodes/assignment.js');
+const With = require('./nodes/with.js');
+const Lambda = require('./nodes/lambda.js');
+const Call = require('./nodes/call.js');
 
 const binaryOperators = { // op->precedence
   '==': 10,
@@ -58,6 +71,11 @@ class JEL {
     this.parseTree = this.parseExpression();
   }
   
+  execute(context) {
+    const ctx = (context instanceof Context) ? context : new Context(context);
+    return this.parseTree.execute(ctx);
+  }
+  
   throwParseException(token, msg) {
     throw new Error(msg + '\n' + (token ? JSON.stringify(token) : '(no token for reference)'))
   }
@@ -66,25 +84,21 @@ class JEL {
     const token = this.tokens.next();
     if (!token) 
       this.throwParseException(token, "Unexpected end, expected another token");
-    if (token.type) // if type is set, tokenizer resolved it already: it's a literal.
-      return this.tryBinaryOps(token, precedence, stopOps);
+    if (token.literal) 
+      return this.tryBinaryOps(new Literal(token.value), precedence, stopOps);
     if (token.identifier) {
       const lambda = this.tryLambda(token.value, precedence, stopOps);
-      return this.tryBinaryOps(lambda || {type: 'variable', name: token.value}, precedence, stopOps);
+      return this.tryBinaryOps(lambda || new Variable(token.value), precedence, stopOps);
     }
     if (token.operator) {
       const unOp = unaryOperators[token.value];
       if (unOp) {
-        if ((token.value == '-' || token.value == '+') && this.tokens.peek() && this.tokens.peek().type == 'literal') {
+        if ((token.value == '-' || token.value == '+') && this.tokens.peek() && this.tokens.peek().literal) {
           const number = this.tokens.next();
-          if (token.value == '-')
-            number.value = -number.value;
-          else
-            number.value = +number.value;
-          return this.tryBinaryOps(number, precedence, stopOps);
+          return this.tryBinaryOps(new Literal(token.value == '-' ? -number.value : number.value), precedence, stopOps);
         }
         const operand = this.parseExpression(unOp);
-        return this.tryBinaryOps({type: 'operator', operator: token.value, operand: operand}, precedence, stopOps);
+        return this.tryBinaryOps(new Operator(token.value, operand), precedence, stopOps);
       }
       else if (token.value == '(') {
         const lambda = this.tryLambda(null, precedence, stopOps);
@@ -102,28 +116,28 @@ class JEL {
           this.throwParseException(token, "Unexpexted end, list not closed");
         if (possibleEOL.operator && possibleEOL.value == ']') {
           this.tokens.next();
-          return this.tryBinaryOps({type: 'list', elements: []}, precedence, stopOps);
+          return this.tryBinaryOps(new List([]), precedence, stopOps);
         }
 
         const list = [];
         while (true) {
           list.push(this.parseExpression(PARENS_PRECEDENCE, LIST_ENTRY_STOP));
           if (this.expectOp(LIST_ENTRY_STOP, "Expecting comma or end of list").value == ']')
-            return this.tryBinaryOps({type: 'list', elements: list}, precedence, stopOps);
+            return this.tryBinaryOps(new List(list), precedence, stopOps);
         }
       }
       else if (token.value == '@') {
         let t2 = this.tokens.next();
         if (!t2 || !t2.identifier)
           this.throwParseException(token, "Expected identifier after '@' for reference.");
-        return this.tryBinaryOps({type: 'reference', name: t2.value}, precedence, stopOps);
+        return this.tryBinaryOps(new Reference(t2.value), precedence, stopOps);
       }
       else if (token.value == 'if') {
         const cond = this.parseExpression(IF_PRECEDENCE, IF_STOP);
         this.expectOp(IF_STOP, "Expected 'then'");
         const thenV = this.parseExpression(IF_PRECEDENCE, THEN_STOP);
         this.expectOp(THEN_STOP, "Expected 'else' after 'if'/'then' condition.");
-        return this.tryBinaryOps({type: 'condition', condition: cond, then: thenV, else: this.parseExpression(IF_PRECEDENCE)}, precedence, stopOps);
+        return this.tryBinaryOps(new Condition(cond, thenV, this.parseExpression(IF_PRECEDENCE, stopOps)), precedence, stopOps);
       }
       else if (token.value == 'with') {
         const assignments = [];
@@ -137,10 +151,10 @@ class JEL {
           const expression = this.parseExpression(WITH_PRECEDENCE, WITH_STOP);
           if (!expression)
             this.throwParseException(eq, "Expression ended unexpectedly.");
-          assignments.push({name: name.value, expression});
+          assignments.push(new Assignment(name.value, expression));
           const terminator = this.expectOp(WITH_STOP, "Expected colon or equal sign after expression in 'with' statement.");
           if (terminator.value == ':')
-            return {type: 'with', assignments, expression: this.parseExpression(precedence, stopOps)};
+            return new With(assignments, this.parseExpression(precedence, stopOps));
         }
       }
     }
@@ -154,7 +168,7 @@ class JEL {
       return left;
 
     if (!binOpToken.operator)
-      this.throwParseException(binOpToken, "Expected operator");
+      this.throwParseException(binOpToken, "Expected operator here");
     
     if (stopOps[binOpToken.value])
        return left;
@@ -171,7 +185,7 @@ class JEL {
     if (binOpToken.value == '(') 
       return this.tryBinaryOps(this.parseCall(left), precedence, stopOps);
     else
-      return this.tryBinaryOps({type: 'operator', operator: binOpToken.value, left, right: this.parseExpression(binaryOperators[binOpToken.value], stopOps)}, precedence, stopOps);
+      return this.tryBinaryOps(new Operator(binOpToken.value, left, this.parseExpression(binaryOperators[binOpToken.value], stopOps)), precedence, stopOps);
   }
   
   tryLambda(argName, precedence, stopOps) {
@@ -208,7 +222,7 @@ class JEL {
         return null;
     }
     this.tokens = tok;
-    return {type: 'lambda', args, expression: this.parseExpression(precedence, stopOps)};
+    return new Lambda(args, this.parseExpression(precedence, stopOps));
   }
   
   parseCall(left) {
@@ -217,7 +231,7 @@ class JEL {
     const preview = this.tokens.peek();
     if (preview && preview.operator && preview.value == ')') {
         this.tokens.next();
-        return {type: 'call', argList, left};
+        return new Call(left, argList);
     }
     
     while (true) {
@@ -234,10 +248,12 @@ class JEL {
       
       const separator = this.expectOp(PARAMETER_STOP, "Expected ')' or '='");
       if (separator.value == ')')
-        return {type: 'call', argList, left};
+        return new Call(left, argList, left);
     }
  
-    const argNames = {};
+    const argNames = {};  // for tracking dupes
+    const namedArgs = []; // for the actual values
+
     while (true) {
       const name = this.tokens.next();
       if (!name || !name.identifier)
@@ -245,13 +261,14 @@ class JEL {
       if (name in argNames)
         this.throwParseException(name, "Duplicate name in named arguments");
       this.expectOp(EQUAL, "Expected equal sign after identifier for named argument");
-      argNames[name.value] = this.parseExpression(PARENS_PRECEDENCE, PARAMETER_STOP);
+      argNames[name.value] = true;
+      namedArgs.push(new Assignment(name.value, this.parseExpression(PARENS_PRECEDENCE, PARAMETER_STOP)));
 
       const next = this.expectOp(PARAMETER_STOP, "Expected ')' or '='");
       if (next && next.operator && next.value == ')')
         break;
     }
-    return {type: 'call', argList, argNames, left};
+    return new Call(left, argList, namedArgs);
   }
 
   expectOp(allowedTypes, msg) {
