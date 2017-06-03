@@ -20,6 +20,7 @@ const Lambda = require('./nodes/lambda.js');
 const Call = require('./nodes/call.js');
 
 const binaryOperators = { // op->precedence
+  '.': 19,
   '==': 10,
   '<': 11,
   '>': 11,
@@ -248,7 +249,7 @@ class JEL {
       
       const separator = this.expectOp(PARAMETER_STOP, "Expected ')' or '='");
       if (separator.value == ')')
-        return new Call(left, argList, left);
+        return new Call(left, argList);
     }
  
     const argNames = {};  // for tracking dupes

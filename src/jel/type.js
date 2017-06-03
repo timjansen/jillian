@@ -1,5 +1,7 @@
 'use strict';
 
+const Callable = require('./callable.js');
+
 const REVERSIBLE_OPS = {
 	'+': '+',
 	'*': '*',
@@ -24,6 +26,7 @@ const NATIVE_OPS = {
 	'/': (l,r)=>l/r,
 	'&&': (l,r)=>l&&r,
 	'||': (l,r)=>l||r,
+	'.': (l,r)=>l[r],
 	'==': (l,r)=>l===r,
 	'===': (l,r)=>l===r,
 	'!=': (l,r)=>l!==r,
@@ -83,6 +86,24 @@ class JelType {
 			return !!obj;
 	}
 	
+	static member(obj, name) {
+		if (obj instanceof JelType || typeof obj == 'function') {
+			const callable = obj[`${name}_jel_callable`];
+			if (callable)
+					return callable;
+			if (obj.JEL_PROPERTIES && name in obj.JEL_PROPERTIES)
+				return obj[name];
+
+			const argMapper = obj[`${name}_jel_mapping`];
+			if (argMapper) {
+				const newCallable = new Callable(obj[name], argMapper, obj);
+				obj[`${name}_jel_callable`] = newCallable;
+				return newCallable;
+			}
+		}
+		return undefined;
+	}
+	
 	op(operator, right) {
 		throw new Error(`Operator "${operator}" is not supported for this type`);
 	}
@@ -98,7 +119,10 @@ class JelType {
 	getSerializationProperties() {
 		throw new Error(`getSerializationProperties() not implemented in ${this.constructor.name}`);
 	}
-
 }
+
+JelType.prototype.op_jel_mapping = {operator:0,right:1};
+JelType.prototype.singleOp_jel_mapping = {operator:0};
+JelType.prototype.toBoolean_jel_mapping = {};
 
 module.exports = JelType;

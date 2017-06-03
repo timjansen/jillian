@@ -12,13 +12,14 @@ class Call extends JelNode {
   }
   
   execute(ctx) {
-    if (this.left instanceof Callable) {
+    const left = this.left.execute(ctx);
+    if (left instanceof Callable) {
       const newArgs = this.argList.map(a=>a.execute(ctx));
       const newArgObj = {};
       this.namedArgs.forEach(a => newArgObj[a.name] = a.execute(ctx));
-      return this.left.invoke(newArgs, newArgObj);
+      return left.invoke(newArgs, newArgObj);
     }
-    if (this.left == null)
+    if (left == null)
       return null;
     throw new Error(`Call failed. Not a type that can be invoked.`);
   }

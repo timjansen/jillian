@@ -121,3 +121,10 @@ class UnitValue extends JelType {
 	}
 }
 
+UnitValue.prototype.abs_jel_mapping = {};
+UnitValue.prototype.convertTo_jel_mapping = {newUnit:0};
+UnitValue.prototype.inAccuracyRange_jel_mapping = {other:0};
+UnitValue.prototype.PUBLIC_MEMBERS = {value:1, unit:1, PRIMARY_UNIT:1, primaryValue:1, accuracy:1, primaryAccuracy:1};
+
+
+
