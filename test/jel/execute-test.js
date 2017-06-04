@@ -160,13 +160,42 @@ describe('jelExecute', function() {
       assert.deepEqual(new JEL('with a=1, b=a+1, c=b*3, d=c*4, e=d/6: [a,b,c,d,e]').execute(), [1,2,6,24,4]);
     });
 
-    // TODO: lambda
-    // TODO: call
     
-    // TODO: &&
-    // TODO: ||
-    // TODO: member op
-    // TODO: method op
+   it('supports calls', function() {
+      function f(a=1, b=2) { 
+        return a + b + (this && this.c || 5);
+      }
+      const fc1 = new Callable(f, {a:0, b:1}, {c:7});
+      const fc2 = new Callable(f, {a:0, b:1});
+      assert.equal(new JEL('f()').execute({f:fc1}), 10);
+      assert.equal(new JEL('f()').execute({f:fc2}), 8);
+      assert.equal(new JEL('f(10)').execute({f:fc1}), 19);
+      assert.equal(new JEL('f(10, 100)').execute({f:fc1}), 117);
+      assert.equal(new JEL('f(10, 100, 1000)').execute({f:fc1}), 117);
+      assert.equal(new JEL('f(b=100, a=10)').execute({f:fc1}), 117);
+      assert.equal(new JEL('f(b=100)').execute({f:fc1}), 108);
+      assert.equal(new JEL('f(10, b=100)').execute({f:fc1}), 117);
+      assert.equal(new JEL('f(10, b=100)').execute({f:fc2}), 115);
+   });
+   
+   it('supports lambda', function() {
+      assert(new JEL('a=>1').execute({}) instanceof Callable);
+      assert.equal(new JEL('a=>55').execute({}).invoke([], {}), 55);
+      assert.equal(new JEL('x=>x').execute({}).invoke([66], {}), 66);
+      assert.equal(new JEL('x=>x').execute({}).invoke([66], {}), 66);
+      assert.equal(new JEL('x=>x').execute({}).invoke([], {x:66}), 66);
+      assert.equal(new JEL('(a,b)=>a+b').execute({}).invoke([], {a:40,b:2}), 42);
+      assert.equal(new JEL('(a,b)=>a+b').execute({}).invoke([40], {b:2}), 42);
+
+      assert.equal(new JEL('(x=>x)(66)').execute({}), 66);
+      assert.equal(new JEL('(x=>x)(x=66)').execute({}), 66);
+      assert.equal(new JEL('((a,b)=>a+b)(20, 22)').execute({}), 42);
+      assert.equal(new JEL('((a,b)=>a+b)(b=20, a=22)').execute({}), 42);
+   });
+    
+    
+    
+    
     
   });
 });
