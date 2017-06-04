@@ -29,8 +29,11 @@ class Volume extends ImperialUnitValue {
 	}
 }
 
-Length.prototype.PRIMARY_UNIT = 'cbm';
-Length.prototype.IMPERIAL_UNITS = IMPERIAL_UNITS;
-Length.prototype.UNITS = UNITS;
+Volume.prototype.PRIMARY_UNIT = 'cbm';
+Volume.prototype.IMPERIAL_UNITS = IMPERIAL_UNITS;
+Volume.prototype.UNITS = UNITS;
+
+Volume.create_jel_mapping = {value:0, unit:1, accuracy:2};
+
 
 

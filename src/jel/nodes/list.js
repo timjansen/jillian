@@ -1,6 +1,7 @@
 'use strict';
 
 const JelNode = require('../node.js');
+const JelList = require('../list.js');
 
 class List extends JelNode {
   constructor(elements) {
@@ -9,7 +10,7 @@ class List extends JelNode {
   }
   
   execute(ctx) { 
-    return this.elements.map(e=>e.execute(ctx));
+    return new JelList(this.elements.map(e=>e.execute(ctx)));
   }
   
   getSerializationProperties() {

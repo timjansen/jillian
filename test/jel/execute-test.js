@@ -7,6 +7,7 @@ const jelAssert = require('./jel-assert.js');
 const Callable = require('../../src/jel/callable.js');
 const JelType = require('../../src/jel/type.js');
 const JelNode = require('../../src/jel/node.js');
+const JelList = require('../../src/jel/list.js');
 const Literal = require('../../src/jel/nodes/literal.js');
 const Variable = require('../../src/jel/nodes/variable.js');
 const Operator = require('../../src/jel/nodes/operator.js');
@@ -149,15 +150,16 @@ describe('jelExecute', function() {
     });
 
     it('supports lists', function() {
-      assert.deepEqual(new JEL('[]').execute(), []);
-      assert.deepEqual(new JEL('[1]').execute(), [1]);
-      assert.deepEqual(new JEL('[7, 9-4, 7*3]').execute(), [7, 5, 21]);
+      assert(new JEL('[]').execute() instanceof JelList);
+      assert.deepEqual(new JEL('[]').execute().elements, []);
+      assert.deepEqual(new JEL('[1]').execute().elements, [1]);
+      assert.deepEqual(new JEL('[7, 9-4, 7*3]').execute().elements, [7, 5, 21]);
     });
 
     it('supports with', function() {
       assert.equal(new JEL('with a=1: a').execute(), 1);
       assert.equal(new JEL('with a=1, b=2: a+b').execute(), 3);
-      assert.deepEqual(new JEL('with a=1, b=a+1, c=b*3, d=c*4, e=d/6: [a,b,c,d,e]').execute(), [1,2,6,24,4]);
+      assert.deepEqual(new JEL('with a=1, b=a+1, c=b*3, d=c*4, e=d/6: [a,b,c,d,e]').execute().elements, [1,2,6,24,4]);
     });
 
     

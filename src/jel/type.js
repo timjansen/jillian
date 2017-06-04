@@ -29,8 +29,6 @@ const NATIVE_OPS = {
 	'.': (l,r)=>l[r],
 	'==': (l,r)=>l===r,
 	'===': (l,r)=>l===r,
-	'!=': (l,r)=>l!==r,
-	'!==': (l,r)=>l!==r,
 	'<': (l,r)=>l<r,
 	'<<': (l,r)=>l<r,
 	'<=': (l,r)=>l<=r,
@@ -60,6 +58,10 @@ class JelType {
 			return left; 
 		else if (right == null)
 			return right;
+		else if (operator == '!=')
+				return !this.op('==', right);
+		else if (operator == '!==')
+				return !this.op('===', right);
 
 		const nativeOp = NATIVE_OPS[operator];
 		if (!nativeOp)

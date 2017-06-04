@@ -13,8 +13,6 @@ class Range extends JelType {
 	op(operator, right) {
 		if (right == null)
 			return null;
-		if (operator == '!=' || operator == '!==')
-				return !this.op('==', right);
 		if (right instanceof Range) {
 			if (operator == '==' || operator == '===')
 				return Type.op('==', this.min, right.min) && Type.op('==', this.max, right.max);
@@ -37,6 +35,9 @@ class Range extends JelType {
 		return new Range(min, max);
 	}
 }
+
+Range.create_jel_mapping = {min:0, max:1};
+
 
 
 

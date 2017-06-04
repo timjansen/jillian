@@ -57,7 +57,7 @@ FuzzyBoolean.BARELY_FALSE = 1;
 FuzzyBoolean.BARLEY_TRUE = 2;
 FuzzyBoolean.CLEARLY_TRUE = 3;
 
-FuzzyBoolean.create_jel_mapping = ['state', 'diff'];
+FuzzyBoolean.create_jel_mapping = {state: 0, diff: 1};
 
 
 		

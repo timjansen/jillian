@@ -39,3 +39,5 @@ Length.prototype.PRIMARY_UNIT = 'm';
 Length.prototype.IMPERIAL_UNITS = IMPERIAL_UNITS;
 Length.prototype.UNITS = UNITS;
 
+Length.create_jel_mapping = {value:0, unit:1, accuracy:2};
+
