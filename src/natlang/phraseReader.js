@@ -1,14 +1,16 @@
 /*
 Reader for the phrase file. 
 
-Each phrase consists of an english text, a set of additional conditions, a set of properties and a result tree.
+Each phrase consists of an english text, a set of additional conditions, a set of meta-properties and a resulting JIL tree.
 
 Rules for input phrases:
 - [option1|option2] are several required options
 - [[word]] is an optional word
 - [[word|word|word]] are several optional words (only one match)
 - {name: @type} is a named type instance (variable)
-- {name: @type|@type} allows more tha one type (variable)
+- {name: @type|@type} allows more than one type (variable)
+- {name: verb} defines a kind of word (verb, adjective...)
+- {name: verb[isPlural]} adds properties to the word
 
 Example: [What's|What is|Whats] [[the]] {time: @currentTime} 
 

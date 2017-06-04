@@ -177,6 +177,47 @@ describe('jelExecute', function() {
       assert.equal(new JEL('f(10, b=100)').execute({f:fc1}), 117);
       assert.equal(new JEL('f(10, b=100)').execute({f:fc2}), 115);
    });
+    
+   it('should support constructors and static methods', function() {
+      class A extends JelType {
+        constructor(a = 2, b = 5) {
+          super();
+          this.x = a;
+          this.y = b;
+        }
+        static create(a, b) {
+          return new A(a, b);
+        }
+        static pic() {
+          return 3;
+        }
+        static add2(a = 3, b = 7) {
+          return a + 2*b;
+        }
+      }
+      A.create_jel_mapping = {a:0, b:1};
+      A.pic_jel_mapping = [];
+      A.add2_jel_mapping = ['a','b'];
+     
+      assert.equal(new JEL('A()').execute({A}).x, 2);
+      assert.equal(new JEL('A()').execute({A}).y, 5);
+      assert.equal(new JEL('A(7,8)').execute({A}).x, 7);
+      assert.equal(new JEL('A(7,8)').execute({A}).y, 8);
+      assert.equal(new JEL('A(b=9,a=3)').execute({A}).x, 3);
+      assert.equal(new JEL('A(b=9,a=3)').execute({A}).y, 9);
+      assert.equal(new JEL('A(3, b=1)').execute({A}).x, 3);
+      assert.equal(new JEL('A(3, b=1)').execute({A}).y, 1);
+      assert.equal(new JEL('A(b=1)').execute({A}).x, 2);
+      assert.equal(new JEL('A(b=1)').execute({A}).y, 1);
+
+      assert.equal(new JEL('A.pic()').execute({A}), 3);
+
+      assert.equal(new JEL('A.add2()').execute({A}), 17);
+      assert.equal(new JEL('A.add2(1)').execute({A}), 15);
+      assert.equal(new JEL('A.add2(5, 2)').execute({A}), 9);
+      assert.equal(new JEL('A.add2(b=1)').execute({A}), 5);
+      assert.equal(new JEL('A.add2(6)').execute({A}), 20);
+   });
    
    it('supports lambda', function() {
       assert(new JEL('a=>1').execute({}) instanceof Callable);
