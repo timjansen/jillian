@@ -16,7 +16,7 @@ class Call extends JelNode {
     const newArgs = this.argList.map(a=>a.execute(ctx));
     const newArgObj = {};
     this.namedArgs.forEach(a => newArgObj[a.name] = a.execute(ctx));
-    return callable.invoke(newArgs, newArgObj);
+    return callable.invokeWithObject(newArgs, newArgObj);
   }
   
   execute(ctx) {
@@ -29,9 +29,8 @@ class Call extends JelNode {
         return this.call(ctx, callable);
       throw new Error(`Call failed. Tried to call a JEL type that does not support creation.`);
     }
-    else if (left == null)
+    else if (left == null) 
       return null;
-    throw new Error(`Call failed. Not a type that can be invoked.`);
   }
   
   getSerializationProperties() {

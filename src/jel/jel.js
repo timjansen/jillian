@@ -72,7 +72,7 @@ class JEL {
     this.parseTree = this.parseExpression();
   }
   
-  execute(context) {
+  execute(context = {}) {
     const ctx = (context instanceof Context) ? context : new Context(context);
     return this.parseTree.execute(ctx);
   }

@@ -4,25 +4,27 @@
  * A type that can be called.
  */
 class Callable {
-	constructor(f, argMapper, self) {
+	constructor(f, argMapper, self, name) {
 		this.f = f;
 		this.argMapper = this.convertArgMapper(argMapper);  // map argName -> index
-		this.self = self;		
+		this.self = self;
+		this.name = name;
 	}
 	
-	invoke(args, argObj) {
+	invokeWithObject(args, argObj) {
 		const allArgs = Array.prototype.slice.call(args);
-		for (let name in argObj) {
-			const idx = this.argMapper[name];
-			if (idx == null)
-				throw new Error(`Unknown argument name '${name}' can not be mapped.`);
-			allArgs[idx] = argObj[name];
-		}
+		if (argObj)
+			for (let name in argObj) {
+				const idx = this.argMapper[name];
+				if (idx == null)
+					throw new Error(`Unknown argument name '${name}' can not be mapped.`);
+				allArgs[idx] = argObj[name];
+			}
 		return this.f.apply(this.self, allArgs);
 	}
 	
-	invokeDirect(...args) {
-		return this.invoke(args);
+	invoke(...args) {
+		return this.invokeWithObject(args);
 	}
 	
 	// converts argmapper from array to object, if needed

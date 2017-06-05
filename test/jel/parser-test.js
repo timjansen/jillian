@@ -17,8 +17,8 @@ const With = require('../../src/jel/nodes/with.js');
 const Lambda = require('../../src/jel/nodes/lambda.js');
 const Call = require('../../src/jel/nodes/call.js');
 
-describe('jelParser', function() {
-  describe('parseExpression()', function() {
+describe('JEL', function() {
+  describe('parseTree', function() {
     
     it('should parse a simple literal', function() {
       jelAssert.equal(new JEL('5').parseTree, new Literal(5));

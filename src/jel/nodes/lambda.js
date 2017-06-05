@@ -4,20 +4,31 @@ const JelNode = require('../node.js');
 const Callable = require('../callable.js');
 const Context = require('../context.js');
 
+const NO_ARG = {};
+
 class LambdaCallable extends Callable {
-  constructor(argNames, expression, context) {
+  constructor(argNames, expression, parentContext, name) {
 		super();
-    this.argNames = argNames;
+    this.argNames = argNames; // list of argument names
     this.expression = expression;
-    this.context = context;
+    this.parentContext = parentContext;
+		this.name = name;
+		this.frame = {};
+		this.context = new Context(this.frame, this.parentContext);
   }
   
-	invoke(args, argObj) {
-    const frame = {};
-    args.forEach((arg, i) => frame[this.argNames[i]] = args[i]);
-    for (let name in argObj)
-      frame[name] = argObj[name];
-    return this.expression.execute(new Context(frame, this.context));
+	invokeWithObject(args, argObj) {
+    args.forEach((arg, i) => this.frame[this.argNames[i]] = args[i]);
+		for (let i = args.length; i < this.argNames.length; i++)
+			this.frame[this.argNames[i]] = undefined;
+		if (argObj)
+			for (let name in argObj)
+				this.frame[name] = argObj[name];
+    return this.expression.execute(this.context);
+	}
+	
+	invoke(...args) {
+		return this.invokeWithObject(args);
 	}
 }
 
@@ -29,7 +40,7 @@ class Lambda extends JelNode {
   }
   
   execute(ctx) {
-    return new LambdaCallable(this.argNames, this.expression, ctx);
+    return new LambdaCallable(this.argNames, this.expression, ctx, "(anon lambda)");
   }
   
   getSerializationProperties() {

@@ -60,10 +60,6 @@ describe('jelSerializer', function() {
     });
 
     
-    
-    
-    // TODO: pretty print
-    
   });
 });
 

@@ -19,8 +19,8 @@ const With = require('../../src/jel/nodes/with.js');
 const Lambda = require('../../src/jel/nodes/lambda.js');
 const Call = require('../../src/jel/nodes/call.js');
 
-describe('jelExecute', function() {
-  describe('parseExpression()', function() {
+describe('JEL', function() {
+  describe('execute()', function() {
     
     it('should execute a simple literal', function() {
       assert.equal(new JEL('5').execute(), 5);
@@ -79,9 +79,9 @@ describe('jelExecute', function() {
       
       assert.equal(new JEL('a.x').execute({a:new A()}), 3);
       assert.equal(new JEL('(a).y').execute({a:new A()}), "foo");
-      assert.equal(new JEL('(a).z').execute({a:new A()}), null);
-      assert.equal(new JEL('(a) . 5').execute({a:new A()}), null);
-      assert.equal(new JEL('(a)."x"').execute({a:new A()}), null);
+      assert.throws(()=>new JEL('(a).z').execute({a:new A()}));
+      assert.throws(()=>new JEL('(a) . 5').execute({a:new A()}));
+      assert.throws(()=>new JEL('(a)."x"').execute({a:new A()}));
       
       class B extends JelType {
         constructor(ref) {
@@ -223,12 +223,14 @@ describe('jelExecute', function() {
    
    it('supports lambda', function() {
       assert(new JEL('a=>1').execute({}) instanceof Callable);
-      assert.equal(new JEL('a=>55').execute({}).invoke([], {}), 55);
-      assert.equal(new JEL('x=>x').execute({}).invoke([66], {}), 66);
-      assert.equal(new JEL('x=>x').execute({}).invoke([66], {}), 66);
-      assert.equal(new JEL('x=>x').execute({}).invoke([], {x:66}), 66);
-      assert.equal(new JEL('(a,b)=>a+b').execute({}).invoke([], {a:40,b:2}), 42);
-      assert.equal(new JEL('(a,b)=>a+b').execute({}).invoke([40], {b:2}), 42);
+      assert.equal(new JEL('a=>55').execute({}).invokeWithObject([], {}), 55);
+      assert.equal(new JEL('x=>x').execute({}).invokeWithObject([66], {}), 66);
+      assert.equal(new JEL('x=>x').execute({}).invokeWithObject([66], {}), 66);
+      assert.equal(new JEL('x=>x').execute({}).invoke(66), 66);
+      assert.equal(new JEL('x=>x').execute({}).invokeWithObject([], {x:66}), 66);
+      assert.equal(new JEL('(a,b)=>a+b').execute({}).invokeWithObject([], {a:40,b:2}), 42);
+      assert.equal(new JEL('(a,b)=>a+b').execute({}).invokeWithObject([40], {b:2}), 42);
+      assert.equal(new JEL('(a,b)=>b').execute({}).invokeWithObject([], {}), null);
 
       assert.equal(new JEL('(x=>x)(66)').execute({}), 66);
       assert.equal(new JEL('(x=>x)(x=66)').execute({}), 66);

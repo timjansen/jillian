@@ -98,9 +98,19 @@ class JelType {
 
 			const argMapper = obj[`${name}_jel_mapping`];
 			if (argMapper) {
-				const newCallable = new Callable(obj[name], argMapper, obj);
+				const newCallable = new Callable(obj[name], argMapper, obj, name);
 				obj[`${name}_jel_callable`] = newCallable;
 				return newCallable;
+			}
+			else {
+				if (name in obj) { 
+					if (typeof obj[name] == 'function')
+						throw new Error(`Method ${name} is callable in JEL. It would need a _jel_mapping.`);
+					else
+						throw new Error(`Property ${name} is not accessible. It would need to be defined in JEL_PROPERTIES.`);
+				}
+				else
+					throw new Error(`Unknown property ${name}.`);
 			}
 		}
 		return undefined;

@@ -15,7 +15,9 @@ class Operator extends JelNode {
   execute(ctx) {
     switch (this.op) {
     case '.':
-      return JelType.member(this.left.execute(ctx), (this.right instanceof Variable) ? this.right.name : null);
+      if (!(this.right instanceof Variable))
+        throw new Error('Operator "." must be followed by an identifier');
+      return JelType.member(this.left.execute(ctx), this.right.name);
     case '||':
       return this.or(ctx);
     case '&&':
