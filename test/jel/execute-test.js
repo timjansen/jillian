@@ -67,7 +67,7 @@ describe('JEL', function() {
       assert.equal(new JEL('0 && ""').execute(), 0);
     });
 
-    it('should access member fields', function() {
+    it('should access member fields of JelTypes', function() {
       class A extends JelType {
         constructor() {
           super();
@@ -95,7 +95,7 @@ describe('JEL', function() {
       assert.equal(new JEL('b.ref.ref.ref').execute({b: new B(new B(new B(7)))}), 7);
    });
 
-   it('should access methods', function() {
+   it('should access methods of JelTypes', function() {
       class A extends JelType {
         constructor(a = 2, b = 5) {
           super();
@@ -129,10 +129,14 @@ describe('JEL', function() {
       assert.equal(new JEL('A().calc(3, 2, c=1, e=1000, d=100)').execute({A:create}), 3+4+3+400+5000);
     });
 
+   it('should access properties of built-ins', function() {
+     assert.equal(new JEL('"foobar".length').execute(), 6);
+   });
+    
     
    it('should access variables', function() {
-      assert.equal(new JEL('a').execute({a: 10}), 10);
-      assert.equal(new JEL('a+b').execute({a: 1, b: 3}), 4);
+     assert.equal(new JEL('a').execute({a: 10}), 10);
+     assert.equal(new JEL('a+b').execute({a: 1, b: 3}), 4);
     });
     
     

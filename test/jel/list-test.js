@@ -106,5 +106,28 @@ describe('jelList', function() {
     });
   });
 
+  
+  describe('bestMatch()', function() {
+    it('handles small lists', function() {
+      assert.deepEqual(new JEL('[].bestMatch((a,b)=>a>b)').execute().elements, []); 
+      assert.deepEqual(new JEL('[1].bestMatch((a,b)=>a>b)').execute().elements, [1]); 
+    });
+    it('matches single elements', function() {
+      assert.deepEqual(new JEL('[3, 2, 9, 5].bestMatch((a,b)=>a>b)').execute().elements, [9]); 
+      assert.deepEqual(new JEL('[9, 2, 3, 5].bestMatch((a,b)=>a>b)').execute().elements, [9]); 
+      assert.deepEqual(new JEL('[1, 3, 3, 5, 9].bestMatch((a,b)=>a>b)').execute().elements, [9]); 
+      assert.deepEqual(new JEL('[9, 2, 3, 5].bestMatch((a,b)=>a<b)').execute().elements, [2]); 
+      assert.deepEqual(new JEL("['foo', 'bar', 'blabla', 'blablabla'].bestMatch((a,b)=>a.length>b.length)").execute().elements, ['blablabla']); 
+    });
+    it('matches multiple elements', function() {
+      assert.deepEqual(new JEL('[3, 2, 9, 5, 9].bestMatch((a,b)=>a>b)').execute().elements, [9, 9]); 
+      assert.deepEqual(new JEL('[9, 2, 3, 5, 9, 9].bestMatch((a,b)=>a>b)').execute().elements, [9, 9, 9]); 
+      assert.deepEqual(new JEL('[3, 9, 3, 9, 5].bestMatch((a,b)=>a>b)').execute().elements, [9, 9]); 
+      assert.deepEqual(new JEL('[9, 2, 2, 3, 5].bestMatch((a,b)=>a<b)').execute().elements, [2, 2]); 
+      assert.deepEqual(new JEL("['foo', 'bar', 'blabla', 'blablabla'].bestMatch((a,b)=>a.length<b.length)").execute().elements, ['foo', 'bar']); 
+    });
+  });
+
+  
 });
 

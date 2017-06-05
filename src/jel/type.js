@@ -24,6 +24,7 @@ const NATIVE_OPS = {
 	'-': (l,r)=>l-r,
 	'*': (l,r)=>l*r,
 	'/': (l,r)=>l/r,
+	'%': (l,r)=>((l%r)+r)%r,
 	'&&': (l,r)=>l&&r,
 	'||': (l,r)=>l||r,
 	'.': (l,r)=>l[r],
@@ -89,7 +90,7 @@ class JelType {
 	}
 	
 	static member(obj, name) {
-		if (obj instanceof JelType || typeof obj == 'function') {
+		if (obj instanceof JelType || JelType.isPrototypeOf(obj)) { 
 			const callable = obj[`${name}_jel_callable`];
 			if (callable)
 					return callable;
@@ -112,6 +113,9 @@ class JelType {
 				else
 					throw new Error(`Unknown property ${name}.`);
 			}
+		}
+		else if (typeof obj == 'string' && name == 'length') {
+			return obj.length;
 		}
 		return undefined;
 	}
