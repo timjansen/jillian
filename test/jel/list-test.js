@@ -128,6 +128,45 @@ describe('jelList', function() {
     });
   });
 
-  
+  describe('sort()', function() {
+    it('handles small lists', function() {
+      assert.deepEqual(new JEL('[].sort((a,b)=>a>b)').execute().elements, []); 
+      assert.deepEqual(new JEL('[1].sort((a,b)=>a>b)').execute().elements, [1]); 
+    });
+    it('sorts', function() {
+      assert.deepEqual(new JEL('[3, 2, 9, 5].sort((a,b)=>a<b)').execute().elements, [2, 3, 5, 9]); 
+      assert.deepEqual(new JEL('[9, 2, 3, 5].sort((a,b)=>a<b)').execute().elements, [2, 3, 5, 9]); 
+      assert.deepEqual(new JEL('[1, 3, 3, 5, 9, 9].sort((a,b)=>a<b)').execute().elements, [1, 3, 3, 5, 9, 9]); 
+      assert.deepEqual(new JEL("['foo', 'blabla', 'bar', 'blablabla'].sort((a,b)=>a.length>b.length)").execute().elements, ['blablabla', 'blabla', 'foo', 'bar']); 
+    });
+  });
+
+  describe('sub()', function() {
+    it('handles small lists', function() {
+      assert.deepEqual(new JEL('[].sub(0, 100)').execute().elements, []); 
+      assert.deepEqual(new JEL('[].sub(-2, 5)').execute().elements, []); 
+      assert.deepEqual(new JEL('[].sub(0)').execute().elements, []); 
+      assert.deepEqual(new JEL('[1].sub(0,100)').execute().elements, [1]); 
+      assert.deepEqual(new JEL('[1].sub(-1,1)').execute().elements, [1]); 
+      assert.deepEqual(new JEL('[1].sub(0, 0)').execute().elements, []); 
+    });
+    it('allows flexible params', function() {
+      assert.deepEqual(new JEL('[3, 2, 9, 5].sub(0, 5)').execute().elements, [3, 2, 9, 5]); 
+      assert.deepEqual(new JEL('[9, 2, 3, 5].sub(0)').execute().elements, [9, 2, 3, 5]); 
+      assert.deepEqual(new JEL('[1, 3, 3, 5, 9, 9].sub(-6, 100)').execute().elements, [1, 3, 3, 5, 9, 9]); 
+      assert.deepEqual(new JEL("['foo', 'blabla', 'bar', 'blablabla'].sub()").execute().elements, ['foo', 'blabla', 'bar', 'blablabla']); 
+    });
+    it('creates smaller lists', function() {
+      assert.deepEqual(new JEL('[3, 2, 9, 5].sub(1)').execute().elements, [2, 9, 5]); 
+      assert.deepEqual(new JEL('[3, 2, 9, 5].sub(2)').execute().elements, [9, 5]); 
+      assert.deepEqual(new JEL('[3, 2, 9, 5].sub(-2)').execute().elements, [9, 5]); 
+      assert.deepEqual(new JEL('[3, 2, 9, 5].sub(1, 2)').execute().elements, [2]); 
+      assert.deepEqual(new JEL('[3, 2, 9, 5].sub(1, 3)').execute().elements, [2, 9]); 
+      assert.deepEqual(new JEL('[9, 2, 3, 5].sub(-3, -1)').execute().elements, [2, 3]); 
+      assert.deepEqual(new JEL('[1, 3, 3, 5, 9, 9].sub()').execute().elements, [1, 3, 3, 5, 9, 9]); 
+      assert.deepEqual(new JEL("['foo', 'blabla', 'bar', 'blablabla'].sub(2, -1)").execute().elements, ['bar']); 
+    });
+  });
+
 });
 
