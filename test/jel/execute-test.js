@@ -132,7 +132,11 @@ describe('JEL', function() {
    it('should access properties of built-ins', function() {
      assert.equal(new JEL('"foobar".length').execute(), 6);
    });
-    
+
+   it('should access methods of built-ins', function() {
+     assert.equal(new JEL('" foobar   ".trim()').execute(), "foobar");
+   });
+
     
    it('should access variables', function() {
      assert.equal(new JEL('a').execute({a: 10}), 10);

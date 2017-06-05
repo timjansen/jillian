@@ -46,6 +46,14 @@ const SINGLE_NATIVE_OPS = {
 	'+': (l)=>+l
 }
 
+const NATIVE_PROPERTIES = {
+	string: {length: true}
+};
+
+const NATIVE_METHODS = {
+	string: {trim: {}}
+};
+
 /**
  * This is the base class for all objects that can be accessed by JEL. It implements operators and other functions required in JEL.
  */
@@ -114,9 +122,15 @@ class JelType {
 					throw new Error(`Unknown property ${name}.`);
 			}
 		}
-		else if (typeof obj == 'string' && name == 'length') {
-			return obj.length;
-		}
+		
+		const nativeType = typeof obj;
+		if (NATIVE_PROPERTIES[nativeType] && NATIVE_PROPERTIES[nativeType][name])
+			return obj[name];
+		
+		const nativeMethodMapping = NATIVE_METHODS[nativeType] && NATIVE_METHODS[nativeType][name];
+		if (nativeMethodMapping) 
+			return new Callable(obj[name], nativeMethodMapping, obj);
+
 		return undefined;
 	}
 	
