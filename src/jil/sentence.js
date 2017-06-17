@@ -1,3 +1,6 @@
+'use strict';
+
+const JelType = require('../jel/type.js');
 
 
 class Sentence extends JelType {
@@ -6,3 +9,4 @@ class Sentence extends JelType {
 	}
 }
 
+module.exports = Sentence;

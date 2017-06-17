@@ -4,9 +4,10 @@
  */
 class Context {
 
-	constructor(frame = {}, parent = null) {
+	constructor(frame = {}, parent = null, database = null) {
 		this.frame = frame;
 		this.parent = parent;
+		this.database = database || (parent && parent.database);
 	}
 	
 	get(name) {

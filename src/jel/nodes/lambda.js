@@ -17,7 +17,7 @@ class LambdaCallable extends Callable {
 		this.context = new Context(this.frame, this.parentContext);
   }
   
-	invokeWithObject(args, argObj) {
+	invokeWithObject(args, argObj, ctx) {   // context will be ignored for lambda
     args.forEach((arg, i) => this.frame[this.argNames[i]] = args[i]);
 		for (let i = args.length; i < this.argNames.length; i++)
 			this.frame[this.argNames[i]] = undefined;
@@ -28,6 +28,10 @@ class LambdaCallable extends Callable {
 	}
 	
 	invoke(...args) {
+		return this.invokeWithObject(args);
+	}
+
+	invokeWithContext(ctx, ...args) {  // ctx will be ignored for lambda
 		return this.invokeWithObject(args);
 	}
 }

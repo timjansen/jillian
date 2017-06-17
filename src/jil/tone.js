@@ -8,3 +8,4 @@ class Tone extends JelType {
   }
 }
 
+module.exports = Tone;

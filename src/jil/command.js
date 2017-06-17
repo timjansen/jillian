@@ -1,5 +1,8 @@
+'use strict';
 
+const Sentence = require('./sentence.js');
 
-class Question extends Sentence {
+class Command extends Sentence {
 }
 
+module.exports = Command;

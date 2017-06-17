@@ -280,6 +280,15 @@ class JEL {
       this.throwParseException(this.tokens.last(), msg || "Expected operator");
     return op;
   }
+  
+  static execute(txt, ctx) {
+    return new JEL(txt).execute(ctx);
+  }
+
+  static parseTree(txt) {
+    return new JEL(txt).parseTree;
+  }
+
 }
 
 module.exports = JEL;

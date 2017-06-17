@@ -1,3 +1,7 @@
+'use strict';
+
+const JelType = require('../jel/type.js');
+
 
 // Abstract base class for all verbs
 class Verb extends JelType {
@@ -11,3 +15,5 @@ class Verb extends JelType {
 Verb.PAST = 1;
 Verb.PRESENT = 2;
 Verb.FUTURE = 3;
+
+module.exports = Verb;

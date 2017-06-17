@@ -16,7 +16,7 @@ class Call extends JelNode {
     const newArgs = this.argList.map(a=>a.execute(ctx));
     const newArgObj = {};
     this.namedArgs.forEach(a => newArgObj[a.name] = a.execute(ctx));
-    return callable.invokeWithObject(newArgs, newArgObj);
+    return callable.invokeWithObject(newArgs, newArgObj, ctx);
   }
   
   execute(ctx) {

@@ -107,20 +107,19 @@ class JelType {
 
 			const argMapper = obj[`${name}_jel_mapping`];
 			if (argMapper) {
-				const newCallable = new Callable(obj[name], argMapper, obj, name);
+				const newCallable = new Callable(obj[name], argMapper, obj, name, !!argMapper['>ctx']);
 				obj[`${name}_jel_callable`] = newCallable;
 				return newCallable;
 			}
-			else {
-				if (name in obj) { 
-					if (typeof obj[name] == 'function')
-						throw new Error(`Method ${name} is callable in JEL. It would need a _jel_mapping.`);
-					else
-						throw new Error(`Property ${name} is not accessible. It would need to be defined in JEL_PROPERTIES.`);
-				}
+			
+			if (name in obj) { 
+				if (typeof obj[name] == 'function')
+					throw new Error(`Method ${name} is callable in JEL. It would need a _jel_mapping.`);
 				else
-					throw new Error(`Unknown property ${name}.`);
+					throw new Error(`Property ${name} is not accessible. It would need to be defined in JEL_PROPERTIES.`);
 			}
+			else
+				throw new Error(`Unknown property ${name}.`);
 		}
 		
 		const nativeType = typeof obj;

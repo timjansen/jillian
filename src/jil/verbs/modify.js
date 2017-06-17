@@ -1,3 +1,7 @@
+'use strict';
+
+const Verb = require('../verb.js');
+
 
 // Modify something
 class Modify extends Verb {

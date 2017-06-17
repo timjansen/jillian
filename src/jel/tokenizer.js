@@ -18,7 +18,7 @@ const jelTokenizer = {
     // group 4: quoted string
     // group 5: illegal char
     
-    let matches, tokensLeft = 2000;
+    let matches, tokensLeft = 10000;
     const tokens = [];
     while ((matches = re.exec(input)) && tokensLeft--) {
       if (matches[2])
