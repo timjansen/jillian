@@ -12,11 +12,20 @@ class Condition extends JelNode {
   }
   
   execute(ctx) {
-    if (JelType.toBoolean(this.condition.execute(ctx)))
+    const c = this.condition.execute(ctx);
+    if (c instanceof Promise)
+      return c.then(r=>this.runOnValue(ctx, r));
+    else
+      return this.runOnValue(ctx, c);
+  }
+
+  runOnValue(ctx, cond) {
+    if (JelType.toBoolean(cond))
       return this.thenExp.execute(ctx);
     else
       return this.elseExp.execute(ctx);
   }
+
   
   getSerializationProperties() {
     return {condition: this.condition, thenExp: this.thenExp, elseExp: this.elseExp};

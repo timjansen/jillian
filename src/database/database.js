@@ -7,7 +7,7 @@ const JelType = require('../jel/type.js');
 const databaseContext = require('./databasecontext.js');
 const serializer = require('../jel/serializer.js');
 const tifu = require('tifuhash');
-const fs = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
 
 const CONFIG_FILE = '/dbconfig.jel';
@@ -15,13 +15,13 @@ const DATA_DIR = '/data/';
 
 class Database {
 
-  Database(dbPath) {
+  constructor(dbPath) {
     this.dbPath = dbPath;
-    this.config = null;
+    this.config = null; // initialized by init().
   }
   
   /**
-   * Loads the database if not already loaded.
+   * Loads the database if not already loaded. All public methods need to call this first,
    */
   init() {
     if (this.config)
@@ -58,88 +58,86 @@ class Database {
   }
   
   readEntryInternal(distinctName, path) {
-    try {
-      const entryTxt = fs.readFileSync(path, {encoding: 'utf8'});
-      try {
-        return JEL.execute(entryTxt, databaseContext);
-      }
-      catch (e) {
-        if (e.code === 'ENOENT')
-          return undefined;
-        throw new Error(`Can not parse database entry ${distinctName} at ${path}: ${e.toString()}`);
-      }
-    }
-    catch (e) {
-       throw new Error(`Can not read database entry ${distinctName} at ${path}: ${e.toString()}`);
-    }
+    return fs.readFile(path, {encoding: 'utf8'})
+    .then(entryTxt=>JEL.execute(entryTxt, databaseContext))
+    .catch(e=> {
+      if (e.code == 'ENOENT')
+        return null;
+      throw new Error(`Can not read database entry ${distinctName} at ${path}: ${e.toString()}`);
+    });
   }
   
-  getSync(distinctName) {
+  get(distinctName) {
     this.init();
     return this.readEntryInternal(this.getFilePathInternal(distinctName));
   }
 
   exists(distinctName) {
     this.init();
-    return fs.existsSync(this.getFilePathInternal(distinctName));
+    return fs.exists(this.getFilePathInternal(distinctName));
   }
   
-  putSync(dbEntry) {
+  put(dbEntry) {
     this.init();
     const distinctName = dbEntry.distinctName;
     const path = this.getFilePathForHashInternal(dbEntry.hashCode);
-    const oldEntry = fs.existsSync(path);
-    try {
-      fs.writeFileSync(path, serializer.serialize(dbEntry), {encoding: 'utf8'});
-    }
-    catch (e) {
-       throw new Error(`Can not write database entry ${distinctName} at ${path}: ${e.toString()}`);
-    }
-
-    if (!oldEntry)
-      this.addIndexingInternal(dbEntry);
+    return fs.exists(path)
+    .then(oldEntry=>
+       fs.writeFile(path, serializer.serialize(dbEntry), {encoding: 'utf8'})
+      .then(()=>{
+        if (!oldEntry)
+          return this.addIndexingInternal(dbEntry);
+      }))
+    .catch (e=>new Error(`Can not write database entry ${distinctName} at ${path}: ${e.toString()}`));
   }
 
-  deleteSync(dbEntry) {
+  delete(dbEntry) {
     this.init();
     const path = this.getFilePathForHashInternal(dbEntry.hashCode);
     
-    this.removeIndexingInternal(dbEntry);
-    fs.unlinkSync(path);
+    return this.removeIndexingInternal(dbEntry).then(()=>fs.unlink(path));
   }
   
   addIndexingInternal(dbEntry) {
     const spec = dbEntry.databaseIndices();
+    const indexPromises = [];
     for (let name in spec) {
       const indexDesc = spec[name];
       if (indexDesc.type == 'category')
-        this.appendToCategoryIndexInternal(JelType.member(dbEntry, indexDesc.property), dbEntry, '_' + name, !!indexDesc.includeParents);
+        indexPromises.push(this.appendToCategoryIndexInternal(JelType.member(dbEntry, indexDesc.property), dbEntry, '_' + name, !!indexDesc.includeParents));
       else
         throw new Error(`Unsupported index type ${indexDesc.type} for index ${name}. Only 'category' is supported for now.`);
     }
+    return Promise.all(indexPromises);
   }
   
   removeIndexingInternal(dbEntry) {
     const spec = dbEntry.databaseIndices();
+    const indexPromises = [];
     for (let name in spec) {
       const indexDesc = spec[name];
       if (indexDesc.type == 'category')
-        this.removeFromCategoryIndexInternal(JelType.member(dbEntry, indexDesc.property), dbEntry, '_' + name, !!indexDesc.includeParents);
+        indexPromises.push(this.removeFromCategoryIndexInternal(JelType.member(dbEntry, indexDesc.property), dbEntry, '_' + name, !!indexDesc.includeParents));
     }
+    return Promise.all(indexPromises);
   }
   
   appendToCategoryIndexInternal(dbEntry, category, indexSuffix, recursive) {
-    fs.appendFileSync(this.getFilePathForHashInternal(category.hashCode, indexSuffix), dbEntry.hashCode + '\n');
+    const prom = fs.appendFile(this.getFilePathForHashInternal(category.hashCode, indexSuffix), dbEntry.hashCode + '\n');
     if (recursive && category.superCategory)
-      this.appendToCategoryIndexInternal(dbEntry, category.superCategory, indexSuffix, recursive);
+      return prom.then(p=>this.appendToCategoryIndexInternal(dbEntry, category.superCategory, indexSuffix, recursive));
+    else
+      return prom;
   }
   
   removeFromCategoryIndexInternal(dbEntry, category, indexSuffix, recursive) {
     const fileName = this.getFilePathForHashInternal(category.hashCode, indexSuffix);
-    const file = fs.readFileSync(fileName);
-    fs.writeFileSync(fileName, file.replace(RegExp('^'+dbEntry.hashCode+'\n'), ''));
+    const prom = fs.readFile(fileName)
+    .then(file=>fs.writeFile(fileName, file.replace(RegExp('^'+dbEntry.hashCode+'\n'), '')));
     if (recursive && category.superCategory)
-      this.removeFromCategoryIndexInternal(dbEntry, category.superCategory, indexSuffix, recursive);
+      return prom.then(p=>this.removeFromCategoryIndexInternal(dbEntry, category.superCategory, indexSuffix, recursive));
+    else
+      return prom;
   }
   
   /**

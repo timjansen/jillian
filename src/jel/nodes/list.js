@@ -10,7 +10,11 @@ class List extends JelNode {
   }
   
   execute(ctx) { 
-    return new JelList(this.elements.map(e=>e.execute(ctx)));
+    const list = this.elements.map(e=>e.execute(ctx));
+    if (list.findIndex(a=>a instanceof Promise) < 0)
+      return new JelList(list);
+     else
+      return Promise.all(list).then(resolved=>new JelList(resolved));
   }
   
   getSerializationProperties() {

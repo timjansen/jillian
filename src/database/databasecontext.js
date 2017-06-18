@@ -11,8 +11,8 @@ const Volume = require('./types/volume.js');
 const CTX_IDENTIFIERS = {Area, FuzzyBoolean, Length, Range, ValueDistribution, Volume};
 
 class DatabaseContext {
-  static create(database) {
-    return new Context(CTX_IDENTIFIERS, null, database);
+  static create(dbSession) {
+    return new Context(CTX_IDENTIFIERS, null, dbSession);
   }
 }
 

@@ -12,5 +12,8 @@
     "mocha": "^3.2.0",
     "natural": "^0.5.0",
     "tifuhash": "^1.0.5"
+  },
+  "devDependencies": {
+    "fs-extra": "^3.0.1"
   }
 }
