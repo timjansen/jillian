@@ -72,10 +72,18 @@ class JEL {
     this.parseTree = this.parseExpression();
   }
   
-  execute(context = {}) {
+  // returns value if available, otherwise promise
+  executeImmediately(context = {}) {
     const ctx = (context instanceof Context) ? context : new Context(context);
     return this.parseTree.execute(ctx);
   }
+
+  // returns promise with the result
+  execute(context = {}) {
+    const ctx = (context instanceof Context) ? context : new Context(context);
+    return this.parseTree.executePromise(ctx);
+  }
+
   
   throwParseException(token, msg) {
     throw new Error(msg + '\n' + (token ? JSON.stringify(token) : '(no token for reference)'))
@@ -98,7 +106,7 @@ class JEL {
           const number = this.tokens.next();
           return this.tryBinaryOps(new Literal(token.value == '-' ? -number.value : number.value), precedence, stopOps);
         }
-        const operand = this.parseExpression(unOp);
+        const operand = this.parseExpression(unOp, stopOps);
         return this.tryBinaryOps(new Operator(token.value, operand), precedence, stopOps);
       }
       else if (token.value == '(') {
