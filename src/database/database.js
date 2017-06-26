@@ -1,7 +1,9 @@
 'use strict';
 
+const Utils = require('../util/utils.js');
 const DbEntry = require('./dbentry.js');
 const DatabaseConfig = require('./databaseconfig.js');
+const DatabaseError = require('./databaseerror.js');
 const JEL = require('../jel/jel.js');
 const JelType = require('../jel/type.js');
 const databaseContext = require('./databasecontext.js');
@@ -21,31 +23,35 @@ class Database {
   }
   
   /**
-   * Loads the database if not already loaded. All public methods need to call this first,
+   * Loads the database if not already loaded. All public methods need to call this first.
    */
-  init() {
-    if (this.config)
-      return this.config;
-    if (!fs.statSync().isDirectory())
-      throw new Error(`Can not open database. Path "${this.path}" is not a directory or can not be accessed.`);
-    if (!fs.statSync().isDirectory())
-      throw new Error(`Can not open database. Missing data directory "${DATA_DIR}" in "${this.path}".`);
-
+  init(f) {
+    if (this.config instanceof Promise)
+      return this.config.then(config=>f(config));
+    else if (this.config)
+      return f(this.config);
     
-    try {
-      const configTxt = fs.readFileSync(path.join(this.dbPath, CONFIG_FILE), {encoding: 'utf8'});
+    this.config = fs.exists(this.dbPath)
+      .then(r=>{
+        if (!r)
+          throw new DatabaseError(`Can not open database. Path "${this.dbPath}" is not a directory or can not be accessed.`);
+        return fs.existsSync(path.join(this.dbPath, DATA_DIR));
+      })
+      .then(r=>{
+        if (!r)
+          throw new DatabaseError(`Can not open database. Missing data directory "${DATA_DIR}" in "${this.dbPath}".`);
+        return fs.readFile(path.join(this.dbPath, CONFIG_FILE), {encoding: 'utf8'})
+          .catch(e=>DatabaseError.rethrow(e, `Can not parse configuration "${CONFIG_FILE}" in "${this.dbPath}": ${e.toString()}`));
+    })
+    .then(configTxt=>JEL.execute(configTxt, {DatabaseConfig})
+            .catch(e=>DatabaseError.rethrow(e, `Can not open database. Failed to load configuration "${CONFIG_FILE}" in "${this.dbPath}".`)))
+    .then(config=>{
+          this.config = config;
+          this.directoryDepth = Math.floor(Math.log(config.sizing) / Math.log(256));
+          return config;
+    });
     
-      try {
-        this.config = JEL.execute(configTxt, {DatabaseConfig});
-        this.directoryDepth = Math.floor(Math.log(config.sizing) / Math.log(256));
-      }
-      catch (e) {
-        throw new Error(`Can not parse configuration "${CONFIG_FILE}" in "${this.path}": ${e.toString()}`);
-      }
-    }
-    catch(e) {
-      throw new Error(`Can not open database. Can not load configuration "${CONFIG_FILE}" in "${this.path}".`);
-    }
+    return this.config.then(config=>f(config));
   }
   
   getFilePathForHashInternal(hash, suffix = '.jel') {
@@ -63,39 +69,43 @@ class Database {
     .catch(e=> {
       if (e.code == 'ENOENT')
         return null;
-      throw new Error(`Can not read database entry ${distinctName} at ${path}: ${e.toString()}`);
+      DatabaseError.rethrow(e, `Can not read database entry ${distinctName} at ${path}`);
     });
   }
-  
+ 
   get(distinctName) {
-    this.init();
-    return this.readEntryInternal(this.getFilePathInternal(distinctName));
+    return this.init(config=>this.readEntryInternal(distinctName, this.getFilePathInternal(distinctName)));
+  }
+  
+  getByHash(hash) {
+    return this.init(config=>this.readEntryInternal(hash, this.getFilePathForHashInternal(hash)));
   }
 
   exists(distinctName) {
-    this.init();
-    return fs.exists(this.getFilePathInternal(distinctName));
+    return this.init(config=>fs.exists(this.getFilePathInternal(distinctName)));
   }
   
   put(dbEntry) {
-    this.init();
-    const distinctName = dbEntry.distinctName;
-    const path = this.getFilePathForHashInternal(dbEntry.hashCode);
-    return fs.exists(path)
-    .then(oldEntry=>
-       fs.writeFile(path, serializer.serialize(dbEntry), {encoding: 'utf8'})
-      .then(()=>{
-        if (!oldEntry)
-          return this.addIndexingInternal(dbEntry);
-      }))
-    .catch (e=>new Error(`Can not write database entry ${distinctName} at ${path}: ${e.toString()}`));
+    return this.init(config=> {
+      const distinctName = dbEntry.distinctName;
+      const path = this.getFilePathForHashInternal(dbEntry.hashCode);
+      return fs.exists(path)
+      .then(oldEntry=>
+         fs.writeFile(path, serializer.serialize(dbEntry), {encoding: 'utf8'})
+        .then(()=>{
+          if (!oldEntry)
+            return this.addIndexingInternal(dbEntry);
+        }))
+      .catch (e=>new DatabaseError(`Can not write database entry ${distinctName} at ${path}: ${e.toString()}`));
+    });
   }
 
   delete(dbEntry) {
-    this.init();
-    const path = this.getFilePathForHashInternal(dbEntry.hashCode);
-    
-    return this.removeIndexingInternal(dbEntry).then(()=>fs.unlink(path));
+    return this.init(config=>{
+      const path = this.getFilePathForHashInternal(dbEntry.hashCode);
+
+      return this.removeIndexingInternal(dbEntry).then(()=>fs.unlink(path));
+    });
   }
   
   addIndexingInternal(dbEntry) {
@@ -106,7 +116,7 @@ class Database {
       if (indexDesc.type == 'category')
         indexPromises.push(this.appendToCategoryIndexInternal(JelType.member(dbEntry, indexDesc.property), dbEntry, '_' + name, !!indexDesc.includeParents));
       else
-        throw new Error(`Unsupported index type ${indexDesc.type} for index ${name}. Only 'category' is supported for now.`);
+        throw new DatabaseError(`Unsupported index type ${indexDesc.type} for index ${name}. Only 'category' is supported for now.`);
     }
     return Promise.all(indexPromises);
   }
@@ -140,11 +150,29 @@ class Database {
       return prom;
   }
   
-  /**
-   */
-  static create(path, config) {
-    // TODO: create
-    return new Database(path);
+  // returns a promise of a hash array
+  readCategoryIndex(category, indexName) {
+    return this.init(config=>{
+      const fileName = this.getFilePathForHashInternal(category.hashCode, '_' + indexName);
+      return fs.readFile(fileName)
+        .then(data=>data.split('\n'));
+    });
+  }
+ 
+  // returns promise
+  static create(dbPath, config = new DatabaseConfig()) {
+    if (fs.existsSync(dbPath))
+      throw new DatabaseError(`Can not create database, "${this.path}" already exists`);
+
+    try {
+      fs.mkdirpSync(path.join(dbPath, DATA_DIR));
+      fs.writeFileSync(path.join(dbPath, CONFIG_FILE), serializer.serialize(config), {encoding: 'utf8'});
+    }
+    catch(e) {
+      throw new DatabaseError(e, `Can not create database at "${dbPath}": ${e}`);
+    }
+
+    return new Promise(resolve=>resolve(new Database(dbPath))); // even though the impl is sync, return async for future compatibility
   }
   
 }

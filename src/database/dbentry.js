@@ -1,7 +1,7 @@
 'use strict';
 
 const JelType = require('../jel/type.js');
-const tifu = require('tifuhash.js');
+const tifu = require('tifuhash');
 
 // Base class for any kind of physical or immaterial instance of a category
 

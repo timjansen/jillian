@@ -1,3 +1,6 @@
+'use strict';
+
+const UnitValue = require('./unitvalue.js');
 
 // Base class for UnitValues that support imperial units in addition to metric units.
 // It avoids rounding errors by using the base imperial unit for calculations.
@@ -15,3 +18,5 @@ class ImperialUnitValue extends UnitValue {
 		return super.convertValue(value, fromUnit, toUnit);
 	}
 }
+
+module.exports = ImperialUnitValue;

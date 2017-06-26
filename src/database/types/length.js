@@ -1,3 +1,5 @@
+'use strict';
+
 const ImperialUnitValue = require('./imperialunitvalue.js');
 
 const IMPERIAL_UNITS = {in: 1, ft: 12, yd: 36, mile: 63360};
@@ -21,7 +23,7 @@ class Length extends ImperialUnitValue {
 		if (right instanceof Length && right.unit == this.unit) {
 			switch (operator) {
 				case '*':
-					throw new Exception(`Multiplying length not supported yet`);
+					throw new Error(`Multiplying length not supported yet`);
 				default:
 					return super.op(operator, right);
 			}
@@ -41,3 +43,4 @@ Length.prototype.UNITS = UNITS;
 
 Length.create_jel_mapping = {value:0, unit:1, accuracy:2};
 
+module.exports = Length;

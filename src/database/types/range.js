@@ -44,6 +44,7 @@ Range.create_jel_mapping = {min:0, max:1};
 
 
 
+module.exports = Range;
 
 
 

@@ -37,5 +37,7 @@ Volume.prototype.UNITS = UNITS;
 
 Volume.create_jel_mapping = {value:0, unit:1, accuracy:2};
 
+module.exports = Volume;
+
 
 

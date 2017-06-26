@@ -26,3 +26,5 @@ Area.prototype.IMPERIAL_UNITS = IMPERIAL_UNITS;
 Area.prototype.UNITS = UNITS;
 
 Area.create_jel_mapping = {value:0, unit:1, accuracy:2};
+
+module.exports = Area;

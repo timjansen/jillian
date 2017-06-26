@@ -189,7 +189,7 @@ describe('JEL', function() {
       assert.equal(new JEL('f(10, b=100)').executeImmediately({f:fc2}), 115);
    });
     
-   it('should support constructors and static methods', function() {
+   it('supports constructors and static methods', function() {
       class A extends JelType {
         constructor(a = 2, b = 5) {
           super();
@@ -229,7 +229,26 @@ describe('JEL', function() {
       assert.equal(new JEL('A.add2(b=1)').executeImmediately({A}), 5);
       assert.equal(new JEL('A.add2(6)').executeImmediately({A}), 20);
    });
-   
+
+   it('supports named-argument only calls', function() {
+      class A extends JelType {
+        constructor() {
+          super();
+        }
+        static add2({a = 3, b = 7, c = 5} = {}) {
+          return a + 10*b + 100*c;
+        }
+      }
+      A.add2_jel_mapping = 'named';
+     
+      assert.equal(new JEL('A.add2()').executeImmediately({A}), 573);
+      assert.throws(()=>new JEL('A.add2(1, 2, 3)').executeImmediately({A}));
+      assert.equal(new JEL('A.add2(a=1, b=2, c=3)').executeImmediately({A}), 321);
+      assert.equal(new JEL('A.add2(c=7)').executeImmediately({A}), 773);
+      assert.equal(new JEL('A.add2(c=7, a=5)').executeImmediately({A}), 775);
+   });
+
+    
    it('supports lambda', function() {
       assert(new JEL('a=>1').executeImmediately({}) instanceof Callable);
       assert.equal(new JEL('a=>55').executeImmediately({}).invokeWithObject([], {}), 55);

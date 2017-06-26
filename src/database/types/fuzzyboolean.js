@@ -63,4 +63,4 @@ FuzzyBoolean.CLEARLY_TRUE = 3;
 FuzzyBoolean.create_jel_mapping = {state: 0, diff: 1};
 
 
-		
+module.exports = FuzzyBoolean;

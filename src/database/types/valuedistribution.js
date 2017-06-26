@@ -12,3 +12,4 @@ class ValueDistribution extends JelType {
   
 }
 
+module.exports = ValueDistribution;
