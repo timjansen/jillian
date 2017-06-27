@@ -34,9 +34,8 @@ describe('jelSerializer', function() {
     });
     
     
-    it('should serialize anonymous objects using toString()', function() {
-      assert.equal(s.serialize({x: 0}), '[object Object]');
-      assert.equal(s.serialize({toString: ()=>'boo'}), 'boo');
+    it('should serialize anonymous objects using an error message', function() {
+      assert.equal(s.serialize({x: 0}), '"unsupported object"');
     });
     
     it('should use getSerializationProperties() for objects', function() {

@@ -2,6 +2,7 @@
 
 const Database = require('../../src/database/database.js');
 const DatabaseConfig = require('../../src/database/databaseconfig.js');
+const DbEntry = require('../../src/database/dbentry.js');
 const tmp = require('tmp');
 const fs = require('fs');
 const assert = require('assert');
@@ -43,9 +44,31 @@ tmp.dir(function(err, path) {
 		it('loads and stores DB entries', function() {
 			return Database.create(path+'/db4')
 			.then(db=>{
+				const e = new DbEntry('MyFirstEntry');
+				assert.equal(e.hashCode.length, 16);
+				return db.put(e).then(()=>db.get('MyFirstEntry').then(e1=>{
+					assert(e1 instanceof DbEntry);
+					assert.equal(e1.distinctName, 'MyFirstEntry');
+					return db.getByHash(e.hashCode).then(e2=>{
+						assert.equal(e2.distinctName, 'MyFirstEntry');
+						const db2 = new Database(path+'/db4');
+						return db2.get('MyFirstEntry').then(e1=>assert.equal(e1.distinctName, 'MyFirstEntry'));
+					});
+				}));
+			})
+			.then(()=>{
+				const db = new Database(path+'/db4');
+				const a = new DbEntry('MyOtherEntry');
+				return db.put(a)
+					.then(()=>db.get('MyOtherEntry').then(a1=>assert.equal(a1.distinctName, 'MyOtherEntry')))
+					.then(()=>db.get('MyFirstEntry').then(e1=>assert.equal(e1.distinctName, 'MyFirstEntry')));
 			});
 		});
 		
+		it('overwrites DB entries', function() {
+			
+		});
+
 		it('deletes DB entries', function() {
 			
 		});

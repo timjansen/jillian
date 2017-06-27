@@ -8,6 +8,7 @@ const tifu = require('tifuhash');
 class DbEntry extends JelType {
   
   constructor(distinctName, reality, hashCode) {
+    super();
     this.distinctName = distinctName;
     this.reality = reality;
     this.hashCode = hashCode || tifu.hash(distinctName);
@@ -29,6 +30,15 @@ class DbEntry extends JelType {
     return {};
   }
   
+  getSerializationProperties() {
+    return {distinctName: this.distinctName, reality: this.reality};
+  }
+  
+  static create(distinctName, reality, hashCode) {
+    return new DbEntry(distinctName, reality, hashCode);
+  }
 }
+
+DbEntry.create_jel_mapping = {distinctName: 0, reality: 1, hashCode: 2};
 
 module.exports = DbEntry;

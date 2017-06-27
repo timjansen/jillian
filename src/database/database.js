@@ -4,11 +4,15 @@ const Utils = require('../util/utils.js');
 const DbEntry = require('./dbentry.js');
 const DatabaseConfig = require('./databaseconfig.js');
 const DatabaseError = require('./databaseerror.js');
+const DatabaseSession = require('./databasesession.js');
+const DatabaseContext = require('./databasecontext.js');
+
 const JEL = require('../jel/jel.js');
 const JelType = require('../jel/type.js');
-const databaseContext = require('./databasecontext.js');
 const serializer = require('../jel/serializer.js');
+
 const tifu = require('tifuhash');
+
 const fs = require('fs-extra');
 const path = require('path');
 
@@ -65,7 +69,7 @@ class Database {
   
   readEntryInternal(distinctName, path) {
     return fs.readFile(path, {encoding: 'utf8'})
-    .then(entryTxt=>JEL.execute(entryTxt, databaseContext))
+    .then(entryTxt=>JEL.execute(entryTxt, DatabaseContext.create(new DatabaseSession(this))))
     .catch(e=> {
       if (e.code == 'ENOENT')
         return null;
@@ -88,15 +92,15 @@ class Database {
   put(dbEntry) {
     return this.init(config=> {
       const distinctName = dbEntry.distinctName;
-      const path = this.getFilePathForHashInternal(dbEntry.hashCode);
-      return fs.exists(path)
+      const p = this.getFilePathForHashInternal(dbEntry.hashCode);
+      return fs.ensureDir(path.dirname(p))
       .then(oldEntry=>
-         fs.writeFile(path, serializer.serialize(dbEntry), {encoding: 'utf8'})
+         fs.writeFile(p, serializer.serialize(dbEntry), {encoding: 'utf8'})
         .then(()=>{
           if (!oldEntry)
             return this.addIndexingInternal(dbEntry);
         }))
-      .catch (e=>new DatabaseError(`Can not write database entry ${distinctName} at ${path}: ${e.toString()}`));
+      .catch (e=>DatabaseError.rethrow(e, `Can not write database entry ${distinctName} at ${p}`));
     });
   }
 

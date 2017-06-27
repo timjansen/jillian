@@ -46,6 +46,8 @@ function serialize(obj, pretty, indent = 0) {
 				r += serialize(obj[obj.length-1], pretty, indent);
 			return r + ']';
 		}
+		else
+			return '"unsupported object"';
 	}
 	else if (type == 'string' || type == 'number' || type == 'boolean')
 		return JSON.stringify(obj);

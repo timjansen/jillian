@@ -10,7 +10,7 @@ class DatabaseError extends ChainableError {
 		this.redoStack();
 	}
 
-	rethrow(cause, msg) {
+	static rethrow(cause, msg) {
 		if (cause instanceof DatabaseError)
 			throw cause;
 		throw new DatabaseError(cause, msg);
