@@ -12,6 +12,7 @@ const Literal = require('./nodes/literal.js');
 const Variable = require('./nodes/variable.js');
 const Operator = require('./nodes/operator.js');
 const List = require('./nodes/list.js');
+const Dictionary = require('./nodes/dictionary.js');
 const Reference = require('./nodes/reference.js');
 const Condition = require('./nodes/condition.js');
 const Assignment = require('./nodes/assignment.js');
@@ -44,7 +45,8 @@ const binaryOperators = { // op->precedence
   '%': 14,
   
   '(': 18,
-  '[': 18
+  '[': 18,
+  '{': 18
 };
 const unaryOperators = { // op->precedence
   '-': 16,
@@ -59,7 +61,8 @@ const WITH_PRECEDENCE = 4;
 const NO_STOP = {};
 const PARENS_STOP = {')': true};
 const LIST_ENTRY_STOP = {']': true, ',': true};
-const LIST_STOP = {']': true};
+const DICT_KEY_STOP = {':': true, '}': true, ',': true};
+const DICT_VALUE_STOP = {',': true, '}': true};
 const PARAMETER_STOP = {')': true, ',': true};
 const IF_STOP = {'then': true};
 const THEN_STOP = {'else': true};
@@ -133,6 +136,41 @@ class JEL {
           list.push(this.parseExpression(PARENS_PRECEDENCE, LIST_ENTRY_STOP));
           if (this.expectOp(LIST_ENTRY_STOP, "Expecting comma or end of list").value == ']')
             return this.tryBinaryOps(new List(list), precedence, stopOps);
+        }
+      }
+      else if (token.value == '{') {
+        const closePeek = this.tokens.peek();
+        if (closePeek && closePeek.operator && closePeek.value == '}') {
+          this.tokens.next();
+          return this.tryBinaryOps(new Dictionary(), precedence, stopOps);
+        }
+        
+        const assignments = [];
+        const usedNames = {};
+        while (true) {
+          const name = this.tokens.next();
+          if (!name)
+            this.throwParseException(name, "Unexpected end of dictionary");
+          if (!name.identifier && !name.literal)
+            this.throwParseException(name, "Expected identifier or literal as dictionary key");
+          if (name.value in usedNames)
+            this.throwParseException(name, `Duplicate key in dictionary: ${name.value}`);
+          usedNames[name.value] = true;
+ 
+          const separator = this.expectOp(DICT_KEY_STOP, "Expected ':', ',' or '}' in Dictionary.");
+          if (separator.value == ':') {
+            assignments.push(new Assignment(name.value, this.parseExpression(PARENS_PRECEDENCE, DICT_VALUE_STOP)));
+
+            if (this.expectOp(DICT_VALUE_STOP, "Expecting comma or end of dictionary").value == '}')
+              return this.tryBinaryOps(new Dictionary(assignments), precedence, stopOps);
+          }
+          else { // short notation {a}
+            if (!name.identifier)
+              this.throwParseException(separator, "Dictionary entries require a value, unless an identifier is used in the short notation.");
+            assignments.push(new Assignment(name.value, new Variable(name.value)));
+            if (separator.value == '}')
+              return this.tryBinaryOps(new Dictionary(assignments), precedence, stopOps);
+           }
         }
       }
       else if (token.value == '@') {

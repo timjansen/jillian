@@ -89,19 +89,20 @@ class Database {
     return this.init(config=>fs.exists(this.getFilePathInternal(distinctName)));
   }
   
-  put(dbEntry) {
-    return this.init(config=> {
+  put(...dbEntries) {
+    return this.init(config=>Promise.all(dbEntries.map(dbEntry=>{
       const distinctName = dbEntry.distinctName;
       const p = this.getFilePathForHashInternal(dbEntry.hashCode);
       return fs.ensureDir(path.dirname(p))
-      .then(oldEntry=>
+      .then(()=>fs.exists(p))
+      .then(oldEntryExists=>
          fs.writeFile(p, serializer.serialize(dbEntry), {encoding: 'utf8'})
         .then(()=>{
-          if (!oldEntry)
+          if (!oldEntryExists)
             return this.addIndexingInternal(dbEntry);
         }))
       .catch (e=>DatabaseError.rethrow(e, `Can not write database entry ${distinctName} at ${p}`));
-    });
+    })));
   }
 
   delete(dbEntry) {
@@ -113,7 +114,7 @@ class Database {
   }
   
   addIndexingInternal(dbEntry) {
-    const spec = dbEntry.databaseIndices();
+    const spec = dbEntry.databaseIndices;
     const indexPromises = [];
     for (let name in spec) {
       const indexDesc = spec[name];
@@ -126,7 +127,7 @@ class Database {
   }
   
   removeIndexingInternal(dbEntry) {
-    const spec = dbEntry.databaseIndices();
+    const spec = dbEntry.databaseIndices;
     const indexPromises = [];
     for (let name in spec) {
       const indexDesc = spec[name];
@@ -166,7 +167,7 @@ class Database {
   // returns promise
   static create(dbPath, config = new DatabaseConfig()) {
     if (fs.existsSync(dbPath))
-      throw new DatabaseError(`Can not create database, "${this.path}" already exists`);
+      throw new DatabaseError(`Can not create database, "${dbPath}" already exists`);
 
     try {
       fs.mkdirpSync(path.join(dbPath, DATA_DIR));

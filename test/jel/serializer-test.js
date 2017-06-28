@@ -2,6 +2,7 @@
 
 const assert = require('assert');
 const s = require('../../src/jel/serializer.js');
+const Dictionary = require('../../src/jel/dictionary.js');
 
 describe('jelSerializer', function() {
   describe('serialize()', function() {
@@ -48,6 +49,12 @@ describe('jelSerializer', function() {
       assert.equal(s.serialize(new ABC(new ABC('bar'))), 'ABC(obj=ABC(obj="bar",x=2,y="bla",zzz=[1,2,3]),x=2,y="bla",zzz=[1,2,3])');
     });
 
+    it('should serialize dictionaries', function() {
+      assert.equal(s.serialize(new Dictionary()), '{}');
+      assert.equal(s.serialize(new Dictionary({a:3, b: 'e'})), '{a:3,b:"e"}');
+      assert.equal(s.serialize(new Dictionary({"@e": "3"})), '{"@e":"3"}');
+    });
+    
     it('should pretty print', function() {
       assert.equal(s.serialize([1, 2, 3], true), '[1, 2, 3]');
       assert.equal(s.serialize({x: 0, getSerializationProperties() {return {y: 4};} }, true), 'Object(\n  y=4\n)');

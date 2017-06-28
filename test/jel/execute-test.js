@@ -8,6 +8,7 @@ const Callable = require('../../src/jel/callable.js');
 const JelType = require('../../src/jel/type.js');
 const JelNode = require('../../src/jel/node.js');
 const JelList = require('../../src/jel/list.js');
+const JelDictionary = require('../../src/jel/dictionary.js');
 const Literal = require('../../src/jel/nodes/literal.js');
 const Variable = require('../../src/jel/nodes/variable.js');
 const Operator = require('../../src/jel/nodes/operator.js');
@@ -165,6 +166,19 @@ describe('JEL', function() {
       assert.deepEqual(new JEL('[7, 9-4, 7*3]').executeImmediately().elements, [7, 5, 21]);
     });
 
+    it('supports dictionaries', function() {
+      assert.deepEqual(new JEL('{}').executeImmediately().toObjectDebug(), {});
+      assert.deepEqual(new JEL('{a: 3, b: 1}').executeImmediately().toObjectDebug(), {a: 3, b: 1});
+      assert.deepEqual(new JEL('{"a": 3, "b": 1}').executeImmediately().toObjectDebug(), {a: 3, b: 1});
+      assert.deepEqual(new JEL("{'a': 3, 'b': 1}").executeImmediately().toObjectDebug(), {a: 3, b: 1});
+      assert.deepEqual(new JEL('{a, b: 1, c}').executeImmediately({a:7,b:2,c:10}).toObjectDebug(), {a:7,b:1,c:10});
+      assert.deepEqual(new JEL('{a: {b: 2}}').executeImmediately().toObjectDebug().a.toObjectDebug().b, 2);
+      
+      assert.throws(()=>new JEL('{a: 1, a: 2}').executeImmediately());
+    });
+    
+
+    
     it('supports with', function() {
       assert.equal(new JEL('with a=1: a').executeImmediately(), 1);
       assert.equal(new JEL('with a=1, b=2: a+b').executeImmediately(), 3);

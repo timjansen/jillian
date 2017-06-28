@@ -66,11 +66,27 @@ tmp.dir(function(err, path) {
 		});
 		
 		it('overwrites DB entries', function() {
-			
+			return Database.create(path+'/db5')
+						.then(db=>{
+								const e = new DbEntry('MyEntry');
+								return db.put(e)
+									.then(()=>db.get('MyEntry')
+												.then(e2=>{e2.distinctName='x';return db.put(e2)})
+												.then(()=>db.getByHash(e.hashCode))
+												.then(e3=>assert.equal(e3.distinctName, 'x'))
+											 );
+			});
 		});
 
 		it('deletes DB entries', function() {
-			
+			return Database.create(path+'/db6')
+						.then(db=>{
+								const e = new DbEntry('MyEntry');
+								return db.put(e)
+									.then(()=>db.delete(e))
+									.then(()=>db.get('MyEntry'))
+									.then(e2=>assert.strictEqual(e2, null));
+			});
 		});
 
 		it('maintains a thing index', function() {

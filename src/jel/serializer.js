@@ -1,5 +1,7 @@
 'use strict';
 
+const Dictionary = require('./dictionary.js');
+
 /**
  * Serializes an object tree of serializable nodes into a JSON-like, JEL-readable string representation. Primitives (number, string, boolean, array)
  * are seriallized like JSON. Objects use JEL constructor logic.
@@ -19,7 +21,29 @@ function serialize(obj, pretty, indent = 0) {
 	
 	const type = typeof obj;
 	if (type == 'object') {
-		if ('getSerializationProperties' in obj) {
+		if (obj instanceof Dictionary) {
+			if (!obj.size)
+				return "{}";
+			let r = '{';
+			let i = 0;
+			const last = obj.elements.size-1;
+			for (let key of obj.elements.keys()) {
+				const value = obj.elements.get(key);
+				if (pretty)
+					r += '\n'+spaces(2);
+				if (typeof key == 'string' && /^[a-zA-Z_]\w*$/.test(key))
+					r += key;
+				else 
+					r += serialize(key, pretty, indent);
+				r += (pretty ? ': ' : ':') + serialize(value, pretty, indent)
+				if (i++ < last)
+					r += pretty ? ', ' : ',';
+			}
+			if (pretty)
+				r += '\n';
+			return r + '}';
+		}
+		else if ('getSerializationProperties' in obj) {
 			const props = obj.getSerializationProperties();
 			let r = obj.constructor.name + '(';
 			const names = [];

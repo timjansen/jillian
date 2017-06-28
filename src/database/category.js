@@ -31,6 +31,14 @@ class Category extends DbEntry {
   get databaseIndices() {
     return DB_INDICES;
   }
+  
+    
+  static create(distinctName, reality, hashCode, superCategory) {
+    return new Category(distinctName, reality, hashCode, superCategory);
+  }
 }
+
+Category.create_jel_mapping = {distinctName: 0, reality: 1, hashCode: 2, superCategory: 3};
+
 
 module.exports = Category;

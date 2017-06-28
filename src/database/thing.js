@@ -17,7 +17,12 @@ class Thing extends DbEntry {
     return DB_INDICES;
   }
   
+  static create(distinctName, reality, hashCode, category) {
+    return new Thing(distinctName, reality, hashCode, category);
+  }
 }
+
+Thing.create_jel_mapping = {distinctName: 0, reality: 1, hashCode: 2, category: 3};
 
 module.exports = Thing;
 

@@ -1,3 +1,5 @@
+'use strict';
+
 const JelType = require('./type.js');
 
 /**
@@ -6,15 +8,16 @@ const JelType = require('./type.js');
 class List extends JelType {
 	constructor(elements = []) {
 		super();
-		this.elements = elements instanceof List ? elements.elements : elements instanceof Array ? elements : Array.prototype.slice.call(elements);
+		this.elements = elements instanceof List ? elements.elements : typeof elements == 'array' ? elements : Array.from(elements);
 	}
-	
+
 	op(operator, right) {
 		if (right == null)
 			return this;
 		if (right instanceof List) {
 			switch(operator) {
 				case '==':
+					// TODO
 					break;
 			}
 		}
@@ -39,6 +42,7 @@ class List extends JelType {
 	
 	each(f) {
 		this.elements.forEach((a,i)=>f.invoke(a,i));
+		return this;
 	}
 
 	map(f) {
