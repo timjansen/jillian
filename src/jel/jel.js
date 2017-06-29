@@ -19,6 +19,7 @@ const Assignment = require('./nodes/assignment.js');
 const With = require('./nodes/with.js');
 const Lambda = require('./nodes/lambda.js');
 const Call = require('./nodes/call.js');
+const Get = require('./nodes/get.js');
 
 const binaryOperators = { // op->precedence
   '.': 19,
@@ -60,6 +61,7 @@ const WITH_PRECEDENCE = 4;
 
 const NO_STOP = {};
 const PARENS_STOP = {')': true};
+const SQUARE_BRACE_STOP = {']': true};
 const LIST_ENTRY_STOP = {']': true, ',': true};
 const DICT_KEY_STOP = {':': true, '}': true, ',': true};
 const DICT_VALUE_STOP = {',': true, '}': true};
@@ -231,6 +233,8 @@ class JEL {
     
     if (binOpToken.value == '(') 
       return this.tryBinaryOps(this.parseCall(left), precedence, stopOps);
+    else if (binOpToken.value == '[') 
+      return this.tryBinaryOps(this.parseGet(left), precedence, stopOps);
     else
       return this.tryBinaryOps(new Operator(binOpToken.value, left, this.parseExpression(binaryOperators[binOpToken.value], stopOps)), precedence, stopOps);
   }
@@ -318,6 +322,12 @@ class JEL {
     return new Call(left, argList, namedArgs);
   }
 
+  parseGet(left) {
+    const nameExp = this.parseExpression(PARENS_PRECEDENCE, SQUARE_BRACE_STOP);
+    this.expectOp(SQUARE_BRACE_STOP, "Closing square bracket");
+    return new Get(left, nameExp);
+  }
+  
   expectOp(allowedTypes, msg) {
     const op = this.tokens.next();
     if (!op)

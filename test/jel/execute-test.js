@@ -81,6 +81,7 @@ describe('JEL', function() {
       
       assert.equal(new JEL('a.x').executeImmediately({a:new A()}), 3);
       assert.equal(new JEL('(a).y').executeImmediately({a:new A()}), "foo");
+      assert.equal(new JEL('(a)["y"]').executeImmediately({a:new A()}), "foo");
       assert.throws(()=>new JEL('(a).z').executeImmediately({a:new A()}));
       assert.throws(()=>new JEL('(a) . 5').executeImmediately({a:new A()}));
       assert.throws(()=>new JEL('(a)."x"').executeImmediately({a:new A()}));
@@ -123,6 +124,7 @@ describe('JEL', function() {
       assert.equal(new JEL('a.getX()').executeImmediately({a:new A()}), 2);
       assert(new JEL('A()').executeImmediately({A:create}) instanceof A);
       assert.equal(new JEL('A().getX()').executeImmediately({A:create}), 2);
+      assert.equal(new JEL('A()["getX"]()').executeImmediately({A:create}), 2);
       assert.equal(new JEL('A(a=55).getX()').executeImmediately({A:create}), 55);
       assert.equal(new JEL('A(55).getX()').executeImmediately({A:create}), 55);
       assert.equal(new JEL('A(b=77,a=55).getX()').executeImmediately({A:create}), 55);
@@ -176,9 +178,20 @@ describe('JEL', function() {
       
       assert.throws(()=>new JEL('{a: 1, a: 2}').executeImmediately());
     });
-    
 
     
+    it('supports the get operator for dictionaries', function() {
+      assert.strictEqual(new JEL('{}["a"]').executeImmediately(), undefined);
+      assert.strictEqual(new JEL('{a:3}["a"]').executeImmediately(), 3);
+    });
+
+    it('supports the get operator for lists', function() {
+      assert.strictEqual(new JEL('[][0]').executeImmediately(), undefined);
+      assert.strictEqual(new JEL('[1, 2, 3][10]').executeImmediately(), undefined);
+      assert.strictEqual(new JEL('[1, 2, 3][-1]').executeImmediately(), undefined);
+      assert.strictEqual(new JEL('[1, 2, 3, 4][2]').executeImmediately(), 3);
+    });
+
     it('supports with', function() {
       assert.equal(new JEL('with a=1: a').executeImmediately(), 1);
       assert.equal(new JEL('with a=1, b=2: a+b').executeImmediately(), 3);
