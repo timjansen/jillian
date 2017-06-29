@@ -298,15 +298,19 @@ describe('JEL', function() {
        static promise(value) {
          return new Promise((resolve)=>setTimeout(()=>resolve(value), 1));
        }
+      
      }
      A.promise_jel_mapping = ['value'];
-     
+     A.x = 42;
+     A.JEL_PROPERTIES = {x:1};
+
      const l = [];
-     
      l.push(JEL.execute('A.promise(3)+4', {A}).then(v=>assert.equal(v, 7)));
      l.push(JEL.execute('3+A.promise(4)', {A}).then(v=>assert.equal(v, 7)));
      l.push(JEL.execute('A.promise(3)+A.promise(4)', {A}).then(v=>assert.equal(v, 7)));
-     l.push(JEL.execute('A.promise(3)+A.promise(4)', {A}).then(v=>assert.equal(v, 7)));
+     l.push(JEL.execute('A.promise(A.x)+A.promise(A.x)', {A}).then(v=>assert.equal(v, 84)));
+     l.push(JEL.execute('A.promise(A)[A.promise("x")]', {A}).then(v=>assert.equal(v, 42)));
+     l.push(JEL.execute('A.promise(A).promise(A.promise(3))', {A}).then(v=>assert.equal(v, 3)));
      l.push(JEL.execute('if (!A.promise(0)) then A.promise(4) else 5', {A}).then(v=>assert.equal(v, 4)));
      l.push(JEL.execute('((a,b,c,d,e)=>a+4*b+5*c+30*d+100*e)(A.promise(2), 5, A.promise(1), d=A.promise(10), e=1)', {A}).then(v=>assert.equal(v, 427)));
 
