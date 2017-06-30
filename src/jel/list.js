@@ -100,10 +100,6 @@ class List extends JelType {
 		return new List(l);
 	}
 	
-	getSerializationProperties() {
-    return {elements: this.elements};
-	}
-
 	static create(elements) {
 		return new List(elements);
 	}

@@ -69,7 +69,7 @@ class Database {
   
   readEntryInternal(distinctName, path) {
     return fs.readFile(path, {encoding: 'utf8'})
-    .then(entryTxt=>JEL.execute(entryTxt, DatabaseContext.create(new DatabaseSession(this))))
+    .then(entryTxt=>JEL.execute(entryTxt, DatabaseContext.create()))
     .catch(e=> {
       if (e.code == 'ENOENT')
         return null;

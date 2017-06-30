@@ -10,14 +10,23 @@ class DatabaseSession {
     this.sessionCache = {}; // hash code -> entry
   }
 
+  // returns the entry, null if it does not exist, undefined if not in cache
+  getFromCache(distinctName) {
+    return this.cacheByName[distinctName];
+  }
+
+  getFromDatabase(distinctName) {
+      return this.database.get(distinctName)
+    .then(dbEntry => this.cacheByName[distinctName] = this.sessionCache[dbEntry.hashCode] = dbEntry);
+  }
+  
   // return either a value or a Promise!
   get(distinctName) {
-    const cachedEntry = this.cacheByName[distinctName];
+    const cachedEntry = this.getFromCache(distinctName);
     if (cachedEntry !== undefined)
       return cachedEntry;
 
-    return this.database.get(distinctName)
-    .then(dbEntry => this.cacheByName[distinctName] = this.sessionCache[dbEntry.hashCode] = dbEntry);
+    return this.getFromDatabase(distinctName);
   }
   
   cacheEntry(dbEntry) {

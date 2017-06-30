@@ -1,7 +1,9 @@
 'use strict';
 
 const JelNode = require('../node.js');
+const DbRef = require('../../database/dbref.js');
 
+// a @Name ref
 class Reference extends JelNode {
   constructor(name) {
     super();
@@ -11,8 +13,10 @@ class Reference extends JelNode {
   execute(ctx) {
     if (this.ref)
       return this.ref;
+
     if (!ctx.dbSession)
-      throw new Error('Reference requires a database session in the Context.');
+      return new DbRef(this.name);
+
     this.ref = ctx.dbSession.get(this.name);
     if (!this.ref)
       throw new Error(`Can not find ref ${this.ref} in database.`);

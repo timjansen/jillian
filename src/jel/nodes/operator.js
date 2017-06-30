@@ -23,21 +23,12 @@ class Operator extends JelNode {
       if (this.right == null)
         return this.evaluateLeftFirstOp(ctx);
         
-      const left = this.left.execute(ctx);
-      const right = this.right.execute(ctx);
-      if (left instanceof Promise || right instanceof Promise)
-        return Promise.all([left, right]).then(r=>JelType.op(this.op, r[0], r[1]));
-       else
-        return JelType.op(this.op, left, right);
+      return this.resolveValues(ctx, (l,r)=>JelType.op(this.op, l, r), this.left.execute(ctx), this.right.execute(ctx));
       }
   }
 
   evaluateLeftFirstOp(ctx) {
-    const left = this.left.execute(ctx);
-    if (left instanceof Promise)
-      return left.then(value=>this.leftFirstOps(ctx, value));
-    else
-      return this.leftFirstOps(ctx, left);   
+    return this.resolveValue(ctx, left=>this.leftFirstOps(ctx, left), this.left.execute(ctx));
   }
   
   leftFirstOps(ctx, left) {

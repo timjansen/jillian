@@ -22,12 +22,7 @@ class Get extends JelNode {
   }
    
   execute(ctx) {
-    const left = this.left.execute(ctx);
-    const name = this.name.execute(ctx);
-    if (left instanceof Promise || name instanceof Promise) 
-      return Promise.all([left, name]).then(r=>this.getValue(ctx, r[0], r[1]));
-    else
-      return this.getValue(ctx, left, name);
+    return this.resolveValues(ctx, (l,n)=>this.getValue(ctx, l, n), this.left.execute(ctx), this.name.execute(ctx));
   }
   
   getSerializationProperties() {

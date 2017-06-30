@@ -8,6 +8,7 @@ const Callable = require('../../src/jel/callable.js');
 const JelType = require('../../src/jel/type.js');
 const JelNode = require('../../src/jel/node.js');
 const JelList = require('../../src/jel/list.js');
+const LazyRef = require('../../src/jel/lazyref.js');
 const JelDictionary = require('../../src/jel/dictionary.js');
 const Literal = require('../../src/jel/nodes/literal.js');
 const Variable = require('../../src/jel/nodes/variable.js');
@@ -317,6 +318,50 @@ describe('JEL', function() {
      return Promise.all(l);
    });
     
+   it('supports LazyRefs', function() {
+     class MyRef extends LazyRef {
+        constructor(value) {
+          super();
+          this.value = value;
+        }
+       get() {
+         return this.value;
+       }
+     }
+     
+     class A extends JelType {
+       static promiseRef(value) {
+         return this.ref(new Promise((resolve)=>setTimeout(()=>resolve(value), 1)));
+       }
+       static ref(value) {
+         return new MyRef(value);
+       }      
+     }
+     A.promiseRef_jel_mapping = ['value'];
+     A.ref_jel_mapping = ['value'];
+     A.x = 42;
+     A.JEL_PROPERTIES = {x:1};
+
+     const l = [];
+     l.push(JEL.execute('A.ref(3)+4', {A}).then(v=>assert.equal(v, 7)));
+     l.push(JEL.execute('3+A.ref(4)', {A}).then(v=>assert.equal(v, 7)));
+     l.push(JEL.execute('A.ref(3)+A.ref(4)', {A}).then(v=>assert.equal(v, 7)));
+     l.push(JEL.execute('A.ref(A.x)+A.ref(A.x)', {A}).then(v=>assert.equal(v, 84)));
+     l.push(JEL.execute('A.ref(A)[A.ref("x")]', {A}).then(v=>assert.equal(v, 42)));
+     l.push(JEL.execute('A.ref(A).ref(A.ref(3))', {A}).then(v=>assert.equal(v.value, 3)));
+     l.push(JEL.execute('if (!A.ref(0)) then A.ref(4) else 5', {A}).then(v=>assert.equal(v.value, 4)));
+     l.push(JEL.execute('((a,b,c,d,e)=>a+4*b+5*c+30*d+100*e)(A.ref(2), 5, A.ref(1), d=A.ref(10), e=1)', {A}).then(v=>assert.equal(v, 427)));
+
+     l.push(JEL.execute('A.promiseRef(3)+4', {A}).then(v=>assert.equal(v, 7)));
+     l.push(JEL.execute('A.promiseRef(3)+A.ref(4)', {A}).then(v=>assert.equal(v, 7)));
+     l.push(JEL.execute('3+A.promiseRef(4)', {A}).then(v=>assert.equal(v, 7)));
+     l.push(JEL.execute('A.promiseRef(3)+A.promiseRef(4)', {A}).then(v=>assert.equal(v, 7)));
+     l.push(JEL.execute('A.promiseRef(A.x)+A.promiseRef(A.x)', {A}).then(v=>assert.equal(v, 84)));
+     l.push(JEL.execute('A.promiseRef(A)[A.promiseRef("x")]', {A}).then(v=>assert.equal(v, 42)));
+     l.push(JEL.execute('((a,b,c,d,e)=>a+4*b+5*c+30*d+100*e)(A.promiseRef(2), 5, A.promiseRef(1), d=A.ref(10), e=1)', {A}).then(v=>assert.equal(v, 427)));
+
+     return Promise.all(l);
+   });
     
     
   });

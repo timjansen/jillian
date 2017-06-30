@@ -12,11 +12,7 @@ class Condition extends JelNode {
   }
   
   execute(ctx) {
-    const c = this.condition.execute(ctx);
-    if (c instanceof Promise)
-      return c.then(r=>this.runOnValue(ctx, r));
-    else
-      return this.runOnValue(ctx, c);
+    return this.resolveValue(ctx, v=>this.runOnValue(ctx, v), this.condition.execute(ctx));
   }
 
   runOnValue(ctx, cond) {

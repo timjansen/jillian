@@ -8,21 +8,27 @@ const DB_INDICES = {catentries: {type: 'category', property: 'category', include
 // Base class for any kind of physical or immaterial instance of a category
 class Thing extends DbEntry {
   
-  constructor(distinctName, reality, hashCode, category) {
+  constructor(distinctName, category, properties, words, speech, reality, hashCode) {
+    super(distinctName, properties, words, speech, reality, hashCode);
     this.category = category;
-    super(distinctName, reality, hashCode);
   }
   
   get databaseIndices() {
     return DB_INDICES;
   }
   
-  static create(distinctName, reality, hashCode, category) {
-    return new Thing(distinctName, reality, hashCode, category);
+  getSerializationProperties() {
+    return {distinctName: this.distinctName, reality: this.reality, properties: this.properties, words: this.words, speech: this.speech, category: this.category};
+  }
+
+  
+  static create(distinctName, category, properties, words, speech, reality, hashCode) {
+    return new Thing(distinctName, category, properties, words, speech, reality, hashCode);
   }
 }
 
-Thing.create_jel_mapping = {distinctName: 0, reality: 1, hashCode: 2, category: 3};
+Thing.create_jel_mapping = {distinctName: 0, category: 1, properties: 2, words: 3, speech: 4, reality: 5, hashCode: 6};
+Thing.prototype.JEL_PROPERTIES = {category: true};
 
 module.exports = Thing;
 

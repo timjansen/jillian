@@ -1,23 +1,24 @@
 'use strict';
 
 const JelType = require('../jel/type.js');
+const Dictionary = require('../jel/dictionary.js');
+const List = require('../jel/list.js');
 const tifu = require('tifuhash');
 
 // Base class for any kind of physical or immaterial instance of a category
 
 class DbEntry extends JelType {
   
-  constructor(distinctName, reality, hashCode) {
+  constructor(distinctName, reality, hashCode, properties = new Dictionary(), words = new Dictionary(), speech = new List()) {
     super();
     this.distinctName = distinctName;
     this.reality = reality;
     this.hashCode = hashCode || tifu.hash(distinctName);
 
-    this.words = {};
-    this.properties = {};
-    this.speech = [];
+    this.words = words; // Dictionary: language -> word -> probability
+    this.properties = properties;
+    this.speech = speech;
   }
-
 
   addWord(language, word, probability = 1) {
   }
@@ -31,7 +32,7 @@ class DbEntry extends JelType {
   }
   
   getSerializationProperties() {
-    return {distinctName: this.distinctName, reality: this.reality};
+    return {distinctName: this.distinctName, reality: this.reality, properties: this.properties, words: this.words, speech: this.speech};
   }
   
   static create(distinctName, reality, hashCode) {
@@ -39,6 +40,6 @@ class DbEntry extends JelType {
   }
 }
 
-DbEntry.create_jel_mapping = {distinctName: 0, reality: 1, hashCode: 2};
+DbEntry.create_jel_mapping = {distinctName: 0, reality: 1, hashCode: 2, properties: 3, words: 4, speech: 5};
 
 module.exports = DbEntry;

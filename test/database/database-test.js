@@ -3,6 +3,8 @@
 const Database = require('../../src/database/database.js');
 const DatabaseConfig = require('../../src/database/databaseconfig.js');
 const DbEntry = require('../../src/database/dbentry.js');
+const Thing = require('../../src/database/thing.js');
+const Category = require('../../src/database/category.js');
 const tmp = require('tmp');
 const fs = require('fs');
 const assert = require('assert');
@@ -47,7 +49,7 @@ tmp.dir(function(err, path) {
 				const e = new DbEntry('MyFirstEntry');
 				assert.equal(e.hashCode.length, 16);
 				return db.put(e).then(()=>db.get('MyFirstEntry').then(e1=>{
-					assert(e1 instanceof DbEntry);
+					assert.equal(e1.constructor.name, 'DbEntry');
 					assert.equal(e1.distinctName, 'MyFirstEntry');
 					return db.getByHash(e.hashCode).then(e2=>{
 						assert.equal(e2.distinctName, 'MyFirstEntry');
@@ -88,14 +90,24 @@ tmp.dir(function(err, path) {
 									.then(e2=>assert.strictEqual(e2, null));
 			});
 		});
-
-		it('maintains a thing index', function() {
-			
-		});
-
+/*
 		it('maintains a category index', function() {
-			
+			return Database.create(path+'/db7')
+						.then(db=>{
+								const superC = new Category('superCat');
+								const c1 = new Category('c1', superC);
+								const c2 = new Category('c2', superC);
+								const c3 = new Category('c3', superC);
+								const subC1 = new Category('subC1', c1);
+
+								return db.put(superC, c1, c2, c3, subC1);
+			});
 		});
+*/
+		
+		it('maintains a thing index', function() {
+		});
+
 
 	});
 	

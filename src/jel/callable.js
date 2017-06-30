@@ -29,7 +29,7 @@ class Callable {
 		else {
 			if (args.length)
 				throw new Error(`Method only supports named arguments, but got ${args.length} anonymous argument(s).`);
-			return this.f.apply(this.self, this.injectContext ? [ctx, argObj] : [argObj]);
+			return this.f.apply(this.self, this.injectContext ? [ctx, argObj || {}] : [argObj || {}]);
 		}
 	}
 	
