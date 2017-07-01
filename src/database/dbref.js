@@ -23,6 +23,10 @@ class DbRef extends LazyRef {
 			return ctx.dbSession.getFromDatabase(this.distinctName);
 	}
 	
+	get isAvailable() {
+		return this.cached !== undefined;
+	}
+	
   getSerializationProperties() {
     return {distinctName: this.distinctName};
   }	
