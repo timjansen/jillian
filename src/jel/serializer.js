@@ -61,12 +61,17 @@ function serializeInternal(obj, pretty, indent, primary) {
 			for (let name in props)
 				names.push(name);
 			names.sort();
-			names.forEach((name, c) => {
-				if (c > 0)
-					r += ',';
-				if (pretty)
-					r += '\n' + spaces(indent+1)
-				r += name + '=' + serializeInternal(props[name], pretty, indent+2);
+			let c = 0;
+			names.forEach((name) => {
+				const value = props[name];
+				if (value != null) {
+					if (c > 0)
+						r += ',';
+					if (pretty)
+						r += '\n' + spaces(indent+1)
+					r += name + '=' + serializeInternal(value, pretty, indent+2);
+					c++;
+				}
 			});
 			if (pretty)
 				return r + '\n' + spaces(indent) + ')';

@@ -6,7 +6,7 @@ const List = require('../jel/list.js');
 const tifu = require('tifuhash');
 
 // Base class for any kind of physical or immaterial instance of a category
-
+// Note that all references to other DbEntrys must be stored as a DbRef!!
 class DbEntry extends JelType {
   
   constructor(distinctName, reality, hashCode, properties = new Dictionary(), words = new Dictionary(), speech = new List()) {
@@ -19,7 +19,7 @@ class DbEntry extends JelType {
     this.properties = properties;
     this.speech = speech;
   }
-
+  
   addWord(language, word, probability = 1) {
   }
   
@@ -32,7 +32,7 @@ class DbEntry extends JelType {
   }
   
   getSerializationProperties() {
-    return {distinctName: this.distinctName, reality: this.reality, properties: this.properties, words: this.words, speech: this.speech};
+    return {distinctName: this.distinctName, reality: this.reality, properties: this.properties.toNullable(), words: this.words.toNullable(), speech: this.speech.toNullable()};
   }
   
   static create(distinctName, reality, hashCode) {

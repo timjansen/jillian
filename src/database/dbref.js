@@ -1,14 +1,21 @@
 'use strict';
 
-const LazyRef = require('../jel/lazyref.js');
+const JelType = require('../jel/type.js');
+const DbEntry = require('./dbentry.js');
 
-class DbRef extends LazyRef {
+class DbRef extends JelType {
 	
-	constructor(distinctName) {
+	constructor(distinctNameOrEntry) {
 		super();
-		this.distinctName = distinctName;
+		if (distinctNameOrEntry instanceof DbEntry) {
+			this.distinctName = distinctNameOrEntry.distinctName;
+			this.cached = distinctNameOrEntry;
+		}
+		else	
+			this.distinctName = distinctNameOrEntry;
 	}
 	
+	// returns either DbEntry or Promise!
 	get(ctx) {
 		if (!ctx.dbSession)
 			throw new Error('Can not execute DbRef without DatabaseSession in context.');
@@ -22,7 +29,8 @@ class DbRef extends LazyRef {
 		else
 			return ctx.dbSession.getFromDatabase(this.distinctName).then(r=>this.cached = r);
 	}
-	
+
+	// returns either DbEntry or Promise!
 	getFromDb(database) {
 		if (this.cached !== undefined)
 			return this.cached;
@@ -38,11 +46,13 @@ class DbRef extends LazyRef {
   }	
 	
 	static create(distinctName) {
+		if (distinctName instanceof DbRef)
+			return distinctName;
 		return new DbRef(distinctName);
 	}
 }
 
-DbRef.create_jel_mapping = {distinctName: 0};
+DbRef.create_jel_mapping = {distinctName: 0, dbEntry: 0};
 
 module.exports = DbRef;
 

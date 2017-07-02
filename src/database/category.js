@@ -1,6 +1,7 @@
 'use strict';
 
 const DbEntry = require('./dbentry.js');
+const DbRef = require('./dbref.js');
 
 const DB_INDICES = {subCategories: {type: 'category', property: 'superCategory', includeParents: true}};
 
@@ -8,7 +9,7 @@ class Category extends DbEntry {
 
   constructor(distinctName, superCategory, properties, words, speech, reality, hashCode) {
     super(distinctName, properties, words, speech, reality, hashCode);
-    this.superCategory = superCategory; // warning: may be Promise or DbRef!!
+    this.superCategory = DbRef.create(superCategory); 
   }
 
   // returns promise with all matching bjects
@@ -32,7 +33,7 @@ class Category extends DbEntry {
   }
   
   getSerializationProperties() {
-    return {distinctName: this.distinctName, reality: this.reality, properties: this.properties, words: this.words, speech: this.speech, superCategory: this.superCategory};
+    return {distinctName: this.distinctName, reality: this.reality, properties: this.properties.toNullable(), words: this.words.toNullable(), speech: this.speech.toNullable(), superCategory: this.superCategory};
   }
     
   static create(distinctName, superCategory, properties, words, speech, reality, hashCode) {

@@ -20,8 +20,9 @@ class Callable {
 			if (argObj)
 				for (let name in argObj) {
 					const idx = this.argMapper[name];
-					if (idx == null)
-						throw new Error(`Unknown argument name '${name}' can not be mapped.`);
+					if (idx == null){
+						throw new Error(`Unknown argument name '${name}' can not be mapped for function '${this.name || 'anonymous'}'.`);
+					}
 					allArgs[idx] = argObj[name];
 				}
 			return this.f.apply(this.self, allArgs);

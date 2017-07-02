@@ -9,7 +9,7 @@ class Call extends JelNode {
     super();
     this.left = left;
     this.argList = argList;
-    this.namedArgs = namedArgs; // list of Assignments
+    this.namedArgs = namedArgs; // array of Assignment
   }
   
   callCallable(ctx, callable) {
@@ -26,9 +26,9 @@ class Call extends JelNode {
       return this.callCallable(ctx, left);
     else if (JelType.isPrototypeOf(left)) {
       const callable = JelType.member(left, 'create');
-      if (callable)
-        return this.callCallable(ctx, callable);
-      throw new Error(`Call failed. Tried to call a JEL type that does not support creation.`);
+      if (!callable)
+        throw new Error(`Call failed. Tried to create '${left.constructor.name}', but it does not support creation. It needs a public create() method.`);
+      return this.callCallable(ctx, callable);
     }
     else if (left == null) 
       return null;

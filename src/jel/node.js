@@ -1,7 +1,6 @@
 'use strict';
 
 const JelType = require('./type.js');
-const LazyRef = require('./lazyref.js');
 
 /**
  * Represents a node in a JEL expression.
@@ -24,8 +23,6 @@ class JelNode extends JelType {
 	resolveValue(ctx, f, value) {
 		if (value instanceof Promise)
 			return value.then(f);
-		else if (value instanceof LazyRef)
-			return this.resolveValue(ctx, f, value.get(ctx));
 		else
 			return f(value);
 	}
@@ -34,18 +31,15 @@ class JelNode extends JelType {
 		if (!values.length)
 			return f();
 		
-		const noLazy = values.map(v=>(v instanceof LazyRef) ? v.get(ctx) : v);
-		if (noLazy.find(v=>v instanceof Promise))
-			return Promise.all(noLazy).then(v=>f(...v));
+		if (values.find(v=>v instanceof Promise))
+			return Promise.all(values).then(v=>f(...v));
 		else 
-			return f(...noLazy);
+			return f(...values);
 	}
 
 	resolveValueObj(ctx, f, assignments, values) {
 		if (!assignments.length)
 			return f(null);
-		
-		const noLazy = values.map(v=>v instanceof LazyRef ? v.get(ctx) : v);
 		
 		function createObj(l) {
 			const o = {};
@@ -53,10 +47,10 @@ class JelNode extends JelType {
 			return o;
 		}
 		
-		if (noLazy.find(v=>v instanceof Promise))
-			return Promise.all(noLazy).then(v=>f(createObj(v)));
+		if (values.find(v=>v instanceof Promise))
+			return Promise.all(values).then(v=>f(createObj(v)));
 		else 
-			return f(createObj(noLazy));
+			return f(createObj(values));
 	}
 
 }

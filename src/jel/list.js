@@ -100,6 +100,11 @@ class List extends JelType {
 		return new List(l);
 	}
 	
+	toNullable() {
+		return this.elements.size ? this : null;
+	}
+
+	
 	static create(elements) {
 		return new List(elements);
 	}

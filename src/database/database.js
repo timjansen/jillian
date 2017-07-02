@@ -111,25 +111,17 @@ class Database {
       return this.removeIndexingInternal(dbEntry).then(()=>fs.unlink(path));
     });
   }
-  
-  // resolves a value that may be a DbRef, a promise or an actual value. Calls the callback with the actual value.
-  // return a promise, either with the value returned by the callback, or the promise returned by it
-  resolveRef(ref, f) {
-    if (ref instanceof DbRef)
-      return this.resolveRef(ref.getFromDb(this), f);
-    else if (ref instanceof Promise)
-      return ref.then(f);
-   else
-      return Promise.resolve(f(ref));
-  }
-  
+   
   addIndexingInternal(dbEntry) {
     const spec = dbEntry.databaseIndices;
     const indexPromises = [];
     for (let name in spec) {
       const indexDesc = spec[name];
-      if (indexDesc.type == 'category')
-        indexPromises.push(this.resolveRef(JelType.member(dbEntry, indexDesc.property), catRef=>catRef ? this.appendToCategoryIndexInternal(dbEntry, catRef, '_' + name, !!indexDesc.includeParents) : Promise.resolve()));
+      if (indexDesc.type == 'category') {
+        const cat = JelType.member(dbEntry, indexDesc.property);
+        if (cat)
+          indexPromises.push(Promise.resolve(cat.getFromDb(this)).then(catRef=>catRef && this.appendToCategoryIndexInternal(dbEntry, catRef, '_' + name, !!indexDesc.includeParents)));
+      }
       else
         throw new DatabaseError(`Unsupported index type ${indexDesc.type} for index ${name}. Only 'category' is supported for now.`);
     }
@@ -141,8 +133,11 @@ class Database {
     const indexPromises = [];
     for (let name in spec) {
       const indexDesc = spec[name];
-      if (indexDesc.type == 'category')
-        indexPromises.push(this.resolveRef(JelType.member(dbEntry, indexDesc.property), catRef=>catRef ? this.removeFromCategoryIndexInternal(dbEntry, catRef, '_' + name, !!indexDesc.includeParents) : Promise.resolve()));
+      if (indexDesc.type == 'category') {
+        const cat = JelType.member(dbEntry, indexDesc.property);
+        if (cat)
+          indexPromises.push(Promise.resolve(cat.getFromDb(this)).then(catRef=>catRef && this.removeFromCategoryIndexInternal(dbEntry, catRef, '_' + name, !!indexDesc.includeParents)));
+      }
     }
     return Promise.all(indexPromises);
   }
@@ -150,7 +145,7 @@ class Database {
   appendToCategoryIndexInternal(dbEntry, category, indexSuffix, recursive) {
     const prom = fs.appendFile(this.getFilePathForHashInternal(category.hashCode, indexSuffix), dbEntry.hashCode + '\n');
     if (recursive && category.superCategory)
-      return prom.then(p=>this.appendToCategoryIndexInternal(dbEntry, category.superCategory, indexSuffix, recursive));
+      return prom.then(()=>Promise.resolve(category.superCategory.getFromDb(this)).then(superCat=>superCat && this.appendToCategoryIndexInternal(dbEntry, superCat, indexSuffix, recursive)));
     else
       return prom;
   }
@@ -160,7 +155,7 @@ class Database {
     const prom = fs.readFile(fileName)
     .then(file=>fs.writeFile(fileName, file.replace(RegExp('^'+dbEntry.hashCode+'\n'), '')));
     if (recursive && category.superCategory)
-      return prom.then(p=>this.removeFromCategoryIndexInternal(dbEntry, category.superCategory, indexSuffix, recursive));
+      return prom.then(()=>Promise.resolve(category.superCategory.getFromDb(this)).then(superCat=>superCat && this.removeFromCategoryIndexInternal(dbEntry, superCat, indexSuffix, recursive)));
     else
       return prom;
   }

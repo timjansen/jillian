@@ -98,8 +98,10 @@ class JelType {
 	}
 	
 	static member(obj, name) {
-		if (obj instanceof JelType || JelType.isPrototypeOf(obj)) { 
-			const callable = obj[`${name}_jel_callable`];
+		const isClass = JelType.isPrototypeOf(obj);
+		if (isClass || obj instanceof JelType) { 
+			const callableCacheKey = isClass ? `${name}_${obj.name}_jel_callable` : `${name}_jel_callable`;
+			const callable = obj[callableCacheKey];
 			if (callable)
 					return callable;
 			if (obj.JEL_PROPERTIES && name in obj.JEL_PROPERTIES)
@@ -108,7 +110,7 @@ class JelType {
 			const argMapper = obj[`${name}_jel_mapping`];
 			if (argMapper) {
 				const newCallable = new Callable(obj[name], argMapper, obj, name, !!argMapper['>ctx']);
-				obj[`${name}_jel_callable`] = newCallable;
+				obj[callableCacheKey] = newCallable;
 				return newCallable;
 			}
 			

@@ -45,10 +45,14 @@ describe('jelSerializer', function() {
       
       class ABC { constructor(obj) {this.a = 2; this.obj = obj; } getSerializationProperties() { return {x: 2, y: 'bla', zzz: [1, 2, 3], obj: this.obj}; }}
       
-      assert.equal(s.serialize(new ABC()), 'ABC(obj=null,x=2,y="bla",zzz=[1,2,3])');
+      assert.equal(s.serialize(new ABC()), 'ABC(x=2,y="bla",zzz=[1,2,3])');
       assert.equal(s.serialize(new ABC(new ABC('bar'))), 'ABC(obj=ABC(obj="bar",x=2,y="bla",zzz=[1,2,3]),x=2,y="bla",zzz=[1,2,3])');
     });
 
+    it('should not serialize null values for objects', function() {
+      assert.equal(s.serialize({x: 0, getSerializationProperties() {return {c: null, b: 2, a: null};} }), 'Object(b=2)');
+    });
+    
     it('should serialize dictionaries', function() {
       assert.equal(s.serialize(new Dictionary()), '{}');
       assert.equal(s.serialize(new Dictionary({a:3, b: 'e'})), '{a:3,b:"e"}');
@@ -61,7 +65,7 @@ describe('jelSerializer', function() {
       
       class ABC { constructor(obj) {this.a = 2; this.obj = obj; } getSerializationProperties() { return {x: 2, y: 'bla', zzz: [1, 2, 3], obj: this.obj}; }}
       
-      assert.equal(s.serialize(new ABC(), true), 'ABC(\n  obj=null,\n  x=2,\n  y="bla",\n  zzz=[1, 2, 3]\n)');
+      assert.equal(s.serialize(new ABC(), true), 'ABC(\n  x=2,\n  y="bla",\n  zzz=[1, 2, 3]\n)');
       assert.equal(s.serialize(new ABC(new ABC('bar')), true), 'ABC(\n  obj=ABC(\n      obj="bar",\n      x=2,\n      y="bla",\n      zzz=[1, 2, 3]\n    ),\n  x=2,\n  y="bla",\n  zzz=[1, 2, 3]\n)');
     });
 

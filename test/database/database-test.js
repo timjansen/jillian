@@ -104,7 +104,7 @@ tmp.dir(function(err, path) {
 									.then(()=>db.readCategoryIndex(c1, 'subCategories')
 									.then(list=>assert.deepEqual(list, [subC1.hashCode]))
 									.then(()=>db.readCategoryIndex(superC, 'subCategories'))
-									.then(list=>assert.deepEqual(list, [c1.hashCode, c2.hashCode, c3.hashCode, subC1.hashCode]))
+									.then(list=>assert.deepEqual(list.sort(), [c1.hashCode, c2.hashCode, c3.hashCode, subC1.hashCode].sort()))
 								);
 			});
 		});

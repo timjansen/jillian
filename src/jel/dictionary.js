@@ -146,6 +146,10 @@ class Dictionary extends JelType {
 		return o;
 	}
 	
+	toNullable() {
+		return this.elements.size ? this : null;
+	}
+	
 	static create(elements) {
 		return new Dictionary(elements);
 	}

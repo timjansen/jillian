@@ -15,7 +15,7 @@ class Context {
 				return this.frame[name];
 		if (this.parent)
 			return this.parent.get(name);
-		throw new Error(`Unknown variable ${name}.`);
+		throw new Error(`Can not read unknown variable ${name}.`);
 	}
 }
 

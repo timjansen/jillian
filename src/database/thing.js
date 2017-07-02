@@ -1,6 +1,7 @@
 'use strict';
 
 const DbEntry = require('./dbentry.js');
+const DbRef = require('./dbref.js');
 
 const DB_INDICES = {catentries: {type: 'category', property: 'category', includeParents: true}};
 
@@ -10,7 +11,7 @@ class Thing extends DbEntry {
   
   constructor(distinctName, category, properties, words, speech, reality, hashCode) {
     super(distinctName, properties, words, speech, reality, hashCode);
-    this.category = category;
+    this.category = DbRef.create(category);
   }
   
   get databaseIndices() {
@@ -18,7 +19,7 @@ class Thing extends DbEntry {
   }
   
   getSerializationProperties() {
-    return {distinctName: this.distinctName, reality: this.reality, properties: this.properties, words: this.words, speech: this.speech, category: this.category};
+    return {distinctName: this.distinctName, reality: this.reality, properties: this.properties.toNullable(), words: this.words.toNullable(), speech: this.speech.toNullable(), category: this.category};
   }
 
   

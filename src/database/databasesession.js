@@ -30,24 +30,21 @@ class DatabaseSession {
     return this.getFromDatabase(distinctName);
   }
   
-  resolveRef(ref, f) {
-    if (ref instanceof DbRef)
-      return this.resolveRef(ref.get(this), f);
-    else if (ref instanceof Promise)
-      return f ? ref.then(f) : ref;
-   else
-      return Promise.resolve(f ? f(ref) : ref);
-  }
-  
   storeInCache(dbEntry) {
     this.cacheByName[dbEntry.distinctName] = dbEntry;
     this.sessionCache[dbEntry.hashCode] = dbEntry;
     return dbEntry;
   }
   
-  // returns promise with the dbEntry
-  put(dbEntry) {
-    return this.database.put(this.storeInCache(dbEntry));
+  // for debugging
+  clearCacheInternal() {
+    this.cacheByName = {}; 
+    this.sessionCache = {};
+  }
+  
+  // returns promise
+  put(...dbEntries) {
+    return this.database.put(...dbEntries.map(dbEntry=>this.storeInCache(dbEntry)));
   }
 
 
