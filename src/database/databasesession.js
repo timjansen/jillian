@@ -18,7 +18,7 @@ class DatabaseSession {
 
   getFromDatabase(distinctName) {
       return this.database.get(distinctName)
-    .then(dbEntry => this.cacheByName[distinctName] = this.sessionCache[dbEntry.hashCode] = dbEntry);
+    .then(dbEntry => this.storeInCache(dbEntry));
   }
   
   // return either a value or a Promise!
