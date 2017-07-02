@@ -1,6 +1,7 @@
 'use strict';
 
 const WorkerPool = require('./workerpool.js');
+const DbRef = require('./dbref.js');
 
 class DatabaseSession {
 
@@ -29,7 +30,16 @@ class DatabaseSession {
     return this.getFromDatabase(distinctName);
   }
   
-  cacheEntry(dbEntry) {
+  resolveRef(ref, f) {
+    if (ref instanceof DbRef)
+      return this.resolveRef(ref.get(this), f);
+    else if (ref instanceof Promise)
+      return f ? ref.then(f) : ref;
+   else
+      return Promise.resolve(f ? f(ref) : ref);
+  }
+  
+  storeInCache(dbEntry) {
     this.cacheByName[dbEntry.distinctName] = dbEntry;
     this.sessionCache[dbEntry.hashCode] = dbEntry;
     return dbEntry;
@@ -37,7 +47,7 @@ class DatabaseSession {
   
   // returns promise with the dbEntry
   put(dbEntry) {
-    return this.database.put(this.cacheEntry(dbEntry));
+    return this.database.put(this.storeInCache(dbEntry));
   }
 
 
@@ -46,7 +56,7 @@ class DatabaseSession {
     const index = this.database.readCategoryIndex(category, indexName);
     const cashedResults = index.map(hash=>this.sessionCache[hash]).filter(dbEntry=>dbEntry && filterFunc(dbEntry));
     const unloadedHashs = index.filter(hash=>this.sessionCache[hash] === undefined);
-    const pool = new WorkerPool(hash=>this.database.getByHash(hash).then(dbEntry=>filterFunc(dbEntry) ? this.cacheEntry(dbEntry) : null));
+    const pool = new WorkerPool(hash=>this.database.getByHash(hash).then(dbEntry=>filterFunc(dbEntry) ? this.storeInCache(dbEntry) : null));
 
     pool.addTasks(unloadedHashs);
     return new Promise((fulfilled, rejected)=> {

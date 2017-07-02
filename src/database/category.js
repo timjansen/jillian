@@ -1,7 +1,6 @@
 'use strict';
 
 const DbEntry = require('./dbentry.js');
-const Utils = require('../util/utils.js');
 
 const DB_INDICES = {subCategories: {type: 'category', property: 'superCategory', includeParents: true}};
 
@@ -20,9 +19,9 @@ class Category extends DbEntry {
   getAllInstances(ctx, filterFunc) {
     if (this.superCategory) {
       const directInstances = this.getDirectInstances(ctx, filterFunc);
-      const superPromise = Utils.promisefy(this.superCategory).then(superCategory=>this.superCategory=superCategory);
+      const superPromise = ctx.dbSession.resolveRef(this.superCategory);
       return Promise.all([directInstances, superPromise])
-        .then(()=>this.superCategory.getAllInstances(ctx, filterFunc)); // explicitly avoid running two get**Instances() in parallel...
+        .then(([instances, superCategory])=>instances.cat(superCategory.getAllInstances(ctx, filterFunc))); // explicitly avoid running two get**Instances() in parallel...
     }
     else
       return this.getDirectInstances(ctx, filterFunc);

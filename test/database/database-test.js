@@ -90,7 +90,7 @@ tmp.dir(function(err, path) {
 									.then(e2=>assert.strictEqual(e2, null));
 			});
 		});
-/*
+
 		it('maintains a category index', function() {
 			return Database.create(path+'/db7')
 						.then(db=>{
@@ -100,15 +100,16 @@ tmp.dir(function(err, path) {
 								const c3 = new Category('c3', superC);
 								const subC1 = new Category('subC1', c1);
 
-								return db.put(superC, c1, c2, c3, subC1);
+								return db.put(superC, c1, c2, c3, subC1)
+									.then(()=>db.readCategoryIndex(c1, 'subCategories')
+									.then(list=>assert.deepEqual(list, [subC1.hashCode]))
+									.then(()=>db.readCategoryIndex(superC, 'subCategories'))
+									.then(list=>assert.deepEqual(list, [c1.hashCode, c2.hashCode, c3.hashCode, subC1.hashCode]))
+								);
 			});
 		});
-*/
+
 		
-		it('maintains a thing index', function() {
-		});
-
-
 	});
 	
 });

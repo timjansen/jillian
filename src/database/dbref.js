@@ -20,7 +20,13 @@ class DbRef extends LazyRef {
 		if (this.cached !== undefined)
 			return this.cached;
 		else
-			return ctx.dbSession.getFromDatabase(this.distinctName);
+			return ctx.dbSession.getFromDatabase(this.distinctName).then(r=>this.cached = r);
+	}
+	
+	getFromDb(database) {
+		if (this.cached !== undefined)
+			return this.cached;
+		return database.get(this.name);
 	}
 	
 	get isAvailable() {

@@ -1,10 +1,9 @@
 'use strict';
 
-const Utils = require('../util/utils.js');
 const DbEntry = require('./dbentry.js');
+const DbRef = require('./dbref.js');
 const DatabaseConfig = require('./databaseconfig.js');
 const DatabaseError = require('./databaseerror.js');
-const DatabaseSession = require('./databasesession.js');
 const DatabaseContext = require('./databasecontext.js');
 
 const JEL = require('../jel/jel.js');
@@ -113,13 +112,24 @@ class Database {
     });
   }
   
+  // resolves a value that may be a DbRef, a promise or an actual value. Calls the callback with the actual value.
+  // return a promise, either with the value returned by the callback, or the promise returned by it
+  resolveRef(ref, f) {
+    if (ref instanceof DbRef)
+      return this.resolveRef(ref.getFromDb(this), f);
+    else if (ref instanceof Promise)
+      return ref.then(f);
+   else
+      return Promise.resolve(f(ref));
+  }
+  
   addIndexingInternal(dbEntry) {
     const spec = dbEntry.databaseIndices;
     const indexPromises = [];
     for (let name in spec) {
       const indexDesc = spec[name];
       if (indexDesc.type == 'category')
-        indexPromises.push(this.appendToCategoryIndexInternal(JelType.member(dbEntry, indexDesc.property), dbEntry, '_' + name, !!indexDesc.includeParents));
+        indexPromises.push(this.resolveRef(JelType.member(dbEntry, indexDesc.property), catRef=>catRef ? this.appendToCategoryIndexInternal(dbEntry, catRef, '_' + name, !!indexDesc.includeParents) : Promise.resolve()));
       else
         throw new DatabaseError(`Unsupported index type ${indexDesc.type} for index ${name}. Only 'category' is supported for now.`);
     }
@@ -132,7 +142,7 @@ class Database {
     for (let name in spec) {
       const indexDesc = spec[name];
       if (indexDesc.type == 'category')
-        indexPromises.push(this.removeFromCategoryIndexInternal(JelType.member(dbEntry, indexDesc.property), dbEntry, '_' + name, !!indexDesc.includeParents));
+        indexPromises.push(this.resolveRef(JelType.member(dbEntry, indexDesc.property), catRef=>catRef ? this.removeFromCategoryIndexInternal(dbEntry, catRef, '_' + name, !!indexDesc.includeParents) : Promise.resolve()));
     }
     return Promise.all(indexPromises);
   }
@@ -160,7 +170,7 @@ class Database {
     return this.init(config=>{
       const fileName = this.getFilePathForHashInternal(category.hashCode, '_' + indexName);
       return fs.readFile(fileName)
-        .then(data=>data.split('\n'));
+        .then(data=>data.toString().split('\n').filter(s=>!!s));
     });
   }
  
