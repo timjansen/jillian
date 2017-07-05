@@ -10,8 +10,8 @@ const escapes = {n: '\n', t: '\t'};
 
 const jelTokenizer = {
   tokenize(input) {
-    //          Number                        Operator                                                                                              Identifier-like     pattern           single-quoted    double-quoted        illegal
-    const re = /(\d+(?:\.\d+)?(?:e[+-]?\d+)?)|(\(|\)|\[|\]|\{|\}|\.\*|:|\.|,|\+|-|\*|\/|%|@|=>|==|<==|>==|!==|<<|>>|===|=|!=|>=|<=|>|<|!|\|\||\&\&)|([a-zA-Z_$][\w_$]*)|(`(?:\\.|[^`])*`)|('(?:\\.|[^'])*'|"(?:\\.|[^"])*")|\s+|(.+)/g;
+    //          line comment       full comment             Number                        Operator                                                                        Identifier-like     pattern           single-quoted    double-quoted        illegal
+    const re = /\/\/.*(?:\n|$)|\/\*(?:[^\*]+|\*+[^\/])*\*\/|(\d+(?:\.\d+)?(?:e[+-]?\d+)?)|([\(\)\[\]\{\}:\.,\+\-\*\/%@]|=>|===|==|=|<==|>==|>=|<=|>|<|!==|!=|!|\|\||\&\&)|([a-zA-Z_$][\w_$]*)|(`(?:\\.|[^`])*`)|('(?:\\.|[^'])*'|"(?:\\.|[^"])*")|\s+|(.+)/g;
     // groups:
     // group 1: number
     // group 2: operator
@@ -37,7 +37,7 @@ const jelTokenizer = {
       else if (matches[5])
         tokens.push({value: matches[5].replace(/^.|.$/g, '').replace(/\\(.)/g, (m,c)=>escapes[c]||c), literal: true});
       else if (matches[6])
-        throw new Error(`Unsupported token found: "${matches[5]}"`);
+        throw new Error(`Unsupported token found: "${matches[6]}"`);
     }
     return {tokens, 
             i: 0, 

@@ -21,6 +21,12 @@ describe('jelTokenizer', function() {
       assert.deepEqual(jt.tokenize('a $_b0 c_d_093_d').tokens, [{value: 'a', identifier: true}, {value: '$_b0', identifier: true}, {value: 'c_d_093_d', identifier: true}]);
     });
 
+    
+    it('should parse comments', function() {
+      assert.deepEqual(jt.tokenize('a //comment\n $_b0 /*blabla*/ "d" f/*bla\nbla*/a').tokens, [{value: 'a', identifier: true}, {value: '$_b0', identifier: true}, {value: 'd', literal: true},
+                                                                                               {value: 'f', identifier: true}, {value: 'a', identifier: true}]);
+    });
+    
     it('should parse literals', function() {
       assert.deepEqual(jt.tokenize('3.5 null true "hello" "hi\\n\\"di\\"\\tho" \'huhu\'').tokens, [{value: 3.5, literal: true}, {value: null, literal: true}, {value: true, literal: true},
                                                                          {value: 'hello', literal: true}, {value: 'hi\n"di"\tho', literal: true}, {value: 'huhu', literal: true}]);
