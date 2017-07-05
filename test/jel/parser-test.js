@@ -27,7 +27,7 @@ describe('JEL', function() {
       jelAssert.equal(new JEL('- 5').parseTree, new Literal(-5));
       jelAssert.equal(new JEL('"foo"').parseTree, new Literal('foo'));
       jelAssert.equal(new JEL('"foo"').parseTree, new Literal('foo'));
-      jelAssert.equal(new JEL('`foo`').parseTree, new Literal('foo'));
+      jelAssert.equal(new JEL('"f\\no\\no"').parseTree, new Literal('f\no\no'));
     });
     
     it('should parse variables', function() {

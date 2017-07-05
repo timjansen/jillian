@@ -22,10 +22,14 @@ describe('jelTokenizer', function() {
     });
 
     it('should parse literals', function() {
-      assert.deepEqual(jt.tokenize('3.5 null true "hello" `hi` \'huhu\'').tokens, [{value: 3.5, literal: true}, {value: null, literal: true}, {value: true, literal: true},
-                                                                         {value: 'hello', literal: true}, {value: 'hi', literal: true}, {value: 'huhu', literal: true}, ]);
+      assert.deepEqual(jt.tokenize('3.5 null true "hello" "hi\\n\\"di\\"\\tho" \'huhu\'').tokens, [{value: 3.5, literal: true}, {value: null, literal: true}, {value: true, literal: true},
+                                                                         {value: 'hello', literal: true}, {value: 'hi\n"di"\tho', literal: true}, {value: 'huhu', literal: true}]);
     });
 
+    it('should parse patterns', function() {
+      assert.deepEqual(jt.tokenize('`test` `te\\nst`').tokens, [{value: 'test', pattern: true}, {value: 'te\\nst', pattern: true}]);
+    });
+    
     it('should parse expressions', function() {
       assert.deepEqual(jt.tokenize('a+1').tokens, [{value: 'a', identifier: true}, {value: '+', operator: true}, {value: 1, literal: true}]);
       assert.deepEqual(jt.tokenize('a-1').tokens, [{value: 'a', identifier: true}, {value: '-', operator: true}, {value: 1, literal: true}]);

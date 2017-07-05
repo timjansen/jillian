@@ -6,11 +6,12 @@ Tokenizes a JEL input string.
 
 const wordOperators = {'instanceof': 1, derivativeof: 1, 'if': 1, 'then': 1, 'else': 1, with: 1};
 const constants = {'null': null, 'true': true, 'false': false};
+const escapes = {n: '\n', t: '\t'};
 
 const jelTokenizer = {
   tokenize(input) {
-    //          Number                        Operator                                                                                              Identifier-like     back-quoted      single-quoted   double-quoted        illegal
-    const re = /(\d+(?:\.\d+)?(?:e[+-]?\d+)?)|(\(|\)|\[|\]|\{|\}|\.\*|:|\.|,|\+|-|\*|\/|%|@|=>|==|<==|>==|!==|<<|>>|===|=|!=|>=|<=|>|<|!|\|\||\&\&)|([a-zA-Z_$][\w_$]*)|(`(?:\\.|[^`])*`|'(?:\\.|[^'])*'|"(?:\\.|[^"])*")|\s+|(.+)/g;
+    //          Number                        Operator                                                                                              Identifier-like     pattern           single-quoted    double-quoted        illegal
+    const re = /(\d+(?:\.\d+)?(?:e[+-]?\d+)?)|(\(|\)|\[|\]|\{|\}|\.\*|:|\.|,|\+|-|\*|\/|%|@|=>|==|<==|>==|!==|<<|>>|===|=|!=|>=|<=|>|<|!|\|\||\&\&)|([a-zA-Z_$][\w_$]*)|(`(?:\\.|[^`])*`)|('(?:\\.|[^'])*'|"(?:\\.|[^"])*")|\s+|(.+)/g;
     // groups:
     // group 1: number
     // group 2: operator
@@ -28,12 +29,14 @@ const jelTokenizer = {
       else if (matches[3] && matches[3] in wordOperators)
         tokens.push({value: matches[3], operator: true});
       else if (matches[3])
-        tokens.push({value: matches[3], identifier: true});
+        tokens.push({value: matches[3], identifier: true}); 
       else if (matches[1])
         tokens.push({value: parseFloat(matches[1]), literal: true});
       else if (matches[4])
-        tokens.push({value: matches[4].replace(/^.|.$/g, ''), literal: true});
+        tokens.push({value: matches[4].replace(/^.|.$/g, ''), pattern: true});
       else if (matches[5])
+        tokens.push({value: matches[5].replace(/^.|.$/g, '').replace(/\\(.)/g, (m,c)=>escapes[c]||c), literal: true});
+      else if (matches[6])
         throw new Error(`Unsupported token found: "${matches[5]}"`);
     }
     return {tokens, 
