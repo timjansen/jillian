@@ -3,7 +3,7 @@
 const DbEntry = require('./dbentry.js');
 const DbRef = require('./dbref.js');
 
-const DB_INDICES = {catentries: {type: 'category', property: 'category', includeParents: true}};
+const DB_INDICES = {catEntries: {type: 'category', property: 'category', includeParents: true}};
 
 
 // Base class for any kind of physical or immaterial instance of a category

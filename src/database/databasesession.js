@@ -3,6 +3,8 @@
 const WorkerPool = require('./workerpool.js');
 const DbRef = require('./dbref.js');
 
+const wp = new WorkerPool();
+
 class DatabaseSession {
 
   constructor(database) {
@@ -29,7 +31,7 @@ class DatabaseSession {
 
     return this.getFromDatabase(distinctName);
   }
-  
+
   storeInCache(dbEntry) {
     this.cacheByName[dbEntry.distinctName] = dbEntry;
     this.sessionCache[dbEntry.hashCode] = dbEntry;
@@ -40,6 +42,7 @@ class DatabaseSession {
   clearCacheInternal() {
     this.cacheByName = {}; 
     this.sessionCache = {};
+    return this;
   }
   
   // returns promise
@@ -47,24 +50,24 @@ class DatabaseSession {
     return this.database.put(...dbEntries.map(dbEntry=>this.storeInCache(dbEntry)));
   }
 
-
   // returns a promise containing list of dbEntries
-  getOfIndex(category, indexName, filterFunc = x=>true) {
-    const index = this.database.readCategoryIndex(category, indexName);
-    const cashedResults = index.map(hash=>this.sessionCache[hash]).filter(dbEntry=>dbEntry && filterFunc(dbEntry));
-    const unloadedHashs = index.filter(hash=>this.sessionCache[hash] === undefined);
-    const pool = new WorkerPool(hash=>this.database.getByHash(hash).then(dbEntry=>filterFunc(dbEntry) ? this.storeInCache(dbEntry) : null));
-
-    pool.addTasks(unloadedHashs);
-    return new Promise((fulfilled, rejected)=> {
-      pool.registerCompletionHandler((results, errors)=>{
-        if (errors.length)
-          rejected(errors);
-        else 
-          fulfilled(cashedResults.concat(results.filter(obj=>!!obj)));
-      });
-    });
+  getByIndex(category, indexName, filterFunc = x=>true) {
+    return DbRef.toPromise(this, category).then(cat=>
+      this.database.readCategoryIndex(cat, indexName).then(index=>{
+        const cachedResults = index.map(hash=>this.sessionCache[hash]).filter(dbEntry=>dbEntry && filterFunc(dbEntry));
+        if (cachedResults.length == index.length)
+          return Promise.resolve(cachedResults);
+      
+        const unloadedHashs = index.filter(hash=>this.sessionCache[hash] === undefined);
+    
+        return wp.addJob(unloadedHashs, hash=>this.database.getByHash(hash).then(dbEntry=>filterFunc(dbEntry) ? this.storeInCache(dbEntry) : null))
+          .then(results=>cachedResults.concat(results.filter(obj=>!!obj)));
+      })
+    );
   }
+  
+
+
 }
 
 

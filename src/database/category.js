@@ -2,6 +2,7 @@
 
 const DbEntry = require('./dbentry.js');
 const DbRef = require('./dbref.js');
+const DatabaseSession = require('./databasesession.js');
 
 const DB_INDICES = {subCategories: {type: 'category', property: 'superCategory', includeParents: true}};
 
@@ -13,19 +14,8 @@ class Category extends DbEntry {
   }
 
   // returns promise with all matching bjects
-  getDirectInstances(ctx, filterFunc) {
-    return ctx.dbSession.getOfIndex(this, 'catentries', filterFunc);
-  }
-
-  getAllInstances(ctx, filterFunc) {
-    if (this.superCategory) {
-      const directInstances = this.getDirectInstances(ctx, filterFunc);
-      const superPromise = ctx.dbSession.resolveRef(this.superCategory);
-      return Promise.all([directInstances, superPromise])
-        .then(([instances, superCategory])=>instances.cat(superCategory.getAllInstances(ctx, filterFunc))); // explicitly avoid running two get**Instances() in parallel...
-    }
-    else
-      return this.getDirectInstances(ctx, filterFunc);
+  getInstances(ctx, filterFunc) {
+    return DbRef.getSession(ctx).getByIndex(this, 'catEntries', filterFunc);
   }
 
   get databaseIndices() {

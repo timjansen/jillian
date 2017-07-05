@@ -41,6 +41,43 @@ tmp.dir(function(err, path) {
 				});
 			});
 		});
+		
+		
+		it('reads a complete index from cache', function() {
+			return Database.create(path+'/dbsession2')
+			.then(db=>{
+				const session = new DatabaseSession(db);
+
+				const cat = new Category('MyCat');
+				const thing = new Thing('MyThing', cat);
+				const thing2 = new Thing('MyThing2', cat);
+				return session.put(cat, thing, thing2)
+					.then(()=>session.getByIndex(cat, 'catEntries'))
+					.then(hits=>{
+						assert.equal(hits[0].distinctName, 'MyThing');
+						assert.equal(hits[1].distinctName, 'MyThing2');
+					});
+			});
+		});
+
+		it('reads a complete index uncached', function() {
+			return Database.create(path+'/dbsession3')
+			.then(db=>{
+				const session = new DatabaseSession(db);
+
+				const cat = new Category('MyCat');
+				const thing = new Thing('MyThing', cat);
+				const thing2 = new Thing('MyThing2', cat);
+				const thing3 = new Thing('MyThing3', cat);
+				return session.put(cat, thing, thing2, thing3)
+					.then(()=>session.clearCacheInternal().get('MyThing2')) // load one instance into the cache
+					.then(()=>session.getByIndex(cat, 'catEntries'))
+					.then(hits=>{
+						assert.deepEqual(hits.map(d=>d.distinctName).sort(), ['MyThing', 'MyThing2', 'MyThing3']);
+					});
+			});
+		});
+
 	});
 	
 });

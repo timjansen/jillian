@@ -15,19 +15,19 @@ class DbRef extends JelType {
 			this.distinctName = distinctNameOrEntry;
 	}
 	
+	//
 	// returns either DbEntry or Promise!
-	get(ctx) {
-		if (!ctx.dbSession)
-			throw new Error('Can not execute DbRef without DatabaseSession in context.');
+	get(ctxOrSession) {
+		const dbSession = DbRef.getSession(ctxOrSession);
 	
 		if (this.cached !== undefined)
 			return this.cached;
 		
-		this.cached = ctx.dbSession.getFromCache(this.distinctName);
+		this.cached = dbSession.getFromCache(this.distinctName);
 		if (this.cached !== undefined)
 			return this.cached;
 		else
-			return ctx.dbSession.getFromDatabase(this.distinctName).then(r=>this.cached = r);
+			return dbSession.getFromDatabase(this.distinctName).then(r=>this.cached = r);
 	}
 
 	// returns either DbEntry or Promise!
@@ -45,6 +45,17 @@ class DbRef extends JelType {
     return {distinctName: this.distinctName};
   }	
 	
+  static toPromise(ctxOrSession, ref) {
+		return Promise.resolve(ref instanceof DbRef ? ref.get(DbRef.getSession(ctxOrSession)) : ref);
+	}
+  
+ 	static getSession(ctxOrSession) {
+		const dbSession = ctxOrSession.dbSession || (ctxOrSession.getByIndex ? ctxOrSession : null);
+		if (!dbSession)
+			throw new Error('Can not execute DbRef without DatabaseSession in context.');
+		return dbSession;
+	}
+
 	static create(distinctName) {
 		if (distinctName instanceof DbRef)
 			return distinctName;

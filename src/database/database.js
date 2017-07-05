@@ -143,7 +143,8 @@ class Database {
   }
   
   appendToCategoryIndexInternal(dbEntry, category, indexSuffix, recursive) {
-    const prom = fs.appendFile(this.getFilePathForHashInternal(category.hashCode, indexSuffix), dbEntry.hashCode + '\n');
+    const indexPath = this.getFilePathForHashInternal(category.hashCode, indexSuffix);
+    const prom = fs.appendFile(indexPath, dbEntry.hashCode + '\n');
     if (recursive && category.superCategory)
       return prom.then(()=>Promise.resolve(category.superCategory.getFromDb(this)).then(superCat=>superCat && this.appendToCategoryIndexInternal(dbEntry, superCat, indexSuffix, recursive)));
     else
@@ -151,9 +152,9 @@ class Database {
   }
   
   removeFromCategoryIndexInternal(dbEntry, category, indexSuffix, recursive) {
-    const fileName = this.getFilePathForHashInternal(category.hashCode, indexSuffix);
-    const prom = fs.readFile(fileName)
-    .then(file=>fs.writeFile(fileName, file.replace(RegExp('^'+dbEntry.hashCode+'\n'), '')));
+    const indexPath = this.getFilePathForHashInternal(category.hashCode, indexSuffix);
+    const prom = fs.readFile(indexPath)
+    .then(file=>fs.writeFile(indexPath, file.replace(RegExp('^'+dbEntry.hashCode+'\n'), '')));
     if (recursive && category.superCategory)
       return prom.then(()=>Promise.resolve(category.superCategory.getFromDb(this)).then(superCat=>superCat && this.removeFromCategoryIndexInternal(dbEntry, superCat, indexSuffix, recursive)));
     else
@@ -163,9 +164,15 @@ class Database {
   // returns a promise of a hash array
   readCategoryIndex(category, indexName) {
     return this.init(config=>{
-      const fileName = this.getFilePathForHashInternal(category.hashCode, '_' + indexName);
-      return fs.readFile(fileName)
-        .then(data=>data.toString().split('\n').filter(s=>!!s));
+      const indexPath = this.getFilePathForHashInternal(category.hashCode, '_' + indexName);
+      return fs.readFile(indexPath)
+        .then(data=>data.toString().split('\n').filter(s=>!!s))
+        .catch(e=> {
+          if (e.code == 'ENOENT')
+            return [];
+          else
+            DatabaseError.rethrow(e, `Failed to read index file ${indexPath}`);
+        });
     });
   }
  
