@@ -10,8 +10,10 @@ class SingleMatchNode extends PatternNode {
 	}
 	
 	match(ctx, tokens, idx) {
-		return false; // TODO
-		//return super.match(ctx, tokens, idx);
+		if (this.word !== tokens[idx])
+			return false;
+	
+		return super.match(ctx, tokens, idx);
 	}
 	
 	toString() {

@@ -8,6 +8,7 @@ const Tokenizer = require('./tokenizer.js');
 const Context = require('./context.js');
 const JelType = require('./type.js');
 const JelNode = require('./node.js');
+const Pattern = require('./pattern.js');
 const Literal = require('./nodes/literal.js');
 const Variable = require('./nodes/variable.js');
 const Operator = require('./nodes/operator.js');
@@ -20,6 +21,12 @@ const With = require('./nodes/with.js');
 const Lambda = require('./nodes/lambda.js');
 const Call = require('./nodes/call.js');
 const Get = require('./nodes/get.js');
+
+const SingleMatchNode = require('../translation/nodes/singlematchnode.js');
+const TemplateNode = require('../translation/nodes/templatenode.js');
+const MultiOptionsNode = require('../translation/nodes/multioptionsnode.js');
+const OptionalOptionsNode = require('../translation/nodes/optionaloptionsnode.js');
+const OptionalNode = require('../translation/nodes/optionalnode.js');
 
 const binaryOperators = { // op->precedence
   '.': 19,
@@ -335,6 +342,63 @@ class JEL {
       this.throwParseException(tokens.last(), msg || "Expected operator");
     return op;
   }
+  
+  static createPattern(input) {
+    return new Pattern(this.parsePattern(Tokenizer.tokenizePattern(input)));
+  }
+  
+  static parsePattern(tok) {
+		const t = tok.next();
+		if (!t)
+			return undefined;
+		else if (t.word) 
+			return new SingleMatchNode(t.word, this.parsePattern(tok));
+		else if (t.template)
+			return new TemplateNode(t.template, t.name, t.hints, t.expression, this.parsePattern(tok));
+
+		switch(t.op) {
+			case '[':
+				const optionNode = this.parsePatternOptions(tok);
+				optionNode.addFollower(this.parsePattern(tok));
+				return optionNode;
+			case ']':	
+			case ']?':
+			case '|':
+				tok.undo();
+				return undefined; 
+		}
+		throw new Error(`Unexpected token in pattern`);
+	}
+
+	static parsePatternOptions(tok) {
+		const opts = [];
+		while(true) {
+			const exp = this.parsePattern(tok);
+			if (!exp)
+				throw new Error(`Option can't be empty`);
+			opts.push(exp);
+		
+			const stopper = tok.next();
+			if (!stopper)
+				throw new Error(`Unexpected end in option set`);
+			if (stopper.op == '|')
+				continue;
+			if (!opts.length)
+				throw new Error(`Unexpected end of option set. Can not be empty.`);
+
+			if (stopper.op == ']?') {
+				if (opts.length == 1)
+					return OptionalNode.findBest(opts[0]);
+				else
+					return OptionalOptionsNode.findBest(opts);
+			}
+			else 
+				return MultiOptionsNode.findBest(opts); 
+		}
+	}
+
+  
+  
   
   static execute(txt, ctx) {
     return new JEL(txt).execute(ctx);

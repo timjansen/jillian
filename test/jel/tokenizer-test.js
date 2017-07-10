@@ -78,8 +78,30 @@ describe('jelTokenizer', function() {
       assert.equal(t2.next().value, 5);
       assert.equal(t2.next(), undefined);
     });
-
+  });
+  
+    describe('tokenizePattern()', function() {
     
+  it('should parse an empty string', function() {
+      assert.deepEqual(jt.tokenizePattern('').tokens, []);
+      assert.deepEqual(jt.tokenizePattern('   ').tokens, []);
+    });
+
+    it('should parse words and ops', function() {
+      assert.deepEqual(jt.tokenizePattern('foo bar bar').tokens, [{word: 'foo'}, {word: 'bar'}, {word: 'bar'}]);
+      assert.deepEqual(jt.tokenizePattern('   foo\n bar\nbar   \t  ').tokens, [{word: 'foo'}, {word: 'bar'}, {word: 'bar'}]);
+      assert.deepEqual(jt.tokenizePattern('foo [bar|n42] [bar]?').tokens, [{word: 'foo'}, {op: '['}, {word: 'bar'}, {op: '|'}, {word: 'n42'}, 
+                                                                           {op:']'}, {op: '['}, {word: 'bar'}, {op: ']?'}]);
+    });
+
+    it('should parse templates', function() {
+      assert.deepEqual(jt.tokenizePattern('{{trr}} {{nl: g}} {{foo:bar.x}} {{bar.foo.kk::bla {} bla}}').tokens, [
+        {name: undefined, template: 'trr', hints: [], expression: undefined}, 
+        {name: 'nl', template: 'g', hints: [], expression: undefined}, 
+        {name: 'foo', template: 'bar', hints: ['x'], expression: undefined}, 
+        {name: undefined, template: 'bar', hints: ['foo', 'kk'], expression: 'bla {} bla'}]);
+    });
+
   });
 });
 

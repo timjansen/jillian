@@ -1,10 +1,10 @@
 'use strict';
 
 //                          name:                   templateName        .hint.hint              expression
-const templateRE = /^\s*(?:([a-zA-Z_$][\w_$]*):)?\s*([a-zA-Z_$][\w_$]*)(?:\.(\w+(?:\.\w+)*))?\s*(?:::\s*(.*))?$/;
+const patternTemplateRE = /^\s*(?:([a-zA-Z_$][\w_$]*):)?\s*([a-zA-Z_$][\w_$]*)(?:\.(\w+(?:\.\w+)*))?\s*(?:::\s*(.*))?$/;
 
 class Tokenizer {
-	static tokenize(pattern) {
+	static tokenizePattern(pattern) {
 		//          simple word              choice ops      template
 		const re = /\s*(?:([^\s\[\{\|\[\]]+)|(\[|\]\?|\]|\|)|\{\{((?:[^}]|\}[^}])+)\}\}|(.*))\s*/g;
 		
@@ -16,7 +16,7 @@ class Tokenizer {
 			else if (m[2] != null)
 				tokens.push({op: m[2]});
 			else if (m[3] != null)
-				tokens.push(Tokenizer.parseTemplate(m[3]));
+				tokens.push(Tokenizer.parsePatternTemplate(m[3]));
 			else if (m[4])
         throw new Error(`Unsupported token found in pattern: "${m[4]}"`);
     }
@@ -27,8 +27,8 @@ class Tokenizer {
     };
 	}
 
-	static parseTemplate(tpl) {
-		const m = templateRE.exec(tpl);
+	static parsePatternTemplate(tpl) {
+		const m = patternTemplateRE.exec(tpl);
 		if (!m)
 			throw new Error(`Can not parse pattern template: {{${tpl}}}`);
 		return {name: m[1], template: m[2], hints: m[3] ? m[3].split('.') : [], expression: m[4]};
