@@ -8,8 +8,8 @@ const wordOperators = {'instanceof': 1, derivativeof: 1, 'if': 1, 'then': 1, 'el
 const constants = {'null': null, 'true': true, 'false': false};
 const escapes = {n: '\n', t: '\t'};
 
-const jelTokenizer = {
-  tokenize(input) {
+class JelTokenizer {
+  static tokenize(input) {
     //          line comment   full comment                 Number                        Operator                                                                        Identifier-like     pattern           single-quoted    double-quoted        illegal
     const re = /\/\/.*(?:\n|$)|\/\*(?:[^\*]+|\*+[^\/])*\*\/|(\d+(?:\.\d+)?(?:e[+-]?\d+)?)|([\(\)\[\]\{\}:\.,\+\-\*\/%@]|=>|===|==|=|<==|>==|>=|<=|>|<|!==|!=|!|\|\||\&\&)|([a-zA-Z_$][\w_$]*)|(`(?:\\.|[^`])*`)|('(?:\\.|[^'])*'|"(?:\\.|[^"])*")|\s+|(.+)/g;
     // groups:
@@ -46,9 +46,7 @@ const jelTokenizer = {
             last() {return tokens[this.i-1];},
             copy() {return {tokens, i: this.i, next: this.next, peek: this.peek, copy: this.copy, set: this.set, last: this.last};}
     };
-  }, 
+  } 
+}
 
-
-};
-
-module.exports = jelTokenizer;
+module.exports = JelTokenizer;
