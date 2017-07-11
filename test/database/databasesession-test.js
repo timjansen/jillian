@@ -54,8 +54,7 @@ tmp.dir(function(err, path) {
 				return session.put(cat, thing, thing2)
 					.then(()=>session.getByIndex(cat, 'catEntries'))
 					.then(hits=>{
-						assert.equal(hits[0].distinctName, 'MyThing');
-						assert.equal(hits[1].distinctName, 'MyThing2');
+						assert.deepEqual(hits.map(h=>h.distinctName).sort(), ['MyThing', 'MyThing2']);
 					});
 			});
 		});
