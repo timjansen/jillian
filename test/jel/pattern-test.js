@@ -3,6 +3,7 @@
 const assert = require('assert');
 const JEL = require('../../src/jel/jel.js');
 const Pattern = require('../../src/jel/pattern.js');
+const Context = require('../../src/jel/context.js');
 const SingleMatchNode = require('../../src/translation/nodes/singlematchnode.js');
 const OptionalNode = require('../../src/translation/nodes/optionalnode.js');
 const MultiOptionsNode = require('../../src/translation/nodes/multioptionsnode.js');
@@ -72,5 +73,78 @@ describe('jelPatterns', function() {
 
     
   });
+  
+  describe('match()', function() {
+    const ctx = new Context();
+    
+    it('should match an empty string', function() {
+      assert(JEL.createPattern('').match(ctx, ''));
+      assert(JEL.createPattern('').match(ctx, '   '));
+      assert(JEL.createPattern('').match(ctx, []));
+      assert(!JEL.createPattern('').match(ctx, 'a'));
+    });
+
+    it('should parse simple patterns', function() {
+      assert(JEL.createPattern('a b c').match(ctx, ['a', 'b', 'c']));
+      assert(JEL.createPattern('a b c').match(ctx, 'a b c'));
+      assert(JEL.createPattern('a b c').match(ctx, '  a b c  '));
+      assert(!JEL.createPattern('a b c').match(ctx, 'a b d'));
+      assert(!JEL.createPattern('a b c').match(ctx, 'd b c'));
+      assert(!JEL.createPattern('a b c').match(ctx, ['a', 'b', 'd']));
+    });
+
+    it('should parse optional patterns', function() {
+      assert(JEL.createPattern('[x]? y').match(ctx, 'x y'));
+      assert(JEL.createPattern('[x]? y').match(ctx, 'y'));
+      assert(!JEL.createPattern('[x]? y').match(ctx, 'x'));
+      assert(JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, 'a b c d e'));
+      assert(JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, ' b '));
+      assert(JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, 'a b c d'));
+      assert(JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, 'b c d'));
+      assert(!JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, 'c d'));
+      assert(!JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, 'a b c e'));
+      assert(!JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, 'a b c'));
+      assert(!JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, ''));
+      assert(!JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, 'x a b c d e'));
+      assert(!JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, ' a b c d e f'));
+      assert(!JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, ' b d c'));
+      assert(!JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, ' b x'));
+    });
+
+    it('should parse multi-patterns', function() {
+      assert(JEL.createPattern('[x]').match(ctx, 'x'));
+      assert(!JEL.createPattern('[x]').match(ctx, 'y'));
+      
+      assert(JEL.createPattern('[x|y z]').match(ctx, 'x'));
+      assert(JEL.createPattern('[x|y z]').match(ctx, 'y z'));
+      assert(!JEL.createPattern('[x|y z]').match(ctx, 'x y z'));
+      assert(!JEL.createPattern('[x|y z]').match(ctx, ''));
+      
+      assert(JEL.createPattern('[x|y|z] a').match(ctx, 'x a'));
+      assert(JEL.createPattern('[x|y|z] a').match(ctx, 'z a'));
+      assert(!JEL.createPattern('[x|y|z] a').match(ctx, 'z'));
+      assert(!JEL.createPattern('[x|y|z] a').match(ctx, 'z a h'));
+      assert(!JEL.createPattern('[x|y|z] a').match(ctx, 'h y a'));
+      assert(!JEL.createPattern('[x|y|z] a').match(ctx, 'a a'));
+    });
+
+    it('should parse optional multi-patterns', function() {
+      assert(JEL.createPattern('[x|y z]?').match(ctx, ''));
+      assert(JEL.createPattern('[x|y z]?').match(ctx, 'x'));
+      assert(JEL.createPattern('[x|y z]?').match(ctx, 'y z'));
+      assert(!JEL.createPattern('[x|y z]?').match(ctx, 'x y z'));
+  
+      assert(JEL.createPattern('[x|y|z]? a').match(ctx, 'y a'));
+      assert(JEL.createPattern('[x|y|z]? a').match(ctx, 'a'));
+      assert(!JEL.createPattern('[x|y|z]? a').match(ctx, 'x'));
+      assert(!JEL.createPattern('[x|y|z]? a').match(ctx, 'y a k'));
+    });
+
+    it('should parse templates', function() {
+//      assert(JEL.createPattern('a {{test: tpl.x.y :: test > 0}} c').match(ctx, ''));
+    });
+    
+  });
+  
 });
 

@@ -16,8 +16,15 @@ class Pattern extends JelType {
 	}
 	
 	match(ctx, inputOrTokens) {
-		const tokens = (typeof inputOrTokens == 'string') ? inputOrTokens.remove(/^\s+|\s+$/g).split(/\s+\g/) : inputOrTokens;
-		return this.tree ? this.tree.match(ctx, tokens, 0) : tokens.length === 0;
+		if (typeof inputOrTokens == 'string') {
+			const trimmed = inputOrTokens.trim();
+			if (!this.tree)
+				return !trimmed;
+			return this.tree.match(ctx, trimmed.split(/\s+/g), 0);
+		}
+		if (!this.tree)
+			return !inputOrTokens.length;
+		return this.tree.match(ctx, inputOrTokens, 0);
 	}
 
 	

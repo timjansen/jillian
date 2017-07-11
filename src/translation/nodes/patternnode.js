@@ -8,9 +8,9 @@ class PatternNode {
 
 	match(ctx, tokens, idx) {
 		if (this.next)
-			return this.next.match(ctx, tokens, idx+1);
+			return this.next.match(ctx, tokens, idx);
 		else
-			return !tokens[idx+1];
+			return !tokens[idx];
 	}
 	
 	addFollower(next) {
