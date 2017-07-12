@@ -41,6 +41,8 @@ describe('jelPatterns', function() {
     });
 
     it('should parse optional patterns', function() {
+      assert.equal(JEL.createPattern('[x]?').tree.toString(), on(sme('x')).toString());
+      
       const y = sme('y');
       assert.equal(JEL.createPattern('[x]? y').tree.toString(), on(sme('x', y), y).toString());
 
@@ -94,6 +96,9 @@ describe('jelPatterns', function() {
     });
 
     it('should parse optional patterns', function() {
+      assert(JEL.createPattern('[x]?').match(ctx, 'x'));
+      assert(JEL.createPattern('[x]?').match(ctx, ''));
+      assert(!JEL.createPattern('[x]?').match(ctx, 'y'));
       assert(JEL.createPattern('[x]? y').match(ctx, 'x y'));
       assert(JEL.createPattern('[x]? y').match(ctx, 'y'));
       assert(!JEL.createPattern('[x]? y').match(ctx, 'x'));
@@ -121,7 +126,7 @@ describe('jelPatterns', function() {
       assert(!JEL.createPattern('[x|y z]').match(ctx, ''));
       
       assert(JEL.createPattern('[x|y|z] a').match(ctx, 'x a'));
-      assert(JEL.createPattern('[x|y|z] a').match(ctx, 'z a'));
+      assert(JEL.createPattern('foo [x|y|z] a b').match(ctx, 'foo z a b'));
       assert(!JEL.createPattern('[x|y|z] a').match(ctx, 'z'));
       assert(!JEL.createPattern('[x|y|z] a').match(ctx, 'z a h'));
       assert(!JEL.createPattern('[x|y|z] a').match(ctx, 'h y a'));

@@ -13,16 +13,22 @@ class TemplateNode extends PatternNode {
 	}
 	
 	match(ctx, tokens, idx) {
-		// TODO
+		if (!ctx.translationDict || !ctx.translationDict.get)
+			throw new Error("Templates in patterns require 'translationDict' in Context");
 		
-		if (this.word !== tokens[idx]) 
-			return false
+		const tpl = ctx.translationDict.get(this.template);
+		if (!tpl)
+			throw new Error(`Can not find template ${this.template} in given translation dictionary`);
+
+		const val = tpl.match(ctx, tokens, idx);
+				
+		
 
 		return super.match(ctx, tokens, idx);
 	}
 	
 	toString() {
-		return `TemplateNode(name=${this.name}, template=${this.template}, hints=[${this.hints.join(', ')}], expression=${this.expression}) => next=${this.next}`;
+		return `TemplateNode(name=${this.name}, template=${this.template}, hints=[${this.hints.join(', ')}], expression=${!!this.expression}) => next=${this.next}`;
 	}
 
 }

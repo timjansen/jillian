@@ -12,8 +12,8 @@ class SingleMatchNode extends PatternNode {
 	match(ctx, tokens, idx) {
 		if (this.word != tokens[idx])
 			return false;
-
-		return super.match(ctx, tokens, idx+1);
+		
+		return this.matchNext(ctx, tokens, idx+1);
 	}
 	
 	toString() {

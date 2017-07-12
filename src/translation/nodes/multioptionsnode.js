@@ -15,7 +15,7 @@ class MultiOptionsNode extends PatternNode {
 	}
 	
 	match(ctx, tokens, idx) {
-		return !!this.options.find(o=>o.match(ctx, tokens, idx));
+		return this.matchOptions(ctx, tokens, idx);
 	}
 	
 	static findBest(option) {

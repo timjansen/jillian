@@ -4,6 +4,8 @@ Tokenizes a JEL input string.
 */
 'use strict';
 
+const TokenReader = require('./tokenreader.js');
+
 const wordOperators = {'instanceof': 1, derivativeof: 1, 'if': 1, 'then': 1, 'else': 1, with: 1};
 const constants = {'null': null, 'true': true, 'false': false};
 const escapes = {n: '\n', t: '\t'};
@@ -43,13 +45,7 @@ class Tokenizer {
       else if (matches[6])
         throw new Error(`Unsupported token found: "${matches[6]}"`);
     }
-    return {tokens, 
-            i: 0, 
-            next() {return tokens[this.i++];}, 
-            peek() {return tokens[this.i];},
-            last() {return tokens[this.i-1];},
-            copy() {return {tokens, i: this.i, next: this.next, peek: this.peek, copy: this.copy, set: this.set, last: this.last};}
-    };
+    return new TokenReader(tokens);
   } 
   
   
@@ -69,11 +65,7 @@ class Tokenizer {
 			else if (m[4])
         throw new Error(`Unsupported token found in pattern: "${m[4]}"`);
     }
-    return {tokens, 
-            i: 0, 
-            next() {return tokens[this.i++];}, 
-            undo() {this.i--;}
-    };
+    return new TokenReader(tokens);
 	}
 
 	static parsePatternTemplate(tpl) {

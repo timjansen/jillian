@@ -16,7 +16,15 @@ class OptionalOptionsNode extends PatternNode {
 	}
 	
 	match(ctx, tokens, idx) {
-		return super.match(ctx, tokens, idx) || !!this.options.find(o=>o.match(ctx, tokens, idx));
+		const noOptionMatch = this.matchNext(ctx, tokens, idx);
+		if (noOptionMatch === true)
+			return noOptionMatch;
+		
+		const optionMatch = this.matchOptions(ctx, tokens, idx);
+		if (optionMatch === true || (noOptionMatch === false && optionMatch === false))
+			return optionMatch;
+
+		return Promise.all([noOptionMatch, optionMatch]).then(o=>o[0] || o[1]);
 	}
 	
 	static findBest(option) {

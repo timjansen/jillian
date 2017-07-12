@@ -5,10 +5,12 @@
 'use strict';
 
 const Tokenizer = require('./tokenizer.js');
+const TokenReader = require('./tokenreader.js');
 const Context = require('./context.js');
 const JelType = require('./type.js');
 const JelNode = require('./node.js');
 const Pattern = require('./pattern.js');
+const ParseError = require('./parseerror.js');
 const Literal = require('./nodes/literal.js');
 const Variable = require('./nodes/variable.js');
 const Operator = require('./nodes/operator.js');
@@ -96,9 +98,9 @@ class JEL {
   }
 
   
-  throwParseException(token, msg) {
-    throw new Error(msg + '\n' + (token ? JSON.stringify(token) : '(no token for reference)'))
-  }
+  throwParseException(token, msg, cause) {
+    throw new ParseError(cause, msg, token);
+	}
   
   parseExpression(tokens, precedence = 0, stopOps = NO_STOP) {
     const token = tokens.next();
@@ -278,7 +280,7 @@ class JEL {
       if (!ld || !ld.operator || ld.value != '=>')
         return null;
     }
-    tokens.i = tok.i;
+    TokenReader.copyInto(tok, tokens);
     return new Lambda(args, this.parseExpression(tokens, precedence, stopOps));
   }
   
@@ -343,18 +345,24 @@ class JEL {
     return op;
   }
   
-  static createPattern(input) {
-    return new Pattern(this.parsePattern(Tokenizer.tokenizePattern(input)));
+  static createPattern(input, jelToken) {
+    return new Pattern(this.parsePattern(Tokenizer.tokenizePattern(input), jelToken));
   }
   
-  static parsePattern(tok) {
+  static parsePattern(tok, jelToken) {
 		const t = tok.next();
 		if (!t)
 			return undefined;
 		else if (t.word) 
 			return new SingleMatchNode(t.word, this.parsePattern(tok));
-		else if (t.template)
-			return new TemplateNode(t.template, t.name, t.hints, t.expression, this.parsePattern(tok));
+		else if (t.template) {
+			try {	
+				return new TemplateNode(t.template, t.name, t.hints, t.expression ? new JEL(t.expression) : null, this.parsePattern(tok));
+			}
+			catch (e) {
+				this.throwParseException(jelToken, "Can not parse expression ${t.expression} embedded in pattern", e);
+			}
+		}
 
 		switch(t.op) {
 			case '[':
