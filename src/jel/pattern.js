@@ -10,9 +10,10 @@ const OptionalNode = require('../translation/nodes/optionalnode.js');
 
 class Pattern extends JelType {
 	
-	constructor(tree) {
+	constructor(tree, patternText) {
 		super();
 		this.tree = tree
+		this.patternText = patternText;
 	}
 	
 	// can return value or Promise!!
@@ -28,6 +29,9 @@ class Pattern extends JelType {
 		return this.tree.match(ctx, inputOrTokens, 0);
 	}
 	
+	toString() {
+		return `Pattern(text=\`${this.patternText}\`)`;
+	}
 }
 
 module.exports = Pattern;

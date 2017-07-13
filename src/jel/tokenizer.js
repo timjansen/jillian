@@ -6,7 +6,7 @@ Tokenizes a JEL input string.
 
 const TokenReader = require('./tokenreader.js');
 
-const wordOperators = {'instanceof': 1, derivativeof: 1, 'if': 1, 'then': 1, 'else': 1, with: 1};
+const wordOperators = {'instanceof': true, 'derivativeof': true, 'if': true, 'then': true, 'else': true, 'with': true};
 const constants = {'null': null, 'true': true, 'false': false};
 const escapes = {n: '\n', t: '\t'};
 
@@ -39,7 +39,7 @@ class Tokenizer {
       else if (matches[1])
         tokens.push({value: parseFloat(matches[1]), literal: true});
       else if (matches[4])
-        tokens.push({value: matches[4].replace(/^.|.$/g, ''), pattern: true});
+        tokens.push({value: matches[4].replace(/^.|.$/g, '').replace(/\\(.)/g, (m,c)=>escapes[c]||c), pattern: true});
       else if (matches[5])
         tokens.push({value: matches[5].replace(/^.|.$/g, '').replace(/\\(.)/g, (m,c)=>escapes[c]||c), literal: true});
       else if (matches[6])

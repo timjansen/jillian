@@ -33,7 +33,7 @@ describe('jelTokenizer', function() {
     });
 
     it('should parse patterns', function() {
-      assert.deepEqual(jt.tokenize('`test` `te\\nst`').tokens, [{value: 'test', pattern: true}, {value: 'te\\nst', pattern: true}]);
+      assert.deepEqual(jt.tokenize('`test` `te\\nst`').tokens, [{value: 'test', pattern: true}, {value: 'te\nst', pattern: true}]);
     });
     
     it('should parse expressions', function() {

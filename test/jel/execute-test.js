@@ -33,6 +33,11 @@ describe('JEL', function() {
       assert.equal(new JEL('null').executeImmediately(), null);
     });
 
+   it('should execute patterns', function() {
+      assert.equal(new JEL('`a b c`').executeImmediately().toString(), 'Pattern(text=`a b c`)');
+    });
+
+    
    it('should execute primitive operations', function() {
       assert.equal(new JEL('5+5').executeImmediately(), 10);
       assert.equal(new JEL('5*5').executeImmediately(), 25);

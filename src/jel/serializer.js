@@ -2,6 +2,7 @@
 
 const Dictionary = require('./dictionary.js');
 const List = require('./list.js');
+const Pattern = require('./pattern.js');
 const DbEntry = require('../database/dbentry.js');
 const DbRef = require('../database/dbref.js');
 
@@ -52,6 +53,8 @@ function serializeInternal(obj, pretty, indent, primary) {
 		}
 		else if (obj instanceof List) 
 			return serializeArray(obj.elements, pretty, indent);
+		else if (obj instanceof Pattern) 
+			return '`' + obj.patternText.replace(/`/g, '\\`') + '`';
 		else if (obj instanceof DbRef || (obj instanceof DbEntry && !primary))
 			return '@'+obj.distinctName;
 		else if ('getSerializationProperties' in obj) {
