@@ -3,6 +3,7 @@
 const assert = require('assert');
 const s = require('../../src/jel/serializer.js');
 const Dictionary = require('../../src/jel/dictionary.js');
+const Pattern = require('../../src/jel/pattern.js');
 
 describe('jelSerializer', function() {
   describe('serialize()', function() {
@@ -58,6 +59,11 @@ describe('jelSerializer', function() {
       assert.equal(s.serialize(new Dictionary({a:3, b: 'e'})), '{a:3,b:"e"}');
       assert.equal(s.serialize(new Dictionary({"@e": "3"})), '{"@e":"3"}');
     });
+    
+    it('should serialize patterns', function() {
+      assert.equal(s.serialize(new Pattern(null, 'ab c\nd')), '`ab c\nd`');
+    });
+    
     
     it('should pretty print', function() {
       assert.equal(s.serialize([1, 2, 3], true), '[1, 2, 3]');
