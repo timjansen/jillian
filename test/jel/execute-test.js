@@ -180,6 +180,10 @@ describe('JEL', function() {
       assert.deepEqual(new JEL("{'a': 3, 'b': 1}").executeImmediately().toObjectDebug(), {a: 3, b: 1});
       assert.deepEqual(new JEL('{a, b: 1, c}').executeImmediately({a:7,b:2,c:10}).toObjectDebug(), {a:7,b:1,c:10});
       assert.deepEqual(new JEL('{a: {b: 2}}').executeImmediately().toObjectDebug().a.toObjectDebug().b, 2);
+      assert.equal(new JEL('{`abc`: 6}').executeImmediately().anyKey.patternText, 'abc');
+      
+      const dc=new JEL('{`abc`=> 6}').executeImmediately();
+      assert.equal(dc.get(dc.anyKey).argNames.length, 0);
       
       assert.throws(()=>new JEL('{a: 1, a: 2}').executeImmediately());
     });

@@ -18,7 +18,7 @@ class Callable {
 		if (this.argMapper) {
 			const allArgs = this.injectContext ? [ctx].concat(args) : Array.prototype.slice.call(args);
 			if (argObj)
-				for (let name in argObj) {
+				for (const name in argObj) {
 					const idx = this.argMapper[name];
 					if (idx == null){
 						throw new Error(`Unknown argument name '${name}' can not be mapped for function '${this.name || 'anonymous'}'.`);

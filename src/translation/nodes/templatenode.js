@@ -27,6 +27,12 @@ class TemplateNode extends PatternNode {
 		return super.match(ctx, tokens, idx);
 	}
 	
+	collectArgumentNames(dest) {
+		if (this.name)
+			dest.push(this.name);
+		return super.collectArgumentNames(dest);
+	}
+	
 	toString() {
 		return `TemplateNode(name=${this.name}, template=${this.template}, hints=[${this.hints.join(', ')}], expression=${!!this.expression}) => next=${this.next}`;
 	}

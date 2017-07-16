@@ -19,6 +19,12 @@ class PatternNode {
 		return this;
 	}
 	
+	collectArgumentNames(dest) {
+		if (this.next) this.next.collectArgumentNames(dest);
+		if (this.options) 
+			this.options.forEach(el=>el.collectArgumentNames(dest));
+	}
+	
 	// helper for nodes with options
 	matchOptions(ctx, tokens, idx) {
 		const promises = [];

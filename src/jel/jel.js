@@ -73,7 +73,7 @@ const NO_STOP = {};
 const PARENS_STOP = {')': true};
 const SQUARE_BRACE_STOP = {']': true};
 const LIST_ENTRY_STOP = {']': true, ',': true};
-const DICT_KEY_STOP = {':': true, '}': true, ',': true};
+const DICT_KEY_STOP = {':': true, '}': true, ',': true, '=>': true};
 const DICT_VALUE_STOP = {',': true, '}': true};
 const PARAMETER_STOP = {')': true, ',': true};
 const IF_STOP = {'then': true};
@@ -165,19 +165,35 @@ class JEL {
           const name = tokens.next();
           if (!name)
             JEL.throwParseException(name, "Unexpected end of dictionary");
-          if (!name.identifier && !name.literal)
-            JEL.throwParseException(name, "Expected identifier or literal as dictionary key");
+          if (!name.identifier && !name.literal && !name.pattern)
+            JEL.throwParseException(name, "Expected identifier, literal or pattern as dictionary key");
           if (name.value in usedNames)
             JEL.throwParseException(name, `Duplicate key in dictionary: ${name.value}`);
           usedNames[name.value] = true;
  
           const separator = JEL.expectOp(tokens, DICT_KEY_STOP, "Expected ':', ',' or '}' in Dictionary.");
           if (separator.value == ':') {
-            assignments.push(new Assignment(name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, DICT_VALUE_STOP)));
+						const dval = JEL.parseExpression(tokens, PARENS_PRECEDENCE, DICT_VALUE_STOP);
+						if (name.pattern)
+	            assignments.push(new Assignment(JEL.createPattern(name.value, name), dval));
+						else
+  	          assignments.push(new Assignment(name.value, dval));
 
             if (JEL.expectOp(tokens, DICT_VALUE_STOP, "Expecting comma or end of dictionary").value == '}')
               return JEL.tryBinaryOps(tokens, new Dictionary(assignments), precedence, stopOps);
           }
+					else if(separator.value == '=>') {
+						if (!name.pattern)
+							JEL.throwParseException(separator, `Dictionaries with '=>' lambda expressions are only allowed for Dictionary keys`);
+						
+						const keyPattern = JEL.createPattern(name.value, name);
+						const args = [];
+						keyPattern.tree.collectArgumentNames(args);
+  	       	assignments.push(new Assignment(keyPattern, new Lambda(args, JEL.parseExpression(tokens, precedence, DICT_VALUE_STOP))));
+
+						if (JEL.expectOp(tokens, DICT_VALUE_STOP, "Expecting comma or end of dictionary").value == '}')
+              return JEL.tryBinaryOps(tokens, new Dictionary(assignments), precedence, stopOps);
+					}
           else { // short notation {a}
             if (!name.identifier)
               JEL.throwParseException(separator, "Dictionary entries require a value, unless an identifier is used in the short notation.");

@@ -32,6 +32,7 @@ class Pattern extends JelType {
 	toString() {
 		return `Pattern(text=\`${this.patternText}\`)`;
 	}
+	
 }
 
 module.exports = Pattern;
