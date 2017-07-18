@@ -12,7 +12,12 @@ class TemplateNode extends PatternNode {
 		this.expression = expression;
 	}
 	
-	match(ctx, tokens, idx) {
+	clone() {
+		return new TemplateNode(this.template, this.name, this.hints, this.expression, this.next && this.next.clone());
+	}
+
+	
+	match(ctx, tokens, idx, args) {
 		if (!ctx.translationDict || !ctx.translationDict.get)
 			throw new Error("Templates in patterns require 'translationDict' in Context");
 		
@@ -20,11 +25,16 @@ class TemplateNode extends PatternNode {
 		if (!tpl)
 			throw new Error(`Can not find template ${this.template} in given translation dictionary`);
 
-		const val = tpl.match(ctx, tokens, idx);
-				
+		const r = tpl.match(ctx, tokens, idx);
+		if (r) {
+			const [val, newIdx]  = r;
+	
+			if (args && this.name)
+				args[this.name] = val;
 		
-
-		return super.match(ctx, tokens, idx);
+			return this.matchNext(ctx, tokens, newIdx, args);
+		}
+		return undefined;
 	}
 	
 	collectArgumentNames(dest) {

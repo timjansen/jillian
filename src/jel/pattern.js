@@ -22,11 +22,11 @@ class Pattern extends JelType {
 			const trimmed = inputOrTokens.trim();
 			if (!this.tree)
 				return !trimmed;
-			return this.tree.match(ctx, trimmed.split(/\s+/g), 0);
+			return !!this.tree.match(ctx, trimmed.split(/\s+/g), 0);
 		}
 		if (!this.tree)
 			return !inputOrTokens.length;
-		return this.tree.match(ctx, inputOrTokens, 0);
+		return !!this.tree.match(ctx, inputOrTokens, 0);
 	}
 	
 	toString() {

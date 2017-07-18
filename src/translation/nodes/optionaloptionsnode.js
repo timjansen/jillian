@@ -9,22 +9,26 @@ class OptionalOptionsNode extends PatternNode {
 		this.options = options;
 	}
 	
+	clone() {
+		return new OptionalOptionsNode(this.options.map(n=>n.clone()), this.next && this.next.clone());
+	}
+	
 	addFollower(next) {
 		super.addFollower(next);
 		this.options.forEach(f=>f.addFollower(next));
 		return this;
 	}
 	
-	match(ctx, tokens, idx) {
-		const noOptionMatch = this.matchNext(ctx, tokens, idx);
-		if (noOptionMatch === true)
+	match(ctx, tokens, idx, args) {
+		const noOptionMatch = this.matchNext(ctx, tokens, idx, args);
+		if (noOptionMatch !== undefined)
 			return noOptionMatch;
 		
-		const optionMatch = this.matchOptions(ctx, tokens, idx);
-		if (optionMatch === true || (noOptionMatch === false && optionMatch === false))
+		const optionMatch = this.matchOptions(ctx, tokens, idx, args);
+		if (optionMatch !== undefined || (noOptionMatch === undefined && optionMatch === undefined))
 			return optionMatch;
 
-		return Promise.all([noOptionMatch, optionMatch]).then(o=>o[0] || o[1]);
+		return Promise.all([noOptionMatch, optionMatch]).then(o=>o[0] !== undefined ? o[0] : o[1]);
 	}
 	
 	static findBest(option) {

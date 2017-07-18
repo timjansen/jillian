@@ -9,13 +9,19 @@ class MultiOptionsNode extends PatternNode {
 		this.options = options;
 	}
 	
+	clone() {
+		return new MultiOptionsNode(this.options.map(n=>n.clone()));
+	}
+
+	
 	addFollower(next) {
+		this.endOfOptions = next; // unlike this.next, this is not used for matching, only for copying
 		this.options.forEach(f=>f.addFollower(next));
 		return this;
 	}
 	
-	match(ctx, tokens, idx) {
-		return this.matchOptions(ctx, tokens, idx);
+	match(ctx, tokens, idx, args) {
+		return this.matchOptions(ctx, tokens, idx, args);
 	}
 	
 	static findBest(option) {

@@ -9,11 +9,15 @@ class SingleMatchNode extends PatternNode {
 		this.word = word;
 	}
 	
-	match(ctx, tokens, idx) {
+	clone() {
+		return new SingleMatchNode(this.word, this.next && this.next.clone());
+	}
+	
+	match(ctx, tokens, idx, args) {
 		if (this.word != tokens[idx])
-			return false;
+			return undefined;
 		
-		return this.matchNext(ctx, tokens, idx+1);
+		return this.matchNext(ctx, tokens, idx+1, args);
 	}
 	
 	toString() {
