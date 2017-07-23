@@ -2,17 +2,12 @@
 
 const JelType = require('../jel/type.js');
 const TokenReader = require('./tokenreader.js');
-const SingleMatchNode = require('../translation/nodes/singlematchnode.js');
-const TemplateNode = require('../translation/nodes/templatenode.js');
-const MultiOptionsNode = require('../translation/nodes/multioptionsnode.js');
-const OptionalOptionsNode = require('../translation/nodes/optionaloptionsnode.js');
-const OptionalNode = require('../translation/nodes/optionalnode.js');
 
 class Pattern extends JelType {
 	
 	constructor(tree, patternText) {
 		super();
-		this.tree = tree
+		this.tree = tree; // the node, or 'true' if it should match the empty string.
 		this.patternText = patternText;
 	}
 	
@@ -20,11 +15,11 @@ class Pattern extends JelType {
 	match(ctx, inputOrTokens) {
 		if (typeof inputOrTokens == 'string') {
 			const trimmed = inputOrTokens.trim();
-			if (!this.tree)
+			if (this.tree === true)
 				return !trimmed;
-			return !!this.tree.match(ctx, trimmed.split(/\s+/g), 0);
+			return !!this.tree.match(ctx, trimmed ? trimmed.split(/\s+/g) : [], 0);
 		}
-		if (!this.tree)
+		if (this.tree === true)
 			return !inputOrTokens.length;
 		return !!this.tree.match(ctx, inputOrTokens, 0);
 	}

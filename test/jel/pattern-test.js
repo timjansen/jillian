@@ -4,26 +4,12 @@ const assert = require('assert');
 const JEL = require('../../src/jel/jel.js');
 const Pattern = require('../../src/jel/pattern.js');
 const Context = require('../../src/jel/context.js');
-const SingleMatchNode = require('../../src/translation/nodes/singlematchnode.js');
-const OptionalNode = require('../../src/translation/nodes/optionalnode.js');
-const MultiOptionsNode = require('../../src/translation/nodes/multioptionsnode.js');
-const OptionalOptionsNode = require('../../src/translation/nodes/optionaloptionsnode.js');
+const MatchNode = require('../../src/translation/nodes/matchnode.js');
 const TemplateNode = require('../../src/translation/nodes/templatenode.js');
 
-function sme(a, next) {
-  return new SingleMatchNode(a, next);
-}
 
-function on(a, next) {
-  return new OptionalNode(a, next);
-}
-
-function mon(...a) {
-  return new MultiOptionsNode(a);
-}
-
-function oon(next, ...a) {
-  return new OptionalOptionsNode(a, next);
+function mnt(token, next=true) {
+  return new MatchNode().addTokenMatch(token, next);
 }
 
 
@@ -31,48 +17,47 @@ describe('jelPatterns', function() {
   describe('parse()', function() {
     
     it('should parse an empty string', function() {
-      assert.equal(JEL.createPattern('').tree, null);
-      assert.equal(JEL.createPattern('   ').tree, null);
+      assert.strictEqual(JEL.createPattern('').tree, true);
+      assert.strictEqual(JEL.createPattern('   ').tree, true);
     });
 
     it('should parse simple patterns', function() {
-      assert.deepEqual(JEL.createPattern('a b c').tree, sme('a', sme('b', sme('c'))));
-      assert.deepEqual(JEL.createPattern(' foo bar mi:3 double-dash ').tree, sme('foo', sme('bar', sme('mi:3', sme('double-dash')))));
+      assert.deepEqual(JEL.createPattern('a b c').tree.toString(), mnt('a', mnt('b', mnt('c'))).toString());
+      assert.deepEqual(JEL.createPattern(' foo bar mi:3 double-dash ').tree.toString(), mnt('foo', mnt('bar', mnt('mi:3', mnt('double-dash')))).toString());
     });
 
     it('should parse optional patterns', function() {
-      assert.equal(JEL.createPattern('[x]?').tree.toString(), on(sme('x')).toString());
+      assert.equal(JEL.createPattern('[x]?').tree.toString(), mnt('x').makeOptional(true).toString());
       
-      const y = sme('y');
-      assert.equal(JEL.createPattern('[x]? y').tree.toString(), on(sme('x', y), y).toString());
+      const y = mnt('y');
+      assert.equal(JEL.createPattern('[x]? y').tree.toString(), mnt('x').makeOptional(y).toString());
 
-      const e = on(sme('e'));
-      const cd = on(sme('c', sme('d', e)), e);
-      const b = sme('b', cd);
-      const a = on(sme('a', b), b);
+      const e = mnt('e').makeOptional(true);
+      const cd = mnt('c', mnt('d')).makeOptional(e);
+      const b = mnt('b', cd);
+      const a = mnt('a').makeOptional(b);
       assert.equal(JEL.createPattern('[a]? b [c d]? [e]?').tree.toString(), a.toString());
     });
-
     it('should parse multi-patterns', function() {
-      assert.equal(JEL.createPattern('[x]').tree.toString(), mon(sme('x')).toString());
-      assert.equal(JEL.createPattern('[x|y z]').tree.toString(), mon(sme('x'), sme('y', sme('z'))).toString());
+      assert.equal(JEL.createPattern('[x]').tree.toString(), mnt('x', true).toString());
+      assert.equal(JEL.createPattern('[x|y z]').tree.toString(), mnt('x').addTokenMatch('y', mnt('z')).toString());
       
-      const a = sme('a');
-      assert.equal(JEL.createPattern('[x|y|z] a').tree.toString(), mon(sme('x', a), sme('y', a), sme('z', a)).toString());
+      const a = mnt('a');
+      assert.equal(JEL.createPattern('[x|y|z] a').tree.toString(), mnt('x', a).addTokenMatch('y', a).addTokenMatch('z', a).toString());
     });
 
+
     it('should parse optional multi-patterns', function() {
-      assert.equal(JEL.createPattern('[x|y z]?').tree.toString(), oon(undefined, sme('x'), sme('y', sme('z'))).toString());
+      assert.equal(JEL.createPattern('[x|y z]?').tree.toString(), mnt('x').addTokenMatch('y', mnt('z')).makeOptional(true).toString());
       
-      const a = sme('a');
-      assert.equal(JEL.createPattern('[x|y|z]? a').tree.toString(), oon(a, sme('x', a), sme('y', a), sme('z', a)).toString());
+      const a = mnt('a');
+      assert.equal(JEL.createPattern('[x|y|z]? a').tree.toString(), mnt('x').addTokenMatch('y', true).addTokenMatch('z', true).makeOptional(a).toString());
     });
 
     it('should parse templates', function() {
-      assert.equal(JEL.createPattern('a {{test: tpl.x.y :: test > 0}} c').tree.toString(), sme('a', new TemplateNode('tpl', 'test', ['x','y'], 'test > 0', sme('c'))).toString());
+      assert.equal(JEL.createPattern('a {{test: tpl.x.y :: test > 0}} c').tree.toString(), mnt('a', new MatchNode().addTemplateMatch(new TemplateNode('tpl', 'test', ['x','y'], 'test > 0', mnt('c')))).toString());
       
     });
-
     
   });
   
@@ -92,11 +77,13 @@ describe('jelPatterns', function() {
       assert(JEL.createPattern('a b c').match(ctx, '  a b c  '));
       assert(!JEL.createPattern('a b c').match(ctx, 'a b d'));
       assert(!JEL.createPattern('a b c').match(ctx, 'd b c'));
+      assert(!JEL.createPattern('a b c').match(ctx, 'a b c d'));
       assert(!JEL.createPattern('a b c').match(ctx, ['a', 'b', 'd']));
     });
 
     it('should parse optional patterns', function() {
       assert(JEL.createPattern('[x]?').match(ctx, 'x'));
+      assert(JEL.createPattern('[x]?').match(ctx, []));
       assert(JEL.createPattern('[x]?').match(ctx, ''));
       assert(!JEL.createPattern('[x]?').match(ctx, 'y'));
       assert(JEL.createPattern('[x]? y').match(ctx, 'x y'));

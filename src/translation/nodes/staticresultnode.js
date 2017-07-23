@@ -9,14 +9,17 @@ class StaticResultNode extends PatternNode {
 		this.result = result;
 	}
 	
+	// override
 	clone() {
 		return new StaticResultNode(this.result);
 	}
 	
+	// override
 	match(ctx, tokens, idx, args) {
 		return this.result;
 	}
 	
+	// override
 	toString() {
 		return `StaticResultNode(...)`;
 	}

@@ -12,11 +12,12 @@ class TemplateNode extends PatternNode {
 		this.expression = expression;
 	}
 	
+	// override
 	clone() {
 		return new TemplateNode(this.template, this.name, this.hints, this.expression, this.next && this.next.clone());
 	}
 
-	
+	// override
 	match(ctx, tokens, idx, args) {
 		if (!ctx.translationDict || !ctx.translationDict.get)
 			throw new Error("Templates in patterns require 'translationDict' in Context");
@@ -37,6 +38,7 @@ class TemplateNode extends PatternNode {
 		return undefined;
 	}
 	
+	// override
 	collectArgumentNames(dest) {
 		if (this.name)
 			dest.push(this.name);

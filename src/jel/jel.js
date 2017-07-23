@@ -25,11 +25,8 @@ const Lambda = require('./nodes/lambda.js');
 const Call = require('./nodes/call.js');
 const Get = require('./nodes/get.js');
 
-const SingleMatchNode = require('../translation/nodes/singlematchnode.js');
+const MatchNode = require('../translation/nodes/matchnode.js');
 const TemplateNode = require('../translation/nodes/templatenode.js');
-const MultiOptionsNode = require('../translation/nodes/multioptionsnode.js');
-const OptionalOptionsNode = require('../translation/nodes/optionaloptionsnode.js');
-const OptionalNode = require('../translation/nodes/optionalnode.js');
 
 const binaryOperators = { // op->precedence
   '.': 19,
@@ -369,15 +366,16 @@ class JEL {
     return new Pattern(JEL.parsePattern(Tokenizer.tokenizePattern(value), jelToken), value);
   }
   
-  static parsePattern(tok, jelToken, expectStopper) {
+  static parsePattern(tok, jelToken, expectStopper, matchNode) {
+		const m = matchNode || new MatchNode();
 		const t = tok.next();
 		if (!t)
-			return undefined;
+			return true;
 		else if (t.word) 
-			return new SingleMatchNode(t.word, JEL.parsePattern(tok, jelToken, expectStopper));
+			return m.addTokenMatch(t.word, JEL.parsePattern(tok, jelToken, expectStopper));
 		else if (t.template) {
 			try {	
-				return new TemplateNode(t.template, t.name, t.hints, t.expression ? new JEL(t.expression) : null, JEL.parsePattern(tok, jelToken, expectStopper));
+				return m.addTemplateMatch(new TemplateNode(t.template, t.name, t.hints, t.expression ? new JEL(t.expression) : null, JEL.parsePattern(tok, jelToken, expectStopper)));
 			}
 			catch (e) {
 				JEL.throwParseException(jelToken, "Can not parse expression ${t.expression} embedded in pattern", e);
@@ -386,50 +384,32 @@ class JEL {
 
 		switch(t.op) {
 			case '[':
-				const optionNode = JEL.parsePatternOptions(tok, jelToken);
-				optionNode.addFollower(JEL.parsePattern(tok, jelToken, expectStopper));
-				return optionNode;
+				while(true) {
+					const exp = this.parsePattern(tok, jelToken, true, m);
+
+					const stopper = tok.next();
+					if (!stopper)
+						throw new Error(`Unexpected end in option set`);
+					if (stopper.op == ']?') 
+						m.makeOptional(JEL.parsePattern(tok, jelToken, expectStopper));
+					else if (stopper.op == ']')
+						m.append(JEL.parsePattern(tok, jelToken, expectStopper));
+
+					if (stopper.op != '|')
+						break;
+				}
+				return m;
 			case ']':	
 			case ']?':
 			case '|':
 				if (expectStopper) {
 					tok.undo();
-					return undefined; 
+					return true;
 				}
 				throw new Error(`Unexpected operator in pattern: ${t.op}`);
 		}
 		throw new Error(`Unexpected token in pattern`);
 	}
-
-	static parsePatternOptions(tok, jelToken) {
-		const opts = [];
-		while(true) {
-			const exp = JEL.parsePattern(tok, jelToken, true);
-			if (!exp)
-				throw new Error(`Option can't be empty`);
-			opts.push(exp);
-		
-			const stopper = tok.next();
-			if (!stopper)
-				throw new Error(`Unexpected end in option set`);
-			if (stopper.op == '|')
-				continue;
-			if (!opts.length)
-				throw new Error(`Unexpected end of option set. Can not be empty.`);
-
-			if (stopper.op == ']?') {
-				if (opts.length == 1)
-					return OptionalNode.findBest(opts[0]);
-				else
-					return OptionalOptionsNode.findBest(opts);
-			}
-			else 
-				return MultiOptionsNode.findBest(opts); 
-		}
-	}
-
-  
-  
   
   static execute(txt, ctx) {
     return new JEL(txt).execute(ctx);

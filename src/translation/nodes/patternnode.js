@@ -2,8 +2,7 @@
 
 class PatternNode {
 
-	constructor(next) {
-		this.next = next;
+	constructor() {
 	}
 
 	// returns the result value, or undefined if no match.
@@ -15,51 +14,33 @@ class PatternNode {
 	clone() {
 	}
 	
-	addFollower(next) {
-		if (this.next)
-			this.next.addFollower(next);
-		else
-			this.next = next;
+	// appends a node or value to the end of the tree
+	append(next) {
 		return this;
 	}
 	
+	// recursively writes the names of arguments in the array dest
 	collectArgumentNames(dest) {
-		if (this.next) this.next.collectArgumentNames(dest);
-		if (this.options) 
-			this.options.forEach(el=>el.collectArgumentNames(dest));
 	}
 	
 	merge(otherNode, resultNode) {
 		// TODO
 	}
-	
-	// helper for nodes with options
-	matchOptions(ctx, tokens, idx, args) {
-		const promises = [];
-		for (let i = 0; i < this.options.length; i++) {
-			const o = this.options[i];
-			const v = o.match(ctx, tokens, idx, args);
-			if (v !== undefined)
-				return v;
-			else if (v instanceof Promise)
-				promises.push(v);
-		}
-		if (!promises.length)
-			return undefined;
-		return Promise.all(promises).then(r=>r.find(e=>e!==undefined) || undefined);
-	}
-	
-	// helper for nodes with next
-	matchNext(ctx, tokens, idx, args) {
-		if (this.next)
-			return this.next.match(ctx, tokens, idx, args);
-		else
-			return tokens[idx] ? undefined : true;
-	}
-	
+
 	toString() {
 		return `PatternNode() => ${this.next}`;
 	}
+
+	static clone(v) {
+		if (v === true)
+			return v;
+		else if (v)
+			return v.clone();
+		else 
+			return v;
+	}
+
+	
 }
 
 module.exports = PatternNode;
