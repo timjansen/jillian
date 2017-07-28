@@ -1,20 +1,22 @@
 'use strict';
 
 const PatternNode = require('./patternnode.js');
+const MatchNode = require('./matchnode.js');
 
 class TemplateNode extends PatternNode {
 
 	constructor(template, name, hints, expression, next) {
-		super(next);
+		super();
 		this.template = template;
 		this.name = name;
 		this.hints = hints;
 		this.expression = expression;
+		this.next = next; // must be true (in Patterns only) or MatchNode
 	}
 	
 	// override
-	clone() {
-		return new TemplateNode(this.template, this.name, this.hints, this.expression, this.next && this.next.clone());
+	clone(resultNode) {
+		return new TemplateNode(this.template, this.name, this.hints, this.expression, MatchNode.clone(this.next, resultNode));
 	}
 
 	// override
@@ -43,6 +45,11 @@ class TemplateNode extends PatternNode {
 		if (this.name)
 			dest.push(this.name);
 		return super.collectArgumentNames(dest);
+	}
+	
+	equals(other) {
+		return this.template == other.template && this.name == other.name && this.hints.join(',') == other.hints.join(',') &&
+		((!this.expression) === (!other.expression)) && ((!this.expression) || this.expression.equals(other.expression));
 	}
 	
 	toString() {

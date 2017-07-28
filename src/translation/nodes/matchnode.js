@@ -12,15 +12,16 @@ class MatchNode extends PatternNode {
 	}
 
 	// override
-	clone() {
+	clone(resultNode) {
 		const c = new MatchNode();
 		c.tokenMap = this.tokenMap && new Map();
 		if (c.tokenMap)
 			for (const k of this.tokenMap.keys())
-				c.tokenMap.set(k, PatternNode.clone(this.tokenMap.get(k)));
+				c.tokenMap.set(k, MatchNode.clone(this.tokenMap.get(k), resultNode));
 		
-		c.templateNodes = this.templateNodes && this.templateNodes.map(t=>PatternNode.clone(t));
-		c.noMatchOption = PatternNode.clone(this.noMatchOption);
+		c.templateNodes = this.templateNodes && this.templateNodes.map(t=>MatchNode.clone(t, resultNode));
+		c.noMatchOption = MatchNode.clone(this.noMatchOption, resultNode);
+		return c;
 	}
 
 	addTokenMatch(token, nextNode) {
@@ -102,7 +103,50 @@ class MatchNode extends PatternNode {
 	
 	// override
 	merge(otherNode, resultNode) {
-		// TODO
+		if (this.tokenMap) {
+			if (!otherNode.tokenMap)
+				otherNode.tokenMap = new Map();
+			for (const k of this.tokenMap.keys()) { 
+				const thisV = this.tokenMap.get(k);
+				const otherV = otherNode.tokenMap.get(k);
+				if (!otherV)
+					otherNode.tokenMap.set(k, MatchNode.clone(thisV, resultNode));
+				else if (thisV === true)
+					otherV.noMatchOption = resultNode;
+				else
+					thisV.merge(otherV, resultNode);
+			}
+		}
+				
+		if (this.templateNodes) {
+			if (!otherNode.templateNodes)
+				otherNode.templateNodes = [];
+			this.templateNodes.forEach(t=>{
+				const otherT = this.templateNodes.find(x=>x.equals(t));
+				if (!otherT)
+					otherNode.templateNodes.push(t.clone(resultNode));
+				else if (t.next === true)
+					otherT.next.noMatchOption = resultNode;
+				else
+					t.next.merge(otherT.next, resultNode);
+			});
+		}
+
+		if (this.noMatchOption === true) 
+			otherNode.noMatchOption = MatchNode.clone(true, resultNode);
+		else if (this.noMatchOption)
+			this.noMatchOption.merge(otherNode, resultNode);
+			
+		return this;
+	}
+	
+	static clone(v, resultNode) {
+		if (v === true)
+			return new MatchNode().makeOptional(resultNode);
+		else if (v)
+			return v.clone();
+		else 
+			return v;
 	}
 	
 	toString() {

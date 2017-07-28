@@ -10,12 +10,21 @@ class With extends JelNode {
     this.expression = expression;
   }
   
+  // override
   execute(ctx) {
     const frame = {};
     const newCtx = new Context(frame, ctx);
     this.assignments.forEach(a => frame[a.name] = a.execute(newCtx));
     return this.expression.execute(newCtx);
   }
+
+  // override
+  equals(other) {
+		return other instanceof With &&
+			this.expression.equals(other.expression) && 
+      this.assignments.length == other.assignments.length && 
+      !this.assignments.find((l, i)=>!l.equals(other.assignments[i]));
+	}
   
   getSerializationProperties() {
     return {assignments: this.assignments, expression: this.expression};

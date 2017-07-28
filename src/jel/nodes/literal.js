@@ -8,9 +8,16 @@ class Literal extends JelNode {
     this.value = value;
   }
   
+  // override
   execute(ctx) {
     return this.value;
   }
+  
+  // override
+  equals(other) {
+		return other instanceof Literal &&
+      this.value == other.value;
+	}
   
   getSerializationProperties() {
     return {value: this.value};

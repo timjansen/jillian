@@ -12,6 +12,7 @@ class Operator extends JelNode {
     this.right = right;
   }
 
+  // override
   execute(ctx) {
     switch (this.op) {
     case '.':
@@ -62,6 +63,15 @@ class Operator extends JelNode {
     return JelType.toBoolean(left) ? left : this.right.execute(ctx);
   }
   
+  
+  // overrride
+  equals(other) {
+		return other instanceof Operator &&
+      this.op == other.op && 
+      this.left.equals(other.left) &&
+      (!this.right == !other.right) &&
+      ((!this.right) || (this.right.equals(other.right)));
+	}
   
   getSerializationProperties() {
     if (this.right != null) 

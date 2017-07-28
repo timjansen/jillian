@@ -11,7 +11,7 @@ class PatternNode {
 	}
 	
 	// clones the node
-	clone() {
+	clone(resultNode) {
 	}
 	
 	// appends a node or value to the end of the tree
@@ -23,7 +23,8 @@ class PatternNode {
 	collectArgumentNames(dest) {
 	}
 	
-	merge(otherNode, resultNode) {
+	// merges this node into the target node. Target must not use 'true' as node.
+	merge(target, resultNode) {
 		// TODO
 	}
 
@@ -31,14 +32,7 @@ class PatternNode {
 		return `PatternNode() => ${this.next}`;
 	}
 
-	static clone(v) {
-		if (v === true)
-			return v;
-		else if (v)
-			return v.clone();
-		else 
-			return v;
-	}
+
 
 	
 }

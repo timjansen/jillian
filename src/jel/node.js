@@ -10,7 +10,11 @@ class JelNode extends JelType {
 	execute(ctx) {
 		throw new Error(`execute() not implemented in ${this.constructor.name}`);
 	}
-
+	
+	equals(other) {
+		throw new Error(`equals() not implemented in ${this.constructor.name}`);
+	}
+	
 	// Returns always Promise for a value!
 	executePromise(ctx) {
 		const r = this.execute(ctx);

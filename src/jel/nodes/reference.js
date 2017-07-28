@@ -11,9 +11,16 @@ class Reference extends JelNode {
     this.ref = new DbRef(this.name);
   }
   
+  // override
   execute(ctx) {
     return this.ref;
   }
+  
+  // overrride
+  equals(other) {
+		return other instanceof Reference &&
+      this.name == other.name;
+	}
   
   getSerializationProperties() {
     return {name: this.name};

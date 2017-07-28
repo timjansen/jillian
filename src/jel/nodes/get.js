@@ -21,9 +21,17 @@ class Get extends JelNode {
       return JelType.member(left, name);
   }
    
+  // override
   execute(ctx) {
     return this.resolveValues(ctx, (l,n)=>this.getValue(ctx, l, n), this.left.execute(ctx), this.name.execute(ctx));
   }
+  
+  // override
+  equals(other) {
+		return other instanceof Get &&
+      this.name == other.name && 
+      this.left.equals(other.left);
+	}
   
   getSerializationProperties() {
     return {left: this.left, name: this.name};

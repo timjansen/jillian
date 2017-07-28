@@ -9,10 +9,19 @@ class Assignment extends JelNode {
     this.name = name;
     this.expression = expression;
   }
-  
+
+  // override
   execute(ctx) {
       return this.expression.execute(ctx);
   }
+  
+  // override
+  equals(other) {
+		return other instanceof Assignment &&
+      this.name == other.name &&
+      this.expression.equals(other.expression);
+	}
+
   
   getSerializationProperties() {
     return {name: this.name, expression: this.expression};

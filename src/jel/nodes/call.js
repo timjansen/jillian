@@ -8,7 +8,7 @@ class Call extends JelNode {
   constructor(left, argList = [], namedArgs = []) {
     super();
     this.left = left;
-    this.argList = argList;
+    this.argList = argList;     // array of expression
     this.namedArgs = namedArgs; // array of Assignment
   }
   
@@ -34,9 +34,21 @@ class Call extends JelNode {
       return null;
   }
   
+  // override
   execute(ctx) {
     return this.resolveValue(ctx, v=>this.callLeft(ctx, v), this.left.execute(ctx));
   }
+  
+  // overrride
+  equals(other) {
+		return other instanceof Call &&
+      this.left.equals(other.left) &&
+      this.argList.length == other.argList.length &&
+      this.namedArgs.length == other.namedArgs.length && 
+      !this.argList.find((l, i)=>!l.equals(other.argList[i])) &&
+      !this.namedArgs.find((l, i)=>!l.equals(other.namedArgs[i]));
+	}
+
   
   getSerializationProperties() {
     return {left: this.left, argList: this.argList, argObj: this.argObj};

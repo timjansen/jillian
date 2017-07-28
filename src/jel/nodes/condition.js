@@ -11,9 +11,19 @@ class Condition extends JelNode {
     this.elseExp = elseExp;
   }
   
+  // override
   execute(ctx) {
     return this.resolveValue(ctx, v=>this.runOnValue(ctx, v), this.condition.execute(ctx));
   }
+  
+  // override
+  equals(other) {
+		return other instanceof Condition &&
+      this.condition.equals(other.condition) &&
+      this.thenExp.equals(other.thenExp) &&
+      this.elseExp.equals(other.elseExp);
+	}
+
 
   runOnValue(ctx, cond) {
     if (JelType.toBoolean(cond))

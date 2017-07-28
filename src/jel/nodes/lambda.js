@@ -39,13 +39,22 @@ class LambdaCallable extends Callable {
 class Lambda extends JelNode {
   constructor(argNames, expression) {
 		super();
-    this.argNames = argNames; // list of argument names
+    this.argNames = argNames; // array of argument names
     this.expression = expression;   
   }
   
+	// override
   execute(ctx) {
     return new LambdaCallable(this.argNames, this.expression, ctx, "(anon lambda)");
-  }
+	}
+	
+	// override
+  equals(other) {
+		return other instanceof Lambda &&
+			this.expression.equals(other.expression) && 
+      this.argNames.length == other.argNames.length && 
+      !this.argNames.find((l, i)=>l != other.argNames[i]);
+	}
   
   getSerializationProperties() {
     return {argNames: this.argNames, expression: this.expression};

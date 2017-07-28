@@ -8,9 +8,17 @@ class Variable extends JelNode {
     this.name = name;
   }
   
+  // override
   execute(ctx) {
     return ctx.get(this.name);
   }
+  
+  // overrride
+  equals(other) {
+		return other instanceof Variable &&
+      this.name == other.name;
+	}
+
   
   getSerializationProperties() {
     return {name: this.name};

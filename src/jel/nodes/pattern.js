@@ -8,9 +8,17 @@ class Pattern extends JelNode {
     this.pattern = pattern;
   }
   
+  // override
   execute(ctx) {
     return this.pattern;
   }
+  
+  
+  // overrride
+  equals(other) {
+		return other instanceof Pattern &&
+      this.pattern == other.pattern;
+	}
   
   getSerializationProperties() {
     return {pattern: this.pattern};
