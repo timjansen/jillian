@@ -6,7 +6,7 @@ class MatchNode extends PatternNode {
 
 	constructor() {
 		super();
-		this.tokenMap = null;        // Map: token (string) -> next node or 'true' ('true' only in Patterns)
+		this.tokenMap = null;        // Map: token (string) -> next nod
 		this.templateNodes = null; // Array: list of template nodes to check
 		this.noMatchOption = null; // if not null, this node is  optional. If not, the next node.
 	}
@@ -44,21 +44,18 @@ class MatchNode extends PatternNode {
 		const token = tokens[idx];
 		if (this.tokenMap) {
 			const tr = this.tokenMap.get(token);
-			if (tr !== undefined)
-				return tr === true ? (tokens[idx+1] === undefined || undefined) : tr.match(ctx, tokens, idx+1, args);
+			if (tr)
+				return tr.match(ctx, tokens, idx+1, args);
 		}
 		if (this.templateNodes) {
 			for (const t of this.templateNodes)  {
 				const tn = t.match(ctx, tokens, idx, args);
-				if (tn !== undefined)
+				if (tn)
 					return tn;
 			}
 		}
-		if (this.noMatchOption === true)
-			return (token === undefined && tokens[idx+1] === undefined) || undefined;
-		else if (this.noMatchOption)
+		if (this.noMatchOption)
 			return this.noMatchOption.match(ctx, tokens, idx, args);
-
 		return undefined;		
 	}
 	
@@ -67,14 +64,14 @@ class MatchNode extends PatternNode {
 		if (this.tokenMap)
 			for (const k of this.tokenMap.keys()) {
 				const v = this.tokenMap.get(k);
-				if (v === true)
-					this.tokenMap.set(k, next);
-				else
+				if (v)
 					v.append(next);
+				else
+					this.tokenMap.set(k, next);
 			}
 
 		if (this.templateNodes)
-			this.templateNodes = this.templateNodes.map(n=>n === true ? next : n.append(next));
+			this.templateNodes.forEach(n=>n ? n.append(next) : (n.next = next));
 
 		return this;
 	}
@@ -89,13 +86,13 @@ class MatchNode extends PatternNode {
 	collectArgumentNames(dest) {
 		if (this.tokenMap)
 			for (const v of this.tokenMap.values()) 
-				if (v !== true)
+				if (v)
 					v.collectArgumentNames(dest);
 				
 		if (this.templateNodes)
-			this.templateNodes = this.templateNodes.forEach(n=> { if (n !== true) n.collectArgumentNames(dest)});
+			this.templateNodes = this.templateNodes.forEach(n=>n.collectArgumentNames(dest));
 
-		if (this.noMatchOption && this.noMatchOption !== true)
+		if (this.noMatchOption)
 				this.noMatchOption.collectArgumentNames(dest);
 			
 		return this;
@@ -111,7 +108,7 @@ class MatchNode extends PatternNode {
 				const otherV = otherNode.tokenMap.get(k);
 				if (!otherV)
 					otherNode.tokenMap.set(k, MatchNode.clone(thisV, resultNode));
-				else if (thisV === true)
+				else if (thisV && thisV.result === true)
 					otherV.noMatchOption = resultNode;
 				else
 					thisV.merge(otherV, resultNode);
@@ -125,14 +122,14 @@ class MatchNode extends PatternNode {
 				const otherT = this.templateNodes.find(x=>x.equals(t));
 				if (!otherT)
 					otherNode.templateNodes.push(t.clone(resultNode));
-				else if (t.next === true)
+				else if (t.next && t.next.result === true)
 					otherT.next.noMatchOption = resultNode;
 				else
 					t.next.merge(otherT.next, resultNode);
 			});
 		}
 
-		if (this.noMatchOption === true) 
+		if (this.noMatchOption && this.noMatchOption === true) 
 			otherNode.noMatchOption = MatchNode.clone(true, resultNode);
 		else if (this.noMatchOption)
 			this.noMatchOption.merge(otherNode, resultNode);
@@ -141,7 +138,7 @@ class MatchNode extends PatternNode {
 	}
 	
 	static clone(v, resultNode) {
-		if (v === true)
+		if (v && v.result === true)
 			return new MatchNode().makeOptional(resultNode);
 		else if (v)
 			return v.clone();

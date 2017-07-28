@@ -23,7 +23,7 @@ class PatternNode {
 	collectArgumentNames(dest) {
 	}
 	
-	// merges this node into the target node. Target must not use 'true' as node.
+	// merges this node into the target node. 
 	merge(target, resultNode) {
 		// TODO
 	}

@@ -26,6 +26,7 @@ const Call = require('./nodes/call.js');
 const Get = require('./nodes/get.js');
 
 const MatchNode = require('../translation/nodes/matchnode.js');
+const StaticResultNode = require('../translation/nodes/staticresultnode.js');
 const TemplateNode = require('../translation/nodes/templatenode.js');
 
 const binaryOperators = { // op->precedence
@@ -370,7 +371,7 @@ class JEL {
 		const m = matchNode || new MatchNode();
 		const t = tok.next();
 		if (!t)
-			return true;
+			return new MatchNode().makeOptional(StaticResultNode.TRUE);
 		else if (t.word) 
 			return m.addTokenMatch(t.word, JEL.parsePattern(tok, jelToken, expectStopper));
 		else if (t.template) {
@@ -404,7 +405,7 @@ class JEL {
 			case '|':
 				if (expectStopper) {
 					tok.undo();
-					return true;
+					return undefined;
 				}
 				throw new Error(`Unexpected operator in pattern: ${t.op}`);
 		}
