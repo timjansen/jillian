@@ -25,7 +25,7 @@ const Lambda = require('./nodes/lambda.js');
 const Call = require('./nodes/call.js');
 const Get = require('./nodes/get.js');
 
-const MatchNode = require('../translation/nodes/matchnode.js');
+const MultiNode = require('../translation/nodes/multinode.js');
 const StaticResultNode = require('../translation/nodes/staticresultnode.js');
 const TemplateNode = require('../translation/nodes/templatenode.js');
 
@@ -368,10 +368,10 @@ class JEL {
   }
   
   static parsePattern(tok, jelToken, expectStopper, matchNode) {
-		const m = matchNode || new MatchNode();
+		const m = matchNode || new MultiNode();
 		const t = tok.next();
 		if (!t)
-			return new MatchNode().makeOptional(StaticResultNode.TRUE);
+			return new MultiNode().makeOptional(StaticResultNode.TRUE);
 		else if (t.word) 
 			return m.addTokenMatch(t.word, JEL.parsePattern(tok, jelToken, expectStopper));
 		else if (t.template) {

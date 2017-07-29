@@ -4,18 +4,18 @@ const assert = require('assert');
 const JEL = require('../../src/jel/jel.js');
 const Pattern = require('../../src/jel/pattern.js');
 const Context = require('../../src/jel/context.js');
-const MatchNode = require('../../src/translation/nodes/matchnode.js');
+const MultiNode = require('../../src/translation/nodes/multinode.js');
 const StaticResultNode = require('../../src/translation/nodes/staticresultnode.js');
 const TemplateNode = require('../../src/translation/nodes/templatenode.js');
 
-const MTRUE = new MatchNode().makeOptional(StaticResultNode.TRUE);
+const MTRUE = new MultiNode().makeOptional(StaticResultNode.TRUE);
 
 function mnt(token, next=MTRUE) {
-  return new MatchNode().addTokenMatch(token, next);
+  return new MultiNode().addTokenMatch(token, next);
 }
 
 function mntOpt(token, next=MTRUE) {
-  return new MatchNode().addTokenMatch(token, undefined).makeOptional(next);
+  return new MultiNode().addTokenMatch(token, undefined).makeOptional(next);
 }
 
 
@@ -61,7 +61,7 @@ describe('jelPatterns', function() {
     });
 
     it('should parse templates', function() {
-      assert.equal(JEL.createPattern('a {{test: tpl.x.y :: test > 0}} c').tree.toString(), mnt('a', new MatchNode().addTemplateMatch(new TemplateNode('tpl', 'test', ['x','y'], 'test > 0', mnt('c')))).toString());
+      assert.equal(JEL.createPattern('a {{test: tpl.x.y :: test > 0}} c').tree.toString(), mnt('a', new MultiNode().addTemplateMatch(new TemplateNode('tpl', 'test', ['x','y'], 'test > 0', mnt('c')))).toString());
       
     });
     

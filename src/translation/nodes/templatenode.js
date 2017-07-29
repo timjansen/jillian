@@ -1,9 +1,9 @@
 'use strict';
 
-const PatternNode = require('./patternnode.js');
-const MatchNode = require('./matchnode.js');
+const TranslationNode = require('./translationnode.js');
+const MultiNode = require('./multinode.js');
 
-class TemplateNode extends PatternNode {
+class TemplateNode extends TranslationNode {
 
 	constructor(template, name, hints, expression, next) {
 		super();
@@ -11,12 +11,12 @@ class TemplateNode extends PatternNode {
 		this.name = name;
 		this.hints = hints;
 		this.expression = expression;
-		this.next = next; // must be true (in Patterns only) or MatchNode
+		this.next = next; // must be MultiNode
 	}
 	
 	// override
 	clone(resultNode) {
-		return new TemplateNode(this.template, this.name, this.hints, this.expression, MatchNode.clone(this.next, resultNode));
+		return new TemplateNode(this.template, this.name, this.hints, this.expression, MultiNode.clone(this.next, resultNode));
 	}
 
 	// override

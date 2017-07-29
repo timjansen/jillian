@@ -1,6 +1,6 @@
 'use strict';
 
-class PatternNode {
+class TranslationNode {
 
 	constructor() {
 	}
@@ -29,7 +29,7 @@ class PatternNode {
 	}
 
 	toString() {
-		return `PatternNode() => ${this.next}`;
+		return `TranslationNode() => ${this.next}`;
 	}
 
 
@@ -37,4 +37,4 @@ class PatternNode {
 	
 }
 
-module.exports = PatternNode;
+module.exports = TranslationNode;

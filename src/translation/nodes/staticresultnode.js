@@ -1,8 +1,8 @@
 'use strict';
 
-const PatternNode = require('./patternnode.js');
+const TranslationNode = require('./translationnode.js');
 
-class StaticResultNode extends PatternNode {
+class StaticResultNode extends TranslationNode {
 
 	constructor(result) {
 		super();

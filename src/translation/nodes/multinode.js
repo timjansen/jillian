@@ -1,8 +1,8 @@
 'use strict';
 
-const PatternNode = require('./patternnode.js');
+const TranslationNode = require('./translationnode.js');
 
-class MatchNode extends PatternNode {
+class MultiNode extends TranslationNode {
 
 	constructor() {
 		super();
@@ -13,14 +13,14 @@ class MatchNode extends PatternNode {
 
 	// override
 	clone(resultNode) {
-		const c = new MatchNode();
+		const c = new MultiNode();
 		c.tokenMap = this.tokenMap && new Map();
 		if (c.tokenMap)
 			for (const k of this.tokenMap.keys())
-				c.tokenMap.set(k, MatchNode.clone(this.tokenMap.get(k), resultNode));
+				c.tokenMap.set(k, MultiNode.clone(this.tokenMap.get(k), resultNode));
 		
-		c.templateNodes = this.templateNodes && this.templateNodes.map(t=>MatchNode.clone(t, resultNode));
-		c.noMatchOption = MatchNode.clone(this.noMatchOption, resultNode);
+		c.templateNodes = this.templateNodes && this.templateNodes.map(t=>MultiNode.clone(t, resultNode));
+		c.noMatchOption = MultiNode.clone(this.noMatchOption, resultNode);
 		return c;
 	}
 
@@ -107,7 +107,7 @@ class MatchNode extends PatternNode {
 				const thisV = this.tokenMap.get(k);
 				const otherV = otherNode.tokenMap.get(k);
 				if (!otherV)
-					otherNode.tokenMap.set(k, MatchNode.clone(thisV, resultNode));
+					otherNode.tokenMap.set(k, MultiNode.clone(thisV, resultNode));
 				else if (thisV && thisV.result === true)
 					otherV.noMatchOption = resultNode;
 				else
@@ -130,7 +130,7 @@ class MatchNode extends PatternNode {
 		}
 
 		if (this.noMatchOption && this.noMatchOption === true) 
-			otherNode.noMatchOption = MatchNode.clone(true, resultNode);
+			otherNode.noMatchOption = MultiNode.clone(true, resultNode);
 		else if (this.noMatchOption)
 			this.noMatchOption.merge(otherNode, resultNode);
 			
@@ -139,7 +139,7 @@ class MatchNode extends PatternNode {
 	
 	static clone(v, resultNode) {
 		if (v && v.result === true)
-			return new MatchNode().makeOptional(resultNode);
+			return new MultiNode().makeOptional(resultNode);
 		else if (v)
 			return v.clone();
 		else 
@@ -147,8 +147,8 @@ class MatchNode extends PatternNode {
 	}
 	
 	toString() {
-		return `MatchNode(tokens={${Array.from((this.tokenMap||new Map()).entries()).map(([k,v])=>k+': '+(v||'undefined').toString()).join(',\n')}} templates=[${(this.templateNodes||[]).map(s=>s.toString()).join(',\n')}] option=${(this.noMatchOption||'undefined').toString()})`;
+		return `MultiNode(tokens={${Array.from((this.tokenMap||new Map()).entries()).map(([k,v])=>k+': '+(v||'undefined').toString()).join(',\n')}} templates=[${(this.templateNodes||[]).map(s=>s.toString()).join(',\n')}] option=${(this.noMatchOption||'undefined').toString()})`;
 	}
 }
 
-module.exports = MatchNode;
+module.exports = MultiNode;
