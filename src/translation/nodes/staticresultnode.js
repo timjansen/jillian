@@ -19,7 +19,7 @@ class StaticResultNode extends TranslationNode {
 	}
 	
 	// override
-	match(ctx, tokens, idx, args) {
+	match(ctx, tokens, idx, args, modifiers) {
 		if (!tokens[idx])
 			return this.result;
 	}

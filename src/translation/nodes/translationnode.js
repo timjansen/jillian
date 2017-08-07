@@ -7,7 +7,8 @@ class TranslationNode {
 
 	// returns the result value, or undefined if no match.
 	// args is optional map. If set, TemplateNodes write their values in there
-	match(ctx, tokens, idx, args) {
+	// modifiers is  a list of strings to narrow down results. Matches must have all these results.
+	match(ctx, tokens, idx, args, modifiers) {
 	}
 	
 	// clones the node
@@ -23,11 +24,6 @@ class TranslationNode {
 	collectArgumentNames(dest) {
 	}
 	
-	// merges this node into the target node. 
-	merge(target, resultNode) {
-		// TODO
-	}
-
 	toString() {
 		return `TranslationNode() => ${this.next}`;
 	}

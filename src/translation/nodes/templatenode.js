@@ -20,7 +20,7 @@ class TemplateNode extends TranslationNode {
 	}
 
 	// override
-	match(ctx, tokens, idx, args) {
+	match(ctx, tokens, idx, args, modifiers) {
 		if (!ctx.translationDict || !ctx.translationDict.get)
 			throw new Error("Templates in patterns require 'translationDict' in Context");
 		
@@ -35,7 +35,7 @@ class TemplateNode extends TranslationNode {
 			if (args && this.name)
 				args[this.name] = val;
 		
-			return this.matchNext(ctx, tokens, newIdx, args);
+			return val;
 		}
 		return undefined;
 	}

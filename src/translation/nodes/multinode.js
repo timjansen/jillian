@@ -13,17 +13,19 @@ class MultiNode extends TranslationNode {
 
 	// override
 	clone(resultNode) {
-		const c = new MultiNode();
-		c.tokenMap = this.tokenMap && new Map();
-		if (c.tokenMap)
-			for (const k of this.tokenMap.keys())
-				c.tokenMap.set(k, MultiNode.clone(this.tokenMap.get(k), resultNode));
-		
-		c.templateNodes = this.templateNodes && this.templateNodes.map(t=>MultiNode.clone(t, resultNode));
-		c.noMatchOption = MultiNode.clone(this.noMatchOption, resultNode);
-		return c;
+		return MultiNode.copy(this, new MultiNode(), resultNode);
 	}
 
+	static copy(from, to, resultNode) {
+		to.tokenMap = from.tokenMap && new Map();
+		if (to.tokenMap)
+			for (const k of from.tokenMap.keys())
+				to.tokenMap.set(k, from.tokenMap.get(k).clone(resultNode));
+		
+		to.templateNodes = from.templateNodes && from.templateNodes.map(t=>t.clone(resultNode));
+		return to;
+	}
+	
 	addTokenMatch(token, nextNode) {
 		if (!this.tokenMap)
 			this.tokenMap = new Map();
@@ -40,22 +42,20 @@ class MultiNode extends TranslationNode {
 	}
 
 	// override
-	match(ctx, tokens, idx, args) {
+	match(ctx, tokens, idx, args, modifiers) {
 		const token = tokens[idx];
 		if (this.tokenMap) {
 			const tr = this.tokenMap.get(token);
 			if (tr)
-				return tr.match(ctx, tokens, idx+1, args);
+				return tr.match(ctx, tokens, idx+1, args, modifiers);
 		}
 		if (this.templateNodes) {
 			for (const t of this.templateNodes)  {
-				const tn = t.match(ctx, tokens, idx, args);
+				const tn = t.match(ctx, tokens, idx, args, modifiers);
 				if (tn)
 					return tn;
 			}
 		}
-		if (this.noMatchOption)
-			return this.noMatchOption.match(ctx, tokens, idx, args);
 		return undefined;		
 	}
 	
@@ -76,12 +76,6 @@ class MultiNode extends TranslationNode {
 		return this;
 	}
 		
-	makeOptional(next) {
-		this.noMatchOption = next;
-		return this.append(next);
-	}
-
-	
 	// override
 	collectArgumentNames(dest) {
 		if (this.tokenMap)
@@ -92,62 +86,11 @@ class MultiNode extends TranslationNode {
 		if (this.templateNodes)
 			this.templateNodes = this.templateNodes.forEach(n=>n.collectArgumentNames(dest));
 
-		if (this.noMatchOption)
-				this.noMatchOption.collectArgumentNames(dest);
-			
 		return this;
-	}
-	
-	// override
-	merge(otherNode, resultNode) {
-		if (this.tokenMap) {
-			if (!otherNode.tokenMap)
-				otherNode.tokenMap = new Map();
-			for (const k of this.tokenMap.keys()) { 
-				const thisV = this.tokenMap.get(k);
-				const otherV = otherNode.tokenMap.get(k);
-				if (!otherV)
-					otherNode.tokenMap.set(k, MultiNode.clone(thisV, resultNode));
-				else if (thisV && thisV.result === true)
-					otherV.noMatchOption = resultNode;
-				else
-					thisV.merge(otherV, resultNode);
-			}
-		}
-				
-		if (this.templateNodes) {
-			if (!otherNode.templateNodes)
-				otherNode.templateNodes = [];
-			this.templateNodes.forEach(t=>{
-				const otherT = this.templateNodes.find(x=>x.equals(t));
-				if (!otherT)
-					otherNode.templateNodes.push(t.clone(resultNode));
-				else if (t.next && t.next.result === true)
-					otherT.next.noMatchOption = resultNode;
-				else
-					t.next.merge(otherT.next, resultNode);
-			});
-		}
-
-		if (this.noMatchOption && this.noMatchOption === true) 
-			otherNode.noMatchOption = MultiNode.clone(true, resultNode);
-		else if (this.noMatchOption)
-			this.noMatchOption.merge(otherNode, resultNode);
-			
-		return this;
-	}
-	
-	static clone(v, resultNode) {
-		if (v && v.result === true)
-			return new MultiNode().makeOptional(resultNode);
-		else if (v)
-			return v.clone();
-		else 
-			return v;
 	}
 	
 	toString() {
-		return `MultiNode(tokens={${Array.from((this.tokenMap||new Map()).entries()).map(([k,v])=>k+': '+(v||'undefined').toString()).join(',\n')}} templates=[${(this.templateNodes||[]).map(s=>s.toString()).join(',\n')}] option=${(this.noMatchOption||'undefined').toString()})`;
+		return `MultiNode(tokens={${Array.from((this.tokenMap||new Map()).entries()).map(([k,v])=>k+': '+(v||'undefined').toString()).join(',\n')}} templates=[${(this.templateNodes||[]).map(s=>s.toString()).join(',\n')}])`;
 	}
 }
 
