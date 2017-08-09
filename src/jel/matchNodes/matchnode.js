@@ -1,6 +1,6 @@
 'use strict';
 
-class TranslationNode {
+class MatchNode {
 
 	constructor() {
 	}
@@ -25,7 +25,7 @@ class TranslationNode {
 	}
 	
 	toString() {
-		return `TranslationNode() => ${this.next}`;
+		return `MatchNode() => ${this.next}`;
 	}
 
 
@@ -33,4 +33,4 @@ class TranslationNode {
 	
 }
 
-module.exports = TranslationNode;
+module.exports = MatchNode;

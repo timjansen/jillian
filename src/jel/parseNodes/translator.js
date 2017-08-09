@@ -1,9 +1,9 @@
 'use strict';
 
-const JelNode = require('../node.js');
-const JelDictionary = require('../dictionary.js');
+const JelNode = require('./node.js');
+const JelTranslator = require('../translator.js');
 
-class Dictionary extends JelNode {
+class Translator extends JelNode {
   constructor(elements = []) {
     super();
     this.elements = elements; // array of assignments
@@ -11,14 +11,14 @@ class Dictionary extends JelNode {
 
   // override
   execute(ctx) {
-    const map = new Map();
-    this.elements.forEach(a => map.set(a.name, a.execute(ctx)));
-    return new JelDictionary(map, true);
+    const map = new JelTranslator();
+    this.elements.forEach(e=>map.addPattern(e.name, e.execute(ctx), e.getMetaData(ctx)));
+    return map;
   }
   
   // override
   equals(other) {
-		return other instanceof Dictionary &&
+		return other instanceof Translator &&
       this.elements.length == other.elements.length && 
       !this.elements.find((l, i)=>!l.equals(other.elements[i]));
 	}
@@ -29,4 +29,4 @@ class Dictionary extends JelNode {
   }
 }
 
-module.exports = Dictionary;
+module.exports = Translator;

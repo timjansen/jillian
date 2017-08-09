@@ -20,6 +20,12 @@ class Pattern extends JelType {
 		return !!this.tree.match(ctx, inputOrTokens, 0);
 	}
 	
+	getArgumentNames() {
+		const args = [];
+		this.tree.collectArgumentNames(args);
+		return args;
+	}
+	
 	toString() {
 		return `Pattern(text=\`${this.patternText}\`)`;
 	}

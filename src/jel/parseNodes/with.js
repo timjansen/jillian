@@ -1,6 +1,6 @@
 'use strict';
 
-const JelNode = require('../node.js');
+const JelNode = require('./node.js');
 const Context = require('../context.js');
 
 class With extends JelNode {

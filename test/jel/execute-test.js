@@ -6,19 +6,19 @@ const jelAssert = require('./jel-assert.js');
 
 const Callable = require('../../src/jel/callable.js');
 const JelType = require('../../src/jel/type.js');
-const JelNode = require('../../src/jel/node.js');
 const JelList = require('../../src/jel/list.js');
 const JelDictionary = require('../../src/jel/dictionary.js');
-const Literal = require('../../src/jel/nodes/literal.js');
-const Variable = require('../../src/jel/nodes/variable.js');
-const Operator = require('../../src/jel/nodes/operator.js');
-const List = require('../../src/jel/nodes/list.js');
-const Reference = require('../../src/jel/nodes/reference.js');
-const Condition = require('../../src/jel/nodes/condition.js');
-const Assignment = require('../../src/jel/nodes/assignment.js');
-const With = require('../../src/jel/nodes/with.js');
-const Lambda = require('../../src/jel/nodes/lambda.js');
-const Call = require('../../src/jel/nodes/call.js');
+const JelNode = require('../../src/jel/parseNodes/node.js');
+const Literal = require('../../src/jel/parseNodes/literal.js');
+const Variable = require('../../src/jel/parseNodes/variable.js');
+const Operator = require('../../src/jel/parseNodes/operator.js');
+const List = require('../../src/jel/parseNodes/list.js');
+const Reference = require('../../src/jel/parseNodes/reference.js');
+const Condition = require('../../src/jel/parseNodes/condition.js');
+const Assignment = require('../../src/jel/parseNodes/assignment.js');
+const With = require('../../src/jel/parseNodes/with.js');
+const Lambda = require('../../src/jel/parseNodes/lambda.js');
+const Call = require('../../src/jel/parseNodes/call.js');
 
 describe('JEL', function() {
   describe('execute()', function() {
@@ -180,10 +180,6 @@ describe('JEL', function() {
       assert.deepEqual(new JEL("{'a': 3, 'b': 1}").executeImmediately().toObjectDebug(), {a: 3, b: 1});
       assert.deepEqual(new JEL('{a, b: 1, c}').executeImmediately({a:7,b:2,c:10}).toObjectDebug(), {a:7,b:1,c:10});
       assert.deepEqual(new JEL('{a: {b: 2}}').executeImmediately().toObjectDebug().a.toObjectDebug().b, 2);
-      assert.equal(new JEL('{`abc`: 6}').executeImmediately().anyKey.patternText, 'abc');
-      
-      const dc=new JEL('{`abc`=> 6}').executeImmediately();
-      assert.equal(dc.get(dc.anyKey).argNames.length, 0);
       
       assert.throws(()=>new JEL('{a: 1, a: 2}').executeImmediately());
     });

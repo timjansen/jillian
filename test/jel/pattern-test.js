@@ -4,9 +4,9 @@ const assert = require('assert');
 const JEL = require('../../src/jel/jel.js');
 const Pattern = require('../../src/jel/pattern.js');
 const Context = require('../../src/jel/context.js');
-const PatternNode = require('../../src/translation/nodes/patternnode.js');
-const StaticResultNode = require('../../src/translation/nodes/staticresultnode.js');
-const TemplateNode = require('../../src/translation/nodes/templatenode.js');
+const PatternNode = require('../../src/jel/matchNodes/patternnode.js');
+const StaticResultNode = require('../../src/jel/matchNodes/staticresultnode.js');
+const TemplateNode = require('../../src/jel/matchNodes/templatenode.js');
 
 const MTRUE = new PatternNode().makeOptional(StaticResultNode.TRUE);
 

@@ -1,8 +1,8 @@
 'use strict';
 
-const TranslationNode = require('./translationnode.js');
+const MatchNode = require('./matchnode.js');
 
-class MultiNode extends TranslationNode {
+class MultiNode extends MatchNode {
 
 	constructor() {
 		super();

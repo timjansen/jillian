@@ -1,7 +1,7 @@
 'use strict';
 
 const JelType = require('../type.js');
-const JelNode = require('../node.js');
+const JelNode = require('./node.js');
 
 class Get extends JelNode {
   constructor(left, name) {

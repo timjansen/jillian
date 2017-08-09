@@ -1,6 +1,6 @@
 'use strict';
 
-const JelNode = require('../node.js');
+const JelNode = require('./node.js');
 const DbRef = require('../../database/dbref.js');
 
 // a @Name ref

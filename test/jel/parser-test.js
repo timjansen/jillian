@@ -5,17 +5,17 @@ const JEL = require('../../src/jel/jel.js');
 const jelAssert = require('./jel-assert.js');
 
 const JelType = require('../../src/jel/type.js');
-const JelNode = require('../../src/jel/node.js');
-const Literal = require('../../src/jel/nodes/literal.js');
-const Variable = require('../../src/jel/nodes/variable.js');
-const Operator = require('../../src/jel/nodes/operator.js');
-const List = require('../../src/jel/nodes/list.js');
-const Reference = require('../../src/jel/nodes/reference.js');
-const Condition = require('../../src/jel/nodes/condition.js');
-const Assignment = require('../../src/jel/nodes/assignment.js');
-const With = require('../../src/jel/nodes/with.js');
-const Lambda = require('../../src/jel/nodes/lambda.js');
-const Call = require('../../src/jel/nodes/call.js');
+const JelNode = require('../../src/jel/parseNodes/node.js');
+const Literal = require('../../src/jel/parseNodes/literal.js');
+const Variable = require('../../src/jel/parseNodes/variable.js');
+const Operator = require('../../src/jel/parseNodes/operator.js');
+const List = require('../../src/jel/parseNodes/list.js');
+const Reference = require('../../src/jel/parseNodes/reference.js');
+const Condition = require('../../src/jel/parseNodes/condition.js');
+const Assignment = require('../../src/jel/parseNodes/assignment.js');
+const With = require('../../src/jel/parseNodes/with.js');
+const Lambda = require('../../src/jel/parseNodes/lambda.js');
+const Call = require('../../src/jel/parseNodes/call.js');
 
 describe('JEL', function() {
   describe('parseTree', function() {

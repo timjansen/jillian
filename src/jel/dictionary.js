@@ -7,7 +7,7 @@ const List = require('./list.js');
  * Dictionary is a map-like type for JEL.
  */
 class Dictionary extends JelType {
-	constructor(elements, useProvidedMap) {
+	constructor(elements = [], useProvidedMap = false) {
 		super();
 		if (useProvidedMap)
 			this.elements = elements;

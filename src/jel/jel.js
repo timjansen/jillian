@@ -8,26 +8,27 @@ const Tokenizer = require('./tokenizer.js');
 const TokenReader = require('./tokenreader.js');
 const Context = require('./context.js');
 const JelType = require('./type.js');
-const JelNode = require('./node.js');
 const Pattern = require('./pattern.js');
 const ParseError = require('./parseerror.js');
-const Literal = require('./nodes/literal.js');
-const PatternNode = require('./nodes/pattern.js');
-const Variable = require('./nodes/variable.js');
-const Operator = require('./nodes/operator.js');
-const List = require('./nodes/list.js');
-const Dictionary = require('./nodes/dictionary.js');
-const Reference = require('./nodes/reference.js');
-const Condition = require('./nodes/condition.js');
-const Assignment = require('./nodes/assignment.js');
-const With = require('./nodes/with.js');
-const Lambda = require('./nodes/lambda.js');
-const Call = require('./nodes/call.js');
-const Get = require('./nodes/get.js');
+const JelNode = require('./parseNodes/node.js');
+const Literal = require('./parseNodes/literal.js');
+const PatternNode = require('./parseNodes/pattern.js');
+const Variable = require('./parseNodes/variable.js');
+const Operator = require('./parseNodes/operator.js');
+const List = require('./parseNodes/list.js');
+const Dictionary = require('./parseNodes/dictionary.js');
+const Translator = require('./parseNodes/translator.js');
+const Reference = require('./parseNodes/reference.js');
+const Condition = require('./parseNodes/condition.js');
+const Assignment = require('./parseNodes/assignment.js');
+const With = require('./parseNodes/with.js');
+const Lambda = require('./parseNodes/lambda.js');
+const Call = require('./parseNodes/call.js');
+const Get = require('./parseNodes/get.js');
 
-const PatternMultiNode = require('../translation/nodes/patternnode.js');
-const StaticResultNode = require('../translation/nodes/staticresultnode.js');
-const TemplateNode = require('../translation/nodes/templatenode.js');
+const PatternMultiNode = require('./matchNodes/patternnode.js');
+const StaticResultNode = require('./matchNodes/staticresultnode.js');
+const TemplateNode = require('./matchNodes/templatenode.js');
 
 const binaryOperators = { // op->precedence
   '.': 19,
@@ -71,8 +72,13 @@ const NO_STOP = {};
 const PARENS_STOP = {')': true};
 const SQUARE_BRACE_STOP = {']': true};
 const LIST_ENTRY_STOP = {']': true, ',': true};
-const DICT_KEY_STOP = {':': true, '}': true, ',': true, '=>': true};
+const DICT_KEY_STOP = {':': true, '}': true, ',': true};
 const DICT_VALUE_STOP = {',': true, '}': true};
+const TRANSLATOR_META_STOP = {',': true, ':': true, '=': true};
+const TRANSLATOR_META_VALUE_STOP = {',': true, ':': true};
+const TRANSLATOR_PATTERN_STOP = {'=>': true};
+const TRANSLATOR_LAMBDA_STOP = {',': true, '}': true};
+const TRANSLATOR_DOUBLE_BRACE_STOP = {'}': true};
 const PARAMETER_STOP = {')': true, ',': true};
 const IF_STOP = {'then': true};
 const THEN_STOP = {'else': true};
@@ -163,35 +169,19 @@ class JEL {
           const name = tokens.next();
           if (!name)
             JEL.throwParseException(name, "Unexpected end of dictionary");
-          if (!name.identifier && !name.literal && !name.pattern)
-            JEL.throwParseException(name, "Expected identifier, literal or pattern as dictionary key");
+          if (!name.identifier && !name.literal)
+            JEL.throwParseException(name, "Expected identifier or literal as dictionary key");
           if (name.value in usedNames)
             JEL.throwParseException(name, `Duplicate key in dictionary: ${name.value}`);
           usedNames[name.value] = true;
  
           const separator = JEL.expectOp(tokens, DICT_KEY_STOP, "Expected ':', ',' or '}' in Dictionary.");
           if (separator.value == ':') {
-						const dval = JEL.parseExpression(tokens, PARENS_PRECEDENCE, DICT_VALUE_STOP);
-						if (name.pattern)
-	            assignments.push(new Assignment(JEL.createPattern(name.value, name), dval));
-						else
-  	          assignments.push(new Assignment(name.value, dval));
+ 	          assignments.push(new Assignment(name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, DICT_VALUE_STOP)));
 
             if (JEL.expectOp(tokens, DICT_VALUE_STOP, "Expecting comma or end of dictionary").value == '}')
               return JEL.tryBinaryOps(tokens, new Dictionary(assignments), precedence, stopOps);
           }
-					else if(separator.value == '=>') {
-						if (!name.pattern)
-							JEL.throwParseException(separator, `Dictionaries with '=>' lambda expressions are only allowed for Dictionary keys`);
-						
-						const keyPattern = JEL.createPattern(name.value, name);
-						const args = [];
-						keyPattern.tree.collectArgumentNames(args);
-  	       	assignments.push(new Assignment(keyPattern, new Lambda(args, JEL.parseExpression(tokens, precedence, DICT_VALUE_STOP))));
-
-						if (JEL.expectOp(tokens, DICT_VALUE_STOP, "Expecting comma or end of dictionary").value == '}')
-              return JEL.tryBinaryOps(tokens, new Dictionary(assignments), precedence, stopOps);
-					}
           else { // short notation {a}
             if (!name.identifier)
               JEL.throwParseException(separator, "Dictionary entries require a value, unless an identifier is used in the short notation.");
@@ -199,6 +189,66 @@ class JEL {
             if (separator.value == '}')
               return JEL.tryBinaryOps(tokens, new Dictionary(assignments), precedence, stopOps);
            }
+        }
+      }
+      else if (token.value == '{{') {
+        const closePeek = tokens.peek();
+        if (closePeek && closePeek.operator && closePeek.value == '}}') {
+          tokens.next();
+          return JEL.tryBinaryOps(tokens, new Translator(), precedence, stopOps);
+        }
+        
+        const assignments = [];
+				
+        while (true) {
+          const name = tokens.next();
+					const metaAssignments = [];
+
+					if (!name)
+            JEL.throwParseException(name, "Unexpected end of translator");
+					
+          if (name.identifier) {
+						tokens.undo();
+						
+						while (true) {
+							const name = tokens.next();
+							if (!name || !name.identifier)
+								JEL.throwParseException(name || token, "Expected identifier for translator meta.");
+							const eq = JEL.expectOp(tokens, TRANSLATOR_META_STOP, "Expected equal sign or comma or colon after meta name.");
+							if (!eq)
+								JEL.throwParseException(name, "Unexpected end of translator");
+							if (eq.value == '=') {
+								const expression = JEL.parseExpression(tokens, PARENS_PRECEDENCE, TRANSLATOR_META_VALUE_STOP);
+								if (!expression)
+									JEL.throwParseException(eq, "Expression ended unexpectedly.");
+								metaAssignments.push(new Assignment(name.value, expression));
+							}
+							else {
+								metaAssignments.push(new Assignment(name.value, Literal.TRUE));
+							}
+							const terminator = JEL.expectOp(tokens, TRANSLATOR_META_VALUE_STOP, "Expected colon or comm after expression in translator.");
+							if (terminator.value == ':')
+								break;
+						}
+					}
+					
+					const pattern = name.pattern ? name : tokens.next();
+          if (!pattern)
+            JEL.throwParseException(pattern, "Unexpected end of translator");
+					if (!pattern.pattern)					
+            JEL.throwParseException(pattern, "Expected pattern in translator");
+
+					const keyPattern = JEL.createPattern(pattern.value, pattern);
+
+	        JEL.expectOp(tokens, TRANSLATOR_PATTERN_STOP, "Expected '=>' in Translator.");
+						
+					const args = keyPattern.getArgumentNames();
+					assignments.push(new Assignment(keyPattern, new Lambda(args, JEL.parseExpression(tokens, precedence, TRANSLATOR_LAMBDA_STOP)), metaAssignments));
+
+					if (JEL.expectOp(tokens, TRANSLATOR_LAMBDA_STOP, "Expecting comma or end of translator").value == '}') {
+						JEL.expectOp(tokens, TRANSLATOR_DOUBLE_BRACE_STOP, "Need 2nd closing brace to end translator");
+						return JEL.tryBinaryOps(tokens, new Translator(assignments), precedence, stopOps);
+					}
         }
       }
       else if (token.value == '@') {
@@ -221,7 +271,7 @@ class JEL {
           if (!name || !name.identifier)
             JEL.throwParseException(name || token, "Expected identifier for constant.");
           if (/(^[A-Z])|(^_$)/.test(name.value))
-            JEL.throwParseException(name || token, `llegal name ${name.value}, must not start constant with capital letter or be the underscore.`);
+            JEL.throwParseException(name || token, `Illegal name ${name.value}, must not start constant with capital letter or be the underscore.`);
           const eq = JEL.expectOp(tokens, EQUAL, "Expected equal sign after variable name.");
           const expression = JEL.parseExpression(tokens, WITH_PRECEDENCE, WITH_STOP);
           if (!expression)

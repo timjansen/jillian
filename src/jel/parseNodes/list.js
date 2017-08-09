@@ -1,6 +1,6 @@
 'use strict';
 
-const JelNode = require('../node.js');
+const JelNode = require('./node.js');
 const JelList = require('../list.js');
 
 class List extends JelNode {

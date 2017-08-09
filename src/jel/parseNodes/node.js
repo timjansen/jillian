@@ -1,6 +1,6 @@
 'use strict';
 
-const JelType = require('./type.js');
+const JelType = require('../type.js');
 
 /**
  * Represents a node in a JEL expression.

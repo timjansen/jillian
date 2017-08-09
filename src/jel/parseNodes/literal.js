@@ -1,6 +1,6 @@
 'use strict';
 
-const JelNode = require('../node.js');
+const JelNode = require('./node.js');
 
 class Literal extends JelNode {
   constructor(value) {
@@ -23,5 +23,7 @@ class Literal extends JelNode {
     return {value: this.value};
   }
 }
+
+Literal.TRUE = new Literal(true);
 
 module.exports = Literal;

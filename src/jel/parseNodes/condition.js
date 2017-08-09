@@ -1,6 +1,6 @@
 'use strict';
 
-const JelNode = require('../node.js');
+const JelNode = require('./node.js');
 const JelType = require('../type.js');
 
 class Condition extends JelNode {

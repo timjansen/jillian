@@ -1,6 +1,6 @@
 'use strict';
 
-const JelNode = require('../node.js');
+const JelNode = require('./node.js');
 const Callable = require('../callable.js');
 const Context = require('../context.js');
 

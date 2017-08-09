@@ -1,6 +1,6 @@
 'use strict';
 
-const JelNode = require('../node.js');
+const JelNode = require('./node.js');
 
 class Pattern extends JelNode {
   constructor(pattern) {
