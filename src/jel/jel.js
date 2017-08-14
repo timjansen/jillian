@@ -193,13 +193,14 @@ class JEL {
       }
       else if (token.value == '{{') {
         const closePeek = tokens.peek();
-        if (closePeek && closePeek.operator && closePeek.value == '}}') {
+        if (closePeek && closePeek.operator && closePeek.value == '}') {
           tokens.next();
+					JEL.expectOp(tokens, TRANSLATOR_DOUBLE_BRACE_STOP, "Need 2nd closing brace to end translator");
           return JEL.tryBinaryOps(tokens, new Translator(), precedence, stopOps);
         }
         
         const assignments = [];
-				
+
         while (true) {
           const name = tokens.next();
 					const metaAssignments = [];
@@ -215,20 +216,21 @@ class JEL {
 							if (!name || !name.identifier)
 								JEL.throwParseException(name || token, "Expected identifier for translator meta.");
 							const eq = JEL.expectOp(tokens, TRANSLATOR_META_STOP, "Expected equal sign or comma or colon after meta name.");
-							if (!eq)
-								JEL.throwParseException(name, "Unexpected end of translator");
 							if (eq.value == '=') {
 								const expression = JEL.parseExpression(tokens, PARENS_PRECEDENCE, TRANSLATOR_META_VALUE_STOP);
 								if (!expression)
 									JEL.throwParseException(eq, "Expression ended unexpectedly.");
 								metaAssignments.push(new Assignment(name.value, expression));
+
+								const terminator = JEL.expectOp(tokens, TRANSLATOR_META_VALUE_STOP, "Expected colon or comm after expression in translator.");
+								if (terminator.value == ':')
+									break;
 							}
 							else {
 								metaAssignments.push(new Assignment(name.value, Literal.TRUE));
+								if (eq.value == ':')
+									break;
 							}
-							const terminator = JEL.expectOp(tokens, TRANSLATOR_META_VALUE_STOP, "Expected colon or comm after expression in translator.");
-							if (terminator.value == ':')
-								break;
 						}
 					}
 					
@@ -242,8 +244,7 @@ class JEL {
 
 	        JEL.expectOp(tokens, TRANSLATOR_PATTERN_STOP, "Expected '=>' in Translator.");
 						
-					const args = keyPattern.getArgumentNames();
-					assignments.push(new Assignment(keyPattern, new Lambda(args, JEL.parseExpression(tokens, precedence, TRANSLATOR_LAMBDA_STOP)), metaAssignments));
+					assignments.push(new Assignment(keyPattern, new Lambda(keyPattern.getArgumentNames(), JEL.parseExpression(tokens, precedence, TRANSLATOR_LAMBDA_STOP)), metaAssignments));
 
 					if (JEL.expectOp(tokens, TRANSLATOR_LAMBDA_STOP, "Expecting comma or end of translator").value == '}') {
 						JEL.expectOp(tokens, TRANSLATOR_DOUBLE_BRACE_STOP, "Need 2nd closing brace to end translator");

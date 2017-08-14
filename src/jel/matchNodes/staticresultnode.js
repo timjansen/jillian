@@ -10,15 +10,6 @@ class StaticResultNode extends MatchNode {
 	}
 	
 	// override
-	clone(newResult) {
-		if (newResult)
-			return newResult;
-		if (this.result === true) 
-			return StaticResultNode.TRUE;
-		return new StaticResultNode(this.result);
-	}
-	
-	// override
 	match(ctx, tokens, idx, args, modifiers) {
 		if (!tokens[idx])
 			return this.result;

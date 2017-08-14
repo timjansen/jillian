@@ -13,13 +13,6 @@ class TranslatorNode extends MultiNode {
 	}
 
 	// override
-	clone(resultNode) {
-		const c = new TranslatorNode();
-		c.results = this.results;
-		return MultiNode.copy(this, c, resultNode);
-	}
-
-	// override
 	match(ctx, tokens, idx, args, modifiers) {
 		const m = super.match(ctx, tokens, idx, args, modifiers);
 		if (!m && this.results && !tokens[idx])
@@ -28,13 +21,23 @@ class TranslatorNode extends MultiNode {
 	}
 	
 	addResult(result) {
-		this.results.push(result);
+		if (!this.results)
+			this.results = [result];
+		else
+			this.results.push(result);
 		return this;
 	}
 
 	
 	toString() {
-		return `TranslatorNode(tokens={${Array.from((this.tokenMap||new Map()).entries()).map(([k,v])=>k+': '+(v||'undefined').toString()).join(',\n')}} templates=[${(this.templateNodes||[]).map(s=>s.toString()).join(',\n')}] results=[${(this.results||[]).join(', ')})`;
+		const v = [];
+		if (this.tokenMap)
+			v.push(`tokens={${Array.from(this.tokenMap.entries()).map(([k,v])=>k+': '+(v||'undefined').toString()).join(',\n')}}`);
+		if (this.templateNodes)
+			v.push(`templates=[${this.templateNodes.map(s=>s.toString()).join(',\n')}]`);
+		if (this.results)
+			v.push(`results=[${this.results.join(', ')}]`);
+		return `TranslatorNode(${v.join(' ')})`;
 	}
 }
 

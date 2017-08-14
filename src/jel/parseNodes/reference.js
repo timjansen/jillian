@@ -22,6 +22,10 @@ class Reference extends JelNode {
       this.name == other.name;
 	}
   
+	toString() {
+		return `@${this.name}`;	
+	}
+	
   getSerializationProperties() {
     return {name: this.name};
   }

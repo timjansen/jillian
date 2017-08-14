@@ -26,6 +26,10 @@ class With extends JelNode {
       !this.assignments.find((l, i)=>!l.equals(other.assignments[i]));
 	}
   
+	toString() {
+		return `with ${this.assignments.map(s=>s.toString()).join(', ')}): ${this.expression.toString()}`;		
+	}
+	
   getSerializationProperties() {
     return {assignments: this.assignments, expression: this.expression};
   }

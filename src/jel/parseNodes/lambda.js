@@ -34,6 +34,13 @@ class LambdaCallable extends Callable {
 	invokeWithContext(ctx, ...args) {  // ctx will be ignored for lambda
 		return this.invokeWithObject(args);
 	}
+
+	toString() {
+		if (this.argNames.length == 1)
+			return `${this.argNames[0]}=>${this.expression.toString()}`;
+		else
+			return `(${this.argNames.join(', ')})=>${this.expression.toString()}`;
+	}
 }
 
 class Lambda extends JelNode {
@@ -55,7 +62,14 @@ class Lambda extends JelNode {
       this.argNames.length == other.argNames.length && 
       !this.argNames.find((l, i)=>l != other.argNames[i]);
 	}
-  
+
+	toString() {
+		if (this.argNames.length == 1) 
+			return `${this.argNames[0]}=>${this.expression.toString()}`;
+		else
+			return `(${this.argNames.join(', ')})=>${this.expression.toString()}`;		
+	}
+	
   getSerializationProperties() {
     return {argNames: this.argNames, expression: this.expression};
   }

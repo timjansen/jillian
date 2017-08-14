@@ -10,21 +10,6 @@ class MultiNode extends MatchNode {
 		this.templateNodes = null; // Array: list of template nodes to check
 		this.noMatchOption = null; // if not null, this node is  optional. If not, the next node.
 	}
-
-	// override
-	clone(resultNode) {
-		return MultiNode.copy(this, new MultiNode(), resultNode);
-	}
-
-	static copy(from, to, resultNode) {
-		to.tokenMap = from.tokenMap && new Map();
-		if (to.tokenMap)
-			for (const k of from.tokenMap.keys())
-				to.tokenMap.set(k, from.tokenMap.get(k).clone(resultNode));
-		
-		to.templateNodes = from.templateNodes && from.templateNodes.map(t=>t.clone(resultNode));
-		return to;
-	}
 	
 	addTokenMatch(token, nextNode) {
 		if (!this.tokenMap)

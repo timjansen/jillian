@@ -15,6 +15,7 @@ describe('jelTokenizer', function() {
       assert.deepEqual(jt.tokenize('<=+').tokens, [{value: '<=', operator: true}, {value: '+', operator: true}]);
       assert.deepEqual(jt.tokenize('!a').tokens, [{value: '!', operator: true}, {value: 'a', identifier: true}]);
       assert.deepEqual(jt.tokenize('(a)').tokens, [{value: '(', operator: true}, {value: 'a', identifier: true}, {value: ')', operator: true}]);
+      assert.deepEqual(jt.tokenize('{{}} {}').tokens, [{value: '{{', operator: true}, {value: '}', operator: true}, {value: '}', operator: true}, {value: '{', operator: true}, {value: '}', operator: true}]);
     });
 
     it('should parse identifiers', function() {

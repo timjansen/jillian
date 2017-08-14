@@ -11,10 +11,6 @@ class MatchNode {
 	match(ctx, tokens, idx, args, modifiers) {
 	}
 	
-	// clones the node
-	clone(resultNode) {
-	}
-	
 	// appends a node or value to the end of the tree
 	append(next) {
 		return this;

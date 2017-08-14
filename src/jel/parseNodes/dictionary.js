@@ -23,7 +23,10 @@ class Dictionary extends JelNode {
       !this.elements.find((l, i)=>!l.equals(other.elements[i]));
 	}
 
-  
+  toString() {
+		return `{${this.elements.map(s=>s.toString(': ')).join(', ')}}`;
+	}
+	
   getSerializationProperties() {
     return {elements: this.elements};
   }

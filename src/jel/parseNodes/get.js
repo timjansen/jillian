@@ -32,6 +32,10 @@ class Get extends JelNode {
       this.name == other.name && 
       this.left.equals(other.left);
 	}
+	
+	toString() {
+		return `${this.left.toString()}[${this.name.toString()}]`;
+	}
   
   getSerializationProperties() {
     return {left: this.left, name: this.name};

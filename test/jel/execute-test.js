@@ -184,6 +184,20 @@ describe('JEL', function() {
       assert.throws(()=>new JEL('{a: 1, a: 2}').executeImmediately());
     });
 
+
+    it('supports translators', function() {
+      assert.equal(new JEL('{{}}').executeImmediately().toString(), "Translator(TranslatorNode())");
+      assert.equal(new JEL('{{`abc` => 2}}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(results=[LambdaResultNode(()=>2)])}))");
+      assert.equal(new JEL('{{`abc def` => 7}}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={def: TranslatorNode(results=[LambdaResultNode(()=>7)])})}))");
+      
+      assert.equal(new JEL('{{`abc` => 2, `foo` => 6}}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(results=[LambdaResultNode(()=>2)]),\nfoo: TranslatorNode(results=[LambdaResultNode(()=>6)])}))");
+      assert.equal(new JEL('{{`abc def` => 2, `foo` => 6}}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={def: TranslatorNode(results=[LambdaResultNode(()=>2)])}),\nfoo: TranslatorNode(results=[LambdaResultNode(()=>6)])}))");
+      assert.equal(new JEL('{{`abc def` => 2, `foo` => 6, `abc foo bar` => 4}}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={def: TranslatorNode(results=[LambdaResultNode(()=>2)]),\nfoo: TranslatorNode(tokens={bar: TranslatorNode(results=[LambdaResultNode(()=>4)])})}),\nfoo: TranslatorNode(results=[LambdaResultNode(()=>6)])}))");
+    
+      assert.equal(new JEL('{{x: `abc` => 2}}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(results=[LambdaResultNode(()=>2, meta={x=true})])}))");
+      assert.equal(new JEL('{{x,y,z: `abc` => 2}}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(results=[LambdaResultNode(()=>2, meta={x=true, y=true, z=true})])}))");
+      assert.equal(new JEL('{{x,y=1,zzz="bla": `abc` => 2}}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(results=[LambdaResultNode(()=>2, meta={x=true, y=1, zzz=bla})])}))");
+    });
     
     it('supports the get operator for dictionaries', function() {
       assert.strictEqual(new JEL('{}["a"]').executeImmediately(), undefined);

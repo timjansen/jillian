@@ -11,9 +11,9 @@ class Translator extends JelNode {
 
   // override
   execute(ctx) {
-    const map = new JelTranslator();
-    this.elements.forEach(e=>map.addPattern(e.name, e.execute(ctx), e.getMetaData(ctx)));
-    return map;
+    const t = new JelTranslator();
+    this.elements.forEach(e=>t.addPattern(e.name, e.execute(ctx), e.getMetaData(ctx)));
+    return t;
   }
   
   // override
@@ -23,7 +23,10 @@ class Translator extends JelNode {
       !this.elements.find((l, i)=>!l.equals(other.elements[i]));
 	}
 
-  
+  toString() {
+		return `@${this.name}`;	
+	}
+	
   getSerializationProperties() {
     return {elements: this.elements};
   }

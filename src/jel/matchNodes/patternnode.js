@@ -1,6 +1,7 @@
 'use strict';
 
 const MultiNode = require('./multinode.js');
+const TranslatorNode = require('./translatornode.js');
 
 /**
  * A multi-node for Patterns. noMatchOption is an additional property that can either point to a result, or to another PatternNode.
@@ -10,13 +11,6 @@ class PatternNode extends MultiNode {
 	constructor() {
 		super();
 		this.noMatchOption = null; // if not null, this node is  optional. If not, the next node.
-	}
-
-	// override
-	clone(resultNode) {
-		const c = new PatternNode();
-		c.noMatchOption = this.noMatchOption ? this.noMatchOption.clone(resultNode) : null;
-		return MultiNode.copy(this, c, resultNode);
 	}
 
 	// override
@@ -49,8 +43,11 @@ class PatternNode extends MultiNode {
 			for (const k of this.tokenMap.keys()) { 
 				const thisV = this.tokenMap.get(k);
 				const otherV = translatorNode.tokenMap.get(k);
-				if (!otherV)
-					translatorNode.tokenMap.set(k, PatternNode.clone(thisV, resultNode));
+				if (!otherV) {
+					const newTn = new TranslatorNode();
+					translatorNode.tokenMap.set(k, newTn);
+					thisV.merge(newTn, resultNode);
+				}
 				else if (thisV && thisV.result === true)
 					otherV.noMatchOption = resultNode;
 				else
@@ -64,7 +61,7 @@ class PatternNode extends MultiNode {
 			this.templateNodes.forEach(t=>{
 				const otherT = this.templateNodes.find(x=>x.equals(t));
 				if (!otherT)
-					translatorNode.templateNodes.push(t.clone(resultNode));
+					translatorNode.templateNodes.push(t.merge(resultNode));
 				else if (t.next && t.next.result === true)
 					otherT.next.noMatchOption = resultNode;
 				else
@@ -78,13 +75,6 @@ class PatternNode extends MultiNode {
 			this.noMatchOption.merge(translatorNode, resultNode);
 			
 		return this;
-	}
-	
-	static clone(v, resultNode) {
-		if (v)
-			return v.clone();
-		else 
-			return v;
 	}
 	
 	toString() {

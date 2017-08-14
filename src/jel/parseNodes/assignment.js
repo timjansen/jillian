@@ -2,6 +2,8 @@
 
 const JelNode = require('./node.js');
 const JelType = require('../type.js');
+const JelPattern = require('../pattern.js');
+const Pattern = require('./pattern.js');
 
 const EMPTY_MAP = new Map();
 
@@ -10,7 +12,7 @@ class Assignment extends JelNode {
     super();
     this.name = name;
     this.expression = expression;
-		this.meta = meta;             // optional array of meta assignments
+		this.meta = meta;             // optional array of meta Assignments
   }
 
   // override
@@ -45,8 +47,17 @@ class Assignment extends JelNode {
 	}
   
   getSerializationProperties() {
-    return {name: this.name, expression: this.expression};
+    return {name: this.name, expression: this.expression, meta: this.meta};
   }
+	
+	toString(separator='=') {
+		if (this.name instanceof JelPattern) {
+			const meta = this.meta ? `${this.meta.map(s=>s.toString()).join(', ')}: ` : '';
+			return `${meta}${Pattern.toString(this.name)}${separator}${this.expression.toString()}`;
+		}
+		else
+			return `${this.name}${separator}${this.expression.toString()}`;
+	}
 }
 
 module.exports = Assignment;

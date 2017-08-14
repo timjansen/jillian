@@ -49,6 +49,14 @@ class Call extends JelNode {
       !this.namedArgs.find((l, i)=>!l.equals(other.namedArgs[i]));
 	}
 
+	toString() {
+		if (!this.namedArgs.length)
+			return `${this.left}(${this.argList.map(s=>s.toString()).join(', ')})`;
+		if (!this.argList.length)
+			return `${this.left}(${this.namedArgs.map(s=>s.toString()).join(', ')})`;
+
+		return `${this.left}(${this.argList.map(s=>s.toString()).join(', ')}, ${this.namedArgs.map(s=>s.toString()).join(', ')})`;
+	}
   
   getSerializationProperties() {
     return {left: this.left, argList: this.argList, argObj: this.argObj};

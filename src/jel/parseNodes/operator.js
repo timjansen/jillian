@@ -73,6 +73,17 @@ class Operator extends JelNode {
       ((!this.right) || (this.right.equals(other.right)));
 	}
   
+	toString() {
+		if (this.right) {
+			if (this.op == '.')
+				return `${this.left.toString()}.${this.right.toString()}`;
+			else
+				return `(${this.left.toString()} ${this.op} ${this.right.toString()})`;
+		}
+		else
+			return `${this.op}(${this.left.toString()})`;
+	}
+	
   getSerializationProperties() {
     if (this.right != null) 
       return {op: this.op, left: this.left, right: this.right};

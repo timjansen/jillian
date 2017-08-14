@@ -20,6 +20,15 @@ class Pattern extends JelNode {
       this.pattern == other.pattern;
 	}
   
+	toString() {
+		return Pattern.toString(this.pattern);	
+	}
+	
+	static toString(p) {
+		return '`' + p.patternText.replace(/`/g, '\\`').replace(/\n/g, '\\n') + '`';	
+	}
+	
+	
   getSerializationProperties() {
     return {pattern: this.pattern};
   }

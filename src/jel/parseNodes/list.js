@@ -6,7 +6,7 @@ const JelList = require('../list.js');
 class List extends JelNode {
   constructor(elements) {
     super();
-    this.elements = elements; // array of assignments
+    this.elements = elements;
   }
 
   // override
@@ -21,7 +21,10 @@ class List extends JelNode {
       !this.elements.find((l, i)=>!l.equals(other.elements[i]));
 	}
 
-  
+  toString() {
+		return `{${this.elements.map(s=>s.toString()).join(', ')}}`;
+	}  
+	
   getSerializationProperties() {
     return {elements: this.elements};
   }

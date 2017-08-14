@@ -32,8 +32,11 @@ class Condition extends JelNode {
       return this.elseExp.execute(ctx);
   }
 
-  
-  getSerializationProperties() {
+ 	toString() {
+		return `if ${this.condition.toString()} then ${this.thenExp.toString()} else ${this.elseExp.toString()}`;
+	}
+ 
+	getSerializationProperties() {
     return {condition: this.condition, thenExp: this.thenExp, elseExp: this.elseExp};
   }
 }

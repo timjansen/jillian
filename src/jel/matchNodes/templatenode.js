@@ -1,7 +1,7 @@
 'use strict';
 
 const MatchNode = require('./matchnode.js');
-const MultiNode = require('./multinode.js');
+const JelTemplateNode = require('./templatenode.js');
 
 class TemplateNode extends MatchNode {
 
@@ -14,11 +14,13 @@ class TemplateNode extends MatchNode {
 		this.next = next; // must be MultiNode
 	}
 	
-	// override
-	clone(resultNode) {
-		return new TemplateNode(this.template, this.name, this.hints, this.expression, MultiNode.clone(this.next, resultNode));
+	merge(resultNode) {
+		const newMulti = new JelTemplateNode();
+		const t = new TemplateNode(this.template, this.name, this.hints, this.expression, newMulti);
+		this.next.merge(newMulti, resultNode);
+		return t;
 	}
-
+	
 	// override
 	match(ctx, tokens, idx, args, modifiers) {
 		if (!ctx.translationDict || !ctx.translationDict.get)

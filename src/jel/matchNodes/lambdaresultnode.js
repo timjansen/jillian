@@ -11,11 +11,6 @@ class LambdaResultNode extends MatchNode {
 	}
 	
 	// override
-	clone() {
-		return new LambdaResultNode(this.callable);
-	}
-	
-	// override
 	match(ctx, tokens, idx, args, meta) {
 		if (meta && meta.size) {
 			if (!this.meta || meta.size > this.meta.size)
@@ -30,7 +25,11 @@ class LambdaResultNode extends MatchNode {
 	
 	// override
 	toString() {
-		return `LambdaResultNode(...)`;
+		if (this.meta && this.meta.size) {
+			return `LambdaResultNode(${this.callable.toString()}, meta={${Array.from(this.meta.keys()).map(k=>`${k}=${this.meta.get(k)}`).join(', ')}})`;
+		}
+		else
+			return `LambdaResultNode(${this.callable.toString()})`;
 	}
 }
 

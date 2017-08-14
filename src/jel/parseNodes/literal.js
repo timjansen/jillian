@@ -19,6 +19,10 @@ class Literal extends JelNode {
       this.value == other.value;
 	}
   
+	toString() {
+		return JSON.stringify(this.value);
+	}  
+	
   getSerializationProperties() {
     return {value: this.value};
   }
