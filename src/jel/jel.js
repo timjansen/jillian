@@ -262,8 +262,13 @@ class JEL {
         const cond = JEL.parseExpression(tokens, IF_PRECEDENCE, IF_STOP);
         JEL.expectOp(tokens, IF_STOP, "Expected 'then'");
         const thenV = JEL.parseExpression(tokens, IF_PRECEDENCE, THEN_STOP);
-        JEL.expectOp(tokens, THEN_STOP, "Expected 'else' after 'if'/'then' condition.");
-        return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, JEL.parseExpression(tokens, IF_PRECEDENCE, stopOps)), precedence, stopOps);
+				const elseT = tokens.peek();
+				if (elseT && elseT.operator && elseT.value == 'else') {
+					tokens.next();
+					return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, JEL.parseExpression(tokens, IF_PRECEDENCE, stopOps)), precedence, stopOps);
+				}
+				else
+					return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, Literal.TRUE), precedence, stopOps);
       }
       else if (token.value == 'with') {
         const assignments = [];

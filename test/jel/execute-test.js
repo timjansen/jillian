@@ -164,6 +164,9 @@ describe('JEL', function() {
       assert.equal(new JEL("if 2<1 then 'foo' else 'bar'").executeImmediately(), "bar");
       assert.equal(new JEL("if 2<1 then 'foo' else if 3>2 then 2 else 1").executeImmediately(), 2);
       assert.equal(new JEL("if 2>1 then (if 3<2 then 2 else 1) else 6").executeImmediately(), 1);
+
+      assert.equal(new JEL('if true then 7').executeImmediately(), 7);
+      assert.equal(new JEL('if false then 7').executeImmediately(), true);
     });
 
     it('supports lists', function() {
