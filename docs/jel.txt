@@ -1,0 +1,161 @@
+JEL Feature by Feature
+===========================
+
+JEL is a JavaScript-inspired expression language with a functional design. Unlike most simple expression languages, it supports lambda and you can define constants (but no variables). 
+
+
+Literals
+------------------
+1. Strings: can be single-quoted ('foo') or double-quoted ("bar"). Quotes can be escaped with backslashes. Only escape sequences supported are \n and \t.
+
+Examples:
+	"foo"
+	'bar'
+	"it said \"boo\""
+	'it said "boo"'
+	"Here are some indented lines:\n\tLine1\n\tLine2\n"
+
+
+2. Numbers: are always floating-point with optional exponential
+
+Examples:
+	1
+	-1
+	2.54
+	10.43e-23
+
+3. Booleans: true and false
+
+Examples: 
+	true
+	false
+
+4. Null	
+
+Example:
+	null
+	
+
+Comments
+------------------
+
+It supports line comments and blocks.
+
+	42    // the answer
+	"foo" /* this is a multi-line comment.
+	         It ends here*/
+
+
+Operators
+------------------
+It supports JavaScript-like operators. The behaviour of the operator is type-dependent. For basic types it follows JavaScript rules, with the exception that '==' works like '===' (and '!=' like '!==')
+
+Examples:
+	3+4
+	12-11
+	12*15
+	8/2
+	4+2*3           // returns 10, because of precedence rules
+	(4+2)*3         // returns 12
+	value == "foo"
+  "foo" != value
+	!someCondition
+	-(4*4)
+	cond1 && cond2
+	cond1 || cond2
+	obj.property   // note that if obj is null, it returns null. No exceptions.
+	obj.property > 2 || obj.property < 0
+	mul(6, 7)
+	obj.print("hello")
+
+
+References
+------------------
+JEL has built-in support for database lookups of named objects.
+
+Examples:
+	@Bird    // returns the category Bird
+	@Mars    // returns the instance called Mars
+
+
+Lists
+------------------
+JEL supports lists, which work like JavaScript Arrays.
+
+Examples:
+	[]              // empty lists
+	[1,2,3] 
+	[a-1, a, a+1]   // expression to create list elements
+
+
+Dictionary
+------------------
+Dictionaries are the equivalent of JavaScript's object literals.
+
+Examples:
+	{}                            // empty dictionary
+  {a: 2, b: "bar", c: 4*5}      // keys following identifier logic do not need to be quoted. Values can be expressions.
+	{"a": 2, 'b': 4, 77: "foo"}   // all literals can be keys
+	{true: 1, false: 0}           // boolean values as keys
+  {a}                           // short-cut for {a: a} . Reads the variable "a" and stores it as "a".
+	{a, b: 2, c}
+
+
+Patterns
+-------------------
+Patterns are expressions that match a sentence or a phrase. They are somewhat similar to regular expressions, but instead of character-by-character they work word-by-word.
+
+Examples:
+	`foot`                      // matches the word 'foot'
+	`he went away`              // matches the sentence 'he went away'
+	`[it|he|she] walked away`   // matches the sentences 'it walked away', 'he walked away' and 'she walked away'
+	`he [quickly]? walked away`   // matches the sentences 'he walked away' and 'he quickly walked away'
+	`he [slowly|quickly]? walked away`   // matches the sentences 'he walked away', 'he quickly walked away' and 'he slowly walked away'
+	`he went {{destination}}`            // matches the words 'he went' and then calls a Translator called 'destination' for the third
+	`he went {{destination}}?`           // matches the words 'he went', folowed by an optional 'destination'
+	`my name is {{n: name}}`             // uses the Translator 'name', and returns the result as variable 'n'
+	`my favorite color is {{col: color}}`      
+	`I like {{a: animal.plural}}`        // specifies that only Translator matches with the meta property 'plural' are used
+	`I like {{a: animal.plural :: @Bird.isCategoryOf(a)}}`        // limits matches to instances of @Bird
+
+
+Lambda 
+-------------------
+Lambda expressions define functions.Lambda
+
+Examples:
+	() => 45      // always returns 45
+	a => a*a      // one argument, returns the square number
+	(a,b) => a+b  // function thats returns the sum of two arguments
+	[1, 2, 3].map(e => 2*e)  // returns the list [2, 4, 6]
+
+
+Translators
+-------------------
+Translators are a special kind of dictionaries that use Patterns instead of keys, and use Lambda expressions instead of a value. The lambda expressions get the template values as
+arguments.
+
+Examples:
+	{{`one` => 1, `two` => 2}}
+	{{`` => 1, `two` => 2}}
+
+
+Conditions
+-------------------
+JEL supports simple if/then/else expressions. The 'else' part can be omitted, it defaults to 'true'. This is mainly useful for inferences (if something is true, 
+something else is true as well).
+
+Examples:
+	if a==12 then 'a dozen' else 'not a dozen'
+	if a==0 then 'none' else if a<10 then 'a few' else 'a lot'
+	if @Frog.isCategoryOf(a) then a.capabilities.includes(@Jumping)
+	
+
+With Constants
+-------------------
+With allows you to define constants that can be used in the following expression.
+
+Examples:
+	with a=2: a+3   // returns 5
+	with x=1, y=x+2, z=y*3: z*4   // returns 36
+

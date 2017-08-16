@@ -1,6 +1,17 @@
 'use strict';
 
 const MatchNode = require('./matchnode.js');
+const JelType = require('../type.js');
+
+class Match extends JelType {
+	constructor(value, meta) {
+		super();
+		this.value = value;
+		this.meta = meta || {};
+	}
+}
+
+Match.prototype.JEL_PROPERTIES = {value: true, meta: true};
 
 class LambdaResultNode extends MatchNode {
 
@@ -11,16 +22,16 @@ class LambdaResultNode extends MatchNode {
 	}
 	
 	// override
-	match(ctx, tokens, idx, args, meta) {
-		if (meta && meta.size) {
-			if (!this.meta || meta.size > this.meta.size)
+	match(ctx, tokens, idx, args, metaFilter) {
+		if (metaFilter && metaFilter.size) {
+			if (!this.meta || metaFilter.size > this.meta.size)
 				return undefined;
-			for (const key of meta.keys)
-				if (!this.meta.get(key))
+			for (const key of metaFilter.values())
+				if (!this.meta.has(key))
 					return undefined;
 		}
 		
-		return this.callable.invokeWithObject([], args, ctx);
+		return new Match(this.callable.invokeWithObject([], args, ctx), this.meta);
 	}
 	
 	// override

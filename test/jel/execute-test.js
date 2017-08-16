@@ -35,6 +35,8 @@ describe('JEL', function() {
 
    it('should execute patterns', function() {
       assert.equal(new JEL('`a b c`').executeImmediately().toString(), 'Pattern(text=`a b c`)');
+      assert.equal(new JEL('`a b c`.match("a  b c")').executeImmediately(), true);
+      assert.equal(new JEL('`a b c`.match("a  c c")').executeImmediately(), false);
     });
 
     
@@ -200,6 +202,12 @@ describe('JEL', function() {
       assert.equal(new JEL('{{x: `abc` => 2}}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(results=[LambdaResultNode(()=>2, meta={x=true})])}))");
       assert.equal(new JEL('{{x,y,z: `abc` => 2}}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(results=[LambdaResultNode(()=>2, meta={x=true, y=true, z=true})])}))");
       assert.equal(new JEL('{{x,y=1,zzz="bla": `abc` => 2}}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(results=[LambdaResultNode(()=>2, meta={x=true, y=1, zzz=bla})])}))");
+
+      assert.equal(new JEL('{{}}.match("").length').executeImmediately(), 0);
+      assert.equal(new JEL('{{}}.match("a").length').executeImmediately(), 0);
+
+      assert.equal(new JEL('{{`abc` => 2}}.match("abc")[0].value').executeImmediately(), 2);
+      assert.equal(new JEL('{{`a b c` => 2, `a` => 1}}.match("a")[0].value').executeImmediately(), 1);
     });
     
     it('supports the get operator for dictionaries', function() {

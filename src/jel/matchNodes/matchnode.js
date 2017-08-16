@@ -7,8 +7,8 @@ class MatchNode {
 
 	// returns the result value, or undefined if no match.
 	// args is optional map. If set, TemplateNodes write their values in there
-	// modifiers is  a list of strings to narrow down results. Matches must have all these results.
-	match(ctx, tokens, idx, args, modifiers) {
+	// metaFilter is  a list of strings to narrow down results. Matches must have all these results.
+	match(ctx, tokens, idx, args, metaFilter) {
 	}
 	
 	// appends a node or value to the end of the tree

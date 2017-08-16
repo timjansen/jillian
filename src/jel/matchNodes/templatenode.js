@@ -22,7 +22,7 @@ class TemplateNode extends MatchNode {
 	}
 	
 	// override
-	match(ctx, tokens, idx, args, modifiers) {
+	match(ctx, tokens, idx, args, metaFilter) {
 		if (!ctx.translationDict || !ctx.translationDict.get)
 			throw new Error("Templates in patterns require 'translationDict' in Context");
 		

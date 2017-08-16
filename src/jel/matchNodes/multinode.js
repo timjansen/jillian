@@ -27,16 +27,16 @@ class MultiNode extends MatchNode {
 	}
 
 	// override
-	match(ctx, tokens, idx, args, modifiers) {
+	match(ctx, tokens, idx, args, metaFilter) {
 		const token = tokens[idx];
 		if (this.tokenMap) {
 			const tr = this.tokenMap.get(token);
 			if (tr)
-				return tr.match(ctx, tokens, idx+1, args, modifiers);
+				return tr.match(ctx, tokens, idx+1, args, metaFilter);
 		}
 		if (this.templateNodes) {
 			for (const t of this.templateNodes)  {
-				const tn = t.match(ctx, tokens, idx, args, modifiers);
+				const tn = t.match(ctx, tokens, idx, args, metaFilter);
 				if (tn)
 					return tn;
 			}

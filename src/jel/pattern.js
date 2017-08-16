@@ -15,7 +15,7 @@ class Pattern extends JelType {
 	match(ctx, inputOrTokens) {
 		if (typeof inputOrTokens == 'string') {
 			const trimmed = inputOrTokens.trim();
-			return !!this.tree.match(ctx, trimmed ? trimmed.split(/\s+/g) : [], 0);
+			return this.match(ctx, trimmed ? trimmed.split(/\s+/g) : []);
 		}
 		return !!this.tree.match(ctx, inputOrTokens, 0);
 	}
@@ -31,5 +31,8 @@ class Pattern extends JelType {
 	}
 	
 }
+
+Pattern.prototype.match_jel_mapping = {'>ctx': true, input: 1};
+
 
 module.exports = Pattern;

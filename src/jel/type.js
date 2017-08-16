@@ -109,7 +109,7 @@ class JelType {
 
 			const argMapper = obj[`${name}_jel_mapping`];
 			if (argMapper) {
-				const newCallable = new Callable(obj[name], argMapper, obj, name, !!argMapper['>ctx']);
+				const newCallable = new Callable(obj[name], argMapper, obj, name, argMapper['>ctx'] != null);
 				obj[callableCacheKey] = newCallable;
 				return newCallable;
 			}
