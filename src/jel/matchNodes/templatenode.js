@@ -2,6 +2,8 @@
 
 const MatchNode = require('./matchnode.js');
 const JelTemplateNode = require('./templatenode.js');
+const Dictionary = require('../dictionary.js');
+
 
 class TemplateNode extends MatchNode {
 
@@ -9,7 +11,7 @@ class TemplateNode extends MatchNode {
 		super();
 		this.template = template;
 		this.name = name;
-		this.hints = hints;
+		this.hints = hints && new Set(hints);
 		this.expression = expression;
 		this.next = next; // must be MultiNode
 	}
@@ -28,16 +30,20 @@ class TemplateNode extends MatchNode {
 		
 		const tpl = ctx.translationDict.get(this.template);
 		if (!tpl)
-			throw new Error(`Can not find template ${this.template} in given translation dictionary`);
+			throw new Error(`Can not find template ${this.template} in translation dictionary`);
 
-		const r = tpl.match(ctx, tokens, idx);
+		const r = tpl.match(ctx, tokens, idx, null, this.hints);
 		if (r) {
-			const [val, newIdx]  = r;
-	
-			if (args && this.name)
-				args[this.name] = val;
-		
-			return val;
+			const m = r.map(match=> {
+				if (args && this.name) {
+					args[this.name] = match.value;
+					args[this.name + '_meta'] = new Dictionary(match.meta, true);
+				}
+
+				return this.next.match(ctx, tokens, match.index, args, metaFilter);
+			}).filter(e=>e);
+			if (m.length)
+				return m;
 		}
 		return undefined;
 	}
@@ -55,7 +61,7 @@ class TemplateNode extends MatchNode {
 	}
 	
 	toString() {
-		return `TemplateNode(name=${this.name}, template=${this.template}, hints=[${this.hints.join(', ')}], expression=${!!this.expression}) => next=${this.next}`;
+		return `TemplateNode(name=${this.name}, template=${this.template}, hints=[${Array.from(this.hints||[]).join(', ')}], expression=${this.expression}) -> ${this.next}`;
 	}
 
 }

@@ -432,7 +432,7 @@ class JEL {
 			return m.addTokenMatch(t.word, JEL.parsePattern(tok, jelToken, expectStopper));
 		else if (t.template) {
 			try {	
-				return m.addTemplateMatch(new TemplateNode(t.template, t.name, t.hints, t.expression ? new JEL(t.expression) : null, JEL.parsePattern(tok, jelToken, expectStopper)));
+				return m.addTemplateMatch(new TemplateNode(t.template, t.name, t.hints, t.expression ? new JEL(t.expression).parseTree : undefined, JEL.parsePattern(tok, jelToken, expectStopper)));
 			}
 			catch (e) {
 				JEL.throwParseException(jelToken, "Can not parse expression ${t.expression} embedded in pattern", e);

@@ -112,7 +112,6 @@ Examples:
 	`he [quickly]? walked away`   // matches the sentences 'he walked away' and 'he quickly walked away'
 	`he [slowly|quickly]? walked away`   // matches the sentences 'he walked away', 'he quickly walked away' and 'he slowly walked away'
 	`he went {{destination}}`            // matches the words 'he went' and then calls a Translator called 'destination' for the third
-	`he went {{destination}}?`           // matches the words 'he went', folowed by an optional 'destination'
 	`my name is {{n: name}}`             // uses the Translator 'name', and returns the result as variable 'n'
 	`my favorite color is {{col: color}}`      
 	`I like {{a: animal.plural}}`        // specifies that only Translator matches with the meta property 'plural' are used

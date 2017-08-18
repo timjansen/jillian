@@ -23,7 +23,7 @@ class Translator extends JelType {
 	matchAsArray(ctx, input, metaFilter) {
 		if (typeof input == 'string') {
 			const trimmed = input.trim();
-			return this.match(ctx, trimmed ? trimmed.split(/\s+/g) : [], metaFilter);
+			return this.matchAsArray(ctx, trimmed ? trimmed.split(/\s+/g) : [], metaFilter);
 		}
 		return this.tree.match(ctx, input, 0, {}, metaFilter) || [];
 	}

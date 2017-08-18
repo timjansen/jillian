@@ -3,11 +3,14 @@
 const MatchNode = require('./matchnode.js');
 const JelType = require('../type.js');
 
+const EMPTY_MAP = new Map();
+
 class Match extends JelType {
-	constructor(value, meta) {
+	constructor(value, index, meta) {
 		super();
 		this.value = value;
-		this.meta = meta || {};
+		this.index = index;
+		this.meta = meta || EMPTY_MAP;
 	}
 }
 
@@ -31,7 +34,7 @@ class LambdaResultNode extends MatchNode {
 					return undefined;
 		}
 		
-		return new Match(this.callable.invokeWithObject([], args, ctx), this.meta);
+		return new Match(this.callable.invokeWithObject([], args, ctx), idx+1, this.meta);
 	}
 	
 	// override
