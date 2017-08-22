@@ -13,10 +13,10 @@ class TranslatorNode extends MultiNode {
 	}
 
 	// override
-	match(ctx, tokens, idx, args, metaFilter) {
-		const m = super.match(ctx, tokens, idx, args, metaFilter);
-		if (!m && this.results && !tokens[idx])
-			return this.results.map(r=>r.match(ctx, tokens, idx, args, metaFilter)).filter(r=>!!r);
+	match(ctx, tokens, idx, args, metaFilter, incompleteMatch) {
+		const m = super.match(ctx, tokens, idx, args, metaFilter, incompleteMatch);
+		if (!m && this.results && (incompleteMatch || !tokens[idx]))
+			return this.results.map(r=>r.match(ctx, tokens, idx, args, metaFilter, incompleteMatch)).filter(r=>!!r);
 		return m;
 	}
 	

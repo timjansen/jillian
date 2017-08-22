@@ -21,7 +21,7 @@ class JelNode extends JelType {
 		if (r instanceof Promise)
 			return r;
 		else
-			return new Promise(resolve=>resolve(r));
+			return Promise.resolve(r);
 	}
 
 	resolveValue(ctx, f, value) {

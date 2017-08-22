@@ -67,6 +67,7 @@ describe('jelPatterns', function() {
     });
 
     it('should parse templates', function() {
+      assert.equal(JEL.createPattern('j {{tpl0}}').tree.toString(), mnt('j', new PatternNode().addTemplateMatch(new TemplateNode('tpl0', undefined, [], undefined, MTRUE))).toString());
       assert.equal(JEL.createPattern('a {{tpl.x}} c').tree.toString(), mnt('a', new PatternNode().addTemplateMatch(new TemplateNode('tpl', undefined, ['x'], undefined, mnt('c')))).toString());
       assert.equal(JEL.createPattern('a {{test: tpl.x.y :: test > 0}} c').tree.toString(), mnt('a', new PatternNode().addTemplateMatch(new TemplateNode('tpl', 'test', ['x','y'], new JEL('test > 0').parseTree, mnt('c')))).toString());
     });
@@ -145,14 +146,36 @@ describe('jelPatterns', function() {
     });
 
     it('should parse templates', function() {
+        const tpl0 = exec('{{`a` => 1}}');
         const tpl1 = exec('{{`a` => 1, x: `b` => 2, y: `b` => 12, x, y: `b` => 22}}');
         const tpl2 = exec('{{`a [b [c]?]?` => 3, `a b c` => 4, `d e` => 5, `f {{tpl1}}` => 6}}');
-        const dict = new Dictionary({tpl1, tpl2});
+        const dict = new Dictionary({tpl0, tpl1, tpl2});
         const ctx = new Context({}, null, null, dict);
 
-//        assert(JEL.createPattern('{{tpl1}}').match(ctx, 'a'));
-//        assert(JEL.createPattern('{{test: tpl1 :: test == 1}}').match(ctx, 'a'));
-//        assert(!JEL.createPattern('{{test: tpl1 :: test > 1}}').match(ctx, 'a'));
+        assert(JEL.createPattern('{{tpl0}}').match(ctx, 'a'));
+        assert(JEL.createPattern('j {{tpl0}}').match(ctx, 'j a '));
+      
+        assert(JEL.createPattern('a {{tpl0}}').match(ctx, 'a a'));
+        assert(JEL.createPattern('{{tpl0}} k').match(ctx, ' a k'));
+        assert(JEL.createPattern('{{tpl0}}{{tpl0}}').match(ctx, 'a a'));
+        assert(JEL.createPattern('{{tpl0}} {{tpl0}}').match(ctx, 'a a'));
+        assert(!JEL.createPattern('{{tpl0}}').match(ctx, 'b'));
+      
+        assert(JEL.createPattern('{{tpl1}}').match(ctx, 'a'));
+        assert(JEL.createPattern('{{tpl1}}').match(ctx, 'b'));
+        assert(JEL.createPattern('{{tpl1.x}}').match(ctx, 'b'));
+        assert(JEL.createPattern('{{tpl1.x.y}}').match(ctx, 'b'));
+        assert(!JEL.createPattern('{{tpl1}}').match(ctx, 'nope'));
+        assert(!JEL.createPattern('{{tpl1.x}}').match(ctx, 'a'));
+        assert(!JEL.createPattern('{{tpl1.x.y.z}}').match(ctx, 'b'));
+
+        assert(JEL.createPattern('{{t: tpl1 :: t == 12}}').match(ctx, 'b'));
+        assert(JEL.createPattern('{{t: tpl1 :: t == 22}}').match(ctx, 'b'));
+        assert(!JEL.createPattern('{{t: tpl1 :: t == 0}}').match(ctx, 'b'));
+        assert(!JEL.createPattern('{{t: tpl1.x :: t == 12}}').match(ctx, 'b'));
+        assert(JEL.createPattern('{{t: tpl1.x :: t == 22}}').match(ctx, 'b'));
+        assert(JEL.createPattern('{{test: tpl1 :: test == 1}}').match(ctx, 'a'));
+        assert(!JEL.createPattern('{{test: tpl1 :: test > 1}}').match(ctx, 'a'));
     });
     
   });

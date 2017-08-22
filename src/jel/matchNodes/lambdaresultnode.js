@@ -25,7 +25,7 @@ class LambdaResultNode extends MatchNode {
 	}
 	
 	// override
-	match(ctx, tokens, idx, args, metaFilter) {
+	match(ctx, tokens, idx, args, metaFilter, incompleteMatch) {
 		if (metaFilter && metaFilter.size) {
 			if (!this.meta || metaFilter.size > this.meta.size)
 				return undefined;
@@ -34,7 +34,7 @@ class LambdaResultNode extends MatchNode {
 					return undefined;
 		}
 		
-		return new Match(this.callable.invokeWithObject([], args, ctx), idx+1, this.meta);
+		return new Match(this.callable.invokeWithObject([], args, ctx), idx, this.meta);
 	}
 	
 	// override

@@ -10,8 +10,8 @@ class StaticResultNode extends MatchNode {
 	}
 	
 	// override
-	match(ctx, tokens, idx, args, metaFilter) {
-		if (!tokens[idx])
+	match(ctx, tokens, idx, args, metaFilter, incompleteMatch) {
+		if (incompleteMatch || !tokens[idx])
 			return this.result;
 	}
 	

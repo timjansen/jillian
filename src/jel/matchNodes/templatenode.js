@@ -3,44 +3,54 @@
 const MatchNode = require('./matchnode.js');
 const JelTemplateNode = require('./templatenode.js');
 const Dictionary = require('../dictionary.js');
+const Context = require('../context.js');
 
 
 class TemplateNode extends MatchNode {
 
-	constructor(template, name, hints, expression, next) {
+	constructor(template, name, metaFilter, expression, next) {
 		super();
 		this.template = template;
 		this.name = name;
-		this.hints = hints && new Set(hints);
+		this.metaFilter = metaFilter && new Set(metaFilter);
 		this.expression = expression;
 		this.next = next; // must be MultiNode
 	}
 	
 	merge(resultNode) {
 		const newMulti = new JelTemplateNode();
-		const t = new TemplateNode(this.template, this.name, this.hints, this.expression, newMulti);
+		const t = new TemplateNode(this.template, this.name, this.metaFilter, this.expression, newMulti);
 		this.next.merge(newMulti, resultNode);
 		return t;
 	}
 	
 	// override
-	match(ctx, tokens, idx, args, metaFilter) {
+	match(ctx, tokens, idx, args, metaFilter, incompleteMatch) {
 		if (!ctx.translationDict || !ctx.translationDict.get)
 			throw new Error("Templates in patterns require 'translationDict' in Context");
 		
-		const tpl = ctx.translationDict.get(this.template);
-		if (!tpl)
+		const template = ctx.translationDict.get(this.template);
+		if (!template)
 			throw new Error(`Can not find template ${this.template} in translation dictionary`);
 
-		const r = tpl.match(ctx, tokens, idx, null, this.hints);
+		const r = template.matchAtPosition(ctx, tokens, idx, this.metaFilter, true);
 		if (r) {
+			const tplCtx = new Context(args, ctx);
 			const m = r.map(match=> {
 				if (args && this.name) {
 					args[this.name] = match.value;
 					args[this.name + '_meta'] = new Dictionary(match.meta, true);
 				}
-
-				return this.next.match(ctx, tokens, match.index, args, metaFilter);
+				if (this.expression) {
+					const result = this.expression.execute(tplCtx)
+					if (!result)
+						return null;
+					else if (!(result instanceof Promise))
+						return this.next.match(ctx, tokens, match.index, args, this.metaFilter, incompleteMatch);
+					else
+						throw new Error('missing Promise handling'); // TODO: missing Promise handling		
+				}
+				return this.next.match(ctx, tokens, match.index, args, this.metaFilter, incompleteMatch);
 			}).filter(e=>e);
 			if (m.length)
 				return m;
@@ -56,12 +66,12 @@ class TemplateNode extends MatchNode {
 	}
 	
 	equals(other) {
-		return this.template == other.template && this.name == other.name && this.hints.join(',') == other.hints.join(',') &&
+		return this.template == other.template && this.name == other.name && this.metaFilter.join(',') == other.metaFilter.join(',') &&
 		((!this.expression) === (!other.expression)) && ((!this.expression) || this.expression.equals(other.expression));
 	}
 	
 	toString() {
-		return `TemplateNode(name=${this.name}, template=${this.template}, hints=[${Array.from(this.hints||[]).join(', ')}], expression=${this.expression}) -> ${this.next}`;
+		return `TemplateNode(name=${this.name}, template=${this.template}, metaFilter=[${Array.from(this.metaFilter||[]).join(', ')}], expression=${this.expression}) -> ${this.next}`;
 	}
 
 }

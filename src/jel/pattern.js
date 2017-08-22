@@ -17,7 +17,7 @@ class Pattern extends JelType {
 			const trimmed = inputOrTokens.trim();
 			return this.match(ctx, trimmed ? trimmed.split(/\s+/g) : []);
 		}
-		return !!this.tree.match(ctx, inputOrTokens, 0);
+		return !!this.tree.match(ctx, inputOrTokens, 0, {});
 	}
 	
 	getArgumentNames() {

@@ -14,10 +14,10 @@ class PatternNode extends MultiNode {
 	}
 
 	// override
-	match(ctx, tokens, idx, args, metaFilter) {
-		const r = super.match(ctx, tokens, idx, args, metaFilter);
-		if (r === undefined && this.noMatchOption)
-			return this.noMatchOption.match(ctx, tokens, idx, args, metaFilter);
+	match(ctx, tokens, idx, args, metaFilter, incompleteMatch) {
+		const r = super.match(ctx, tokens, idx, args, metaFilter, incompleteMatch);
+		if (this.noMatchOption && (r === undefined || incompleteMatch))
+			return this.noMatchOption.match(ctx, tokens, idx, args, metaFilter, incompleteMatch);
 		return r;
 	}
 	

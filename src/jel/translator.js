@@ -18,18 +18,20 @@ class Translator extends JelType {
 		return this;
 	}
 	
-	// Returns Array of Matches with properties 'value' and 'meta'
+		// Returns Array of Matches with properties 'value' and 'meta'
 	// metaFilter is an optional set of meta values that must be present in the results
-	matchAsArray(ctx, input, metaFilter) {
+	matchAtPosition(ctx, tokens, idx, metaFilter, incompleteMatch) {
+		return this.tree.match(ctx, tokens, idx, {}, metaFilter, incompleteMatch);
+	}
+	
+	// Returns List of Matches with properties 'value' and 'meta'
+	// metaFilter is an optional set of meta values that must be present in the results
+	match(ctx, input, metaFilter) {
 		if (typeof input == 'string') {
 			const trimmed = input.trim();
-			return this.matchAsArray(ctx, trimmed ? trimmed.split(/\s+/g) : [], metaFilter);
+			return this.match(ctx, trimmed ? trimmed.split(/\s+/g) : [], metaFilter);
 		}
-		return this.tree.match(ctx, input, 0, {}, metaFilter) || [];
-	}
-
-	match(ctx, input, metaFilter) {
-		return new List(this.matchAsArray(ctx, input, metaFilter));
+		return new List(this.matchAtPosition(ctx, input, 0, metaFilter, false));
 	}
 	
 	toString() {
