@@ -1,10 +1,10 @@
 'use strict';
 
 const MatchNode = require('./matchnode.js');
-const JelTemplateNode = require('./templatenode.js');
+const TranslatorNode = require('./translatornode.js');
 const Dictionary = require('../dictionary.js');
 const Context = require('../context.js');
-
+const Util = require('../../util/util.js');
 
 class TemplateNode extends MatchNode {
 
@@ -12,13 +12,13 @@ class TemplateNode extends MatchNode {
 		super();
 		this.template = template;
 		this.name = name;
-		this.metaFilter = metaFilter && new Set(metaFilter);
+		this.metaFilter = new Set(metaFilter);
 		this.expression = expression;
 		this.next = next; // must be MultiNode
 	}
 	
 	merge(resultNode) {
-		const newMulti = new JelTemplateNode();
+		const newMulti = new TranslatorNode();
 		const t = new TemplateNode(this.template, this.name, this.metaFilter, this.expression, newMulti);
 		this.next.merge(newMulti, resultNode);
 		return t;
@@ -36,7 +36,7 @@ class TemplateNode extends MatchNode {
 		const r = template.matchAtPosition(ctx, tokens, idx, this.metaFilter, true);
 		if (r) {
 			const tplCtx = new Context(args, ctx);
-			const m = r.map(match=> {
+			const m = Util.collect(r, match=> {
 				if (args && this.name) {
 					args[this.name] = match.value;
 					args[this.name + '_meta'] = new Dictionary(match.meta, true);
@@ -51,7 +51,7 @@ class TemplateNode extends MatchNode {
 						throw new Error('missing Promise handling'); // TODO: missing Promise handling		
 				}
 				return this.next.match(ctx, tokens, match.index, args, this.metaFilter, incompleteMatch);
-			}).filter(e=>e);
+			});
 			if (m.length)
 				return m;
 		}
@@ -66,7 +66,7 @@ class TemplateNode extends MatchNode {
 	}
 	
 	equals(other) {
-		return this.template == other.template && this.name == other.name && this.metaFilter.join(',') == other.metaFilter.join(',') &&
+		return this.template == other.template && this.name == other.name && Array.from(this.metaFilter||[]).join(',') == Array.from(other.metaFilter||[]).join(',') &&
 		((!this.expression) === (!other.expression)) && ((!this.expression) || this.expression.equals(other.expression));
 	}
 	

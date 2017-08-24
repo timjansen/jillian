@@ -1,6 +1,7 @@
 'use strict';
 
 const MatchNode = require('./matchnode.js');
+const Util = require('../../util/util.js');
 
 class MultiNode extends MatchNode {
 
@@ -29,19 +30,17 @@ class MultiNode extends MatchNode {
 	// override
 	match(ctx, tokens, idx, args, metaFilter, incompleteMatch) {
 		const token = tokens[idx];
+		let result;
 		if (this.tokenMap) {
 			const tr = this.tokenMap.get(token);
 			if (tr)
-				return tr.match(ctx, tokens, idx+1, args, metaFilter, incompleteMatch);
+				result = Util.addToArray(result, tr.match(ctx, tokens, idx+1, args, metaFilter, incompleteMatch));
 		}
 		if (this.templateNodes) {
-			for (const t of this.templateNodes)  {
-				const tn = t.match(ctx, tokens, idx, args, metaFilter, incompleteMatch);
-				if (tn)
-					return tn;
-			}
+			for (const t of this.templateNodes) 
+				result = Util.addToArray(result, t.match(ctx, tokens, idx, args, metaFilter, incompleteMatch));
 		}
-		return undefined;		
+		return result;		
 	}
 	
 	// override

@@ -1,6 +1,7 @@
 'use strict';
 
 const MultiNode = require('./multinode.js');
+const Util = require('../../util/util.js');
 
 /**
  * A multi-node for Translators. They can have multiple LambdaResultNodes.
@@ -15,8 +16,8 @@ class TranslatorNode extends MultiNode {
 	// override
 	match(ctx, tokens, idx, args, metaFilter, incompleteMatch) {
 		const m = super.match(ctx, tokens, idx, args, metaFilter, incompleteMatch);
-		if (!m && this.results && (incompleteMatch || !tokens[idx]))
-			return this.results.map(r=>r.match(ctx, tokens, idx, args, metaFilter, incompleteMatch)).filter(r=>!!r);
+		if (this.results && (incompleteMatch || !tokens[idx]))
+			return Util.addToArray(m, Util.collect(this.results, r=>r.match(ctx, tokens, idx, args, metaFilter, incompleteMatch)));
 		return m;
 	}
 	

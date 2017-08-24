@@ -59,7 +59,7 @@ class PatternNode extends MultiNode {
 			if (!translatorNode.templateNodes)
 				translatorNode.templateNodes = [];
 			this.templateNodes.forEach(t=>{
-				const otherT = this.templateNodes.find(x=>x.equals(t));
+				const otherT = translatorNode.templateNodes.find(x=>x.equals(t));
 				if (!otherT)
 					translatorNode.templateNodes.push(t.merge(resultNode));
 				else if (t.next && t.next.result === true)
@@ -69,8 +69,10 @@ class PatternNode extends MultiNode {
 			});
 		}
 
-		if (this.noMatchOption && this.noMatchOption.result === true) 
+		if (this.noMatchOption && this.noMatchOption.result === true)  {
+if (!translatorNode.addResult) console.log('Can not addResult to a ', translatorNode.constructor.name);
 			translatorNode.addResult(resultNode);
+		}
 		else if (this.noMatchOption)
 			this.noMatchOption.merge(translatorNode, resultNode);
 			

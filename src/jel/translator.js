@@ -18,7 +18,7 @@ class Translator extends JelType {
 		return this;
 	}
 	
-		// Returns Array of Matches with properties 'value' and 'meta'
+	// Returns Array of Matches with properties 'value' and 'meta'
 	// metaFilter is an optional set of meta values that must be present in the results
 	matchAtPosition(ctx, tokens, idx, metaFilter, incompleteMatch) {
 		return this.tree.match(ctx, tokens, idx, {}, metaFilter, incompleteMatch);
