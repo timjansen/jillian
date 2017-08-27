@@ -55,7 +55,7 @@ class MultiNode extends MatchNode {
 			}
 
 		if (this.templateNodes)
-			this.templateNodes.forEach(n=>n ? n.append(next) : (n.next = next));
+			this.templateNodes.forEach(n=>n.append(next));
 
 		return this;
 	}

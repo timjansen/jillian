@@ -70,6 +70,7 @@ describe('jelPatterns', function() {
       assert.equal(JEL.createPattern('j {{tpl0}}').tree.toString(), mnt('j', new PatternNode().addTemplateMatch(new TemplateNode('tpl0', undefined, [], undefined, MTRUE))).toString());
       assert.equal(JEL.createPattern('a {{tpl.x}} c').tree.toString(), mnt('a', new PatternNode().addTemplateMatch(new TemplateNode('tpl', undefined, ['x'], undefined, mnt('c')))).toString());
       assert.equal(JEL.createPattern('a {{test: tpl.x.y :: test > 0}} c').tree.toString(), mnt('a', new PatternNode().addTemplateMatch(new TemplateNode('tpl', 'test', ['x','y'], new JEL('test > 0').parseTree, mnt('c')))).toString());
+      assert.equal(JEL.createPattern('j [{{tpl0}}]?').tree.toString(), mnt('j', new PatternNode().addTemplateMatch(new TemplateNode('tpl0', undefined, [], undefined, MTRUE)).makeOptional(MTRUE)).toString());
     });
     
   });

@@ -24,6 +24,10 @@ class TemplateNode extends MatchNode {
 		return t;
 	}
 	
+	append(next) {
+		this.next = next;
+	}
+	
 	// override
 	match(ctx, tokens, idx, args, metaFilter, incompleteMatch) {
 		if (!ctx.translationDict || !ctx.translationDict.get)

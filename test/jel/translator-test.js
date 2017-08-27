@@ -50,6 +50,7 @@ describe('jelTranslators', function() {
     it('should support templates', function() {
         assert.equal(translator(JEL.createPattern('{{tpl1}}'), exec('() => 7')).toString(), "Translator(TranslatorNode(templates=[TemplateNode(name=undefined, template=tpl1, metaFilter=[], expression=undefined) -> TranslatorNode(results=[LambdaResultNode(()=>7)])]))");
         assert.equal(translator(JEL.createPattern('{{tpl1}}'), exec('() => 7')).addPattern(JEL.createPattern('{{tpl0}}'), exec('() => 9')).toString(), `Translator(TranslatorNode(templates=[TemplateNode(name=undefined, template=tpl1, metaFilter=[], expression=undefined) -> TranslatorNode(results=[LambdaResultNode(()=>7)]),\nTemplateNode(name=undefined, template=tpl0, metaFilter=[], expression=undefined) -> TranslatorNode(results=[LambdaResultNode(()=>9)])]))`);
+        assert.equal(translator(JEL.createPattern('{{y:tpl1::y==3}}'), exec('() => 7')).addPattern(JEL.createPattern('{{c:tpl0}}'), exec('() => 9')).toString(), `Translator(TranslatorNode(templates=[TemplateNode(name=y, template=tpl1, metaFilter=[], expression=(y == 3)) -> TranslatorNode(results=[LambdaResultNode(()=>7)]),\nTemplateNode(name=c, template=tpl0, metaFilter=[], expression=undefined) -> TranslatorNode(results=[LambdaResultNode(()=>9)])]))`);
     });
   });
 
@@ -76,7 +77,34 @@ describe('jelTranslators', function() {
       assert.equal(t2.match(ctx, " abc d def ").length, 0);
       assert.equal(t2.match(ctx, " abcdef ").length, 0);
     });
-    
+
+    it('should match options', function() {
+      const ctx = new Context();
+      const t0 = new Translator().addPattern(JEL.createPattern(`a [a]?`), exec('() => 7'));
+      assert.deepEqual(t0.match(ctx, "a").elements.map(e=>e.value), [7]);
+      assert.deepEqual(t0.match(ctx, "a a").elements.map(e=>e.value), [7]);
+      
+      const t1 = new Translator().addPattern(JEL.createPattern(`[abc|def]? x`), exec('() => 7'));
+      assert.deepEqual(t1.match(ctx, "abc x").elements.map(e=>e.value), [7]);
+      assert.deepEqual(t1.match(ctx, " abc  x ").elements.map(e=>e.value), [7]);
+      assert.deepEqual(t1.match(ctx, " def x").elements.map(e=>e.value), [7]);
+      assert.deepEqual(t1.match(ctx, "x").elements.map(e=>e.value), [7]);
+      assert.equal(t1.match(ctx, "abc def x").length, 0);
+      assert.equal(t1.match(ctx, "abcdefx").length, 0);
+      assert.equal(t1.match(ctx, "abc cgd").length, 0);
+      assert.equal(t1.match(ctx, "bla x").length, 0);
+      
+      const t2 = new Translator().addPattern(JEL.createPattern(`abc def`), exec('() => 1'))
+                                 .addPattern(JEL.createPattern(`[abc]? h`), exec('() => 2'))
+                                 .addPattern(JEL.createPattern(`[xyz|abc] def`), exec('() => 3'));
+      assert.equal(t2.match(ctx, " abc  def ").get(0).value, 1);
+      assert.equal(t2.match(ctx, " abc h ").get(0).value, 2);
+      assert.equal(t2.match(ctx, "xyz   def ").get(0).value, 3);
+      assert.equal(t2.match(ctx, " xyz def abc  def ").length, 0);
+      assert.equal(t2.match(ctx, " abc d def ").length, 0);
+      assert.equal(t2.match(ctx, " abcdef ").length, 0);
+    });
+
     it('should support meta', function() {
       const ctx = new Context();
       const t1 = new Translator().addPattern(JEL.createPattern(`abc`), exec('() => 2'), createMap({x: true}));
@@ -111,7 +139,7 @@ describe('jelTranslators', function() {
     it('should support templates', function() {
         const tpl0 = exec('{{`a` => 1}}');
         const tpl1 = exec('{{`a` => 1, x: `b` => 2, y: `b` => 12, x, y: `b` => 22}}');
-        const tpl2 = exec('{{`a [b [c]?]?` => 3, `a b c` => 4, `d e` => 5, `f {{tpl1}}` => 6}}');
+        const tpl2 = exec('{{`a [b [c]?]?` => 3, `a b c` => 4, `d e` => 5, `f {{tpl1}}` => 6, `a [{{tpl0}}]? h` => 7}}');
         const dict = new Dictionary({tpl0, tpl1, tpl2});
         const ctx = new Context({}, null, null, dict);
 
@@ -121,16 +149,65 @@ describe('jelTranslators', function() {
         assert.deepEqual(translator(JEL.createPattern('{{tpl0}} {{tpl0}}'), exec('() => 7')).match(ctx, 'a a b').elements.map(e=>e.value), []);
         assert.deepEqual(translator(JEL.createPattern('{{tpl0}} {{tpl0}}'), exec('() => 7')).match(ctx, 'a b').elements.map(e=>e.value), []);
         assert.deepEqual(translator(JEL.createPattern('a {{tpl0}} {{tpl0}} b'), exec('() => 9')).match(ctx, 'a a a b').elements.map(e=>e.value), [9]);
+
+        assert.deepEqual(translator(JEL.createPattern('a [{{tpl0}}]?'), exec('() => 1')).match(ctx, 'a').elements.map(e=>e.value), [1]);
+        assert.deepEqual(translator(JEL.createPattern('a [{{tpl0}}]?'), exec('() => 1')).match(ctx, 'a a').elements.map(e=>e.value), [1]);
       
         assert.deepEqual(translator(JEL.createPattern('{{tpl1}}'), exec('() => 7')).match(ctx, 'a').elements.map(e=>e.value), [7]);
         assert.deepEqual(translator(JEL.createPattern('{{tpl1}}'), exec('() => 7')).match(ctx, 'b').elements.map(e=>e.value), [7, 7, 7]);
+
         assert.deepEqual(translator(JEL.createPattern('{{tpl1}}'), exec('() => 7')).addPattern(JEL.createPattern('{{tpl0}}'), exec('() => 9')).match(ctx, 'a').elements.map(e=>e.value), [7, 9]);
         assert.deepEqual(translator(JEL.createPattern('{{tpl0}}'), exec('() => 7')).addPattern(JEL.createPattern('{{tpl1}}'), exec('() => 9')).match(ctx, 'a').elements.map(e=>e.value), [7, 9]);
         assert.deepEqual(translator(JEL.createPattern('{{tpl0}}'), exec('() => 7')).addPattern(JEL.createPattern('{{tpl1}}'), exec('() => 9')).match(ctx, 'b').elements.map(e=>e.value), [9, 9, 9]);
         assert.deepEqual(translator(JEL.createPattern('{{tpl1}}'), exec('() => 7')).addPattern(JEL.createPattern('{{tpl0}}'), exec('() => 9')).match(ctx, 'b').elements.map(e=>e.value), [7, 7, 7]);
         assert.deepEqual(translator(JEL.createPattern('a {{tpl1}} b'), exec('() => 7')).addPattern(JEL.createPattern('{{tpl0}} {{tpl0}} b'), exec('() => 9')).match(ctx, 'a a b').elements.map(e=>e.value), [7, 9]);
         assert.deepEqual(translator(JEL.createPattern('{{tpl1}} {{tpl1}}'), exec('() => 7')).addPattern(JEL.createPattern('{{tpl0}}'), exec('() => 9')).match(ctx, 'a a').elements.map(e=>e.value), [7]);
+
+        assert.deepEqual(translator(JEL.createPattern('{{t: tpl0 }}'), exec('() => 1')).addPattern(JEL.createPattern('{{t: tpl0}}'), exec('() => 2')).match(ctx, 'a').elements.map(e=>e.value), [1,2]);
+        assert.deepEqual(translator(JEL.createPattern('{{t: tpl0 :: t == 2}}'), exec('() => 1')).addPattern(JEL.createPattern('{{t: tpl0 :: t == 1}}'), exec('() => 2')).match(ctx, 'a').elements.map(e=>e.value), [2]);
+
+        assert.deepEqual(translator(JEL.createPattern('{{t: tpl1 }} {{u: tpl0 :: t ==1}}'), exec('() => t')).addPattern(JEL.createPattern('{{t: tpl0}}'), exec('() => 0')).match(ctx, 'a a').elements.map(e=>e.value), [1]);
+        assert.deepEqual(translator(JEL.createPattern('{{t: tpl1 }} {{u: tpl0 :: t ==2}}'), exec('() => t')).addPattern(JEL.createPattern('{{t: tpl0}}'), exec('() => 0')).match(ctx, 'b a').elements.map(e=>e.value), [2]);
+        assert.deepEqual(translator(JEL.createPattern('{{t: tpl1 }} {{u: tpl0 :: t ==1}}'), exec('() => t')).addPattern(JEL.createPattern('{{t: tpl0}}'), exec('() => 0')).match(ctx, 'a').elements.map(e=>e.value), [0]);
+      
+      // TODO: test tpl2
     });
+    
+    it('should parse real sentences', function() {
+        const animals = exec('{{small: `dog` => "dog", small: `cat` => "cat", big: `cow` => "cow"}}');
+        const animalSounds = exec('{{`woof` => "dog", `meow` => "cat", `moo` => "cow"}}');
+        const verbs = exec('{{`walks` => "walks", `sleeps` => "sleeps", `says` => "says"}}');
+        const dict = new Dictionary({animals, animalSounds, verbs});
+        const ctx = new Context({}, null, null, dict);
+
+        const sounds = translator(JEL.createPattern('the {{animals}} says {{animalSounds}}'), exec('() => true'));
+        assert.deepEqual(sounds.match(ctx, "the dog says woof").elements.map(e=>e.value), [true]);
+        assert.deepEqual(sounds.match(ctx, "the cat says meow").elements.map(e=>e.value), [true]);
+        assert.deepEqual(sounds.match(ctx, "the fish says meow").elements.map(e=>e.value), []);
+        assert.deepEqual(sounds.match(ctx, "the woof says dog").elements.map(e=>e.value), []);
+        assert.deepEqual(sounds.match(ctx, "dog says meow").elements.map(e=>e.value), []);
+        assert.deepEqual(sounds.match(ctx, "the cat says meow or something like that").elements.map(e=>e.value), []);
+
+        const soundsValidating = translator(JEL.createPattern('the {{a: animals}} says {{s: animalSounds :: s == a}}'), exec('() => a'));
+        assert.deepEqual(soundsValidating.match(ctx, "the dog says woof").elements.map(e=>e.value), ["dog"]);
+        assert.deepEqual(soundsValidating.match(ctx, "the cat says meow").elements.map(e=>e.value), ["cat"]);
+        assert.deepEqual(soundsValidating.match(ctx, "the dog says meow").elements.map(e=>e.value), []);
+
+        const soundsMeta = translator(JEL.createPattern('the {{a: animals.small}} says {{s: animalSounds :: s == a}}'), exec('() => true'));
+        assert.deepEqual(soundsMeta.match(ctx, "the dog says woof").elements.map(e=>e.value), [true]);
+        assert.deepEqual(soundsMeta.match(ctx, "the cow says woof").elements.map(e=>e.value), []);
+        assert.deepEqual(soundsMeta.match(ctx, "the cow says moo").elements.map(e=>e.value), []);
+      
+        const soundsVerb = translator(JEL.createPattern('the {{animals}} {{verbs}} [{{animalSounds}}]?'), exec('() => 1'))
+          .addPattern(JEL.createPattern('the {{animals.small}} says {{animalSounds}}'), exec('() => 2'));
+        assert.deepEqual(soundsVerb.match(ctx, "the dog says woof").elements.map(e=>e.value), [1, 2]);
+        assert.deepEqual(soundsVerb.match(ctx, "the dog says moo").elements.map(e=>e.value), [1, 2]);
+        assert.deepEqual(soundsVerb.match(ctx, "the cow says moo").elements.map(e=>e.value), [1]);
+        assert.deepEqual(soundsVerb.match(ctx, "the dog sleeps").elements.map(e=>e.value), [1]);
+        assert.deepEqual(soundsVerb.match(ctx, "the cow sleeps").elements.map(e=>e.value), [1]);
+        assert.deepEqual(soundsVerb.match(ctx, "and now something completely different").elements.map(e=>e.value), []);
+    });
+
   });
   
 });
