@@ -12,9 +12,9 @@ class With extends JelNode {
   
   // override
   execute(ctx) {
-    const frame = {};
-    const newCtx = new Context(frame, ctx);
-    this.assignments.forEach(a => frame[a.name] = a.execute(newCtx));
+    const newCtx = new Context(ctx);
+    this.assignments.forEach(a => newCtx.set(a.name, a.execute(newCtx)));
+		newCtx.freeze();
     return this.expression.execute(newCtx);
   }
 

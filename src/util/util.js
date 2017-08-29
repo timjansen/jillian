@@ -24,6 +24,14 @@ class Util {
 		dest.push.apply(dest, src);
 		return dest;
 	}
+	
+	static propertyNames(obj) {
+		const r = [];
+		for (const name in obj)
+			if (obj.hasOwnProperty(name))
+				r.push(name);
+		return r;
+	}
 }
 
 module.exports = Util;

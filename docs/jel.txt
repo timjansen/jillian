@@ -132,11 +132,13 @@ Examples:
 Translators
 -------------------
 Translators are a special kind of dictionaries that use Patterns instead of keys, and use Lambda expressions instead of a value. The lambda expressions get the template values as
-arguments.
+arguments. They can have one or more meta properties.
 
 Examples:
 	{{`one` => 1, `two` => 2}}
-	{{`` => 1, `two` => 2}}
+	{{verb: `walk` => Walking(), 
+	  verb, tense="past": `walked`: Walking(past=true), 
+		verb: `run` => Running()}}
 
 
 Conditions

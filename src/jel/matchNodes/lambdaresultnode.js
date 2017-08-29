@@ -18,14 +18,14 @@ Match.prototype.JEL_PROPERTIES = {value: true, meta: true};
 
 class LambdaResultNode extends MatchNode {
 
-	constructor(callable, meta) {
+	constructor(expression, meta) {
 		super();
-		this.callable = callable;
+		this.expression = expression;
 		this.meta = meta; // a Map, optional
 	}
 	
 	// override
-	match(ctx, tokens, idx, args, metaFilter, incompleteMatch) {
+	match(ctx, tokens, idx, metaFilter, incompleteMatch) {
 		if (metaFilter && metaFilter.size) {
 			if (!this.meta || metaFilter.size > this.meta.size)
 				return undefined;
@@ -33,17 +33,16 @@ class LambdaResultNode extends MatchNode {
 				if (!this.meta.has(key))
 					return undefined;
 		}
-		
-		return new Match(this.callable.invokeWithObject([], args, ctx), idx, this.meta);
+		return new Match(this.expression.execute(ctx), idx, this.meta);
 	}
 	
 	// override
 	toString() {
 		if (this.meta && this.meta.size) {
-			return `LambdaResultNode(${this.callable.toString()}, meta={${Array.from(this.meta.keys()).map(k=>`${k}=${this.meta.get(k)}`).join(', ')}})`;
+			return `LambdaResultNode(${this.expression}, meta={${Array.from(this.meta.keys()).map(k=>`${k}=${this.meta.get(k)}`).join(', ')}})`;
 		}
 		else
-			return `LambdaResultNode(${this.callable.toString()})`;
+			return `LambdaResultNode(${this.expression})`;
 	}
 }
 

@@ -28,17 +28,16 @@ class MultiNode extends MatchNode {
 	}
 
 	// override
-	match(ctx, tokens, idx, args, metaFilter, incompleteMatch) {
-		const token = tokens[idx];
+	match(ctx, tokens, idx, metaFilter, incompleteMatch) {
 		let result;
 		if (this.tokenMap) {
-			const tr = this.tokenMap.get(token);
+			const tr = this.tokenMap.get(tokens[idx]);
 			if (tr)
-				result = Util.addToArray(result, tr.match(ctx, tokens, idx+1, args, metaFilter, incompleteMatch));
+				result = Util.addToArray(result, tr.match(ctx, tokens, idx+1, metaFilter, incompleteMatch));
 		}
 		if (this.templateNodes) {
 			for (const t of this.templateNodes) 
-				result = Util.addToArray(result, t.match(ctx, tokens, idx, args, metaFilter, incompleteMatch));
+				result = Util.addToArray(result, t.match(ctx, tokens, idx, metaFilter, incompleteMatch));
 		}
 		return result;		
 	}
@@ -56,19 +55,6 @@ class MultiNode extends MatchNode {
 
 		if (this.templateNodes)
 			this.templateNodes.forEach(n=>n.append(next));
-
-		return this;
-	}
-		
-	// override
-	collectArgumentNames(dest) {
-		if (this.tokenMap)
-			for (const v of this.tokenMap.values()) 
-				if (v)
-					v.collectArgumentNames(dest);
-				
-		if (this.templateNodes)
-			this.templateNodes = this.templateNodes.forEach(n=>n.collectArgumentNames(dest));
 
 		return this;
 	}

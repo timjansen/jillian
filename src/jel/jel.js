@@ -92,13 +92,13 @@ class JEL {
   
   // returns value if available, otherwise promise
   executeImmediately(context = {}) {
-    const ctx = (context instanceof Context) ? context : new Context(context);
+    const ctx = (context instanceof Context) ? context.freeze() : new Context().setAll(context).freeze();
     return this.parseTree.execute(ctx);
   }
 
   // returns promise with the result
   execute(context = {}) {
-    const ctx = (context instanceof Context) ? context : new Context(context);
+    const ctx = (context instanceof Context) ? context.freeze() : new Context().setAll(context).freeze();
     return this.parseTree.executePromise(ctx);
   }
 
@@ -244,7 +244,7 @@ class JEL {
 
 	        JEL.expectOp(tokens, TRANSLATOR_PATTERN_STOP, "Expected '=>' in Translator.");
 						
-					assignments.push(new Assignment(keyPattern, new Lambda(keyPattern.getArgumentNames(), JEL.parseExpression(tokens, precedence, TRANSLATOR_LAMBDA_STOP)), metaAssignments));
+					assignments.push(new Assignment(keyPattern, JEL.parseExpression(tokens, precedence, TRANSLATOR_LAMBDA_STOP), metaAssignments));
 
 					if (JEL.expectOp(tokens, TRANSLATOR_LAMBDA_STOP, "Expecting comma or end of translator").value == '}') {
 						JEL.expectOp(tokens, TRANSLATOR_DOUBLE_BRACE_STOP, "Need 2nd closing brace to end translator");

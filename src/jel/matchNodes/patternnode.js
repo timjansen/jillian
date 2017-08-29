@@ -14,10 +14,10 @@ class PatternNode extends MultiNode {
 	}
 
 	// override
-	match(ctx, tokens, idx, args, metaFilter, incompleteMatch) {
-		const r = super.match(ctx, tokens, idx, args, metaFilter, incompleteMatch);
+	match(ctx, tokens, idx, metaFilter, incompleteMatch) {
+		const r = super.match(ctx, tokens, idx, metaFilter, incompleteMatch);
 		if (this.noMatchOption && (r === undefined || incompleteMatch))
-			return this.noMatchOption.match(ctx, tokens, idx, args, metaFilter, incompleteMatch);
+			return this.noMatchOption.match(ctx, tokens, idx, metaFilter, incompleteMatch);
 		return r;
 	}
 	
@@ -26,16 +26,6 @@ class PatternNode extends MultiNode {
 		return this.append(next);
 	}
 
-	
-	// override
-	collectArgumentNames(dest) {
-		if (this.noMatchOption)
-				this.noMatchOption.collectArgumentNames(dest);
-			
-		return super.collectArgumentNames(dest);
-	}
-	
-	
 	merge(translatorNode, resultNode) {
 		if (this.tokenMap) {
 			if (!translatorNode.tokenMap)
@@ -70,7 +60,6 @@ class PatternNode extends MultiNode {
 		}
 
 		if (this.noMatchOption && this.noMatchOption.result === true)  {
-if (!translatorNode.addResult) console.log('Can not addResult to a ', translatorNode.constructor.name);
 			translatorNode.addResult(resultNode);
 		}
 		else if (this.noMatchOption)

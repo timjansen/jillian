@@ -29,44 +29,36 @@ class TemplateNode extends MatchNode {
 	}
 	
 	// override
-	match(ctx, tokens, idx, args, metaFilter, incompleteMatch) {
+	match(ctx, tokens, idx, metaFilter, incompleteMatch) {
 		if (!ctx.translationDict || !ctx.translationDict.get)
 			throw new Error("Templates in patterns require 'translationDict' in Context");
 		
 		const template = ctx.translationDict.get(this.template);
 		if (!template)
 			throw new Error(`Can not find template ${this.template} in translation dictionary`);
-
+if (!template.matchAtPosition) console.log('weird template: ', template);
 		const r = template.matchAtPosition(ctx, tokens, idx, this.metaFilter, true);
 		if (r) {
-			const tplCtx = new Context(args, ctx);
-			const m = Util.collect(r, match=> {
-				if (args && this.name) {
-					args[this.name] = match.value;
-					args[this.name + '_meta'] = new Dictionary(match.meta, true);
-				}
+			const m = Util.collect(r, match => {
+				const tplCtx = this.name ? new Context(ctx) : ctx;
+				if (this.name)
+					tplCtx.set(this.name, match.value) 
+					      .set(this.name + '_meta', new Dictionary(match.meta, true))
+							  .freeze();
+				
 				if (this.expression) {
 					const result = this.expression.execute(tplCtx)
 					if (!result)
 						return null;
-					else if (!(result instanceof Promise))
-						return this.next.match(ctx, tokens, match.index, args, this.metaFilter, incompleteMatch);
-					else
+					else if (result instanceof Promise)
 						throw new Error('missing Promise handling'); // TODO: missing Promise handling		
 				}
-				return this.next.match(ctx, tokens, match.index, args, this.metaFilter, incompleteMatch);
+				return this.next.match(tplCtx, tokens, match.index, this.metaFilter, incompleteMatch);
 			});
 			if (m.length)
 				return m;
 		}
 		return undefined;
-	}
-	
-	// override
-	collectArgumentNames(dest) {
-		if (this.name)
-			dest.push(this.name);
-		return super.collectArgumentNames(dest);
 	}
 	
 	equals(other) {

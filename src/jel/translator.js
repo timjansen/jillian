@@ -10,7 +10,7 @@ const StaticResultNode = require('./matchNodes/staticresultnode.js');
 class Translator extends JelType {
 	constructor() {
 		super();
-		this.tree = new TranslatorNode();
+		this.tree = new TranslatorNode(); // only TranslatorNode allowed in this.tree
 	}
 
 	addPattern(pattern, value, metaMap) {
@@ -21,7 +21,7 @@ class Translator extends JelType {
 	// Returns Array of Matches with properties 'value' and 'meta'
 	// metaFilter is an optional set of meta values that must be present in the results
 	matchAtPosition(ctx, tokens, idx, metaFilter, incompleteMatch) {
-		return this.tree.match(ctx, tokens, idx, {}, metaFilter, incompleteMatch);
+		return this.tree.match(ctx, tokens, idx, metaFilter, incompleteMatch);
 	}
 	
 	// Returns List of Matches with properties 'value' and 'meta'

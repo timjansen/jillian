@@ -12,7 +12,7 @@ class Translator extends JelNode {
   // override
   execute(ctx) {
     const t = new JelTranslator();
-    this.elements.forEach(e=>t.addPattern(e.name, e.execute(ctx), e.getMetaData(ctx)));
+    this.elements.forEach(e=>t.addPattern(e.name, e.expression, e.getMetaData(ctx)));
     return t;
   }
   

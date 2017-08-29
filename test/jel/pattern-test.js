@@ -151,7 +151,7 @@ describe('jelPatterns', function() {
         const tpl1 = exec('{{`a` => 1, x: `b` => 2, y: `b` => 12, x, y: `b` => 22}}');
         const tpl2 = exec('{{`a [b [c]?]?` => 3, `a b c` => 4, `d e` => 5, `f {{tpl1}}` => 6}}');
         const dict = new Dictionary({tpl0, tpl1, tpl2});
-        const ctx = new Context({}, null, null, dict);
+        const ctx = new Context(null, null, dict);
 
         assert(JEL.createPattern('{{tpl0}}').match(ctx, 'a'));
         assert(JEL.createPattern('j {{tpl0}}').match(ctx, 'j a '));

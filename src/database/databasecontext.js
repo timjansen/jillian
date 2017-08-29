@@ -17,7 +17,7 @@ const CTX_IDENTIFIERS = {DbEntry, Category, Thing, Area, FuzzyBoolean, Length, R
 
 class DatabaseContext {
   static create(dbSession, translationDict) {
-    return new Context(CTX_IDENTIFIERS, null, dbSession, translationDict);
+    return new Context(null, dbSession, translationDict).setAll(CTX_IDENTIFIERS).freeze();
   }
 }
 

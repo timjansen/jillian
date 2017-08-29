@@ -13,18 +13,18 @@ class LambdaCallable extends Callable {
     this.expression = expression;
     this.parentContext = parentContext;
 		this.name = name;
-		this.frame = {};
-		this.context = new Context(this.frame, this.parentContext);
   }
   
 	invokeWithObject(args, argObj, ctx) {   // context will be ignored for lambda. No promise support here, only in Call.
-    args.forEach((arg, i) => this.frame[this.argNames[i]] = args[i]);
+		const newCtx = new Context(this.parentContext);
+    args.forEach((arg, i) => newCtx.set(this.argNames[i], args[i]));
 		for (let i = args.length; i < this.argNames.length; i++)
-			this.frame[this.argNames[i]] = undefined;
+			newCtx.set(this.argNames[i], undefined);
 		if (argObj)
 			for (let name in argObj)
-				this.frame[name] = argObj[name];
-    return this.expression.execute(this.context);
+				newCtx.set(name, argObj[name]);
+		newCtx.freeze();
+    return this.expression.execute(newCtx);
 	}
 	
 	invoke(...args) {
