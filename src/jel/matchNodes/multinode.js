@@ -39,7 +39,7 @@ class MultiNode extends MatchNode {
 			for (const t of this.templateNodes) 
 				result = Util.addToArray(result, t.match(ctx, tokens, idx, metaFilter, incompleteMatch));
 		}
-		return result;		
+		return result;
 	}
 	
 	// override

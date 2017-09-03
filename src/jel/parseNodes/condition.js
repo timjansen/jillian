@@ -2,6 +2,7 @@
 
 const JelNode = require('./node.js');
 const JelType = require('../type.js');
+const Util = require('../../util/util.js');
 
 class Condition extends JelNode {
   constructor(condition, thenExp, elseExp) {
@@ -13,7 +14,7 @@ class Condition extends JelNode {
   
   // override
   execute(ctx) {
-    return this.resolveValue(ctx, v=>this.runOnValue(ctx, v), this.condition.execute(ctx));
+    return Util.resolveValue(v=>this.runOnValue(ctx, v), this.condition.execute(ctx));
   }
   
   // override

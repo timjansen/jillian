@@ -2,6 +2,7 @@
 
 const JelType = require('../jel/type.js');
 const TokenReader = require('./tokenreader.js');
+const Util = require('../util/util.js');
 
 class Pattern extends JelType {
 	
@@ -11,21 +12,27 @@ class Pattern extends JelType {
 		this.patternText = patternText;
 	}
 	
+	// returns Promise!
+	matchPromise(ctx, inputOrTokens) {
+		return Promise.resolve(this.match(ctx, inputOrTokens));
+	}
+
 	// can return value or Promise!!
 	match(ctx, inputOrTokens) {
 		if (typeof inputOrTokens == 'string') {
 			const trimmed = inputOrTokens.trim();
 			return this.match(ctx, trimmed ? trimmed.split(/\s+/g) : []);
 		}
-		return !!this.tree.match(ctx, inputOrTokens, 0);
+		const p = this.tree.match(ctx, inputOrTokens, 0);
+
+		if (!p)
+			return false;
+		else if (p instanceof Promise || (Util.isArrayLike(p) && Util.hasRecursive(p, p=>p instanceof Promise)))
+			return Util.simplifyPromiseArray(p0=>p.then(p0=>!!p0.length));
+		else
+			return (!Util.isArrayLike(p)) || !!p.length;
 	}
-	
-	getArgumentNames() {
-		const args = [];
-		this.tree.collectArgumentNames(args);
-		return args;
-	}
-	
+
 	toString() {
 		return `Pattern(text=\`${this.patternText}\`)`;
 	}

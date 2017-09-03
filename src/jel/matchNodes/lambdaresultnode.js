@@ -33,7 +33,11 @@ class LambdaResultNode extends MatchNode {
 				if (!this.meta.has(key))
 					return undefined;
 		}
-		return new Match(this.expression.execute(ctx), idx, this.meta);
+		const result = this.expression.execute(ctx);
+		if (result instanceof Promise)
+			return result.then(r=>new Match(r, idx, this.meta));
+		else
+			return new Match(result, idx, this.meta);
 	}
 	
 	// override

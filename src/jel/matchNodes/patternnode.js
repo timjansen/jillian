@@ -2,6 +2,7 @@
 
 const MultiNode = require('./multinode.js');
 const TranslatorNode = require('./translatornode.js');
+const Util = require('../../util/util.js');
 
 /**
  * A multi-node for Patterns. noMatchOption is an additional property that can either point to a result, or to another PatternNode.
@@ -10,14 +11,14 @@ class PatternNode extends MultiNode {
 
 	constructor() {
 		super();
-		this.noMatchOption = null; // if not null, this node is  optional. If not, the next node.
+		this.noMatchOption = null; // if not null, this node is the option. If not, the next node.
 	}
 
 	// override
 	match(ctx, tokens, idx, metaFilter, incompleteMatch) {
 		const r = super.match(ctx, tokens, idx, metaFilter, incompleteMatch);
 		if (this.noMatchOption && (r === undefined || incompleteMatch))
-			return this.noMatchOption.match(ctx, tokens, idx, metaFilter, incompleteMatch);
+			return Util.addToArray(r, this.noMatchOption.match(ctx, tokens, idx, metaFilter, incompleteMatch));
 		return r;
 	}
 	

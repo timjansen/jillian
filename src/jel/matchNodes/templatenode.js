@@ -36,29 +36,25 @@ class TemplateNode extends MatchNode {
 		const template = ctx.translationDict.get(this.template);
 		if (!template)
 			throw new Error(`Can not find template ${this.template} in translation dictionary`);
-if (!template.matchAtPosition) console.log('weird template: ', template);
-		const r = template.matchAtPosition(ctx, tokens, idx, this.metaFilter, true);
-		if (r) {
-			const m = Util.collect(r, match => {
-				const tplCtx = this.name ? new Context(ctx) : ctx;
-				if (this.name)
-					tplCtx.set(this.name, match.value) 
-					      .set(this.name + '_meta', new Dictionary(match.meta, true))
-							  .freeze();
-				
-				if (this.expression) {
-					const result = this.expression.execute(tplCtx)
-					if (!result)
-						return null;
-					else if (result instanceof Promise)
-						throw new Error('missing Promise handling'); // TODO: missing Promise handling		
-				}
-				return this.next.match(tplCtx, tokens, match.index, this.metaFilter, incompleteMatch);
-			});
-			if (m.length)
-				return m;
-		}
-		return undefined;
+
+		const templateMatches = template.matchAtPosition(ctx, tokens, idx, this.metaFilter, true);
+
+		return Util.resolveNestedValues(templateMatches, match=>{
+			const tplCtx = this.name ? new Context(ctx) : ctx;
+			if (this.name)
+				tplCtx.set(this.name, match.value) 
+							.set(this.name + '_meta', new Dictionary(match.meta, true))
+							.freeze();
+
+			if (this.expression) {
+				const result = this.expression.execute(tplCtx)
+				if (!result)
+					return null;
+				else if (result instanceof Promise)
+					return result.then(r=>r ? this.next.match(tplCtx, tokens, match.index, this.metaFilter, incompleteMatch) : undefined);
+			}
+			return this.next.match(tplCtx, tokens, match.index, this.metaFilter, incompleteMatch);
+		});
 	}
 	
 	equals(other) {

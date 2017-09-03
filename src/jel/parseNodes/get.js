@@ -2,6 +2,7 @@
 
 const JelType = require('../type.js');
 const JelNode = require('./node.js');
+const Util = require('../../util/util.js');
 
 class Get extends JelNode {
   constructor(left, name) {
@@ -23,7 +24,7 @@ class Get extends JelNode {
    
   // override
   execute(ctx) {
-    return this.resolveValues(ctx, (l,n)=>this.getValue(ctx, l, n), this.left.execute(ctx), this.name.execute(ctx));
+    return Util.resolveValues((l,n)=>this.getValue(ctx, l, n), this.left.execute(ctx), this.name.execute(ctx));
   }
   
   // override

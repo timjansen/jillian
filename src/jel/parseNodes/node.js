@@ -24,39 +24,6 @@ class JelNode extends JelType {
 			return Promise.resolve(r);
 	}
 
-	resolveValue(ctx, f, value) {
-		if (value instanceof Promise)
-			return value.then(f);
-		else
-			return f(value);
-	}
-
-	resolveValues(ctx, f, ...values) {
-		if (!values.length)
-			return f();
-		
-		if (values.find(v=>v instanceof Promise))
-			return Promise.all(values).then(v=>f(...v));
-		else 
-			return f(...values);
-	}
-
-	resolveValueObj(ctx, f, assignments, values) {
-		if (!assignments.length)
-			return f(null);
-		
-		function createObj(l) {
-			const o = {};
-			l.forEach((v, i)=>o[assignments[i].name] = v);
-			return o;
-		}
-		
-		if (values.find(v=>v instanceof Promise))
-			return Promise.all(values).then(v=>f(createObj(v)));
-		else 
-			return f(createObj(values));
-	}
-
 }
 
 module.exports = JelNode;

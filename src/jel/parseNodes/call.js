@@ -3,6 +3,7 @@
 const JelType = require('../type.js');
 const JelNode = require('./node.js');
 const Callable = require('../callable.js');
+const Util = require('../../util/util.js');
 
 class Call extends JelNode {
   constructor(left, argList = [], namedArgs = []) {
@@ -16,8 +17,7 @@ class Call extends JelNode {
     const args = this.argList.map(a=>a.execute(ctx));
     const argObjValues = this.namedArgs.map(a=>a.execute(ctx));
 
-    return this.resolveValueObj(ctx, 
-                                objArgs=>this.resolveValues(ctx, (...listArgs)=>callable.invokeWithObject(listArgs, objArgs, ctx), ...args),
+    return Util.resolveValueObj(objArgs=>Util.resolveValues((...listArgs)=>callable.invokeWithObject(listArgs, objArgs, ctx), ...args),
                                 this.namedArgs, argObjValues);
   }
   
@@ -36,7 +36,7 @@ class Call extends JelNode {
   
   // override
   execute(ctx) {
-    return this.resolveValue(ctx, v=>this.callLeft(ctx, v), this.left.execute(ctx));
+    return Util.resolveValue(v=>this.callLeft(ctx, v), this.left.execute(ctx));
   }
   
   // overrride

@@ -5,7 +5,7 @@ class MatchNode {
 	constructor() {
 	}
 
-	// returns the result value, or undefined if no match.
+	// returns the either the result or a list of results. Results or list members can be Promises!
 	// ctx is the context for evaluating expressions. It also contains a template dictionary.
 	// tokens is an array of tokens.
 	// idx is the position in the token array.
@@ -22,10 +22,6 @@ class MatchNode {
 	toString() {
 		return `MatchNode() => ${this.next}`;
 	}
-
-
-
-	
 }
 
 module.exports = MatchNode;

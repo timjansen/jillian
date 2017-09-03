@@ -3,6 +3,7 @@
 const JelNode = require('./node.js');
 const JelType = require('../type.js');
 const Variable = require('./variable.js');
+const Util = require('../../util/util.js');
 
 class Operator extends JelNode {
   constructor(op, left, right) {
@@ -24,12 +25,12 @@ class Operator extends JelNode {
       if (this.right == null)
         return this.evaluateLeftFirstOp(ctx);
         
-      return this.resolveValues(ctx, (l,r)=>JelType.op(this.op, l, r), this.left.execute(ctx), this.right.execute(ctx));
+      return Util.resolveValues((l,r)=>JelType.op(this.op, l, r), this.left.execute(ctx), this.right.execute(ctx));
       }
   }
 
   evaluateLeftFirstOp(ctx) {
-    return this.resolveValue(ctx, left=>this.leftFirstOps(ctx, left), this.left.execute(ctx));
+    return Util.resolveValue(left=>this.leftFirstOps(ctx, left), this.left.execute(ctx));
   }
   
   leftFirstOps(ctx, left) {
