@@ -81,7 +81,7 @@ describe('jelTokenizer', function() {
     });
   });
   
-    describe('tokenizePattern()', function() {
+describe('tokenizePattern()', function() {
     
   it('should parse an empty string', function() {
       assert.deepEqual(jt.tokenizePattern('').tokens, []);
@@ -103,6 +103,15 @@ describe('jelTokenizer', function() {
         {name: undefined, template: 'bar', hints: ['foo', 'kk'], expression: 'bla {} bla'}]);
     });
 
+    it('should regexps templates', function() {
+      assert.deepEqual(jt.tokenizePattern('{{/a/}} {{nl: /a/ /b/ /c\\/d/}} {{/x/:: bla}}').tokens, [
+        {name: undefined, regexps: ['a'], expression: undefined}, 
+        {name: 'nl', regexps: ['a', 'b', 'c/d'], expression: undefined}, 
+        {name: undefined, regexps: ['x'], expression: 'bla'}
+      ]);
+    });
+
+  
   });
 });
 

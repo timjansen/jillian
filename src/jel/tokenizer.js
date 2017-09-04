@@ -13,8 +13,18 @@ const escapes = {n: '\n', t: '\t'};
 //                          name:                   templateName        .hint.hint              expression
 const patternTemplateRE = /^\s*(?:([a-zA-Z_$][\w_$]*):)?\s*([a-zA-Z_$][\w_$]*)(?:\.(\w+(?:\.\w+)*))?\s*(?:::\s*(.*))?$/;
 
+// pattern regexp               name:                    regexps                        expression
+const patternRegexpRE = /^\s*(?:([a-zA-Z_$][\w_$]*):)?\s*((?:\/(?:\\.|[^\/])+\/\s*)+)(?:::\s*(.*))?$/;
+
+// to find regexps in the regexp patten
+const patternRegexpFinderRE = /\/(?:\\.|[^\/])+\//g;
+
 
 class Tokenizer {
+	static unescape(s) {
+		return s.replace(/\\(.)/g, (m,c)=>escapes[c]||c);
+	}
+	
   static tokenize(input) {
     //          line comment   full comment                 Number                        Operator                                                                               Identifier-like     pattern           single-quoted    double-quoted        illegal
     const re = /\/\/.*(?:\n|$)|\/\*(?:[^\*]+|\*+[^\/])*\*\/|(\d+(?:\.\d+)?(?:e[+-]?\d+)?)|([\(\)\[\]:\.,\+\-\*\/%@]|\{\{|\{|\}|=>|===|==|=|<==|>==|>=|<=|>|<|!==|!=|!|\|\||\&\&)|([a-zA-Z_$][\w_$]*)|(`(?:\\.|[^`])*`)|('(?:\\.|[^'])*'|"(?:\\.|[^"])*")|\s+|(.+)/g;
@@ -39,9 +49,9 @@ class Tokenizer {
       else if (matches[1])
         tokens.push({value: parseFloat(matches[1]), literal: true});
       else if (matches[4])
-        tokens.push({value: matches[4].replace(/^.|.$/g, '').replace(/\\(.)/g, (m,c)=>escapes[c]||c), pattern: true});
+        tokens.push({value: Tokenizer.unescape(matches[4].replace(/^.|.$/g, '')), pattern: true});
       else if (matches[5])
-        tokens.push({value: matches[5].replace(/^.|.$/g, '').replace(/\\(.)/g, (m,c)=>escapes[c]||c), literal: true});
+        tokens.push({value: Tokenizer.unescape(matches[5].replace(/^.|.$/g, '')), literal: true});
       else if (matches[6])
         throw new Error(`Unsupported token found: "${matches[6]}"`);
     }
@@ -70,9 +80,15 @@ class Tokenizer {
 
 	static parsePatternTemplate(tpl) {
 		const m = patternTemplateRE.exec(tpl);
-		if (!m)
-			throw new Error(`Can not parse pattern template: {{${tpl}}}`);
-		return {name: m[1], template: m[2], hints: m[3] ? m[3].split('.') : [], expression: m[4]};
+		if (m)
+			return {name: m[1], template: m[2], hints: m[3] ? m[3].split('.') : [], expression: m[4]};
+
+		const rm = patternRegexpRE.exec(tpl)
+		if (rm)
+			return {name: rm[1], regexps: rm[2].match(patternRegexpFinderRE).map(r=>Tokenizer.unescape(r).replace(/^.|.$/g, '')), expression: rm[3]};
+
+		throw new Error(`Can not parse pattern template: {{${tpl}}}`);
+
 	}
 }
 
