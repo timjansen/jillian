@@ -24,6 +24,13 @@ class LambdaResultNode extends MatchNode {
 		this.meta = meta; // a Map, optional
 	}
 	
+	createMatch(result, idx) {
+		if (result instanceof Promise)
+			return result.then(r=>this.createMatch(r, idx));
+		else
+			return new Match(result, idx, this.meta);
+	}
+	
 	// override
 	match(ctx, tokens, idx, metaFilter, incompleteMatch) {
 		if (metaFilter && metaFilter.size) {
@@ -33,11 +40,7 @@ class LambdaResultNode extends MatchNode {
 				if (!this.meta.has(key))
 					return undefined;
 		}
-		const result = this.expression.execute(ctx);
-		if (result instanceof Promise)
-			return result.then(r=>new Match(r, idx, this.meta));
-		else
-			return new Match(result, idx, this.meta);
+		return this.createMatch(this.expression.execute(ctx), idx);
 	}
 	
 	// override

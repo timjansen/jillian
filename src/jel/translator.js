@@ -35,7 +35,7 @@ class Translator extends JelType {
 		const m = this.matchAtPosition(ctx, input, 0, metaFilter, false);
 		if (m instanceof Promise || (Util.isArrayLike(m) && Util.hasRecursive(m, p=>p instanceof Promise)))
 			return Util.simplifyPromiseArray(m).then(a=>new List(a));
-		else
+		else 
 			return new List(Util.flattenToArray(m));
 	}
 	

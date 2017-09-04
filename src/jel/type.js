@@ -2,6 +2,7 @@
 
 const Callable = require('./callable.js');
 
+// ops that can swap the left and right operands
 const REVERSIBLE_OPS = {
 	'+': '+',
 	'*': '*',
@@ -68,9 +69,9 @@ class JelType {
 		else if (right == null)
 			return right;
 		else if (operator == '!=')
-				return !this.op('==', right);
+				return !JelType.op('==', left, right);
 		else if (operator == '!==')
-				return !this.op('===', right);
+				return !JelType.op('===', left, right);
 
 		const nativeOp = NATIVE_OPS[operator];
 		if (!nativeOp)

@@ -8,6 +8,10 @@ const Dictionary = require('../../src/jel/dictionary.js');
 const Context = require('../../src/jel/context.js');
 const PatternNode = require('../../src/jel/matchNodes/patternnode.js');
 const TranslatorNode = require('../../src/jel/matchNodes/translatornode.js');
+const {JelPromise, JelConsole} = require('./jel-assert.js');
+
+const promiseCtx = new Context().setAll({JelPromise, JelConsole});
+
 
 function parse(s) {
   return new JEL(s).parseTree;
@@ -217,6 +221,41 @@ describe('jelTranslators', function() {
         assert.deepEqual(soundsVerb.match(ctx, "the cow sleeps").elements.map(e=>e.value), [1]);
         assert.deepEqual(soundsVerb.match(ctx, "and now something completely different").elements.map(e=>e.value), []);
     });
+
+    it('should support promises as result', function() {
+        const t = translator(JEL.createPattern('the cat says meow'), parse('JelPromise.resolve(1)'))
+                .addPattern(JEL.createPattern('the dog barks [woof|meow]?'), parse('JelPromise(5)'));
+
+      return Promise.all([
+          t.match(promiseCtx, "the cat says meow").then(r=>assert.deepEqual(r.elements.map(e=>e.value), [1])),
+          t.match(promiseCtx, "the dog barks").then(r=>assert.deepEqual(r.elements.map(e=>e.value), [5])),
+          t.match(promiseCtx, "the dog barks meow").then(r=>assert.deepEqual(r.elements.map(e=>e.value), [5]))
+        ]);
+    });
+
+    
+    it('should support promises in templates', function() {
+        const animals = parse('{{small: `dog` => JelPromise("dog"), small: `cat` => JelPromise.resolve("cat"), big: `cow` => "cow"}}').execute(promiseCtx);
+        const dict = new Dictionary({animals});
+        const ctx = new Context(promiseCtx, null, dict);
+
+        const t = translator(JEL.createPattern('the {{animals}} barks'), parse('JelPromise.resolve(1)'))
+           .addPattern(JEL.createPattern('the {{a: animals}} says [woof|meow|moo]?'), parse('a'))
+           .addPattern(JEL.createPattern('the {{a: animals :: a!="dog"}} says meow'), parse('a+"boo"'))
+
+        assert.deepEqual(t.match(ctx, "the cow says moo").elements.map(e=>e.value), ["cow"]);
+        assert.deepEqual(t.match(ctx, "the cow says meow").elements.map(e=>e.value), ["cow", "cowboo"]);
+        
+        return Promise.all([
+          t.match(ctx, "the dog barks").then(r=>assert.deepEqual(r.elements.map(e=>e.value), [1])),
+          t.match(ctx, "the cat barks").then(r=>assert.deepEqual(r.elements.map(e=>e.value), [1])),
+          t.match(ctx, "the cow barks").then(r=>assert.deepEqual(r.elements.map(e=>e.value), [1])),
+          t.match(ctx, "the dog says woof").then(r=>assert.deepEqual(r.elements.map(e=>e.value), ["dog"])),
+          t.match(ctx, "the cat says meow").then(r=>assert.deepEqual(r.elements.map(e=>e.value), ["cat", "catboo"])),
+          t.match(ctx, "the dog says meow").then(r=>assert.deepEqual(r.elements.map(e=>e.value), ["dog"]))
+        ]);
+    });
+
 
   });
   

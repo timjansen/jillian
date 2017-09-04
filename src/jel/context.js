@@ -34,7 +34,7 @@ class Context {
 		if (obj)
 			for (const name in obj) 
 				this.set(name, obj[name]);
-		return this;
+		return this.freeze();
 	}
 	
 	freeze() {

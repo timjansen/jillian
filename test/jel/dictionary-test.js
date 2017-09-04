@@ -98,10 +98,8 @@ describe('jelDictionary', function() {
 
   describe('hasOnly()', function() {
     it('finds all', function() {
-      assert.strictEqual(new JEL('{a:3, b:2, c:9}.hasOnly((k,x)=>x>1 && k!="a")').executeImmediately(), true); 
+      assert.strictEqual(new JEL('{a:3, b:2, c:9}.hasOnly((k,x)=>x>1 && k!="a")').executeImmediately(), false); 
       assert.strictEqual(new JEL('{a:3, b:8, c:17, d:39, e:2, f:9}.hasOnly((k,x)=>x>1)').executeImmediately(), true); 
-    });
-    it('finds all', function() {
       assert.strictEqual(new JEL('{a:3, b:2, c:9}.hasOnly((k,x)=>x>5)').executeImmediately(), false); 
     });
   });
