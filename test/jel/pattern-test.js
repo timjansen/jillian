@@ -9,6 +9,7 @@ const Context = require('../../src/jel/context.js');
 const PatternNode = require('../../src/jel/matchNodes/patternnode.js');
 const StaticResultNode = require('../../src/jel/matchNodes/staticresultnode.js');
 const TemplateNode = require('../../src/jel/matchNodes/templatenode.js');
+const RegExpNode = require('../../src/jel/matchNodes/regexpnode.js');
 
 const MTRUE = new PatternNode().makeOptional(StaticResultNode.TRUE);
 
@@ -69,10 +70,17 @@ describe('jelPatterns', function() {
     it('should parse templates', function() {
       assert.equal(JEL.createPattern('j {{tpl0}}').tree.toString(), mnt('j', new PatternNode().addTemplateMatch(new TemplateNode('tpl0', undefined, [], undefined, MTRUE))).toString());
       assert.equal(JEL.createPattern('a {{tpl.x}} c').tree.toString(), mnt('a', new PatternNode().addTemplateMatch(new TemplateNode('tpl', undefined, ['x'], undefined, mnt('c')))).toString());
-      assert.equal(JEL.createPattern('a {{test: tpl.x.y :: test > 0}} c').tree.toString(), mnt('a', new PatternNode().addTemplateMatch(new TemplateNode('tpl', 'test', ['x','y'], new JEL('test > 0').parseTree, mnt('c')))).toString());
+      assert.equal(JEL.createPattern('a {{test: tpl.x.y :: test > 0}} c').tree.toString(), mnt('a', new PatternNode().addTemplateMatch(new TemplateNode('tpl', 'test', ['x','y'], JEL.parseTree('test > 0'), mnt('c')))).toString());
       assert.equal(JEL.createPattern('j [{{tpl0}}]?').tree.toString(), mnt('j', new PatternNode().addTemplateMatch(new TemplateNode('tpl0', undefined, [], undefined, MTRUE)).makeOptional(MTRUE)).toString());
     });
-    
+
+    it('should parse regexp templates', function() {
+      assert.equal(JEL.createPattern('j {{/tpl0/}}').tree.toString(), mnt('j', new PatternNode().addTemplateMatch(new RegExpNode([/^tpl0$/], undefined, undefined, MTRUE))).toString());
+      assert.equal(JEL.createPattern('a {{/n/ /m/}} c').tree.toString(), mnt('a', new PatternNode().addTemplateMatch(new RegExpNode([/^n$/, /^m$/], undefined, undefined, mnt('c')))).toString());
+      assert.equal(JEL.createPattern('a {{test: /abc+/ :: test > 0}} c').tree.toString(), mnt('a', new PatternNode().addTemplateMatch(new RegExpNode([/^abc+$/], 'test', JEL.parseTree('test > 0'), mnt('c')))).toString());
+      assert.equal(JEL.createPattern('j [{{/t/}}]?').tree.toString(), mnt('j', new PatternNode().addTemplateMatch(new RegExpNode([/^t$/], undefined, undefined, MTRUE)).makeOptional(MTRUE)).toString());
+    });
+
   });
   
   describe('match()', function() {
@@ -85,7 +93,7 @@ describe('jelPatterns', function() {
       assert(!JEL.createPattern('').match(ctx, 'a'));
     });
 
-    it('should parse simple patterns', function() {
+    it('should match simple patterns', function() {
       assert(JEL.createPattern('a b c').match(ctx, ['a', 'b', 'c']));
       assert(JEL.createPattern('a b c').match(ctx, 'a b c'));
       assert(JEL.createPattern('a b c').match(ctx, '  a b c  '));
@@ -95,7 +103,7 @@ describe('jelPatterns', function() {
       assert(!JEL.createPattern('a b c').match(ctx, ['a', 'b', 'd']));
     });
 
-    it('should parse optional patterns', function() {
+    it('should match optional patterns', function() {
       assert(JEL.createPattern('[x]?').match(ctx, 'x'));
       assert(JEL.createPattern('[x]?').match(ctx, []));
       assert(JEL.createPattern('[x]?').match(ctx, ''));
@@ -117,7 +125,7 @@ describe('jelPatterns', function() {
       assert(!JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, ' b x'));
     });
 
-    it('should parse multi-patterns', function() {
+    it('should match multi-patterns', function() {
       assert(JEL.createPattern('[x]').match(ctx, 'x'));
       assert(!JEL.createPattern('[x]').match(ctx, 'y'));
       
@@ -134,7 +142,7 @@ describe('jelPatterns', function() {
       assert(!JEL.createPattern('[x|y|z] a').match(ctx, 'a a'));
     });
 
-    it('should parse optional multi-patterns', function() {
+    it('should match optional multi-patterns', function() {
       assert(JEL.createPattern('[x|y z]?').match(ctx, ''));
       assert(JEL.createPattern('[x|y z]?').match(ctx, 'x'));
       assert(JEL.createPattern('[x|y z]?').match(ctx, 'y z'));
@@ -146,7 +154,7 @@ describe('jelPatterns', function() {
       assert(!JEL.createPattern('[x|y|z]? a').match(ctx, 'y a k'));
     });
 
-    it('should parse templates', function() {
+    it('should match templates', function() {
         const tpl0 = exec('{{`a` => 1}}');
         const tpl1 = exec('{{`a` => 1, x: `b` => 2, y: `b` => 12, x, y: `b` => 22}}');
         const tpl2 = exec('{{`a [b [c]?]?` => 3, `a b c` => 4, `d e` => 5, `f {{tpl1}}` => 6}}');
@@ -178,6 +186,39 @@ describe('jelPatterns', function() {
         assert(JEL.createPattern('{{test: tpl1 :: test == 1}}').match(ctx, 'a'));
         assert(!JEL.createPattern('{{test: tpl1 :: test > 1}}').match(ctx, 'a'));
     });
+
+    it('should match regexp templates', function() {
+        const ctx = new Context();
+
+        assert(JEL.createPattern('{{/a+/}}').match(ctx, 'aa'));
+        assert(JEL.createPattern('j {{/a+/}}').match(ctx, 'j aaa '));
+      
+        assert(JEL.createPattern('a {{/a+/}}').match(ctx, 'a a'));
+        assert(JEL.createPattern('{{/b/ /c/}} k').match(ctx, 'b c  k'));
+        assert(JEL.createPattern('{{/b/}}{{/c/}}k').match(ctx, 'b c k'));
+        assert(JEL.createPattern('{{/b/}} {{/c/}} k').match(ctx, 'b c k'));
+        assert(!JEL.createPattern('{{/ab+/}}').match(ctx, 'a'));
+      
+        assert(JEL.createPattern('{{a: /a+b*c+/}}').match(ctx, 'aaaacc'));
+        assert(!JEL.createPattern('{{/a+b*c+/}}').match(ctx, 'aaaab'));
+        assert(!JEL.createPattern('{{/a/}}').match(ctx, 'ab'));
+
+        assert(JEL.createPattern('{{t: /[0-9]+/ :: t == "12"}}').match(ctx, '12'));
+        assert(!JEL.createPattern('{{t: /[0-9]+/ :: t == "12"}}').match(ctx, '123'));
+
+        assert(JEL.createPattern('{{t: /([0-9])([0-9])([a-z])/ :: t[0] == "2" && t[1] == "5" && t[2] == "x"}}').match(ctx, '25x'));
+        assert(!JEL.createPattern('{{t: /([0-9])([0-9])([a-z])/ :: t[0] == "2" && t[1] == "5" && t[2] == "x"}}').match(ctx, '25y'));
+        assert(!JEL.createPattern('{{t: /([0-9])([0-9])([a-z])/ :: t[0] == "2" && t[1] == "5" && t[2] == "x"}}').match(ctx, '15y'));
+        assert(!JEL.createPattern('{{t: /([0-9])([0-9])([a-z])/ :: t[0] == "2" && t[1] == "5" && t[2] == "x"}}').match(ctx, 'abc'));
+
+        assert(JEL.createPattern('{{t: /[0-9]/ /[0-9]/ /[a-z]/ :: t[0] == "2" && t[1] == "5" && t[2] == "x"}}').match(ctx, '2 5 x'));
+        assert(!JEL.createPattern('{{t: /[0-9]/ /[0-9]/ /[a-z]/ :: t[0] == "2" && t[1] == "5" && t[2] == "x"}}').match(ctx, '2 6 x'));
+
+        assert(JEL.createPattern('{{t: /([0-9])(a+)/ /b+/ :: t[0][0] == "7" && t[0][1] == "aa" && t[1] == "bbb"}}').match(ctx, '7aa bbb'));
+        assert(!JEL.createPattern('{{t: /([0-9])(a+)/ /b+/ :: t[0][0] == "7" && t[0][1] == "aa" && t[1] == "bbb"}}').match(ctx, '7 bbb'));
+        assert(!JEL.createPattern('{{t: /([0-9])(a+)/ /b+/ :: t[0][0] == "7" && t[0][1] == "aa" && t[1] == "bbb"}}').match(ctx, '7aaa bb'));
+    });
+    
     
   });
   

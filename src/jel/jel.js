@@ -29,6 +29,7 @@ const Get = require('./parseNodes/get.js');
 const PatternMultiNode = require('./matchNodes/patternnode.js');
 const StaticResultNode = require('./matchNodes/staticresultnode.js');
 const TemplateNode = require('./matchNodes/templatenode.js');
+const RegExpNode = require('./matchNodes/regexpnode.js');
 
 const binaryOperators = { // op->precedence
   '.': 19,
@@ -432,11 +433,15 @@ class JEL {
 			return m.addTokenMatch(t.word, JEL.parsePattern(tok, jelToken, expectStopper));
 		else if (t.template) {
 			try {	
-				return m.addTemplateMatch(new TemplateNode(t.template, t.name, t.hints, t.expression ? new JEL(t.expression).parseTree : undefined, JEL.parsePattern(tok, jelToken, expectStopper)));
+				return m.addTemplateMatch(new TemplateNode(t.template, t.name, t.hints, t.expression ? JEL.parseTree(t.expression) : undefined, JEL.parsePattern(tok, jelToken, expectStopper)));
 			}
 			catch (e) {
 				JEL.throwParseException(jelToken, "Can not parse expression ${t.expression} embedded in pattern", e);
 			}
+		}
+		else if (t.regexps) {
+			const regexps = t.regexps.map(s=>RegExp(s.replace(/^([^^])/, "^$1").replace(/([^$])$/, "$1$")));
+			return m.addTemplateMatch(new RegExpNode(regexps, t.name, t.expression ? JEL.parseTree(t.expression) : undefined, JEL.parsePattern(tok, jelToken, expectStopper)));
 		}
 
 		switch(t.op) {
