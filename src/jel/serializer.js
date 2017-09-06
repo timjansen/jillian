@@ -5,6 +5,7 @@ const List = require('./list.js');
 const Pattern = require('./pattern.js');
 const DbEntry = require('../database/dbentry.js');
 const DbRef = require('../database/dbref.js');
+const Util = require('../util/util.js');
 
 /**
  * Serializes an object tree of serializable nodes into a JSON-like, JEL-readable string representation. Primitives (number, string, boolean, array)
@@ -60,26 +61,36 @@ function serializeInternal(obj, pretty, indent, primary) {
 		else if ('getSerializationProperties' in obj) {
 			const props = obj.getSerializationProperties();
 			let r = obj.constructor.name + '(';
-			const names = [];
-			for (let name in props)
-				names.push(name);
-			names.sort();
-			let c = 0;
-			names.forEach((name) => {
-				const value = props[name];
-				if (value != null) {
-					if (c > 0)
-						r += ',';
-					if (pretty)
-						r += '\n' + spaces(indent+1)
-					r += name + '=' + serializeInternal(value, pretty, indent+2);
-					c++;
+			if (Util.isArrayLike(props)) {
+				for (let i = 0; i < props.length; i++) {
+					if (i > 0)
+						r += pretty ? ', ' : ',';
+					r += serializeInternal(props[i], pretty, indent+2);
 				}
-			});
-			if (pretty)
-				return r + '\n' + spaces(indent) + ')';
-			else
 				return r + ')';
+			}
+			else {
+				const names = [];
+				for (let name in props)
+					names.push(name);
+				names.sort();
+				let c = 0;
+				names.forEach((name) => {
+					const value = props[name];
+					if (value != null) {
+						if (c > 0)
+							r += ',';
+						if (pretty)
+							r += '\n' + spaces(indent+1)
+						r += name + '=' + serializeInternal(value, pretty, indent+2);
+						c++;
+					}
+				});
+				if (pretty)
+					return r + '\n' + spaces(indent) + ')';
+				else
+					return r + ')';
+			}
 		}
 		else if (typeof obj.length == 'number') 
 			return serializeArray(obj, pretty, indent);

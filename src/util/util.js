@@ -3,7 +3,7 @@
 
 class Util {
 	static isArrayLike(t) {
-		return t && t.length != undefined && typeof t == 'object';
+		return t && t.length !== undefined && typeof t == 'object';
 	}
 	
 	// takes in nested array or value, adds to target.

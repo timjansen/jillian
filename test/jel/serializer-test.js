@@ -40,7 +40,7 @@ describe('jelSerializer', function() {
       assert.equal(s.serialize({x: 0}), '"unsupported object"');
     });
     
-    it('should use getSerializationProperties() for objects', function() {
+    it('should use getSerializationProperties() for objects, with argument names', function() {
       assert.equal(s.serialize({x: 0, getSerializationProperties() {return {};} }), 'Object()');
       assert.equal(s.serialize({x: 0, getSerializationProperties() {return {c: 4, b: 2, a: 9};} }), 'Object(a=9,b=2,c=4)');
       
@@ -50,6 +50,16 @@ describe('jelSerializer', function() {
       assert.equal(s.serialize(new ABC(new ABC('bar'))), 'ABC(obj=ABC(obj="bar",x=2,y="bla",zzz=[1,2,3]),x=2,y="bla",zzz=[1,2,3])');
     });
 
+    it('should use getSerializationProperties() for objects, with argument arrays', function() {
+      assert.equal(s.serialize({x: 0, getSerializationProperties() {return [];} }), 'Object()');
+      assert.equal(s.serialize({x: 0, getSerializationProperties() {return [9, 2, 4];} }), 'Object(9,2,4)');
+      
+      class ABC { getSerializationProperties() { return [2, 'bla', [1, 2, 3]]; }}    
+      assert.equal(s.serialize(new ABC()), 'ABC(2,"bla",[1,2,3])');
+      assert.equal(s.serialize(new ABC(), true), 'ABC(2, "bla", [1, 2, 3])');
+    });
+
+    
     it('should not serialize null values for objects', function() {
       assert.equal(s.serialize({x: 0, getSerializationProperties() {return {c: null, b: 2, a: null};} }), 'Object(b=2)');
     });
@@ -68,6 +78,7 @@ describe('jelSerializer', function() {
     it('should pretty print', function() {
       assert.equal(s.serialize([1, 2, 3], true), '[1, 2, 3]');
       assert.equal(s.serialize({x: 0, getSerializationProperties() {return {y: 4};} }, true), 'Object(\n  y=4\n)');
+      assert.equal(s.serialize({x: 0, getSerializationProperties() {return [1, 2, 3];} }, true), 'Object(1, 2, 3)');
       
       class ABC { constructor(obj) {this.a = 2; this.obj = obj; } getSerializationProperties() { return {x: 2, y: 'bla', zzz: [1, 2, 3], obj: this.obj}; }}
       

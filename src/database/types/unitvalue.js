@@ -8,7 +8,6 @@ const ACCURACY_FACTOR = 0.9999999;  // to avoid rounding issues with fuzzy compa
 
 /**
  * Represents a value with unit and accuracy.
- * All actual types need to inherit this.
  * They mus also set the constant PRIMARY_UNIT. To use automatic conversion, they should provide a table 
  * UNITS that maps types to the PRIMARY_UNIT.
  */
@@ -19,8 +18,6 @@ class UnitValue extends JelType {
 		this.value = value;
 		this.unit = unit;
 		this.accuracy = accuracy;
-		this.primaryValue = this.convertValue(value, unit, this.PRIMARY_UNIT);
-		this.primaryAccuracy = this.convertValue(accuracy, unit, this.PRIMARY_UNIT);
 	}
 
 	// !! must overwrite in sub-classes
