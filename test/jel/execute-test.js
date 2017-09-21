@@ -2,7 +2,7 @@
 
 const assert = require('assert');
 const JEL = require('../../src/jel/jel.js');
-const jelAssert = require('./jel-assert.js');
+const jelAssert = require('../jel-assert.js');
 
 const Callable = require('../../src/jel/callable.js');
 const JelType = require('../../src/jel/type.js');

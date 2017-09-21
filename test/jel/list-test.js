@@ -4,7 +4,7 @@ const assert = require('assert');
 const JEL = require('../../src/jel/jel.js');
 const List = require('../../src/jel/list.js');
 const Callable = require('../../src/jel/callable.js');
-const jelAssert = require('./jel-assert.js');
+const jelAssert = require('../jel-assert.js');
 
 describe('jelList', function() {
   describe('constructor()', function() {

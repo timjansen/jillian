@@ -5,7 +5,7 @@ const Dictionary = require('../../src/jel/dictionary.js');
 const JEL = require('../../src/jel/jel.js');
 const List = require('../../src/jel/list.js');
 const Callable = require('../../src/jel/callable.js');
-const jelAssert = require('./jel-assert.js');
+const jelAssert = require('../jel-assert.js');
 
 describe('jelDictionary', function() {
   describe('constructor()', function() {

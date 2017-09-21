@@ -8,7 +8,7 @@ const Dictionary = require('../../src/jel/dictionary.js');
 const Context = require('../../src/jel/context.js');
 const PatternNode = require('../../src/jel/matchNodes/patternnode.js');
 const TranslatorNode = require('../../src/jel/matchNodes/translatornode.js');
-const {JelPromise, JelConsole} = require('./jel-assert.js');
+const {JelPromise, JelConsole} = require('../jel-assert.js');
 
 const promiseCtx = new Context().setAll({JelPromise, JelConsole});
 

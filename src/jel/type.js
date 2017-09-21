@@ -14,7 +14,7 @@ const REVERSIBLE_OPS = {
 	'>>': '<<',
 	'<': '>',
 	'<<': '>>',
-	'>=': '>=',
+	'>=': '<=',
 	'>>=': '<<=',
 	'<=': '>=',
 	'<<=': '>>='
@@ -62,16 +62,22 @@ class JelType {
 	static op(operator, left, right) {
 		if (left instanceof JelType)
 			return left.op(operator, right);
-		else if (operator in REVERSIBLE_OPS && right instanceof JelType) 
-			return JelType.op(REVERSIBLE_OPS[operator], right, left);
 		else if (left == null)
 			return left; 
 		else if (right == null)
 			return right;
+		else if (right instanceof JelType && operator in REVERSIBLE_OPS) 
+			return JelType.op(REVERSIBLE_OPS[operator], right, left);
+		else if (right instanceof JelType && operator in right.reverseOps) 
+			return right.opReversed(operator, left);
 		else if (operator == '!=')
 				return !JelType.op('==', left, right);
 		else if (operator == '!==')
 				return !JelType.op('===', left, right);
+		else if (operator == '>=')
+				return !JelType.op('<', left, right);
+		else if (operator == '>')
+				return !JelType.op('<', left, right) && !JelType.op('==', left, right);
 
 		const nativeOp = NATIVE_OPS[operator];
 		if (!nativeOp)
@@ -140,6 +146,14 @@ class JelType {
 		throw new Error(`Operator "${operator}" is not supported for this type`);
 	}
 
+	// To be used if the right-hand side is this type, and the left-hand side is a primitive.
+	// Left is guaranteed to be a non-null primitive.
+	// You must also define the supported operators in reverseOps!
+	opReversed(operator, left) {
+		throw new Error(`Operator "${operator}" is not supported for this type`);
+	}
+
+	
 	singleOp(operator) {
 		throw new Error(`Operator "${operator}" is not supported for this type`);
 	}
@@ -152,6 +166,8 @@ class JelType {
 		throw new Error(`getSerializationProperties() not implemented in ${this.constructor.name}`);
 	}
 }
+
+JelType.prototype.reverseOps = {};
 
 JelType.prototype.op_jel_mapping = {operator:0,right:1};
 JelType.prototype.singleOp_jel_mapping = {operator:0};

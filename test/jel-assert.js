@@ -1,13 +1,19 @@
 'use strict';
 
 const assert = require('assert');
-const serializer = require('../../src/jel/serializer.js');
-const JEL = require('../../src/jel/jel.js'); 
-const JelType = require('../../src/jel/type.js'); 
+const serializer = require('../src/jel/serializer.js');
+const JEL = require('../src/jel/jel.js'); 
+const JelType = require('../src/jel/type.js'); 
+
+let ctx;
+
+function setCtx(c) {
+	ctx = c;
+}
 
 function exec(s){
 	if (typeof s == 'string')
-		return new JEL(s).execute();
+		return new JEL(s).executeImmediately(ctx);
 	return s;
 }
 
@@ -40,5 +46,5 @@ class JelConsole extends JelType {
 JelConsole.create_jel_mapping = ['value'];
 
 
-module.exports = {equal, notEqual, JelPromise, JelConsole};
+module.exports = {setCtx, equal, notEqual, JelPromise, JelConsole};
 
