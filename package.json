@@ -4,16 +4,19 @@
   "description": "Natural language database",
   "main": "src/jillian.js",
   "scripts": {
-    "test": "mocha --recursive"
+    "test": "tsc && mocha --recursive"
   },
   "author": "Tim Jansen",
   "license": "ISC",
   "dependencies": {
+    "@types/fs-extra": "^4.0.2",
     "mocha": "^3.2.0",
     "natural": "^0.5.0",
-    "tifuhash": "^1.0.5"
+    "tifuhash": "^1.0.5",
+    "typescript": "^2.5.2"
   },
   "devDependencies": {
+    "@types/node": "^8.0.31",
     "fs-extra": "^3.0.1",
     "tmp": "0.0.31"
   }

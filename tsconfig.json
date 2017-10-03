@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "module": "CommonJS",
+        "noImplicitAny": false,
+				"strictNullChecks": false,
+				"alwaysStrict": true, 
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "outDir": "build/",
+        "sourceMap": true,
+				"target": "ES2015"
+    },
+    "include": [
+        "src/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}
