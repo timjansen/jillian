@@ -19,7 +19,7 @@ export default class DatabaseConfig extends JelType implements Serializable {
     return {version: this.version, sizing: this.sizing, prettyPrint: this.prettyPrint};
   }
   
-  static create_jel_mapping = ['config'];
+  static create_jel_mapping = JelType.NAMED_ARGUMENT_METHOD;
   static create(config: DatabaseConfig): DatabaseConfig {
     return new DatabaseConfig(config);
   }

@@ -1,11 +1,15 @@
 'use strict';
 
+require('source-map-support').install();
 const assert = require('assert');
-const Dictionary = require('../../src/jel/dictionary.js');
-const JEL = require('../../src/jel/jel.js');
-const List = require('../../src/jel/list.js');
-const Callable = require('../../src/jel/callable.js');
+const Dictionary = require('../../build/jel/Dictionary.js').default;
+const JEL = require('../../build/jel/JEL.js').default;
+const List = require('../../build/jel/List.js').default;
+const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
+const Context = require('../../build/jel/Context.js').default;
 const jelAssert = require('../jel-assert.js');
+
+const dictContext = new Context().setAll({Dictionary});
 
 describe('jelDictionary', function() {
   describe('constructor()', function() {
@@ -37,39 +41,39 @@ describe('jelDictionary', function() {
   
   describe('create()', function() {
     it('creates empty dicts', function() {
-      jelAssert.equal(new JEL('Dictionary()').executeImmediately({Dictionary}).size, 0); 
+      jelAssert.equal(new JEL('Dictionary()').executeImmediately(dictContext).size, 0); 
     });
     it('creates dicts from lists', function() {
-      jelAssert.equal(new JEL('Dictionary(["t", 8])').executeImmediately({Dictionary}).toObjectDebug(), {t: 8}); 
+      jelAssert.equal(new JEL('Dictionary(["t", 8])').executeImmediately(dictContext).toObjectDebug(), {t: 8}); 
     });
   });
   
   describe('anyKey', function() {
-    it('creates dicts from lists', function() {
-      assert.equal(new JEL('Dictionary(["t", 8]).anyKey').executeImmediately({Dictionary}), "t"); 
+    it('picks a key', function() {
+      assert.equal(new JEL('Dictionary(["t", 8]).anyKey').executeImmediately(dictContext), "t"); 
     });
   });
 
   describe('size', function() {
     it('returns the size', function() {
-      jelAssert.equal(new JEL('Dictionary(["v", 3, "b", 9]).size').executeImmediately({Dictionary}), 2); 
-      jelAssert.equal(new JEL('{v: 3, d: 1}.size').executeImmediately({Dictionary}), 2); 
-      jelAssert.equal(new JEL('Dictionary().size').executeImmediately({Dictionary}), 0);
+      jelAssert.equal(new JEL('Dictionary(["v", 3, "b", 9]).size').executeImmediately(dictContext), 2); 
+      jelAssert.equal(new JEL('{v: 3, d: 1}.size').executeImmediately(dictContext), 2); 
+      jelAssert.equal(new JEL('Dictionary().size').executeImmediately(dictContext), 0);
     });
   });
 
   
   describe('map()', function() {
     it('maps', function() {
-      jelAssert.equal(new JEL('Dictionary(["v", 3, "b", 9]).map((k,v)=>v+1)').executeImmediately({Dictionary}).toObjectDebug(), {v: 4, b: 10}); 
+      jelAssert.equal(new JEL('Dictionary(["v", 3, "b", 9]).map((k,v)=>v+1)').executeImmediately(dictContext).toObjectDebug(), {v: 4, b: 10}); 
     });
   });
 
   describe('each()', function() {
     it('iterates', function() {
       let x = '';
-      const accumulator = new Callable((k, v)=> x+=k+v );
-      new JEL('Dictionary(["3", 2, "9", 10]).each(accumulator)').executeImmediately({Dictionary, accumulator});
+      const accumulator = new FunctionCallable((k, v)=> x+=k+v );
+      new JEL('Dictionary(["3", 2, "9", 10]).each(accumulator)').executeImmediately(new Context().setAll({Dictionary, accumulator}));
       assert.equal(x, "32910");
     });
   });
@@ -118,15 +122,15 @@ describe('jelDictionary', function() {
 
   describe('get()', function() {
     it('gets', function() {
-      assert.equal(new JEL('{a: 2, b: 9}.get("b")').executeImmediately({Dictionary}), 9); 
-      assert.strictEqual(new JEL('{a: 2, b: 9}.get("c")').executeImmediately({Dictionary}), undefined); 
+      assert.equal(new JEL('{a: 2, b: 9}.get("b")').executeImmediately(dictContext), 9); 
+      assert.strictEqual(new JEL('{a: 2, b: 9}.get("c")').executeImmediately(dictContext), undefined); 
     });
   });
 
   describe('has()', function() {
     it('has', function() {
-      assert.equal(new JEL('{a: 2, b: 9}.has("b")').executeImmediately({Dictionary}), true); 
-      assert.equal(new JEL('{a: 2, b: 9}.has("c")').executeImmediately({Dictionary}), false); 
+      assert.equal(new JEL('{a: 2, b: 9}.has("b")').executeImmediately(dictContext), true); 
+      assert.equal(new JEL('{a: 2, b: 9}.has("c")').executeImmediately(dictContext), false); 
     });
   });
 
@@ -146,8 +150,8 @@ describe('jelDictionary', function() {
   
   describe('keys()', function() {
     it('keys', function() {
-      assert.deepEqual(new JEL('{}.keys').executeImmediately({Dictionary}).elements, []); 
-      assert.deepEqual(new JEL('{a: 2, b: 9}.keys').executeImmediately({Dictionary}).elements, ['a', 'b']); 
+      assert.deepEqual(new JEL('{}.keys').executeImmediately(dictContext).elements, []); 
+      assert.deepEqual(new JEL('{a: 2, b: 9}.keys').executeImmediately(dictContext).elements, ['a', 'b']); 
     });
   });
 

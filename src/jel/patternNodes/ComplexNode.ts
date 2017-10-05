@@ -16,9 +16,11 @@ export default abstract class ComplexNode extends MatchNode {
 	
 	abstract merge(resultNode: LambdaResultNode): ComplexNode;
 	
-	append(next: MultiNode): ComplexNode {
-		this.next = next;
-		return this;
+	append(next?: MultiNode): void {
+		if (this.next)
+			this.next.append(next);
+		else
+			this.next = next;
 	}
 	
 	abstract equals(other: ComplexNode): boolean;

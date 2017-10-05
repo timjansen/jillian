@@ -5,7 +5,7 @@ import Context from '../Context';
 import Util from '../../util/Util';
 
 export default abstract class MultiNode extends MatchNode {
-	tokenMap: Map<string, MultiNode> = new Map(); // Map: token (string) -> next node
+	tokenMap: Map<string, MultiNode | undefined> = new Map();  // Map: token (string) -> next node. Undefined is a temporary state in JEL only.
 	complexNodes: ComplexNode[] | undefined;       // Array: list of template or regexp nodes to check
 	
 	constructor() {
@@ -27,6 +27,9 @@ export default abstract class MultiNode extends MatchNode {
 
 	// override
 	match(ctx: Context, tokens: string[], idx: number, metaFilter?: Set<string> | undefined, incompleteMatch = false): any {
+		if (tokens[idx] == null)
+			return undefined;
+		
 		let result;
 		const tr = this.tokenMap.get(tokens[idx]);
 		if (tr)
@@ -40,7 +43,7 @@ export default abstract class MultiNode extends MatchNode {
 	}
 	
 	// override
-	append(next: MultiNode): MultiNode {
+	append(next?: MultiNode): void {
 		for (const k of this.tokenMap.keys()) {
 			const v = this.tokenMap.get(k);
 			if (v)
@@ -51,8 +54,6 @@ export default abstract class MultiNode extends MatchNode {
 
 		if (this.complexNodes)
 			this.complexNodes.forEach(n=>n.append(next));
-
-		return this;
 	}
 	
 	toString(): string {

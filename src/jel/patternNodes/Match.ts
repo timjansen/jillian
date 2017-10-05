@@ -11,6 +11,6 @@ export default class Match extends JelType {
 		super();
 	}
 	
-	static JEL_PROPERTIES = {value: true, meta: true};
+	JEL_PROPERTIES = {value: true, meta: true};
 }
 

@@ -1,13 +1,14 @@
 'use strict';
 
+require('source-map-support').install();
 const assert = require('assert');
-const JEL = require('../../src/jel/jel.js');
-const Pattern = require('../../src/jel/pattern.js');
-const Translator = require('../../src/jel/translator.js');
-const Dictionary = require('../../src/jel/dictionary.js');
-const Context = require('../../src/jel/context.js');
-const PatternNode = require('../../src/jel/matchNodes/patternnode.js');
-const TranslatorNode = require('../../src/jel/matchNodes/translatornode.js');
+const JEL = require('../../build/jel/JEL.js').default;
+const Pattern = require('../../build/jel/Pattern.js').default;
+const Translator = require('../../build/jel/Translator.js').default;
+const Dictionary = require('../../build/jel/Dictionary.js').default;
+const Context = require('../../build/jel/Context.js').default;
+const PatternNode = require('../../build/jel/patternNodes/PatternNode.js').default;
+const TranslatorNode = require('../../build/jel/patternNodes/TranslatorNode.js').default;
 const {JelPromise, JelConsole} = require('../jel-assert.js');
 
 const promiseCtx = new Context().setAll({JelPromise, JelConsole});
@@ -31,30 +32,30 @@ describe('jelTranslators', function() {
   describe('addPattern()', function() {
     
     it('should should build parsing trees', function() {
-      assert.equal(translator(JEL.createPattern(`abc def`), JEL.parseTree('7')).toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={def: TranslatorNode(results=[LambdaResultNode(7)])})}))");
+      assert.equal(translator(JEL.createPattern(`abc def`), JEL.parseTree('7')).toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={def: TranslatorNode(tokens={} results=[LambdaResultNode(7)])})}))");
       assert.equal(translator(JEL.createPattern(`abc`), JEL.parseTree('2'))
                                    .addPattern(JEL.createPattern(`foo`), JEL.parseTree('6'))
-                                   .toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(results=[LambdaResultNode(2)]),\nfoo: TranslatorNode(results=[LambdaResultNode(6)])}))");
+                                   .toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2)]),\nfoo: TranslatorNode(tokens={} results=[LambdaResultNode(6)])}))");
       assert.equal(translator(JEL.createPattern(`abc def`), JEL.parseTree('2'))
                                    .addPattern(JEL.createPattern(`foo`), JEL.parseTree('6'))
                                    .addPattern(JEL.createPattern(`abc foo bar`), JEL.parseTree('4'))
-                                   .toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={def: TranslatorNode(results=[LambdaResultNode(2)]),\nfoo: TranslatorNode(tokens={bar: TranslatorNode(results=[LambdaResultNode(4)])})}),\nfoo: TranslatorNode(results=[LambdaResultNode(6)])}))");
+                                   .toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={def: TranslatorNode(tokens={} results=[LambdaResultNode(2)]),\nfoo: TranslatorNode(tokens={bar: TranslatorNode(tokens={} results=[LambdaResultNode(4)])})}),\nfoo: TranslatorNode(tokens={} results=[LambdaResultNode(6)])}))");
     });
 
     it('should support meta data', function() {
       assert.equal(translator(JEL.createPattern(`abc`), JEL.parseTree('2'), createMap({x: true}))
-                                   .toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(results=[LambdaResultNode(2, meta={x=true})])}))");
+                                   .toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=true})])}))");
       assert.equal(translator(JEL.createPattern(`abc`), JEL.parseTree('2'), createMap({x: true, y: true, z: true}))
-                                   .toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(results=[LambdaResultNode(2, meta={x=true, y=true, z=true})])}))");
+                                   .toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=true, y=true, z=true})])}))");
       assert.equal(translator(JEL.createPattern(`abc`), JEL.parseTree('2'), createMap({x: true, y: 1, zzz: "bla"}))
-                                   .toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(results=[LambdaResultNode(2, meta={x=true, y=1, zzz=bla})])}))");
+                                   .toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=true, y=1, zzz=bla})])}))");
     });
     
     it('should support templates', function() {
-        assert.equal(translator(JEL.createPattern('{{tpl1}}'), JEL.parseTree('7')).toString(), "Translator(TranslatorNode(templates=[TemplateNode(name=undefined, template=tpl1, metaFilter=[], expression=undefined) -> TranslatorNode(results=[LambdaResultNode(7)])]))");
-        assert.equal(translator(JEL.createPattern('{{tpl1}}'), JEL.parseTree('7')).addPattern(JEL.createPattern('{{tpl0}}'), JEL.parseTree('9')).toString(), `Translator(TranslatorNode(templates=[TemplateNode(name=undefined, template=tpl1, metaFilter=[], expression=undefined) -> TranslatorNode(results=[LambdaResultNode(7)]),\nTemplateNode(name=undefined, template=tpl0, metaFilter=[], expression=undefined) -> TranslatorNode(results=[LambdaResultNode(9)])]))`);
-        assert.equal(translator(JEL.createPattern('{{y:tpl1::y==3}}'), JEL.parseTree('7')).addPattern(JEL.createPattern('{{c:tpl0}}'), JEL.parseTree('9')).toString(), `Translator(TranslatorNode(templates=[TemplateNode(name=y, template=tpl1, metaFilter=[], expression=(y == 3)) -> TranslatorNode(results=[LambdaResultNode(7)]),\nTemplateNode(name=c, template=tpl0, metaFilter=[], expression=undefined) -> TranslatorNode(results=[LambdaResultNode(9)])]))`);
-        assert.equal(translator(JEL.createPattern('{{/x/}}'), JEL.parseTree('7')).toString(), "Translator(TranslatorNode(templates=[RegExpNode(name=undefined, regexps=/^x$/, expression=undefined) -> TranslatorNode(results=[LambdaResultNode(7)])]))");
+        assert.equal(translator(JEL.createPattern('{{tpl1}}'), JEL.parseTree('7')).toString(), "Translator(TranslatorNode(tokens={} complex=[TemplateNode(name=undefined, template=tpl1, metaFilter=[], expression=undefined) -> TranslatorNode(tokens={} results=[LambdaResultNode(7)])]))");
+        assert.equal(translator(JEL.createPattern('{{tpl1}}'), JEL.parseTree('7')).addPattern(JEL.createPattern('{{tpl0}}'), JEL.parseTree('9')).toString(), `Translator(TranslatorNode(tokens={} complex=[TemplateNode(name=undefined, template=tpl1, metaFilter=[], expression=undefined) -> TranslatorNode(tokens={} results=[LambdaResultNode(7)]),\nTemplateNode(name=undefined, template=tpl0, metaFilter=[], expression=undefined) -> TranslatorNode(tokens={} results=[LambdaResultNode(9)])]))`);
+        assert.equal(translator(JEL.createPattern('{{y:tpl1::y==3}}'), JEL.parseTree('7')).addPattern(JEL.createPattern('{{c:tpl0}}'), JEL.parseTree('9')).toString(), `Translator(TranslatorNode(tokens={} complex=[TemplateNode(name=y, template=tpl1, metaFilter=[], expression=(y == 3)) -> TranslatorNode(tokens={} results=[LambdaResultNode(7)]),\nTemplateNode(name=c, template=tpl0, metaFilter=[], expression=undefined) -> TranslatorNode(tokens={} results=[LambdaResultNode(9)])]))`);
+        assert.equal(translator(JEL.createPattern('{{/x/}}'), JEL.parseTree('7')).toString(), "Translator(TranslatorNode(tokens={} complex=[RegExpNode(name=undefined, regexps=/^x$/, expression=undefined) -> TranslatorNode(tokens={} results=[LambdaResultNode(7)])]))");
     });
   });
 

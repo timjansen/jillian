@@ -1,9 +1,9 @@
 'use strict';
 
 const assert = require('assert');
-const serializer = require('../src/jel/serializer.js');
-const JEL = require('../src/jel/jel.js'); 
-const JelType = require('../src/jel/type.js'); 
+const Serializer = require('../build/jel/Serializer.js').default;
+const JEL = require('../build/jel/JEL.js').default; 
+const JelType = require('../build/jel/JelType.js').default; 
 
 let ctx;
 
@@ -18,12 +18,13 @@ function exec(s){
 }
 
 function equal(a, b, c) {
-	assert.equal(serializer.serialize(exec(a)), serializer.serialize(exec(b)), c);
+	assert.equal(Serializer.serialize(exec(a)), Serializer.serialize(exec(b)), c);
 }
 
 
+
 function notEqual(a, b, c) {
-	assert.notEqual(serializer.serialize(exec(a)), serializer.serialize(exec(b)), c);
+	assert.notEqual(Serializer.serialize(exec(a)), Serializer.serialize(exec(b)), c);
 }
 
 class JelPromise extends JelType {
@@ -39,7 +40,7 @@ JelPromise.resolve_jel_mapping = ['value'];
 
 class JelConsole extends JelType {
 	static create(firstValue, ...values) {
-		console.log(' ---------- JelConsole: ', firstValue, ...values);
+		console.log('JelConsole: ', firstValue, ...values);
 		return firstValue;
 	}
 }

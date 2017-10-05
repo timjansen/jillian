@@ -1,8 +1,9 @@
 'use strict';
 
+require('source-map-support').install();
 const jelAssert = require('../jel-assert.js');
-const Context = require('../../src/jel/context.js');
-const Fraction = require('../../src/database/types/fraction.js');
+const Context = require('../../build/jel/Context.js').default;
+const Fraction = require('../../build/database/types/Fraction.js').default;
 
 jelAssert.setCtx(new Context().setAll({Fraction}));
 

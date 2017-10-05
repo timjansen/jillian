@@ -1,6 +1,6 @@
 import Context from './Context';
 import Callable from './Callable';
-const NAMED_ARGUMENT_METHOD = 'named';
+import JelType from './JelType';
 
 /**
  * A type that can be called.
@@ -8,7 +8,7 @@ const NAMED_ARGUMENT_METHOD = 'named';
 export default class FunctionCallable extends Callable {
 	argMapper: Object;
 	
-	constructor(public f: Function, argMapper: Array<string>|Object|null, public self?: any, public name?: string | undefined, public injectContext = false) {
+	constructor(public f: Function, argMapper?: Array<string>|Object|string, public self?: any, public name?: string, public injectContext = false) {
 		super();
 		this.argMapper = this.convertArgMapper(argMapper);  // map argName -> index. Null if named-argument-methods
 	}
@@ -42,9 +42,9 @@ export default class FunctionCallable extends Callable {
 	}
 	
 	// converts argmapper from array to object, if needed
-	convertArgMapper(argMapper: Object|Array<string>): Object {
+	convertArgMapper(argMapper: Object|Array<string>|string): Object|null {
 		const offset = this.injectContext ? 1 : 0;
-		if (argMapper === NAMED_ARGUMENT_METHOD)
+		if (argMapper === JelType.NAMED_ARGUMENT_METHOD)
 			return null;
 		else if (argMapper instanceof Array) {
 			const o = {};

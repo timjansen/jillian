@@ -1,21 +1,23 @@
 'use strict';
 
+require('source-map-support').install();
 const assert = require('assert');
-const JEL = require('../../src/jel/jel.js');
 const jelAssert = require('../jel-assert.js');
 
-const JelType = require('../../src/jel/type.js');
-const JelNode = require('../../src/jel/parseNodes/node.js');
-const Literal = require('../../src/jel/parseNodes/literal.js');
-const Variable = require('../../src/jel/parseNodes/variable.js');
-const Operator = require('../../src/jel/parseNodes/operator.js');
-const List = require('../../src/jel/parseNodes/list.js');
-const Reference = require('../../src/jel/parseNodes/reference.js');
-const Condition = require('../../src/jel/parseNodes/condition.js');
-const Assignment = require('../../src/jel/parseNodes/assignment.js');
-const With = require('../../src/jel/parseNodes/with.js');
-const Lambda = require('../../src/jel/parseNodes/lambda.js');
-const Call = require('../../src/jel/parseNodes/call.js');
+const JEL = require('../../build/jel/JEL.js').default;
+
+const JelType = require('../../build/jel/JelType.js').default;
+const JelNode = require('../../build/jel/expressionNodes/JelNode.js').default;
+const Literal = require('../../build/jel/expressionNodes/Literal.js').default;
+const Variable = require('../../build/jel/expressionNodes/Variable.js').default;
+const Operator = require('../../build/jel/expressionNodes/Operator.js').default;
+const List = require('../../build/jel/expressionNodes/List.js').default;
+const Reference = require('../../build/jel/expressionNodes/Reference.js').default;
+const Condition = require('../../build/jel/expressionNodes/Condition.js').default;
+const Assignment = require('../../build/jel/expressionNodes/Assignment.js').default;
+const With = require('../../build/jel/expressionNodes/With.js').default;
+const Lambda = require('../../build/jel/expressionNodes/Lambda.js').default;
+const Call = require('../../build/jel/expressionNodes/Call.js').default;
 
 describe('JEL', function() {
   describe('parseTree', function() {

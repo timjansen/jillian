@@ -3,7 +3,7 @@
  */
 
 import Tokenizer from './Tokenizer';
-import {Token, TokenType, PatternToken, RegExpToken} from './Token';
+import {Token, TokenType, TemplateToken, RegExpToken} from './Token';
 import TokenReader from './TokenReader';
 import Context from './Context';
 import JelType from './JelType';
@@ -85,6 +85,9 @@ const IF_STOP = {'then': true};
 const THEN_STOP = {'else': true};
 const WITH_STOP = {':': true, ',': true};
 const EQUAL = {'=': true};
+
+const TERMINATOR = new PatternNode();
+
 
 export default class JEL {
 	parseTree: JelNode;
@@ -238,7 +241,7 @@ export default class JEL {
 					const pattern = name.type == TokenType.Pattern ? name : tokens.next();
           if (!pattern)
             JEL.throwParseException(pattern, "Unexpected end of translator");
-					if (name.type != TokenType.Pattern)					
+					if (pattern.type != TokenType.Pattern)
             JEL.throwParseException(pattern, "Expected pattern in translator");
 
 					const keyPattern = JEL.createPattern(pattern.value, pattern);
@@ -424,16 +427,17 @@ export default class JEL {
     return new Pattern(JEL.parsePattern(Tokenizer.tokenizePattern(value), jelToken), value);
   }
   
-  static parsePattern(tok: TokenReader, jelToken: Token, expectStopper = false, matchNode = new PatternNode()): PatternNode {
+	
+  static parsePattern(tok: TokenReader, jelToken: Token, expectStopper = false, targetNode = new PatternNode()): PatternNode {
 		const t = tok.next();
-		if (!t)
-			return new PatternNode().makeEnd();
+		if (!t) 
+			return TERMINATOR;
 		else if (t.type == TokenType.Word) 
-			return matchNode.addTokenMatch(t.value, JEL.parsePattern(tok, jelToken, expectStopper));
+			return targetNode.addTokenMatch(t.value, JEL.parsePattern(tok, jelToken, expectStopper));
 		else if (t.type == TokenType.Template) {
-			const t0 = t as PatternToken;
+			const t0 = t as TemplateToken;
 			try {	
-				return matchNode.addTemplateMatch(new TemplateNode(t0.template, t0.name, t0.metaFilter, t0.expression ? JEL.parseTree(t0.expression) : undefined, JEL.parsePattern(tok, jelToken, expectStopper)));
+				return targetNode.addTemplateMatch(new TemplateNode(t0.template, t0.name, t0.metaFilter, t0.expression ? JEL.parseTree(t0.expression) : undefined, JEL.parsePattern(tok, jelToken, expectStopper)));
 			}
 			catch (e) {
 				JEL.throwParseException(jelToken, "Can not parse expression ${t.expression} embedded in pattern", e);
@@ -442,26 +446,27 @@ export default class JEL {
 		else if (t.type == TokenType.RegExp) {
 			const t0 = t as RegExpToken;
 			const regexps = t0.regexps.map(s=>RegExp(s.replace(/^([^^])/, "^$1").replace(/([^$])$/, "$1$")));
-			return matchNode.addTemplateMatch(new RegExpNode(regexps, t0.name, t0.expression ? JEL.parseTree(t0.expression) : undefined, JEL.parsePattern(tok, jelToken, expectStopper)));
+			return targetNode.addTemplateMatch(new RegExpNode(regexps, t0.name, t0.expression ? JEL.parseTree(t0.expression) : undefined, JEL.parsePattern(tok, jelToken, expectStopper)));
 		}
 
 		switch(t.value) {
 			case '[':
 				while(true) {
-					const exp = this.parsePattern(tok, jelToken, true, matchNode);
+					this.parsePattern(tok, jelToken, true, targetNode);
 
 					const stopper = tok.next();
 					if (!stopper || stopper.type != TokenType.Operator)
 						throw new Error(`Unexpected end in option set`);
-					if (stopper.value == ']?') 
-						matchNode.makeOptional(JEL.parsePattern(tok, jelToken, expectStopper));
+					if (stopper.value == ']?') {
+						targetNode.makeOptional(JEL.parsePattern(tok, jelToken, expectStopper));
+					}
 					else if (stopper.value == ']')
-						matchNode.append(JEL.parsePattern(tok, jelToken, expectStopper));
+						targetNode.append(JEL.parsePattern(tok, jelToken, expectStopper));
 
 					if (stopper.value != '|')
 						break;
 				}
-				return matchNode;
+				return targetNode;
 			case ']':	
 			case ']?':
 			case '|':

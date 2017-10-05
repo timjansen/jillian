@@ -4,12 +4,13 @@ import LambdaResultNode from './LambdaResultNode';
 import Context from '../Context';
 import Util from '../../util/Util';
 
+
+
 /**
  * A multi-node for Patterns. noMatchOption is an additional property that can either point to a result, or to another PatternNode.
  */
 export default class PatternNode extends MultiNode {
 	option: PatternNode | undefined;         // if set, the following nodes are optional
-	isEnd: boolean = false;
 
 	constructor() {
 		super();
@@ -17,25 +18,23 @@ export default class PatternNode extends MultiNode {
 
 	// override
 	match(ctx: Context, tokens: string[], idx: number, metaFilter?: Set<string>, incompleteMatch = false): any {
-		const r = super.match(ctx, tokens, idx, metaFilter, incompleteMatch);
-		if (r === undefined || incompleteMatch) {
-			const r2 = this.isEnd ? Util.addToArray(r, true) : r;
-			if (this.option)
-				return Util.addToArray(r2, this.option.match(ctx, tokens, idx, metaFilter, incompleteMatch));
-			else
-				return r2;
-		}
+		let r = super.match(ctx, tokens, idx, metaFilter, incompleteMatch);
+		if (tokens[idx] == null || incompleteMatch)
+			r = this.isEnd ? Util.addToArray(r, true) : r;
+		
+		if (this.option)
+			return Util.addToArray(r, this.option.match(ctx, tokens, idx, metaFilter, incompleteMatch));
 		return r;
 	}
 	
-	makeOptional(next: PatternNode) {
+	makeOptional(next: PatternNode): PatternNode {
 		this.option = next;
-		return this.append(next);
+		this.append(next);
+		return this;
 	}
 
-	makeEnd(): PatternNode {
-		this.isEnd = true;
-		return this;
+	get isEnd() {
+		return this.tokenMap.size == 0 && !this.complexNodes &&!this.option;
 	}
 	
 	merge(translatorNode: TranslatorNode, resultNode: LambdaResultNode) {
@@ -77,7 +76,8 @@ export default class PatternNode extends MultiNode {
 	}
 	
 	toString() {
-		return `PatterNode(tokens={${Array.from(this.tokenMap.entries()).map(([k,v])=>k+': '+(v||'undefined').toString()).join(',\n')}} complex=[${(this.complexNodes||[]).map(s=>s.toString()).join(',\n')}] option=${(this.option||'undefined').toString()})`;
+		return `PatterNode(tokens={${Array.from(this.tokenMap.entries()).map(([k,v])=>k+': '+(v||'undefined').toString()).join(',\n')}} complex=[${(this.complexNodes||[]).map(s=>s.toString()).join(',\n')}] option=${(this.option||'undefined').toString()} isEnd=${this.isEnd})`;
 	}
 }
+
 

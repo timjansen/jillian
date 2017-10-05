@@ -59,6 +59,7 @@ const NATIVE_METHODS = {
  */
 export default class JelType {
 	reverseOps: Object;
+	static readonly NAMED_ARGUMENT_METHOD = 'named';
 
 	
 	static op(operator: string, left: any, right: any): any {

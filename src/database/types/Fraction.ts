@@ -20,7 +20,6 @@ export default class Fraction extends JelType {
 			this.numerator = numerator; 
 			this.denominator = denominator; 
 		}
-
 	}
 	
 	op(operator: string, right: any): any {

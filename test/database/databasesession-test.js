@@ -1,10 +1,11 @@
 'use strict';
 
-const Database = require('../../src/database/database.js');
-const DatabaseSession = require('../../src/database/databasesession.js');
-const DbEntry = require('../../src/database/dbentry.js');
-const Category = require('../../src/database/category.js');
-const Thing = require('../../src/database/thing.js');
+require('source-map-support').install();
+const Database = require('../../build/database/Database.js').default;
+const DatabaseSession = require('../../build/database/DbSession.js').default;
+const DbEntry = require('../../build/database/DbEntry.js').default;
+const Category = require('../../build/database/Category.js').default;
+const Thing = require('../../build/database/Thing.js').default;
 const tmp = require('tmp');
 const assert = require('assert');
 

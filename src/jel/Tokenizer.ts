@@ -4,13 +4,13 @@ Tokenizes a JEL input string.
 */
 
 import TokenReader from './TokenReader';
-import {TokenType, Token, PatternToken, LiteralToken, RegExpToken} from './Token';
+import {TokenType, Token, TemplateToken, RegExpToken} from './Token';
 
 const wordOperators = {'instanceof': true, 'derivativeof': true, 'if': true, 'then': true, 'else': true, 'with': true};
 const constants = {'null': null, 'true': true, 'false': false};
 const escapes = {n: '\n', t: '\t'};
 
-//                          name:                   templateName        .hint.hint              expression
+//                          name:                          templateName       .hint.hint               expression
 const patternTemplateRE = /^\s*(?:([a-zA-Z_$][\w_$]*):)?\s*([a-zA-Z_$][\w_$]*)(?:\.(\w+(?:\.\w+)*))?\s*(?:::\s*(.*))?$/;
 
 // pattern regexp               name:                    regexps                        expression
@@ -32,8 +32,9 @@ export default class Tokenizer {
     // group 1: number
     // group 2: operator
     // group 3: identifier
-    // group 4: quoted string
-    // group 5: illegal char
+    // group 4: pattern
+    // group 5: quoted string
+    // group 6: illegal char
     
     let matches, tokensLeft = 10000;
     const tokens = [];
@@ -41,17 +42,17 @@ export default class Tokenizer {
       if (matches[2])
         tokens.push(new Token(TokenType.Operator, matches[2]));
       else if (matches[3] && matches[3] in constants)
-        tokens.push(new LiteralToken(constants[matches[3]]));
+        tokens.push(new Token(TokenType.Literal, constants[matches[3]]));
       else if (matches[3] && matches[3] in wordOperators)
         tokens.push(new Token(TokenType.Operator, matches[3]));
       else if (matches[3])
         tokens.push(new Token(TokenType.Identifier, matches[3])); 
       else if (matches[1])
-        tokens.push(new LiteralToken(parseFloat(matches[1])));
+        tokens.push(new Token(TokenType.Literal, parseFloat(matches[1])));
       else if (matches[4])
         tokens.push(new Token(TokenType.Pattern, Tokenizer.unescape(matches[4].replace(/^.|.$/g, ''))));
       else if (matches[5])
-        tokens.push(new Token(TokenType.Pattern, Tokenizer.unescape(matches[5].replace(/^.|.$/g, ''))));
+        tokens.push(new Token(TokenType.Literal, Tokenizer.unescape(matches[5].replace(/^.|.$/g, ''))));
       else if (matches[6])
         throw new Error(`Unsupported token found: "${matches[6]}"`);
     }
@@ -81,7 +82,7 @@ export default class Tokenizer {
 	static parsePatternTemplate(tpl: string): Token {
 		const m = patternTemplateRE.exec(tpl);
 		if (m)
-			return new PatternToken(m[1], m[2], m[3] ? new Set(m[3].split('.')) : new Set(), m[4]);
+			return new TemplateToken(m[1], m[2], m[3] ? new Set(m[3].split('.')) : new Set(), m[4]);
 
 		const rm = patternRegexpRE.exec(tpl)
 		if (rm)

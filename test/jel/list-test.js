@@ -1,10 +1,14 @@
 'use strict';
 
+require('source-map-support').install();
 const assert = require('assert');
-const JEL = require('../../src/jel/jel.js');
-const List = require('../../src/jel/list.js');
-const Callable = require('../../src/jel/callable.js');
+const JEL = require('../../build/jel/JEL.js').default;
+const List = require('../../build/jel/List.js').default;
+const Context = require('../../build/jel/Context.js').default;
+const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const jelAssert = require('../jel-assert.js');
+
+const ctx = new Context().setAll({List});
 
 describe('jelList', function() {
   describe('constructor()', function() {
@@ -26,13 +30,13 @@ describe('jelList', function() {
   
   describe('create()', function() {
     it('creates empty lists', function() {
-      jelAssert.equal(new JEL('List()').executeImmediately({List}), new List()); 
+      jelAssert.equal(new JEL('List()').executeImmediately(ctx), new List()); 
     });
     it('creates lists from other lists', function() {
-      jelAssert.equal(new JEL('List(List([1,8]))').executeImmediately({List}), new List([1,8])); 
+      jelAssert.equal(new JEL('List(List([1,8]))').executeImmediately(ctx), new List([1,8])); 
     });
     it('is equivalent to the built-in lists', function() {
-      jelAssert.equal(new JEL('[4, 2, 1]').executeImmediately({List}), new List([4, 2, 1])); 
+      jelAssert.equal(new JEL('[4, 2, 1]').executeImmediately(ctx), new List([4, 2, 1])); 
     });
   });
   
@@ -71,8 +75,8 @@ describe('jelList', function() {
   describe('each()', function() {
     it('iterates', function() {
       let x = 0;
-      const accumulator = new Callable((a, i)=>x+=a+2*i);
-      new JEL('[3, 2, 9].each(accumulator)').executeImmediately({accumulator});
+      const accumulator = new FunctionCallable((a, i)=>x+=a+2*i);
+      new JEL('[3, 2, 9].each(accumulator)').executeImmediately(new Context().setAll({accumulator}));
       assert.equal(x, 20);
     });
   });

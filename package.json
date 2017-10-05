@@ -18,6 +18,7 @@
   "devDependencies": {
     "@types/node": "^8.0.31",
     "fs-extra": "^3.0.1",
+    "source-map-support": "^0.5.0",
     "tmp": "0.0.31"
   }
 }

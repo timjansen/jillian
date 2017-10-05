@@ -1,6 +1,7 @@
 'use strict';
 
-const WorkerPool = require('../../src/database/workerpool.js');
+require('source-map-support').install();
+const WorkerPool = require('../../build/database/WorkerPool.js').default;
 const assert = require('assert');
 
 const task100 = [];

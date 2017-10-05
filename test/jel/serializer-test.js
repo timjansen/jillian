@@ -1,9 +1,10 @@
 'use strict';
 
+require('source-map-support').install();
 const assert = require('assert');
-const s = require('../../src/jel/serializer.js');
-const Dictionary = require('../../src/jel/dictionary.js');
-const Pattern = require('../../src/jel/pattern.js');
+const s = require('../../build/jel/Serializer.js').default;
+const Dictionary = require('../../build/jel/Dictionary.js').default;
+const Pattern = require('../../build/jel/Pattern.js').default;
 
 describe('jelSerializer', function() {
   describe('serialize()', function() {

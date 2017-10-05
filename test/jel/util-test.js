@@ -1,21 +1,10 @@
 'use strict';
 
-const Util = require('../../src/util/util.js');
+require('source-map-support').install();
+const Util = require('../../build/util/Util.js').default;
 const assert = require('assert');
 
 describe('util', function() {
-  describe('isArrayLike()', function() {
-    it('works', function() {
-      assert.equal(Util.isArrayLike([]), true);
-      assert.equal(Util.isArrayLike([null, undefined]), true);
-      assert.equal(Util.isArrayLike([[]]), true);
-      assert.equal(Util.isArrayLike({0:1, length: 1}), true);
-      assert.equal(Util.isArrayLike("test"), false);
-      assert.equal(Util.isArrayLike(2), false);
-      assert.equal(Util.isArrayLike({0: 1}), false);
-    });
-  });
-
   
   describe('flattenToArray()', function() {
     it('works', function() {
