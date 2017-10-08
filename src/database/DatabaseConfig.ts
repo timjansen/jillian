@@ -15,6 +15,10 @@ export default class DatabaseConfig extends JelType implements Serializable {
     this.prettyPrint = prettyPrint;
   }
 
+  get directoryDepth() {
+    return Math.floor(Math.log(this.sizing) / Math.log(256));
+  }
+  
   getSerializationProperties(): Object {
     return {version: this.version, sizing: this.sizing, prettyPrint: this.prettyPrint};
   }

@@ -49,9 +49,10 @@ describe('jelTokenizer', function() {
     
     it('should provide peek(), last() and next()', function() {
       const t = Tokenizer.tokenize('1 2 3 4 5');
+      assert.equal(t.hasNext(), true);
       assert.equal(t.peek().value, 1);
       assert.equal(t.peek().value, 1);
-      assert.equal(t.last(), null);
+      assert.equal(t.last(), undefined);
       assert.equal(t.next().value, 1);
       assert.equal(t.last().value, 1);
       assert.equal(t.next().value, 2);
@@ -61,8 +62,7 @@ describe('jelTokenizer', function() {
       assert.equal(t.next().value, 4);
       assert.equal(t.last().value, 4);
       assert.equal(t.next().value, 5);
-      assert.equal(t.peek(), undefined);
-      assert.equal(t.next(), undefined);
+      assert.equal(t.hasNext(), false);
     });
     
     it('should provide copy()', function() {
@@ -77,9 +77,9 @@ describe('jelTokenizer', function() {
       assert.equal(t.next().value, 4);
       assert.equal(t2.next().value, 4);
       assert.equal(t.next().value, 5);
-      assert.equal(t.next(), undefined);
+      assert.equal(t.hasNext(), false);
       assert.equal(t2.next().value, 5);
-      assert.equal(t2.next(), undefined);
+      assert.equal(t2.hasNext(), false);
     });
   });
   

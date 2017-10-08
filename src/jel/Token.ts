@@ -11,7 +11,7 @@ export const enum TokenType {
 }
 
 export class Token {
-	constructor(public type: TokenType, public value?: any) {
+	constructor(public type: TokenType, public value: any) {
 	}
 }
 

@@ -106,15 +106,18 @@ export default class JEL {
     return this.parseTree.executePromise(context.freeze());
   }
 
-  
   static throwParseException(token: Token, msg: string, cause?: Error): never {
     throw new ParseError(cause, msg, token);
 	}
+	
+	static nextOrThrow(tokens: TokenReader, msg: string) {
+		if (tokens.hasNext())
+			return tokens.next();
+		JEL.throwParseException(tokens.last(), msg);
+	}
   
   static parseExpression(tokens: TokenReader, precedence = 0, stopOps = NO_STOP): JelNode {
-    const token = tokens.next();
-    if (!token) 
-      JEL.throwParseException(token, "Unexpected end, expected another token");
+    const token = JEL.nextOrThrow(tokens, "Unexpected end, expected another token");
     if (token.type == TokenType.Literal) 
       return JEL.tryBinaryOps(tokens, new Literal(token.value), precedence, stopOps);
     if (token.type == TokenType.Identifier) {
@@ -161,8 +164,7 @@ export default class JEL {
         }
       }
       else if (token.value == '{') {
-        const closePeek = tokens.peek();
-        if (closePeek && closePeek.type == TokenType.Operator && closePeek.value == '}') {
+        if (tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == '}') {
           tokens.next();
           return JEL.tryBinaryOps(tokens, new Dictionary(), precedence, stopOps);
         }
@@ -170,9 +172,7 @@ export default class JEL {
         const assignments = [];
         const usedNames = {};
         while (true) {
-          const name = tokens.next();
-          if (!name)
-            JEL.throwParseException(name, "Unexpected end of dictionary");
+          const name = JEL.nextOrThrow(tokens, "Unexpected end of dictionary");
           if (name.type != TokenType.Identifier && name.type != TokenType.Literal)
             JEL.throwParseException(name, "Expected identifier or literal as dictionary key");
           if (name.value in usedNames)
@@ -196,8 +196,7 @@ export default class JEL {
         }
       }
       else if (token.value == '{{') {
-        const closePeek = tokens.peek();
-        if (closePeek && closePeek.type == TokenType.Operator && closePeek.value == '}') {
+        if (tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == '}') {
           tokens.next();
 					JEL.expectOp(tokens, TRANSLATOR_DOUBLE_BRACE_STOP, "Need 2nd closing brace to end translator");
           return JEL.tryBinaryOps(tokens, new Translator(), precedence, stopOps);
@@ -206,18 +205,17 @@ export default class JEL {
         const assignments = [];
 
         while (true) {
-          const name = tokens.next();
 					const metaAssignments = [];
 
-					if (!name)
-            JEL.throwParseException(name, "Unexpected end of translator");
-					
+          const name = JEL.nextOrThrow(tokens, "Unexpected end of translator");
           if (name.type == TokenType.Identifier) {
 						tokens.undo();
 						
 						while (true) {
+							if (!tokens.hasNext())
+								JEL.throwParseException(token, "Expected identifier for translator meta.");
 							const name = tokens.next();
-							if (!name || name.type != TokenType.Identifier)
+							if (name.type != TokenType.Identifier)
 								JEL.throwParseException(name || token, "Expected identifier for translator meta.");
 							const eq = JEL.expectOp(tokens, TRANSLATOR_META_STOP, "Expected equal sign or comma or colon after meta name.");
 							if (eq.value == '=') {
@@ -238,9 +236,7 @@ export default class JEL {
 						}
 					}
 					
-					const pattern = name.type == TokenType.Pattern ? name : tokens.next();
-          if (!pattern)
-            JEL.throwParseException(pattern, "Unexpected end of translator");
+					const pattern = name.type == TokenType.Pattern ? name : JEL.nextOrThrow(tokens, "Unexpected end of translator");
 					if (pattern.type != TokenType.Pattern)
             JEL.throwParseException(pattern, "Expected pattern in translator");
 
@@ -257,8 +253,8 @@ export default class JEL {
         }
       }
       else if (token.value == '@') {
-        let t2 = tokens.next();
-        if (!t2 || t2.type != TokenType.Identifier)
+        let t2 = JEL.nextOrThrow(tokens, "Expected identifier after '@' for reference.");
+        if (t2.type != TokenType.Identifier)
           JEL.throwParseException(token, "Expected identifier after '@' for reference.");
         return JEL.tryBinaryOps(tokens, new Reference(t2.value), precedence, stopOps);
       }
@@ -266,19 +262,17 @@ export default class JEL {
         const cond = JEL.parseExpression(tokens, IF_PRECEDENCE, IF_STOP);
         JEL.expectOp(tokens, IF_STOP, "Expected 'then'");
         const thenV = JEL.parseExpression(tokens, IF_PRECEDENCE, THEN_STOP);
-				const elseT = tokens.peek();
-				if (elseT && elseT.type == TokenType.Operator && elseT.value == 'else') {
+				if (tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == 'else') {
 					tokens.next();
 					return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, JEL.parseExpression(tokens, IF_PRECEDENCE, stopOps)), precedence, stopOps);
 				}
-				else
-					return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, Literal.TRUE), precedence, stopOps);
+				return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, Literal.TRUE), precedence, stopOps);
       }
       else if (token.value == 'with') {
         const assignments = [];
         while (true) {
-          const name = tokens.next();
-          if (!name || name.type != TokenType.Identifier)
+          const name = JEL.nextOrThrow(tokens, "Expected identifier for constant.");
+          if (name.type != TokenType.Identifier)
             JEL.throwParseException(name || token, "Expected identifier for constant.");
           if (/(^[A-Z])|(^_$)/.test(name.value))
             JEL.throwParseException(name || token, `Illegal name ${name.value}, must not start constant with capital letter or be the underscore.`);
@@ -298,10 +292,10 @@ export default class JEL {
    
   // called after an potential left operand for a binary op (or function call)
   static tryBinaryOps(tokens: TokenReader, left: JelNode, precedence: number, stopOps: any): JelNode {
-    const binOpToken = tokens.peek();
-    if (!binOpToken)
+    if (!tokens.hasNext())
       return left;
 
+    const binOpToken = tokens.peek();
     if (binOpToken.type != TokenType.Operator)
       JEL.throwParseException(binOpToken, "Expected operator here");
     
@@ -325,38 +319,42 @@ export default class JEL {
       return JEL.tryBinaryOps(tokens, new Operator(binOpToken.value, left, JEL.parseExpression(tokens, binaryOperators[binOpToken.value], stopOps)), precedence, stopOps);
   }
   
-  static tryLambda(tokens: TokenReader, argName: string | null, precedence: number, stopOps: any): Lambda | null {
+  static tryLambda(tokens: TokenReader, argName: string | null, precedence: number, stopOps: any): Lambda | undefined {
     let args;
     const tok = tokens.copy();
     if (argName) {
-      const ld = tok.next();
-      if (!ld || ld.type != TokenType.Operator || ld.value != '=>')
-        return null;
+      if (!tok.hasNext() || tok.peek().type != TokenType.Operator || tok.next().value != '=>')
+        return undefined;
       args = [argName];
     }
     else {
       args = [];
-      const emptyArgsPeek = tok.peek();
-      if (!emptyArgsPeek)
-        return null;
+      if (!tok.hasNext())
+        return undefined;
 
+			const emptyArgsPeek = tok.peek();
       if (emptyArgsPeek.type == TokenType.Operator && emptyArgsPeek.value == ')')
         tok.next();
       else
         while (true) {
+          if (!tok.hasNext())
+             return undefined;
           const name = tok.next();
-          if (!name || name.type != TokenType.Identifier)
-             return null;
+          if (name.type != TokenType.Identifier)
+             return undefined;
           args.push(name.value);
+					
+          if (!tok.hasNext())
+            return undefined;
           const terminator = tok.next();
-          if (!terminator || terminator.type != TokenType.Operator || !PARAMETER_STOP[terminator.value])
-            return null;
+          if (terminator.type != TokenType.Operator || !PARAMETER_STOP[terminator.value])
+            return undefined;
           if (terminator.value == ')')
             break;
       }  
-      const ld = tok.next();
-      if (!ld || ld.type != TokenType.Operator || ld.value != '=>')
-        return null;
+
+			if (!tok.hasNext() || tok.peek().type != TokenType.Operator || tok.next().value != '=>')
+        return undefined;
     }
     TokenReader.copyInto(tok, tokens);
     return new Lambda(args, JEL.parseExpression(tokens, precedence, stopOps));
@@ -365,20 +363,16 @@ export default class JEL {
   static parseCall(tokens: TokenReader, left: JelNode): Call {
     const argList = [];
 
-    const preview = tokens.peek();
-    if (preview && preview.type == TokenType.Operator && preview.value == ')') {
+    if (tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == ')') {
         tokens.next();
         return new Call(left, argList);
     }
     
     while (true) {
       const tok = tokens.copy();
-      const namePreview = tok.next();
-      if (!namePreview)
-        JEL.throwParseException(null, 'Unexpected end of expression in the middle of function call');
+      const namePreview = JEL.nextOrThrow(tok, 'Unexpected end of expression in the middle of function call');
       if (namePreview.type == TokenType.Identifier) {
-          const eq = tok.next();
-          if (eq && eq.type == TokenType.Operator && eq.value == '=')
+          if (tok.hasNext() && tok.peek().type == TokenType.Operator && tok.peek().value == '=')
             break;
       }
       argList.push(JEL.parseExpression(tokens, PARENS_PRECEDENCE, PARAMETER_STOP));
@@ -392,8 +386,8 @@ export default class JEL {
     const namedArgs = []; // for the actual values
 
     while (true) {
-      const name = tokens.next();
-      if (!name || name.type != TokenType.Identifier)
+      const name = JEL.nextOrThrow(tokens, "Expected identifier for named argument");
+      if (name.type != TokenType.Identifier)
         JEL.throwParseException(name, "Expected identifier for named argument");
       if (name.value in argNames)
         JEL.throwParseException(name, "Duplicate name in named arguments");
@@ -402,7 +396,7 @@ export default class JEL {
       namedArgs.push(new Assignment(name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, PARAMETER_STOP)));
 
       const next = JEL.expectOp(tokens, PARAMETER_STOP, "Expected ')' or '='");
-      if (next && next.type == TokenType.Operator && next.value == ')')
+      if (next.value == ')')
         break;
     }
     return new Call(left, argList, namedArgs);
@@ -415,9 +409,7 @@ export default class JEL {
   }
   
   static expectOp(tokens: TokenReader, allowedTypes: any, msg?: string): Token {
-    const op = tokens.next();
-    if (!op)
-      JEL.throwParseException(tokens.last(), msg || "Expected operator, but expression ended");
+    const op = JEL.nextOrThrow(tokens, msg || "Expected operator, but expression ended");
     if (op.type != TokenType.Operator || !(op.value in allowedTypes))
       JEL.throwParseException(tokens.last(), msg || "Expected operator");
     return op;
@@ -429,10 +421,11 @@ export default class JEL {
   
 	
   static parsePattern(tok: TokenReader, jelToken: Token, expectStopper = false, targetNode = new PatternNode()): PatternNode {
-		const t = tok.next();
-		if (!t) 
+		if (!tok.hasNext()) 
 			return TERMINATOR;
-		else if (t.type == TokenType.Word) 
+
+		const t = tok.next();
+		if (t.type == TokenType.Word) 
 			return targetNode.addTokenMatch(t.value, JEL.parsePattern(tok, jelToken, expectStopper));
 		else if (t.type == TokenType.Template) {
 			const t0 = t as TemplateToken;
@@ -454,8 +447,8 @@ export default class JEL {
 				while(true) {
 					this.parsePattern(tok, jelToken, true, targetNode);
 
-					const stopper = tok.next();
-					if (!stopper || stopper.type != TokenType.Operator)
+					const stopper = JEL.nextOrThrow(tok, `Unexpected end in option set`);
+					if (stopper.type != TokenType.Operator)
 						throw new Error(`Unexpected end in option set`);
 					if (stopper.value == ']?') {
 						targetNode.makeOptional(JEL.parsePattern(tok, jelToken, expectStopper));

@@ -19,7 +19,7 @@ export default class DbRef extends JelType {
 	}
 	
 	// returns either DbEntry or Promise!
-	get(ctxOrSession: Context | DbSession): DbEntry | null | Promise<DbEntry|null> {
+	get(ctxOrSession: Context | DbSession): DbEntry | Promise<DbEntry|undefined> | undefined {
 		const dbSession = DbRef.getSession(ctxOrSession);
 	
 		if (this.cached !== undefined)
@@ -33,7 +33,7 @@ export default class DbRef extends JelType {
 	}
 
 	// returns either DbEntry or Promise!
-	getFromDb(database: Database): DbEntry | Promise<DbEntry|null> | null {
+	getFromDb(database: Database): DbEntry | Promise<DbEntry|undefined> | undefined {
 		if (this.cached !== undefined)
 			return this.cached;
 		return database.get(this.distinctName);

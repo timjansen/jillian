@@ -4,7 +4,7 @@ import {Token} from './Token';
 
 export default class ParseError extends ChainableError {
 
-	constructor(cause: Error, msg: string, public token: Token) {
+	constructor(cause?: Error, msg: string = "no error defined", public token?: Token) {
 		super(cause, msg);
 		(Error as any).captureStackTrace(this, ParseError);
 		this.redoStack();

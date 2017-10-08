@@ -20,7 +20,6 @@ const DATA_DIR = '/data/';
 
 export default class Database {
   config: DatabaseConfig | Promise<DatabaseConfig> | undefined; // initialized by init().
-  directoryDepth: number | undefined;
   
   constructor(public dbPath: string) {
   }
@@ -50,20 +49,19 @@ export default class Database {
             .catch(e=>DatabaseError.rethrow(`Can not open database. Failed to load configuration "${CONFIG_FILE}" in "${this.dbPath}".`, e)))
     .then(config=>{
           this.config = config;
-          this.directoryDepth = Math.floor(Math.log(config.sizing) / Math.log(256));
           return config;
     });
     
     return this.config.then(config=>f(config));
   }
   
-  private getFilePathForHashInternal(hash: string, suffix = '.jel'): string {
+  private getFilePathForHashInternal(config: DatabaseConfig, hash: string, suffix = '.jel'): string {
     function dirPart(end: number, idx=0): string { return idx < end ? hash.substr(idx*2, 2) + '/' + dirPart(end, idx+1) : ''}
-    return path.join(this.dbPath, dirPart(this.directoryDepth) +  hash + suffix);
+    return path.join(this.dbPath, dirPart(config.directoryDepth) +  hash + suffix);
   }
 
-  private getFilePathInternal(distinctName: string, suffix = '.jel'): string {
-    return this.getFilePathForHashInternal(tifu.hash(distinctName));
+  private getFilePathInternal(config: DatabaseConfig, distinctName: string, suffix = '.jel'): string {
+    return this.getFilePathForHashInternal(config, tifu.hash(distinctName));
   }
   
   private readEntryInternal(distinctName: string, path: string): Promise<DbEntry | null> {
@@ -77,28 +75,28 @@ export default class Database {
   }
  
   get(distinctName: string): Promise<DbEntry | null> {
-    return this.init(config=>this.readEntryInternal(distinctName, this.getFilePathInternal(distinctName)));
+    return this.init(config=>this.readEntryInternal(distinctName, this.getFilePathInternal(config, distinctName)));
   }
   
   getByHash(hash: string): Promise<DbEntry | null> {
-    return this.init(config=>this.readEntryInternal(hash, this.getFilePathForHashInternal(hash)));
+    return this.init(config=>this.readEntryInternal(hash, this.getFilePathForHashInternal(config, hash)));
   }
 
   exists(distinctName: string): Promise<boolean> {
-    return this.init(config=>fs.pathExists(this.getFilePathInternal(distinctName)));
+    return this.init(config=>fs.pathExists(this.getFilePathInternal(config, distinctName)));
   }
   
   put(...dbEntries: DbEntry[]): Promise<DbEntry[]> {
     return this.init(config=>Promise.all(dbEntries.map(dbEntry=>{
       const distinctName = dbEntry.distinctName;
-      const p = this.getFilePathForHashInternal(dbEntry.hashCode);
+      const p = this.getFilePathForHashInternal(config, dbEntry.hashCode);
       return fs.ensureDir(path.dirname(p))
       .then(()=>fs.pathExists(p))
       .then(oldEntryExists=>
          fs.writeFile(p, serializer.serialize(dbEntry), {encoding: 'utf8'})
         .then(()=>{
           if (!oldEntryExists)
-            return this.addIndexingInternal(dbEntry);
+            return this.addIndexingInternal(config, dbEntry);
         }))
       .catch (e=>DatabaseError.rethrow(`Can not write database entry ${distinctName} at ${p}`, e));
     })));
@@ -106,14 +104,14 @@ export default class Database {
 
   delete(dbEntry: DbEntry): Promise<any> {
     return this.init(config=>{
-      const path = this.getFilePathForHashInternal(dbEntry.hashCode);
+      const path = this.getFilePathForHashInternal(config, dbEntry.hashCode);
 
-      return this.removeIndexingInternal(dbEntry).then(()=>fs.unlink(path));
+      return this.removeIndexingInternal(config, dbEntry).then(()=>fs.unlink(path));
     });
   }
 
   
-  private addIndexingInternal(dbEntry: DbEntry): Promise<any> {
+  private addIndexingInternal(config: DatabaseConfig, dbEntry: DbEntry): Promise<any> {
     const spec = dbEntry.databaseIndices;
     const indexPromises = [];
     for (let name in spec) {
@@ -121,7 +119,7 @@ export default class Database {
       if (indexDesc.type == 'category') {
         const cat = JelType.member(dbEntry, indexDesc.property);
         if (cat)
-          indexPromises.push(Promise.resolve(cat.getFromDb(this)).then(catRef=>catRef && this.appendToCategoryIndexInternal(dbEntry, catRef, '_' + name, !!indexDesc.includeParents)));
+          indexPromises.push(Promise.resolve(cat.getFromDb(this)).then(catRef=>catRef && this.appendToCategoryIndexInternal(config, dbEntry, catRef, '_' + name, !!indexDesc.includeParents)));
       }
       else
         throw new DatabaseError(`Unsupported index type ${indexDesc.type} for index ${name}. Only 'category' is supported for now.`);
@@ -129,7 +127,7 @@ export default class Database {
     return Promise.all(indexPromises);
   }
   
-  private removeIndexingInternal(dbEntry: DbEntry): Promise<any> {
+  private removeIndexingInternal(config: DatabaseConfig, dbEntry: DbEntry): Promise<any> {
     const spec = dbEntry.databaseIndices;
     const indexPromises = [];
     for (let name in spec) {
@@ -137,27 +135,27 @@ export default class Database {
       if (indexDesc.type == 'category') {
         const cat = JelType.member(dbEntry, indexDesc.property);
         if (cat)
-          indexPromises.push(Promise.resolve(cat.getFromDb(this)).then(catRef=>catRef && this.removeFromCategoryIndexInternal(dbEntry, catRef, '_' + name, !!indexDesc.includeParents)));
+          indexPromises.push(Promise.resolve(cat.getFromDb(this)).then(catRef=>catRef && this.removeFromCategoryIndexInternal(config, dbEntry, catRef, '_' + name, !!indexDesc.includeParents)));
       }
     }
     return Promise.all(indexPromises);
   }
   
-  private appendToCategoryIndexInternal(dbEntry: DbEntry, category: Category, indexSuffix: string, recursive: boolean): Promise<any> {
-    const indexPath = this.getFilePathForHashInternal(category.hashCode, indexSuffix);
+  private appendToCategoryIndexInternal(config: DatabaseConfig, dbEntry: DbEntry, category: Category, indexSuffix: string, recursive: boolean): Promise<any> {
+    const indexPath = this.getFilePathForHashInternal(config, category.hashCode, indexSuffix);
     const prom = fs.appendFile(indexPath, dbEntry.hashCode + '\n');
     if (recursive && category.superCategory)
-      return prom.then(()=>Promise.resolve(category.superCategory.getFromDb(this) as Category).then(superCat=>superCat && this.appendToCategoryIndexInternal(dbEntry, superCat, indexSuffix, recursive)));
+      return prom.then(()=>Promise.resolve(category.superCategory.getFromDb(this) as Category).then(superCat=>superCat && this.appendToCategoryIndexInternal(config, dbEntry, superCat, indexSuffix, recursive)));
     else
       return prom;
   }
   
-  private removeFromCategoryIndexInternal(dbEntry: DbEntry, category: Category, indexSuffix: string, recursive: boolean): Promise<any> {
-    const indexPath = this.getFilePathForHashInternal(category.hashCode, indexSuffix);
+  private removeFromCategoryIndexInternal(config: DatabaseConfig, dbEntry: DbEntry, category: Category, indexSuffix: string, recursive: boolean): Promise<any> {
+    const indexPath = this.getFilePathForHashInternal(config, category.hashCode, indexSuffix);
     const prom = fs.readFile(indexPath)
     .then(file=>fs.writeFile(indexPath, file.toString().replace(RegExp('^'+dbEntry.hashCode+'\n'), '')));
     if (recursive && category.superCategory)
-      return prom.then(()=>Promise.resolve(category.superCategory.getFromDb(this) as Category).then(superCat=>superCat && this.removeFromCategoryIndexInternal(dbEntry, superCat, indexSuffix, recursive)));
+      return prom.then(()=>Promise.resolve(category.superCategory.getFromDb(this) as Category).then(superCat=>superCat && this.removeFromCategoryIndexInternal(config, dbEntry, superCat, indexSuffix, recursive)));
     else
       return prom;
   }
@@ -165,7 +163,7 @@ export default class Database {
   // returns a promise of a hash array
   readCategoryIndex(category: Category, indexName: string): Promise<any> {
     return this.init(config=>{
-      const indexPath = this.getFilePathForHashInternal(category.hashCode, '_' + indexName);
+      const indexPath = this.getFilePathForHashInternal(config, category.hashCode, '_' + indexName);
       return fs.readFile(indexPath)
         .then(data=>data.toString().split('\n').filter(s=>!!s))
         .catch(e=> {
