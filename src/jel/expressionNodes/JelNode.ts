@@ -11,7 +11,7 @@ export default class JelNode extends JelType implements Serializable {
 		throw new Error(`execute() not implemented in ${this.constructor.name}`);
 	}
 	
-	equals(other: JelNode): boolean {
+	equals(other?: JelNode): boolean {
 		throw new Error(`equals() not implemented in ${this.constructor.name}`);
 	}
 	

@@ -28,7 +28,7 @@ export default class PatternAssignment extends JelNode implements Serializable {
 	}
 	
   // override
-  equals(other: JelNode): boolean {
+  equals(other?: JelNode): boolean {
 		if (!(other instanceof PatternAssignment))
 			return false;
 		if (this.meta) {

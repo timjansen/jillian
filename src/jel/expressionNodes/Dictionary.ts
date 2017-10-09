@@ -18,7 +18,7 @@ export default class Dictionary extends JelNode {
   }
   
   // override
-  equals(other: JelNode): boolean {
+  equals(other?: JelNode): boolean {
 		return other instanceof Dictionary &&
       this.elements.length == other.elements.length && 
       !this.elements.find((l, i)=>!l.equals(other.elements[i]));

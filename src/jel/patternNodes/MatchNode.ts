@@ -15,7 +15,7 @@ export default abstract class MatchNode {
 	}
 	
 	// appends a node or value to the end of the tree
-	append(next: MatchNode): void {
+	append(next?: MatchNode): void {
 	}
 	
 	toString(): string {

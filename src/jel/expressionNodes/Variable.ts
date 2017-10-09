@@ -12,7 +12,7 @@ export default class Variable extends JelNode {
   }
   
   // overrride
-  equals(other: JelNode): boolean {
+  equals(other?: JelNode): boolean {
 		return other instanceof Variable &&
       this.name == other.name;
 	}

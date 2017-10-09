@@ -33,11 +33,11 @@ export default class PatternNode extends MultiNode {
 		return this;
 	}
 
-	get isEnd() {
+	get isEnd(): boolean {
 		return this.tokenMap.size == 0 && !this.complexNodes &&!this.option;
 	}
 	
-	merge(translatorNode: TranslatorNode, resultNode: LambdaResultNode) {
+	merge(translatorNode: TranslatorNode, resultNode: LambdaResultNode): PatternNode {
 		for (const k of this.tokenMap.keys()) { 
 			const thisV = this.tokenMap.get(k) as PatternNode;
 			const otherV = translatorNode.tokenMap.get(k) as TranslatorNode;
@@ -56,9 +56,9 @@ export default class PatternNode extends MultiNode {
 			if (!translatorNode.complexNodes)
 				translatorNode.complexNodes = [];
 			this.complexNodes.forEach(t=>{
-				const otherT = translatorNode.complexNodes.find(x=>x.equals(t));
+				const otherT = translatorNode.complexNodes!.find(x=>x.equals(t));
 				if (!otherT)
-					translatorNode.complexNodes.push(t.merge(resultNode));
+					translatorNode.complexNodes!.push(t.merge(resultNode));
 				else if (t.next && (t.next as PatternNode).isEnd)
 					(otherT.next as TranslatorNode).addResult(resultNode);
 				else
@@ -75,7 +75,7 @@ export default class PatternNode extends MultiNode {
 		return this;
 	}
 	
-	toString() {
+	toString(): string {
 		return `PatterNode(tokens={${Array.from(this.tokenMap.entries()).map(([k,v])=>k+': '+(v||'undefined').toString()).join(',\n')}} complex=[${(this.complexNodes||[]).map(s=>s.toString()).join(',\n')}] option=${(this.option||'undefined').toString()} isEnd=${this.isEnd})`;
 	}
 }

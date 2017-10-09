@@ -53,7 +53,7 @@ export default class Call extends JelNode {
   }
   
   // overrride
-  equals(other: JelNode): boolean {
+  equals(other?: JelNode): boolean {
 		return other instanceof Call &&
       this.left.equals(other.left) &&
       this.argList.length == other.argList.length &&

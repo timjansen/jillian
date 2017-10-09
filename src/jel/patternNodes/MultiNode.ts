@@ -12,7 +12,8 @@ export default abstract class MultiNode extends MatchNode {
 		super();
 	}
 	
-	addTokenMatch(token: string, nextNode: MultiNode) {
+	// nextNode: either the node, or undefined as a temporary state while building the tree
+	addTokenMatch(token: string, nextNode?: MultiNode) {
 		this.tokenMap.set(token, nextNode);
 		return this;
 	}

@@ -14,17 +14,17 @@ export default class DbSession {
   }
 
   // returns the entry, null if it does not exist, undefined if not in cache
-  getFromCache(distinctName: string): DbEntry | undefined {
+  getFromCache(distinctName: string): DbEntry | null | undefined {
     return this.cacheByName[distinctName];
   }
 
-  getFromDatabase(distinctName: string): Promise<DbEntry|undefined> {
+  getFromDatabase(distinctName: string): Promise<DbEntry|null> {
     return this.database.get(distinctName)
-      .then(dbEntry => this.storeInCache(dbEntry));
+      .then(dbEntry => (dbEntry && this.storeInCache(dbEntry)) || null);
   }
   
   // return either a value or a Promise!
-  get(distinctName: string): Promise<DbEntry|undefined> | DbEntry {
+  get(distinctName: string): Promise<DbEntry|null> | DbEntry | null {
     const cachedEntry = this.getFromCache(distinctName);
     if (cachedEntry !== undefined)
       return cachedEntry;
@@ -60,7 +60,7 @@ export default class DbSession {
       
         const unloadedHashs = index.filter(hash=>this.sessionCache[hash] === undefined);
     
-        return wp.addJob(unloadedHashs, hash=>this.database.getByHash(hash).then(dbEntry=>filterFunc(dbEntry) ? this.storeInCache(dbEntry) : null))
+        return wp.addJob(unloadedHashs, hash=>this.database.getByHash(hash).then(dbEntry=>(dbEntry && filterFunc(dbEntry)) ? this.storeInCache(dbEntry) : null))
           .then(results=>cachedResults.concat(results.filter(obj=>!!obj)));
       })
     );

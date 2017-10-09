@@ -15,7 +15,7 @@ export default class Condition extends JelNode {
   }
   
   // override
-  equals(other: JelNode): boolean {
+  equals(other?: JelNode): boolean {
 		return other instanceof Condition &&
       this.condition.equals(other.condition) &&
       this.thenExp.equals(other.thenExp) &&

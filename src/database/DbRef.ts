@@ -6,7 +6,7 @@ import Database from './Database';
 
 export default class DbRef extends JelType {
 	distinctName: string;
-	cached: DbEntry | undefined;    // stores null for entries that have not been found
+	cached: DbEntry | undefined | null;    // stores null for entries that have not been found, undefined if the existance is unknown
 	
 	constructor(distinctNameOrEntry: string | DbEntry) {
 		super();
@@ -19,7 +19,7 @@ export default class DbRef extends JelType {
 	}
 	
 	// returns either DbEntry or Promise!
-	get(ctxOrSession: Context | DbSession): DbEntry | Promise<DbEntry|undefined> | undefined {
+	get(ctxOrSession: Context | DbSession): DbEntry | Promise<DbEntry|null> | null {
 		const dbSession = DbRef.getSession(ctxOrSession);
 	
 		if (this.cached !== undefined)
@@ -33,7 +33,7 @@ export default class DbRef extends JelType {
 	}
 
 	// returns either DbEntry or Promise!
-	getFromDb(database: Database): DbEntry | Promise<DbEntry|undefined> | undefined {
+	getFromDb(database: Database): DbEntry | Promise<DbEntry|null> | null {
 		if (this.cached !== undefined)
 			return this.cached;
 		return database.get(this.distinctName);
@@ -47,7 +47,7 @@ export default class DbRef extends JelType {
     return [this.distinctName];
   }	
 	
-  static toPromise(ctxOrSession: Context | DbSession, ref: DbRef | DbEntry): Promise<DbEntry> {
+  static toPromise(ctxOrSession: Context | DbSession, ref: DbRef | DbEntry): Promise<DbEntry | null> {
 		return Promise.resolve(ref instanceof DbRef ? ref.get(DbRef.getSession(ctxOrSession)) : ref);
 	}
   

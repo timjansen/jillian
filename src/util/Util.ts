@@ -23,7 +23,7 @@ export default class Util {
 	}
 
 	static collect(list: any[], f: (e: any)=>any): any[] {
-		const r = [];
+		const r: any[] = [];
 		if (!Array.isArray(list))
 			throw new Error("collect argument must be array, but was "+list);
 		for (const l of list) {
@@ -62,7 +62,7 @@ export default class Util {
 	}
 	
 	static propertyNames(obj: Object): Array<string> {
-		const r = [];
+		const r: string[] = [];
 		for (const name in obj)
 			if (obj.hasOwnProperty(name))
 				r.push(name);
@@ -84,6 +84,12 @@ export default class Util {
 			return Promise.all(values).then(v=>f(...v));
 		else 
 			return f(...values);
+	}
+	
+	static denull<T>(x: T | null | undefined, msg?: string): T {
+		if (x == null)
+			throw new Error(msg || "Got unsupported null or undefined");
+		return x as T;
 	}
 	
 

@@ -16,7 +16,7 @@ export default class Reference extends JelNode {
   }
   
   // overrride
-  equals(other: JelNode): boolean {
+  equals(other?: JelNode): boolean {
 		return other instanceof Reference &&
       this.name == other.name;
 	}

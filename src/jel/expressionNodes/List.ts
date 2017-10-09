@@ -15,7 +15,7 @@ export default class List extends JelNode {
   }
   
   // override
-  equals(other: JelNode): boolean {
+  equals(other?: JelNode): boolean {
 		return other instanceof List &&
       this.elements.length == other.elements.length && 
       !this.elements.find((l, i)=>!l.equals(other.elements[i]));

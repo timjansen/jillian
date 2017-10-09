@@ -3,6 +3,7 @@ Tokenizes a JEL input string.
 
 */
 
+import Util from '../util/Util';
 import TokenReader from './TokenReader';
 import {TokenType, Token, TemplateToken, RegExpToken} from './Token';
 
@@ -37,7 +38,7 @@ export default class Tokenizer {
     // group 6: illegal char
     
     let matches, tokensLeft = 10000;
-    const tokens = [];
+    const tokens: Token[] = [];
     while ((matches = re.exec(input)) && tokensLeft--) {
       if (matches[2])
         tokens.push(new Token(TokenType.Operator, matches[2]));
@@ -65,7 +66,7 @@ export default class Tokenizer {
 		const re = /\s*(?:([^\s\[\{\|\[\]]+)|(\[|\]\?|\]|\|)|\{\{((?:[^}]|\}[^}])+)\}\}|(.*))\s*/g;
 		
 		let m, tokensLeft = 10000;
-    const tokens = [];
+    const tokens: Token[] = [];
     while ((m = re.exec(pattern)) && tokensLeft--) {
 			if (m[1] != null)
 				tokens.push(new Token(TokenType.Word, m[1]));
@@ -86,7 +87,9 @@ export default class Tokenizer {
 
 		const rm = patternRegexpRE.exec(tpl)
 		if (rm)
-			return new RegExpToken(rm[1], rm[2].match(patternRegexpFinderRE).map(r=>Tokenizer.unescape(r).replace(/^.|.$/g, '')), rm[3]);
+			return new RegExpToken(rm[1], 
+														 rm[2].match(patternRegexpFinderRE)!.map(r=>Tokenizer.unescape(r).replace(/^.|.$/g, '')), 
+														 rm[3]);
 
 		throw new Error(`Can not parse pattern template: {{${tpl}}}`);
 	}

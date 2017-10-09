@@ -15,7 +15,7 @@ export default class Pattern extends JelNode {
   
   
   // overrride
-  equals(other: JelNode): boolean {
+  equals(other?: JelNode): boolean {
 		return (other instanceof Pattern) &&
       this.pattern.equals((other as Pattern).pattern);
 	}

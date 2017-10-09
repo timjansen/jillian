@@ -45,15 +45,15 @@ export default class TemplateNode extends ComplexNode {
 				if (!result)
 					return null;
 				else if (result instanceof Promise)
-					return result.then(r=>r ? this.next.match(tplCtx, tokens, match.index, this.metaFilter, incompleteMatch) : undefined);
+					return result.then(r=>r ? this.next!.match(tplCtx, tokens, match.index, this.metaFilter, incompleteMatch) : undefined);
 			}
-			return this.next.match(tplCtx, tokens, match.index, this.metaFilter, incompleteMatch);
+			return this.next!.match(tplCtx, tokens, match.index, this.metaFilter, incompleteMatch);
 		});
 	}
 	
 	equals(other: TemplateNode): boolean {
 		return this.template == other.template && this.name == other.name && Array.from(this.metaFilter||[]).join(',') == Array.from(other.metaFilter||[]).join(',') &&
-		((!this.expression) === (!other.expression)) && ((!this.expression) || this.expression.equals(other.expression));
+		((!this.expression) === (!other.expression)) && ((!this.expression) || this.expression.equals(other.expression!));
 	}
 	
 	toString(): string {

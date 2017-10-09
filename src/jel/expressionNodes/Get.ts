@@ -27,7 +27,7 @@ export default class Get extends JelNode {
   }
   
   // override
-  equals(other: JelNode): any {
+  equals(other?: JelNode): any {
 		return other instanceof Get &&
       this.name == other.name && 
       this.left.equals(other.left);

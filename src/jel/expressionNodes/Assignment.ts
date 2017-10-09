@@ -14,7 +14,7 @@ export default class Assignment extends JelNode implements Serializable {
   }
  
   // override
-  equals(other: JelNode): boolean {
+  equals(other?: JelNode): boolean {
 		if (!(other instanceof Assignment))
 			return false;
 		return this.name == other.name && this.expression.equals(other.expression);

@@ -70,7 +70,7 @@ export default class Serializer {
 					return r + ')';
 				}
 				else {
-					const names = [];
+					const names: string[] = [];
 					for (let name in props)
 						names.push(name);
 					names.sort();

@@ -12,7 +12,7 @@ import Util from '../../util/Util';
 
 export default class RegExpNode extends ComplexNode {
 
-	constructor(public regexps: RegExp[], name: string, expression: JelNode, next: MultiNode | undefined) {
+	constructor(public regexps: RegExp[], name?: string, expression?: JelNode, next?: MultiNode) {
 		super(name, expression, next);
 	}
 	
@@ -24,8 +24,8 @@ export default class RegExpNode extends ComplexNode {
 	}
 	
 	// override
-	match(ctx: Context, tokens: string[], idx: number, metaFilter?: Set<string> | undefined, incompleteMatch = false): any {
-		let matches = [];
+	match(ctx: Context, tokens: string[], idx: number, metaFilter?: Set<string>, incompleteMatch = false): any {
+		let matches: Array<string|List> = [];
 		for (let i = 0; i < this.regexps.length; i++) {
 			const token = tokens[idx+i];
 			if (!token)
@@ -54,13 +54,16 @@ export default class RegExpNode extends ComplexNode {
 			if (!result)
 				return undefined;
 			else if (result instanceof Promise)
-				return result.then(r=>r ? this.next.match(newCtx, tokens, idx + this.regexps.length, metaFilter, incompleteMatch) : undefined);
+				return result.then(r=>r ? this.next!.match(newCtx, tokens, idx + this.regexps.length, metaFilter, incompleteMatch) : undefined);
 		}
-		return this.next.match(newCtx, tokens, idx + this.regexps.length, metaFilter, incompleteMatch);
+		return this.next!.match(newCtx, tokens, idx + this.regexps.length, metaFilter, incompleteMatch);
 	}
 	
 	equals(other: RegExpNode): boolean {
-		return this.regexps.map(r=>r.source).join(",") == other.regexps.map(r=>r.source).join(",") && this.name == other.name && ((!this.expression) === (!other.expression)) && ((!this.expression) || this.expression.equals(other.expression));
+		return this.regexps.map(r=>r.source).join(",") == other.regexps.map(r=>r.source).join(",") && 
+				this.name == other.name && 
+				((!this.expression) === (!other.expression)) && 
+				((!this.expression) || this.expression.equals(other.expression!));
 	}
 	
 	toString(): string {

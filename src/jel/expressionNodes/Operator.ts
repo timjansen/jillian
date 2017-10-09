@@ -53,21 +53,21 @@ export default class Operator extends JelNode {
   }
   
   private and(ctx: Context, left: JelNode): boolean {
-    return JelType.toBoolean(left) ? this.right.execute(ctx) : left;
+    return JelType.toBoolean(left) ? this.right!.execute(ctx) : left;
   }
   
   private or(ctx: Context, left: JelNode): boolean {
-    return JelType.toBoolean(left) ? left : this.right.execute(ctx);
+    return JelType.toBoolean(left) ? left : this.right!.execute(ctx);
   }
   
   
   // overrride
-  equals(other: JelNode): boolean {
+  equals(other?: JelNode): boolean {
 		return other instanceof Operator &&
       this.operator == other.operator && 
       this.left.equals(other.left) &&
       (!this.right == !other.right) &&
-      ((!this.right) || (this.right.equals(other.right)));
+      ((!this.right) || this.right!.equals(other.right));
 	}
   
 	toString(): string {

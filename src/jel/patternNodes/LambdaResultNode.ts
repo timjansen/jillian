@@ -31,7 +31,7 @@ export default class LambdaResultNode extends MatchNode {
 	// override
 	toString(): string {
 		if (this.meta && this.meta.size) {
-			return `LambdaResultNode(${this.expression}, meta={${Array.from(this.meta.keys()).map(k=>`${k}=${this.meta.get(k)}`).join(', ')}})`;
+			return `LambdaResultNode(${this.expression}, meta={${Array.from(this.meta.keys()).map(k=>`${k}=${this.meta?this.meta.get(k):''}`).join(', ')}})`;
 		}
 		else
 			return `LambdaResultNode(${this.expression})`;

@@ -113,7 +113,7 @@ export default class Database {
   
   private addIndexingInternal(config: DatabaseConfig, dbEntry: DbEntry): Promise<any> {
     const spec = dbEntry.databaseIndices;
-    const indexPromises = [];
+    const indexPromises: Promise<any>[] = [];
     for (let name in spec) {
       const indexDesc = spec[name];
       if (indexDesc.type == 'category') {
@@ -129,7 +129,7 @@ export default class Database {
   
   private removeIndexingInternal(config: DatabaseConfig, dbEntry: DbEntry): Promise<any> {
     const spec = dbEntry.databaseIndices;
-    const indexPromises = [];
+    const indexPromises: Promise<any>[] = [];
     for (let name in spec) {
       const indexDesc = spec[name];
       if (indexDesc.type == 'category') {

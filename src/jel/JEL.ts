@@ -2,6 +2,7 @@
  * Parser and Interpreter for JEL
  */
 
+import Util from '../util/Util';
 import Tokenizer from './Tokenizer';
 import {Token, TokenType, TemplateToken, RegExpToken} from './Token';
 import TokenReader from './TokenReader';
@@ -110,10 +111,11 @@ export default class JEL {
     throw new ParseError(cause, msg, token);
 	}
 	
-	static nextOrThrow(tokens: TokenReader, msg: string) {
+	static nextOrThrow(tokens: TokenReader, msg: string): Token {
 		if (tokens.hasNext())
 			return tokens.next();
 		JEL.throwParseException(tokens.last(), msg);
+		return undefined as any; // just to make Typescript happy
 	}
   
   static parseExpression(tokens: TokenReader, precedence = 0, stopOps = NO_STOP): JelNode {
@@ -156,7 +158,7 @@ export default class JEL {
           return JEL.tryBinaryOps(tokens, new List([]), precedence, stopOps);
         }
 
-        const list = [];
+        const list: JelNode[] = [];
         while (true) {
           list.push(JEL.parseExpression(tokens, PARENS_PRECEDENCE, LIST_ENTRY_STOP));
           if (JEL.expectOp(tokens, LIST_ENTRY_STOP, "Expecting comma or end of list").value == ']')
@@ -169,7 +171,7 @@ export default class JEL {
           return JEL.tryBinaryOps(tokens, new Dictionary(), precedence, stopOps);
         }
         
-        const assignments = [];
+        const assignments: Assignment[] = [];
         const usedNames = {};
         while (true) {
           const name = JEL.nextOrThrow(tokens, "Unexpected end of dictionary");
@@ -202,10 +204,10 @@ export default class JEL {
           return JEL.tryBinaryOps(tokens, new Translator(), precedence, stopOps);
         }
         
-        const assignments = [];
+        const assignments: PatternAssignment[] = [];
 
         while (true) {
-					const metaAssignments = [];
+					const metaAssignments: Assignment[] = [];
 
           const name = JEL.nextOrThrow(tokens, "Unexpected end of translator");
           if (name.type == TokenType.Identifier) {
@@ -269,7 +271,7 @@ export default class JEL {
 				return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, Literal.TRUE), precedence, stopOps);
       }
       else if (token.value == 'with') {
-        const assignments = [];
+        const assignments: Assignment[] = [];
         while (true) {
           const name = JEL.nextOrThrow(tokens, "Expected identifier for constant.");
           if (name.type != TokenType.Identifier)
@@ -288,6 +290,7 @@ export default class JEL {
       }
     }
     JEL.throwParseException(token, "Unexpected token");
+		return undefined as any; // this is a dummy return to make Typescript happy
   }
    
   // called after an potential left operand for a binary op (or function call)
@@ -361,7 +364,7 @@ export default class JEL {
   }
   
   static parseCall(tokens: TokenReader, left: JelNode): Call {
-    const argList = [];
+    const argList: JelNode[] = [];
 
     if (tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == ')') {
         tokens.next();
@@ -383,7 +386,7 @@ export default class JEL {
     }
  
     const argNames = {};  // for tracking dupes
-    const namedArgs = []; // for the actual values
+    const namedArgs: Assignment[] = []; // for the actual values
 
     while (true) {
       const name = JEL.nextOrThrow(tokens, "Expected identifier for named argument");
@@ -416,11 +419,11 @@ export default class JEL {
   }
   
   static createPattern(value: string, jelToken: Token): Pattern {
-    return new Pattern(JEL.parsePattern(Tokenizer.tokenizePattern(value), jelToken), value);
+    return new Pattern(JEL.parsePattern(Tokenizer.tokenizePattern(value), jelToken)!, value);
   }
   
 	
-  static parsePattern(tok: TokenReader, jelToken: Token, expectStopper = false, targetNode = new PatternNode()): PatternNode {
+  static parsePattern(tok: TokenReader, jelToken: Token, expectStopper = false, targetNode = new PatternNode()): PatternNode | undefined {
 		if (!tok.hasNext()) 
 			return TERMINATOR;
 
@@ -445,13 +448,13 @@ export default class JEL {
 		switch(t.value) {
 			case '[':
 				while(true) {
-					this.parsePattern(tok, jelToken, true, targetNode);
+					JEL.parsePattern(tok, jelToken, true, targetNode);
 
 					const stopper = JEL.nextOrThrow(tok, `Unexpected end in option set`);
 					if (stopper.type != TokenType.Operator)
 						throw new Error(`Unexpected end in option set`);
 					if (stopper.value == ']?') {
-						targetNode.makeOptional(JEL.parsePattern(tok, jelToken, expectStopper));
+						targetNode.makeOptional(JEL.parsePattern(tok, jelToken, expectStopper)!);
 					}
 					else if (stopper.value == ']')
 						targetNode.append(JEL.parsePattern(tok, jelToken, expectStopper));

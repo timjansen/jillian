@@ -11,9 +11,9 @@ export default class Context {
 	private frame: Object;
 	private frozen: boolean;
 	
-	constructor(public parent: Context = null, dbSession: any = null, translationDict: Dictionary = null) {
+	constructor(public parent?: Context, dbSession?: any, translationDict?: Dictionary) {
 		this.dbSession = dbSession || (parent && parent.dbSession);
-		this.translationDict = translationDict || (parent && parent.translationDict);
+		this.translationDict = translationDict || (parent && parent.translationDict) || new Dictionary();
 		this.frame = {};
 		this.frozen = false;
 	}

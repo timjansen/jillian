@@ -49,7 +49,7 @@ export default class Lambda extends JelNode {
 	}
 	
 	// override
-  equals(other: JelNode): boolean {
+  equals(other?: JelNode): boolean {
 		return other instanceof Lambda &&
 			this.expression.equals(other.expression) && 
       this.argNames.length == other.argNames.length && 

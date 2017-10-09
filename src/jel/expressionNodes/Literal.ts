@@ -14,7 +14,7 @@ export default class Literal extends JelNode {
   }
   
   // override
-  equals(other: JelNode): boolean {
+  equals(other?: JelNode): boolean {
 		return other instanceof Literal &&
       this.value == other.value;
 	}

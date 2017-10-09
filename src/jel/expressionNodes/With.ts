@@ -16,7 +16,7 @@ export default class With extends JelNode {
   }
 
   // override
-  equals(other: JelNode): boolean {
+  equals(other?: JelNode): boolean {
 		return (other instanceof With) &&
 			this.expression.equals(other.expression) && 
       this.assignments.length == other.assignments.length && 
