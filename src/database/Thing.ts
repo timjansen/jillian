@@ -1,10 +1,12 @@
 import Category from './Category';
 import DbEntry from './DbEntry';
 import DbRef from './DbRef';
+import DbIndexDescriptor from './DbIndexDescriptor';
 import Dictionary from '../jel/Dictionary';
 import List from '../jel/List';
 
-const DB_INDICES = {catEntries: {type: 'category', property: 'category', includeParents: true}};
+const DB_INDICES = new Map();
+DB_INDICES.set('catEntries', {type: 'category', property: 'category', includeParents: true});
 
 
 // Base class for any kind of physical or immaterial instance of a category
@@ -17,7 +19,7 @@ export default class Thing extends DbEntry {
     this.category = DbRef.create(category);
   }
   
-  get databaseIndices(): Object {
+  get databaseIndices(): Map<string, DbIndexDescriptor> {
     return DB_INDICES;
   }
   
@@ -26,8 +28,8 @@ export default class Thing extends DbEntry {
   }
 
   static create_jel_mapping = {distinctName: 0, category: 1, properties: 2, words: 3, speech: 4, reality: 5, hashCode: 6};
-  static create(distinctName, category, properties, words, speech, reality, hashCode) {
-    return new Thing(distinctName, category, properties, words, speech, reality, hashCode);
+  static create(...args: any[]) {
+    return new Thing(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
   }
 }
 

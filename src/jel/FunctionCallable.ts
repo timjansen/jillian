@@ -6,7 +6,7 @@ import JelType from './JelType';
  * A type that can be called.
  */
 export default class FunctionCallable extends Callable {
-	argMapper: Object | null;
+	argMapper: any;
 	
 	constructor(public f: Function, argMapper?: Array<string>|Object|string, public self?: any, public name?: string, public injectContext = false) {
 		super();
@@ -47,7 +47,7 @@ export default class FunctionCallable extends Callable {
 		if (argMapper === JelType.NAMED_ARGUMENT_METHOD)
 			return null;
 		else if (argMapper instanceof Array) {
-			const o = {};
+			const o: any = {};
 			argMapper.forEach((name,idx)=>o[name] = idx + offset);
 			return o;
 		}

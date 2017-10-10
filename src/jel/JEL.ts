@@ -32,7 +32,7 @@ import PatternNode from './patternNodes/PatternNode';
 import TemplateNode from './patternNodes/TemplateNode';
 import RegExpNode from './patternNodes/RegExpNode';
 
-const binaryOperators = { // op->precedence
+const binaryOperators: any = { // op->precedence
   '.': 19,
   '==': 10,
   '<': 11,
@@ -60,7 +60,7 @@ const binaryOperators = { // op->precedence
   '[': 18,
   '{': 18
 };
-const unaryOperators = { // op->precedence
+const unaryOperators: any = { // op->precedence
   '-': 16,
   '+': 16,
   '!': 16
@@ -81,7 +81,7 @@ const TRANSLATOR_META_VALUE_STOP = {',': true, ':': true};
 const TRANSLATOR_PATTERN_STOP = {'=>': true};
 const TRANSLATOR_LAMBDA_STOP = {',': true, '}': true};
 const TRANSLATOR_DOUBLE_BRACE_STOP = {'}': true};
-const PARAMETER_STOP = {')': true, ',': true};
+const PARAMETER_STOP: any = {')': true, ',': true};
 const IF_STOP = {'then': true};
 const THEN_STOP = {'else': true};
 const WITH_STOP = {':': true, ',': true};
@@ -172,7 +172,7 @@ export default class JEL {
         }
         
         const assignments: Assignment[] = [];
-        const usedNames = {};
+        const usedNames: any = {};
         while (true) {
           const name = JEL.nextOrThrow(tokens, "Unexpected end of dictionary");
           if (name.type != TokenType.Identifier && name.type != TokenType.Literal)
@@ -305,7 +305,7 @@ export default class JEL {
     if (stopOps[binOpToken.value])
        return left;
     
-    const opPrecedence = binaryOperators[binOpToken.value];
+    const opPrecedence = binaryOperators[binOpToken.value] as number;
     if (!opPrecedence)
       JEL.throwParseException(binOpToken, "Unexpected operator");
     
@@ -319,7 +319,7 @@ export default class JEL {
     else if (binOpToken.value == '[') 
       return JEL.tryBinaryOps(tokens, JEL.parseGet(tokens, left), precedence, stopOps);
     else
-      return JEL.tryBinaryOps(tokens, new Operator(binOpToken.value, left, JEL.parseExpression(tokens, binaryOperators[binOpToken.value], stopOps)), precedence, stopOps);
+      return JEL.tryBinaryOps(tokens, new Operator(binOpToken.value, left, JEL.parseExpression(tokens, binaryOperators[binOpToken.value] as number, stopOps)), precedence, stopOps);
   }
   
   static tryLambda(tokens: TokenReader, argName: string | null, precedence: number, stopOps: any): Lambda | undefined {
@@ -385,7 +385,7 @@ export default class JEL {
         return new Call(left, argList);
     }
  
-    const argNames = {};  // for tracking dupes
+    const argNames: any = {};           // for tracking dupes
     const namedArgs: Assignment[] = []; // for the actual values
 
     while (true) {

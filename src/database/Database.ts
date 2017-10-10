@@ -3,6 +3,7 @@ import DbRef from './DbRef';
 import DatabaseConfig from './DatabaseConfig';
 import DatabaseError from './DatabaseError';
 import DatabaseContext from './DatabaseContext';
+import DbIndexDescriptor from './DbIndexDescriptor';
 import Category from './Category';
 
 import JEL from '../jel/JEL';
@@ -112,32 +113,30 @@ export default class Database {
 
   
   private addIndexingInternal(config: DatabaseConfig, dbEntry: DbEntry): Promise<any> {
-    const spec = dbEntry.databaseIndices;
+    const spec: Map<string, DbIndexDescriptor> = dbEntry.databaseIndices;
     const indexPromises: Promise<any>[] = [];
-    for (let name in spec) {
-      const indexDesc = spec[name];
+    spec.forEach((indexDesc, name)=>{
       if (indexDesc.type == 'category') {
-        const cat = JelType.member(dbEntry, indexDesc.property);
+        const cat: DbRef = JelType.member(dbEntry, indexDesc.property);
         if (cat)
-          indexPromises.push(Promise.resolve(cat.getFromDb(this)).then(catRef=>catRef && this.appendToCategoryIndexInternal(config, dbEntry, catRef, '_' + name, !!indexDesc.includeParents)));
+          indexPromises.push(Promise.resolve(cat.getFromDb(this)).then(catRef=>catRef && this.appendToCategoryIndexInternal(config, dbEntry, catRef as Category, '_' + name, !!indexDesc.includeParents)));
       }
       else
         throw new DatabaseError(`Unsupported index type ${indexDesc.type} for index ${name}. Only 'category' is supported for now.`);
-    }
+    });
     return Promise.all(indexPromises);
   }
   
   private removeIndexingInternal(config: DatabaseConfig, dbEntry: DbEntry): Promise<any> {
-    const spec = dbEntry.databaseIndices;
+    const spec: Map<string, DbIndexDescriptor> = dbEntry.databaseIndices;
     const indexPromises: Promise<any>[] = [];
-    for (let name in spec) {
-      const indexDesc = spec[name];
+    spec.forEach((indexDesc, name)=>{
       if (indexDesc.type == 'category') {
-        const cat = JelType.member(dbEntry, indexDesc.property);
+        const cat: DbRef = JelType.member(dbEntry, indexDesc.property);
         if (cat)
-          indexPromises.push(Promise.resolve(cat.getFromDb(this)).then(catRef=>catRef && this.removeFromCategoryIndexInternal(config, dbEntry, catRef, '_' + name, !!indexDesc.includeParents)));
+          indexPromises.push(Promise.resolve(cat.getFromDb(this)).then(catRef=>catRef && this.removeFromCategoryIndexInternal(config, dbEntry, catRef as Category, '_' + name, !!indexDesc.includeParents)));
       }
-    }
+    });
     return Promise.all(indexPromises);
   }
   
@@ -161,7 +160,7 @@ export default class Database {
   }
   
   // returns a promise of a hash array
-  readCategoryIndex(category: Category, indexName: string): Promise<any> {
+  readCategoryIndex(category: Category, indexName: string): Promise<string[]> {
     return this.init(config=>{
       const indexPath = this.getFilePathForHashInternal(config, category.hashCode, '_' + indexName);
       return fs.readFile(indexPath)

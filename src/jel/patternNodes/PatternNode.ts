@@ -38,8 +38,8 @@ export default class PatternNode extends MultiNode {
 	}
 	
 	merge(translatorNode: TranslatorNode, resultNode: LambdaResultNode): PatternNode {
-		for (const k of this.tokenMap.keys()) { 
-			const thisV = this.tokenMap.get(k) as PatternNode;
+		this.tokenMap.forEach((v, k) => {
+			const thisV = v as PatternNode;
 			const otherV = translatorNode.tokenMap.get(k) as TranslatorNode;
 			if (!otherV) {
 				const newTn = new TranslatorNode();
@@ -50,7 +50,7 @@ export default class PatternNode extends MultiNode {
 				otherV.addResult(resultNode)
 			else
 				thisV.merge(otherV, resultNode);
-		}
+		});
 				
 		if (this.complexNodes) {
 			if (!translatorNode.complexNodes)

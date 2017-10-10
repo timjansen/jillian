@@ -21,7 +21,7 @@ export default class Operator extends JelNode {
       if (this.right == null)
         return this.evaluateLeftFirstOp(ctx);
         
-      return Util.resolveValues((l,r)=>JelType.op(this.operator, l, r), this.left.execute(ctx), this.right.execute(ctx));
+      return Util.resolveValues((l: any,r: any)=>JelType.op(this.operator, l, r), this.left.execute(ctx), this.right.execute(ctx));
       }
   }
 

@@ -8,19 +8,19 @@ export default class Context {
 	dbSession: any;
 	translationDict: Dictionary;
 	
-	private frame: Object;
+	private frame: Map<string, any>;
 	private frozen: boolean;
 	
 	constructor(public parent?: Context, dbSession?: any, translationDict?: Dictionary) {
 		this.dbSession = dbSession || (parent && parent.dbSession);
 		this.translationDict = translationDict || (parent && parent.translationDict) || new Dictionary();
-		this.frame = {};
+		this.frame = new Map();
 		this.frozen = false;
 	}
 	
 	get(name: string): any {
-		if (this.frame.hasOwnProperty(name))
-				return this.frame[name];
+		if (this.frame.has(name))
+				return this.frame.get(name);
 		if (this.parent)
 			return this.parent.get(name);
 		throw new Error(`Can not read unknown variable ${name}.\n${this.toString()}`);
@@ -29,11 +29,11 @@ export default class Context {
 	set(name: string, value: any): Context {
 		if (this.frozen)
 			throw new Error('Can not modify context, already frozen');
-		this.frame[name] = value;
+		this.frame.set(name, value);
 		return this;
 	}
 	
-	setAll(obj: Object): Context {
+	setAll(obj: any): Context {
 		if (obj)
 			for (const name in obj) 
 				this.set(name, obj[name]);
@@ -46,7 +46,7 @@ export default class Context {
 	}
 	
 	toString(): string {
-		const vars = Util.propertyNames(this.frame).map(n=>`${n}=${this.frame[n]}`).join(', ');
+		const vars = Array.from(this.frame.keys()).map((n: string)=>`${n}=${this.frame.get(n)}`).join(', ');
 		return `Context(frame={${vars}}, dbSession=${!!this.dbSession}, translationDict=${!!this.translationDict}, \n   parent=${this.parent})`;
 	}
 }

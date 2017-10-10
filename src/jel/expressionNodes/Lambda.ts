@@ -10,7 +10,7 @@ class LambdaCallable extends Callable {
 		super();
   }
   
-	invokeWithObject(args: any[], argObj?: Object, ctx?: Context): any {   // context will be ignored for lambda. No promise support here, only in Call.
+	invokeWithObject(args: any[], argObj?: any, ctx?: Context): any {   // context will be ignored for lambda. No promise support here, only in Call.
 		const newCtx = new Context(this.parentContext);
     args.forEach((arg, i) => newCtx.set(this.argNames[i], args[i]));
 		for (let i = args.length; i < this.argNames.length; i++)

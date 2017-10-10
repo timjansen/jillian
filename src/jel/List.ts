@@ -115,7 +115,7 @@ export default class List extends JelType implements Gettable {
 	sort_jel_mapping: Object;
 	sort(isLess: Callable): List {
 		const l = Array.prototype.slice.call(this.elements);
-		l.sort((a, b)=>isLess.invoke(a,b) ? -1 : (isLess.invoke(b,a) ? 1 : 0));
+		l.sort((a: any, b: any)=>isLess.invoke(a,b) ? -1 : (isLess.invoke(b,a) ? 1 : 0));
 		return new List(l);
 	}
 	

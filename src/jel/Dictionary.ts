@@ -98,8 +98,7 @@ export default class Dictionary extends JelType {
 	each_jel_mapping: Object;
 	each(f: Callable): Dictionary {
 		let i = 0;
-		for (let key of this.elements.keys())
-			f.invoke(key, this.get(key), i++);
+		this.elements.forEach((value, key) => f.invoke(key, value, i++));
 		return this;
 	}
 
@@ -107,8 +106,7 @@ export default class Dictionary extends JelType {
 	map(f: Callable): Dictionary {
 		let i = 0;
 		const d = new Dictionary();
-		for (let key of this.elements.keys())
-			d.set(key, f.invoke(key, this.get(key), i++));
+		this.elements.forEach((value, key) => d.set(key, f.invoke(key, value, i++)));
 		return d;
 	}
 
@@ -116,11 +114,10 @@ export default class Dictionary extends JelType {
 	filter(f: Callable): Dictionary {
 		let i = 0;
 		const d = new Dictionary();
-		for (let key of this.elements.keys()) {
-			const value = this.get(key);
+		this.elements.forEach((value, key) => {
 			if (f.invoke(key, value, i++))
 				d.set(key, value);
-		}
+		});
 		return d;
 	}
 	
@@ -156,9 +153,8 @@ export default class Dictionary extends JelType {
 	}
 
 	toObjectDebug(): any {
-		const o = {};
-		for (let key of this.elements.keys()) 
-			o[key] = this.get(key);
+		const o: any = {};
+		this.elements.forEach((value, key) => o[key] = value);
 		return o;
 	}
 	

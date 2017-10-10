@@ -11,7 +11,7 @@ const ACCURACY_FACTOR = 0.9999999;  // to avoid rounding issues with fuzzy compa
  * UNITS that maps types to the PRIMARY_UNIT.
  */
 export default class UnitValue extends JelType {
-	JEL_PROPERTIES;
+	JEL_PROPERTIES: Object;
 	
 	constructor(public value: number | Fraction, public unit: string, public accuracy: number | Fraction = 0) {
 		super();

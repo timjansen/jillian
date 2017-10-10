@@ -45,13 +45,12 @@ export default abstract class MultiNode extends MatchNode {
 	
 	// override
 	append(next?: MultiNode): void {
-		for (const k of this.tokenMap.keys()) {
-			const v = this.tokenMap.get(k);
+		this.tokenMap.forEach((v, k) => {
 			if (v)
 				v.append(next);
 			else
 				this.tokenMap.set(k, next);
-		}
+		});
 
 		if (this.complexNodes)
 			this.complexNodes.forEach(n=>n.append(next));

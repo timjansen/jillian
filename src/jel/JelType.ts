@@ -2,7 +2,7 @@
 import FunctionCallable from './FunctionCallable';
 
 // ops that can swap the left and right operands
-const REVERSIBLE_OPS = {
+const REVERSIBLE_OPS: any = {
 	'+': '+',
 	'*': '*',
 	'==': '==',
@@ -19,7 +19,7 @@ const REVERSIBLE_OPS = {
 	'<<=': '>>='
 };
 
-const NATIVE_OPS = {
+const NATIVE_OPS: any = {
 	'+': (l: any,r: any): any =>l+r,
 	'-': (l: any,r: any): any =>l-r,
 	'*': (l: any,r: any): any =>l*r,
@@ -40,17 +40,17 @@ const NATIVE_OPS = {
 	'>>=': (l: any,r: any): any =>l>=r
 };
 
-const SINGLE_NATIVE_OPS = {
+const SINGLE_NATIVE_OPS: any = {
 	'!': (l: any): any=>!l,
 	'-': (l: any): any=>-l,
 	'+': (l: any): any=>+l
 }
 
-const NATIVE_PROPERTIES = {
+const NATIVE_PROPERTIES: any = {
 	string: {length: true}
 };
 
-const NATIVE_METHODS = {
+const NATIVE_METHODS: any = {
 	string: {trim: {}}
 };
 

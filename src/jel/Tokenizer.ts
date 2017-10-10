@@ -7,9 +7,9 @@ import Util from '../util/Util';
 import TokenReader from './TokenReader';
 import {TokenType, Token, TemplateToken, RegExpToken} from './Token';
 
-const wordOperators = {'instanceof': true, 'derivativeof': true, 'if': true, 'then': true, 'else': true, 'with': true};
-const constants = {'null': null, 'true': true, 'false': false};
-const escapes = {n: '\n', t: '\t'};
+const wordOperators: any = {'instanceof': true, 'derivativeof': true, 'if': true, 'then': true, 'else': true, 'with': true};
+const constants: any = {'null': null, 'true': true, 'false': false};
+const escapes: any = {n: '\n', t: '\t'};
 
 //                          name:                          templateName       .hint.hint               expression
 const patternTemplateRE = /^\s*(?:([a-zA-Z_$][\w_$]*):)?\s*([a-zA-Z_$][\w_$]*)(?:\.(\w+(?:\.\w+)*))?\s*(?:::\s*(.*))?$/;

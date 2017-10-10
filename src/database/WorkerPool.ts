@@ -23,7 +23,7 @@ export default class WorkerPool {
 	constructor(public maxSimultanousWorkers = DEFAULT_WORKER_NUM) {
 	}
 	
-	addJob(tasks: any[], worker: (task: any)=>any) {
+	addJob(tasks: any[], worker: (task: any)=>Promise<any>) {
 		const j = new Job(tasks, worker);
 		this.jobs.push(j);
 		this.runTasks();
@@ -44,7 +44,7 @@ export default class WorkerPool {
 				job.preparedTasks.delete(task);
 				this.currentWorkerNum++;
 				job.worker(task)
-					.then(result=>{
+					.then((result: any)=>{
 						job.resultList.push(result); 
 						if (job.resultList.length >= job.taskCount) {
 							job.resolve(job.resultList);
@@ -52,7 +52,7 @@ export default class WorkerPool {
 
 						this.currentWorkerNum--; 
 						this.runTasks();
-					}, e=>{
+					}, (e: any)=>{
 						job.preparedTasks.clear(); 
 						job.reject(e);
 

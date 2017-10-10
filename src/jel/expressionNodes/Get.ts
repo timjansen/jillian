@@ -23,7 +23,7 @@ export default class Get extends JelNode {
    
   // override
   execute(ctx: Context): any {
-    return Util.resolveValues((l,n)=>this.getValue(ctx, l, n), this.left.execute(ctx), this.name.execute(ctx));
+    return Util.resolveValues((l: any, n: any)=>this.getValue(ctx, l, n), this.left.execute(ctx), this.name.execute(ctx));
   }
   
   // override

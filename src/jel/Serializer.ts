@@ -36,8 +36,7 @@ export default class Serializer {
 				let r = '{';
 				let i = 0;
 				const last = obj.elements.size-1;
-				for (let key of obj.elements.keys()) {
-					const value = obj.elements.get(key);
+				obj.elements.forEach((value, key) => {
 					if (pretty)
 						r += '\n'+spaces(2);
 					if (typeof key == 'string' && /^[a-zA-Z_]\w*$/.test(key))
@@ -47,7 +46,7 @@ export default class Serializer {
 					r += (pretty ? ': ' : ':') + Serializer.serializeInternal(value, pretty, indent)
 					if (i++ < last)
 						r += pretty ? ', ' : ',';
-				}
+				});
 				if (pretty)
 					r += '\n';
 				return r + '}';

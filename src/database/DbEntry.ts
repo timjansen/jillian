@@ -1,6 +1,7 @@
 import JelType from '../jel/JelType';
 import Serializable from '../jel/Serializable';
 import Dictionary from '../jel/Dictionary';
+import DbIndexDescriptor from './DbIndexDescriptor';
 import List from '../jel/List';
 
 const tifu = require('tifuhash');
@@ -21,8 +22,8 @@ export default class DbEntry extends JelType {
 //  }
 
   // returns a map index_name->{type: 'index-type, only category for now', property: 'the name of the property to index', includeParents: 'bool. for categories, if true, index for all parent cats as well'}
-  get databaseIndices(): Object {
-    return {};
+  get databaseIndices(): Map<string, DbIndexDescriptor> {
+    return new Map();
   }
   
   getSerializationProperties(): Object {

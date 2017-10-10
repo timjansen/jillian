@@ -112,7 +112,7 @@ export default class Util {
 	}
 	
 	// takes a promise, or list of promises and non-promises, or any combination thereof. Always returns a promise that contains an array.
-	static simplifyPromiseArray(p: any): Promise<any> {
+	static simplifyPromiseArray(p: any): Promise<Array<any>> {
 		if (p instanceof Promise) 
 			return p.then(p0=>Util.simplifyPromiseArray(p0));
 		else if (Array.isArray(p)) {

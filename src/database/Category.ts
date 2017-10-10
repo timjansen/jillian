@@ -1,12 +1,14 @@
 import DbEntry from './DbEntry';
 import DbRef from './DbRef';
 import DatabaseSession from './DbSession';
+import DbIndexDescriptor from './DbIndexDescriptor';
 import Dictionary from '../jel/Dictionary';
 import List from '../jel/List';
 import Context from '../jel/Context';
 
 
-const DB_INDICES = {subCategories: {type: 'category', property: 'superCategory', includeParents: true}};
+const DB_INDICES: Map<string, DbIndexDescriptor> = new Map();
+DB_INDICES.set('subCategories', {type: 'category', property: 'superCategory', includeParents: true});
 
 export default class Category extends DbEntry {
   superCategory: DbRef;
@@ -22,7 +24,7 @@ export default class Category extends DbEntry {
     return DbRef.getSession(ctx).getByIndex(this, 'catEntries', filterFunc) as Promise<Category[]>;
   }
 
-  get databaseIndices(): Object {
+  get databaseIndices(): Map<string, DbIndexDescriptor> {
     return DB_INDICES;
   }
   

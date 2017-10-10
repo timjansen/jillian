@@ -10,7 +10,7 @@ function resolveValueObj(f: (e: any)=>any, assignments: Assignment[], values: an
 		return f(null);
 
 	function createObj(l: any[]): Object {
-		const o = {};
+		const o: any = {};
 		l.forEach((v, i)=>o[assignments[i].name] = v);
 		return o;
 	}
@@ -30,7 +30,7 @@ export default class Call extends JelNode {
     const args = this.argList.map(a=>a.execute(ctx));
     const argObjValues = this.namedArgs.map(a=>a.execute(ctx));
 
-    return resolveValueObj(objArgs=>Util.resolveValues((...listArgs)=>callable.invokeWithObject(listArgs, objArgs, ctx), ...args),
+    return resolveValueObj(objArgs=>Util.resolveValues((...listArgs: any[])=>callable.invokeWithObject(listArgs, objArgs, ctx), ...args),
                                 this.namedArgs, argObjValues);
   }
   

@@ -28,12 +28,12 @@ export default class Pattern extends JelType {
 		if (!p)
 			return false;
 		else if (p instanceof Promise || (Array.isArray(p) && Util.hasRecursive(p, p=>p instanceof Promise)))
-			return Util.simplifyPromiseArray(p=>p.then(p0=>!!p0.length));
+			return Util.simplifyPromiseArray(p).then(p0=>!!p0.length);
 		else
 			return (!Array.isArray(p)) || !!p.length;
 	}
 
-	equals(other) {
+	equals(other: any): boolean {
 		return (other instanceof Pattern) && other.patternText == this.patternText;
 	}
 	
