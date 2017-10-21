@@ -5,8 +5,7 @@ import JelType from '../../jel/JelType';
  */
 export default class FuzzyBoolean extends JelType {
 	state: number;
-	diff: number;
-	
+
 	static CLEARLY_FALSE = 0;
 	static BARELY_FALSE = 0.25;
 	static HALF_TRUE = 0.5;
@@ -14,13 +13,14 @@ export default class FuzzyBoolean extends JelType {
 	static CLEARLY_TRUE = 1;
 
 
-	constructor(state: number | boolean, diff: number) {
+	// diff optional: can contain the difference that lead to the result, e.g. the length difference if length were compared
+	constructor(state: number | boolean, public diff?: number) {
 		super();
 		if (typeof state == 'boolean')
 			this.state = state ? FuzzyBoolean.CLEARLY_TRUE : FuzzyBoolean.CLEARLY_FALSE;
 		else
 			this.state = state; // *_TRUE or *_FALSE, or a value 0-1
-		this.diff = diff;     // optional: can contain the difference that lead to the result, e.g. the length difference if length were compared
+		
 	}
 	
 	op(operator: string, right: any): any {
@@ -31,19 +31,25 @@ export default class FuzzyBoolean extends JelType {
 				case '!=':
 					return this.toBoolean() != right.toBoolean();
 				case '===':
-					return this.state === right.state;
+					return this.state === right.state && JelType.op('==', this.diff, right.diff);
 				case '!==':
-					return this.state !== right.state;
+					return !this.op('===', right);
 				case '>':
 				case '<':
 				case '<=':
 				case '>=':
+				case '>>':
+				case '<<':
+				case '<<=':
+				case '>>=':
 					return JelType.op(operator, this.state, right.state);
 			}
 		}
 		else if (typeof right == 'boolean')
 			return JelType.op(operator, this.toBoolean(), right);
-		super.op(operator, right);
+		else if (typeof right == 'number')
+			return JelType.op(operator, this.state, right);
+		return super.op(operator, right);
 	}
 	
 	singleOp(operator: string): any {
@@ -53,14 +59,21 @@ export default class FuzzyBoolean extends JelType {
 			return JelType.singleOp(operator, this);
 	}
 
+	getSerializationProperties(): any[] {
+		return this.diff != null ? [this.state, this.diff] : [this.state];
+	}
+	
+	toBoolean_jel_mapping: Object;
 	toBoolean(): boolean {
 		return this.state >= FuzzyBoolean.HALF_TRUE;
 	}
 	
 	static create_jel_mapping = {state: 0, diff: 1};
-	static create(state: number | boolean, diff: number): FuzzyBoolean {
-		return new FuzzyBoolean(state, diff);
+	static create(...args: any[]): FuzzyBoolean {
+		return new FuzzyBoolean(args[0], args[1]);
 	}
 }
+
+FuzzyBoolean.prototype.toBoolean_jel_mapping = {};
 
 

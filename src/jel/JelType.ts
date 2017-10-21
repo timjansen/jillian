@@ -19,6 +19,16 @@ const REVERSIBLE_OPS: any = {
 	'<<=': '>>='
 };
 
+// ops that can be inverted
+const INVERTIBLE_OPS: any = {
+	'!=': '==',
+	'!==': '===',
+	'>=': '<',
+	'<=': '>',
+	'>>=': '<<',
+	'<<=': '>>'
+};
+
 const NATIVE_OPS: any = {
 	'+': (l: any,r: any): any =>l+r,
 	'-': (l: any,r: any): any =>l-r,
@@ -30,6 +40,8 @@ const NATIVE_OPS: any = {
 	'.': (l: any,r: any): any =>l[r],
 	'==': (l: any,r: any): any =>l===r,
 	'===': (l: any,r: any): any =>l===r,
+	'!=': (l: any,r: any): any =>l!=r,
+	'!==': (l: any,r: any): any =>l!==r,
 	'<': (l: any,r: any): any =>l<r,
 	'<<': (l: any,r: any): any =>l<r,
 	'<=': (l: any,r: any): any =>l<=r,
@@ -63,29 +75,25 @@ export default class JelType {
 
 	
 	static op(operator: string, left: any, right: any): any {
-		if (left instanceof JelType)
+		if (left == null || right == null) {
+			if (operator == '==' || operator == '===')
+				return left === right;
+			else if (operator == '!=' || operator == '!==')
+				return left !== right;
+			else 
+				return left == null ? left : right;
+		}
+		else if (left instanceof JelType)
 			return left.op(operator, right);
-		else if (left == null)
-			return left; 
-		else if (right == null)
-			return right;
-		else if (right instanceof JelType && operator in REVERSIBLE_OPS) 
-			return JelType.op(REVERSIBLE_OPS[operator], right, left);
-		else if (right instanceof JelType && operator in right.reverseOps) 
-			return right.opReversed(operator, left);
-		else if (operator == '!=')
-				return !JelType.op('==', left, right);
-		else if (operator == '!==')
-				return !JelType.op('===', left, right);
-		else if (operator == '>=')
-				return !JelType.op('<', left, right);
-		else if (operator == '>')
-				return !JelType.op('<', left, right) && !JelType.op('==', left, right);
-
-		const nativeOp = NATIVE_OPS[operator];
-		if (!nativeOp)
-			throw new Error(`Operator "${operator}" is not supported for primitive types`);
-		return nativeOp(left, right);
+		else if (right instanceof JelType) {
+			if (operator in REVERSIBLE_OPS) 
+				return JelType.op(REVERSIBLE_OPS[operator], right, left);
+			else if (operator in right.reverseOps) 
+				return right.opReversed(operator, left);
+		}
+		else if (operator in NATIVE_OPS)
+			return NATIVE_OPS[operator](left, right);
+		throw new Error(`Operator "${operator}" is not supported for primitive types`);
 	}
 	
 	static singleOp(operator: string, left: any): any {
@@ -145,20 +153,31 @@ export default class JelType {
 		return undefined;
 	}
 	
+	/*
+	 * Ops that may be implemented:
+	 * '+', '-', '*', '/', '%': arithmetic
+	 * '==', '===', '<', '<<', '<=', '<<=', '>', '>>', '>=', '>>=': Comparisons
+	 */
 	op_jel_mapping: Object;
 	op(operator: string, right: any): any {
+		if (operator in INVERTIBLE_OPS)
+			return !this.op(INVERTIBLE_OPS[operator], right);
 		throw new Error(`Operator "${operator}" is not supported for this type`);
 	}
 
 	// To be used if the right-hand side is this type, and the left-hand side is a primitive.
 	// Left is guaranteed to be a non-null primitive.
-	// You must also define the supported operators in reverseOps!
+	// You must also define the supported operators in the field reverseOps!
+	// Usually this is used for the operators '-' and '/', and possibly comparisons as well.
 	opReversed_jel_mapping: Object;
 	opReversed(operator: string, left: any): any {
 		throw new Error(`Operator "${operator}" is not supported for this type`);
 	}
 
 	
+	/*
+	 * Ops that may be implemented: '+', '-', '!'
+	 */
 	singleOp_jel_mapping: Object;
 	singleOp(operator: string): any {
 		throw new Error(`Operator "${operator}" is not supported for this type`);

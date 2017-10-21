@@ -37,7 +37,7 @@ export default class Operator extends JelNode {
       return this.or(ctx, left);
     case '&&':
       return this.and(ctx, left);
-    default: 
+    default:
       return JelType.singleOp(this.operator, left);
     }
   }

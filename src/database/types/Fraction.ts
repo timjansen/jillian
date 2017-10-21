@@ -23,9 +23,7 @@ export default class Fraction extends JelType {
 	}
 	
 	op(operator: string, right: any): any {
-		if (right == null)
-			return null;
-		else if (typeof right == 'number') {
+		if (typeof right == 'number') {
 			if (!Number.isInteger(right))
 				return JelType.op(operator, this.toNumber(), right);
 
@@ -111,7 +109,7 @@ export default class Fraction extends JelType {
 					return new Fraction(left*this.denominator, this.numerator, this.mixed).simplify();
 			}
 		}
-		super.op(operator, left);
+		return super.op(operator, left);
 	}
 
 	singleOp(operator: string): any {
@@ -123,7 +121,7 @@ export default class Fraction extends JelType {
 			case '+':
 				return this;
 		}
-		super.singleOp(operator);
+		return super.singleOp(operator);
 	}
 	
 	toNumber_jel_mapping: Object;

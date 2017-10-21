@@ -7,7 +7,7 @@ const ACCURACY_FACTOR = 0.9999999;  // to avoid rounding issues with fuzzy compa
 
 /**
  * Represents a value with unit and accuracy.
- * They mus also set the constant PRIMARY_UNIT. To use automatic conversion, they should provide a table 
+ * They must also set the constant PRIMARY_UNIT. To use automatic conversion, they should provide a table 
  * UNITS that maps types to the PRIMARY_UNIT.
  */
 export default class UnitValue extends JelType {
