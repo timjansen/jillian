@@ -1,7 +1,7 @@
-import JelType from './JelType';
+import JelType from '../JelType';
 import List from './List';
-import Callable from './Callable';
-import Gettable from './Gettable';
+import Callable from '../Callable';
+import Gettable from '../Gettable';
 
 /**
  * Dictionary is a map-like type for JEL.

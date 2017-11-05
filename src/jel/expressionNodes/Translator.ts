@@ -1,5 +1,5 @@
 import JelNode from './JelNode';
-import JelTranslator from '../Translator';
+import JelTranslator from '../types/Translator';
 import PatternAssignment from './PatternAssignment';
 import Context from '../Context';
 

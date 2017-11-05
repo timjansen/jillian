@@ -6,7 +6,7 @@ import LambdaResultNode from './LambdaResultNode';
 
 import TranslatorNode from './TranslatorNode';
 import JelNode from '../expressionNodes/JelNode';
-import List from '../List';
+import List from '../types/List';
 import Context from '../Context';
 import Util from '../../util/Util';
 

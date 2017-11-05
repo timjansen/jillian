@@ -2,8 +2,8 @@ import DbEntry from './DbEntry';
 import DbRef from './DbRef';
 import DatabaseSession from './DbSession';
 import DbIndexDescriptor from './DbIndexDescriptor';
-import Dictionary from '../jel/Dictionary';
-import List from '../jel/List';
+import Dictionary from '../jel/types/Dictionary';
+import List from '../jel/types/List';
 import Context from '../jel/Context';
 
 

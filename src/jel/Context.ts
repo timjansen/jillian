@@ -1,5 +1,5 @@
 import Util from '../util/Util';
-import Dictionary from './Dictionary';
+import Dictionary from './types/Dictionary';
 
 /**
  * Manages the context containing all variables.

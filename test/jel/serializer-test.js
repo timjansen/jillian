@@ -3,8 +3,8 @@
 require('source-map-support').install();
 const assert = require('assert');
 const s = require('../../build/jel/Serializer.js').default;
-const Dictionary = require('../../build/jel/Dictionary.js').default;
-const Pattern = require('../../build/jel/Pattern.js').default;
+const Dictionary = require('../../build/jel/types/Dictionary.js').default;
+const Pattern = require('../../build/jel/types/Pattern.js').default;
 
 describe('jelSerializer', function() {
   describe('serialize()', function() {

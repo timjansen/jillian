@@ -1,5 +1,5 @@
 import JelNode from './JelNode';
-import JelPattern from '../Pattern';
+import JelPattern from '../types/Pattern';
 import Pattern from './Pattern';
 import Assignment from './Assignment';
 import JelType from '../JelType';

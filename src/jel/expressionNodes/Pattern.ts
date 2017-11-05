@@ -1,5 +1,5 @@
 import JelNode from './JelNode';
-import JelPattern from '../Pattern';
+import JelPattern from '../types/Pattern';
 import Context from '../Context';
 import Util from '../../util/Util';
 

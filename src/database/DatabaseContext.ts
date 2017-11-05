@@ -4,13 +4,13 @@ import DbEntry from './DbEntry';
 import DbSession from './DbSession';
 import Category from './Category';
 import Thing from './Thing';
-import Dictionary from '../jel/Dictionary';
 
-import FuzzyBoolean from './types/FuzzyBoolean';
-import ApproximateNumber from './types/ApproximateNumber';
-import Range from './types/Range';
-import Fraction from './types/Fraction';
-import UnitValue from './types/UnitValue';
+import Dictionary from '../jel/types/Dictionary';
+import FuzzyBoolean from '../jel/types/FuzzyBoolean';
+import ApproximateNumber from '../jel/types/ApproximateNumber';
+import Range from '../jel/types/Range';
+import Fraction from '../jel/types/Fraction';
+import UnitValue from '../jel/types/UnitValue';
 
 const CTX_IDENTIFIERS = {DbEntry, Category, Thing, FuzzyBoolean, ApproximateNumber, Range, Fraction, UnitValue};
 

@@ -3,7 +3,7 @@ import Assignment from './Assignment';
 import JelType from '../JelType';
 import Context from '../Context';
 import Util from '../../util/Util';
-import JelDictionary from '../Dictionary';
+import JelDictionary from '../types/Dictionary';
 
 export default class Dictionary extends JelNode {
   constructor(public elements: Assignment[] = []) {

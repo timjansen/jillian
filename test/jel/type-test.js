@@ -3,9 +3,9 @@
 require('source-map-support').install();
 const jelAssert = require('../jel-assert.js');
 const Context = require('../../build/jel/Context.js').default;
-const Fraction = require('../../build/database/types/Fraction.js').default;
-const FuzzyBoolean = require('../../build/database/types/FuzzyBoolean.js').default;
-const Range = require('../../build/database/types/Range.js').default;
+const Fraction = require('../../build/jel/types/Fraction.js').default;
+const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
+const Range = require('../../build/jel/types/Range.js').default;
 
 jelAssert.setCtx(new Context().setAll({Fraction, FuzzyBoolean, Range}));
 

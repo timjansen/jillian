@@ -5,7 +5,7 @@ import ComplexNode from './ComplexNode';
 import TranslatorNode from './TranslatorNode';
 import LambdaResultNode from './LambdaResultNode';
 import JelNode from '../expressionNodes/JelNode';
-import Dictionary from '../Dictionary';
+import Dictionary from '../types/Dictionary';
 import Context from '../Context';
 import Util from '../../util/Util';
 

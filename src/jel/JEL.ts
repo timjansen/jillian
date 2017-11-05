@@ -8,7 +8,7 @@ import {Token, TokenType, TemplateToken, RegExpToken} from './Token';
 import TokenReader from './TokenReader';
 import Context from './Context';
 import JelType from './JelType';
-import Pattern from './Pattern';
+import Pattern from './types/Pattern';
 import ParseError from './ParseError';
 import JelNode from './expressionNodes/JelNode';
 import Literal from './expressionNodes/Literal';

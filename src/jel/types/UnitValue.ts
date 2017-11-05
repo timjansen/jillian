@@ -1,4 +1,4 @@
-import JelType from '../../jel/JelType';
+import JelType from '../JelType';
 import FuzzyBoolean from './FuzzyBoolean';
 import Fraction from './Fraction';
 import ApproximateNumber from './ApproximateNumber';

@@ -1,7 +1,7 @@
 import JelNode from './JelNode';
 import JelType from '../JelType';
 import Context from '../Context';
-import JelList from '../List';
+import JelList from '../types/List';
 import Util from '../../util/Util';
 
 export default class List extends JelNode {

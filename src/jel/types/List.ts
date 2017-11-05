@@ -1,6 +1,6 @@
-import JelType from './JelType';
-import Callable from './Callable';
-import Gettable from './Gettable';
+import JelType from '../JelType';
+import Callable from '../Callable';
+import Gettable from '../Gettable';
 
 /**
  * List is an immutable array-like object that is accessible from JEL.

@@ -2,9 +2,9 @@
 
 const assert = require('assert');
 const JEL = require('../../build/jel/JEL.js').default;
-const Pattern = require('../../build/jel/Pattern.js').default;
-const Dictionary = require('../../build/jel/Dictionary.js').default;
-const Translator = require('../../build/jel/Translator.js').default;
+const Pattern = require('../../build/jel/types/Pattern.js').default;
+const Dictionary = require('../../build/jel/types/Dictionary.js').default;
+const Translator = require('../../build/jel/types/Translator.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const PatternNode = require('../../build/jel/patternNodes/PatternNode.js').default;
 const TemplateNode = require('../../build/jel/patternNodes/TemplateNode.js').default;

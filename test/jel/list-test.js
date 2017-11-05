@@ -3,7 +3,7 @@
 require('source-map-support').install();
 const assert = require('assert');
 const JEL = require('../../build/jel/JEL.js').default;
-const List = require('../../build/jel/List.js').default;
+const List = require('../../build/jel/types/List.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const jelAssert = require('../jel-assert.js');

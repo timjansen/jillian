@@ -1,8 +1,8 @@
 import JelType from '../jel/JelType';
 import Serializable from '../jel/Serializable';
-import Dictionary from '../jel/Dictionary';
+import Dictionary from '../jel/types/Dictionary';
 import DbIndexDescriptor from './DbIndexDescriptor';
-import List from '../jel/List';
+import List from '../jel/types/List';
 
 const tifu = require('tifuhash');
 

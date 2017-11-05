@@ -1,9 +1,9 @@
-import JelType from './JelType';
-import {Token} from './Token';
-import TokenReader from './TokenReader';
-import Context from './Context';
-import PatternNode from './patternNodes/PatternNode';
-import Util from '../util/Util';
+import JelType from '../JelType';
+import {Token} from '../Token';
+import TokenReader from '../TokenReader';
+import Context from '../Context';
+import PatternNode from '../patternNodes/PatternNode';
+import Util from '../../util/Util';
 
 export default class Pattern extends JelType {
 	

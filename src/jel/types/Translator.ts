@@ -1,15 +1,17 @@
 'use strict';
 
-import JelType from './JelType';
+import JelType from '../JelType';
+import Callable from '../Callable';
+import Context from '../Context';
+
 import List from './List';
-import Callable from './Callable';
 import Pattern from './Pattern';
-import Context from './Context';
-import Util from '../util/Util';
-import PatternNode from './patternNodes/PatternNode';
-import TranslatorNode from './patternNodes/TranslatorNode';
-import LambdaResultNode from './patternNodes/LambdaResultNode';
-import StaticResultNode from './patternNodes/LambdaResultNode';
+
+import Util from '../../util/Util';
+import PatternNode from '../patternNodes/PatternNode';
+import TranslatorNode from '../patternNodes/TranslatorNode';
+import LambdaResultNode from '../patternNodes/LambdaResultNode';
+import StaticResultNode from '../patternNodes/LambdaResultNode';
 
 export default class Translator extends JelType {
 	tree: TranslatorNode = new TranslatorNode();

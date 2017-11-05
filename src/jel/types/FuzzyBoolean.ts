@@ -1,4 +1,4 @@
-import JelType from '../../jel/JelType';
+import JelType from '../JelType';
 
 /**
  * Represents a boolean type that has, beside clear true and false, also a notion of 'barely true' and 'barely false'.
