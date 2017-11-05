@@ -1,19 +1,16 @@
 import JelType from '../../jel/JelType';
 import FuzzyBoolean from './FuzzyBoolean';
 import Fraction from './Fraction';
+import ApproximateNumber from './ApproximateNumber';
 
-
-const ACCURACY_FACTOR = 0.9999999;  // to avoid rounding issues with fuzzy comparisons
 
 /**
  * Represents a value with unit and accuracy.
- * They must also set the constant PRIMARY_UNIT. To use automatic conversion, they should provide a table 
- * UNITS that maps types to the PRIMARY_UNIT.
  */
 export default class UnitValue extends JelType {
 	JEL_PROPERTIES: Object;
 	
-	constructor(public value: number | Fraction, public unit: string, public accuracy: number | Fraction = 0) {
+	constructor(public value: number | Fraction | ApproximateNumber, public unit: string) {
 		super();
 	}
 

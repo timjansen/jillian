@@ -1,5 +1,4 @@
 import JelType from '../../jel/JelType';
-import Range from './Range';
 
 /**
  * Represents a fraction.
@@ -120,6 +119,8 @@ export default class Fraction extends JelType {
 				return new Fraction(-this.numerator, this.denominator, this.mixed);
 			case '+':
 				return this;
+			case 'abs':
+				return this.numerator >= 0 ? this : new Fraction(Math.abs(this.numerator), this.denominator, this.mixed);
 		}
 		return super.singleOp(operator);
 	}

@@ -1,6 +1,7 @@
 import JelType from '../../jel/JelType';
 import Fraction from './Fraction';
 import UnitValue from './UnitValue';
+import ApproximateNumber from './ApproximateNumber';
 
 const RANGE_NUM_OPS: any = {'+': true, '-': true, '*': true, '/': true};
 
@@ -9,7 +10,7 @@ const RANGE_NUM_OPS: any = {'+': true, '-': true, '*': true, '/': true};
  * Ranges can be open-ended by passing a null for the min and/or max.
  */
 export default class Range extends JelType {
-	constructor(public min?: number | Fraction | UnitValue | null, public max?: number | Fraction | UnitValue | null) {
+	constructor(public min?: number | Fraction | UnitValue | ApproximateNumber | null, public max?: number | Fraction | UnitValue | ApproximateNumber | null) {
 		super();
 		
 		if (JelType.op('>', min, max)) {
@@ -43,7 +44,7 @@ export default class Range extends JelType {
 			else if (operator == '<=')
 				return (this.min == null || right.min == null) ? this.min == null : JelType.op('<=', this.min, right.min);
 		}
-		else if (typeof right == 'number' || right instanceof Fraction || right instanceof UnitValue) {
+		else if (typeof right == 'number' || right instanceof Fraction || right instanceof UnitValue || right instanceof ApproximateNumber) {
 			if (operator == '==')
 				return this.contains(right);
 			else if (operator == '===')

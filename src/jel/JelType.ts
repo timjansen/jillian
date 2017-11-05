@@ -55,7 +55,8 @@ const NATIVE_OPS: any = {
 const SINGLE_NATIVE_OPS: any = {
 	'!': (l: any): any=>!l,
 	'-': (l: any): any=>-l,
-	'+': (l: any): any=>+l
+	'+': (l: any): any=>+l,
+	'abs': (l: any): any=>Math.abs(l)
 }
 
 const NATIVE_PROPERTIES: any = {
@@ -71,6 +72,7 @@ const NATIVE_METHODS: any = {
  */
 export default class JelType {
 	reverseOps: Object;
+	JEL_PROPERTIES: Object;
 	static readonly NAMED_ARGUMENT_METHOD = 'named';
 
 	
@@ -118,12 +120,20 @@ export default class JelType {
 	static member(obj: any, name: string): any {
 		const isClass = JelType.isPrototypeOf(obj);
 		if (isClass || obj instanceof JelType) { 
+			if (isClass) {
+				if (obj.JEL_PROPERTIES && name in obj.JEL_PROPERTIES)
+					return obj[name];
+			}
+			else {
+				const value = obj.member(name);
+				if (value !== undefined)
+					return value;
+			}
+
 			const callableCacheKey = isClass ? `${name}_${obj.name}_jel_callable` : `${name}_jel_callable`;
 			const callable = obj[callableCacheKey];
 			if (callable)
 					return callable;
-			if (obj.JEL_PROPERTIES && name in obj.JEL_PROPERTIES)
-				return obj[name];
 
 			const argMapper = obj[`${name}_jel_mapping`];
 			if (argMapper) {
@@ -176,13 +186,18 @@ export default class JelType {
 
 	
 	/*
-	 * Ops that may be implemented: '+', '-', '!'
+	 * Ops that may be implemented: '+', '-', '!', 'abs'
 	 */
 	singleOp_jel_mapping: Object;
 	singleOp(operator: string): any {
 		throw new Error(`Operator "${operator}" is not supported for this type`);
 	}
 
+	member(name: string): any {
+		if (this.JEL_PROPERTIES && name in this.JEL_PROPERTIES)
+			return (this as any)[name];
+	}
+	
 	toBoolean_jel_mapping: Object;
 	toBoolean(): boolean {
 		throw new Error(`Boolean conversion not supported for this type`);

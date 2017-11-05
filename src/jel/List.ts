@@ -39,11 +39,13 @@ export default class List extends JelType implements Gettable {
 	}
 	
 	get first(): any {
-		return this.elements[0];
+		const v = this.elements[0];
+		return v === undefined ? null : v;
 	}
 
 	get last(): any {
-		return this.elements[this.elements.length-1];
+		const v = this.elements[this.elements.length-1];
+		return v === undefined ? null : v;
 	}
 	
 	get length(): number {

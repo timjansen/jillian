@@ -7,7 +7,7 @@ import Util from '../util/Util';
 import TokenReader from './TokenReader';
 import {TokenType, Token, TemplateToken, RegExpToken} from './Token';
 
-const wordOperators: any = {'instanceof': true, 'derivativeof': true, 'if': true, 'then': true, 'else': true, 'with': true};
+const wordOperators: any = {'instanceof': true, 'derivativeof': true, 'if': true, 'then': true, 'else': true, 'with': true, 'abs': true};
 const constants: any = {'null': null, 'true': true, 'false': false};
 const escapes: any = {n: '\n', t: '\t'};
 

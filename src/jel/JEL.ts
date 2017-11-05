@@ -63,7 +63,8 @@ const binaryOperators: any = { // op->precedence
 const unaryOperators: any = { // op->precedence
   '-': 16,
   '+': 16,
-  '!': 16
+  '!': 16,
+	'abs': 16
 };
 
 const IF_PRECEDENCE = 4; 

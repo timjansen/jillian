@@ -6,21 +6,25 @@ import JelType from '../../jel/JelType';
 export default class FuzzyBoolean extends JelType {
 	state: number;
 
-	static CLEARLY_FALSE = 0;
-	static BARELY_FALSE = 0.25;
-	static HALF_TRUE = 0.5;
-	static BARLEY_TRUE = 0.75;
-	static CLEARLY_TRUE = 1;
+	static CLEARLY_FALSE_VALUE = 0;
+	static BARELY_FALSE_VALUE = 0.25;
+	static HALF_TRUE_VALUE = 0.5;
+	static BARLEY_TRUE_VALUE = 0.75;
+	static CLEARLY_TRUE_VALUE = 1;
 
+	static CLEARLY_FALSE = new FuzzyBoolean(FuzzyBoolean.CLEARLY_FALSE_VALUE);
+	static BARELY_FALSE = new FuzzyBoolean(FuzzyBoolean.BARELY_FALSE_VALUE);
+	static HALF_TRUE = new FuzzyBoolean(FuzzyBoolean.HALF_TRUE_VALUE);
+	static BARLEY_TRUE = new FuzzyBoolean(FuzzyBoolean.BARLEY_TRUE_VALUE);
+	static CLEARLY_TRUE = new FuzzyBoolean(FuzzyBoolean.CLEARLY_TRUE_VALUE);
 
 	// diff optional: can contain the difference that lead to the result, e.g. the length difference if length were compared
 	constructor(state: number | boolean, public diff?: number) {
 		super();
 		if (typeof state == 'boolean')
-			this.state = state ? FuzzyBoolean.CLEARLY_TRUE : FuzzyBoolean.CLEARLY_FALSE;
+			this.state = state ? FuzzyBoolean.CLEARLY_TRUE_VALUE : FuzzyBoolean.CLEARLY_FALSE_VALUE;
 		else
-			this.state = state; // *_TRUE or *_FALSE, or a value 0-1
-		
+			this.state = state; // a value 0 - 1
 	}
 	
 	op(operator: string, right: any): any {
@@ -54,7 +58,7 @@ export default class FuzzyBoolean extends JelType {
 	
 	singleOp(operator: string): any {
 		if (operator == '!') 
-			return new FuzzyBoolean(FuzzyBoolean.CLEARLY_TRUE - this.state, this.diff);
+			return new FuzzyBoolean(FuzzyBoolean.CLEARLY_TRUE_VALUE - this.state, this.diff);
 		else
 			return JelType.singleOp(operator, this);
 	}
@@ -65,7 +69,7 @@ export default class FuzzyBoolean extends JelType {
 	
 	toBoolean_jel_mapping: Object;
 	toBoolean(): boolean {
-		return this.state >= FuzzyBoolean.HALF_TRUE;
+		return this.state >= FuzzyBoolean.HALF_TRUE_VALUE;
 	}
 	
 	static create_jel_mapping = {state: 0, diff: 1};
