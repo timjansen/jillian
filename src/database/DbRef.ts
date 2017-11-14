@@ -31,6 +31,14 @@ export default class DbRef extends JelType {
 		else
 			return dbSession.getFromDatabase(this.distinctName).then(r=>this.cached = r);
 	}
+	
+	getAsync(ctxOrSession: Context | DbSession): Promise<DbEntry|null> {
+		const v = this.get(ctxOrSession);
+		if (v instanceof Promise)
+			return v;
+		else
+			return Promise.resolve(v);
+	}
 
 	// returns either DbEntry or Promise!
 	getFromDb(database: Database): DbEntry | Promise<DbEntry|null> | null {

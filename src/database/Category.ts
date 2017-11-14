@@ -14,8 +14,8 @@ export default class Category extends DbEntry {
   superCategory: DbRef;
   JEL_PROPERTIES: Object;
   
-  constructor(distinctName: string, superCategory: Category, properties = new Dictionary(), words = new Dictionary(), speech = new List(), reality: any, hashCode: string) {
-    super(distinctName, reality, hashCode, properties, words, speech);
+  constructor(distinctName: string, superCategory: Category, properties = new Dictionary(), words = new Dictionary(), speech = new List(), reality?: any, hashCode?: string) {
+    super(distinctName, reality, hashCode, properties);
     this.superCategory = DbRef.create(superCategory); 
   }
 
@@ -29,7 +29,7 @@ export default class Category extends DbEntry {
   }
   
   getSerializationProperties(): Object {
-    return {distinctName: this.distinctName, reality: this.reality, properties: this.properties.toNullable(), words: this.words.toNullable(), speech: this.speech.toNullable(), superCategory: this.superCategory};
+    return {distinctName: this.distinctName, reality: this.reality, properties: this.properties.toNullable(), superCategory: this.superCategory};
   }
     
   static create_jel_mapping = {distinctName: 0, superCategory: 1, properties: 2, words: 3, speech: 4, reality: 5, hashCode: 6};
