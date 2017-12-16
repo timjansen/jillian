@@ -36,7 +36,7 @@ export default class Util {
 		return r;		
 	}
 
-	static has(array: any[], testFunc: (e: any, i: number)=>boolean): boolean {
+	static hasAny(array: any[], testFunc: (e: any, i: number)=>boolean): boolean {
 		return array.findIndex(testFunc) > -1;
 	}
 
@@ -103,7 +103,7 @@ export default class Util {
 			return values.then(p=>Util.resolveNestedValues(p, f));
 		else if (Array.isArray(values)) {
 			const flattened = Util.flattenToArray(values);
-			if (Util.has(flattened, p=>p instanceof Promise))
+			if (Util.hasAny(flattened, p=>p instanceof Promise))
 					return Promise.all(flattened).then(p1=>Util.resolveNestedValues(p1, f));
 			return flattened.length ? Util.collect(flattened, a=>a!=null ? f(a) : undefined) : undefined;
 		}
@@ -117,7 +117,7 @@ export default class Util {
 			return p.then(p0=>Util.simplifyPromiseArray(p0));
 		else if (Array.isArray(p)) {
 			const flattened = Util.flattenToArray(p);
-			if (Util.has(flattened, p=>p instanceof Promise))
+			if (Util.hasAny(flattened, p=>p instanceof Promise))
 					return Promise.all(flattened).then(p1=>Util.simplifyPromiseArray(p1));
 			else
 				return Promise.resolve(flattened);

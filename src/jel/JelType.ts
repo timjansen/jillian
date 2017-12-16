@@ -117,7 +117,7 @@ export default class JelType {
 			return !!obj;
 	}
 	
-	static member(obj: any, name: string): any {
+	static member(obj: any, name: string, parameters?: Map<string, any>): any {
 		const isClass = JelType.isPrototypeOf(obj);
 		if (isClass || obj instanceof JelType) { 
 			if (isClass) {
@@ -125,7 +125,7 @@ export default class JelType {
 					return obj[name];
 			}
 			else {
-				const value = obj.member(name);
+				const value = obj.member(name, parameters);
 				if (value !== undefined)
 					return value;
 			}
@@ -193,7 +193,7 @@ export default class JelType {
 		throw new Error(`Operator "${operator}" is not supported for this type`);
 	}
 
-	member(name: string): any {
+	member(name: string, parameters?: Map<string, any>): any {
 		if (this.JEL_PROPERTIES && name in this.JEL_PROPERTIES)
 			return (this as any)[name];
 	}

@@ -14,7 +14,7 @@ export default class Thing extends DbEntry {
   category: DbRef;
   JEL_PROPERTIES: Object;
   
-  constructor(distinctName: string, category: Category, properties = new Dictionary(), reality: any, hashCode: string) {
+  constructor(distinctName: string, category: Category|DbRef, properties = new Dictionary(), reality: any, hashCode: string) {
     super(distinctName, reality, hashCode, properties);
     this.category = DbRef.create(category);
   }

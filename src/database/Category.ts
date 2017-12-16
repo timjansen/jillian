@@ -14,7 +14,7 @@ export default class Category extends DbEntry {
   superCategory: DbRef;
   JEL_PROPERTIES: Object;
   
-  constructor(distinctName: string, superCategory: Category, properties = new Dictionary(), words = new Dictionary(), speech = new List(), reality?: any, hashCode?: string) {
+  constructor(distinctName: string, superCategory: Category|DbRef, properties = new Dictionary(), words = new Dictionary(), speech = new List(), reality?: any, hashCode?: string) {
     super(distinctName, reality, hashCode, properties);
     this.superCategory = DbRef.create(superCategory); 
   }

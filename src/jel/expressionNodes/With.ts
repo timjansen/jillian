@@ -24,7 +24,7 @@ export default class With extends JelNode {
 	}
   
 	toString(): string {
-		return `with ${this.assignments.map(s=>s.toString()).join(', ')}): ${this.expression.toString()}`;		
+		return `with ${this.assignments.map(s=>s.toString()).join(', ')}: ${this.expression.toString()}`;		
 	}
 	
   getSerializationProperties(): Object {

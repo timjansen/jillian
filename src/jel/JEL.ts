@@ -259,7 +259,12 @@ export default class JEL {
         let t2 = JEL.nextOrThrow(tokens, "Expected identifier after '@' for reference.");
         if (t2.type != TokenType.Identifier)
           JEL.throwParseException(token, "Expected identifier after '@' for reference.");
-        return JEL.tryBinaryOps(tokens, new Reference(t2.value), precedence, stopOps);
+				if (tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == '(') {
+					const assignments: Assignment[] = JEL.parseParameters(tokens, PARENS_PRECEDENCE, PARAMETER_STOP, ')', "Expected comma or closing parens.", 'parameter');
+	        return JEL.tryBinaryOps(tokens, new Reference(t2.value, assignments), precedence, stopOps);
+				}
+				else
+	        return JEL.tryBinaryOps(tokens, new Reference(t2.value), precedence, stopOps);
       }
       else if (token.value == 'if') {
         const cond = JEL.parseExpression(tokens, IF_PRECEDENCE, IF_STOP);
@@ -272,27 +277,32 @@ export default class JEL {
 				return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, Literal.TRUE), precedence, stopOps);
       }
       else if (token.value == 'with') {
-        const assignments: Assignment[] = [];
-        while (true) {
-          const name = JEL.nextOrThrow(tokens, "Expected identifier for constant.");
-          if (name.type != TokenType.Identifier)
-            JEL.throwParseException(name || token, "Expected identifier for constant.");
-          if (/(^[A-Z])|(^_$)/.test(name.value))
-            JEL.throwParseException(name || token, `Illegal name ${name.value}, must not start constant with capital letter or be the underscore.`);
-          const eq = JEL.expectOp(tokens, EQUAL, "Expected equal sign after variable name.");
-          const expression = JEL.parseExpression(tokens, WITH_PRECEDENCE, WITH_STOP);
-          if (!expression)
-            JEL.throwParseException(eq, "Expression ended unexpectedly.");
-          assignments.push(new Assignment(name.value, expression));
-          const terminator = JEL.expectOp(tokens, WITH_STOP, "Expected colon or equal sign after expression in 'with' statement.");
-          if (terminator.value == ':')
-            return new With(assignments, JEL.parseExpression(tokens, precedence, stopOps));
-        }
+        const assignments: Assignment[] = JEL.parseParameters(tokens, WITH_PRECEDENCE, WITH_STOP, ':', "Expected colon or equal sign after expression in 'with' statement.", 'constant');
+        return new With(assignments, JEL.parseExpression(tokens, precedence, stopOps));
       }
     }
     JEL.throwParseException(token, "Unexpected token");
 		return undefined as any; // this is a dummy return to make Typescript happy
   }
+	
+	static parseParameters(tokens: TokenReader, precedence: number, stop: any, terminator: string, errorNoEnd: string, errorParamName: string): Assignment[] {
+		const assignments: Assignment[] = [];
+		while (true) {
+			const name = JEL.nextOrThrow(tokens, `Expected identifier for ${errorParamName}.`);
+			if (name.type != TokenType.Identifier)
+				JEL.throwParseException(name || tokens.last(), `Expected identifier for ${errorParamName}.`);
+			if (/(^[A-Z])|(^_$)/.test(name.value))
+				JEL.throwParseException(name || tokens.last(), `Illegal name ${name.value}, must not start ${errorParamName} with capital letter or be the underscore.`);
+			const eq = JEL.expectOp(tokens, EQUAL, "Expected equal sign after variable name.");
+			const expression = JEL.parseExpression(tokens, precedence, stop);
+			if (!expression)
+				JEL.throwParseException(eq, "Expression ended unexpectedly.");
+			assignments.push(new Assignment(name.value, expression));
+			const terminatorToken = JEL.expectOp(tokens, stop, errorNoEnd);
+			if (terminatorToken.value == terminator)
+				return assignments;
+		}
+	}
    
   // called after an potential left operand for a binary op (or function call)
   static tryBinaryOps(tokens: TokenReader, left: JelNode, precedence: number, stopOps: any): JelNode {

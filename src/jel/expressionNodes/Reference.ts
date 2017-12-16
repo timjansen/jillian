@@ -1,32 +1,58 @@
 import JelNode from './JelNode';
+import Assignment from './Assignment';
 import Context from '../Context';
 import DbRef from '../../database/DbRef';
+import Util from '../../util/Util';
+
+
+function resolveValueMap(ctx: Context, assignments: Assignment[]): Map<string, any>|Promise<Map<string, any>> {
+	const values: any = assignments.map(a=>a.execute(ctx));
+	if (Util.hasAny(values, v=>v instanceof Promise))
+		return Promise.all(values).then(resolvedValues=>new Map(assignments.map((a, i)=>[a.name, resolvedValues[i]]) as any) as any);
+	else
+		return new Map(assignments.map((a, i)=>[a.name, values[i]]) as any);		
+}
 
 // a @Name ref
 export default class Reference extends JelNode {
-	public readonly ref: DbRef;
-  constructor(public name: string) {
+	public ref: DbRef | Promise<DbRef> | undefined;
+  constructor(public name: string, public parameters: Assignment[] = []) {
     super();
-    this.ref = new DbRef(this.name);
   }
   
   // override
   execute(ctx: Context): any {
+		if (!this.ref) {
+			if (!this.parameters.length)
+				this.ref = new DbRef(this.name);
+			else {
+				const params = resolveValueMap(ctx, this.parameters);
+				if (params instanceof Promise)
+					this.ref = params.then(p=>this.ref = new DbRef(this.name, p));
+				else
+					this.ref = new DbRef(this.name, params);
+			}
+		}
     return this.ref;
   }
   
   // overrride
   equals(other?: JelNode): boolean {
 		return other instanceof Reference &&
-      this.name == other.name;
+      this.name == other.name && 
+			this.parameters.length == other.parameters.length && 
+      !this.parameters.find((l, i)=>!l.equals(other.parameters[i]));;
 	}
   
 	toString(): string {
-		return `@${this.name}`;	
+		if (this.parameters.length)
+			return `@${this.name}(${this.parameters.map(s=>s.toString()).join(', ')})`;	
+		else
+			return `@${this.name}`;	
 	}
 	
-  getSerializationProperties(): string[] {
-    return [this.name];
+  getSerializationProperties(): any[] {
+    return [this.name, this.parameters];
   }
 }
 
