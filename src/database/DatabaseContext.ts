@@ -2,8 +2,8 @@ import Context from '../jel/Context';
 
 import DbEntry from './DbEntry';
 import DbSession from './DbSession';
-import Category from './Category';
-import Thing from './Thing';
+import Category from './dbObjects/Category';
+import Thing from './dbObjects/Thing';
 
 import Dictionary from '../jel/types/Dictionary';
 import FuzzyBoolean from '../jel/types/FuzzyBoolean';

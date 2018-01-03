@@ -61,6 +61,36 @@ export default class DbRef extends JelType {
 			return dbSession.getFromDatabase(this.distinctName).then(r=>(this.cached = this.addProxy(r)) || null);
 	}
 	
+	hasSameParameters(right: DbRef): boolean {
+		if (!this.parameters != !right.parameters)
+			return false;
+		if (!this.parameters || !right.parameters)
+			return true;
+		if (this.parameters.size != right.parameters.size)
+			return false;
+		for (let a in this.parameters.keys())
+			if ((!right.parameters.has(a)) || this.parameters.get(a) !== right.parameters.get(a))
+				return false;
+		return true;
+	}
+	
+	op(operator: string, right: any): any {
+		if (right instanceof DbRef) {
+			switch(operator) {
+				case '==':
+					return this.distinctName == right.distinctName;
+				case '!=':
+					return this.distinctName == right.distinctName;
+				case '===':
+					return this.distinctName == right.distinctName && this.hasSameParameters(right);
+				case '!==':
+					return this.distinctName == right.distinctName && this.hasSameParameters(right);
+			}
+		}
+		return super.op(operator, right);
+	}
+
+	
 	getAsync(ctxOrSession: Context | DbSession): Promise<DbEntry|null> {
 		const v = this.get(ctxOrSession);
 		if (v instanceof Promise)

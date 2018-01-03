@@ -94,11 +94,14 @@ export default class Dictionary extends JelType {
 	get keys(): List {
 		return new List(this.elements.keys());
 	}
-	
+
 	each_jel_mapping: Object;
-	each(f: Callable): Dictionary {
+	each(f: Callable | ((key: string, value: any, index: number)=>void)): Dictionary {
 		let i = 0;
-		this.elements.forEach((value, key) => f.invoke(key, value, i++));
+		if (typeof f == 'function')
+			this.elements.forEach((value, key) => f(key, value, i++));
+		else
+			this.elements.forEach((value, key) => f.invoke(key, value, i++));
 		return this;
 	}
 

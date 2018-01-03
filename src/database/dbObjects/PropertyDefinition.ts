@@ -1,18 +1,23 @@
 import Category from './Category';
-import DbEntry from './DbEntry';
-import DbRef from './DbRef';
+import DbEntry from '../DbEntry';
+import DbRef from '../DbRef';
 import PropertyType from './PropertyType';
-import DbIndexDescriptor from './DbIndexDescriptor';
-import Dictionary from '../jel/types/Dictionary';
-import List from '../jel/types/List';
+import DbIndexDescriptor from '../DbIndexDescriptor';
+import Dictionary from '../../jel/types/Dictionary';
+import List from '../../jel/types/List';
 
 
 // Base class for any kind of physical or immaterial instance of a category
 export default class PropertyDefinition extends DbEntry {
   JEL_PROPERTIES: Object;
+  type: List; // of PropertyType
   
-  constructor(public distinctName: string, public type: PropertyType) {
+  constructor(public distinctName: string, type: PropertyType|List) {
     super(distinctName, null);
+    if (type instanceof List)
+      this.type = type;
+    else
+      this.type = new List([type]);
   }
   
   getSerializationProperties(): Object {

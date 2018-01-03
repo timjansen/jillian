@@ -14,9 +14,6 @@ export default class DbEntry extends JelType {
     super();
   }
   
-//  addSentence(sentence) {
-//  }
-
   // returns a map index_name->{type: 'index-type, only category for now', property: 'the name of the property to index', includeParents: 'bool. for categories, if true, index for all parent cats as well'}
   get databaseIndices(): Map<string, DbIndexDescriptor> {
     return new Map();

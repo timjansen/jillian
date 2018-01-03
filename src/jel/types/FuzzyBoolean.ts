@@ -72,6 +72,12 @@ export default class FuzzyBoolean extends JelType {
 		return this.state >= FuzzyBoolean.HALF_TRUE_VALUE;
 	}
 	
+	static fourWay_jel_mapping = {mainValue: 0, clearly: 1};
+	static fourWay(mainValue: boolean, clearly: boolean): FuzzyBoolean {
+		return mainValue ? (clearly ? FuzzyBoolean.CLEARLY_TRUE : FuzzyBoolean.BARLEY_TRUE) :
+			(clearly ? FuzzyBoolean.CLEARLY_FALSE : FuzzyBoolean.BARELY_FALSE);
+	}
+	
 	static create_jel_mapping = {state: 0, diff: 1};
 	static create(...args: any[]): FuzzyBoolean {
 		return new FuzzyBoolean(args[0], args[1]);

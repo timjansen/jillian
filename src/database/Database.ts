@@ -4,7 +4,7 @@ import DatabaseConfig from './DatabaseConfig';
 import DatabaseError from './DatabaseError';
 import DatabaseContext from './DatabaseContext';
 import DbIndexDescriptor from './DbIndexDescriptor';
-import Category from './Category';
+import Category from './dbObjects/Category';
 
 import JEL from '../jel/JEL';
 import Context from '../jel/Context';

@@ -1,6 +1,6 @@
 import PropertyType from './PropertyType';
-import DbRef from './DbRef';
-import Dictionary from '../jel/types/Dictionary';
+import DbRef from '../DbRef';
+import Dictionary from '../../jel/types/Dictionary';
 
 
 

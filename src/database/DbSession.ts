@@ -1,5 +1,5 @@
 import WorkerPool from './WorkerPool';
-import Category from './Category';
+import Category from './dbObjects/Category';
 import DbRef from './DbRef';
 import DbEntry from './DbEntry';
 import Database from './Database';
