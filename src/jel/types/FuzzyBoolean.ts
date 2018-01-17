@@ -78,6 +78,28 @@ export default class FuzzyBoolean extends JelType {
 			(clearly ? FuzzyBoolean.CLEARLY_FALSE : FuzzyBoolean.BARELY_FALSE);
 	}
 	
+	static toFuzzyBoolean(a: boolean|FuzzyBoolean) {
+		if (typeof a == 'boolean')
+			return a ? FuzzyBoolean.CLEARLY_TRUE : FuzzyBoolean.CLEARLY_FALSE;
+		else
+			return a;
+	}
+
+	static toBoolean(a: boolean|FuzzyBoolean) {
+		if (typeof a == 'boolean')
+			return a;
+		else
+			return a.toBoolean();
+	}
+	
+	static and(a: boolean|FuzzyBoolean, b: boolean|FuzzyBoolean): FuzzyBoolean {
+		return FuzzyBoolean.toBoolean(a) ? FuzzyBoolean.toFuzzyBoolean(b) : FuzzyBoolean.toFuzzyBoolean(a);
+	}
+
+	static or(a: boolean|FuzzyBoolean, b: boolean|FuzzyBoolean): FuzzyBoolean {
+		return FuzzyBoolean.toBoolean(a) ? FuzzyBoolean.toFuzzyBoolean(a) : FuzzyBoolean.toFuzzyBoolean(b);
+	}
+	
 	static create_jel_mapping = {state: 0, diff: 1};
 	static create(...args: any[]): FuzzyBoolean {
 		return new FuzzyBoolean(args[0], args[1]);

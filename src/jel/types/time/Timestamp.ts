@@ -1,14 +1,13 @@
-import JelType from '../JelType';
-import UnitValue from './UnitValue';
-import FuzzyBoolean from './FuzzyBoolean';
-import Fraction from './Fraction';
+import JelType from '../../JelType';
+import UnitValue from '../UnitValue';
+import FuzzyBoolean from '../FuzzyBoolean';
 
 /**
  * Represents a timestamp, relative to epoch.
  */
 export default class Timestamp extends JelType {
 	
-	constructor(public msSinceEpoch: number, public precisionInMs = 1) {
+	constructor(public msSinceEpoch: number, public precisionInMs = 0) {
 		super();
 	}
 	
@@ -60,7 +59,7 @@ export default class Timestamp extends JelType {
 					return new Timestamp(this.msSinceEpoch - v, this.precisionInMs);
 			}
 		}
-		super.op(operator, right);
+		return super.op(operator, right);
 	}
 
 	toNumber_jel_mapping: Object;
@@ -78,5 +77,5 @@ export default class Timestamp extends JelType {
 	}
 }
 
-Fraction.prototype.toNumber_jel_mapping = {};
+Timestamp.prototype.toNumber_jel_mapping = {};
 

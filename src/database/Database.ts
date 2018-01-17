@@ -13,8 +13,8 @@ import serializer from '../jel/Serializer';
 
 import tifu = require('tifuhash');
 
-import fs = require('fs-extra');
-import path = require('path');
+import * as fs from 'fs-extra';
+import * as path from 'path';
 
 const CONFIG_FILE = '/dbconfig.jel';
 const DATA_DIR = '/data/';

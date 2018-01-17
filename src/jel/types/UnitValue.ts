@@ -10,9 +10,11 @@ import DbRef from '../../database/DbRef';
  */
 export default class UnitValue extends JelType {
 	JEL_PROPERTIES: Object;
+	unit: DbRef;
 	
-	constructor(public value: number | Fraction | ApproximateNumber, public unit: DbRef) {
+	constructor(public value: number | Fraction | ApproximateNumber, unit: DbRef | string) {
 		super();
+		this.unit = typeof unit == 'string' ? new DbRef(unit) : unit;
 	}
 
 	op(operator: string, right: any): any {
@@ -41,11 +43,20 @@ export default class UnitValue extends JelType {
 		return; // TODO
 	}
 	
+	toNumber_jel_mapping: Object;
+	toNumber(): number {
+		if (typeof this.value == 'number')
+			return this.value;
+		else
+			return this.value.toNumber();
+	}
+	
 	toBoolean(): boolean {
 		return !!this.value;
 	}
 }
 
+UnitValue.prototype.toNumber_jel_mapping = {};
 UnitValue.prototype.convertTo_jel_mapping = {type: 0};
 UnitValue.prototype.inAccuracyRange_jel_mapping = {other:0};
 UnitValue.prototype.JEL_PROPERTIES = {value:1, unit:1, PRIMARY_UNIT:1, primaryValue:1, accuracy:1, primaryAccuracy:1};

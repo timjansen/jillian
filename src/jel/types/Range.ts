@@ -10,6 +10,7 @@ const RANGE_NUM_OPS: any = {'+': true, '-': true, '*': true, '/': true};
  * Ranges can be open-ended by passing a null for the min and/or max.
  */
 export default class Range extends JelType {
+	
 	constructor(public min?: number | Fraction | UnitValue | ApproximateNumber | null, public max?: number | Fraction | UnitValue | ApproximateNumber | null) {
 		super();
 		

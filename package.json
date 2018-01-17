@@ -9,15 +9,18 @@
   "author": "Tim Jansen",
   "license": "ISC",
   "dependencies": {
+    "@turf/turf": "^5.1.6",
     "@types/fs-extra": "^4.0.2",
+    "@types/moment-timezone": "^0.5.4",
+    "fs-extra": "^3.0.1",
     "mocha": "^3.2.0",
+    "moment-timezone": "^0.5.14",
     "natural": "^0.5.0",
     "tifuhash": "^1.0.5",
-    "typescript": "^2.5.2"
+    "typescript": "^2.6.2"
   },
   "devDependencies": {
     "@types/node": "^8.0.31",
-    "fs-extra": "^3.0.1",
     "source-map-support": "^0.5.0",
     "tmp": "0.0.31"
   }

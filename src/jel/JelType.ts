@@ -19,7 +19,7 @@ const REVERSIBLE_OPS: any = {
 	'<<=': '>>='
 };
 
-// ops that can be inverted
+// ops that can be inverted and thus do not need to be implemented
 const INVERTIBLE_OPS: any = {
 	'!=': '==',
 	'!==': '===',
@@ -74,6 +74,8 @@ export default class JelType {
 	reverseOps: Object;
 	JEL_PROPERTIES: Object;
 	static readonly NAMED_ARGUMENT_METHOD = 'named';
+	static readonly STRICT_OPS: any = {'==': '===', '!=': '!==', '<': '<<', '>': '>>', '<=': '<<=', '>=': '>>='};
+	static readonly LENIENT_OPS: any = {'===': '==', '!==': '!=', '<<': '<', '>>': '>', '<<=': '<=', '>>=': '>='};
 
 	
 	static op(operator: string, left: any, right: any): any {
@@ -166,12 +168,19 @@ export default class JelType {
 	/*
 	 * Ops that may be implemented:
 	 * '+', '-', '*', '/', '%': arithmetic
-	 * '==', '===', '<', '<<', '<=', '<<=', '>', '>>', '>=', '>>=': Comparisons
+	 * '==', '===', '!=', '!==', '<', '<<', '<=', '<<=', '>', '>>', '>=', '>>=': Comparisons
+	 * 
+	 * Note that when yoiu override this method, but still call it for unsupported operators, 
+	 * you only need to implement '==', '===', '>' and '>>' for a complete set of comparisons.
 	 */
 	op_jel_mapping: Object;
 	op(operator: string, right: any): any {
 		if (operator in INVERTIBLE_OPS)
 			return !this.op(INVERTIBLE_OPS[operator], right);
+		if (operator == '<')
+			return !this.op('>', right) && !!this.op('==', right);
+		if (operator == '<<')
+			return !this.op('>>', right) && !!this.op('===', right);
 		throw new Error(`Operator "${operator}" is not supported for this type`);
 	}
 
