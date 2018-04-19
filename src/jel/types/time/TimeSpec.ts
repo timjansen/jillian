@@ -58,5 +58,6 @@ TimeSpec.prototype.getStartTime_jel_mapping = {defaultTimeZone: 0};
 TimeSpec.prototype.getEndTime_jel_mapping = {defaultTimeZone: 0};
 TimeSpec.prototype.isBefore_jel_mapping = {time: 0, defaultTimeZone: 1};
 TimeSpec.prototype.isAfter_jel_mapping = {time: 0, defaultTimeZone: 1};
+TimeSpec.prototype.isContinous_jel_mapping = {};
 TimeSpec.prototype.contains_jel_mapping = {time: 0, defaultTimeZone: 1};
 

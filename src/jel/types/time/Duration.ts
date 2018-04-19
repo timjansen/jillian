@@ -73,6 +73,8 @@ export default class Duration extends JelType {
 	singleOp(operator: string): any {
 		if (operator == '!') 
 			return !(this.years || this.months || this.days || this.hours || this.minutes || this.seconds);
+		else if (operator == '-') 
+			return new Duration(-this.years, -this.months, -this.hours, -this.minutes, -this.seconds);
 		else
 			return JelType.singleOp(operator, this);
 	}
@@ -81,30 +83,34 @@ export default class Duration extends JelType {
 	toEstimatedSeconds(): UnitValue {
 		const self = this.simplify();
 		const yDays = self.years % 4 * 365 + Math.floor(self.years / 4) * 4 * 365.25;
-		const mDays = Math.floor(self.months * 30.5);
+		const mDays = Math.trunc(self.months * 30.5);
 		const hours = (yDays + mDays + self.days) * 24 + self.hours;
 		return new UnitValue(hours * 3600 + self.minutes * 60 + self.seconds, 'Second');
 	}
 	
+	fullDays_jel_mapping: any;
+	fullDays(): Duration {
+		const dDays = Math.floor((this.hours + this.minutes / 60 + this.seconds / 3600) / 24);
+		return new Duration(this.years, this.months, this.days + dDays);
+	}
+	
+	simplify_jel_mapping: any;
 	simplify(): Duration {
-		const oMinutes = this.seconds % 60;
-		const newSeconds = this.seconds - oMinutes * 60;
-
-		const oHours = (this.minutes + oMinutes) % 60;
-		const newMinutes = this.minutes - oHours * 60;
-
-		const oDays = (this.hours + oHours) % 24;
-		const newHours = this.hours - oDays * 24;
-		const newDays = this.days + oDays;
+		const allSecs = this.seconds + this.minutes*60 + this.hours * 3600 + this.days * 3600 * 24;
+		const days = Math.trunc(allSecs / (3600*24));
+		const hours = Math.trunc((allSecs - 3600 * 24 * days) / 3600);
+		const minutes = Math.trunc((allSecs - 3600 * 24 * days - 3600 * hours) / 60);
+		const seconds = allSecs - 3600 * 24 * days - 3600 * hours - 60 * minutes;
 		
 		// cut here: we can't reliably convert days into months
 
-		const oMonths = this.months % 12;
-		const newYears = this.years + oMonths;
-		const newMonths = this.months - oMonths * 12;
+		const allMonths = this.months + this.years * 12;
+		const years = Math.trunc(allMonths / 12);
+		const months = allMonths - years * 12;
 		
-		if (oMinutes || oHours || oDays || oMonths)
-			return new Duration(newYears, newMonths, newDays, newHours, newMinutes, newSeconds);
+		if (this.days != days || this.hours != hours || this.minutes != minutes || this.seconds != seconds || 
+				this.years != years || this.months != months)
+			return new Duration(years, months, days, hours, minutes, seconds);
 		else
 			return this;
 	}
@@ -120,6 +126,8 @@ export default class Duration extends JelType {
 
 }
 
+Duration.prototype.fullDays_jel_mapping = {};
+Duration.prototype.simplify_jel_mapping = {};
 Duration.prototype.toEstimatedSeconds_jel_mapping = {};
 
 

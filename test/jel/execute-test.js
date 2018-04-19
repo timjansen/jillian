@@ -2,7 +2,6 @@
 
 require('source-map-support').install();
 const assert = require('assert');
-const jelAssert = require('../jel-assert.js');
 
 const JEL = require('../../build/jel/JEL.js').default;
 const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
@@ -22,6 +21,9 @@ const Assignment = require('../../build/jel/expressionNodes/Assignment.js').defa
 const With = require('../../build/jel/expressionNodes/With.js').default;
 const Lambda = require('../../build/jel/expressionNodes/Lambda.js').default;
 const Call = require('../../build/jel/expressionNodes/Call.js').default;
+
+const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
+const jelAssert = new JelAssert();
 
 describe('JEL', function() {
   describe('execute()', function() {

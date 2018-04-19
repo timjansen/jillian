@@ -146,7 +146,7 @@ export default class JelType {
 			
 			if (name in obj) { 
 				if (typeof obj[name] == 'function')
-					throw new Error(`Method ${name} is callable in JEL. It would need a _jel_mapping.`);
+					throw new Error(`Method ${name} is not callable in JEL. It would need a _jel_mapping.`);
 				else
 					throw new Error(`Property ${name} is not accessible. It would need to be defined in JEL_PROPERTIES.`);
 			}

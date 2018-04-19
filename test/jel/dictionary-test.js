@@ -7,7 +7,8 @@ const JEL = require('../../build/jel/JEL.js').default;
 const List = require('../../build/jel/types/List.js').default;
 const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const Context = require('../../build/jel/Context.js').default;
-const jelAssert = require('../jel-assert.js');
+const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
+const jelAssert = new JelAssert();
 
 const dictContext = new Context().setAll({Dictionary});
 

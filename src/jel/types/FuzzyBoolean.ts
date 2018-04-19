@@ -6,18 +6,24 @@ import JelType from '../JelType';
 export default class FuzzyBoolean extends JelType {
 	state: number;
 
+	JEL_PROPERTIES: Object = {state:1};
+	
 	static CLEARLY_FALSE_VALUE = 0;
 	static BARELY_FALSE_VALUE = 0.25;
 	static HALF_TRUE_VALUE = 0.5;
-	static BARLEY_TRUE_VALUE = 0.75;
+	static BARELY_TRUE_VALUE = 0.75;
 	static CLEARLY_TRUE_VALUE = 1;
 
 	static CLEARLY_FALSE = new FuzzyBoolean(FuzzyBoolean.CLEARLY_FALSE_VALUE);
 	static BARELY_FALSE = new FuzzyBoolean(FuzzyBoolean.BARELY_FALSE_VALUE);
 	static HALF_TRUE = new FuzzyBoolean(FuzzyBoolean.HALF_TRUE_VALUE);
-	static BARLEY_TRUE = new FuzzyBoolean(FuzzyBoolean.BARLEY_TRUE_VALUE);
+	static BARELY_TRUE = new FuzzyBoolean(FuzzyBoolean.BARELY_TRUE_VALUE);
 	static CLEARLY_TRUE = new FuzzyBoolean(FuzzyBoolean.CLEARLY_TRUE_VALUE);
 
+	static JEL_PROPERTIES: Object = {CLEARLY_FALSE_VALUE: 1, BARELY_FALSE_VALUE:1, HALF_TRUE_VALUE:1, BARELY_TRUE_VALUE:1, CLEARLY_TRUE_VALUE:1,
+																	CLEARLY_FALSE:1, BARELY_FALSE:1, HALF_TRUE:1, BARELY_TRUE:1, CLEARLY_TRUE:1};
+	
+	
 	// diff optional: can contain the difference that lead to the result, e.g. the length difference if length were compared
 	constructor(state: number | boolean, public diff?: number) {
 		super();
@@ -74,9 +80,16 @@ export default class FuzzyBoolean extends JelType {
 	
 	static fourWay_jel_mapping = {mainValue: 0, clearly: 1};
 	static fourWay(mainValue: boolean, clearly: boolean): FuzzyBoolean {
-		return mainValue ? (clearly ? FuzzyBoolean.CLEARLY_TRUE : FuzzyBoolean.BARLEY_TRUE) :
+		return mainValue ? (clearly ? FuzzyBoolean.CLEARLY_TRUE : FuzzyBoolean.BARELY_TRUE) :
 			(clearly ? FuzzyBoolean.CLEARLY_FALSE : FuzzyBoolean.BARELY_FALSE);
 	}
+
+	static twoPrecision_jel_mapping = {lowPrecision: 0, highPrecision: 1};
+	static twoPrecision(lowPrecision: boolean, highPrecision: boolean): FuzzyBoolean {
+		return lowPrecision ? (highPrecision ? FuzzyBoolean.CLEARLY_TRUE : FuzzyBoolean.BARELY_TRUE) :
+			(highPrecision ? FuzzyBoolean.BARELY_FALSE : FuzzyBoolean.CLEARLY_FALSE);
+	}
+
 	
 	static toFuzzyBoolean(a: boolean|FuzzyBoolean) {
 		if (typeof a == 'boolean')
