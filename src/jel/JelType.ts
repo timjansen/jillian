@@ -77,7 +77,9 @@ export default class JelType {
 	static readonly STRICT_OPS: any = {'==': '===', '!=': '!==', '<': '<<', '>': '>>', '<=': '<<=', '>=': '>>='};
 	static readonly LENIENT_OPS: any = {'===': '==', '!==': '!=', '<<': '<', '>>': '>', '<<=': '<=', '>>=': '>='};
 
-	
+	/**
+	 * Executes the given operator on any non-promise type.
+	 */
 	static op(operator: string, left: any, right: any): any {
 		if (left == null || right == null) {
 			if (operator == '==' || operator == '===')

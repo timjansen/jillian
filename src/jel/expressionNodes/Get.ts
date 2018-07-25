@@ -4,7 +4,13 @@ import Context from '../Context';
 import Gettable from '../Gettable';
 import Util from '../../util/Util';
 
-
+/**
+ * Accesses a member of an object for reading. 
+ *
+ * Examples:
+ *    a['x']
+ *    a['execute']()
+ */
 export default class Get extends JelNode {
   constructor(public left: JelNode, public name: JelNode) {
     super();

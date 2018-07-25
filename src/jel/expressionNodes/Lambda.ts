@@ -38,6 +38,15 @@ class LambdaCallable extends Callable {
 	}
 }
 
+/**
+ * Represents a Lambda expression. 
+ *
+ * Examples:
+ *  () => 45                  // no arguments, always returns 45
+ *	a => a*a                 // one argument, returns the square number
+ *	(a,b) => a+b             // function thats returns the sum of two arguments
+ *	[1, 2, 3].map(e => 2*e)  // returns the list [2, 4, 6]
+ */ 
 export default class Lambda extends JelNode {
   constructor(public argNames: string[], public expression: JelNode) {
 		super();

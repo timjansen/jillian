@@ -113,13 +113,44 @@ export default class List extends JelType implements Gettable {
 		return new List(this.elements.slice(start, end));
 	}
 	
-	// isLess(a, b) checks whether a<b . If equal, is must return false. If a==b, then !isLess(a,b)&&!isLess(b,a)
+	// isLess(a, b) checks whether a<b . If a==b or a>b, is must return false. If a==b, then !isLess(a,b)&&!isLess(b,a)
+	// key is either the string of a property name, or a function key(a) that return the key for a.
 	sort_jel_mapping: Object;
-	sort(isLess: Callable): List {
-		const l = Array.prototype.slice.call(this.elements);
-		l.sort((a: any, b: any)=>isLess.invoke(a,b) ? -1 : (isLess.invoke(b,a) ? 1 : 0));
+	sort(isLess?: Callable, key?: string | Callable): List {
+		const l: any[] = Array.prototype.slice.call(this.elements);
+		if (typeof key == 'string') {
+			if (isLess) 
+				l.sort((a0: any, b0: any)=>{
+					const a = JelType.member(a0, key), b = JelType.member(b0, key);
+					return isLess.invoke(a,b) ? -1 : (isLess.invoke(b,a) ? 1 : 0)
+				});
+			else
+				l.sort((a0: any, b0: any)=> { 
+					const a = JelType.member(a0, key), b = JelType.member(b0, key);
+					return JelType.op('<', a, b) ? -1 : (JelType.op('>', a, b) ? 1 : 0)
+				});
+		}
+		else if (key instanceof Callable) {
+			if (isLess) 
+				l.sort((a0: any, b0: any)=>{
+					const a = key.invoke(a0), b = key.invoke(b0);
+					return isLess.invoke(a,b) ? -1 : (isLess.invoke(b,a) ? 1 : 0)
+				});
+			else
+				l.sort((a0: any, b0: any)=> { 
+					const a = key.invoke(a0), b = key.invoke(b0);
+					return JelType.op('<', a, b) ? -1 : (JelType.op('>', a, b) ? 1 : 0)
+				});
+		}
+		else if (isLess)
+			l.sort((a: any, b: any)=>isLess.invoke(a,b) ? -1 : (isLess.invoke(b,a) ? 1 : 0));
+		else
+			l.sort((a: any, b: any)=>JelType.op('<', a, b) ? -1 : (JelType.op('>', a, b) ? 1 : 0));
+
 		return new List(l);
 	}
+	
+	// TODO: min, max
 	
 	toNullable(): List|null {
 		return this.elements.length ? this : null;
@@ -142,7 +173,7 @@ List.prototype.hasAny_jel_mapping = {f: 0};
 List.prototype.hasOnly_jel_mapping = {f: 0};
 List.prototype.bestMatch_jel_mapping = {isBetter: 0};
 List.prototype.sub_jel_mapping = {start: 0, end: 1};
-List.prototype.sort_jel_mapping = {isLess: 0};
+List.prototype.sort_jel_mapping = {isLess: 0, key: 1};
 
 
 		

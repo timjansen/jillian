@@ -104,6 +104,7 @@ Examples:
 Patterns
 -------------------
 Patterns are expressions that match a sentence or a phrase. They are somewhat similar to regular expressions, but instead of character-by-character they work word-by-word.
+They can embed translators with regular expressions though.
 
 Examples:
 	`foot`                      // matches the word 'foot'
@@ -162,4 +163,8 @@ With allows you to define constants that can be used in the following expression
 Examples:
 	with a=2: a+3   // returns 5
 	with x=1, y=x+2, z=y*3: z*4   // returns 36
+	
+	
+TODO: 
+	
 

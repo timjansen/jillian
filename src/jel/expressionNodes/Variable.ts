@@ -1,6 +1,13 @@
 import JelNode from './JelNode';
 import Context from '../Context';
 
+/**
+ * Accesses a variable for reading.
+ *
+ * Examples:
+ *   counter
+ *   myValue
+ */
 export default class Variable extends JelNode {
   constructor(public name: string) {
     super();

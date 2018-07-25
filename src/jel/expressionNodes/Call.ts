@@ -21,6 +21,18 @@ function resolveValueObj(f: (e: any)=>any, assignments: Assignment[], values: an
 		return f(createObj(values));
 }
 
+/**
+ * Represents a method call. 
+ *
+ * Examples: 
+ *     f()
+ *     f(2)
+ *     f(x = 2)
+ *     a.myMethod()
+ *     a.add(1, 2)
+ *     list.sort(key = a=>a.name)
+ *     (()=>4)()                     // calling lambda, returns 4
+ */
 export default class Call extends JelNode {
   constructor(public left: JelNode, public argList: JelNode[]  = [], public namedArgs: Assignment[] = []) {
     super();

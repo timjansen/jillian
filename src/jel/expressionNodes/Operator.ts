@@ -4,6 +4,29 @@ import JelType from '../JelType';
 import Context from '../Context';
 import Util from '../../util/Util';
 
+/**
+ * Represents a standard operator. Will evaluate both left and right, except for the operators '.', '||' and '&&' which will evaluate only the
+ * left operand and only execute the right operand when required.
+ *
+ * Examples:
+ *  3+4
+ *	12-11
+ *	12*15
+ *	8/2
+ *	4+2*3           // returns 10, because of precedence rules
+ *	(4+2)*3         // returns 12
+ *	value == "foo"
+ *  "foo" != value
+ *	!someCondition
+ *	-(4*4)
+ *	cond1 && cond2
+ *	cond1 || cond2
+ *	obj.property   // note that if obj is null, it returns null. No exceptions.
+ *	obj.property > 2 || obj.property < 0
+ *	mul(6, 7)
+ *	obj.print("hello")
+ * 
+ */ 
 export default class Operator extends JelNode {
   constructor(public operator: string, public left: JelNode, public right?: JelNode) {
     super();

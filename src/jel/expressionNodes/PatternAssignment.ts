@@ -8,6 +8,10 @@ import Serializable from '../Serializable';
 
 const EMPTY_MAP = new Map();
 
+/**
+ * Helper class used by Translators to define the translator's elements. Each assignment consists of a Pattern, an expression and 
+ * optional meta values.
+ */
 export default class PatternAssignment extends JelNode implements Serializable {
   constructor(public name: JelPattern, public expression: JelNode, public meta: Assignment[]) {
     super();

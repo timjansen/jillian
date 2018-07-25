@@ -4,6 +4,14 @@ import Context from '../Context';
 import JelList from '../types/List';
 import Util from '../../util/Util';
 
+/**
+ * Represents a List literal, like in JavaScript.Represents
+ *
+ * Examples:
+ *	[]              // empty lists
+ *	[1,2,3] 
+ *	[a-1, a, a+1]   // expression to create list elements
+ */
 export default class List extends JelNode {
   constructor(public elements: JelNode[]) {
     super();

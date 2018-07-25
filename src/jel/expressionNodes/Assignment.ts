@@ -3,6 +3,9 @@ import JelType from '../JelType';
 import Context from '../Context';
 import Serializable from '../Serializable';
 
+/**
+ * Represents an assignment, which is a helper construct for with and calls.
+ */
 export default class Assignment extends JelNode implements Serializable {
   constructor(public name: string, public expression: JelNode) {
     super();

@@ -1,6 +1,23 @@
 import JelNode from './JelNode';
 import Context from '../Context';
 
+/**
+ * Represents a literal, atomic value (boolean, number, string, null).
+ *
+ * Examples:
+ *   null
+ *   true
+ *   false
+ *   1
+ *   -1
+ *   2.54
+ *	 10.43e-23
+ *   "foo"
+ *	 'bar'
+ *	 "it said \"boo\""
+ *	 'it said "boo"'
+ *	 "Here are some indented lines:\n\tLine1\n\tLine2\n"
+ */
 export default class Literal extends JelNode {
   static TRUE = new Literal(true);
 	

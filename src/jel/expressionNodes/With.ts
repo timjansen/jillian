@@ -2,6 +2,13 @@ import JelNode from './JelNode';
 import Assignment from './Assignment';
 import Context from '../Context';
 
+/**
+ * Defines one or more constants in its execution scope.
+ * 
+ * Examples:
+ *   with a=2: a+3   // returns 5
+ *   with x=1, y=x+2, z=y*3: z*4   // returns 36
+ */
 export default class With extends JelNode {
   constructor(public assignments: Assignment[], public expression: JelNode) {
     super();

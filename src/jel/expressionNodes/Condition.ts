@@ -4,6 +4,13 @@ import Context from '../Context';
 import Util from '../../util/Util';
 
 
+/**
+ * Represents a if/then/else condition. The 'else' part can be omitted. It will then return the boolean 'true', which is mainly intended for assumptions.
+ *
+ * Examples: 
+ *     if a > 0 then 1 else 2
+ *     if c instanceof @Cat then c instanceof @Animal
+ */
 export default class Condition extends JelNode {
   constructor(public condition: JelNode, public thenExp: JelNode, public elseExp: JelNode) {
     super();

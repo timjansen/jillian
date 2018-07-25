@@ -3,6 +3,7 @@
 require('source-map-support').install();
 const assert = require('assert');
 const JEL = require('../../build/jel/JEL.js').default;
+const JelType = require('../../build/jel/JelType.js').default;
 const List = require('../../build/jel/types/List.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
@@ -135,14 +136,45 @@ describe('jelList', function() {
 
   describe('sort()', function() {
     it('handles small lists', function() {
+      assert.deepEqual(new JEL('[].sort()').executeImmediately().elements, []); 
+      assert.deepEqual(new JEL('[1].sort()').executeImmediately().elements, [1]); 
       assert.deepEqual(new JEL('[].sort((a,b)=>a>b)').executeImmediately().elements, []); 
       assert.deepEqual(new JEL('[1].sort((a,b)=>a>b)').executeImmediately().elements, [1]); 
     });
-    it('sorts', function() {
+    it('sorts by default sorter', function() {
+      assert.deepEqual(new JEL('[3, 2, 9, 5].sort()').executeImmediately().elements, [2, 3, 5, 9]); 
+      assert.deepEqual(new JEL('[9, 2, 3, 5].sort()').executeImmediately().elements, [2, 3, 5, 9]); 
+      assert.deepEqual(new JEL('[1, 3, 3, 5, 9, 9].sort()').executeImmediately().elements, [1, 3, 3, 5, 9, 9]); 
+    });
+    it('sorts by lambda', function() {
       assert.deepEqual(new JEL('[3, 2, 9, 5].sort((a,b)=>a<b)').executeImmediately().elements, [2, 3, 5, 9]); 
       assert.deepEqual(new JEL('[9, 2, 3, 5].sort((a,b)=>a<b)').executeImmediately().elements, [2, 3, 5, 9]); 
       assert.deepEqual(new JEL('[1, 3, 3, 5, 9, 9].sort((a,b)=>a<b)').executeImmediately().elements, [1, 3, 3, 5, 9, 9]); 
       assert.deepEqual(new JEL("['foo', 'blabla', 'bar', 'blablabla'].sort((a,b)=>a.length>b.length)").executeImmediately().elements, ['blablabla', 'blabla', 'foo', 'bar']); 
+    });
+    it('sorts by string key', function() {
+      class X extends JelType {
+     	  constructor(x) {
+					super();
+				  this.a = x;
+			  }
+        static create(x) {
+          return new X(x);
+        }
+      }
+      X.create_jel_mapping = {x:0};
+      X.prototype.JEL_PROPERTIES = {a:1};
+			
+			const ctx = new Context().setAll({X});
+
+			assert.deepEqual(new JEL('[X(17), X(3), X(11), X(9)].sort(key="a").map(o=>o.a)').executeImmediately(ctx).elements, [3, 9, 11, 17]); 
+      assert.deepEqual(new JEL('[X(17), X(3), X(11), X(9)].sort(isLess=(a,b)=>a<b, key="a").map(o=>o.a)').executeImmediately(ctx).elements, [3, 9, 11, 17]); 
+    });
+    it('sorts by key function', function() {
+      assert.deepEqual(new JEL('[{a: 17}, {a: 3}, {a: 11}, {a: 9}].sort(key=o=>o.get("a")).map(o=>o.get("a"))').executeImmediately().elements, [3, 9, 11, 17]); 
+      assert.deepEqual(new JEL('[{a: 17}, {a: 3}, {a: 11}, {a: 9}].sort((a,b)=>a<b, key=o=>o.get("a")).map(o=>o.get("a"))').executeImmediately().elements, [3, 9, 11, 17]); 
+      assert.deepEqual(new JEL('[{a: "xxxx"}, {a: "xx"}, {a: "x"}, {a: "xxxxxx"}].sort(isLess=(a,b)=>a.length<b.length, key=o=>o.get("a")).map(o=>o.get("a"))').executeImmediately().elements, 
+											 ["x", "xx", "xxxx", "xxxxxx"]); 
     });
   });
 

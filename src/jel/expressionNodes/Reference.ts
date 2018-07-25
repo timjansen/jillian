@@ -13,7 +13,13 @@ function resolveValueMap(ctx: Context, assignments: Assignment[]): Map<string, a
 		return new Map(assignments.map((a, i)=>[a.name, values[i]]) as any);		
 }
 
-// a @Name ref
+/**
+ * A reference looks up a named object in the database and returns it (or rather a promise to it).
+ * 
+ * Examples:
+ *   @Bird    // returns the category Bird
+ *	 @Mars    // returns the instance called Mars
+ */
 export default class Reference extends JelNode {
 	public ref: DbRef | Promise<DbRef> | undefined;
   constructor(public name: string, public parameters: Assignment[] = []) {

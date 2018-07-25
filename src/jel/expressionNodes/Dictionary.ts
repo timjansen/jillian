@@ -5,6 +5,17 @@ import Context from '../Context';
 import Util from '../../util/Util';
 import JelDictionary from '../types/Dictionary';
 
+/**
+ * A key/value map literal.
+ *
+ * Examples: 
+ *	{}                            // empty dictionary
+ *  {a: 2, b: "bar", c: 4*5}      // keys following identifier logic do not need to be quoted. Values can be expressions.
+ *	{"a": 2, 'b': 4, 77: "foo"}   // all literals can be keys
+ *	{true: 1, false: 0}           // boolean values as keys
+ *  {a}                           // short-cut for {a: a} . Reads the variable "a" and stores it as "a".
+ *	{a, b: 2, c}
+ */
 export default class Dictionary extends JelNode {
   constructor(public elements: Assignment[] = []) {
     super();
