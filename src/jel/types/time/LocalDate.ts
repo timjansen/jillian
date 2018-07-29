@@ -32,8 +32,8 @@ export default class LocalDate extends TimeSpec {
 		return Timestamp.fromMoment(moment({year: this.year, month: this.month, day: this.day}).tz(zone.tz).add(1, 'd'));
 	}
 	
-	isContinous(): boolean {
-		return true;
+	isContinous(): FuzzyBoolean {
+		return FuzzyBoolean.CLEARLY_TRUE;
 	}
 
 		// m0: 0-11
@@ -92,9 +92,9 @@ export default class LocalDate extends TimeSpec {
 				case '>':
 					return this.simplify().op(JelType.STRICT_OPS[operator], right.simplify());
 				case '===':
-					return this.year == right.year && this.month == right.month && this.day == right.day;
+					return FuzzyBoolean.toFuzzyBoolean(this.year == right.year && this.month == right.month && this.day == right.day);
 				case '>>':
-					return this.year > right.year || (this.year == right.year && ((this.month > right.month) || this.month == right.month && this.day > right.day));
+					return FuzzyBoolean.toFuzzyBoolean(this.year > right.year || (this.year == right.year && ((this.month > right.month) || this.month == right.month && this.day > right.day)));
 			}
 		}
 		else if (right instanceof LocalDateTime) {

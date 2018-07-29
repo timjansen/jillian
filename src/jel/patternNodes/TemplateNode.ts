@@ -6,6 +6,7 @@ import TranslatorNode from './TranslatorNode';
 import LambdaResultNode from './LambdaResultNode';
 import JelNode from '../expressionNodes/JelNode';
 import Dictionary from '../types/Dictionary';
+import FuzzyBoolean from '../types/FuzzyBoolean';
 import Context from '../Context';
 import Util from '../../util/Util';
 
@@ -42,10 +43,10 @@ export default class TemplateNode extends ComplexNode {
 
 			if (this.expression) {
 				const result = this.expression.execute(tplCtx)
-				if (!result)
+				if (!this.isResultTrue(result))
 					return null;
 				else if (result instanceof Promise)
-					return result.then(r=>r ? this.next!.match(tplCtx, tokens, match.index, this.metaFilter, incompleteMatch) : undefined);
+					return result.then(r=>this.isResultTrue(r) ? this.next!.match(tplCtx, tokens, match.index, this.metaFilter, incompleteMatch) : undefined);
 			}
 			return this.next!.match(tplCtx, tokens, match.index, this.metaFilter, incompleteMatch);
 		});

@@ -28,8 +28,8 @@ export default class FactHint extends TimeSpec {
 		return null as any; // TODO
 	}
 	
-	isContinous(): boolean {
-		return true;
+	isContinous(): FuzzyBoolean {
+		return FuzzyBoolean.CLEARLY_TRUE;
 	}
 	
 	op(operator: string, right: any): any {

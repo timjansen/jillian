@@ -2,6 +2,7 @@ import Match from './Match';
 import MatchNode from './MatchNode';
 import Context from '../Context';
 import JelNode from '../expressionNodes/JelNode';
+import FuzzyBoolean from '../types/FuzzyBoolean';
 
 export default class LambdaResultNode extends MatchNode {
 
@@ -31,9 +32,16 @@ export default class LambdaResultNode extends MatchNode {
 	// override
 	toString(): string {
 		if (this.meta && this.meta.size) {
-			return `LambdaResultNode(${this.expression}, meta={${Array.from(this.meta.keys()).map(k=>`${k}=${this.meta?this.meta.get(k):''}`).join(', ')}})`;
+			return `LambdaResultNode(${this.expression}, meta={${Array.from(this.meta.keys()).map(k=>`${k}=${this.meta?this.translateBool(this.meta.get(k)):''}`).join(', ')}})`;
 		}
 		else
 			return `LambdaResultNode(${this.expression})`;
+	}
+	
+	private translateBool(s: any): any {
+		if (s instanceof FuzzyBoolean)
+			return `FuzzyBoolean(${s.state})`;
+		else
+			return s;
 	}
 }

@@ -93,19 +93,19 @@ describe('jelDictionary', function() {
 
   describe('hasAny()', function() {
     it('finds something', function() {
-      assert.strictEqual(new JEL('{a:3, b:2, c:9}.hasAny((k,x)=>x>2 && k!="a")').executeImmediately(), true); 
-      assert.strictEqual(new JEL('{a:3, b:8, c:17, d:39, e:2, f:9}.hasAny((k,x)=>x>2 && k!="k")').executeImmediately(), true); 
+      assert.strictEqual(new JEL('{a:3, b:2, c:9}.hasAny((k,x)=>x>2 && k!="a")').executeImmediately().state, 1); 
+      assert.strictEqual(new JEL('{a:3, b:8, c:17, d:39, e:2, f:9}.hasAny((k,x)=>x>2 && k!="k")').executeImmediately().state, 1); 
     });
     it('finds nothing', function() {
-      assert.strictEqual(new JEL('{a:3, b:2, c:9}.hasAny((k,x)=>x>5 && k=="a")').executeImmediately(), false); 
+      assert.strictEqual(new JEL('{a:3, b:2, c:9}.hasAny((k,x)=>x>5 && k=="a")').executeImmediately().state, 0); 
     });
   });
 
   describe('hasOnly()', function() {
     it('finds all', function() {
-      assert.strictEqual(new JEL('{a:3, b:2, c:9}.hasOnly((k,x)=>x>1 && k!="a")').executeImmediately(), false); 
-      assert.strictEqual(new JEL('{a:3, b:8, c:17, d:39, e:2, f:9}.hasOnly((k,x)=>x>1)').executeImmediately(), true); 
-      assert.strictEqual(new JEL('{a:3, b:2, c:9}.hasOnly((k,x)=>x>5)').executeImmediately(), false); 
+      assert.strictEqual(new JEL('{a:3, b:2, c:9}.hasOnly((k,x)=>x>1 && k!="a")').executeImmediately().state, 0); 
+      assert.strictEqual(new JEL('{a:3, b:8, c:17, d:39, e:2, f:9}.hasOnly((k,x)=>x>1)').executeImmediately().state, 1); 
+      assert.strictEqual(new JEL('{a:3, b:2, c:9}.hasOnly((k,x)=>x>5)').executeImmediately().state, 0); 
     });
   });
 
@@ -130,8 +130,8 @@ describe('jelDictionary', function() {
 
   describe('has()', function() {
     it('has', function() {
-      assert.equal(new JEL('{a: 2, b: 9}.has("b")').executeImmediately(dictContext), true); 
-      assert.equal(new JEL('{a: 2, b: 9}.has("c")').executeImmediately(dictContext), false); 
+      assert.equal(new JEL('{a: 2, b: 9}.has("b")').executeImmediately(dictContext).state, 1); 
+      assert.equal(new JEL('{a: 2, b: 9}.has("c")').executeImmediately(dictContext).state, 0); 
     });
   });
 

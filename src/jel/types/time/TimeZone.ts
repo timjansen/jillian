@@ -1,5 +1,6 @@
 import JelType from '../../JelType';
 import Timestamp from './Timestamp';
+import FuzzyBoolean from '../FuzzyBoolean';
 
 import * as moment from 'moment-timezone';
 import MomentZone = moment.MomentZone;
@@ -24,8 +25,8 @@ export default class TimeZone extends JelType {
 	}
 	
 	isDST_jel_mapping: Object;
-	isDST(time: Timestamp): boolean {
-		return time.toMoment().tz(this.tz).isDST();
+	isDST(time: Timestamp): FuzzyBoolean {
+		return FuzzyBoolean.toFuzzyBoolean(time.toMoment().tz(this.tz).isDST());
 	}
 	
 	// returns offset in minutes
@@ -49,9 +50,9 @@ export default class TimeZone extends JelType {
 		if (right instanceof TimeZone) {
 			switch (operator) {
 				case '===':
-					return this.tz === right.tz; // matches if same zone name used
+					return FuzzyBoolean.toFuzzyBoolean(this.tz === right.tz); // matches if same zone name used
 				case '==':
-					return TimeZone.isIdenticalZone(this.getMomentZone(), right.getMomentZone()); // matches if zones are identical, even if names are different
+					return FuzzyBoolean.toFuzzyBoolean(TimeZone.isIdenticalZone(this.getMomentZone(), right.getMomentZone())); // matches if zones are identical, even if names are different
 			}
 		}
 		return super.op(operator, right);

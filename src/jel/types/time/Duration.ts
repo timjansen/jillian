@@ -28,15 +28,15 @@ export default class Duration extends JelType {
 				case '>=':
 					return this.simplify().op(JelType.STRICT_OPS[operator], right.simplify());
 				case '===':
-					return this.years == right.years && this.months == right.months && this.days == right.days && this.hours == right.hours && this.minutes == right.minutes &&
-						this.seconds == right.seconds;
+					return FuzzyBoolean.toFuzzyBoolean(this.years == right.years && this.months == right.months && this.days == right.days && this.hours == right.hours && this.minutes == right.minutes &&
+						this.seconds == right.seconds);
 				case '>>':
-					return this.years > right.years || 
+					return FuzzyBoolean.toFuzzyBoolean(this.years > right.years || 
 						(this.years == right.years && this.months > right.months) || 
 						(this.years == right.years && this.months == right.months && this.days > right.days) || 
 						(this.years == right.years && this.months == right.months && this.days == right.days && this.hours > right.hours) || 
 						(this.years == right.years && this.months == right.months && this.days == right.days && this.hours == right.hours && this.minutes > right.minutes) || 
-						(this.years == right.years && this.months == right.months && this.days == right.days && this.hours == right.hours && this.minutes == right.minutes && this.seconds > right.seconds);
+						(this.years == right.years && this.months == right.months && this.days == right.days && this.hours == right.hours && this.minutes == right.minutes && this.seconds > right.seconds));
 			}
 		}
 		else if (right instanceof UnitValue && right.unit.distinctName == 'Second') {
@@ -50,13 +50,13 @@ export default class Duration extends JelType {
 				case '-':					
 					return new Duration(this.years, this.months, this.days, this.hours, this.minutes, this.seconds - value).simplify();
 				case '==': // simple eq: true if seconds COULD be the same, all worst cases considered (e.g. february, leap years, daylight saving...)
-					return value >= minSecsDate && value <= maxSecsDate;
+					return FuzzyBoolean.toFuzzyBoolean(value >= minSecsDate && value <= maxSecsDate);
 				case '===': // complex eq: only when sure that seconds match
-					return fixedSecs == minSecsDate && value == fixedSecs;
+					return FuzzyBoolean.toFuzzyBoolean(fixedSecs == minSecsDate && value == fixedSecs);
 				case '>':
-					return minSecsDate > value;
+					return FuzzyBoolean.toFuzzyBoolean(minSecsDate > value);
 				case '>>':
-					return maxSecsDate > value;
+					return FuzzyBoolean.toFuzzyBoolean(maxSecsDate > value);
 			}
 		}
 		else if (typeof right == 'number') {
@@ -72,7 +72,7 @@ export default class Duration extends JelType {
 
 	singleOp(operator: string): any {
 		if (operator == '!') 
-			return !(this.years || this.months || this.days || this.hours || this.minutes || this.seconds);
+			return FuzzyBoolean.toFuzzyBoolean(!(this.years || this.months || this.days || this.hours || this.minutes || this.seconds));
 		else if (operator == '-') 
 			return new Duration(-this.years, -this.months, -this.hours, -this.minutes, -this.seconds);
 		else

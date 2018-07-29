@@ -27,7 +27,7 @@ export default class DurationRange extends JelType {
 				case '<<':
 				case '<<=':
 				case '>>=':
-					return JelType.toBoolean(JelType.op(operator, this.max, right)) && JelType.toBoolean(JelType.op(operator, this.min, right));
+					return JelType.op(operator, this.max, right).and(JelType.op(operator, this.min, right));
 				case '=':
 					return this.contains(right);
 				case '>':
@@ -50,8 +50,8 @@ export default class DurationRange extends JelType {
 		return super.op(operator, right);
 	}
 
-	contains(value: Duration|UnitValue): boolean {
-		return JelType.op('>=', value, this.min) && JelType.op('<=', value, this.max);
+	contains(value: Duration|UnitValue): FuzzyBoolean {
+		return JelType.op('>=', value, this.min).and(JelType.op('<=', value, this.max));
 	}
 	
 	getSerializationProperties(): any[] {

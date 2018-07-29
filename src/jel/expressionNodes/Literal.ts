@@ -1,8 +1,9 @@
 import JelNode from './JelNode';
 import Context from '../Context';
+import FuzzyBoolean from '../types/FuzzyBoolean';
 
 /**
- * Represents a literal, atomic value (boolean, number, string, null).
+ * Represents a literal, atomic value (FuzzyBoolean, number, string, null).
  *
  * Examples:
  *   null
@@ -19,10 +20,15 @@ import Context from '../Context';
  *	 "Here are some indented lines:\n\tLine1\n\tLine2\n"
  */
 export default class Literal extends JelNode {
-  static TRUE = new Literal(true);
-	
-	constructor(public value: any) {
+	static TRUE = new Literal(true);
+
+	public value: any;
+	constructor(value: any) {
     super();
+		if (value === true || value === false)
+			this.value = FuzzyBoolean.toFuzzyBoolean(value);
+		else
+			this.value = value;
   }
 
   // override

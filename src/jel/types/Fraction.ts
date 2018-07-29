@@ -1,4 +1,5 @@
 import JelType from '../JelType';
+import FuzzyBoolean from './FuzzyBoolean';
 
 /**
  * Represents a fraction.
@@ -30,23 +31,23 @@ export default class Fraction extends JelType {
 			switch (operator) {
 				case '==':
 				case '===':
-					return l.numerator === right * l.denominator;
+					return FuzzyBoolean.toFuzzyBoolean(l.numerator === right * l.denominator);
 				case '!=':
 				case '!==':
-					return l.numerator !== right * l.denominator;
+					return FuzzyBoolean.toFuzzyBoolean(l.numerator !== right * l.denominator);
 					
 				case '<':
 				case '<<':
-					return l.numerator < right * l.denominator;
+					return FuzzyBoolean.toFuzzyBoolean(l.numerator < right * l.denominator);
 				case '<=':
 				case '<<=':
-					return l.numerator <= right * l.denominator;
+					return FuzzyBoolean.toFuzzyBoolean(l.numerator <= right * l.denominator);
 				case '>':
 				case '>>':
-					return l.numerator > right * l.denominator;
+					return FuzzyBoolean.toFuzzyBoolean(l.numerator > right * l.denominator);
 				case '>=':
 				case '>=':
-					return l.numerator >= right * l.denominator;
+					return FuzzyBoolean.toFuzzyBoolean(l.numerator >= right * l.denominator);
 					
 				case '+':
 					return new Fraction(l.numerator + right*l.denominator, l.denominator, l.mixed).simplify();
@@ -66,23 +67,23 @@ export default class Fraction extends JelType {
 			switch (operator) {
 				case '==':
 				case '===':
-					return l.numerator === r.numerator && l.denominator === r.denominator;
+					return FuzzyBoolean.toFuzzyBoolean(l.numerator === r.numerator && l.denominator === r.denominator);
 				case '!=':
 				case '!==':
-					return l.numerator !== r.numerator || l.denominator !== r.denominator;
+					return FuzzyBoolean.toFuzzyBoolean(l.numerator !== r.numerator || l.denominator !== r.denominator);
 					
 				case '<':
 				case '<<':
-					return l.numerator*r.denominator < r.numerator*l.denominator;
+					return FuzzyBoolean.toFuzzyBoolean(l.numerator*r.denominator < r.numerator*l.denominator);
 				case '<=':
 				case '<<=':
-					return l.numerator*r.denominator <= r.numerator*l.denominator;
+					return FuzzyBoolean.toFuzzyBoolean(l.numerator*r.denominator <= r.numerator*l.denominator);
 				case '>':
 				case '>>':
-					return l.numerator*r.denominator > r.numerator*l.denominator;
+					return FuzzyBoolean.toFuzzyBoolean(l.numerator*r.denominator > r.numerator*l.denominator);
 				case '>=':
 				case '>>=':
-					return l.numerator*r.denominator >= r.numerator*l.denominator;
+					return FuzzyBoolean.toFuzzyBoolean(l.numerator*r.denominator >= r.numerator*l.denominator);
 
 				case '+':
 					return new Fraction((l.numerator*r.denominator)+(r.numerator*l.denominator), l.denominator*r.denominator, l.mixed).simplify();
@@ -114,7 +115,7 @@ export default class Fraction extends JelType {
 	singleOp(operator: string): any {
 		switch (operator) {
 			case '!':
-				return !this.numerator;
+				return FuzzyBoolean.toFuzzyBoolean(!this.numerator);
 			case '-':
 				return new Fraction(-this.numerator, this.denominator, this.mixed);
 			case '+':

@@ -31,7 +31,7 @@ export default class Condition extends JelNode {
 
 
   private runOnValue(ctx: Context, cond: any): any {
-    if (JelType.toBoolean(cond))
+    if (JelType.toRealBoolean(cond))
       return this.thenExp.execute(ctx);
     else
       return this.elseExp.execute(ctx);

@@ -4,6 +4,7 @@ const assert = require('assert');
 const JEL = require('../../build/jel/JEL.js').default;
 const Pattern = require('../../build/jel/types/Pattern.js').default;
 const Dictionary = require('../../build/jel/types/Dictionary.js').default;
+const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
 const Translator = require('../../build/jel/types/Translator.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const PatternNode = require('../../build/jel/patternNodes/PatternNode.js').default;
@@ -82,78 +83,78 @@ describe('jelPatterns', function() {
     const ctx = new Context();
     
      it('match artificial patterns', function() {
-      assert(!new Pattern(mnt('x'), "x").match(ctx, []));
-      assert(new Pattern(mnt('x'), "x").match(ctx, ['x']));
-      assert(!new Pattern(mnt('x'), "x").match(ctx, ['y']));
-      assert(!new Pattern(mnt('x'), "x").match(ctx, ['x', 'y']));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, new Pattern(mnt('x'), "x").match(ctx, []));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, new Pattern(mnt('x'), "x").match(ctx, ['x']));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, new Pattern(mnt('x'), "x").match(ctx, ['y']));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, new Pattern(mnt('x'), "x").match(ctx, ['x', 'y']));
      }); 
     
     it('should match an empty string', function() {
-      assert(JEL.createPattern('').match(ctx, ''));
-      assert(JEL.createPattern('').match(ctx, '   '));
-      assert(JEL.createPattern('').match(ctx, []));
-      assert(!JEL.createPattern('').match(ctx, 'a'));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('').match(ctx, ''));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('').match(ctx, '   '));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('').match(ctx, []));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('').match(ctx, 'a'));
     });
 
     it('should match simple patterns', function() {
-      assert(JEL.createPattern('a b c').match(ctx, ['a', 'b', 'c']));
-      assert(JEL.createPattern('a b c').match(ctx, 'a b c'));
-      assert(JEL.createPattern('a b c').match(ctx, '  a b c  '));
-      assert(!JEL.createPattern('a b c').match(ctx, 'a b d'));
-      assert(!JEL.createPattern('a b c').match(ctx, 'd b c'));
-      assert(!JEL.createPattern('a b c').match(ctx, 'a b c d'));
-      assert(!JEL.createPattern('a b c').match(ctx, ['a', 'b', 'd']));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('a b c').match(ctx, ['a', 'b', 'c']));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('a b c').match(ctx, 'a b c'));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('a b c').match(ctx, '  a b c  '));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('a b c').match(ctx, 'a b d'));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('a b c').match(ctx, 'd b c'));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('a b c').match(ctx, 'a b c d'));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('a b c').match(ctx, ['a', 'b', 'd']));
     });
 
     it('should match optional patterns', function() {
-      assert(JEL.createPattern('[x]?').match(ctx, 'x'));
-      assert(JEL.createPattern('[x]?').match(ctx, []));
-      assert(JEL.createPattern('[x]?').match(ctx, ''));
-      assert(!JEL.createPattern('[x]?').match(ctx, 'y'));
-      assert(JEL.createPattern('[x]? y').match(ctx, 'x y'));
-      assert(JEL.createPattern('[x]? y').match(ctx, 'y'));
-      assert(!JEL.createPattern('[x]? y').match(ctx, 'x'));
-      assert(JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, 'a b c d e'));
-      assert(JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, ' b '));
-      assert(JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, 'a b c d'));
-      assert(JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, 'b c d'));
-      assert(!JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, 'c d'));
-      assert(!JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, 'a b c e'));
-      assert(!JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, 'a b c'));
-      assert(!JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, ''));
-      assert(!JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, 'x a b c d e'));
-      assert(!JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, ' a b c d e f'));
-      assert(!JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, ' b d c'));
-      assert(!JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, ' b x'));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('[x]?').match(ctx, 'x'));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('[x]?').match(ctx, []));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('[x]?').match(ctx, ''));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('[x]?').match(ctx, 'y'));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('[x]? y').match(ctx, 'x y'));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('[x]? y').match(ctx, 'y'));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('[x]? y').match(ctx, 'x'));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, 'a b c d e'));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, ' b '));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, 'a b c d'));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, 'b c d'));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, 'c d'));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, 'a b c e'));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, 'a b c'));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, ''));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, 'x a b c d e'));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, ' a b c d e f'));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, ' b d c'));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('[a]? b [c d]? [e]?').match(ctx, ' b x'));
     });
 
     it('should match multi-patterns', function() {
-      assert(JEL.createPattern('[x]').match(ctx, 'x'));
-      assert(!JEL.createPattern('[x]').match(ctx, 'y'));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('[x]').match(ctx, 'x'));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('[x]').match(ctx, 'y'));
       
-      assert(JEL.createPattern('[x|y z]').match(ctx, 'x'));
-      assert(JEL.createPattern('[x|y z]').match(ctx, 'y z'));
-      assert(!JEL.createPattern('[x|y z]').match(ctx, 'x y z'));
-      assert(!JEL.createPattern('[x|y z]').match(ctx, ''));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('[x|y z]').match(ctx, 'x'));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('[x|y z]').match(ctx, 'y z'));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('[x|y z]').match(ctx, 'x y z'));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('[x|y z]').match(ctx, ''));
       
-      assert(JEL.createPattern('[x|y|z] a').match(ctx, 'x a'));
-      assert(JEL.createPattern('foo [x|y|z] a b').match(ctx, 'foo z a b'));
-      assert(!JEL.createPattern('[x|y|z] a').match(ctx, 'z'));
-      assert(!JEL.createPattern('[x|y|z] a').match(ctx, 'z a h'));
-      assert(!JEL.createPattern('[x|y|z] a').match(ctx, 'h y a'));
-      assert(!JEL.createPattern('[x|y|z] a').match(ctx, 'a a'));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('[x|y|z] a').match(ctx, 'x a'));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('foo [x|y|z] a b').match(ctx, 'foo z a b'));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('[x|y|z] a').match(ctx, 'z'));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('[x|y|z] a').match(ctx, 'z a h'));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('[x|y|z] a').match(ctx, 'h y a'));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('[x|y|z] a').match(ctx, 'a a'));
     });
 
     it('should match optional multi-patterns', function() {
-      assert(JEL.createPattern('[x|y z]?').match(ctx, ''));
-      assert(JEL.createPattern('[x|y z]?').match(ctx, 'x'));
-      assert(JEL.createPattern('[x|y z]?').match(ctx, 'y z'));
-      assert(!JEL.createPattern('[x|y z]?').match(ctx, 'x y z'));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('[x|y z]?').match(ctx, ''));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('[x|y z]?').match(ctx, 'x'));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('[x|y z]?').match(ctx, 'y z'));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('[x|y z]?').match(ctx, 'x y z'));
   
-      assert(JEL.createPattern('[x|y|z]? a').match(ctx, 'y a'));
-      assert(JEL.createPattern('[x|y|z]? a').match(ctx, 'a'));
-      assert(!JEL.createPattern('[x|y|z]? a').match(ctx, 'x'));
-      assert(!JEL.createPattern('[x|y|z]? a').match(ctx, 'y a k'));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('[x|y|z]? a').match(ctx, 'y a'));
+      assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('[x|y|z]? a').match(ctx, 'a'));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('[x|y|z]? a').match(ctx, 'x'));
+      assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('[x|y|z]? a').match(ctx, 'y a k'));
     });
 
     it('should match templates', function() {
@@ -163,69 +164,69 @@ describe('jelPatterns', function() {
         const dict = new Dictionary({tpl0, tpl1, tpl2});
         const ctx = new Context(null, null, dict);
 
-        assert(JEL.createPattern('{{tpl0}}').match(ctx, 'a'));
-        assert(JEL.createPattern('j {{tpl0}}').match(ctx, 'j a '));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('{{tpl0}}').match(ctx, 'a'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('j {{tpl0}}').match(ctx, 'j a '));
       
-        assert(JEL.createPattern('a {{tpl0}}').match(ctx, 'a a'));
-        assert(JEL.createPattern('{{tpl0}} k').match(ctx, ' a k'));
-        assert(JEL.createPattern('{{tpl0}}{{tpl0}}').match(ctx, 'a a'));
-        assert(JEL.createPattern('{{tpl0}} {{tpl0}}').match(ctx, 'a a'));
-        assert(!JEL.createPattern('{{tpl0}}').match(ctx, 'b'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('a {{tpl0}}').match(ctx, 'a a'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('{{tpl0}} k').match(ctx, ' a k'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('{{tpl0}}{{tpl0}}').match(ctx, 'a a'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('{{tpl0}} {{tpl0}}').match(ctx, 'a a'));
+        assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('{{tpl0}}').match(ctx, 'b'));
       
-        assert(JEL.createPattern('{{tpl1}}').match(ctx, 'a'));
-        assert(JEL.createPattern('{{tpl1}}').match(ctx, 'b'));
-        assert(JEL.createPattern('{{tpl1.x}}').match(ctx, 'b'));
-        assert(JEL.createPattern('{{tpl1.x.y}}').match(ctx, 'b'));
-        assert(!JEL.createPattern('{{tpl1}}').match(ctx, 'nope'));
-        assert(!JEL.createPattern('{{tpl1.x}}').match(ctx, 'a'));
-        assert(!JEL.createPattern('{{tpl1.x.y.z}}').match(ctx, 'b'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('{{tpl1}}').match(ctx, 'a'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('{{tpl1}}').match(ctx, 'b'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('{{tpl1.x}}').match(ctx, 'b'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('{{tpl1.x.y}}').match(ctx, 'b'));
+        assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('{{tpl1}}').match(ctx, 'nope'));
+        assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('{{tpl1.x}}').match(ctx, 'a'));
+        assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('{{tpl1.x.y.z}}').match(ctx, 'b'));
 
-        assert(JEL.createPattern('{{t: tpl1 :: t == 12}}').match(ctx, 'b'));
-        assert(JEL.createPattern('{{t: tpl1 :: t == 22}}').match(ctx, 'b'));
-        assert(!JEL.createPattern('{{t: tpl1 :: t == 0}}').match(ctx, 'b'));
-        assert(!JEL.createPattern('{{t: tpl1.x :: t == 12}}').match(ctx, 'b'));
-        assert(JEL.createPattern('{{t: tpl1.x :: t == 22}}').match(ctx, 'b'));
-        assert(JEL.createPattern('{{test: tpl1 :: test == 1}}').match(ctx, 'a'));
-        assert(!JEL.createPattern('{{test: tpl1 :: test > 1}}').match(ctx, 'a'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('{{t: tpl1 :: t == 12}}').match(ctx, 'b'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('{{t: tpl1 :: t == 22}}').match(ctx, 'b'));
+        assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('{{t: tpl1 :: t == 0}}').match(ctx, 'b'));
+        assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('{{t: tpl1.x :: t == 12}}').match(ctx, 'b'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('{{t: tpl1.x :: t == 22}}').match(ctx, 'b'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('{{test: tpl1 :: test == 1}}').match(ctx, 'a'));
+        assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('{{test: tpl1 :: test > 1}}').match(ctx, 'a'));
     });
 
     it('should match regexp templates', function() {
         const ctx = new Context();
 
-        assert(JEL.createPattern('{{/a+/}}').match(ctx, 'aa'));
-        assert(JEL.createPattern('j {{/a+/}}').match(ctx, 'j aaa '));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('{{/a+/}}').match(ctx, 'aa'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('j {{/a+/}}').match(ctx, 'j aaa '));
       
-        assert(JEL.createPattern('a {{/a+/}}').match(ctx, 'a a'));
-        assert(JEL.createPattern('{{/b/ /c/}} k').match(ctx, 'b c  k'));
-        assert(JEL.createPattern('{{/b/}}{{/c/}}k').match(ctx, 'b c k'));
-        assert(JEL.createPattern('{{/b/}} {{/c/}} k').match(ctx, 'b c k'));
-        assert(!JEL.createPattern('{{/ab+/}}').match(ctx, 'a'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('a {{/a+/}}').match(ctx, 'a a'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('{{/b/ /c/}} k').match(ctx, 'b c  k'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('{{/b/}}{{/c/}}k').match(ctx, 'b c k'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('{{/b/}} {{/c/}} k').match(ctx, 'b c k'));
+        assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('{{/ab+/}}').match(ctx, 'a'));
       
-        assert(JEL.createPattern('{{a: /a+b*c+/}}').match(ctx, 'aaaacc'));
-        assert(!JEL.createPattern('{{/a+b*c+/}}').match(ctx, 'aaaab'));
-        assert(!JEL.createPattern('{{/a/}}').match(ctx, 'ab'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('{{a: /a+b*c+/}}').match(ctx, 'aaaacc'));
+        assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('{{/a+b*c+/}}').match(ctx, 'aaaab'));
+        assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('{{/a/}}').match(ctx, 'ab'));
 
-        assert(JEL.createPattern('{{t: /[0-9]+/ :: t == "12"}}').match(ctx, '12'));
-        assert(!JEL.createPattern('{{t: /[0-9]+/ :: t == "12"}}').match(ctx, '123'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('{{t: /[0-9]+/ :: t == "12"}}').match(ctx, '12'));
+        assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('{{t: /[0-9]+/ :: t == "12"}}').match(ctx, '123'));
 
-        assert(JEL.createPattern('{{t: /([0-9])([0-9])([a-z])/ :: t[0] == "2" && t[1] == "5" && t[2] == "x"}}').match(ctx, '25x'));
-        assert(!JEL.createPattern('{{t: /([0-9])([0-9])([a-z])/ :: t[0] == "2" && t[1] == "5" && t[2] == "x"}}').match(ctx, '25y'));
-        assert(!JEL.createPattern('{{t: /([0-9])([0-9])([a-z])/ :: t[0] == "2" && t[1] == "5" && t[2] == "x"}}').match(ctx, '15y'));
-        assert(!JEL.createPattern('{{t: /([0-9])([0-9])([a-z])/ :: t[0] == "2" && t[1] == "5" && t[2] == "x"}}').match(ctx, 'abc'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('{{t: /([0-9])([0-9])([a-z])/ :: t[0] == "2" && t[1] == "5" && t[2] == "x"}}').match(ctx, '25x'));
+        assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('{{t: /([0-9])([0-9])([a-z])/ :: t[0] == "2" && t[1] == "5" && t[2] == "x"}}').match(ctx, '25y'));
+        assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('{{t: /([0-9])([0-9])([a-z])/ :: t[0] == "2" && t[1] == "5" && t[2] == "x"}}').match(ctx, '15y'));
+        assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('{{t: /([0-9])([0-9])([a-z])/ :: t[0] == "2" && t[1] == "5" && t[2] == "x"}}').match(ctx, 'abc'));
 
-        assert(JEL.createPattern('{{t: /[0-9]/ /[0-9]/ /[a-z]/ :: t[0] == "2" && t[1] == "5" && t[2] == "x"}}').match(ctx, '2 5 x'));
-        assert(!JEL.createPattern('{{t: /[0-9]/ /[0-9]/ /[a-z]/ :: t[0] == "2" && t[1] == "5" && t[2] == "x"}}').match(ctx, '2 6 x'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('{{t: /[0-9]/ /[0-9]/ /[a-z]/ :: t[0] == "2" && t[1] == "5" && t[2] == "x"}}').match(ctx, '2 5 x'));
+        assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('{{t: /[0-9]/ /[0-9]/ /[a-z]/ :: t[0] == "2" && t[1] == "5" && t[2] == "x"}}').match(ctx, '2 6 x'));
 
-        assert(JEL.createPattern('{{t: /([0-9])(a+)/ /b+/ :: t[0][0] == "7" && t[0][1] == "aa" && t[1] == "bbb"}}').match(ctx, '7aa bbb'));
-        assert(!JEL.createPattern('{{t: /([0-9])(a+)/ /b+/ :: t[0][0] == "7" && t[0][1] == "aa" && t[1] == "bbb"}}').match(ctx, '7 bbb'));
-        assert(!JEL.createPattern('{{t: /([0-9])(a+)/ /b+/ :: t[0][0] == "7" && t[0][1] == "aa" && t[1] == "bbb"}}').match(ctx, '7aaa bb'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('{{t: /([0-9])(a+)/ /b+/ :: t[0][0] == "7" && t[0][1] == "aa" && t[1] == "bbb"}}').match(ctx, '7aa bbb'));
+        assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('{{t: /([0-9])(a+)/ /b+/ :: t[0][0] == "7" && t[0][1] == "aa" && t[1] == "bbb"}}').match(ctx, '7 bbb'));
+        assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('{{t: /([0-9])(a+)/ /b+/ :: t[0][0] == "7" && t[0][1] == "aa" && t[1] == "bbb"}}').match(ctx, '7aaa bb'));
 
-        assert(JEL.createPattern('a [{{/b/}} {{/c/}} {{/d/}}]? e').match(ctx, 'a b c d e'));
-        assert(JEL.createPattern('a [{{/b/}} {{/c/}} {{/d/}}]? e').match(ctx, 'a e'));
-        assert(!JEL.createPattern('a [{{/b/}} {{/c/}} {{/d/}}]? e').match(ctx, 'a b e'));
-        assert(!JEL.createPattern('a [{{/b/}} {{/c/}} {{/d/}}]? e').match(ctx, 'a b c e'));
-        assert(!JEL.createPattern('a [{{/b/}} {{/c/}} {{/d/}}]? e').match(ctx, 'a b c d'));
-        assert(!JEL.createPattern('a [{{/b/}} {{/c/}} {{/d/}}]? e').match(ctx, 'a b d e'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('a [{{/b/}} {{/c/}} {{/d/}}]? e').match(ctx, 'a b c d e'));
+        assert.equal(FuzzyBoolean.CLEARLY_TRUE, JEL.createPattern('a [{{/b/}} {{/c/}} {{/d/}}]? e').match(ctx, 'a e'));
+        assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('a [{{/b/}} {{/c/}} {{/d/}}]? e').match(ctx, 'a b e'));
+        assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('a [{{/b/}} {{/c/}} {{/d/}}]? e').match(ctx, 'a b c e'));
+        assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('a [{{/b/}} {{/c/}} {{/d/}}]? e').match(ctx, 'a b c d'));
+        assert.equal(FuzzyBoolean.CLEARLY_FALSE, JEL.createPattern('a [{{/b/}} {{/c/}} {{/d/}}]? e').match(ctx, 'a b d e'));
     });
     
     

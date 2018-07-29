@@ -51,8 +51,8 @@ export default class UnitValue extends JelType {
 			return this.value.toNumber();
 	}
 	
-	toBoolean(): boolean {
-		return !!this.value;
+	toBoolean(): FuzzyBoolean {
+		return FuzzyBoolean.toFuzzyBoolean(!!this.value);
 	}
 }
 

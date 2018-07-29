@@ -28,27 +28,27 @@ export default class Timestamp extends TimeSpec {
 		if (right instanceof Timestamp) {
 			switch (operator) {
 				case '===':
-					return this.msSinceEpoch === right.msSinceEpoch;
+					return FuzzyBoolean.toFuzzyBoolean(this.msSinceEpoch === right.msSinceEpoch);
 				case '!==':
-					return this.msSinceEpoch !== right.msSinceEpoch;
+					return FuzzyBoolean.toFuzzyBoolean(this.msSinceEpoch !== right.msSinceEpoch);
 				case '==':
 					return FuzzyBoolean.twoPrecision(this.couldBeEqual(right), this.msSinceEpoch === right.msSinceEpoch);
 				case '!=':
 					return FuzzyBoolean.twoPrecision(!this.couldBeEqual(right), this.msSinceEpoch !== right.msSinceEpoch);
 				
 				case '>>':
-					return this.msSinceEpoch > right.msSinceEpoch;
+					return FuzzyBoolean.toFuzzyBoolean(this.msSinceEpoch > right.msSinceEpoch);
 				case '<<':
-					return this.msSinceEpoch < right.msSinceEpoch;
+					return FuzzyBoolean.toFuzzyBoolean(this.msSinceEpoch < right.msSinceEpoch);
 				case '>':
 					return FuzzyBoolean.fourWay(this.msSinceEpoch > right.msSinceEpoch, !this.couldBeEqual(right));
 				case '<':
 					return FuzzyBoolean.fourWay(this.msSinceEpoch < right.msSinceEpoch, !this.couldBeEqual(right));
 
 				case '>>=':
-					return this.msSinceEpoch >= right.msSinceEpoch;
+					return FuzzyBoolean.toFuzzyBoolean(this.msSinceEpoch >= right.msSinceEpoch);
 				case '<<=':
-					return this.msSinceEpoch <= right.msSinceEpoch;
+					return FuzzyBoolean.toFuzzyBoolean(this.msSinceEpoch <= right.msSinceEpoch);
 				case '>=':
 					return FuzzyBoolean.fourWay(this.msSinceEpoch >= right.msSinceEpoch, !this.couldBeEqual(right));
 				case '<=':
@@ -79,8 +79,8 @@ export default class Timestamp extends TimeSpec {
 		return this;
 	}
 
-	isContinous(): boolean {
-		return true;
+	isContinous(): FuzzyBoolean {
+		return FuzzyBoolean.CLEARLY_TRUE;
 	}
 
 	toNumber_jel_mapping: Object;

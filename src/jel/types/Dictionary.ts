@@ -1,5 +1,6 @@
 import JelType from '../JelType';
 import List from './List';
+import FuzzyBoolean from './FuzzyBoolean';
 import Callable from '../Callable';
 import Gettable from '../Gettable';
 
@@ -31,11 +32,17 @@ export default class Dictionary extends JelType {
 				case '==':
 				case '===':
 					if (this.size != right.size)
-						return false;
+						return FuzzyBoolean.CLEARLY_FALSE;
+					let result = FuzzyBoolean.CLEARLY_TRUE;
 					for (let key of this.elements.keys())
-						if (!right.has(key) || !JelType.op(operator, this.get(key), right.get(key)))
-							return false;
-					return true;
+						if (!right.has(key))
+							return FuzzyBoolean.CLEARLY_FALSE;
+						else {
+							result = FuzzyBoolean.falsest(result, JelType.op(operator, this.get(key), right.get(key)));
+							if (result.isClearlyFalse())
+								return result;
+						}
+					return result;
 			}
 		}
 		super.op(operator, right);
@@ -47,8 +54,8 @@ export default class Dictionary extends JelType {
 	}
 
 	has_jel_mapping: Object;
-	has(key: any): boolean {
-		return this.elements.has(key);
+	has(key: any): FuzzyBoolean {
+		return FuzzyBoolean.toFuzzyBoolean(this.elements.has(key));
 	}
 
 	set_jel_mapping: Object;
@@ -118,7 +125,7 @@ export default class Dictionary extends JelType {
 		let i = 0;
 		const d = new Dictionary();
 		this.elements.forEach((value, key) => {
-			if (f.invoke(key, value, i++))
+			if (JelType.toRealBoolean(f.invoke(key, value, i++)))
 				d.set(key, value);
 		});
 		return d;
@@ -134,25 +141,25 @@ export default class Dictionary extends JelType {
 	}
 
 	hasAny_jel_mapping: Object;
-	hasAny(f: Callable): boolean {
+	hasAny(f: Callable): FuzzyBoolean {
 		let i = 0;
 		for (let key of this.elements.keys()) {
 			const value = this.get(key);
-			if (f.invoke(key, value))
-				return true;
+			if (JelType.toRealBoolean(f.invoke(key, value)))
+				return FuzzyBoolean.CLEARLY_TRUE;
 		}
-		return false;
+		return FuzzyBoolean.CLEARLY_FALSE;
 	}
 
 	hasOnly_jel_mapping: Object;
-	hasOnly(f: Callable): boolean {
+	hasOnly(f: Callable): FuzzyBoolean {
 		let i = 0;
 		for (let key of this.elements.keys()) {
 			const value = this.get(key);
-			if (!f.invoke(key, value))
-				return false;
+			if (!JelType.toRealBoolean(f.invoke(key, value)))
+				return FuzzyBoolean.CLEARLY_FALSE;
 		}
-		return true;
+		return FuzzyBoolean.CLEARLY_TRUE;
 	}
 
 	toObjectDebug(): any {

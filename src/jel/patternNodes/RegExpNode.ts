@@ -51,10 +51,10 @@ export default class RegExpNode extends ComplexNode {
 		
 		if (this.expression) {
 			const result = this.expression.execute(newCtx);
-			if (!result)
+			if (!this.isResultTrue(result))
 				return undefined;
 			else if (result instanceof Promise)
-				return result.then(r=>r ? this.next!.match(newCtx, tokens, idx + this.regexps.length, metaFilter, incompleteMatch) : undefined);
+				return result.then(r=>this.isResultTrue(r) ? this.next!.match(newCtx, tokens, idx + this.regexps.length, metaFilter, incompleteMatch) : undefined);
 		}
 		return this.next!.match(newCtx, tokens, idx + this.regexps.length, metaFilter, incompleteMatch);
 	}

@@ -1,5 +1,6 @@
-
 import FunctionCallable from './FunctionCallable';
+
+let MyFuzzyBoolean: any;
 
 // ops that can swap the left and right operands
 const REVERSIBLE_OPS: any = {
@@ -29,6 +30,17 @@ const INVERTIBLE_OPS: any = {
 	'<<=': '>>'
 };
 
+const RELATIONAL_OPS: any = {
+	'>': 1,
+	'>>': 1,
+	'<': 1,
+	'<<': 1,
+	'>=': 1,
+	'>>=': 1,
+	'<=': 1,
+	'<<=': 1
+};
+
 const NATIVE_OPS: any = {
 	'+': (l: any,r: any): any =>l+r,
 	'-': (l: any,r: any): any =>l-r,
@@ -38,22 +50,22 @@ const NATIVE_OPS: any = {
 	'&&': (l: any,r: any): any =>l&&r,
 	'||': (l: any,r: any): any =>l||r,
 	'.': (l: any,r: any): any =>l[r],
-	'==': (l: any,r: any): any =>l===r,
-	'===': (l: any,r: any): any =>l===r,
-	'!=': (l: any,r: any): any =>l!=r,
-	'!==': (l: any,r: any): any =>l!==r,
-	'<': (l: any,r: any): any =>l<r,
-	'<<': (l: any,r: any): any =>l<r,
-	'<=': (l: any,r: any): any =>l<=r,
-	'<<=': (l: any,r: any): any =>l<=r,
-	'>': (l: any,r: any): any =>l>r,
-	'>>': (l: any,r: any): any =>l>r,
-	'>=': (l: any,r: any): any =>l>=r,
-	'>>=': (l: any,r: any): any =>l>=r
+	'==': (l: any,r: any): any =>MyFuzzyBoolean.toFuzzyBoolean(l===r),
+	'===': (l: any,r: any): any =>MyFuzzyBoolean.toFuzzyBoolean(l===r),
+	'!=': (l: any,r: any): any =>MyFuzzyBoolean.toFuzzyBoolean(l!=r),
+	'!==': (l: any,r: any): any =>MyFuzzyBoolean.toFuzzyBoolean(l!==r),
+	'<': (l: any,r: any): any =>MyFuzzyBoolean.toFuzzyBoolean(l<r),
+	'<<': (l: any,r: any): any =>MyFuzzyBoolean.toFuzzyBoolean(l<r),
+	'<=': (l: any,r: any): any =>MyFuzzyBoolean.toFuzzyBoolean(l<=r),
+	'<<=': (l: any,r: any): any =>MyFuzzyBoolean.toFuzzyBoolean(l<=r),
+	'>': (l: any,r: any): any =>MyFuzzyBoolean.toFuzzyBoolean(l>r),
+	'>>': (l: any,r: any): any =>MyFuzzyBoolean.toFuzzyBoolean(l>r),
+	'>=': (l: any,r: any): any =>MyFuzzyBoolean.toFuzzyBoolean(l>=r),
+	'>>=': (l: any,r: any): any =>MyFuzzyBoolean.toFuzzyBoolean(l>=r)
 };
 
 const SINGLE_NATIVE_OPS: any = {
-	'!': (l: any): any=>!l,
+	'!': (l: any): any=>MyFuzzyBoolean.toFuzzyBoolean(!l),
 	'-': (l: any): any=>-l,
 	'+': (l: any): any=>+l,
 	'abs': (l: any): any=>Math.abs(l)
@@ -77,16 +89,21 @@ export default class JelType {
 	static readonly STRICT_OPS: any = {'==': '===', '!=': '!==', '<': '<<', '>': '>>', '<=': '<<=', '>=': '>>='};
 	static readonly LENIENT_OPS: any = {'===': '==', '!==': '!=', '<<': '<', '>>': '>', '<<=': '<=', '>>=': '>='};
 
+	constructor() {
+	}
+	
 	/**
 	 * Executes the given operator on any non-promise type.
 	 */
 	static op(operator: string, left: any, right: any): any {
 		if (left == null || right == null) {
 			if (operator == '==' || operator == '===')
-				return left === right;
+				return MyFuzzyBoolean.toFuzzyBoolean(left === right);
 			else if (operator == '!=' || operator == '!==')
-				return left !== right;
-			else 
+				return MyFuzzyBoolean.toFuzzyBoolean(left !== right);
+			else if (operator in RELATIONAL_OPS)
+				return MyFuzzyBoolean.CLEARLY_FALSE;
+			else
 				return left == null ? left : right;
 		}
 		else if (left instanceof JelType)
@@ -114,9 +131,9 @@ export default class JelType {
 		return nativeOp(left);
 	}
 	
-	static toBoolean(obj: any): boolean {
+	static toRealBoolean(obj: any): boolean {
 		if (obj instanceof JelType)
-			return obj.toBoolean();
+			return obj.toBoolean().toRealBoolean();
 		else
 			return !!obj;
 	}
@@ -172,17 +189,17 @@ export default class JelType {
 	 * '+', '-', '*', '/', '%': arithmetic
 	 * '==', '===', '!=', '!==', '<', '<<', '<=', '<<=', '>', '>>', '>=', '>>=': Comparisons
 	 * 
-	 * Note that when yoiu override this method, but still call it for unsupported operators, 
+	 * Note that when you override this method, but still call it for unsupported operators, 
 	 * you only need to implement '==', '===', '>' and '>>' for a complete set of comparisons.
 	 */
 	op_jel_mapping: Object;
 	op(operator: string, right: any): any {
 		if (operator in INVERTIBLE_OPS)
-			return !this.op(INVERTIBLE_OPS[operator], right);
+			return MyFuzzyBoolean.negate(this.op(INVERTIBLE_OPS[operator], right));
 		if (operator == '<')
-			return !this.op('>', right) && !!this.op('==', right);
+			return MyFuzzyBoolean.truest(this.op('>', right), this.op('==', right)).negate();
 		if (operator == '<<')
-			return !this.op('>>', right) && !!this.op('===', right);
+			return MyFuzzyBoolean.truest(this.op('>>', right), this.op('===', right)).negate();
 		throw new Error(`Operator "${operator}" is not supported for this type`);
 	}
 
@@ -210,12 +227,16 @@ export default class JelType {
 	}
 	
 	toBoolean_jel_mapping: Object;
-	toBoolean(): boolean {
+	toBoolean(): any { // this is any to avoid the circular dep in TypeScript, but would be FuzzyB
 		throw new Error(`Boolean conversion not supported for this type`);
 	}
 	
 	getSerializationProperties(): Object|any[] {
 		throw new Error(`getSerializationProperties() not implemented in ${this.constructor.name}`);
+	}
+	
+	static setFuzzyBoolean(b: any): void {
+		MyFuzzyBoolean = b;
 	}
 }
 

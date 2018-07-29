@@ -9,10 +9,6 @@ function toNumber(value: number | Fraction): number {
 	return typeof value == 'number' ? value : value.toNumber();
 }
 
-function toBoolean(value: boolean | FuzzyBoolean): boolean {
-	return typeof value == 'boolean' ? value : value.toBoolean();
-}
-
 const DEQUAL: any = {'<=': '<', '>=': '>'};
 
 /**
@@ -30,30 +26,30 @@ export default class ApproximateNumber extends JelType {
 			switch (operator) {
 				case '==': 
 					if (JelType.op('===', this.value, right.value))
-						return true;
+						return FuzzyBoolean.CLEARLY_TRUE;
 					const deltaEq = toNumber(JelType.singleOp('abs',JelType.op('-', this.value, right.value)));
 					if (deltaEq == 0)
-						return true;
+						return FuzzyBoolean.CLEARLY_TRUE;
 					else if (maxErrorDelta == 0)
-						return false;
-					return new FuzzyBoolean(Math.max(0, 1 - (0.5*deltaEq / maxErrorDelta)));
+						return FuzzyBoolean.CLEARLY_FALSE;
+					return FuzzyBoolean.create(Math.max(0, 1 - (0.5*deltaEq / maxErrorDelta)));
 				case '===':
 					return JelType.op('===', this.value, right.value);
 				case '!=':
-					return JelType.singleOp('!', this.op('==', right));
+					return this.op('==', right).negate();
 				case '!==':
-					return JelType.singleOp('!', this.op('===', right));
+					return this.op('===', right).negate();
 
 				case '>':
 				case '<':
 					const deltaCmp = toNumber(JelType.singleOp('abs',JelType.op('-', this.value, right.value)));
 					if (JelType.op(operator, this.value, right.value))
-						 return (deltaCmp >= maxErrorDelta) ? true : new FuzzyBoolean(1 - deltaCmp / maxErrorDelta);
-					return (deltaCmp >= maxErrorDelta) ? false : new FuzzyBoolean(Math.max(0, 0.5 - deltaCmp / maxErrorDelta));
+						 return (deltaCmp >= maxErrorDelta) ? FuzzyBoolean.CLEARLY_TRUE : FuzzyBoolean.create(1 - deltaCmp / maxErrorDelta);
+					return (deltaCmp >= maxErrorDelta) ? FuzzyBoolean.CLEARLY_FALSE : FuzzyBoolean.create(Math.max(0, 0.5 - deltaCmp / maxErrorDelta));
 				case '<=':
 				case '>=':
 					const eq = JelType.op('=', this, right);
-					return toBoolean(eq) ? eq : JelType.op(DEQUAL[operator], this, right);
+					return FuzzyBoolean.toRealBoolean(eq) ? eq : JelType.op(DEQUAL[operator], this, right);
 				case '>>':
 				case '<<':
 				case '<<=':
@@ -74,29 +70,29 @@ export default class ApproximateNumber extends JelType {
 			switch (operator) {
 				case '==': 
 					if (JelType.op('===', this.value, right))
-						return true;
+						return FuzzyBoolean.CLEARLY_TRUE;
 					const deltaEq = toNumber(JelType.singleOp('abs',JelType.op('-', this.value, right)));
 					if (deltaEq == 0)
-						return true;
+						return FuzzyBoolean.CLEARLY_TRUE;
 					else if (maxErrorDelta == 0)
-						return false;
+						return FuzzyBoolean.CLEARLY_FALSE;
 					return new FuzzyBoolean(Math.max(0, 1 - (0.5*deltaEq / maxErrorDelta)));
 				case '===':
 					return JelType.op('===', this.value, right);
 				case '!=':
-					return JelType.singleOp('!', this.op('==', right));
+					return this.op('==', right).negate();
 				case '!==':
-					return JelType.singleOp('!', this.op('===', right));
+					return this.op('===', right).negate();
 				case '>':
 				case '<':
 					const deltaCmp = toNumber(JelType.singleOp('abs',JelType.op('-', this.value, right)));
 					if (JelType.op(operator, this.value, right))
-						 return (deltaCmp >= maxErrorDelta) ? true : new FuzzyBoolean(1 - deltaCmp / maxErrorDelta);
-					return (deltaCmp >= maxErrorDelta) ? false : new FuzzyBoolean(Math.max(0, 0.5 - deltaCmp / maxErrorDelta));
+						 return (deltaCmp >= maxErrorDelta) ? FuzzyBoolean.CLEARLY_TRUE : new FuzzyBoolean(1 - deltaCmp / maxErrorDelta);
+					return (deltaCmp >= maxErrorDelta) ? FuzzyBoolean.CLEARLY_FALSE : new FuzzyBoolean(Math.max(0, 0.5 - deltaCmp / maxErrorDelta));
 				case '<=':
 				case '>=':
 					const eq = JelType.op('=', this, right);
-					return toBoolean(eq) ? eq : JelType.op(DEQUAL[operator], this, right);
+					return eq.toRealBoolean() ? eq : JelType.op(DEQUAL[operator], this, right);
 				case '>>':
 				case '<<':
 				case '<<=':
@@ -116,7 +112,7 @@ export default class ApproximateNumber extends JelType {
 	
 	singleOp(operator: string): any {
 		if (operator == '!') 
-			return this.value == 0;
+			return FuzzyBoolean.toFuzzyBoolean(this.value == 0);
 		else
 			return new ApproximateNumber(JelType.singleOp(operator, this.value), this.maxError);
 	}
@@ -131,8 +127,8 @@ export default class ApproximateNumber extends JelType {
 	}
 	
 	static create_jel_mapping = {value: 0, maxError: 1};
-	static create(...args: any[]): FuzzyBoolean {
-		return new FuzzyBoolean(args[0], args[1]);
+	static create(...args: any[]): ApproximateNumber {
+		return new ApproximateNumber(args[0], args[1]);
 	}
 }
 

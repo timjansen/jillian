@@ -203,8 +203,8 @@ describe('jelTranslators', function() {
         const ctx = new Context(null, null, dict);
 
         const sounds = translator(JEL.createPattern('the {{animals}} says {{animalSounds}}'), JEL.parseTree('true'));
-        assert.deepEqual(sounds.match(ctx, "the dog says woof").elements.map(e=>e.value), [true]);
-        assert.deepEqual(sounds.match(ctx, "the cat says meow").elements.map(e=>e.value), [true]);
+        assert.deepEqual(sounds.match(ctx, "the dog says woof").elements.map(e=>e.value.state), [1]);
+        assert.deepEqual(sounds.match(ctx, "the cat says meow").elements.map(e=>e.value.state), [1]);
         assert.deepEqual(sounds.match(ctx, "the fish says meow").elements.map(e=>e.value), []);
         assert.deepEqual(sounds.match(ctx, "the woof says dog").elements.map(e=>e.value), []);
         assert.deepEqual(sounds.match(ctx, "dog says meow").elements.map(e=>e.value), []);
@@ -216,7 +216,7 @@ describe('jelTranslators', function() {
         assert.deepEqual(soundsValidating.match(ctx, "the dog says meow").elements.map(e=>e.value), []);
 
         const soundsMeta = translator(JEL.createPattern('the {{a: animals.small}} says {{s: animalSounds :: s == a}}'), JEL.parseTree('true'));
-        assert.deepEqual(soundsMeta.match(ctx, "the dog says woof").elements.map(e=>e.value), [true]);
+        assert.deepEqual(soundsMeta.match(ctx, "the dog says woof").elements.map(e=>e.value.state), [1]);
         assert.deepEqual(soundsMeta.match(ctx, "the cow says woof").elements.map(e=>e.value), []);
         assert.deepEqual(soundsMeta.match(ctx, "the cow says moo").elements.map(e=>e.value), []);
       

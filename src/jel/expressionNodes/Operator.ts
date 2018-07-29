@@ -2,6 +2,7 @@ import JelNode from './JelNode';
 import Variable from './Variable';
 import JelType from '../JelType';
 import Context from '../Context';
+import FuzzyBoolean from '../types/FuzzyBoolean';
 import Util from '../../util/Util';
 
 /**
@@ -75,12 +76,12 @@ export default class Operator extends JelNode {
       return JelType.op(this.operator, left, right);
   }
   
-  private and(ctx: Context, left: JelNode): boolean {
-    return JelType.toBoolean(left) ? this.right!.execute(ctx) : left;
+  private and(ctx: Context, left: JelNode): FuzzyBoolean {
+    return JelType.toRealBoolean(left) ? this.right!.execute(ctx) : left;
   }
   
-  private or(ctx: Context, left: JelNode): boolean {
-    return JelType.toBoolean(left) ? left : this.right!.execute(ctx);
+  private or(ctx: Context, left: JelNode): FuzzyBoolean {
+    return JelType.toRealBoolean(left) ? left : this.right!.execute(ctx);
   }
   
   

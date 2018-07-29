@@ -34,14 +34,14 @@ describe('JEL', function() {
       assert.equal(new JEL('-5').executeImmediately(), -5);
       assert.equal(new JEL('- 5').executeImmediately(), -5);
       assert.equal(new JEL('"foo"').executeImmediately(), 'foo');
-      assert.equal(new JEL('true').executeImmediately(), true);
+      assert.equal(new JEL('true').executeImmediately().state, 1);
       assert.equal(new JEL('null').executeImmediately(), null);
     });
 
    it('should execute patterns', function() {
       assert.equal(new JEL('`a b c`').executeImmediately().toString(), 'Pattern(text=`a b c`)');
-      assert.equal(new JEL('`a b c`.match("a  b c")').executeImmediately(), true);
-      assert.equal(new JEL('`a b c`.match("a  c c")').executeImmediately(), false);
+      assert.equal(new JEL('`a b c`.match("a  b c")').executeImmediately().state, 1);
+      assert.equal(new JEL('`a b c`.match("a  c c")').executeImmediately().state, 0);
     });
 
     
@@ -49,21 +49,36 @@ describe('JEL', function() {
       assert.equal(new JEL('5+5').executeImmediately(), 10);
       assert.equal(new JEL('5*5').executeImmediately(), 25);
       assert.equal(new JEL('7-5').executeImmediately(), 2);
-      assert.equal(new JEL('!true').executeImmediately(), false);
+      assert.equal(new JEL('!true').executeImmediately().state, 0);
       assert.equal(new JEL('-(10/2)').executeImmediately(), -5);
       assert.equal(new JEL('"foo"+"bar"').executeImmediately(), "foobar");
-      assert.equal(new JEL('5>5').executeImmediately(), false);
-      assert.equal(new JEL('5<5').executeImmediately(), false);
-      assert.equal(new JEL('5==5').executeImmediately(), true);
+      assert.equal(new JEL('5>5').executeImmediately().state, 0);
+      assert.equal(new JEL('5<5').executeImmediately().state, 0);
+      assert.equal(new JEL('5>=5').executeImmediately().state, 1);
+      assert.equal(new JEL('5<=5').executeImmediately().state, 1);
+      assert.equal(new JEL('6>=5').executeImmediately().state, 1);
+      assert.equal(new JEL('6<=5').executeImmediately().state, 0);
+      assert.equal(new JEL('5>=6').executeImmediately().state, 0);
+      assert.equal(new JEL('5<=6').executeImmediately().state, 1);
+      assert.equal(new JEL('6>5').executeImmediately().state, 1);
+      assert.equal(new JEL('6<5').executeImmediately().state, 0);
+      assert.equal(new JEL('5>6').executeImmediately().state, 0);
+      assert.equal(new JEL('5<6').executeImmediately().state, 1);
+      assert.equal(new JEL('5>0').executeImmediately().state, 1);
+      assert.equal(new JEL('5<0').executeImmediately().state, 0);
+      assert.equal(new JEL('5>=0').executeImmediately().state, 1);
+      assert.equal(new JEL('5<=0').executeImmediately().state, 0);
+      assert.equal(new JEL('5==5').executeImmediately().state, 1);
+      assert.equal(new JEL('6==5').executeImmediately().state, 0);
       assert.equal(new JEL('((-7))+3').executeImmediately(), -4);
     });
 
     
    it('should support logical OR (||)', function() {
-      assert.equal(new JEL('true||false').executeImmediately(), true);
-      assert.equal(new JEL('true||true').executeImmediately(), true);
-      assert.equal(new JEL('false||true').executeImmediately(), true);
-      assert.equal(new JEL('false||false').executeImmediately(), false);
+      assert.equal(new JEL('true||false').executeImmediately().state, 1);
+      assert.equal(new JEL('true||true').executeImmediately().state, 1);
+      assert.equal(new JEL('false||true').executeImmediately().state, 1);
+      assert.equal(new JEL('false||false').executeImmediately().state, 0);
       assert.equal(new JEL('17||0').executeImmediately(), 17);
       assert.equal(new JEL('15||"test"').executeImmediately(), 15);
       assert.equal(new JEL('""||"foo"').executeImmediately(), "foo");
@@ -71,10 +86,10 @@ describe('JEL', function() {
     });
 
     it('should support logical AND (&&)', function() {
-      assert.equal(new JEL('true && false').executeImmediately(), false);
-      assert.equal(new JEL('true && true').executeImmediately(), true);
-      assert.equal(new JEL('false && true').executeImmediately(), false);
-      assert.equal(new JEL('false && false').executeImmediately(), false);
+      assert.equal(new JEL('true && false').executeImmediately().state, 0);
+      assert.equal(new JEL('true && true').executeImmediately().state, 1);
+      assert.equal(new JEL('false && true').executeImmediately().state, 0);
+      assert.equal(new JEL('false && false').executeImmediately().state, 0);
       assert.equal(new JEL('17 && 0').executeImmediately(), 0);
       assert.equal(new JEL('15 && "test"').executeImmediately(), "test");
       assert.equal(new JEL('"" && "foo"').executeImmediately(), "");
@@ -173,7 +188,7 @@ describe('JEL', function() {
       assert.equal(new JEL("if 2>1 then (if 3<2 then 2 else 1) else 6").executeImmediately(), 1);
 
       assert.equal(new JEL('if true then 7').executeImmediately(), 7);
-      assert.equal(new JEL('if false then 7').executeImmediately(), true);
+      assert.equal(new JEL('if false then 7').executeImmediately().state, 1);
     });
 
     it('supports lists', function() {
@@ -204,9 +219,9 @@ describe('JEL', function() {
       assert.equal(new JEL('{{`abc def` => 2, `foo` => 6}}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={def: TranslatorNode(tokens={} results=[LambdaResultNode(2)])}),\nfoo: TranslatorNode(tokens={} results=[LambdaResultNode(6)])}))");
       assert.equal(new JEL('{{`abc def` => 2, `foo` => 6, `abc foo bar` => 4}}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={def: TranslatorNode(tokens={} results=[LambdaResultNode(2)]),\nfoo: TranslatorNode(tokens={bar: TranslatorNode(tokens={} results=[LambdaResultNode(4)])})}),\nfoo: TranslatorNode(tokens={} results=[LambdaResultNode(6)])}))");
     
-      assert.equal(new JEL('{{x: `abc` => 2}}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=true})])}))");
-      assert.equal(new JEL('{{x,y,z: `abc` => 2}}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=true, y=true, z=true})])}))");
-      assert.equal(new JEL('{{x,y=1,zzz="bla": `abc` => 2}}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=true, y=1, zzz=bla})])}))");
+      assert.equal(new JEL('{{x: `abc` => 2}}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=FuzzyBoolean(1)})])}))");
+      assert.equal(new JEL('{{x,y,z: `abc` => 2}}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=FuzzyBoolean(1), y=FuzzyBoolean(1), z=FuzzyBoolean(1)})])}))");
+      assert.equal(new JEL('{{x,y=1,zzz="bla": `abc` => 2}}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=FuzzyBoolean(1), y=1, zzz=bla})])}))");
 
       assert.equal(new JEL('{{}}.match("").length').executeImmediately(), 0);
       assert.equal(new JEL('{{}}.match("a").length').executeImmediately(), 0);

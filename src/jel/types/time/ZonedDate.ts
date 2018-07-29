@@ -22,8 +22,8 @@ export default class ZonedDate extends TimeSpec {
 		return Timestamp.fromMoment(moment({year: this.year, month: this.month, day: this.day}).tz(this.timeZone.tz).add(1, 'd'));
 	}
 	
-	isContinous(): boolean {
-		return true;
+	isContinous(): FuzzyBoolean {
+		return FuzzyBoolean.CLEARLY_TRUE;
 	}
 	
 	op(operator: string, right: any): any {

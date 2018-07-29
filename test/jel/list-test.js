@@ -115,22 +115,22 @@ describe('jelList', function() {
   
   describe('bestMatch()', function() {
     it('handles small lists', function() {
-      assert.deepEqual(new JEL('[].bestMatch((a,b)=>a>b)').executeImmediately().elements, []); 
-      assert.deepEqual(new JEL('[1].bestMatch((a,b)=>a>b)').executeImmediately().elements, [1]); 
+      assert.deepEqual(new JEL('[].bestMatches((a,b)=>a>b)').executeImmediately().elements, []); 
+      assert.deepEqual(new JEL('[1].bestMatches((a,b)=>a>b)').executeImmediately().elements, [1]); 
     });
     it('matches single elements', function() {
-      assert.deepEqual(new JEL('[3, 2, 9, 5].bestMatch((a,b)=>a>b)').executeImmediately().elements, [9]); 
-      assert.deepEqual(new JEL('[9, 2, 3, 5].bestMatch((a,b)=>a>b)').executeImmediately().elements, [9]); 
-      assert.deepEqual(new JEL('[1, 3, 3, 5, 9].bestMatch((a,b)=>a>b)').executeImmediately().elements, [9]); 
-      assert.deepEqual(new JEL('[9, 2, 3, 5].bestMatch((a,b)=>a<b)').executeImmediately().elements, [2]); 
-      assert.deepEqual(new JEL("['foo', 'bar', 'blabla', 'blablabla'].bestMatch((a,b)=>a.length>b.length)").executeImmediately().elements, ['blablabla']); 
+      assert.deepEqual(new JEL('[3, 2, 9, 5].bestMatches((a,b)=>a>b)').executeImmediately().elements, [9]); 
+      assert.deepEqual(new JEL('[9, 2, 3, 5].bestMatches((a,b)=>a>b)').executeImmediately().elements, [9]); 
+      assert.deepEqual(new JEL('[1, 3, 3, 5, 9].bestMatches((a,b)=>a>b)').executeImmediately().elements, [9]); 
+      assert.deepEqual(new JEL('[9, 2, 3, 5].bestMatches((a,b)=>a<b)').executeImmediately().elements, [2]); 
+      assert.deepEqual(new JEL("['foo', 'bar', 'blabla', 'blablabla'].bestMatches((a,b)=>a.length>b.length)").executeImmediately().elements, ['blablabla']); 
     });
     it('matches multiple elements', function() {
-      assert.deepEqual(new JEL('[3, 2, 9, 5, 9].bestMatch((a,b)=>a>b)').executeImmediately().elements, [9, 9]); 
-      assert.deepEqual(new JEL('[9, 2, 3, 5, 9, 9].bestMatch((a,b)=>a>b)').executeImmediately().elements, [9, 9, 9]); 
-      assert.deepEqual(new JEL('[3, 9, 3, 9, 5].bestMatch((a,b)=>a>b)').executeImmediately().elements, [9, 9]); 
-      assert.deepEqual(new JEL('[9, 2, 2, 3, 5].bestMatch((a,b)=>a<b)').executeImmediately().elements, [2, 2]); 
-      assert.deepEqual(new JEL("['foo', 'bar', 'blabla', 'blablabla'].bestMatch((a,b)=>a.length<b.length)").executeImmediately().elements, ['foo', 'bar']); 
+      assert.deepEqual(new JEL('[3, 2, 9, 5, 9].bestMatches((a,b)=>a>b)').executeImmediately().elements, [9, 9]); 
+      assert.deepEqual(new JEL('[9, 2, 3, 5, 9, 9].bestMatches((a,b)=>a>b)').executeImmediately().elements, [9, 9, 9]); 
+      assert.deepEqual(new JEL('[3, 9, 3, 9, 5].bestMatches((a,b)=>a>b)').executeImmediately().elements, [9, 9]); 
+      assert.deepEqual(new JEL('[9, 2, 2, 3, 5].bestMatches((a,b)=>a<b)').executeImmediately().elements, [2, 2]); 
+      assert.deepEqual(new JEL("['foo', 'bar', 'blabla', 'blablabla'].bestMatches((a,b)=>a.length<b.length)").executeImmediately().elements, ['foo', 'bar']); 
     });
   });
 
@@ -177,6 +177,57 @@ describe('jelList', function() {
 											 ["x", "xx", "xxxx", "xxxxxx"]); 
     });
   });
+	
+	
+  describe('min()/max()', function() {
+    it('handles small lists', function() {
+      assert.deepEqual(new JEL('[].min()').executeImmediately(), undefined); 
+      assert.deepEqual(new JEL('[].max()').executeImmediately(), undefined); 
+      assert.deepEqual(new JEL('[1].min()').executeImmediately(), 1); 
+      assert.deepEqual(new JEL('[1].max()').executeImmediately(), 1); 
+      assert.deepEqual(new JEL('[].min((a,b)=>a>b)').executeImmediately(), undefined); 
+      assert.deepEqual(new JEL('[1].max((a,b)=>a>b)').executeImmediately(), 1); 
+    });
+    it('find by default sorter', function() {
+      assert.deepEqual(new JEL('[3, 2, 9, 5].min()').executeImmediately(), 2); 
+      assert.deepEqual(new JEL('[3, 2, 9, 5].max()').executeImmediately(), 9); 
+      assert.deepEqual(new JEL('[1, 3, 3, 5, 9, 9].max()').executeImmediately(), 9); 
+    });
+    it('find by lambda', function() {
+      assert.deepEqual(new JEL('[3, 2, 9, 5].max((a,b)=>a<b)').executeImmediately(), 9); 
+      assert.deepEqual(new JEL('[9, 2, 3, 5].min((a,b)=>a<b)').executeImmediately(), 2);
+      assert.deepEqual(new JEL("['foo', 'blabla', 'bar', 'blablabla'].min((a,b)=>a.length<b.length)").executeImmediately(), 'foo'); 
+      assert.deepEqual(new JEL("['foo', 'blabla', 'bar', 'blablabla'].max((a,b)=>a.length<b.length)").executeImmediately(), 'blablabla'); 
+    });
+    it('finds by string key', function() {
+      class X extends JelType {
+     	  constructor(x) {
+					super();
+				  this.a = x;
+			  }
+        static create(x) {
+          return new X(x);
+        }
+      }
+      X.create_jel_mapping = {x:0};
+      X.prototype.JEL_PROPERTIES = {a:1};
+			
+			const ctx = new Context().setAll({X});
+
+			assert.deepEqual(new JEL('[X(17), X(3), X(11), X(9)].min(key="a").a').executeImmediately(ctx), 3); 
+			assert.deepEqual(new JEL('[X(17), X(3), X(11), X(9)].max(key="a").a').executeImmediately(ctx), 17); 
+      assert.deepEqual(new JEL('[X(17), X(3), X(11), X(9)].min(isLess=(a,b)=>a<b, key="a").a').executeImmediately(ctx), 3); 
+      assert.deepEqual(new JEL('[X(17), X(3), X(11), X(9)].max(isLess=(a,b)=>a<b, key="a").a').executeImmediately(ctx), 17); 
+    });
+    it('find by key function', function() {
+      assert.deepEqual(new JEL('[{a: 17}, {a: 3}, {a: 11}, {a: 9}].min(key=o=>o.get("a")).get("a")').executeImmediately(), 3); 
+      assert.deepEqual(new JEL('[{a: 17}, {a: 3}, {a: 11}, {a: 9}].max(key=o=>o.get("a")).get("a")').executeImmediately(), 17); 
+      assert.deepEqual(new JEL('[{a: 17}, {a: 3}, {a: 11}, {a: 9}].min((a,b)=>a<b, key=o=>o.get("a")).get("a")').executeImmediately(), 3); 
+      assert.deepEqual(new JEL('[{a: 17}, {a: 3}, {a: 11}, {a: 9}].max((a,b)=>a<b, key=o=>o.get("a")).get("a")').executeImmediately(), 17); 
+      assert.deepEqual(new JEL('[{a: "xxxx"}, {a: "xx"}, {a: "x"}, {a: "xxxxxx"}].min(isLess=(a,b)=>a.length<b.length, key=o=>o.get("a")).get("a")').executeImmediately(), "x"); 
+      assert.deepEqual(new JEL('[{a: "xxxx"}, {a: "xx"}, {a: "x"}, {a: "xxxxxx"}].max(isLess=(a,b)=>a.length<b.length, key=o=>o.get("a")).get("a")').executeImmediately(), "xxxxxx"); 
+    });
+  });
 
   describe('sub()', function() {
     it('handles small lists', function() {
@@ -184,13 +235,16 @@ describe('jelList', function() {
       assert.deepEqual(new JEL('[].sub(-2, 5)').executeImmediately().elements, []); 
       assert.deepEqual(new JEL('[].sub(0)').executeImmediately().elements, []); 
       assert.deepEqual(new JEL('[1].sub(0,100)').executeImmediately().elements, [1]); 
-      assert.deepEqual(new JEL('[1].sub(-1,1)').executeImmediately().elements, [1]); 
+      assert.deepEqual(new JEL('[1].sub(-1,5)').executeImmediately().elements, [1]); 
+      assert.deepEqual(new JEL('[1].sub(-1)').executeImmediately().elements, [1]); 
       assert.deepEqual(new JEL('[1].sub(0, 0)').executeImmediately().elements, []); 
     });
     it('allows flexible params', function() {
       assert.deepEqual(new JEL('[3, 2, 9, 5].sub(0, 5)').executeImmediately().elements, [3, 2, 9, 5]); 
       assert.deepEqual(new JEL('[9, 2, 3, 5].sub(0)').executeImmediately().elements, [9, 2, 3, 5]); 
-      assert.deepEqual(new JEL('[1, 3, 3, 5, 9, 9].sub(-6, 100)').executeImmediately().elements, [1, 3, 3, 5, 9, 9]); 
+      assert.deepEqual(new JEL('[1, 3, 3, 5, 9, 9].sub(-3, 100)').executeImmediately().elements, [5, 9, 9]); 
+      assert.deepEqual(new JEL('[1, 3, 3, 5, 9, 9].sub(-3, -2)').executeImmediately().elements, [5]); 
+      assert.deepEqual(new JEL('[1, 3, 3, 5, 9, 9].sub(-3, -100)').executeImmediately().elements, []); 
       assert.deepEqual(new JEL("['foo', 'blabla', 'bar', 'blablabla'].sub()").executeImmediately().elements, ['foo', 'blabla', 'bar', 'blablabla']); 
     });
     it('creates smaller lists', function() {
