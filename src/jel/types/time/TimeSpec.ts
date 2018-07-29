@@ -48,7 +48,7 @@ export default abstract class TimeSpec extends JelType {
 	contains(time: Timestamp, defaultTimeZone: TimeZone): FuzzyBoolean|Promise<FuzzyBoolean> {
 		const a: FuzzyBoolean|Promise<FuzzyBoolean> = this.isAfter(time, defaultTimeZone);
 		if (a instanceof FuzzyBoolean && a.toRealBoolean())
-			return FuzzyBoolean.CLEARLY_FALSE;
+			return FuzzyBoolean.FALSE;
 		return Util.resolveValues((a1: FuzzyBoolean, b1: FuzzyBoolean)=>a1.or(b1).negate(), a, this.isBefore(time, defaultTimeZone));
 	}
 	

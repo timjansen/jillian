@@ -26,7 +26,7 @@ export default class TimeOfDayRange extends TimeSpec {
 	}
 	
 	isContinous(): FuzzyBoolean {
-		return FuzzyBoolean.CLEARLY_TRUE;
+		return FuzzyBoolean.TRUE;
 	}
 	
 	op(operator: string, right: any): any {

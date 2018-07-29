@@ -8,46 +8,46 @@ export default class FuzzyBoolean extends JelType {
 
 	JEL_PROPERTIES: Object = {state:1};
 	
-	static CLEARLY_FALSE_VALUE = 0;
+	static FALSE_VALUE = 0;
 	static BARELY_FALSE_VALUE = 0.25;
 	static HALF_TRUE_VALUE = 0.5;
 	static BARELY_TRUE_VALUE = 0.75;
-	static CLEARLY_TRUE_VALUE = 1;
+	static TRUE_VALUE = 1;
 
-	static CLEARLY_FALSE = new FuzzyBoolean(FuzzyBoolean.CLEARLY_FALSE_VALUE);
+	static FALSE = new FuzzyBoolean(FuzzyBoolean.FALSE_VALUE);
 	static BARELY_FALSE = new FuzzyBoolean(FuzzyBoolean.BARELY_FALSE_VALUE);
 	static HALF_TRUE = new FuzzyBoolean(FuzzyBoolean.HALF_TRUE_VALUE);
 	static BARELY_TRUE = new FuzzyBoolean(FuzzyBoolean.BARELY_TRUE_VALUE);
-	static CLEARLY_TRUE = new FuzzyBoolean(FuzzyBoolean.CLEARLY_TRUE_VALUE);
+	static TRUE = new FuzzyBoolean(FuzzyBoolean.TRUE_VALUE);
 
 	static PREDEFINED: Map<any, FuzzyBoolean> = new Map();
 	static NEGATE: Map<any, FuzzyBoolean> = new Map();
 	
-	static JEL_PROPERTIES: Object = {CLEARLY_FALSE_VALUE: 1, BARELY_FALSE_VALUE:1, HALF_TRUE_VALUE:1, BARELY_TRUE_VALUE:1, CLEARLY_TRUE_VALUE:1,
-																	CLEARLY_FALSE:1, BARELY_FALSE:1, HALF_TRUE:1, BARELY_TRUE:1, CLEARLY_TRUE:1};
+	static JEL_PROPERTIES: Object = {FALSE_VALUE: 1, BARELY_FALSE_VALUE:1, HALF_TRUE_VALUE:1, BARELY_TRUE_VALUE:1, TRUE_VALUE:1,
+																	FALSE:1, BARELY_FALSE:1, HALF_TRUE:1, BARELY_TRUE:1, TRUE:1};
 	
 	static init() {
 		JelType.setFuzzyBoolean(FuzzyBoolean);
-		FuzzyBoolean.PREDEFINED.set(FuzzyBoolean.CLEARLY_TRUE_VALUE, FuzzyBoolean.CLEARLY_TRUE);
+		FuzzyBoolean.PREDEFINED.set(FuzzyBoolean.TRUE_VALUE, FuzzyBoolean.TRUE);
 		FuzzyBoolean.PREDEFINED.set(FuzzyBoolean.BARELY_TRUE_VALUE, FuzzyBoolean.BARELY_TRUE);
 		FuzzyBoolean.PREDEFINED.set(FuzzyBoolean.HALF_TRUE_VALUE, FuzzyBoolean.HALF_TRUE);
 		FuzzyBoolean.PREDEFINED.set(FuzzyBoolean.BARELY_FALSE_VALUE, FuzzyBoolean.BARELY_FALSE);
-		FuzzyBoolean.PREDEFINED.set(FuzzyBoolean.CLEARLY_FALSE_VALUE, FuzzyBoolean.CLEARLY_FALSE);
-		FuzzyBoolean.PREDEFINED.set(true, FuzzyBoolean.CLEARLY_TRUE);
-		FuzzyBoolean.PREDEFINED.set(false, FuzzyBoolean.CLEARLY_FALSE);
+		FuzzyBoolean.PREDEFINED.set(FuzzyBoolean.FALSE_VALUE, FuzzyBoolean.FALSE);
+		FuzzyBoolean.PREDEFINED.set(true, FuzzyBoolean.TRUE);
+		FuzzyBoolean.PREDEFINED.set(false, FuzzyBoolean.FALSE);
 
-		FuzzyBoolean.NEGATE.set(FuzzyBoolean.CLEARLY_FALSE_VALUE, FuzzyBoolean.CLEARLY_TRUE);
+		FuzzyBoolean.NEGATE.set(FuzzyBoolean.FALSE_VALUE, FuzzyBoolean.TRUE);
 		FuzzyBoolean.NEGATE.set(FuzzyBoolean.BARELY_FALSE_VALUE, FuzzyBoolean.BARELY_TRUE);
 		FuzzyBoolean.NEGATE.set(FuzzyBoolean.HALF_TRUE_VALUE, FuzzyBoolean.HALF_TRUE);
 		FuzzyBoolean.NEGATE.set(FuzzyBoolean.BARELY_TRUE_VALUE, FuzzyBoolean.BARELY_FALSE);
-		FuzzyBoolean.NEGATE.set(FuzzyBoolean.CLEARLY_TRUE_VALUE, FuzzyBoolean.CLEARLY_FALSE);
+		FuzzyBoolean.NEGATE.set(FuzzyBoolean.TRUE_VALUE, FuzzyBoolean.FALSE);
 	}
 
 	
 	constructor(state: number | boolean) {
 		super();
 		if (typeof state == 'boolean')
-			this.state = state ? FuzzyBoolean.CLEARLY_TRUE_VALUE : FuzzyBoolean.CLEARLY_FALSE_VALUE;
+			this.state = state ? FuzzyBoolean.TRUE_VALUE : FuzzyBoolean.FALSE_VALUE;
 		else
 			this.state = state; // a value 0 - 1
 	}
@@ -88,7 +88,7 @@ export default class FuzzyBoolean extends JelType {
 	}
 
 	negate():FuzzyBoolean {
-		return FuzzyBoolean.NEGATE.get(this.state) || new FuzzyBoolean(FuzzyBoolean.CLEARLY_TRUE_VALUE - this.state);
+		return FuzzyBoolean.NEGATE.get(this.state) || new FuzzyBoolean(FuzzyBoolean.TRUE_VALUE - this.state);
 	}
 		
 	getSerializationProperties(): any[] {
@@ -109,27 +109,27 @@ export default class FuzzyBoolean extends JelType {
 	}
 	
 	isClearlyTrue(): boolean {
-		return this.state == FuzzyBoolean.CLEARLY_TRUE_VALUE;
+		return this.state == FuzzyBoolean.TRUE_VALUE;
 	}
 	
 	isClearlyFalse(): boolean {
-		return this.state == FuzzyBoolean.CLEARLY_FALSE_VALUE;
+		return this.state == FuzzyBoolean.FALSE_VALUE;
 	}
 	
 	static fourWay_jel_mapping = {mainValue: 0, clearly: 1};
 	static fourWay(mainValue: boolean, clearly: boolean): FuzzyBoolean {
-		return mainValue ? (clearly ? FuzzyBoolean.CLEARLY_TRUE : FuzzyBoolean.BARELY_TRUE) :
-			(clearly ? FuzzyBoolean.CLEARLY_FALSE : FuzzyBoolean.BARELY_FALSE);
+		return mainValue ? (clearly ? FuzzyBoolean.TRUE : FuzzyBoolean.BARELY_TRUE) :
+			(clearly ? FuzzyBoolean.FALSE : FuzzyBoolean.BARELY_FALSE);
 	}
 
 	static twoPrecision_jel_mapping = {lowPrecision: 0, highPrecision: 1};
 	static twoPrecision(lowPrecision: boolean, highPrecision: boolean): FuzzyBoolean {
-		return lowPrecision ? (highPrecision ? FuzzyBoolean.CLEARLY_TRUE : FuzzyBoolean.BARELY_TRUE) :
-			(highPrecision ? FuzzyBoolean.BARELY_FALSE : FuzzyBoolean.CLEARLY_FALSE);
+		return lowPrecision ? (highPrecision ? FuzzyBoolean.TRUE : FuzzyBoolean.BARELY_TRUE) :
+			(highPrecision ? FuzzyBoolean.BARELY_FALSE : FuzzyBoolean.FALSE);
 	}
 
 	static toFuzzyBoolean(a: boolean): FuzzyBoolean {
-		return a ? FuzzyBoolean.CLEARLY_TRUE : FuzzyBoolean.CLEARLY_FALSE;
+		return a ? FuzzyBoolean.TRUE : FuzzyBoolean.FALSE;
 	}
 
 	static toRealBoolean(a: boolean|FuzzyBoolean): boolean {

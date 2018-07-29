@@ -80,7 +80,7 @@ export default class Timestamp extends TimeSpec {
 	}
 
 	isContinous(): FuzzyBoolean {
-		return FuzzyBoolean.CLEARLY_TRUE;
+		return FuzzyBoolean.TRUE;
 	}
 
 	toNumber_jel_mapping: Object;

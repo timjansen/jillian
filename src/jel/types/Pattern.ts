@@ -27,7 +27,7 @@ export default class Pattern extends JelType {
 		const p = this.tree.match(ctx, inputOrTokens, 0);
 
 		if (!p)
-			return FuzzyBoolean.CLEARLY_FALSE;
+			return FuzzyBoolean.FALSE;
 		else if (p instanceof Promise || (Array.isArray(p) && Util.hasRecursive(p, p=>p instanceof Promise)))
 			return Util.simplifyPromiseArray(p).then(p0=>FuzzyBoolean.toFuzzyBoolean(!!p0.length));
 		else

@@ -33,7 +33,7 @@ export default class LocalDate extends TimeSpec {
 	}
 	
 	isContinous(): FuzzyBoolean {
-		return FuzzyBoolean.CLEARLY_TRUE;
+		return FuzzyBoolean.TRUE;
 	}
 
 		// m0: 0-11

@@ -28,8 +28,8 @@ export default class List extends JelType implements Gettable {
 			switch(operator) {
 				case '==':
 					if (this.elements.length != right.elements.length)
-						return FuzzyBoolean.CLEARLY_FALSE;
-					let result = FuzzyBoolean.CLEARLY_TRUE;
+						return FuzzyBoolean.FALSE;
+					let result = FuzzyBoolean.TRUE;
 					for (let i = 0; i < this.elements.length; i++) {
 						result = FuzzyBoolean.falsest(result, JelType.op('==', this.elements[i], right.elements[i]));
 						if (result.isClearlyFalse())
@@ -38,12 +38,12 @@ export default class List extends JelType implements Gettable {
 					break;
 				case '===':
 					if (this.elements.length != right.elements.length)
-						return FuzzyBoolean.CLEARLY_FALSE;
+						return FuzzyBoolean.FALSE;
 					for (let i = 0; i < this.elements.length; i++) {
 						if (!JelType.op('===', this.elements[i], right.elements[i]))
-							return FuzzyBoolean.CLEARLY_FALSE;
+							return FuzzyBoolean.FALSE;
 					}
-					return FuzzyBoolean.CLEARLY_TRUE;
+					return FuzzyBoolean.TRUE;
 				case '+':
 					return new List(this.elements.concat(right.elements));
 			}
@@ -65,7 +65,7 @@ export default class List extends JelType implements Gettable {
 					if (this.elements.length == 1)
 						return JelType.op(operator, this.elements[0], right);
 					else
-						return FuzzyBoolean.CLEARLY_FALSE;
+						return FuzzyBoolean.FALSE;
 				case '+':
 					const l = this.elements.slice();
 					l.push(right);

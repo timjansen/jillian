@@ -32,9 +32,9 @@ export default class Range extends JelType {
 			else if (operator == '===')
 				return JelType.op('===', this.min, right.min).and(JelType.op('===', this.max, right.max));
 			else if (operator == '>>')
-				return (right.max == null || this.min == null) ? FuzzyBoolean.CLEARLY_FALSE : JelType.op('>>', this.min, right.max);
+				return (right.max == null || this.min == null) ? FuzzyBoolean.FALSE : JelType.op('>>', this.min, right.max);
 			else if (operator == '<<')
-				return (right.min == null || this.max == null) ? FuzzyBoolean.CLEARLY_FALSE : JelType.op('<<', this.max, right.min);
+				return (right.min == null || this.max == null) ? FuzzyBoolean.FALSE : JelType.op('<<', this.max, right.min);
 			else if (operator == '>')
 				return (this.max == null || right.max == null) ? FuzzyBoolean.toFuzzyBoolean(this.max == null && right.max != null) : JelType.op('>', this.max, right.max);
 			else if (operator == '<')
@@ -54,13 +54,13 @@ export default class Range extends JelType {
 			else if (operator == '===')
 				return JelType.op('===', this.min, right).and(JelType.op('===', this.max, right));
 			else if (operator == '>>')
-				return this.min != null ? JelType.op('>>', this.min, right) : FuzzyBoolean.CLEARLY_FALSE;
+				return this.min != null ? JelType.op('>>', this.min, right) : FuzzyBoolean.FALSE;
 			else if (operator == '<<')
-				return this.max != null ? JelType.op('<<', this.max, right) : FuzzyBoolean.CLEARLY_FALSE;
+				return this.max != null ? JelType.op('<<', this.max, right) : FuzzyBoolean.FALSE;
 			else if (operator == '>')
-				return this.min != null ? JelType.op('>', this.min, right) : FuzzyBoolean.CLEARLY_FALSE;
+				return this.min != null ? JelType.op('>', this.min, right) : FuzzyBoolean.FALSE;
 			else if (operator == '<')
-				return this.max != null ? JelType.op('<', this.max, right) : FuzzyBoolean.CLEARLY_FALSE;
+				return this.max != null ? JelType.op('<', this.max, right) : FuzzyBoolean.FALSE;
 			else if (operator == '>>=')
 				return this.op('>>', right).or(this.contains(right));
 			else if (operator == '<<=')
@@ -78,7 +78,7 @@ export default class Range extends JelType {
 	
 	contains_jel_mapping: Object;
 	contains(right: any): FuzzyBoolean {
-		return (this.min == null ? FuzzyBoolean.CLEARLY_TRUE : JelType.op('<=', this.min, right)).and(this.max == null ? FuzzyBoolean.CLEARLY_TRUE : JelType.op('>=', this.max, right));
+		return (this.min == null ? FuzzyBoolean.TRUE : JelType.op('<=', this.min, right)).and(this.max == null ? FuzzyBoolean.TRUE : JelType.op('>=', this.max, right));
 	}
 	
 	getSerializationProperties(): any[] {

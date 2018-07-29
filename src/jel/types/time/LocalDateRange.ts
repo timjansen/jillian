@@ -25,7 +25,7 @@ export default class LocalDateRange extends TimeSpec {
 	}
 	
 	isContinous(): FuzzyBoolean {
-		return FuzzyBoolean.CLEARLY_TRUE;
+		return FuzzyBoolean.TRUE;
 	}
 	
 	op(operator: string, right: any): any {

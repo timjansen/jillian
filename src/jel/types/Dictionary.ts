@@ -32,11 +32,11 @@ export default class Dictionary extends JelType {
 				case '==':
 				case '===':
 					if (this.size != right.size)
-						return FuzzyBoolean.CLEARLY_FALSE;
-					let result = FuzzyBoolean.CLEARLY_TRUE;
+						return FuzzyBoolean.FALSE;
+					let result = FuzzyBoolean.TRUE;
 					for (let key of this.elements.keys())
 						if (!right.has(key))
-							return FuzzyBoolean.CLEARLY_FALSE;
+							return FuzzyBoolean.FALSE;
 						else {
 							result = FuzzyBoolean.falsest(result, JelType.op(operator, this.get(key), right.get(key)));
 							if (result.isClearlyFalse())
@@ -146,9 +146,9 @@ export default class Dictionary extends JelType {
 		for (let key of this.elements.keys()) {
 			const value = this.get(key);
 			if (JelType.toRealBoolean(f.invoke(key, value)))
-				return FuzzyBoolean.CLEARLY_TRUE;
+				return FuzzyBoolean.TRUE;
 		}
-		return FuzzyBoolean.CLEARLY_FALSE;
+		return FuzzyBoolean.FALSE;
 	}
 
 	hasOnly_jel_mapping: Object;
@@ -157,9 +157,9 @@ export default class Dictionary extends JelType {
 		for (let key of this.elements.keys()) {
 			const value = this.get(key);
 			if (!JelType.toRealBoolean(f.invoke(key, value)))
-				return FuzzyBoolean.CLEARLY_FALSE;
+				return FuzzyBoolean.FALSE;
 		}
-		return FuzzyBoolean.CLEARLY_TRUE;
+		return FuzzyBoolean.TRUE;
 	}
 
 	toObjectDebug(): any {

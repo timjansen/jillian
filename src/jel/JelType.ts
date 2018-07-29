@@ -102,7 +102,7 @@ export default class JelType {
 			else if (operator == '!=' || operator == '!==')
 				return MyFuzzyBoolean.toFuzzyBoolean(left !== right);
 			else if (operator in RELATIONAL_OPS)
-				return MyFuzzyBoolean.CLEARLY_FALSE;
+				return MyFuzzyBoolean.FALSE;
 			else
 				return left == null ? left : right;
 		}
