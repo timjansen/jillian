@@ -35,12 +35,12 @@ export default class List extends JelType implements Gettable {
 						if (result.isClearlyFalse())
 							return result;
 					}
-					break;
+					return result;
 				case '===':
 					if (this.elements.length != right.elements.length)
 						return FuzzyBoolean.FALSE;
 					for (let i = 0; i < this.elements.length; i++) {
-						if (!JelType.op('===', this.elements[i], right.elements[i]))
+						if (!JelType.op('===', this.elements[i], right.elements[i]).toRealBoolean())
 							return FuzzyBoolean.FALSE;
 					}
 					return FuzzyBoolean.TRUE;

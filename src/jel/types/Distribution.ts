@@ -7,7 +7,7 @@ export default class Distribution extends JelType {
     super();
   }
   
-  
+  // TODO
   
 }
 

@@ -5,12 +5,14 @@ const assert = require('assert');
 const JEL = require('../../build/jel/JEL.js').default;
 const JelType = require('../../build/jel/JelType.js').default;
 const List = require('../../build/jel/types/List.js').default;
+const ApproximateNumber = require('../../build/jel/types/ApproximateNumber.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
 
-const ctx = new Context().setAll({List});
+const ctx = new Context().setAll({List, ApproximateNumber});
+jelAssert.setCtx(ctx);
 
 describe('jelList', function() {
   describe('constructor()', function() {
@@ -32,45 +34,70 @@ describe('jelList', function() {
   
   describe('create()', function() {
     it('creates empty lists', function() {
-      jelAssert.equal(new JEL('List()').executeImmediately(ctx), new List()); 
+      jelAssert.equal('List()', new List()); 
     });
     it('creates lists from other lists', function() {
-      jelAssert.equal(new JEL('List(List([1,8]))').executeImmediately(ctx), new List([1,8])); 
+      jelAssert.equal('List(List([1,8]))', new List([1,8])); 
     });
     it('is equivalent to the built-in lists', function() {
-      jelAssert.equal(new JEL('[4, 2, 1]').executeImmediately(ctx), new List([4, 2, 1])); 
+      jelAssert.equal('[4, 2, 1]', new List([4, 2, 1])); 
     });
   });
-  
+
+  describe('operators list<->list', function() {
+    it('compares lists with ==', function() {
+      jelAssert.fuzzy('[4, 2, 1] == [4, 2, 1]', 1); 
+      jelAssert.fuzzy('[4, 2, 1] == [4, 2, 2]', 0); 
+      jelAssert.fuzzy('[4, 2, 1] == [4, 2, 1, 1]', 0); 
+      jelAssert.fuzzy('[4, 2, 1, 1] == [4, 2, 1]', 0); 
+      jelAssert.fuzzy('[4, 2, 1, 1] != [4, 2, 1]', 1); 
+
+			jelAssert.equal('[4, 2, ApproximateNumber(1, 3), 1] == [4, 2, 2, 1]', 'ApproximateNumber(1, 3) == 2'); 
+    });
+    it('compares lists with ===', function() {
+      jelAssert.fuzzy('[4, 2, 1] === [4, 2, 1]', 1); 
+      jelAssert.fuzzy('[4, 2, 1] === [4, 2, 2]', 0); 
+      jelAssert.fuzzy('[4, 2, 1] === [4, 2, 1, 1]', 0); 
+      jelAssert.fuzzy('[4, 2, 1, 1] === [4, 2, 1]', 0); 
+      jelAssert.fuzzy('[4, 2, 1, 1] !== [4, 2, 1]', 1); 
+    });
+    it('concats with +', function() {
+      jelAssert.equal('[4, 2, 1]+[]', new List([4, 2, 1])); 
+      jelAssert.equal('[]+[1, 2, 3]', new List([1, 2, 3])); 
+      jelAssert.equal('[4, 2, 1]+[2, 3]', new List([4, 2, 1, 2, 3])); 
+    });
+  });
+
+	
   describe('first', function() {
     it('returns the first', function() {
-      jelAssert.equal(new JEL('[3, 2, 9].first').executeImmediately(), 3); 
+      jelAssert.equal('[3, 2, 9].first', 3); 
     });
     it('returns undefined if list empty', function() {
-      jelAssert.equal(new JEL('[].first').executeImmediately(), undefined); 
+      jelAssert.equal('[].first', undefined); 
     });
   });
 
   describe('last', function() {
     it('returns the last', function() {
-      jelAssert.equal(new JEL('[3, 2, 9].last').executeImmediately(), 9); 
+      jelAssert.equal('[3, 2, 9].last', 9); 
     });
     it('returns undefined if list empty', function() {
-      jelAssert.equal(new JEL('[].last').executeImmediately(), undefined); 
+      jelAssert.equal('[].last', undefined); 
     });
   });
 
   describe('length', function() {
     it('returns the length', function() {
-      jelAssert.equal(new JEL('[1, 3, 2, 9].length').executeImmediately(), 4); 
-      jelAssert.equal(new JEL('[].length').executeImmediately(), 0);
+      jelAssert.equal('[1, 3, 2, 9].length', 4); 
+      jelAssert.equal('[].length', 0);
     });
   });
 
   
   describe('map()', function() {
     it('maps', function() {
-      jelAssert.equal(new JEL('[3, 2, 9].map((a,i)=>a+i)').executeImmediately(), new List([3, 3, 11])); 
+      jelAssert.equal('[3, 2, 9].map((a,i)=>a+i)', new List([3, 3, 11])); 
     });
   });
 
@@ -85,7 +112,7 @@ describe('jelList', function() {
 
   describe('reduce()', function() {
     it('reduces', function() {
-      jelAssert.equal(new JEL('[3, 2, 9].reduce((ak,a,i)=>ak+a+2*i, 2)').executeImmediately(), 22); 
+      jelAssert.equal('[3, 2, 9].reduce((ak,a,i)=>ak+a+2*i, 2)', 22); 
     });
   });
 

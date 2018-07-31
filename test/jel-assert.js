@@ -4,6 +4,7 @@ const assert = require('assert');
 const Serializer = require('../build/jel/Serializer.js').default;
 const JEL = require('../build/jel/JEL.js').default; 
 const JelType = require('../build/jel/JelType.js').default; 
+const FuzzyBoolean = require('../build/jel/types/FuzzyBoolean.js').default; 
 
 class JelAssert {
 	constructor(c) {
@@ -27,6 +28,18 @@ class JelAssert {
 	notEqual(a, b, c) {
 		assert.notEqual(Serializer.serialize(this.exec(a)), Serializer.serialize(this.exec(b)), c);
 	}
+	
+	fuzzy(a, min, max) {
+		const r = this.exec(a);
+		assert.ok(r instanceof FuzzyBoolean, "Failed to return FuzzyBoolean");
+		if (max != null) {
+			assert.ok(r.state >= min, `Expected fuzzy boolean min=${min} max=${max}, but got state=${r.state}`);
+			assert.ok(r.state <= max, `Expected fuzzy boolean min=${min} max=${max}, but got state=${r.state}`);
+		}
+		else
+			assert.ok(r.state == min, `Expected fuzzy boolean with state=${min}, but got state=${r.state}`);
+	}
+
 }
 
 class JelPromise extends JelType {

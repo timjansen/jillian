@@ -209,7 +209,7 @@ export default class JelType {
 	// Usually this is used for the operators '-' and '/', and possibly comparisons as well.
 	opReversed_jel_mapping: Object;
 	opReversed(operator: string, left: any): any {
-		throw new Error(`Operator "${operator}" is not supported for this type`);
+		throw new Error(`Operator "${operator}" is not supported for this type (in reversed operation)`);
 	}
 
 	
