@@ -12,6 +12,8 @@ const RANGE_NUM_OPS: any = {'+': true, '-': true, '*': true, '/': true};
  */
 export default class Range extends JelType {
 	
+	JEL_PROPERTIES: Object;
+
 	constructor(public min?: number | Fraction | UnitValue | ApproximateNumber | null, public max?: number | Fraction | UnitValue | ApproximateNumber | null) {
 		super();
 		
@@ -80,6 +82,19 @@ export default class Range extends JelType {
 	contains(right: any): FuzzyBoolean {
 		return (this.min == null ? FuzzyBoolean.TRUE : JelType.op('<=', this.min, right)).and(this.max == null ? FuzzyBoolean.TRUE : JelType.op('>=', this.max, right));
 	}
+
+	middle_jel_mapping: Object;
+	middle(): number | Fraction | UnitValue | ApproximateNumber | null {
+		if (this.min != null && this.max != null)
+			return JelType.singleOp('abs', JelType.op('-', this.min, this.max));
+		else
+			return null;
+	}
+
+	isFinite_jel_mapping: Object;
+	isFinite(): FuzzyBoolean {
+		return FuzzyBoolean.toFuzzyBoolean(this.min != null && this.max != null);
+	}
 	
 	getSerializationProperties(): any[] {
 		return [this.min, this.max];
@@ -95,6 +110,9 @@ export default class Range extends JelType {
 	}
 }
 
+Range.prototype.JEL_PROPERTIES = {min: 1, max: 1};
 Range.prototype.contains_jel_mapping = {right: 0};
+Range.prototype.middle_jel_mapping = {};
+Range.prototype.isFinite_jel_mapping = {};
 
 	

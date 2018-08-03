@@ -131,6 +131,10 @@ export default class Fraction extends JelType {
 		return this.denominator !== 0 ? (this.numerator / this.denominator) : NaN;
 	}
 	
+	toBoolean(): FuzzyBoolean {
+		return FuzzyBoolean.toFuzzyBoolean(!!this.numerator);
+	}
+	
 	simplify_jel_mapping: Object;
 	simplify(): Fraction {
 		const n = Fraction.gcd(this.numerator, this.denominator);

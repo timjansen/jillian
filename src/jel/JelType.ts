@@ -138,6 +138,10 @@ export default class JelType {
 			return !!obj;
 	}
 	
+	static toNumber(n: any) {
+		return typeof n == 'number' ? n : n.toNumber();
+	}
+	
 	static member(obj: any, name: string, parameters?: Map<string, any>): any {
 		const isClass = JelType.isPrototypeOf(obj);
 		if (isClass || obj instanceof JelType) { 
@@ -200,6 +204,8 @@ export default class JelType {
 			return MyFuzzyBoolean.truest(this.op('>', right), this.op('==', right)).negate();
 		if (operator == '<<')
 			return MyFuzzyBoolean.truest(this.op('>>', right), this.op('===', right)).negate();
+		if (right instanceof JelType && right.reverseOps && operator in right.reverseOps)
+			return right.opReversed(operator, this);
 		throw new Error(`Operator "${operator}" is not supported for this type`);
 	}
 
