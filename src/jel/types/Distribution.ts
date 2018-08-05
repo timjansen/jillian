@@ -18,7 +18,7 @@ export default class Distribution extends JelType {
 	JEL_PROPERTIES: Object;
 
 	
-  constructor(distributionPoints?: List, public average?: UnitValue|ApproximateNumber|Fraction|number|undefined,
+  constructor(distributionPoints?: List, public average?: UnitValue|ApproximateNumber|Fraction|number,
 							 min?: UnitValue|ApproximateNumber|Fraction|number, max?: UnitValue|ApproximateNumber|Fraction|number, 
 							 mean?: UnitValue|ApproximateNumber|Fraction|number) {
     super();
@@ -37,7 +37,25 @@ export default class Distribution extends JelType {
 		
 		this.points.sort((a: DistributionPoint, b: DistributionPoint)=> a.share-b.share);
   }
-
+	
+	add_jel_mapping: Object;
+	add(distributionPoints?: List, average?: UnitValue|ApproximateNumber|Fraction|number,
+							 min?: UnitValue|ApproximateNumber|Fraction|number, max?: UnitValue|ApproximateNumber|Fraction|number, 
+							 mean?: UnitValue|ApproximateNumber|Fraction|number): Distribution {
+		
+		const np = new Map<number, DistributionPoint>(this.points.map(p=>[JelType.toNumber(p.share), p] as any));
+		if (distributionPoints)
+			distributionPoints.elements.forEach(p=>np.set(JelType.toNumber(p.share), p));
+		if (min != null)
+			np.set(0, new DistributionPoint(min, 0));
+		if (max != null)
+			np.set(1, new DistributionPoint(max, 1));
+		if (mean != null)
+			np.set(0.5, new DistributionPoint(mean, 0.5));
+		
+		return new Distribution(new List(np.values()), average != null ? average : this.average);
+	}
+	
 	mean_jel_mapping: Object;
 	mean(): UnitValue|ApproximateNumber|Fraction|number {
 		return this.getValue(0.5);
@@ -55,49 +73,57 @@ export default class Distribution extends JelType {
 
 	getValue_jel_mapping: Object;
 	getValue(share: number|Fraction): UnitValue|ApproximateNumber|Fraction|number {
-		const share0 = JelType.toNumber(share);
-		let li = 0;
-		for (let l of this.points) {
-			if (l.share == share0)
-				return l.value;
-			if (l.share > share0)
+		const share0 = Math.max(0, Math.min(1, JelType.toNumber(share)));
+		let ri = 0;
+		for (let r of this.points) {
+			if (r.share == share0)
+				return r.value;
+			if (r.share > share0 || ri == this.points.length-1)
 				break;
-			li++;
+			ri++;
 		}
-		let ri = li + 1;
-		if (ri >= this.points.length) {
+		let li = ri - 1;
+		if (li < 0) {
 			if (this.points.length == 1)
 				return this.average != null ? this.average : this.points[0].value;
-			li--;
-			ri--;
+			li++;
+			ri++;
 		}
-		
+	
 		const lp: DistributionPoint = this.points[li], rp: DistributionPoint = this.points[ri];
-		
+
 		// P       = x * (rp-lp) + lp
 		// P.value = x * (rp.value-lp.value) + lp.value
 		// P.share = x * (rp.share-lp.share) + lp.share
 		// x = (P.share-lp.share) / (rp.share-lp.share) 
-		// P.value = (P.share - lp.share) / (rp.share-lp.share) * (rp.value-lp.value) + lp.value
-		return JelType.op('-', JelType.op('*', JelType.op('/', share0 - lp.share, rp.share-lp.share), JelType.op('-', rp.value, lp.value)), lp.value);
+		// P.value = (rp.value-lp.value) * (P.share - lp.share) / (rp.share-lp.share) + lp.value
+		return JelType.op('+', JelType.op('/', JelType.op('*', JelType.op('-', rp.value, lp.value), share0 - lp.share), rp.share-lp.share), lp.value);
 	}
 
 	getShare_jel_mapping: Object;
-	getShare(value: UnitValue|ApproximateNumber|Fraction|number): number {
-		let li = 0;
-		for (let l of this.points) {
-			if (JelType.op('==', l.value, value).toRealBoolean())
-				return l.share;
-			if (JelType.op('>', l.value, value).toRealBoolean())
-				break;
-			li++;
+	getShare(value: UnitValue|ApproximateNumber|Fraction|number): number|null {
+		if (this.points.length == 1) {
+			if (JelType.op('==', this.average, value).toRealBoolean())
+				return 0.5;
+			if (JelType.op('==', this.points[0].value, value).toRealBoolean())
+				return 1;
+			return null;
 		}
-		let ri = li + 1;
-		if (ri >= this.points.length) {
-			if (this.points.length == 1)
-				return this.average != null ? JelType.toNumber(this.average) : this.points[0].share;
-			li--;
-			ri--;
+		if (JelType.op('<', value, this.min()).toRealBoolean() || JelType.op('>', value, this.max()).toRealBoolean())
+			return null;
+
+		let ri = 0;
+		for (let r of this.points) {
+			if (JelType.op('==', r.value, value).toRealBoolean())
+				return r.share;
+			if (JelType.op('>', r.value, value).toRealBoolean() || ri == this.points.length-1)
+				break;
+			ri++;
+		}
+		let li = ri - 1;
+		if (li < 0) {
+			li++;
+			ri++;
 		}
 		
 		const lp: DistributionPoint = this.points[li], rp: DistributionPoint = this.points[ri];
@@ -106,9 +132,9 @@ export default class Distribution extends JelType {
 		// P.value = x * (rp.value-lp.value) + lp.value
 		// P.share = x * (rp.share-lp.share) + lp.share
 		// x = (P.value-lp.value)/(rp.value-lp.value)
-		// P.share = (P.value-lp.value)/(rp.value-lp.value) * (rp.share-lp.share) + lp.share
+		// P.share = (P.value-lp.value)*(rp.share-lp.share)/(rp.value-lp.value)  + lp.share
 		
-		return JelType.toNumber(JelType.op('*', JelType.op('/', JelType.op('-', value, lp.value), JelType.op('-', rp.value, lp.value)), rp.share - lp.share)) - lp.share;
+		return JelType.toNumber(JelType.op('/', JelType.op('*', JelType.op('-', value, lp.value), rp.share - lp.share), JelType.op('-', rp.value, lp.value))) + lp.share;
 	}
 	
 	op(operator: string, right: any): any {
@@ -190,3 +216,4 @@ Distribution.prototype.min_jel_mapping = {};
 Distribution.prototype.max_jel_mapping = {};
 Distribution.prototype.getValue_jel_mapping = {share: 0};
 Distribution.prototype.getShare_jel_mapping = {value: 0};
+Distribution.prototype.add_jel_mapping = {distributionPoints: 0, average: 1, min: 2, max: 3, mean: 4 };

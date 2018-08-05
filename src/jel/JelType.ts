@@ -138,7 +138,7 @@ export default class JelType {
 			return !!obj;
 	}
 	
-	static toNumber(n: any) {
+	static toNumber(n: any): number {
 		return typeof n == 'number' ? n : n.toNumber();
 	}
 	
