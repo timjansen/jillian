@@ -20,7 +20,7 @@ tmp.dir(function(err, path) {
 			.then(db=>{
 				const session = new DatabaseSession(db);
 
-				const cat = new Category('MyCat');
+				const cat = new Category('MyCategory');
 				const thing = new Thing('MyThing', cat);
 				return session.put(cat, thing).then(()=> {
 					assert.equal(session.getFromCache('MyThing'), thing);
@@ -49,7 +49,7 @@ tmp.dir(function(err, path) {
 			.then(db=>{
 				const session = new DatabaseSession(db);
 
-				const cat = new Category('MyCat');
+				const cat = new Category('MyCategory');
 				const thing = new Thing('MyThing', cat);
 				const thing2 = new Thing('MyThing2', cat);
 				return session.put(cat, thing, thing2)
@@ -65,7 +65,7 @@ tmp.dir(function(err, path) {
 			.then(db=>{
 				const session = new DatabaseSession(db);
 
-				const cat = new Category('MyCat');
+				const cat = new Category('MyCategory');
 				const thing = new Thing('MyThing', cat);
 				const thing2 = new Thing('MyThing2', cat);
 				const thing3 = new Thing('MyThing3', cat);

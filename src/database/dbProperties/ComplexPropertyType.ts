@@ -2,10 +2,16 @@ import PropertyType from './PropertyType';
 import Dictionary from '../../jel/types/Dictionary';
 import List from '../../jel/types/List';
 
+/**
+ * Defines a complex type that has named, types fields.
+ */
 export default class ComplexPropertyType extends PropertyType {
   fields: Dictionary; // string->List<PropertyType>
   
-  // dict string->PropertyType or string->List<PropertyType> . List means all types are possible
+  /** 
+	 * dict string->PropertyType or string->List<PropertyType> . List allows you to specify more than one type.
+   *      The List may also contain 'null' as element, if the value may be null.
+	 */
   constructor(fields: Dictionary) {
     super();
     

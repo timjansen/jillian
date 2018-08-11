@@ -16,16 +16,21 @@ tmp.dir(function(err, path) {
 		const session = new DatabaseSession(db);
 		
 		describe('Category', function() {
+			it('must end with "Category"', function() {
+				assert.throws(()=>new Category('NoThings'));
+			});
+			
+			
 			it('finds no instances', function() {
-				const cat = new Category('NoThings');
+				const cat = new Category('NoThingsCategory');
 				return session.put(cat)
 					.then(()=>cat.getInstances(session))
 					.then(instances=>assert.deepEqual(instances, []));
 			});
 			
 			it('finds instances', function() {
-				const cat = new Category('MyCat');
-				const subCat = new Category('MySubCat', cat);
+				const cat = new Category('MyCategory');
+				const subCat = new Category('MySubCategory', cat);
 				const thing = new Thing('MyThing1', cat);
 				const thing2 = new Thing('MyThing2', cat);
 				const thing3 = new Thing('MyThing3', subCat);

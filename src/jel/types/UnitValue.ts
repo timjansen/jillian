@@ -77,15 +77,17 @@ export default class UnitValue extends JelType {
 		return super.opReversed(operator, left);
 	}
 		// returns the UnitValue converted to the given value, or undefined of conversion not possible
-	convertToValue(type: string): number | undefined {
-		return undefined; // TODO
+	convertToValue(unit: string | DbRef): number | undefined {
+		const v = this.convertTo(unit);
+		return v && JelType.toNumber(v.value);
 	}
 
 	
 	// returns the UnitValue converted to the given value, or undefined of conversion not possible
 	convertTo_jel_mapping: Object;
-	convertTo(type: string|DbRef): UnitValue | undefined {
-		return; // TODO
+	convertTo(unit: string|DbRef): UnitValue | undefined {
+		const ref = typeof unit == 'string' ? new DbRef(unit) : unit;
+		return undefined; // TODO
 	}
 	
 	toNumber_jel_mapping: Object;

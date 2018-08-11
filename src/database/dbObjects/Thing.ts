@@ -14,7 +14,7 @@ export default class Thing extends DbEntry {
   category: DbRef;
   JEL_PROPERTIES: Object;
   
-  constructor(distinctName: string, category: Category|DbRef, reality: any, hashCode: string) {
+  constructor(distinctName: string, category: Category|DbRef, reality: DbRef, hashCode: string) {
     super(distinctName, reality, hashCode);
     this.category = DbRef.create(category);
   }
@@ -24,7 +24,7 @@ export default class Thing extends DbEntry {
   }
   
   getSerializationProperties(): Object {
-    return {distinctName: this.distinctName, reality: this.reality, properties: this.properties.toNullable(), category: this.category};
+    return {distinctName: this.distinctName, reality: this.reality, category: this.category};
   }
 
   static create_jel_mapping = {distinctName: 0, category: 1, reality: 2, hashCode: 3};

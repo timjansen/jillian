@@ -168,10 +168,6 @@ export default class Dictionary extends JelType {
 		return o;
 	}
 	
-	toNullable(): Dictionary | null {
-		return this.elements.size ? this : null;
-	}
-	
 	static create_jel_mapping = {elements: 0};
 	static create(...args: any[]): any {
 		return new Dictionary(args[0]);

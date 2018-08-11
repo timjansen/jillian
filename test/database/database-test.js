@@ -95,11 +95,11 @@ tmp.dir(function(err, path) {
 		it('maintains a category index', function() {
 			return Database.create(path+'/db7')
 						.then(db=>{
-								const superC = new Category('superCat');
-								const c1 = new Category('c1', superC);
-								const c2 = new Category('c2', superC);
-								const c3 = new Category('c3', superC);
-								const subC1 = new Category('subC1', c1);
+								const superC = new Category('SuperCategory');
+								const c1 = new Category('C1Category', superC);
+								const c2 = new Category('C2Category', superC);
+								const c3 = new Category('C3Category', superC);
+								const subC1 = new Category('SubC1Category', c1);
 
 								return db.put(superC, c1, c2, c3, subC1)
 									.then(()=>db.readCategoryIndex(c1, 'subCategories')
