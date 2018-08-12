@@ -5,7 +5,7 @@ import Gettable from '../Gettable';
 import Util from '../../util/Util';
 
 /**
- * Accesses a member of an object for reading. 
+ * Accesses a member of an object for reading. Please note that this node is only used for accessing using '[]', not using '.'.
  *
  * Examples:
  *    a['x']
@@ -24,7 +24,7 @@ export default class Get extends JelNode {
     else if (name == null)
       return null;
     else 
-      return JelType.member(left, name);
+      return JelType.member(ctx, left, name);
   }
    
   // override

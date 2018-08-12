@@ -50,7 +50,7 @@ export default class Call extends JelNode {
     if (left instanceof Callable) 
       return this.callCallable(ctx, left);
     else if (JelType.isPrototypeOf(left)) {
-      const callable = JelType.member(left, 'create');
+      const callable = JelType.member(ctx, left, 'create');
       if (!callable)
         throw new Error(`Call failed. Tried to create '${left.constructor.name}', but it does not support creation. It needs a public create() method.`);
       return this.callCallable(ctx, callable);

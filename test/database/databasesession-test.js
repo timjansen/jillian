@@ -2,10 +2,11 @@
 
 require('source-map-support').install();
 const Database = require('../../build/database/Database.js').default;
-const DatabaseSession = require('../../build/database/DbSession.js').default;
+const DbSession = require('../../build/database/DbSession.js').default;
 const DbEntry = require('../../build/database/DbEntry.js').default;
 const Category = require('../../build/database/dbObjects/Category.js').default;
 const Thing = require('../../build/database/dbObjects/Thing.js').default;
+const Context = require('../../build/jel/Context.js').default;
 const tmp = require('tmp');
 const assert = require('assert');
 
@@ -18,11 +19,12 @@ tmp.dir(function(err, path) {
 		it('puts and gets', function() {
 			return Database.create(path+'/dbsession1')
 			.then(db=>{
-				const session = new DatabaseSession(db);
+				const session = new DbSession(db);
+				const ctx = new Context(undefined, session);
 
 				const cat = new Category('MyCategory');
 				const thing = new Thing('MyThing', cat);
-				return session.put(cat, thing).then(()=> {
+				return session.put(ctx, cat, thing).then(()=> {
 					assert.equal(session.getFromCache('MyThing'), thing);
 					assert.equal(session.get('MyThing'), thing);
 					session.clearCacheInternal();
@@ -47,12 +49,13 @@ tmp.dir(function(err, path) {
 		it('reads a complete index from cache', function() {
 			return Database.create(path+'/dbsession2')
 			.then(db=>{
-				const session = new DatabaseSession(db);
+				const session = new DbSession(db);
+				const ctx = new Context(undefined, session);
 
 				const cat = new Category('MyCategory');
 				const thing = new Thing('MyThing', cat);
 				const thing2 = new Thing('MyThing2', cat);
-				return session.put(cat, thing, thing2)
+				return session.put(ctx, cat, thing, thing2)
 					.then(()=>session.getByIndex(cat, 'catEntries'))
 					.then(hits=>{
 						assert.deepEqual(hits.map(h=>h.distinctName).sort(), ['MyThing', 'MyThing2']);
@@ -63,13 +66,14 @@ tmp.dir(function(err, path) {
 		it('reads a complete index uncached', function() {
 			return Database.create(path+'/dbsession3')
 			.then(db=>{
-				const session = new DatabaseSession(db);
+				const session = new DbSession(db);
+				const ctx = new Context(undefined, session);
 
 				const cat = new Category('MyCategory');
 				const thing = new Thing('MyThing', cat);
 				const thing2 = new Thing('MyThing2', cat);
 				const thing3 = new Thing('MyThing3', cat);
-				return session.put(cat, thing, thing2, thing3)
+				return session.put(ctx, cat, thing, thing2, thing3)
 					.then(()=>session.clearCacheInternal().get('MyThing2')) // load one instance into the cache
 					.then(()=>session.getByIndex(cat, 'catEntries'))
 					.then(hits=>{

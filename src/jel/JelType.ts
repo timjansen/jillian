@@ -1,4 +1,6 @@
 import FunctionCallable from './FunctionCallable';
+import Context from './Context';
+import Util from '../util/Util';
 
 let MyFuzzyBoolean: any;
 
@@ -142,7 +144,7 @@ export default class JelType {
 		return typeof n == 'number' ? n : n.toNumber();
 	}
 	
-	static member(obj: any, name: string, parameters?: Map<string, any>): any {
+	static member(ctx: Context, obj: any, name: string, parameters?: Map<string, any>): any {
 		const isClass = JelType.isPrototypeOf(obj);
 		if (isClass || obj instanceof JelType) { 
 			if (isClass) {
@@ -150,7 +152,7 @@ export default class JelType {
 					return obj[name];
 			}
 			else {
-				const value = obj.member(name, parameters);
+				const value = obj.member(ctx, name, parameters);
 				if (value !== undefined)
 					return value;
 			}
@@ -171,7 +173,7 @@ export default class JelType {
 				if (typeof obj[name] == 'function')
 					throw new Error(`Method ${name} is not callable in JEL. It would need a _jel_mapping.`);
 				else
-					throw new Error(`Property ${name} is not accessible. It would need to be defined in JEL_PROPERTIES.`);
+					throw new Error(`Property ${name} is not accessible. It would need to be defined in JEL_PROPERTIES.\nContent of JEL_PROPERTIES: ${Util.propertyNames(obj.JEL_PROPERTIES).join(',')}`);
 			}
 			else
 				throw new Error(`Unknown property ${name}.`);
@@ -227,7 +229,8 @@ export default class JelType {
 		throw new Error(`Operator "${operator}" is not supported for this type`);
 	}
 
-	member(name: string, parameters?: Map<string, any>): any {
+	member_jel_mapping: Object;
+	member(ctx: Context, name: string, parameters?: Map<string, any>): any {
 		if (this.JEL_PROPERTIES && name in this.JEL_PROPERTIES)
 			return (this as any)[name];
 	}
@@ -251,4 +254,5 @@ JelType.prototype.reverseOps = {};
 JelType.prototype.op_jel_mapping = {operator:0,right:1};
 JelType.prototype.opReversed_jel_mapping = {operator:0,left:1};
 JelType.prototype.singleOp_jel_mapping = {operator:0};
+JelType.prototype.singleOp_jel_mapping = {'>ctx': true, name: 1, parameters: 2};
 JelType.prototype.toBoolean_jel_mapping = {};

@@ -1,5 +1,6 @@
 import PropertyType from './PropertyType';
 import SimplePropertyType from './SimplePropertyType';
+import EnumPropertyType from './EnumPropertyType';
 import ThingPropertyType from './ThingPropertyType';
 import CategoryPropertyType from './CategoryPropertyType';
 import DbRef from '../DbRef';
@@ -18,7 +19,7 @@ export default class DictionaryPropertyType extends PropertyType {
 	 * valueTypes - one or more PropertyTypes to define the acceptable member types for the values. 
 	 *              The List may also contain 'null' as element, if values can be null.
 	 */
-  constructor(public keyType: SimplePropertyType|ThingPropertyType|CategoryPropertyType, valueTypes: List|PropertyType) {
+  constructor(public keyType: SimplePropertyType|ThingPropertyType|CategoryPropertyType|EnumPropertyType, valueTypes: List|PropertyType) {
     super();
 		this.valueTypes = valueTypes instanceof List ? valueTypes : new List([valueTypes]);
 

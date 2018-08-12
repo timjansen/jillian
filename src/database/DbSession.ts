@@ -3,6 +3,7 @@ import Category from './dbObjects/Category';
 import DbRef from './DbRef';
 import DbEntry from './DbEntry';
 import Database from './Database';
+import Context from '../jel/Context';
 
 const wp = new WorkerPool();
 
@@ -46,8 +47,8 @@ export default class DbSession {
   }
   
   // returns promise
-  put(...dbEntries: DbEntry[]): Promise<DbEntry[]> {
-    return this.database.put(...dbEntries.map(dbEntry=>this.storeInCache(dbEntry)));
+  put(ctx: Context, ...dbEntries: DbEntry[]): Promise<DbEntry[]> {
+    return this.database.put(ctx, ...dbEntries.map(dbEntry=>this.storeInCache(dbEntry)));
   }
 
   // returns a promise containing list of dbEntries

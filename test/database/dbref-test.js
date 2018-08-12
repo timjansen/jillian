@@ -29,23 +29,24 @@ describe('DbRef', function() {
 			const dbe = new DbEntry('Test');
 			const m = new Map([['a', 1], ['b', 2]]);
 			const r = new DbRef(dbe, m);
+			const ctx = new Context();
 			let success = false;
 		
 			const proxy = r.get('fakeSession');
 			assert.ok(proxy !== dbe);
-			dbe.member = function(name, params) { success =  name  == 'test' && params.get('a') == 1 && params.get('b') == 2; return 9};
-			assert.equal(proxy.member('test'), 9);
+			dbe.member = function(ctx, name, params) { success =  name  == 'test' && params.get('a') == 1 && params.get('b') == 2; return 9};
+			assert.equal(proxy.member(ctx, 'test'), 9);
 			assert.ok(success);
 			
 			success = false;
-			dbe.member = function(name, params) { success =  name  == 'test2' && params.get('a') == 5 && params.get('b') == 2 && params.get('c') == 6; return 10};
-			assert.equal(proxy.member('test2', new Map([['a', 5], ['c', 6]])), 10);
+			dbe.member = function(ctx, name, params) { success =  name  == 'test2' && params.get('a') == 5 && params.get('b') == 2 && params.get('c') == 6; return 10};
+			assert.equal(proxy.member(ctx, 'test2', new Map([['a', 5], ['c', 6]])), 10);
 			assert.ok(success);
 
 			success = false;
 			const r0 = new DbRef(dbe);
-			dbe.member = function(name, params) { success =  name  == 'test2' && params.get('a') == 5 && params.get('c') == 6; return 11};
-			assert.equal(r0.get('fakeSession').member('test2', new Map([['a', 5], ['c', 6]])), 11);
+			dbe.member = function(ctx, name, params) { success =  name  == 'test2' && params.get('a') == 5 && params.get('c') == 6; return 11};
+			assert.equal(r0.get('fakeSession').member(ctx, 'test2', new Map([['a', 5], ['c', 6]])), 11);
 			assert.ok(success);
 		});
 		

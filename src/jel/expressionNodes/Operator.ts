@@ -56,7 +56,7 @@ export default class Operator extends JelNode {
   private leftFirstOps(ctx: Context, left: JelNode): any {
     switch (this.operator) {
     case '.':
-      return this.callMethod(ctx, left);
+      return this.readMember(ctx, left);
     case '||':
       return this.or(ctx, left);
     case '&&':
@@ -66,10 +66,10 @@ export default class Operator extends JelNode {
     }
   }
   
-  private callMethod(ctx: Context, left: JelNode): any {
+  private readMember(ctx: Context, left: JelNode): any {
     if (!(this.right instanceof Variable))
         throw new Error('Operator "." must be followed by an identifier');
-      return JelType.member(left, this.right.name);
+      return JelType.member(ctx, left, this.right.name);
   }
   
   private binaryOp(ctx: Context, left: JelNode, right: JelNode): any {

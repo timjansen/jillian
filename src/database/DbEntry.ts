@@ -1,5 +1,6 @@
 import JelType from '../jel/JelType';
 import Serializable from '../jel/Serializable';
+import Context from '../jel/Context';
 import Dictionary from '../jel/types/Dictionary';
 import DbIndexDescriptor from './DbIndexDescriptor';
 import List from '../jel/types/List';
@@ -20,6 +21,14 @@ export default class DbEntry extends JelType {
   get databaseIndices(): Map<string, DbIndexDescriptor> {
     return new Map();
   }
+	
+	member(ctx: Context, name: string, parameters?: Map<string, any>): any {
+		const v = super.member(ctx, name, parameters);
+		if (v === undefined && this.properties.has(name))
+			return this.properties.get(name);
+		else
+			return v;
+	}
 	
 	// sets a property
   set(name: string, value: JelType|number|string): DbEntry {

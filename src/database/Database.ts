@@ -87,7 +87,7 @@ export default class Database {
     return this.init(config=>fs.pathExists(this.getFilePathInternal(config, distinctName)));
   }
   
-  put(...dbEntries: DbEntry[]): Promise<DbEntry[]> {
+  put(ctx: Context, ...dbEntries: DbEntry[]): Promise<DbEntry[]> {
     return this.init(config=>Promise.all(dbEntries.map(dbEntry=>{
       const distinctName = dbEntry.distinctName;
       const p = this.getFilePathForHashInternal(config, dbEntry.hashCode);
@@ -97,27 +97,27 @@ export default class Database {
          fs.writeFile(p, serializer.serialize(dbEntry), {encoding: 'utf8'})
         .then(()=>{
           if (!oldEntryExists)
-            return this.addIndexingInternal(config, dbEntry);
+            return this.addIndexingInternal(ctx, config, dbEntry);
         }))
       .catch (e=>DatabaseError.rethrow(`Can not write database entry ${distinctName} at ${p}`, e));
     })));
   }
 
-  delete(dbEntry: DbEntry): Promise<any> {
+  delete(ctx: Context, dbEntry: DbEntry): Promise<any> {
     return this.init(config=>{
       const path = this.getFilePathForHashInternal(config, dbEntry.hashCode);
 
-      return this.removeIndexingInternal(config, dbEntry).then(()=>fs.unlink(path));
+      return this.removeIndexingInternal(ctx, config, dbEntry).then(()=>fs.unlink(path));
     });
   }
 
   
-  private addIndexingInternal(config: DatabaseConfig, dbEntry: DbEntry): Promise<any> {
+  private addIndexingInternal(ctx: Context, config: DatabaseConfig, dbEntry: DbEntry): Promise<any> {
     const spec: Map<string, DbIndexDescriptor> = dbEntry.databaseIndices;
     const indexPromises: Promise<any>[] = [];
     spec.forEach((indexDesc, name)=>{
       if (indexDesc.type == 'category') {
-        const cat: DbRef = JelType.member(dbEntry, indexDesc.property);
+        const cat: DbRef = JelType.member(ctx, dbEntry, indexDesc.property);
         if (cat)
           indexPromises.push(Promise.resolve(cat.getFromDb(this)).then(catRef=>catRef && this.appendToCategoryIndexInternal(config, dbEntry, catRef as Category, '_' + name, !!indexDesc.includeParents)));
       }
@@ -127,12 +127,12 @@ export default class Database {
     return Promise.all(indexPromises);
   }
   
-  private removeIndexingInternal(config: DatabaseConfig, dbEntry: DbEntry): Promise<any> {
+  private removeIndexingInternal(ctx: Context, config: DatabaseConfig, dbEntry: DbEntry): Promise<any> {
     const spec: Map<string, DbIndexDescriptor> = dbEntry.databaseIndices;
     const indexPromises: Promise<any>[] = [];
     spec.forEach((indexDesc, name)=>{
       if (indexDesc.type == 'category') {
-        const cat: DbRef = JelType.member(dbEntry, indexDesc.property);
+        const cat: DbRef = JelType.member(ctx, dbEntry, indexDesc.property);
         if (cat)
           indexPromises.push(Promise.resolve(cat.getFromDb(this)).then(catRef=>catRef && this.removeFromCategoryIndexInternal(config, dbEntry, catRef as Category, '_' + name, !!indexDesc.includeParents)));
       }
@@ -144,7 +144,7 @@ export default class Database {
     const indexPath = this.getFilePathForHashInternal(config, category.hashCode, indexSuffix);
     const prom = fs.appendFile(indexPath, dbEntry.hashCode + '\n');
     if (recursive && category.superCategory)
-      return prom.then(()=>Promise.resolve(category.superCategory.getFromDb(this) as Category).then(superCat=>superCat && this.appendToCategoryIndexInternal(config, dbEntry, superCat, indexSuffix, recursive)));
+      return prom.then(()=>Promise.resolve(category.superCategory!.getFromDb(this) as Category).then(superCat=>superCat && this.appendToCategoryIndexInternal(config, dbEntry, superCat, indexSuffix, recursive)));
     else
       return prom;
   }
@@ -154,7 +154,7 @@ export default class Database {
     const prom = fs.readFile(indexPath)
     .then(file=>fs.writeFile(indexPath, file.toString().replace(RegExp('^'+dbEntry.hashCode+'\n'), '')));
     if (recursive && category.superCategory)
-      return prom.then(()=>Promise.resolve(category.superCategory.getFromDb(this) as Category).then(superCat=>superCat && this.removeFromCategoryIndexInternal(config, dbEntry, superCat, indexSuffix, recursive)));
+      return prom.then(()=>Promise.resolve(category.superCategory!.getFromDb(this) as Category).then(superCat=>superCat && this.removeFromCategoryIndexInternal(config, dbEntry, superCat, indexSuffix, recursive)));
     else
       return prom;
   }

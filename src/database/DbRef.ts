@@ -22,13 +22,13 @@ class ParameterProxy extends DbEntry {
 		return this.dbEntry.singleOp(operator);
 	}
 
-	member(name: string, parameters?: Map<string, any>): any {
+	member(ctx: Context, name: string, parameters?: Map<string, any>): any {
 		if (parameters && this.parameters)
-			return this.dbEntry.member(name, new Map([...this.parameters, ...parameters]) as any);
+			return this.dbEntry.member(ctx, name, new Map([...this.parameters, ...parameters]) as any);
 		else if (parameters)
-			return this.dbEntry.member(name, parameters);
+			return this.dbEntry.member(ctx, name, parameters);
 		else
-			return this.dbEntry.member(name, this.parameters);
+			return this.dbEntry.member(ctx, name, this.parameters);
 	}
 	
 }

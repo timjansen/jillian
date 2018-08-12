@@ -4,6 +4,10 @@ import DbRef from '../DbRef';
 import DbIndexDescriptor from '../DbIndexDescriptor';
 import Dictionary from '../../jel/types/Dictionary';
 import List from '../../jel/types/List';
+import Serializable from '../../jel/Context';
+import Context from '../../jel/Context';
+import Util from '../../util/Util';
+
 
 const DB_INDICES = new Map();
 DB_INDICES.set('catEntries', {type: 'category', property: 'category', includeParents: true});
@@ -23,6 +27,14 @@ export default class Thing extends DbEntry {
     return DB_INDICES;
   }
   
+	member(ctx: Context, name: string, parameters?: Map<string, any>): any {
+		const v = super.member(ctx, name, parameters);
+		if (v === undefined)
+			return Util.resolveValue((c: any)=>c.instanceMember(ctx, name, parameters), this.category.get(ctx));
+		else
+			return v;
+	}
+	
   getSerializationProperties(): Object {
     return {distinctName: this.distinctName, reality: this.reality, category: this.category};
   }
