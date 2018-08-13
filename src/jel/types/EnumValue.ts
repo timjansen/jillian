@@ -20,11 +20,11 @@ export default class EnumValue extends JelType {
 			switch (operator) {
 				case '==': 
 				case '===':
-					return this.value == right.value && this.parent.distinctName == right.parent.distinctName;
+					return FuzzyBoolean.toFuzzyBoolean(this.value == right.value && this.parent.distinctName == right.parent.distinctName);
 					
 				case '!=':
 				case '!==':
-					return this.value != right.value || this.parent.distinctName != right.parent.distinctName;
+					return FuzzyBoolean.toFuzzyBoolean(this.value != right.value || this.parent.distinctName != right.parent.distinctName);
 			}
 		}
 		else if (typeof right == 'string')
