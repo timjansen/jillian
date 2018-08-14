@@ -1,6 +1,7 @@
 import * as moment from 'moment';
 
 import JelType from '../../JelType';
+import Context from '../../Context';
 import FuzzyBoolean from '../FuzzyBoolean';
 import UnitValue from '../UnitValue';
 import Duration from './Duration';
@@ -14,44 +15,44 @@ export default class DurationRange extends JelType {
 		super();
 	}
 	
-	op(operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: any): any {
 		if ((right instanceof Duration) ||
 			 (right instanceof UnitValue && right.unit.distinctName == 'Second')) {
 			switch (operator) {
 				case '+':
 				case '-':
-					return new DurationRange(JelType.op(operator, this.min, right), JelType.op(operator, this.max, right));
+					return new DurationRange(JelType.op(ctx, operator, this.min, right), JelType.op(ctx, operator, this.max, right));
 				case '===':
 				case '!==':
 				case '>>':
 				case '<<':
 				case '<<=':
 				case '>>=':
-					return JelType.op(operator, this.max, right).and(JelType.op(operator, this.min, right));
+					return JelType.op(ctx, operator, this.max, right).and(JelType.op(ctx, operator, this.min, right));
 				case '=':
-					return this.contains(right);
+					return this.contains(ctx, right);
 				case '>':
-					return JelType.op('>', this.max, right);
+					return JelType.op(ctx, '>', this.max, right);
 				case '<':
-					return JelType.op('<', this.min, right);
+					return JelType.op(ctx, '<', this.min, right);
 				case '>=':
-					return JelType.op('>', this.min, right);
+					return JelType.op(ctx, '>', this.min, right);
 				case '<=':
-					return JelType.op('<', this.max, right);
+					return JelType.op(ctx, '<', this.max, right);
 			}
 		}
 		else if (typeof right == 'number') {
 			switch (operator) {
 				case '*':					
 				case '/':					
-					return new DurationRange(JelType.op(operator, this.min, right), JelType.op(operator, this.max, right));
+					return new DurationRange(JelType.op(ctx, operator, this.min, right), JelType.op(ctx, operator, this.max, right));
 			}
 		}
-		return super.op(operator, right);
+		return super.op(ctx, operator, right);
 	}
 
-	contains(value: Duration|UnitValue): FuzzyBoolean {
-		return JelType.op('>=', value, this.min).and(JelType.op('<=', value, this.max));
+	contains(ctx: Context, value: Duration|UnitValue): FuzzyBoolean {
+		return JelType.op(ctx, '>=', value, this.min).and(JelType.op(ctx, '<=', value, this.max));
 	}
 	
 	getSerializationProperties(): any[] {

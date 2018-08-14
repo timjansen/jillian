@@ -1,5 +1,6 @@
 import * as moment from 'moment';
 
+import Context from '../../Context';
 import LocalDateTime from './LocalDateTime';
 import LocalDate from './LocalDate';
 import TimeOfDay from './TimeOfDay';
@@ -24,8 +25,8 @@ export default class ZonedDateTime extends LocalDateTime {
 		return null as any; // TODO
 	}
 	
-	op(operator: string, right: any): any {
-		return super.op(operator, right);
+	op(ctx: Context, operator: string, right: any): any {
+		return super.op(ctx, operator, right);
 	}
 
 	getSerializationProperties(): any[] {

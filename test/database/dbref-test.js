@@ -9,14 +9,6 @@ const Context = require('../../build/jel/Context.js').default;
 const assert = require('assert');
 		
 describe('DbRef', function() {
-	describe('getSession()', function() {
-		it('gets the session from a context', function() {
-			const fakeSession = 'fakeSession';
-			const ctx = new Context(undefined, fakeSession);
-			assert.strictEqual(DbRef.getSession(fakeSession), fakeSession);
-			assert.strictEqual(DbRef.getSession(ctx), fakeSession);
-		});
-	});
 	
 	describe('get()', function() {
 		it('takes DbEntries directly', function() {
@@ -25,45 +17,20 @@ describe('DbRef', function() {
 			assert.strictEqual(r.get('fakeSession'), dbe);
 		});
 		
-		it('adds a parameter proxy', function() {
-			const dbe = new DbEntry('Test');
-			const m = new Map([['a', 1], ['b', 2]]);
-			const r = new DbRef(dbe, m);
-			const ctx = new Context();
-			let success = false;
-		
-			const proxy = r.get('fakeSession');
-			assert.ok(proxy !== dbe);
-			dbe.member = function(ctx, name, params) { success =  name  == 'test' && params.get('a') == 1 && params.get('b') == 2; return 9};
-			assert.equal(proxy.member(ctx, 'test'), 9);
-			assert.ok(success);
-			
-			success = false;
-			dbe.member = function(ctx, name, params) { success =  name  == 'test2' && params.get('a') == 5 && params.get('b') == 2 && params.get('c') == 6; return 10};
-			assert.equal(proxy.member(ctx, 'test2', new Map([['a', 5], ['c', 6]])), 10);
-			assert.ok(success);
-
-			success = false;
-			const r0 = new DbRef(dbe);
-			dbe.member = function(ctx, name, params) { success =  name  == 'test2' && params.get('a') == 5 && params.get('c') == 6; return 11};
-			assert.equal(r0.get('fakeSession').member(ctx, 'test2', new Map([['a', 5], ['c', 6]])), 11);
-			assert.ok(success);
-		});
-		
 		it('gets a DbEntry from the session cache', function() {
 			const dbe = new DbEntry('Test');
 			const fakeSession = {getFromCache: ()=>dbe};
 			const r = new DbRef('Test', new Map([['a', 4]]));
-			const proxy = r.get(fakeSession);
-			assert.strictEqual(proxy.dbEntry, dbe);
+			const obj = r.get(fakeSession);
+			assert.strictEqual(obj.distinctName, 'Test');
 		});
 		
 		it('gets a DbEntry from the database', function() {
 			const dbe = new DbEntry('Test');
 			const fakeSession = {getFromCache: ()=>undefined, getFromDatabase: ()=>Promise.resolve(dbe)};
 			const r = new DbRef('Test', new Map([['a', 4]]));
-			const proxyPromise = r.get(fakeSession);
-			return proxyPromise.then(proxy=>{assert.strictEqual(proxy.dbEntry, dbe);});
+			const objPromise = r.get(fakeSession);
+			return objPromise.then(obj=>{assert.strictEqual(obj.distinctName, 'Test');});
 		});
 		
 		it('caches DbEntries', function() {
@@ -79,13 +46,55 @@ describe('DbRef', function() {
 		});
 	});
 
+	describe('member()', function() {
+		it('passes parameters', function() {
+			const dbe = new DbEntry('Test');
+			const m = new Map([['a', 1], ['b', 2]]);
+			const r = new DbRef(dbe, m);
+			const ctx = new Context();
+			let success = false;
+			
+			dbe.member = function(ctx, name, params) { success =  name  == 'test' && params.get('a') == 1 && params.get('b') == 2; return 9};
+			assert.equal(r.member(ctx, 'test'), 9);
+			assert.ok(success);
+			
+			success = false;
+			dbe.member = function(ctx, name, params) { success =  name  == 'test2' && params.get('a') == 5 && params.get('b') == 2 && params.get('c') == 6; return 10};
+			assert.equal(r.member(ctx, 'test2', new Map([['a', 5], ['c', 6]])), 10);
+			assert.ok(success);
+
+			success = false;
+			const r0 = new DbRef(dbe);
+			dbe.member = function(ctx, name, params) { success =  name  == 'test2' && params.get('a') == 5 && params.get('c') == 6; return 11};
+			assert.equal(r0.member(ctx, 'test2', new Map([['a', 5], ['c', 6]])), 11);
+			assert.ok(success);
+		});
+	});
+
+	
+	describe('with()', function() {
+		it('takes DbEntries directly', function() {
+			const dbe = new DbEntry('Test');
+			const r = new DbRef(dbe);
+			assert.equal(r.with('fakeSession', r=>assert.strictEqual(r, dbe) || 1), 1);
+		});
+		
+		it('gets a DbEntry from the session cache', function() {
+			const dbe = new DbEntry('Test');
+			const fakeSession = {getFromCache: ()=>dbe};
+			const r = new DbRef('Test', new Map([['a', 4]]));
+			assert.equal(r.with(fakeSession, obj=>assert.strictEqual(obj.distinctName, 'Test') || 1), 1);
+		});
+	});
+
+	
 	describe('getAsync()', function() {
 		it('wraps cached entries in a Promise', function() {
 			const dbe = new DbEntry('Test');
 			const fakeSession = {getFromCache: ()=>dbe};
 			const r = new DbRef('Test', new Map([['a', 4]]));
-			const proxyPromise = r.getAsync(fakeSession);
-			return proxyPromise.then(proxy=>{assert.strictEqual(proxy.dbEntry, dbe);});
+			const objPromise = r.getAsync(fakeSession);
+			return objPromise.then(obj=>{assert.strictEqual(obj.distinctName, 'Test');});
 			
 		});
 	});

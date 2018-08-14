@@ -1,6 +1,7 @@
 import * as moment from 'moment';
 
 import JelType from '../../JelType';
+import Context from '../../Context';
 import FuzzyBoolean from '../FuzzyBoolean';
 import PartOfYearType from './PartOfYearType';
 import DateHint from './DateHint';
@@ -16,7 +17,7 @@ export default class TimeOfYear extends JelType implements DateHint {
 		super();
 	}
 	
-		containsDate(date: LocalDate): boolean|Promise<boolean> {
+	containsDate(date: LocalDate): boolean|Promise<boolean> {
 		return false; // TODO
 	}
 
@@ -29,8 +30,8 @@ export default class TimeOfYear extends JelType implements DateHint {
 	}
 	
 	
-	op(operator: string, right: any): any {
-		return super.op(operator, right);
+	op(ctx: Context, operator: string, right: any): any {
+		return super.op(ctx, operator, right);
 	}
 
 	getSerializationProperties(): any[] {

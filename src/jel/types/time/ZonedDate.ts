@@ -1,5 +1,6 @@
 import * as moment from 'moment';
 
+import Context from '../../Context';
 import Timestamp from './Timestamp';
 import TimeZone from './TimeZone';
 import TimeSpec from './TimeSpec';
@@ -26,8 +27,8 @@ export default class ZonedDate extends TimeSpec {
 		return FuzzyBoolean.TRUE;
 	}
 	
-	op(operator: string, right: any): any {
-		return super.op(operator, right);
+	op(ctx: Context, operator: string, right: any): any {
+		return super.op(ctx, operator, right);
 	}
 
 	getSerializationProperties(): any[] {

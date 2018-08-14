@@ -1,6 +1,7 @@
 import * as moment from 'moment';
 
 import JelType from '../../JelType';
+import Context from '../../Context';
 import UnitValue from '../UnitValue';
 import FuzzyBoolean from '../FuzzyBoolean';
 
@@ -13,7 +14,7 @@ export default class Duration extends JelType {
 		super();
 	}
 	
-	op(operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: any): any {
 		if (right instanceof Duration) {
 			switch (operator) {
 				case '+':
@@ -26,7 +27,7 @@ export default class Duration extends JelType {
 				case '<':
 				case '<=':
 				case '>=':
-					return this.simplify().op(JelType.STRICT_OPS[operator], right.simplify());
+					return this.simplify().op(ctx, JelType.STRICT_OPS[operator], right.simplify());
 				case '===':
 					return FuzzyBoolean.toFuzzyBoolean(this.years == right.years && this.months == right.months && this.days == right.days && this.hours == right.hours && this.minutes == right.minutes &&
 						this.seconds == right.seconds);
@@ -67,25 +68,25 @@ export default class Duration extends JelType {
 					return right ? new Duration(this.years / right, this.months / right, this.days / right, this.hours / right, this.minutes / right, this.seconds / right).simplify() : new Duration(0);
 			}
 		}
-		return super.op(operator, right);
+		return super.op(ctx, operator, right);
 	}
 
-	singleOp(operator: string): any {
+	singleOp(ctx: Context, operator: string): any {
 		if (operator == '!') 
 			return FuzzyBoolean.toFuzzyBoolean(!(this.years || this.months || this.days || this.hours || this.minutes || this.seconds));
 		else if (operator == '-') 
 			return new Duration(-this.years, -this.months, -this.hours, -this.minutes, -this.seconds);
 		else
-			return JelType.singleOp(operator, this);
+			return JelType.singleOp(ctx, operator, this);
 	}
 
 	toEstimatedSeconds_jel_mapping: any;
-	toEstimatedSeconds(): UnitValue {
+	toEstimatedSeconds(ctx: Context): UnitValue {
 		const self = this.simplify();
 		const yDays = self.years % 4 * 365 + Math.floor(self.years / 4) * 4 * 365.25;
 		const mDays = Math.trunc(self.months * 30.5);
 		const hours = (yDays + mDays + self.days) * 24 + self.hours;
-		return new UnitValue(hours * 3600 + self.minutes * 60 + self.seconds, 'Second');
+		return new UnitValue(hours * 3600 + self.minutes * 60 + self.seconds, ctx.dbSession.createDbRef('Second'));
 	}
 	
 	fullDays_jel_mapping: any;
@@ -128,6 +129,6 @@ export default class Duration extends JelType {
 
 Duration.prototype.fullDays_jel_mapping = {};
 Duration.prototype.simplify_jel_mapping = {};
-Duration.prototype.toEstimatedSeconds_jel_mapping = {};
+Duration.prototype.toEstimatedSeconds_jel_mapping = {'>ctx': true};
 
 

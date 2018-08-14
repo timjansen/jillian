@@ -1,6 +1,7 @@
 import * as moment from 'moment';
 
 import JelType from '../../JelType';
+import Context from '../../Context';
 import FuzzyBoolean from '../FuzzyBoolean';
 import TimeSpec from './TimeSpec';
 import LocalDate from './LocalDate';
@@ -30,8 +31,8 @@ export default class LocalDateTime extends TimeSpec {
 		return FuzzyBoolean.TRUE;
 	}
 	
-	op(operator: string, right: any): any {
-		return super.op(operator, right);
+	op(ctx: Context, operator: string, right: any): any {
+		return super.op(ctx, operator, right);
 	}
 
 	getSerializationProperties(): any[] {

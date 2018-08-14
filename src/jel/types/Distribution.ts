@@ -1,4 +1,5 @@
 import JelType from '../JelType';
+import Context from '../Context';
 import List from './List';
 import DistributionPoint from './DistributionPoint';
 import ApproximateNumber from './ApproximateNumber';
@@ -57,22 +58,22 @@ export default class Distribution extends JelType {
 	}
 	
 	mean_jel_mapping: Object;
-	mean(): UnitValue|ApproximateNumber|Fraction|number {
-		return this.getValue(0.5);
+	mean(ctx: Context): UnitValue|ApproximateNumber|Fraction|number {
+		return this.getValue(ctx, 0.5);
 	}
 
 	max_jel_mapping: Object;
-	max(): UnitValue|ApproximateNumber|Fraction|number {
-		return this.getValue(1);
+	max(ctx: Context): UnitValue|ApproximateNumber|Fraction|number {
+		return this.getValue(ctx, 1);
 	}
 
 	min_jel_mapping: Object;
-	min(): UnitValue|ApproximateNumber|Fraction|number {
-		return this.getValue(0);
+	min(ctx: Context): UnitValue|ApproximateNumber|Fraction|number {
+		return this.getValue(ctx, 0);
 	}
 
 	getValue_jel_mapping: Object;
-	getValue(share: number|Fraction): UnitValue|ApproximateNumber|Fraction|number {
+	getValue(ctx: Context, share: number|Fraction): UnitValue|ApproximateNumber|Fraction|number {
 		const share0 = Math.max(0, Math.min(1, JelType.toNumber(share)));
 		let ri = 0;
 		for (let r of this.points) {
@@ -97,26 +98,26 @@ export default class Distribution extends JelType {
 		// P.share = x * (rp.share-lp.share) + lp.share
 		// x = (P.share-lp.share) / (rp.share-lp.share) 
 		// P.value = (rp.value-lp.value) * (P.share - lp.share) / (rp.share-lp.share) + lp.value
-		return JelType.op('+', JelType.op('/', JelType.op('*', JelType.op('-', rp.value, lp.value), share0 - lp.share), rp.share-lp.share), lp.value);
+		return JelType.op(ctx, '+', JelType.op(ctx, '/', JelType.op(ctx, '*', JelType.op(ctx, '-', rp.value, lp.value), share0 - lp.share), rp.share-lp.share), lp.value);
 	}
 
 	getShare_jel_mapping: Object;
-	getShare(value: UnitValue|ApproximateNumber|Fraction|number): number|null {
+	getShare(ctx: Context, value: UnitValue|ApproximateNumber|Fraction|number): number|null {
 		if (this.points.length == 1) {
-			if (JelType.op('==', this.average, value).toRealBoolean())
+			if (JelType.op(ctx, '==', this.average, value).toRealBoolean())
 				return 0.5;
-			if (JelType.op('==', this.points[0].value, value).toRealBoolean())
+			if (JelType.op(ctx, '==', this.points[0].value, value).toRealBoolean())
 				return 1;
 			return null;
 		}
-		if (JelType.op('<', value, this.min()).toRealBoolean() || JelType.op('>', value, this.max()).toRealBoolean())
+		if (JelType.op(ctx, '<', value, this.min(ctx)).toRealBoolean() || JelType.op(ctx, '>', value, this.max(ctx)).toRealBoolean())
 			return null;
 
 		let ri = 0;
 		for (let r of this.points) {
-			if (JelType.op('==', r.value, value).toRealBoolean())
+			if (JelType.op(ctx, '==', r.value, value).toRealBoolean())
 				return r.share;
-			if (JelType.op('>', r.value, value).toRealBoolean() || ri == this.points.length-1)
+			if (JelType.op(ctx, '>', r.value, value).toRealBoolean() || ri == this.points.length-1)
 				break;
 			ri++;
 		}
@@ -134,15 +135,15 @@ export default class Distribution extends JelType {
 		// x = (P.value-lp.value)/(rp.value-lp.value)
 		// P.share = (P.value-lp.value)*(rp.share-lp.share)/(rp.value-lp.value)  + lp.share
 		
-		return JelType.toNumber(JelType.op('/', JelType.op('*', JelType.op('-', value, lp.value), rp.share - lp.share), JelType.op('-', rp.value, lp.value))) + lp.share;
+		return JelType.toNumber(JelType.op(ctx, '/', JelType.op(ctx, '*', JelType.op(ctx, '-', value, lp.value), rp.share - lp.share), JelType.op(ctx, '-', rp.value, lp.value))) + lp.share;
 	}
 	
-	op(operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: any): any {
 		if (right instanceof Distribution) {
 			switch (operator) {
 				case '==': 
 				case '===':
-					if (!JelType.op('===', this.average, right.average).toRealBoolean())
+					if (!JelType.op(ctx, '===', this.average, right.average).toRealBoolean())
 						return FuzzyBoolean.FALSE;
 					if (this.points.length != right.points.length)
 						return FuzzyBoolean.FALSE;
@@ -153,50 +154,50 @@ export default class Distribution extends JelType {
 
 				case '>>':
 				case '>>=':
-					return JelType.op(operator, this.min(), right.max());
+					return JelType.op(ctx, operator, this.min(ctx), right.max(ctx));
 				case '<<':
 				case '<<=':
-					return JelType.op(operator, this.max(), right.min());
+					return JelType.op(ctx, operator, this.max(ctx), right.min(ctx));
 
 				case '>':
 				case '>=':
-					if (JelType.op(operator, this.min(), right.max()).toRealBoolean())
+					if (JelType.op(ctx, operator, this.min(ctx), right.max(ctx)).toRealBoolean())
 						return FuzzyBoolean.TRUE;
-					if (JelType.op(INVERSE_OP[operator], this.min(), right.max()).toRealBoolean())
+					if (JelType.op(ctx, INVERSE_OP[operator], this.min(ctx), right.max(ctx)).toRealBoolean())
 						return FuzzyBoolean.FALSE;
-					return FuzzyBoolean.create((JelType.op(operator, this.mean(), right.mean()).state-0.5)/2+0.5);
+					return FuzzyBoolean.create((JelType.op(ctx, operator, this.mean(ctx), right.mean(ctx)).state-0.5)/2+0.5);
 					
 				case '<':
 				case '<=':
-					if (JelType.op(operator, this.max(), right.min()).toRealBoolean())
+					if (JelType.op(ctx, operator, this.max(ctx), right.min(ctx)).toRealBoolean())
 						return FuzzyBoolean.TRUE;
-					if (JelType.op(INVERSE_OP[operator], this.max(), right.min()).toRealBoolean())
+					if (JelType.op(ctx, INVERSE_OP[operator], this.max(ctx), right.min(ctx)).toRealBoolean())
 						return FuzzyBoolean.FALSE;
-					return FuzzyBoolean.create((JelType.op(operator, this.mean(), right.mean()).state-0.5)/2+0.5);
+					return FuzzyBoolean.create((JelType.op(ctx, operator, this.mean(ctx), right.mean(ctx)).state-0.5)/2+0.5);
 			}
 		}
 		else if (typeof right == 'number' || right instanceof Fraction || right instanceof ApproximateNumber || right instanceof UnitValue) {
 			switch (operator) {
 				case '==': 
-					return JelType.op('>=', right, this.min()).falsest(JelType.op('<=', right, this.max()));
+					return JelType.op(ctx, '>=', right, this.min(ctx)).falsest(JelType.op(ctx, '<=', right, this.max(ctx)));
 
 				case '===':
-					return JelType.op('===', right, this.min()).falsest(JelType.op('===', right, this.max()));
+					return JelType.op(ctx, '===', right, this.min(ctx)).falsest(JelType.op(ctx, '===', right, this.max(ctx)));
 
 				case '>>':
 				case '>':
-					return JelType.op(operator, this.min(), right);
+					return JelType.op(ctx, operator, this.min(ctx), right);
 				case '>=':
-					return JelType.op(operator, this.max(), right);
+					return JelType.op(ctx, operator, this.max(ctx), right);
 
 				case '<':
 				case '<<':
-					return JelType.op(operator, this.max(), right);
+					return JelType.op(ctx, operator, this.max(ctx), right);
 				case '<<=':
-					return JelType.op(operator, this.min(), right);
+					return JelType.op(ctx, operator, this.min(ctx), right);
 			}		
 		}
-		return super.op(operator, right);
+		return super.op(ctx, operator, right);
 	}
 	
 	getSerializationProperties(): any[] {
@@ -211,9 +212,9 @@ export default class Distribution extends JelType {
 
 
 Distribution.prototype.JEL_PROPERTIES = {average: 1, points: 1};
-Distribution.prototype.mean_jel_mapping = {};
-Distribution.prototype.min_jel_mapping = {};
-Distribution.prototype.max_jel_mapping = {};
-Distribution.prototype.getValue_jel_mapping = {share: 0};
-Distribution.prototype.getShare_jel_mapping = {value: 0};
+Distribution.prototype.mean_jel_mapping = {'>ctx': true};
+Distribution.prototype.min_jel_mapping = {'>ctx': true};
+Distribution.prototype.max_jel_mapping = {'>ctx': true};
+Distribution.prototype.getValue_jel_mapping = {'>ctx': true, share: 1};
+Distribution.prototype.getShare_jel_mapping = {'>ctx': true, value: 1};
 Distribution.prototype.add_jel_mapping = {distributionPoints: 0, average: 1, min: 2, max: 3, mean: 4 };

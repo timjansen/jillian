@@ -4,16 +4,22 @@ import DbRef from './DbRef';
 import DbEntry from './DbEntry';
 import Database from './Database';
 import Context from '../jel/Context';
+import {IDbRef, IDbSession} from '../jel/IDatabase';
 
 const wp = new WorkerPool();
 
-export default class DbSession {
+export default class DbSession implements IDbSession {
   cacheByName: Map<string, DbEntry|null> = new Map();   // distinct name -> entry; stores null for entries that have not been found. 
   cacheByHash: Map<string, DbEntry> = new Map();       // hash code -> entry
   
   constructor(public database: Database) {
   }
 
+	// implements IDbSession
+	createDbRef(distinctNameOrEntry: string | DbEntry, parameters?: Map<string, any>): IDbRef {
+		return DbRef.create(distinctNameOrEntry, parameters);
+	}
+	
   // returns the entry, null if it does not exist, undefined if not in cache
   getFromCache(distinctName: string): DbEntry | null | undefined {
     return this.cacheByName.get(distinctName);

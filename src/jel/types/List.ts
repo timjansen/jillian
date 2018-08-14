@@ -22,7 +22,7 @@ export default class List extends JelType implements Gettable {
 		this.elements = elements instanceof List ? elements.elements : Array.isArray(elements) ? elements : Array.from(elements);
 	}
 
-	op(operator: string, right: any) {
+	op(ctx: Context, operator: string, right: any) {
 		if (right == null)
 			return this;
 		if (right instanceof List) {
@@ -32,7 +32,7 @@ export default class List extends JelType implements Gettable {
 						return FuzzyBoolean.FALSE;
 					let result = FuzzyBoolean.TRUE;
 					for (let i = 0; i < this.elements.length; i++) {
-						result = FuzzyBoolean.falsest(result, JelType.op('==', this.elements[i], right.elements[i]));
+						result = FuzzyBoolean.falsest(result, JelType.op(ctx, '==', this.elements[i], right.elements[i]));
 						if (result.isClearlyFalse())
 							return result;
 					}
@@ -41,7 +41,7 @@ export default class List extends JelType implements Gettable {
 					if (this.elements.length != right.elements.length)
 						return FuzzyBoolean.FALSE;
 					for (let i = 0; i < this.elements.length; i++) {
-						if (!JelType.op('===', this.elements[i], right.elements[i]).toRealBoolean())
+						if (!JelType.op(ctx, '===', this.elements[i], right.elements[i]).toRealBoolean())
 							return FuzzyBoolean.FALSE;
 					}
 					return FuzzyBoolean.TRUE;
@@ -64,7 +64,7 @@ export default class List extends JelType implements Gettable {
 				case '<<=':
 				case '>>=':
 					if (this.elements.length == 1)
-						return JelType.op(operator, this.elements[0], right);
+						return JelType.op(ctx, operator, this.elements[0], right);
 					else
 						return FuzzyBoolean.FALSE;
 				case '+':
@@ -72,11 +72,19 @@ export default class List extends JelType implements Gettable {
 					l.push(right);
 					return new List(l);
 				case '-':
-					return new List(this.elements.filter(e=>!JelType.op('==', e, right).toRealBoolean()));
+					return new List(this.elements.filter(e=>!JelType.op(ctx, '==', e, right).toRealBoolean()));
 			}
 		}
-		return super.op(operator, right);
+		return super.op(ctx, operator, right);
 	}
+	
+	singleOp(ctx: Context, operator: string): any {
+		if (operator == '!')
+			return FuzzyBoolean.toFuzzyBoolean(!this.elements.length);
+		else
+			return super.singleOp(ctx, operator);
+	}
+
 	
 	get_jel_mapping: Object;
 	get(index: number): any {
@@ -176,7 +184,7 @@ export default class List extends JelType implements Gettable {
 			else
 				l.sort((a0: any, b0: any)=> { 
 					const a = JelType.member(ctx, a0, key), b = JelType.member(ctx, b0, key);
-					return JelType.toRealBoolean(JelType.op('<', a, b)) ? -1 : (JelType.toRealBoolean(JelType.op('>', a, b)) ? 1 : 0)
+					return JelType.toRealBoolean(JelType.op(ctx, '<', a, b)) ? -1 : (JelType.toRealBoolean(JelType.op(ctx, '>', a, b)) ? 1 : 0)
 				});
 		}
 		else if (key instanceof Callable) {
@@ -188,13 +196,13 @@ export default class List extends JelType implements Gettable {
 			else
 				l.sort((a0: any, b0: any)=> { 
 					const a = key.invoke(a0), b = key.invoke(b0);
-					return JelType.toRealBoolean(JelType.op('<', a, b)) ? -1 : (JelType.toRealBoolean(JelType.op('>', a, b)) ? 1 : 0)
+					return JelType.toRealBoolean(JelType.op(ctx, '<', a, b)) ? -1 : (JelType.toRealBoolean(JelType.op(ctx, '>', a, b)) ? 1 : 0)
 				});
 		}
 		else if (isLess)
 			l.sort((a: any, b: any)=>JelType.toRealBoolean(isLess.invoke(a,b)) ? -1 : (JelType.toRealBoolean(isLess.invoke(b,a)) ? 1 : 0));
 		else
-			l.sort((a: any, b: any)=>JelType.toRealBoolean(JelType.op('<', a, b)) ? -1 : (JelType.toRealBoolean(JelType.op('>', a, b)) ? 1 : 0));
+			l.sort((a: any, b: any)=>JelType.toRealBoolean(JelType.op(ctx, '<', a, b)) ? -1 : (JelType.toRealBoolean(JelType.op(ctx, '>', a, b)) ? 1 : 0));
 
 		return new List(l);
 	}
@@ -213,18 +221,18 @@ export default class List extends JelType implements Gettable {
 			if (isLess) 
 				return this.findBest((a0: any, b0: any)=>!JelType.toRealBoolean(isLess.invoke(JelType.member(ctx, a0, key), JelType.member(ctx, b0, key))));
 			else
-				return this.findBest((a0: any, b0: any)=>!JelType.op('<', JelType.member(ctx, a0, key), JelType.member(ctx, b0, key)).toRealBoolean());
+				return this.findBest((a0: any, b0: any)=>!JelType.op(ctx, '<', JelType.member(ctx, a0, key), JelType.member(ctx, b0, key)).toRealBoolean());
 		}
 		else if (key instanceof Callable) {
 			if (isLess) 
 				return this.findBest((a0: any, b0: any)=>!JelType.toRealBoolean(isLess.invoke(key.invoke(a0), key.invoke(b0))));
 			else
-				return this.findBest((a0: any, b0: any)=>!JelType.op('<', key.invoke(a0), key.invoke(b0)).toRealBoolean());
+				return this.findBest((a0: any, b0: any)=>!JelType.op(ctx, '<', key.invoke(a0), key.invoke(b0)).toRealBoolean());
 		}
 		else if (isLess)
 				return this.findBest((a0: any, b0: any)=>!JelType.toRealBoolean(isLess.invoke(a0, b0)));
 		else
-				return this.findBest((a0: any, b0: any)=>!JelType.op('<', a0, b0).toRealBoolean());
+				return this.findBest((a0: any, b0: any)=>!JelType.op(ctx, '<', a0, b0).toRealBoolean());
 	}
 
 	min_jel_mapping: Object;
@@ -233,18 +241,18 @@ export default class List extends JelType implements Gettable {
 			if (isLess) 
 				return this.findBest((a0: any, b0: any)=>JelType.toRealBoolean(isLess.invoke(JelType.member(ctx, a0, key), JelType.member(ctx, b0, key))));
 			else
-				return this.findBest((a0: any, b0: any)=>JelType.op('<', JelType.member(ctx, a0, key), JelType.member(ctx, b0, key)).toRealBoolean());
+				return this.findBest((a0: any, b0: any)=>JelType.op(ctx, '<', JelType.member(ctx, a0, key), JelType.member(ctx, b0, key)).toRealBoolean());
 		}
 		else if (key instanceof Callable) {
 			if (isLess) 
 				return this.findBest((a0: any, b0: any)=>JelType.toRealBoolean(isLess.invoke(key.invoke(a0), key.invoke(b0))));
 			else
-				return this.findBest((a0: any, b0: any)=>JelType.op('<', key.invoke(a0), key.invoke(b0)).toRealBoolean());
+				return this.findBest((a0: any, b0: any)=>JelType.op(ctx, '<', key.invoke(a0), key.invoke(b0)).toRealBoolean());
 		}
 		else if (isLess)
 				return this.findBest((a0: any, b0: any)=>JelType.toRealBoolean(isLess.invoke(a0, b0)));
 		else
-				return this.findBest((a0: any, b0: any)=>JelType.op('<', a0, b0).toRealBoolean());
+				return this.findBest((a0: any, b0: any)=>JelType.op(ctx, '<', a0, b0).toRealBoolean());
 	}
 
 	

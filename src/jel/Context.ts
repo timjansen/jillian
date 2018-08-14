@@ -1,5 +1,6 @@
 import Util from '../util/Util';
 import Dictionary from './types/Dictionary';
+import {IDbSession} from './IDatabase';
 
 /**
  * Manages the context containing all variables.
@@ -11,7 +12,7 @@ export default class Context {
 	private frame: Map<string, any>;
 	private frozen: boolean;
 	
-	constructor(public parent?: Context, dbSession?: any, translationDict?: Dictionary) {
+	constructor(public parent?: Context, dbSession?: IDbSession, translationDict?: Dictionary) {
 		this.dbSession = dbSession || (parent && parent.dbSession);
 		this.translationDict = translationDict || (parent && parent.translationDict) || new Dictionary();
 		this.frame = new Map();
@@ -23,7 +24,7 @@ export default class Context {
 				return this.frame.get(name);
 		if (this.parent)
 			return this.parent.get(name);
-		throw new Error(`Can not read unknown variable ${name}.\n${this.toString()}`);
+		throw new Error(`Can not read unknown variable ${name}.`);
 	}
 	
 	set(name: string, value: any): Context {

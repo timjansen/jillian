@@ -1,4 +1,5 @@
 import JelType from '../JelType';
+import Context from '../Context';
 import Fraction from './Fraction';
 import FuzzyBoolean from './FuzzyBoolean';
 
@@ -17,16 +18,16 @@ export default class ApproximateNumber extends JelType {
 		super();
 	}
 	
-	op(operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: any): any {
 		if (right instanceof ApproximateNumber) {
 			switch (operator) {
 				case '==': 
-					if (JelType.op('===', this.value, right.value).toRealBoolean())
+					if (JelType.op(ctx, '===', this.value, right.value).toRealBoolean())
 						return FuzzyBoolean.TRUE;
-					const deltaEq = JelType.toNumber(JelType.singleOp('abs',JelType.op('-', this.value, right.value))) * ACCURACY_FACTOR;
+					const deltaEq = JelType.toNumber(JelType.singleOp(ctx, 'abs',JelType.op(ctx, '-', this.value, right.value))) * ACCURACY_FACTOR;
 					if (deltaEq == 0)
 						return FuzzyBoolean.TRUE;
-					const maxErrorDelta = JelType.toNumber(JelType.op('+', this.maxError, right.maxError));
+					const maxErrorDelta = JelType.toNumber(JelType.op(ctx, '+', this.maxError, right.maxError));
 					if (maxErrorDelta == 0)
 						return FuzzyBoolean.FALSE;
 					return FuzzyBoolean.create(Math.max(0, ACCURACY_FACTOR - (0.5*deltaEq / maxErrorDelta)));
@@ -35,39 +36,39 @@ export default class ApproximateNumber extends JelType {
 				case '<<':
 				case '<<=':
 				case '>>=':
-					return JelType.op(operator, this.value, right.value);
+					return JelType.op(ctx, operator, this.value, right.value);
 				case '!=':
-					return this.op('==', right).negate();
+					return this.op(ctx, '==', right).negate();
 				case '!==':
-					return this.op('===', right).negate();
+					return this.op(ctx, '===', right).negate();
 
 				case '>':
 				case '<':
 				case '<=':
 				case '>=':
-					const maxErrorDeltaCmp = JelType.toNumber(JelType.op('+', this.maxError, right.maxError));
+					const maxErrorDeltaCmp = JelType.toNumber(JelType.op(ctx, '+', this.maxError, right.maxError));
 					if (maxErrorDeltaCmp == 0)
-						return JelType.op(operator, this.value, right.value)
-					const deltaCmp = JelType.toNumber(JelType.singleOp('abs', JelType.op('-', this.value, right.value))) * ACCURACY_FACTOR;
-					if (JelType.op(operator, this.value, right.value).toRealBoolean())
+						return JelType.op(ctx, operator, this.value, right.value)
+					const deltaCmp = JelType.toNumber(JelType.singleOp(ctx, 'abs', JelType.op(ctx, '-', this.value, right.value))) * ACCURACY_FACTOR;
+					if (JelType.op(ctx, operator, this.value, right.value).toRealBoolean())
 						 return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.TRUE : FuzzyBoolean.create(Math.min(ACCURACY_FACTOR, 0.5 + 0.5 * deltaCmp / maxErrorDeltaCmp));
 					return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.FALSE : FuzzyBoolean.create(Math.max(0, ACCURACY_FACTOR*0.5 - 0.5 * deltaCmp / maxErrorDeltaCmp));
 
 				case '+':
 				case '-':
-					return new ApproximateNumber(JelType.op(operator, this.value, right.value), JelType.op('+', this.maxError, right.maxError));
+					return new ApproximateNumber(JelType.op(ctx, operator, this.value, right.value), JelType.op(ctx, '+', this.maxError, right.maxError));
 				case '*':
 				case '/':
-					return new ApproximateNumber(JelType.op(operator, this.value, right.value), 
-																			 JelType.op('+', JelType.singleOp('abs', JelType.op('*', this.maxError, right.value)), JelType.singleOp('abs', JelType.op('*', right.maxError, this.value))));
+					return new ApproximateNumber(JelType.op(ctx, operator, this.value, right.value), 
+																			 JelType.op(ctx, '+', JelType.singleOp(ctx, 'abs', JelType.op(ctx, '*', this.maxError, right.value)), JelType.singleOp(ctx, 'abs', JelType.op(ctx, '*', right.maxError, this.value))));
 			}
 		}
 		else if (typeof right == 'number' || right instanceof Fraction) {
 			switch (operator) {
 				case '==': 
 					const maxErrorDelta = JelType.toNumber(this.maxError);
-					const deltaEq = JelType.toNumber(JelType.singleOp('abs',JelType.op('-', this.value, right))) * ACCURACY_FACTOR;
-					if (JelType.op('===', this.value, right).toRealBoolean())
+					const deltaEq = JelType.toNumber(JelType.singleOp(ctx, 'abs',JelType.op(ctx, '-', this.value, right))) * ACCURACY_FACTOR;
+					if (JelType.op(ctx, '===', this.value, right).toRealBoolean())
 						return FuzzyBoolean.TRUE;
 					if (deltaEq == 0)
 						return FuzzyBoolean.TRUE;
@@ -79,51 +80,53 @@ export default class ApproximateNumber extends JelType {
 				case '<<':
 				case '<<=':
 				case '>>=':
-					return JelType.op(operator, this.value, right);
+					return JelType.op(ctx, operator, this.value, right);
 				case '!=':
-					return this.op('==', right).negate();
+					return this.op(ctx, '==', right).negate();
 				case '!==':
-					return JelType.op('===', this.value, right).negate();
+					return JelType.op(ctx, '===', this.value, right).negate();
 				case '>':
 				case '<':
 				case '<=':
 				case '>=':
 					const maxErrorDeltaCmp = JelType.toNumber(this.maxError);
 					if (maxErrorDeltaCmp == 0)
-						return JelType.op(operator, this.value, right)
-					const deltaCmp = JelType.toNumber(JelType.singleOp('abs',JelType.op('-', this.value, right))) * ACCURACY_FACTOR;
-					if (JelType.op(operator, this.value, right).toRealBoolean())
+						return JelType.op(ctx, operator, this.value, right)
+					const deltaCmp = JelType.toNumber(JelType.singleOp(ctx, 'abs',JelType.op(ctx, '-', this.value, right))) * ACCURACY_FACTOR;
+					if (JelType.op(ctx, operator, this.value, right).toRealBoolean())
 						 return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.TRUE : FuzzyBoolean.create(Math.min(ACCURACY_FACTOR, 0.5 + 0.5 * deltaCmp / maxErrorDeltaCmp));
 					return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.FALSE : FuzzyBoolean.create(Math.max(0, ACCURACY_FACTOR*0.5 - 0.5 * deltaCmp / maxErrorDeltaCmp));
 					
 				case '+':
 				case '-':
-					return new ApproximateNumber(JelType.op(operator, this.value, right), this.maxError);
+					return new ApproximateNumber(JelType.op(ctx, operator, this.value, right), this.maxError);
 				case '*':
 				case '/':
-					return new ApproximateNumber(JelType.op(operator, this.value, right), JelType.singleOp('abs', JelType.op('*', this.maxError, right)));
+					return new ApproximateNumber(JelType.op(ctx, operator, this.value, right), JelType.singleOp(ctx, 'abs', JelType.op(ctx, '*', this.maxError, right)));
 			}		
 		}
-		return super.op(operator, right);
+		return super.op(ctx, operator, right);
 	}
 	
-	opReversed(operator: string, left: any): any {
+	opReversed(ctx: Context, operator: string, left: any): any {
 		if (typeof left == 'number') {
 			switch (operator) {
 				case '-': 
-					return new ApproximateNumber(JelType.op(operator, left, this.value), this.maxError);
+					return new ApproximateNumber(JelType.op(ctx, operator, left, this.value), this.maxError);
 				case '/': 
-					return new ApproximateNumber(JelType.op(operator, left, this.value), JelType.singleOp('abs', JelType.op('*', this.maxError, left)));
+					return new ApproximateNumber(JelType.op(ctx, operator, left, this.value), JelType.singleOp(ctx, 'abs', JelType.op(ctx, '*', this.maxError, left)));
 			}
 		}
-		return super.opReversed(operator, left);
+		return super.opReversed(ctx, operator, left);
 	}
 	
-	singleOp(operator: string): any {
+	singleOp(ctx: Context, operator: string): any {
 		if (operator == '!')
-			return JelType.singleOp(operator, this.value);
+			return JelType.singleOp(ctx, operator, this.value);
+		else if (operator == 'abs')
+			return JelType.singleOp(ctx, operator, this.value);
 		else
-			return new ApproximateNumber(JelType.singleOp(operator, this.value), this.maxError);
+			return new ApproximateNumber(JelType.singleOp(ctx, operator, this.value), this.maxError);
 	}
 
 	toNumber_jel_mapping: Object;

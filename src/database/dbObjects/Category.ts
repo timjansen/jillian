@@ -1,6 +1,6 @@
 import DbEntry from '../DbEntry';
 import DbRef from '../DbRef';
-import DatabaseSession from '../DbSession';
+import DbSession from '../DbSession';
 import DbIndexDescriptor from '../DbIndexDescriptor';
 import Dictionary from '../../jel/types/Dictionary';
 import List from '../../jel/types/List';
@@ -33,7 +33,7 @@ export default class Category extends DbEntry {
 
   // returns promise with all matching objects
   getInstances(ctx: Context, filterFunc: (o: DbEntry)=>boolean): Promise<Category[]> {
-    return DbRef.getSession(ctx).getByIndex(this, 'catEntries', filterFunc) as Promise<Category[]>;
+    return ctx.dbSession.getByIndex(this, 'catEntries', filterFunc) as Promise<Category[]>;
   }
 
   get databaseIndices(): Map<string, DbIndexDescriptor> {
@@ -43,7 +43,7 @@ export default class Category extends DbEntry {
 	member(ctx: Context, name: string, parameters?: Map<string, any>): any {
 		const v = super.member(ctx, name, parameters);
 		if (v === undefined && this.superCategory)
-			return Util.resolveValue((c: any)=>c.member(ctx, name, parameters), this.superCategory.get(ctx));
+			return Util.resolveValue((c: any)=>c.member(ctx, name, parameters), this.superCategory.get(ctx.dbSession));
 		else
 			return v;
 	}
@@ -53,7 +53,7 @@ export default class Category extends DbEntry {
 		if (this.instanceDefaults.has(name))
 			return this.instanceDefaults.get(name);
 		else if (this.superCategory)
-			return Util.resolveValue((c: any)=>c.instanceMember(ctx, name, parameters), this.superCategory.get(ctx));
+			return Util.resolveValue((c: any)=>c.instanceMember(ctx, name, parameters), this.superCategory.get(ctx.dbSession));
 	}
 
   

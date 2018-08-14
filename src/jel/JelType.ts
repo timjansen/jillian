@@ -97,7 +97,7 @@ export default class JelType {
 	/**
 	 * Executes the given operator on any non-promise type.
 	 */
-	static op(operator: string, left: any, right: any): any {
+	static op(ctx: Context, operator: string, left: any, right: any): any {
 		if (left == null || right == null) {
 			if (operator == '==' || operator == '===')
 				return MyFuzzyBoolean.toFuzzyBoolean(left === right);
@@ -109,21 +109,21 @@ export default class JelType {
 				return left == null ? left : right;
 		}
 		else if (left instanceof JelType)
-			return left.op(operator, right);
+			return left.op(ctx, operator, right);
 		else if (right instanceof JelType) {
 			if (operator in REVERSIBLE_OPS) 
-				return JelType.op(REVERSIBLE_OPS[operator], right, left);
+				return JelType.op(ctx, REVERSIBLE_OPS[operator], right, left);
 			else if (operator in right.reverseOps) 
-				return right.opReversed(operator, left);
+				return right.opReversed(ctx, operator, left);
 		}
 		else if (operator in NATIVE_OPS)
 			return NATIVE_OPS[operator](left, right);
 		throw new Error(`Operator "${operator}" is not supported for primitive types`);
 	}
 	
-	static singleOp(operator: string, left: any): any {
+	static singleOp(ctx: Context, operator: string, left: any): any {
 		if (left instanceof JelType)
-			return left.singleOp(operator);
+			return left.singleOp(ctx, operator);
 		else if (left == null)
 			return left; 
 
@@ -173,7 +173,7 @@ export default class JelType {
 				if (typeof obj[name] == 'function')
 					throw new Error(`Method ${name} is not callable in JEL. It would need a _jel_mapping.`);
 				else
-					throw new Error(`Property ${name} is not accessible. It would need to be defined in JEL_PROPERTIES.\nContent of JEL_PROPERTIES: ${Util.propertyNames(obj.JEL_PROPERTIES).join(',')}`);
+					throw new Error(`Property ${name} is not accessible. It would need to be defined in JEL_PROPERTIES.`);
 			}
 			else
 				throw new Error(`Unknown property ${name}.`);
@@ -199,15 +199,15 @@ export default class JelType {
 	 * you only need to implement '==', '===', '>' and '>>' for a complete set of comparisons.
 	 */
 	op_jel_mapping: Object;
-	op(operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: any): any {
 		if (operator in INVERTIBLE_OPS)
-			return MyFuzzyBoolean.negate(this.op(INVERTIBLE_OPS[operator], right));
+			return MyFuzzyBoolean.negate(this.op(ctx, INVERTIBLE_OPS[operator], right));
 		if (operator == '<')
-			return MyFuzzyBoolean.truest(this.op('>', right), this.op('==', right)).negate();
+			return MyFuzzyBoolean.truest(this.op(ctx, '>', right), this.op(ctx, '==', right)).negate();
 		if (operator == '<<')
-			return MyFuzzyBoolean.truest(this.op('>>', right), this.op('===', right)).negate();
+			return MyFuzzyBoolean.truest(this.op(ctx, '>>', right), this.op(ctx, '===', right)).negate();
 		if (right instanceof JelType && right.reverseOps && operator in right.reverseOps)
-			return right.opReversed(operator, this);
+			return right.opReversed(ctx, operator, this);
 		throw new Error(`Operator "${operator}" is not supported for this type`);
 	}
 
@@ -216,7 +216,7 @@ export default class JelType {
 	// You must also define the supported operators in the field reverseOps!
 	// Usually this is used for the operators '-' and '/', and possibly comparisons as well.
 	opReversed_jel_mapping: Object;
-	opReversed(operator: string, left: any): any {
+	opReversed(ctx: Context, operator: string, left: any): any {
 		throw new Error(`Operator "${operator}" is not supported for this type (in reversed operation)`);
 	}
 
@@ -225,7 +225,7 @@ export default class JelType {
 	 * Ops that may be implemented: '+', '-', '!', 'abs'
 	 */
 	singleOp_jel_mapping: Object;
-	singleOp(operator: string): any {
+	singleOp(ctx: Context, operator: string): any {
 		throw new Error(`Operator "${operator}" is not supported for this type`);
 	}
 
@@ -251,8 +251,7 @@ export default class JelType {
 
 JelType.prototype.reverseOps = {};
 
-JelType.prototype.op_jel_mapping = {operator:0,right:1};
-JelType.prototype.opReversed_jel_mapping = {operator:0,left:1};
-JelType.prototype.singleOp_jel_mapping = {operator:0};
-JelType.prototype.singleOp_jel_mapping = {'>ctx': true, name: 1, parameters: 2};
+JelType.prototype.op_jel_mapping = {'>ctx': true, operator:1, right:2};
+JelType.prototype.opReversed_jel_mapping = {'>ctx': true, operator:1, left:2};
+JelType.prototype.singleOp_jel_mapping = {'>ctx': true, operator: 1};
 JelType.prototype.toBoolean_jel_mapping = {};

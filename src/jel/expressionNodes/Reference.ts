@@ -1,7 +1,7 @@
 import JelNode from './JelNode';
 import Assignment from './Assignment';
 import Context from '../Context';
-import DbRef from '../../database/DbRef';
+import {IDbRef} from '../IDatabase';
 import Util from '../../util/Util';
 
 
@@ -19,9 +19,10 @@ function resolveValueMap(ctx: Context, assignments: Assignment[]): Map<string, a
  * Examples:
  *   @Bird    // returns the category Bird
  *	 @Mars    // returns the instance called Mars
+ *	 @Mars(a=2, b="hello")    // returns the instance called Mars modified with the given parameters
  */
 export default class Reference extends JelNode {
-	public ref: DbRef | Promise<DbRef> | undefined;
+	public ref: IDbRef | Promise<IDbRef> | undefined;
   constructor(public name: string, public parameters: Assignment[] = []) {
     super();
   }
@@ -30,13 +31,13 @@ export default class Reference extends JelNode {
   execute(ctx: Context): any {
 		if (!this.ref) {
 			if (!this.parameters.length)
-				this.ref = new DbRef(this.name);
+				this.ref = ctx.dbSession.createDbRef(this.name);
 			else {
 				const params = resolveValueMap(ctx, this.parameters);
 				if (params instanceof Promise)
-					this.ref = params.then(p=>this.ref = new DbRef(this.name, p));
+					this.ref = params.then(p=>this.ref = ctx.dbSession.createDbRef(this.name, p));
 				else
-					this.ref = new DbRef(this.name, params);
+					this.ref = ctx.dbSession.createDbRef(this.name, params);
 			}
 		}
     return this.ref;

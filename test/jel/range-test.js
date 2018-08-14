@@ -11,9 +11,7 @@ const jelAssert = new JelAssert(new Context().setAll({Fraction, FuzzyBoolean, Ra
 describe('Range', function() {
 		it('creates and serializes', function() {
 			jelAssert.equal(new Range(1, 2), "Range(1, 2)");
-			jelAssert.equal(new Range(1, 2), "Range(2, 1)");
 			jelAssert.equal(new Range(new Fraction(1, 2), 2), "Range(Fraction(1, 2), 2)");
-			jelAssert.equal(new Range(2, new Fraction(1, 2)), "Range(Fraction(1, 2), 2)");
 			jelAssert.equal(new Range(undefined, 5), "Range(null, 5)");
 			jelAssert.equal(new Range(-1, undefined), "Range(-1, null)");
 			jelAssert.notEqual(new Range(1, 2), "Range(1, 3)");

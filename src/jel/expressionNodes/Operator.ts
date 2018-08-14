@@ -45,7 +45,7 @@ export default class Operator extends JelNode {
       if (this.right == null)
         return this.evaluateLeftFirstOp(ctx);
         
-      return Util.resolveValues((l: any,r: any)=>JelType.op(this.operator, l, r), this.left.execute(ctx), this.right.execute(ctx));
+      return Util.resolveValues((l: any,r: any)=>JelType.op(ctx, this.operator, l, r), this.left.execute(ctx), this.right.execute(ctx));
       }
   }
 
@@ -62,7 +62,7 @@ export default class Operator extends JelNode {
     case '&&':
       return this.and(ctx, left);
     default:
-      return JelType.singleOp(this.operator, left);
+      return JelType.singleOp(ctx, this.operator, left);
     }
   }
   
@@ -73,7 +73,7 @@ export default class Operator extends JelNode {
   }
   
   private binaryOp(ctx: Context, left: JelNode, right: JelNode): any {
-      return JelType.op(this.operator, left, right);
+      return JelType.op(ctx, this.operator, left, right);
   }
   
   private and(ctx: Context, left: JelNode): FuzzyBoolean {

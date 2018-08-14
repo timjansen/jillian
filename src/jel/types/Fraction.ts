@@ -1,4 +1,5 @@
 import JelType from '../JelType';
+import Context from '../Context';
 import FuzzyBoolean from './FuzzyBoolean';
 
 /**
@@ -22,10 +23,10 @@ export default class Fraction extends JelType {
 		}
 	}
 	
-	op(operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: any): any {
 		if (typeof right == 'number') {
 			if (!Number.isInteger(right))
-				return JelType.op(operator, this.toNumber(), right);
+				return JelType.op(ctx, operator, this.toNumber(), right);
 
 			const l = this.simplify();
 			switch (operator) {
@@ -58,7 +59,7 @@ export default class Fraction extends JelType {
 				case '/':
 					return new Fraction(l.numerator, l.denominator*right, l.mixed).simplify();
 				default:
-					return JelType.op(operator, this.toNumber(), right);
+					return JelType.op(ctx, operator, this.toNumber(), right);
 			}
 		}
 		else if (right instanceof Fraction) {
@@ -95,13 +96,13 @@ export default class Fraction extends JelType {
 					return new Fraction(l.numerator*r.denominator, l.denominator*r.numerator, l.mixed).simplify();
 			}
 		}
-		super.op(operator, right);
+		super.op(ctx, operator, right);
 	}
 
-	opReversed(operator: string, left: any): any {	
+	opReversed(ctx: Context, operator: string, left: any): any {	
 		if (typeof left == 'number') {
 			if (!Number.isInteger(left))
-				return JelType.op(operator, left, this.toNumber());
+				return JelType.op(ctx, operator, left, this.toNumber());
 			switch (operator) {
 				case '-':
 					return new Fraction(left*this.denominator-this.numerator, this.denominator, this.mixed).simplify();
@@ -109,10 +110,10 @@ export default class Fraction extends JelType {
 					return new Fraction(left*this.denominator, this.numerator, this.mixed).simplify();
 			}
 		}
-		return super.op(operator, left);
+		return super.op(ctx, operator, left);
 	}
 
-	singleOp(operator: string): any {
+	singleOp(ctx: Context, operator: string): any {
 		switch (operator) {
 			case '!':
 				return FuzzyBoolean.toFuzzyBoolean(!this.numerator);
@@ -123,7 +124,7 @@ export default class Fraction extends JelType {
 			case 'abs':
 				return this.numerator >= 0 ? this : new Fraction(Math.abs(this.numerator), this.denominator, this.mixed);
 		}
-		return super.singleOp(operator);
+		return super.singleOp(ctx, operator);
 	}
 	
 	toNumber_jel_mapping: Object;

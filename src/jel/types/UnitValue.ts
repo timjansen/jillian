@@ -1,8 +1,9 @@
 import JelType from '../JelType';
+import Context from '../Context';
+import {IDbRef} from '../IDatabase';
 import FuzzyBoolean from './FuzzyBoolean';
 import Fraction from './Fraction';
 import ApproximateNumber from './ApproximateNumber';
-import DbRef from '../../database/DbRef';
 
 
 /**
@@ -10,14 +11,12 @@ import DbRef from '../../database/DbRef';
  */
 export default class UnitValue extends JelType {
 	JEL_PROPERTIES: Object;
-	unit: DbRef;
 	
-	constructor(public value: number | Fraction | ApproximateNumber, unit: DbRef | string, public unitExponent = 1) {
+	constructor(public value: number | Fraction | ApproximateNumber, public unit: IDbRef, public unitExponent = 1) {
 		super();
-		this.unit = typeof unit == 'string' ? new DbRef(unit) : unit;
 	}
 
-	op(operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: any): any {
 		if (right instanceof UnitValue) {
 			if (right.unit.distinctName == this.unit.distinctName && right.unitExponent == this.unitExponent) {
 				switch (operator) {
@@ -33,12 +32,12 @@ export default class UnitValue extends JelType {
 				case '<':
 				case '<=':
 				case '>=':
-						return JelType.op(operator, this.value, right.value);
+						return JelType.op(ctx, operator, this.value, right.value);
 				case '+':
 				case '-':
-						return new UnitValue(JelType.op(operator, this.value, right.value), this.unit, this.unitExponent);
+						return new UnitValue(JelType.op(ctx, operator, this.value, right.value), this.unit, this.unitExponent);
 				case '/':
-						return JelType.op(operator, this.value, right.value);
+						return JelType.op(ctx, operator, this.value, right.value);
 				}
 			}
 			
@@ -46,7 +45,7 @@ export default class UnitValue extends JelType {
 			switch (operator) {
 			case '*':
 					// TODO
-					return new UnitValue(JelType.op(operator, this.value, right.value), this.unit, this.unitExponent + right.unitExponent);
+					return new UnitValue(JelType.op(ctx, operator, this.value, right.value), this.unit, this.unitExponent + right.unitExponent);
 			case '/':
 					// TODO
 			}
@@ -55,38 +54,40 @@ export default class UnitValue extends JelType {
 				switch (operator) {
 				case '*':
 				case '/':
-					return new UnitValue(JelType.op(operator, this.value, right), this.unit, this.unitExponent);
+					return new UnitValue(JelType.op(ctx, operator, this.value, right), this.unit, this.unitExponent);
 				}		
 		}
 	}
 	
-	singleOp(operator: string): any {
+	singleOp(ctx: Context, operator: string): any {
 		if (operator == '!') 
-			return JelType.singleOp(operator, this.value);
-		return super.singleOp(operator);
+			return JelType.singleOp(ctx, operator, this.value);
+		if (operator == 'abs')
+			return new UnitValue(JelType.singleOp(ctx, operator, this.value), this.unit, this.unitExponent);
+		return super.singleOp(ctx, operator);
 	}
 
-	opReversed(operator: string, left: any): any {
+	opReversed(ctx: Context, operator: string, left: any): any {
 		if (typeof left == 'number' || left instanceof Fraction || left instanceof ApproximateNumber) {
 			switch (operator) {
 				case '*':
 				case '/':
-						return new UnitValue(JelType.op(operator, left, this.value), this.unit, this.unitExponent);
+						return new UnitValue(JelType.op(ctx, operator, left, this.value), this.unit, this.unitExponent);
 				}		
 		}
-		return super.opReversed(operator, left);
+		return super.opReversed(ctx, operator, left);
 	}
 		// returns the UnitValue converted to the given value, or undefined of conversion not possible
-	convertToValue(unit: string | DbRef): number | undefined {
-		const v = this.convertTo(unit);
+	convertToValue(ctx: Context, unit: string | IDbRef): number | undefined {
+		const v = this.convertTo(ctx, unit);
 		return v && JelType.toNumber(v.value);
 	}
 
 	
 	// returns the UnitValue converted to the given value, or undefined of conversion not possible
 	convertTo_jel_mapping: Object;
-	convertTo(unit: string|DbRef): UnitValue | undefined {
-		const ref = typeof unit == 'string' ? new DbRef(unit) : unit;
+	convertTo(ctx: Context, unit: string|IDbRef): UnitValue | undefined {
+		const ref = ctx.dbSession.createDbRef(unit);
 		return undefined; // TODO
 	}
 	
@@ -111,7 +112,7 @@ export default class UnitValue extends JelType {
 
 UnitValue.prototype.reverseOps = {'-':1, '/': 1};
 UnitValue.prototype.toNumber_jel_mapping = {};
-UnitValue.prototype.convertTo_jel_mapping = {type: 0};
+UnitValue.prototype.convertTo_jel_mapping = {'>ctx': true, type: 1};
 UnitValue.prototype.JEL_PROPERTIES = {value:1, unit:1, unitExponent:1};
 
 

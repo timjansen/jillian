@@ -1,4 +1,5 @@
 import JelType from '../../JelType';
+import Context from '../../Context';
 import Timestamp from './Timestamp';
 import FuzzyBoolean from '../FuzzyBoolean';
 
@@ -46,7 +47,7 @@ export default class TimeZone extends JelType {
 		return true;
 	}
 	
-	op(operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: any): any {
 		if (right instanceof TimeZone) {
 			switch (operator) {
 				case '===':
@@ -55,7 +56,7 @@ export default class TimeZone extends JelType {
 					return FuzzyBoolean.toFuzzyBoolean(TimeZone.isIdenticalZone(this.getMomentZone(), right.getMomentZone())); // matches if zones are identical, even if names are different
 			}
 		}
-		return super.op(operator, right);
+		return super.op(ctx, operator, right);
 	}
 
 	getSerializationProperties(): any[] {

@@ -1,6 +1,7 @@
 import * as moment from 'moment';
 
 import JelType from '../../JelType';
+import Context from '../../Context';
 import TimeHint from './TimeHint';
 import TimeOfDay from './TimeOfDay';
 import PartOfDayType from './PartOfDayType';
@@ -23,8 +24,8 @@ export default class PartOfDay extends JelType implements TimeHint {
 		return new List(); // TODO
 	}
 	
-	op(operator: string, right: any): any {
-		return super.op(operator, right);
+	op(ctx: Context, operator: string, right: any): any {
+		return super.op(ctx, operator, right);
 	}
 
 	getSerializationProperties(): any[] {

@@ -30,7 +30,7 @@ export default class Thing extends DbEntry {
 	member(ctx: Context, name: string, parameters?: Map<string, any>): any {
 		const v = super.member(ctx, name, parameters);
 		if (v === undefined)
-			return Util.resolveValue((c: any)=>c.instanceMember(ctx, name, parameters), this.category.get(ctx));
+			return Util.resolveValue((c: any)=>c.instanceMember(ctx, name, parameters), this.category.get(ctx.dbSession));
 		else
 			return v;
 	}

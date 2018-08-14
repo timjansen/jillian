@@ -1,6 +1,7 @@
 import * as moment from 'moment';
 
-import DbRef from '../../../database/DbRef';
+import Context from '../../Context';
+import {IDbRef} from '../../IDatabase';
 import Duration from './Duration';
 import DurationRange from './DurationRange';
 import TimeSpec from './TimeSpec';
@@ -15,7 +16,7 @@ import FuzzyBoolean from '../FuzzyBoolean';
  */
 export default class FactHint extends TimeSpec {
 	
-	constructor(public factObject: DbRef, public factId: number, 
+	constructor(public factObject: IDbRef, public factId: number, 
 							public relation: FactRelationshipType = FactRelationshipType.AFTER, public delay?: Duration|DurationRange|UnitValue|Range) {
 		super();
 	}
@@ -32,8 +33,8 @@ export default class FactHint extends TimeSpec {
 		return FuzzyBoolean.TRUE;
 	}
 	
-	op(operator: string, right: any): any {
-		return super.op(operator, right);
+	op(ctx: Context, operator: string, right: any): any {
+		return super.op(ctx, operator, right);
 	}
 
 	getSerializationProperties(): any[] {

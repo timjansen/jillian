@@ -3,12 +3,15 @@
 require('source-map-support').install();
 const Database = require('../../build/database/Database.js').default;
 const DbSession = require('../../build/database/DbSession.js').default;
+const DbRef = require('../../build/database/DbRef.js').default;
 const DbEntry = require('../../build/database/DbEntry.js').default;
 const Category = require('../../build/database/dbObjects/Category.js').default;
 const Thing = require('../../build/database/dbObjects/Thing.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const tmp = require('tmp');
 const assert = require('assert');
+
+const baseCtx = new Context().setAll({DbRef, Category, Thing});
 
 tmp.dir(function(err, path) {
   if (err) 
@@ -20,7 +23,7 @@ tmp.dir(function(err, path) {
 			return Database.create(path+'/dbsession1')
 			.then(db=>{
 				const session = new DbSession(db);
-				const ctx = new Context(undefined, session);
+				const ctx = new Context(baseCtx, session);
 
 				const cat = new Category('MyCategory');
 				const thing = new Thing('MyThing', cat);
@@ -50,7 +53,7 @@ tmp.dir(function(err, path) {
 			return Database.create(path+'/dbsession2')
 			.then(db=>{
 				const session = new DbSession(db);
-				const ctx = new Context(undefined, session);
+				const ctx = new Context(baseCtx, session);
 
 				const cat = new Category('MyCategory');
 				const thing = new Thing('MyThing', cat);
@@ -67,7 +70,7 @@ tmp.dir(function(err, path) {
 			return Database.create(path+'/dbsession3')
 			.then(db=>{
 				const session = new DbSession(db);
-				const ctx = new Context(undefined, session);
+				const ctx = new Context(baseCtx, session);
 
 				const cat = new Category('MyCategory');
 				const thing = new Thing('MyThing', cat);

@@ -1,8 +1,7 @@
 import Dictionary from './types/Dictionary';
 import List from './types/List';
 import Pattern from './types/Pattern';
-import DbEntry from '../database/DbEntry';
-import DbRef from '../database/DbRef';
+import {isDbRef} from './IDatabase';
 import Util from '../util/Util';
 import Serializable from './Serializable';
 
@@ -21,10 +20,6 @@ function spaces(i: number) {
 
 export default class Serializer {
 	static serialize(obj: any, pretty = false, indent = 0): string {
-		return Serializer.serializeInternal(obj, pretty, indent, true);
-	}
-
-	private static serializeInternal(obj: any, pretty = false, indent = 0, primary = false): string {
 		if (obj == null)
 			return "null";
 
@@ -42,8 +37,8 @@ export default class Serializer {
 					if (typeof key == 'string' && /^[a-zA-Z_]\w*$/.test(key))
 						r += key;
 					else 
-						r += Serializer.serializeInternal(key, pretty, indent);
-					r += (pretty ? ': ' : ':') + Serializer.serializeInternal(value, pretty, indent)
+						r += Serializer.serialize(key, pretty, indent);
+					r += (pretty ? ': ' : ':') + Serializer.serialize(value, pretty, indent)
 					if (i++ < last)
 						r += pretty ? ', ' : ',';
 				});
@@ -55,7 +50,7 @@ export default class Serializer {
 				return Serializer.serializeArray(obj.elements, pretty, indent);
 			else if (obj instanceof Pattern) 
 				return '`' + obj.patternText.replace(/`/g, '\\`') + '`';
-			else if ((obj instanceof DbRef) || ((obj instanceof DbEntry) && !primary))
+			else if (isDbRef(obj))
 				return '@'+obj.distinctName;
 			else if ('getSerializationProperties' in obj) {
 				const props = (obj as Serializable).getSerializationProperties();
@@ -64,7 +59,7 @@ export default class Serializer {
 					for (let i = 0; i < props.length; i++) {
 						if (i > 0)
 							r += pretty ? ', ' : ',';
-						r += Serializer.serializeInternal(props[i], pretty, indent+2);
+						r += Serializer.serialize(props[i], pretty, indent+2);
 					}
 					return r + ')';
 				}
@@ -81,7 +76,7 @@ export default class Serializer {
 								r += ',';
 							if (pretty)
 								r += '\n' + spaces(indent+1)
-							r += name + '=' + Serializer.serializeInternal(value, pretty, indent+2);
+							r += name + '=' + Serializer.serialize(value, pretty, indent+2);
 							c++;
 						}
 					});
@@ -104,9 +99,9 @@ export default class Serializer {
 	static serializeArray(obj: any, pretty = false, indent = 0): string {
 			let r = '[';
 			for (let i = 0; i < obj.length-1; i++)
-				r += Serializer.serializeInternal(obj[i], pretty, indent) + (pretty ? ', ' : ',');
+				r += Serializer.serialize(obj[i], pretty, indent) + (pretty ? ', ' : ',');
 			if (obj.length)
-				r += Serializer.serializeInternal(obj[obj.length-1], pretty, indent);
+				r += Serializer.serialize(obj[obj.length-1], pretty, indent);
 			return r + ']';
 	}
 }

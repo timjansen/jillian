@@ -1,4 +1,5 @@
 import JelType from '../../JelType';
+import Context from '../../Context';
 import UnitValue from '../UnitValue';
 import FuzzyBoolean from '../FuzzyBoolean';
 import TimeSpec from './TimeSpec';
@@ -24,7 +25,7 @@ export default class Timestamp extends TimeSpec {
 		return Math.abs(this.msSinceEpoch - other.msSinceEpoch) <= (this.precisionInMs + other.precisionInMs);
 	}
 	
-	op(operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: any): any {
 		if (right instanceof Timestamp) {
 			switch (operator) {
 				case '===':
@@ -57,7 +58,7 @@ export default class Timestamp extends TimeSpec {
 			}
 		}
 		else if (right instanceof UnitValue) {
-			const v = right.convertToValue('Millisecond');
+			const v = right.convertToValue(ctx, 'Millisecond');
 			if (v === undefined)
 				throw new Error('Can not convert right operand to milliseconds');
 
@@ -68,7 +69,7 @@ export default class Timestamp extends TimeSpec {
 					return new Timestamp(this.msSinceEpoch - v, this.precisionInMs);
 			}
 		}
-		return super.op(operator, right);
+		return super.op(ctx, operator, right);
 	}
 	
 	getStartTime(defaultTimeZone: TimeZone): Timestamp {

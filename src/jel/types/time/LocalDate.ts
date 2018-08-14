@@ -2,6 +2,7 @@ import * as moment from 'moment-timezone';
 import Moment = moment.Moment;
 
 import JelType from '../../JelType';
+import Context from '../../Context';
 import FuzzyBoolean from '../FuzzyBoolean';
 import Timestamp from './Timestamp';
 import LocalDateTime from './LocalDateTime';
@@ -85,12 +86,12 @@ export default class LocalDate extends TimeSpec {
 	}
 	
 	
-	op(operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: any): any {
 		if (right instanceof LocalDate) {
 			switch (operator) {
 				case '==':
 				case '>':
-					return this.simplify().op(JelType.STRICT_OPS[operator], right.simplify());
+					return this.simplify().op(ctx, JelType.STRICT_OPS[operator], right.simplify());
 				case '===':
 					return FuzzyBoolean.toFuzzyBoolean(this.year == right.year && this.month == right.month && this.day == right.day);
 				case '>>':
@@ -98,13 +99,13 @@ export default class LocalDate extends TimeSpec {
 			}
 		}
 		else if (right instanceof LocalDateTime) {
-			return new LocalDateTime(this, TimeOfDay.MIDNIGHT).op(operator, right);
+			return new LocalDateTime(this, TimeOfDay.MIDNIGHT).op(ctx, operator, right);
 		}
 		else if (right instanceof ZonedDate) {
-			return this.toZonedDate(right.timeZone).op(operator, right);
+			return this.toZonedDate(right.timeZone).op(ctx, operator, right);
 		}
 		else if (right instanceof ZonedDateTime) {
-			return this.toZonedDateTime(right.timeZone).op(operator, right);
+			return this.toZonedDateTime(right.timeZone).op(ctx, operator, right);
 		}
 		else if (right instanceof Duration) {
 			
@@ -113,12 +114,12 @@ export default class LocalDate extends TimeSpec {
 					const d = right.fullDays();
 					return new LocalDate(this.year + d.years, this.month + d.months, this.day + d.days);
 				case '-':
-					const dm = right.singleOp('-').fullDays();
+					const dm = right.singleOp(ctx, '-').fullDays();
 					return new LocalDate(this.year + dm.years, this.month + dm.months, this.day + dm.days);
 			}
 		}
 		
-		return super.op(operator, right);
+		return super.op(ctx, operator, right);
 	}
 
 	toZonedDate(timeZone: TimeZone): ZonedDate {

@@ -1,21 +1,19 @@
 import JelType from '../JelType';
-import DbRef from '../../database/DbRef';
+import Context from '../Context';
+import {IDbRef} from '../IDatabase';
 import FuzzyBoolean from './FuzzyBoolean';
 
 /**
  * Represents the value of an Enumeration.
  */
 export default class EnumValue extends JelType {
-	public parent: DbRef
-
-	JEL_PROPERTIES: Object = {value:1, parent: 1};
+	JEL_PROPERTIES: Object = {value: 1, parent: 1};
 	
-	constructor(public value: string, parent: string | DbRef) {
+	constructor(public value: string, public parent: IDbRef) {
 		super();
-		this.parent = DbRef.create(parent);
 	}
 	
-	op(operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: any): any {
 		if (right instanceof EnumValue) {
 			switch (operator) {
 				case '==': 
@@ -28,8 +26,8 @@ export default class EnumValue extends JelType {
 			}
 		}
 		else if (typeof right == 'string')
-			return JelType.op(operator, this.value, right);
-		return super.op(operator, right);
+			return JelType.op(ctx, operator, this.value, right);
+		return super.op(ctx, operator, right);
 	}
 	
 	getSerializationProperties(): any[] {
@@ -37,7 +35,7 @@ export default class EnumValue extends JelType {
 	}
 	
 	
-	static create_jel_mapping = {value: 0, parent: 1};
+	static create_jel_mapping = {value: 0, parent: 1, };
 	static create(...args: any[]): EnumValue {
 		return new EnumValue(args[0], args[1]);
 	}

@@ -1,4 +1,5 @@
 import JelType from '../JelType';
+import Context from '../Context';
 import List from './List';
 import FuzzyBoolean from './FuzzyBoolean';
 import Callable from '../Callable';
@@ -24,29 +25,37 @@ export default class Dictionary extends JelType {
 		}
 	}
 	
-	op(operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: any): any {
 		if (right == null)
 			return this;
 		if (right instanceof Dictionary) {
 			switch(operator) {
 				case '==':
 				case '===':
-					if (this.size != right.size)
+					if (this.elements.size != right.elements.size)
 						return FuzzyBoolean.FALSE;
 					let result = FuzzyBoolean.TRUE;
 					for (let key of this.elements.keys())
 						if (!right.has(key))
 							return FuzzyBoolean.FALSE;
 						else {
-							result = FuzzyBoolean.falsest(result, JelType.op(operator, this.get(key), right.get(key)));
+							result = FuzzyBoolean.falsest(result, JelType.op(ctx, operator, this.get(key), right.get(key)));
 							if (result.isClearlyFalse())
 								return result;
 						}
 					return result;
 			}
 		}
-		super.op(operator, right);
+		return super.op(ctx, operator, right);
 	}
+	
+	singleOp(ctx: Context, operator: string): any {
+		if (operator == '!')
+			return FuzzyBoolean.toFuzzyBoolean(!this.elements.size);
+		else
+			return super.singleOp(ctx, operator);
+	}
+
 	
 	get_jel_mapping: Object;
 	get(key: any): any {

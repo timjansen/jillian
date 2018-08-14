@@ -1,4 +1,5 @@
 import JelType from '../JelType';
+import Context from '../Context';
 
 /**
  * Represents a boolean type that has, beside clear true and false, also a notion of 'barely true' and 'barely false'.
@@ -52,7 +53,7 @@ export default class FuzzyBoolean extends JelType {
 			this.state = state; // a value 0 - 1
 	}
 	
-	op(operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: any): any {
 		if (right instanceof FuzzyBoolean) {
 			switch (operator) {
 				case '==': 
@@ -71,20 +72,20 @@ export default class FuzzyBoolean extends JelType {
 				case '<<':
 				case '<<=':
 				case '>>=':
-					return JelType.op(operator, this.state, right.state);
+					return JelType.op(ctx, operator, this.state, right.state);
 			}
 		}
 		else if (typeof right == 'number')
-			return JelType.op(operator, this.state, right);
-		return super.op(operator, right);
+			return JelType.op(ctx, operator, this.state, right);
+		return super.op(ctx, operator, right);
 	}
 	
-	singleOp(operator: string): any {
+	singleOp(ctx: Context, operator: string): any {
 		if (operator == '!') {
 			return this.negate();
 		}
 		else
-			return JelType.singleOp(operator, this);
+			return JelType.singleOp(ctx, operator, this);
 	}
 
 	negate():FuzzyBoolean {
