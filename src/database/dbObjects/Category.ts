@@ -4,6 +4,7 @@ import DbSession from '../DbSession';
 import DbIndexDescriptor from '../DbIndexDescriptor';
 import Dictionary from '../../jel/types/Dictionary';
 import List from '../../jel/types/List';
+import EnumValue from '../../jel/types/EnumValue';
 import Context from '../../jel/Context';
 import Util from '../../util/Util';
 
@@ -48,22 +49,34 @@ export default class Category extends DbEntry {
 			return v;
 	}
 
-	
-	instanceMember(ctx: Context, name: string, parameters?: Map<string, any>): any {
-		if (this.instanceDefaults.has(name))
+	instanceDefault(ctx: Context, name: string, parameters?: Map<string, any>): any {
+		if (this.instanceDefaults.elements.has(name)) {
 			return this.instanceDefaults.get(name);
+		}
 		else if (this.superCategory)
-			return Util.resolveValue((c: any)=>c.instanceMember(ctx, name, parameters), this.superCategory.get(ctx.dbSession));
+			return Util.resolveValue((c: any)=>c.instanceDefault(ctx, name, parameters), this.superCategory.get(ctx.dbSession));
+		else
+			return null;
 	}
 
+	instanceProperty(ctx: Context, name: string): EnumValue | Promise<EnumValue> | null {
+		if (this.instanceProperties.elements.has(name))
+			return this.instanceProperties.get(name);
+		else if (this.superCategory)
+			return Util.resolveValue((c: any)=>c.instanceProperty(ctx, name), this.superCategory.get(ctx.dbSession));
+		else
+			return null;
+	}
   
   getSerializationProperties(): Object {
-    return [this.distinctName, this.superCategory, this.reality, this.hashCode, this.properties, this.instanceDefaults];
+    return [this.distinctName, this.superCategory, this.reality, this.hashCode, this.properties, 
+						this.instanceDefaults, this.instanceProperties];
   }
     
-  static create_jel_mapping = {distinctName: 0, superCategory: 1, reality: 2, hashCode: 3, properties: 4, instanceDefaults: 5};
+  static create_jel_mapping = {distinctName: 0, superCategory: 1, reality: 2, hashCode: 3, 
+															 properties: 4, instanceDefaults: 5, instanceProperties: 6};
   static create(...args: any[]): any {
-    return new Category(args[0], args[1], args[2], args[3], args[4]);
+    return new Category(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
   }
 }
 

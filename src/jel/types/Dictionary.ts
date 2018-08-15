@@ -177,9 +177,13 @@ export default class Dictionary extends JelType {
 		return o;
 	}
 	
-	static create_jel_mapping = {elements: 0};
+	static fromObject(o: any): Dictionary {
+		return new Dictionary(new Map(Object.keys(o).map(k => [k, o[k]]) as any), true);
+	}
+
+	static create_jel_mapping = {list: 0}; // 2nd argument intentionally omittted!
 	static create(...args: any[]): any {
-		return new Dictionary(args[0]);
+		return new Dictionary(args[0]);  // 2nd argument intentionally omittted! They are not intended for JEL.
 	}
 }
 

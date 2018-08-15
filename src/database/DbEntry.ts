@@ -24,7 +24,7 @@ export default class DbEntry extends JelType {
 	
 	member(ctx: Context, name: string, parameters?: Map<string, any>): any {
 		const v = super.member(ctx, name, parameters);
-		if (v === undefined && this.properties.has(name))
+		if (v === undefined && this.properties.elements.has(name))
 			return this.properties.get(name);
 		else
 			return v;

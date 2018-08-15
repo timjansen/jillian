@@ -18,8 +18,8 @@ export default class Thing extends DbEntry {
   category: DbRef;
   JEL_PROPERTIES: Object;
   
-  constructor(distinctName: string, category: Category|DbRef, reality: DbRef, hashCode: string) {
-    super(distinctName, reality, hashCode);
+  constructor(distinctName: string, category: Category|DbRef, reality: DbRef, hashCode: string, properties: Dictionary) {
+    super(distinctName, reality, hashCode, properties);
     this.category = DbRef.create(category);
   }
   
@@ -30,18 +30,18 @@ export default class Thing extends DbEntry {
 	member(ctx: Context, name: string, parameters?: Map<string, any>): any {
 		const v = super.member(ctx, name, parameters);
 		if (v === undefined)
-			return Util.resolveValue((c: any)=>c.instanceMember(ctx, name, parameters), this.category.get(ctx.dbSession));
+			return Util.resolveValue((c: any)=>c.instanceDefault(ctx, name, parameters), this.category.get(ctx.dbSession));
 		else
 			return v;
 	}
 	
   getSerializationProperties(): Object {
-    return {distinctName: this.distinctName, reality: this.reality, category: this.category};
+    return {distinctName: this.distinctName, reality: this.reality, category: this.category, properties: this.properties};
   }
 
-  static create_jel_mapping = {distinctName: 0, category: 1, reality: 2, hashCode: 3};
+  static create_jel_mapping = {distinctName: 0, category: 1, reality: 2, hashCode: 3, properties: 4};
   static create(...args: any[]) {
-    return new Thing(args[0], args[1], args[2], args[3]);
+    return new Thing(args[0], args[1], args[2], args[3], args[4]);
   }
 }
 

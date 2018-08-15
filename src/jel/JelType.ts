@@ -187,7 +187,7 @@ export default class JelType {
 		if (nativeMethodMapping) 
 			return new FunctionCallable(obj[name], nativeMethodMapping, obj);
 
-		return undefined;
+		return null;
 	}
 	
 	/*
