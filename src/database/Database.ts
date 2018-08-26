@@ -2,9 +2,12 @@ import DbEntry from './DbEntry';
 import DbRef from './DbRef';
 import DatabaseConfig from './DatabaseConfig';
 import DatabaseError from './DatabaseError';
+import NotFoundError from './NotFoundError';
 import DatabaseContext from './DatabaseContext';
 import DbIndexDescriptor from './DbIndexDescriptor';
+import WorkerPool from './WorkerPool';
 import Category from './dbObjects/Category';
+
 
 import JEL from '../jel/JEL';
 import Context from '../jel/Context';
@@ -65,9 +68,9 @@ export default class Database {
     return this.getFilePathForHash(config, tifu.hash(distinctName));
   }
   
-  private readEntry(distinctName: string, path: string): Promise<DbEntry | null> {
+  private readEntry(ctx: Context, distinctName: string, path: string): Promise<DbEntry | null> {
     return fs.readFile(path, {encoding: 'utf8'})
-    .then(entryTxt=>JEL.execute(entryTxt, DatabaseContext.create()))
+    .then(entryTxt=>JEL.execute(entryTxt, DatabaseContext.add(ctx)))
     .catch(e=> {
       if (e.code == 'ENOENT')
         return null;
@@ -75,20 +78,26 @@ export default class Database {
     });
   }
  
-  get(distinctName: string): Promise<DbEntry | null> {
-    return this.init(config=>this.readEntry(distinctName, this.getFilePath(config, distinctName)));
+  getIfFound(ctx: Context, distinctName: string): Promise<DbEntry|null> {
+    return this.init(config=>this.readEntry(ctx, distinctName, this.getFilePath(config, distinctName)));
   }
-  
-  getByHash(hash: string): Promise<DbEntry | null> {
-    return this.init(config=>this.readEntry(hash, this.getFilePathForHash(config, hash)));
+
+  get(ctx: Context, distinctName: string): Promise<DbEntry> {
+    return this.getIfFound(ctx, distinctName)
+							 .then(p=>(p || Promise.reject(new NotFoundError(distinctName))) as any);
+  }
+	
+  getByHash(ctx: Context, hash: string): Promise<DbEntry> {
+    return this.init(config=>this.readEntry(ctx, hash, this.getFilePathForHash(config, hash))
+							 .then(p=>(p || Promise.reject(new NotFoundError(hash))) as any));
   }
 
   exists(distinctName: string): Promise<boolean> {
     return this.init(config=>fs.pathExists(this.getFilePath(config, distinctName)));
   }
   
-  put(ctx: Context, ...dbEntries: DbEntry[]): Promise<DbEntry[]> {
-    return this.init(config=>Promise.all(dbEntries.map(dbEntry=>{
+  put(ctx: Context, ...dbEntries: DbEntry[]): Promise<never> {
+    return this.init(config=>WorkerPool.run(dbEntries, dbEntry=>{
       const distinctName = dbEntry.distinctName;
       const p = this.getFilePathForHash(config, dbEntry.hashCode);
       return fs.ensureDir(path.dirname(p))
@@ -100,7 +109,7 @@ export default class Database {
             return this.addIndexing(ctx, config, dbEntry);
         }))
       .catch (e=>DatabaseError.rethrow(`Can not write database entry ${distinctName} at ${p}`, e));
-    })));
+    }));
   }
 
   delete(ctx: Context, dbEntry: DbEntry): Promise<any> {
@@ -119,7 +128,7 @@ export default class Database {
       if (indexDesc.type == 'category') {
         const cat: DbRef = JelType.member(ctx, dbEntry, indexDesc.property);
         if (cat)
-          indexPromises.push(Promise.resolve(cat.getFromDb(this)).then(catRef=>catRef && this.appendToCategoryIndex(config, dbEntry, catRef as Category, '_' + name, !!indexDesc.includeParents)));
+          indexPromises.push(Promise.resolve(cat.getFromDb(ctx)).then(catRef=>catRef && this.appendToCategoryIndex(ctx, config, dbEntry, catRef as Category, '_' + name, !!indexDesc.includeParents)));
       }
       else
         throw new DatabaseError(`Unsupported index type ${indexDesc.type} for index ${name}. Only 'category' is supported for now.`);
@@ -134,27 +143,27 @@ export default class Database {
       if (indexDesc.type == 'category') {
         const cat: DbRef = JelType.member(ctx, dbEntry, indexDesc.property);
         if (cat)
-          indexPromises.push(Promise.resolve(cat.getFromDb(this)).then(catRef=>catRef && this.removeFromCategoryIndex(config, dbEntry, catRef as Category, '_' + name, !!indexDesc.includeParents)));
+          indexPromises.push(Promise.resolve(cat.getFromDb(ctx)).then(catRef=>catRef && this.removeFromCategoryIndex(ctx, config, dbEntry, catRef as Category, '_' + name, !!indexDesc.includeParents)));
       }
     });
     return Promise.all(indexPromises);
   }
   
-  private appendToCategoryIndex(config: DatabaseConfig, dbEntry: DbEntry, category: Category, indexSuffix: string, recursive: boolean): Promise<any> {
+  private appendToCategoryIndex(ctx: Context, config: DatabaseConfig, dbEntry: DbEntry, category: Category, indexSuffix: string, recursive: boolean): Promise<any> {
     const indexPath = this.getFilePathForHash(config, category.hashCode, indexSuffix);
     const prom = fs.appendFile(indexPath, dbEntry.hashCode + '\n');
     if (recursive && category.superCategory)
-      return prom.then(()=>Promise.resolve(category.superCategory!.getFromDb(this) as Category).then(superCat=>superCat && this.appendToCategoryIndex(config, dbEntry, superCat, indexSuffix, recursive)));
+      return prom.then(()=>Promise.resolve(category.superCategory!.getFromDb(ctx) as Category).then(superCat=>superCat && this.appendToCategoryIndex(ctx, config, dbEntry, superCat, indexSuffix, recursive)));
     else
       return prom;
   }
   
-  private removeFromCategoryIndex(config: DatabaseConfig, dbEntry: DbEntry, category: Category, indexSuffix: string, recursive: boolean): Promise<any> {
+  private removeFromCategoryIndex(ctx: Context, config: DatabaseConfig, dbEntry: DbEntry, category: Category, indexSuffix: string, recursive: boolean): Promise<any> {
     const indexPath = this.getFilePathForHash(config, category.hashCode, indexSuffix);
     const prom = fs.readFile(indexPath)
     .then(file=>fs.writeFile(indexPath, file.toString().replace(RegExp('^'+dbEntry.hashCode+'\n'), '')));
     if (recursive && category.superCategory)
-      return prom.then(()=>Promise.resolve(category.superCategory!.getFromDb(this) as Category).then(superCat=>superCat && this.removeFromCategoryIndex(config, dbEntry, superCat, indexSuffix, recursive)));
+      return prom.then(()=>Promise.resolve(category.superCategory!.getFromDb(ctx) as Category).then(superCat=>superCat && this.removeFromCategoryIndex(ctx, config, dbEntry, superCat, indexSuffix, recursive)));
     else
       return prom;
   }
@@ -173,6 +182,74 @@ export default class Database {
         });
     });
   }
+	
+	/**
+	 * Loads all .jel files from a directory and stores them in the database. 
+	 * Each .jel file must contain one complete DbEntry. Categories must end with 'Category.jel' so they can be loaded first.
+	 * Files without .jel extension are ignored.
+	 * @param ctx a Context to load with. Must have a dbSession.
+	 * @param dirPath the path of the directory to load
+	 * @param recursive if true, loadDir() will load data from subdirectories
+	 * @return a Promise with the number of loaded objects, or a DatabaseError
+	 */
+	loadDir(ctx: Context, dirPath: string, recursive = true): Promise<number> {
+		const pool = new WorkerPool();
+		const sCtx = DatabaseContext.add(ctx);
+		const db = this;
+		return db.init(config=>{
+
+			// returns Promise of [categoryFiles, entryFiles, dirs] for a single directory
+			function getPaths(dir: string): Promise<string[][]> {
+				return fs.readdir(dir)
+				.then(files=>pool.runJob(files, f=>fs.stat(path.join(dir, f)).then(stat=>[f, f.endsWith('.jel') && stat.isFile(), f.endsWith('Category.jel'), stat.isDirectory()] as any)))
+				.then(r=>[r.filter(a=>a[1] && a[2]).map(a=>path.join(dir, a[0])), 
+									r.filter(a=>a[1] && !a[2]).map(a=>path.join(dir, a[0])),
+								  r.filter(a=>a[3]).map(a=>path.join(dir, a[0]))]);
+			}
+
+			// returns Promise of [categoryFiles, entryFiles] for recursive dir structure
+			function getPathsRecursive(dir: string, recursive: boolean): Promise<string[][]> {
+				return getPaths(dir).then(r=> 
+					recursive ?
+						pool.runJob(r[2], a=>getPathsRecursive(a, true))
+							.then(r2=>r2.reduce((a, b)=>[a[0].concat(b[0]), a[1].concat(b[1])], [[], []]))
+							.then(r2=>[r[0].concat(r2[0]), r[1].concat(r2[1])])
+					: r
+				)
+				.catch(e=>DatabaseError.rethrow(`Failed to read directory "${dir}"`, e));
+			}
+			return getPathsRecursive(dirPath, recursive).then(r=> {
+				const [categoryFiles, entryFiles] = r;
+				return pool.runJobIgnoreNull(categoryFiles, file=>db.readEntry(sCtx, file.replace(/^.*\/|\.jel$/g, ''), file) as Promise<Category | null>)
+					.then(categories=> {
+						const providedCats = new Set<string>(categories.map(c=>c.distinctName));
+						const availableCats = new Set<string>(); // set of distinct names
+
+						const MAX_ITERATIONS = 10;
+						function loadCategories(catsToDo: Category[], iterationsLeft: number): Promise<void> {
+							const readyCats = catsToDo.filter(c=>!c.superCategory || availableCats.has(c.superCategory.distinctName));
+							const futureCats = catsToDo.filter(c=>c.superCategory && providedCats.has(c.superCategory.distinctName) && !availableCats.has(c.superCategory.distinctName));
+							const undecidedCats = catsToDo.filter(c=>c.superCategory && !availableCats.has(c.superCategory.distinctName) && !providedCats.has(c.superCategory.distinctName));
+							return pool.runJob(undecidedCats, c=>db.exists(c.superCategory!.distinctName)
+																				.then(e=>(e ? c : Promise.reject(new DatabaseError(`There is no definition for Category ${c.superCategory!.distinctName}" required as superCategory for ${c.distinctName}`)) as any)))
+								.then((checkedCats: Category[])=> {
+									checkedCats.forEach(c=>availableCats.add(c.distinctName));
+									return db.put(sCtx, ...readyCats.concat(checkedCats))
+										.then(()=> !futureCats.length ? Promise.resolve() : 
+													iterationsLeft>0 ? loadCategories(futureCats, iterationsLeft-1) : 
+													Promise.reject(new DatabaseError(`Can not load categories after ${MAX_ITERATIONS}. There appears to be a loop in superCategory relations.`)));
+								});
+						}
+
+						return loadCategories(categories, MAX_ITERATIONS).then(()=>
+							pool.runJobIgnoreNull(entryFiles, file=>db.readEntry(sCtx, file.replace(/^.*\/|\.jel$/g, ''), file)
+												 							        .then(entry=>db.put(sCtx, entry as DbEntry)))
+						);
+					})
+					.then(()=>categoryFiles.length + entryFiles.length);
+			});
+		});
+	}
  
   // returns promise
   static create(dbPath: string, config = new DatabaseConfig()): Promise<Database> {

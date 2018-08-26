@@ -22,9 +22,10 @@ export default class Category extends DbEntry {
 	 * @param instanceDefaults a dictionary (name->any) of default values for Things of this category. 
 	 * @param instanceProperties a dictionary (name->EnumValue of @PropertyTypeEnum) to define required and optional properties.
 	 */
-  constructor(distinctName: string, superCategory?: Category|DbRef, reality?: DbRef, hashCode?: string, properties?: Dictionary, 
+  constructor(distinctName: string, superCategory?: Category|DbRef, properties?: Dictionary, 
 							 public instanceDefaults = new Dictionary(),
-							 public instanceProperties = new Dictionary()) {
+							 public instanceProperties = new Dictionary(),
+							 reality?: DbRef, hashCode?: string, ) {
     super(distinctName, reality, hashCode, properties);
 		if (!distinctName.endsWith('Category'))
 			throw Error('By convention, all Category names must end with "Category". Illegal name: ' + distinctName);
@@ -44,7 +45,7 @@ export default class Category extends DbEntry {
 	member(ctx: Context, name: string, parameters?: Map<string, any>): any {
 		const v = super.member(ctx, name, parameters);
 		if (v === undefined && this.superCategory)
-			return Util.resolveValue((c: any)=>c.member(ctx, name, parameters), this.superCategory.get(ctx.dbSession));
+			return Util.resolveValue((c: any)=>c.member(ctx, name, parameters), this.superCategory.get(ctx));
 		else
 			return v;
 	}
@@ -54,7 +55,7 @@ export default class Category extends DbEntry {
 			return this.instanceDefaults.get(name);
 		}
 		else if (this.superCategory)
-			return Util.resolveValue((c: any)=>c.instanceDefault(ctx, name, parameters), this.superCategory.get(ctx.dbSession));
+			return Util.resolveValue((c: any)=>c.instanceDefault(ctx, name, parameters), this.superCategory.get(ctx));
 		else
 			return null;
 	}
@@ -63,18 +64,18 @@ export default class Category extends DbEntry {
 		if (this.instanceProperties.elements.has(name))
 			return this.instanceProperties.get(name);
 		else if (this.superCategory)
-			return Util.resolveValue((c: any)=>c.instanceProperty(ctx, name), this.superCategory.get(ctx.dbSession));
+			return Util.resolveValue((c: any)=>c.instanceProperty(ctx, name), this.superCategory.get(ctx));
 		else
 			return null;
 	}
   
   getSerializationProperties(): Object {
-    return [this.distinctName, this.superCategory, this.reality, this.hashCode, this.properties, 
-						this.instanceDefaults, this.instanceProperties];
+    return [this.distinctName, this.superCategory, this.properties, this.instanceDefaults, this.instanceProperties, this.reality, this.hashCode];
   }
     
-  static create_jel_mapping = {distinctName: 0, superCategory: 1, reality: 2, hashCode: 3, 
-															 properties: 4, instanceDefaults: 5, instanceProperties: 6};
+  static create_jel_mapping = {distinctName: 0, superCategory: 1, properties: 2, 
+															 instanceDefaults: 3, instanceProperties: 4,
+															 reality: 5, hashCode: 6};
   static create(...args: any[]): any {
     return new Category(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
   }

@@ -20,7 +20,7 @@ tmp.dir(function(err, path) {
 	Database.create(path+'/cattest')
 	.then(db=>{
 		const session = new DbSession(db);
-		const ctx = new Context(undefined, session);
+		const ctx = session.ctx;
 		
 		describe('Category', function() {
 			it('must end with "Category"', function() {
@@ -29,7 +29,7 @@ tmp.dir(function(err, path) {
 				
 			it('finds no instances', function() {
 				const cat = new Category('NoThingsCategory');
-				return session.put(ctx, cat)
+				return session.put(cat)
 					.then(()=>cat.getInstances(ctx))
 					.then(instances=>assert.deepEqual(instances, []));
 			});
@@ -40,7 +40,7 @@ tmp.dir(function(err, path) {
 				const thing = new Thing('MyThing1', cat);
 				const thing2 = new Thing('MyThing2', cat);
 				const thing3 = new Thing('MyThing3', subCat);
-				return session.put(ctx, cat, subCat, thing, thing2, thing3)
+				return session.put(cat, subCat, thing, thing2, thing3)
 					.then(()=>cat.getInstances(ctx))
 					.then(instances=>{
 						assert.deepEqual(instances.map(d=>d.distinctName).sort(), ['MyThing1', 'MyThing2', 'MyThing3']);
@@ -51,8 +51,8 @@ tmp.dir(function(err, path) {
 			});
 			
 			it('supports category-level properties', function() {
-				const animal = new Category('Animal1Category', undefined, undefined, undefined, Dictionary.fromObject({a: 1, b: 2, x: "foo", y: "bar"}));
-				const cat = new Category('Cat1Category', animal, undefined, undefined, Dictionary.fromObject({a: 5, c: 3, x: "bla", z: "nope"}));
+				const animal = new Category('Animal1Category', undefined, Dictionary.fromObject({a: 1, b: 2, x: "foo", y: "bar"}));
+				const cat = new Category('Cat1Category', animal, Dictionary.fromObject({a: 5, c: 3, x: "bla", z: "nope"}));
 				return db.put(ctx, animal, cat)
 				.then(()=>session.getFromDatabase('Cat1Category') 
 					.then(cc=>{
@@ -86,10 +86,10 @@ tmp.dir(function(err, path) {
 			it('supports instance properties', function() {
 				const e1 = new EnumValue('required', DbRef.create('PropertyTypeEnum'));
 				const e2 = new EnumValue('optional', DbRef.create('PropertyTypeEnum'));
-				const animal = new Category('Animal2Category', undefined, undefined, undefined, undefined,
+				const animal = new Category('Animal2Category', undefined, undefined,
 																	Dictionary.fromObject({a: 1, b: 2}),
 																	Dictionary.fromObject({x: e1, y: e2}));
-				const cat = new Category('Cat2Category', animal, undefined, undefined, undefined, 
+				const cat = new Category('Cat2Category', animal, undefined, 
 																Dictionary.fromObject({a: 7, c: 3}),
 																Dictionary.fromObject({x: e2, z: e1}));
 
@@ -128,17 +128,17 @@ tmp.dir(function(err, path) {
 		
 		describe('Thing', function() {
 			it('supports thing-level properties', function() {
-				const animal = new Category('Animal5Category', undefined, undefined, undefined, undefined, Dictionary.fromObject({a: 1, b: 2, x: "foo", y: "bar"}));
+				const animal = new Category('Animal5Category', undefined, undefined, Dictionary.fromObject({a: 1, b: 2, x: "foo", y: "bar"}));
 				assert.equal(animal.instanceDefault(ctx, 'a'), 1);
-				const cat = new Category('Cat5Category', animal, undefined, undefined, undefined, Dictionary.fromObject({a: 5, c: 3, x: "bla", z: "nope"}));
+				const cat = new Category('Cat5Category', animal, undefined, Dictionary.fromObject({a: 5, c: 3, x: "bla", z: "nope"}));
 				assert.equal(cat.instanceDefault(ctx, 'a'), 5);
 
-				const grumpy = new Thing('GrumpyCat', cat, undefined, undefined, Dictionary.fromObject({b: 3, d: 5, x: "bar", w: "www"}));
+				const grumpy = new Thing('GrumpyCat', cat, Dictionary.fromObject({b: 3, d: 5, x: "bar", w: "www"}));
 				assert.equal(grumpy.properties.get('b'), 3);
 				assert.equal(grumpy.member(ctx, 'b'), 3);
 
 				const howard = new Thing('HowardTheDuck', animal);
-				const mred = new Thing('MrEd', animal, undefined, undefined, Dictionary.fromObject({a: 3, d: 5, x: "bar", w: "www"}));
+				const mred = new Thing('MrEd', animal, Dictionary.fromObject({a: 3, d: 5, x: "bar", w: "www"}));
 				return db.put(ctx, animal, cat, grumpy, howard, mred)
 				.then(()=>session.getFromDatabase('GrumpyCat') 
 					.then(cc=>{

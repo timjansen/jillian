@@ -1,0 +1,1 @@
+Category('MySubCategory', properties={cat: 'Sub'})

@@ -21,7 +21,7 @@ describe('DbRef', function() {
 			const dbe = new DbEntry('Test');
 			const fakeSession = {getFromCache: ()=>dbe};
 			const r = new DbRef('Test', new Map([['a', 4]]));
-			const obj = r.get(fakeSession);
+			const obj = r.get(new Context(undefined, fakeSession), fakeSession);
 			assert.strictEqual(obj.distinctName, 'Test');
 		});
 		
@@ -29,7 +29,7 @@ describe('DbRef', function() {
 			const dbe = new DbEntry('Test');
 			const fakeSession = {getFromCache: ()=>undefined, getFromDatabase: ()=>Promise.resolve(dbe)};
 			const r = new DbRef('Test', new Map([['a', 4]]));
-			const objPromise = r.get(fakeSession);
+			const objPromise = r.get(new Context(undefined, fakeSession));
 			return objPromise.then(obj=>{assert.strictEqual(obj.distinctName, 'Test');});
 		});
 		
@@ -37,11 +37,12 @@ describe('DbRef', function() {
 			let c = 0;
 			const dbe = new DbEntry('Test');
 			const fakeSession = {getFromCache: function() {c++; return dbe}};
+			const fakeCtx = new Context(undefined, fakeSession);
 			const r = new DbRef('Test');
-			const dbe1 = r.get(fakeSession);
-			assert.strictEqual(r.get(fakeSession), dbe);
-			assert.strictEqual(r.get(fakeSession), dbe);
-			assert.strictEqual(r.get(fakeSession), dbe);
+			const dbe1 = r.get(fakeCtx);
+			assert.strictEqual(r.get(fakeCtx), dbe);
+			assert.strictEqual(r.get(fakeCtx), dbe);
+			assert.strictEqual(r.get(fakeCtx), dbe);
 			assert.equal(c, 1);
 		});
 	});
@@ -83,7 +84,7 @@ describe('DbRef', function() {
 			const dbe = new DbEntry('Test');
 			const fakeSession = {getFromCache: ()=>dbe};
 			const r = new DbRef('Test', new Map([['a', 4]]));
-			assert.equal(r.with(fakeSession, obj=>assert.strictEqual(obj.distinctName, 'Test') || 1), 1);
+			assert.equal(r.with(new Context(undefined, fakeSession), obj=>assert.strictEqual(obj.distinctName, 'Test') || 1), 1);
 		});
 	});
 
@@ -93,7 +94,7 @@ describe('DbRef', function() {
 			const dbe = new DbEntry('Test');
 			const fakeSession = {getFromCache: ()=>dbe};
 			const r = new DbRef('Test', new Map([['a', 4]]));
-			const objPromise = r.getAsync(fakeSession);
+			const objPromise = r.getAsync(new Context(undefined, fakeSession));
 			return objPromise.then(obj=>{assert.strictEqual(obj.distinctName, 'Test');});
 			
 		});

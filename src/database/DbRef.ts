@@ -5,6 +5,7 @@ import {IDbRef} from '../jel/IDatabase';
 import DbEntry from './DbEntry';
 import DbSession from './DbSession';
 import Database from './Database';
+import NotFoundError from './NotFoundError';
 
 
 export default class DbRef extends JelType implements IDbRef {
@@ -22,28 +23,48 @@ export default class DbRef extends JelType implements IDbRef {
 			this.distinctName = distinctNameOrEntry;
 	}
 	
-	// returns either DbEntry or Promise!
-	get(dbSession: DbSession): DbEntry | Promise<DbEntry|null> | null {
-		if (this.cached !== undefined)
+	// returns either DbEntry or Promise! Rejects promise if not found.
+	get(ctx: Context): DbEntry | Promise<DbEntry> {
+		if (this.cached != null)
 			return this.cached;
+		else if (this.cached === null)
+			return Promise.reject(new NotFoundError(this.distinctName));
 		
-		this.cached = dbSession.getFromCache(this.distinctName);
-		if (this.cached !== undefined)
+		this.cached = ctx.dbSession.getFromCache(this.distinctName);
+		if (this.cached != null)
 			return this.cached;
+		else if (this.cached === null)
+			return Promise.reject(new NotFoundError(this.distinctName));
 		else
-			return dbSession.getFromDatabase(this.distinctName).then(r=>(this.cached = r) || null);
+			return ctx.dbSession.getFromDatabase(this.distinctName)
+				.then((r: DbEntry)=>this.cached = r)
+				.catch((e: any)=>{
+					if (e instanceof NotFoundError)
+						this.cached = null;
+					return e;
+				});
 	}
 
 	// Executes function with the object
-	with(dbSession: DbSession, f: (obj: DbEntry|null)=>any): any {
-		if (this.cached !== undefined)
+	with(ctx: Context, f: (obj: DbEntry)=>any): any {
+		if (this.cached != null)
 			return f(this.cached);
-		
-		this.cached = dbSession.getFromCache(this.distinctName);
-		if (this.cached !== undefined)
+		else if (this.cached === null)
+			return Promise.reject(new NotFoundError(this.distinctName));
+
+		this.cached = ctx.dbSession.getFromCache(this.distinctName);
+		if (this.cached != null)
 			return f(this.cached);
+		else if (this.cached === null)
+			return Promise.reject(new NotFoundError(this.distinctName));
 		else
-			return dbSession.getFromDatabase(this.distinctName).then(r=>f((this.cached = r) || null));
+			return ctx.dbSession.getFromDatabase(this.distinctName)
+				.then((r: DbEntry)=>f(this.cached = r))
+				.catch((e: any)=>{
+					if (e instanceof NotFoundError)
+						this.cached = null;
+					return e;
+				});
 	}
 
 	hasSameParameters(right: DbRef): boolean {
@@ -71,7 +92,7 @@ export default class DbRef extends JelType implements IDbRef {
 	}
 	
 	member(ctx: Context, name: string, parameters?: Map<string, any>): any {
-		return this.with(ctx.dbSession, o=>this.memberInternal(ctx, o, name, parameters));
+		return this.with(ctx, o=>this.memberInternal(ctx, o, name, parameters));
 	}
 	
 	op(ctx: Context, operator: string, right: any): any {
@@ -90,8 +111,8 @@ export default class DbRef extends JelType implements IDbRef {
 		return super.op(ctx, operator, right);
 	}
 	
-	getAsync(dbSession: DbSession): Promise<DbEntry|null> {
-		const v = this.get(dbSession);
+	getAsync(ctx: Context): Promise<DbEntry|null> {
+		const v = this.get(ctx);
 		if (v instanceof Promise)
 			return v;
 		else
@@ -99,10 +120,13 @@ export default class DbRef extends JelType implements IDbRef {
 	}
 
 	// returns either DbEntry or Promise!
-	getFromDb(database: Database): DbEntry | Promise<DbEntry|null> | null {
-		if (this.cached !== undefined)
+	getFromDb(ctx: Context): DbEntry | Promise<DbEntry> {
+		if (this.cached != null)
 			return this.cached;
-		return database.get(this.distinctName);
+		else if (this.cached === null)
+			return Promise.reject(new NotFoundError(this.distinctName));
+		else
+			return ctx.dbSession.getFromDatabase(this.distinctName);
 	}
 	
 	get isAvailable(): boolean {
@@ -113,8 +137,8 @@ export default class DbRef extends JelType implements IDbRef {
     return [this.distinctName, this.parameters];
   }	
 	
-  static toPromise(dbSession: DbSession, ref: DbRef | DbEntry): Promise<DbEntry | null> {
-		return Promise.resolve(ref instanceof DbRef ? ref.get(dbSession) : ref);
+  static toPromise(ctx: Context, ref: DbRef | DbEntry): Promise<DbEntry | null> {
+		return Promise.resolve(ref instanceof DbRef ? ref.get(ctx) : ref);
 	}
   
 	static create_jel_mapping = {distinctName: 0, dbEntry: 0, parameters: 1};

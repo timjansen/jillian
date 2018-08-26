@@ -24,8 +24,15 @@ const CTX_IDENTIFIERS = {DbEntry, DbRef, Category, Thing, FuzzyBoolean, Approxim
 												EnumValue};
 
 export default class DatabaseContext {
-  static create(dbSession?: DbSession, translationDict?: Dictionary) {
-    return new Context(undefined, dbSession, translationDict).setAll(CTX_IDENTIFIERS);
+  static create(ctx?: Context, dbSession?: DbSession, translationDict?: Dictionary): Context {
+    return new Context(ctx, dbSession, translationDict).setAll(CTX_IDENTIFIERS);
   }
+	
+	static add(ctx: Context): Context {
+		if (ctx instanceof DatabaseContext)
+			return ctx;
+		else
+			return DatabaseContext.create(ctx);
+	}
 }
 

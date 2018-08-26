@@ -23,11 +23,10 @@ tmp.dir(function(err, path) {
 			return Database.create(path+'/dbsession1')
 			.then(db=>{
 				const session = new DbSession(db);
-				const ctx = new Context(baseCtx, session);
 
 				const cat = new Category('MyCategory');
 				const thing = new Thing('MyThing', cat);
-				return session.put(ctx, cat, thing).then(()=> {
+				return session.put(cat, thing).then(()=> {
 					assert.equal(session.getFromCache('MyThing'), thing);
 					assert.equal(session.get('MyThing'), thing);
 					session.clearCacheInternal();
@@ -53,12 +52,11 @@ tmp.dir(function(err, path) {
 			return Database.create(path+'/dbsession2')
 			.then(db=>{
 				const session = new DbSession(db);
-				const ctx = new Context(baseCtx, session);
-
+				
 				const cat = new Category('MyCategory');
 				const thing = new Thing('MyThing', cat);
 				const thing2 = new Thing('MyThing2', cat);
-				return session.put(ctx, cat, thing, thing2)
+				return session.put(cat, thing, thing2)
 					.then(()=>session.getByIndex(cat, 'catEntries'))
 					.then(hits=>{
 						assert.deepEqual(hits.map(h=>h.distinctName).sort(), ['MyThing', 'MyThing2']);
@@ -70,13 +68,12 @@ tmp.dir(function(err, path) {
 			return Database.create(path+'/dbsession3')
 			.then(db=>{
 				const session = new DbSession(db);
-				const ctx = new Context(baseCtx, session);
-
+				
 				const cat = new Category('MyCategory');
 				const thing = new Thing('MyThing', cat);
 				const thing2 = new Thing('MyThing2', cat);
 				const thing3 = new Thing('MyThing3', cat);
-				return session.put(ctx, cat, thing, thing2, thing3)
+				return session.put(cat, thing, thing2, thing3)
 					.then(()=>session.clearCacheInternal().get('MyThing2')) // load one instance into the cache
 					.then(()=>session.getByIndex(cat, 'catEntries'))
 					.then(hits=>{
