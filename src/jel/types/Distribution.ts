@@ -40,7 +40,7 @@ export default class Distribution extends JelType {
   }
 	
 	add_jel_mapping: Object;
-	add(distributionPoints?: List, average?: UnitValue|ApproximateNumber|Fraction|number,
+	add(ctx: Context, distributionPoints?: List, average?: UnitValue|ApproximateNumber|Fraction|number,
 							 min?: UnitValue|ApproximateNumber|Fraction|number, max?: UnitValue|ApproximateNumber|Fraction|number, 
 							 mean?: UnitValue|ApproximateNumber|Fraction|number): Distribution {
 		
@@ -165,7 +165,7 @@ export default class Distribution extends JelType {
 						return FuzzyBoolean.TRUE;
 					if (JelType.op(ctx, INVERSE_OP[operator], this.min(ctx), right.max(ctx)).toRealBoolean())
 						return FuzzyBoolean.FALSE;
-					return FuzzyBoolean.create((JelType.op(ctx, operator, this.mean(ctx), right.mean(ctx)).state-0.5)/2+0.5);
+					return FuzzyBoolean.create(ctx, (JelType.op(ctx, operator, this.mean(ctx), right.mean(ctx)).state-0.5)/2+0.5);
 					
 				case '<':
 				case '<=':
@@ -173,7 +173,7 @@ export default class Distribution extends JelType {
 						return FuzzyBoolean.TRUE;
 					if (JelType.op(ctx, INVERSE_OP[operator], this.max(ctx), right.min(ctx)).toRealBoolean())
 						return FuzzyBoolean.FALSE;
-					return FuzzyBoolean.create((JelType.op(ctx, operator, this.mean(ctx), right.mean(ctx)).state-0.5)/2+0.5);
+					return FuzzyBoolean.create(ctx, (JelType.op(ctx, operator, this.mean(ctx), right.mean(ctx)).state-0.5)/2+0.5);
 			}
 		}
 		else if (typeof right == 'number' || right instanceof Fraction || right instanceof ApproximateNumber || right instanceof UnitValue) {
@@ -204,17 +204,17 @@ export default class Distribution extends JelType {
 		return [this.points, this.average];
 	}
 
-	static create_jel_mapping = {distributionPoints: 0, average: 1, min: 2, max: 3, mean: 4 };
-	static create(...args: any[]): Distribution {
+	static create_jel_mapping = {distributionPoints: 1, average: 2, min: 3, max: 4, mean: 5};
+	static create(ctx: Context, ...args: any[]): Distribution {
 		return new Distribution(args[0], args[1], args[2], args[3], args[4]);
 	}  
 }
 
 
 Distribution.prototype.JEL_PROPERTIES = {average: 1, points: 1};
-Distribution.prototype.mean_jel_mapping = {'>ctx': true};
-Distribution.prototype.min_jel_mapping = {'>ctx': true};
-Distribution.prototype.max_jel_mapping = {'>ctx': true};
-Distribution.prototype.getValue_jel_mapping = {'>ctx': true, share: 1};
-Distribution.prototype.getShare_jel_mapping = {'>ctx': true, value: 1};
-Distribution.prototype.add_jel_mapping = {distributionPoints: 0, average: 1, min: 2, max: 3, mean: 4 };
+Distribution.prototype.mean_jel_mapping = {};
+Distribution.prototype.min_jel_mapping = {};
+Distribution.prototype.max_jel_mapping = {};
+Distribution.prototype.getValue_jel_mapping = {share: 1};
+Distribution.prototype.getShare_jel_mapping = {value: 1};
+Distribution.prototype.add_jel_mapping = {distributionPoints: 1, average: 2, min: 3, max: 4, mean: 5 };

@@ -64,7 +64,7 @@ describe('jelTranslators', function() {
       const ctx = new Context();
       const t1 = new Translator().addPattern(JEL.createPattern(`abc def`), JEL.parseTree('7'));
       assert.equal(t1.match(ctx, "abc def").length, 1);
-      assert.equal(t1.match(ctx, " abc  def ").get(0).value, 7);
+      assert.equal(t1.match(ctx, " abc  def ").get(ctx, 0).value, 7);
       assert.equal(t1.match(ctx, "abc def def").length, 0);
       assert.equal(t1.match(ctx, "abcdef").length, 0);
       assert.equal(t1.match(ctx, "bla abc def cgd").length, 0);
@@ -75,10 +75,10 @@ describe('jelTranslators', function() {
                                  .addPattern(JEL.createPattern(`abc`), JEL.parseTree('2'))
                                  .addPattern(JEL.createPattern(`xyz abc def`), JEL.parseTree('3'))
                                  .addPattern(JEL.createPattern(`xyz def abc def`), JEL.parseTree('4'));
-      assert.equal(t2.match(ctx, " abc  def ").get(0).value, 1);
-      assert.equal(t2.match(ctx, " abc  ").get(0).value, 2);
-      assert.equal(t2.match(ctx, "xyz abc  def ").get(0).value, 3);
-      assert.equal(t2.match(ctx, " xyz def abc  def ").get(0).value, 4);
+      assert.equal(t2.match(ctx, " abc  def ").get(ctx, 0).value, 1);
+      assert.equal(t2.match(ctx, " abc  ").get(ctx, 0).value, 2);
+      assert.equal(t2.match(ctx, "xyz abc  def ").get(ctx, 0).value, 3);
+      assert.equal(t2.match(ctx, " xyz def abc  def ").get(ctx, 0).value, 4);
       assert.equal(t2.match(ctx, " abc d def ").length, 0);
       assert.equal(t2.match(ctx, " abcdef ").length, 0);
     });
@@ -102,9 +102,9 @@ describe('jelTranslators', function() {
       const t2 = new Translator().addPattern(JEL.createPattern(`abc def`), JEL.parseTree('1'))
                                  .addPattern(JEL.createPattern(`[abc]? h`), JEL.parseTree('2'))
                                  .addPattern(JEL.createPattern(`[xyz|abc] def`), JEL.parseTree('3'));
-      assert.equal(t2.match(ctx, " abc  def ").get(0).value, 1);
-      assert.equal(t2.match(ctx, " abc h ").get(0).value, 2);
-      assert.equal(t2.match(ctx, "xyz   def ").get(0).value, 3);
+      assert.equal(t2.match(ctx, " abc  def ").get(ctx, 0).value, 1);
+      assert.equal(t2.match(ctx, " abc h ").get(ctx, 0).value, 2);
+      assert.equal(t2.match(ctx, "xyz   def ").get(ctx, 0).value, 3);
       assert.equal(t2.match(ctx, " xyz def abc  def ").length, 0);
       assert.equal(t2.match(ctx, " abc d def ").length, 0);
       assert.equal(t2.match(ctx, " abcdef ").length, 0);
@@ -116,8 +116,8 @@ describe('jelTranslators', function() {
       assert.equal(t1.match(ctx, "abc").length, 1);
       assert.equal(t1.match(ctx, "abc", new Set()).length, 1);
       assert.equal(t1.match(ctx, "abc", new Set('x')).length, 1);
-      assert.equal(t1.match(ctx, "abc", new Set('x')).get(0).value, 2);
-      assert.equal(t1.match(ctx, "abc", new Set('x')).get(0).meta.get('x'), true);
+      assert.equal(t1.match(ctx, "abc", new Set('x')).get(ctx, 0).value, 2);
+      assert.equal(t1.match(ctx, "abc", new Set('x')).get(ctx, 0).meta.get('x'), true);
       assert.equal(t1.match(ctx, "abc", new Set('y')).length, 0);
       assert.equal(t1.match(ctx, "abcd", new Set('x')).length, 0);
 
@@ -130,21 +130,21 @@ describe('jelTranslators', function() {
       assert.equal(t2.match(ctx, "abc", new Set()).length, 2);
       assert.equal(t2.match(ctx, "abc", new Set('x')).length, 1);
       assert.equal(t2.match(ctx, "abc", new Set('y')).length, 1);
-      assert.equal(t2.match(ctx, "abc", new Set('x')).get(0).value, 1);
-      assert.equal(t2.match(ctx, "abc", new Set('y')).get(0).value, 2);
+      assert.equal(t2.match(ctx, "abc", new Set('x')).get(ctx, 0).value, 1);
+      assert.equal(t2.match(ctx, "abc", new Set('y')).get(ctx, 0).value, 2);
       assert.equal(t2.match(ctx, "abc", new Set(['x', 'y'])).length, 0);
-      assert.equal(t2.match(ctx, "abc", new Set('y')).get(0).meta.get('y'), true);
-      assert.equal(t2.match(ctx, "abc", new Set('y')).get(0).meta.has('x'), false);
+      assert.equal(t2.match(ctx, "abc", new Set('y')).get(ctx, 0).meta.get('y'), true);
+      assert.equal(t2.match(ctx, "abc", new Set('y')).get(ctx, 0).meta.has('x'), false);
       
       assert.equal(t2.match(ctx, "xyz", new Set('x')).length, 2);
       assert.equal(t2.match(ctx, "xyz", new Set(['x', 'y'])).length, 1);
-      assert.equal(t2.match(ctx, "xyz", new Set(['x', 'y'])).get(0).value, 3);
+      assert.equal(t2.match(ctx, "xyz", new Set(['x', 'y'])).get(ctx, 0).value, 3);
     });
     
     it('should support templates', function() {
-        const tpl0 = exec('{{`a` => 1}}');
-        const tpl1 = exec('{{`a` => 1, x: `b` => 2, y: `b` => 12, x, y: `b` => 22}}');
-        const tpl2 = exec('{{`a [b [c]?]?` => 3, `a b c` => 4, `d e` => 5, `f {{tpl1}}` => 6, `a [{{tpl0}}]? h` => 7}}');
+        const tpl0 = exec('${`a` => 1}');
+        const tpl1 = exec('${`a` => 1, x: `b` => 2, y: `b` => 12, x, y: `b` => 22}');
+        const tpl2 = exec('${`a [b [c]?]?` => 3, `a b c` => 4, `d e` => 5, `f {{tpl1}}` => 6, `a [{{tpl0}}]? h` => 7}');
         const dict = new Dictionary({tpl0, tpl1, tpl2});
         const ctx = new Context(null, null, dict);
 
@@ -196,9 +196,9 @@ describe('jelTranslators', function() {
     });
     
     it('should parse real sentences', function() {
-        const animals = exec('{{small: `dog` => "dog", small: `cat` => "cat", big: `cow` => "cow"}}');
-        const animalSounds = exec('{{`woof` => "dog", `meow` => "cat", `moo` => "cow"}}');
-        const verbs = exec('{{`walks` => "walks", `sleeps` => "sleeps", `says` => "says"}}');
+        const animals = exec('${small: `dog` => "dog", small: `cat` => "cat", big: `cow` => "cow"}');
+        const animalSounds = exec('${`woof` => "dog", `meow` => "cat", `moo` => "cow"}');
+        const verbs = exec('${`walks` => "walks", `sleeps` => "sleeps", `says` => "says"}');
         const dict = new Dictionary({animals, animalSounds, verbs});
         const ctx = new Context(null, null, dict);
 
@@ -243,7 +243,7 @@ describe('jelTranslators', function() {
 
     
     it('should support promises in templates', function() {
-        const animals = JEL.parseTree('{{small: `dog` => JelPromise("dog"), small: `cat` => JelPromise.resolve("cat"), big: `cow` => "cow"}}').execute(promiseCtx);
+        const animals = JEL.parseTree('${small: `dog` => JelPromise("dog"), small: `cat` => JelPromise.resolve("cat"), big: `cow` => "cow"}').execute(promiseCtx);
         const dict = new Dictionary({animals});
         const ctx = new Context(promiseCtx, null, dict);
 

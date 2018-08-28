@@ -25,11 +25,11 @@ export default class LocalDate extends TimeSpec {
 		super();
 	}
 	
-  getStartTime(zone: TimeZone): Timestamp {
+  getStartTime(ctx: Context, zone: TimeZone): Timestamp {
 		return Timestamp.fromMoment(moment({year: this.year, month: this.month, day: this.day}).tz(zone.tz));
 	}
 	
-	getEndTime(zone: TimeZone): Timestamp {
+	getEndTime(ctx: Context, zone: TimeZone): Timestamp {
 		return Timestamp.fromMoment(moment({year: this.year, month: this.month, day: this.day}).tz(zone.tz).add(1, 'd'));
 	}
 	
@@ -139,8 +139,8 @@ export default class LocalDate extends TimeSpec {
 		return [this.year, this.month, this.day];
 	}
 	
-	static create_jel_mapping: any = {year: 0, month: 1, day: 2};
-	static create(...args: any[]): any {
+	static create_jel_mapping: any = {year: 1, month: 2, day: 3};
+	static create(ctx: Context, ...args: any[]): any {
 		return new LocalDate(args[0], args[1], args[2]);
 	}
 }

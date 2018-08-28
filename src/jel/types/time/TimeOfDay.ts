@@ -24,8 +24,8 @@ export default class TimeOfDay extends JelType {
 		return [this.hour, this.minute, this.seconds];
 	}
 	
-	static create_jel_mapping = {hour: 0, minute: 1, seconds: 2};
-	static create(...args: any[]): any {
+	static create_jel_mapping = {hour: 1, minute: 2, seconds: 3};
+	static create(ctx: Context, ...args: any[]): any {
 		return new TimeOfDay(args[0], args[1], args[2]);
 	}
 

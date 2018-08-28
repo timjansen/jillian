@@ -137,8 +137,8 @@ export default class DbRef extends JelType implements IDbRef {
 		return Promise.resolve(ref instanceof DbRef ? ref.get(ctx) : ref);
 	}
   
-	static create_jel_mapping = {distinctName: 0, dbEntry: 0, parameters: 1};
-	static create(...args: any[]): any {
+	static create_jel_mapping = {distinctName: 1, dbEntry: 2, parameters: 3};
+	static create(ctx: Context, ...args: any[]): any {
 		if (args[0] instanceof DbRef)
 			return args[0];
 		return new DbRef(args[0], args[1]);

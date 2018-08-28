@@ -4,15 +4,11 @@ import Context from './Context';
  * A type that can be called.
  */
 export default abstract class Callable {
-	invokeWithObject(args: any[], argObj?: any, ctx?: Context): any {
+	invokeWithObject(ctx: Context, args: any[], argObj?: any): any {
 	}
 	
-	invoke(...args: any[]): any {
-		return this.invokeWithObject(args);
-	}
-	
-	invokeWithContext(ctx: Context, ...args: any[]): any {
-		return this.invokeWithObject(args, null, ctx);
+	invoke(ctx: Context, ...args: any[]): any {
+		return this.invokeWithObject(ctx, args);
 	}
 }
 

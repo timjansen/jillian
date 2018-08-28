@@ -3,6 +3,7 @@ import PropertyHelper from './PropertyHelper';
 import DbRef from '../DbRef';
 import List from '../../jel/types/List';
 import Dictionary from '../../jel/types/Dictionary';
+import Context from '../../jel/Context';
 
 
 
@@ -25,8 +26,8 @@ export default class ListPropertyType extends PropertyType {
     return [this.types];
   }
 
-  static create_jel_mapping = {types: 0};
-  static create(...args: any[]) {
+  static create_jel_mapping = {types: 1};
+  static create(ctx: Context, ...args: any[]) {
     return new ListPropertyType(args[0]);
   }
 }

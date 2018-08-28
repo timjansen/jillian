@@ -16,7 +16,6 @@ export default class List extends JelType implements Gettable {
 	static empty = new List();
 
 
-	
 	constructor(elements: List|any[]|IterableIterator<any> = []) {
 		super();
 		this.elements = elements instanceof List ? elements.elements : Array.isArray(elements) ? elements : Array.from(elements);
@@ -87,7 +86,7 @@ export default class List extends JelType implements Gettable {
 
 	
 	get_jel_mapping: Object;
-	get(index: number): any {
+	get(ctx: Context, index: number): any {
 		if (index >= 0)
 			return this.elements[index];
 		else
@@ -109,53 +108,53 @@ export default class List extends JelType implements Gettable {
 	}
 	
 	each_jel_mapping: Object;
-	each(f: Callable): List {
-		this.elements.forEach((a,i)=>f.invoke(a,i));
+	each(ctx: Context, f: Callable): List {
+		this.elements.forEach((a,i)=>f.invoke(ctx, a,i));
 		return this;
 	}
 
 	map_jel_mapping: Object;
-	map(f: Callable): List {
-		return new List(this.elements.map((a,i)=>f.invoke(a,i)));
+	map(ctx: Context, f: Callable): List {
+		return new List(this.elements.map((a,i)=>f.invoke(ctx, a,i)));
 	}
 
 	filter_jel_mapping: Object;
-	filter(f: Callable): List {
-		return new List(this.elements.filter((a,i)=>JelType.toRealBoolean(f.invoke(a,i))));
+	filter(ctx: Context, f: Callable): List {
+		return new List(this.elements.filter((a,i)=>JelType.toRealBoolean(f.invoke(ctx, a,i))));
 	}
 	
 	reduce_jel_mapping: Object;
-	reduce(f: Callable, init: any): any {
-		return this.elements.reduce((a,e,i)=>f.invoke(a,e,i), init);
+	reduce(ctx: Context, f: Callable, init: any): any {
+		return this.elements.reduce((a,e,i)=>f.invoke(ctx, a,e,i), init);
 	}
 
 	hasAny_jel_mapping: Object;
-	hasAny(f: Callable): boolean {
+	hasAny(ctx: Context, f: Callable): boolean {
 		for (let i = 0; i < this.elements.length; i++)
-			if (JelType.toRealBoolean(f.invoke(this.elements[i], i)))
+			if (JelType.toRealBoolean(f.invoke(ctx, this.elements[i], i)))
 				return true;
 		return false;
 	}
 
 	hasOnly_jel_mapping: Object;
-	hasOnly(f: Callable): boolean {
+	hasOnly(ctx: Context, f: Callable): boolean {
 		for (let i = 0; i < this.elements.length; i++)
-			if (!JelType.toRealBoolean(f.invoke(this.elements[i], i)))
+			if (!JelType.toRealBoolean(f.invoke(ctx, this.elements[i], i)))
 				return false;
 		return true;
 	}
 	
 	// isBetter(a,b) checks whether a is better than b (must return false is both are equally good)
 	bestMatches_jel_mapping: Object;
-	bestMatches(isBetter: Callable): List {
+	bestMatches(ctx: Context, isBetter: Callable): List {
 		if (!this.elements.length)
 			return List.empty;
 		
 		const l = [this.first];
 		for (let i = 1; i < this.elements.length; i++) {
 			const e = this.elements[i];
-			if (!JelType.toRealBoolean(isBetter.invoke(l[0], e))) {
-				if (JelType.toRealBoolean(isBetter.invoke(e, l[0])))
+			if (!JelType.toRealBoolean(isBetter.invoke(ctx, l[0], e))) {
+				if (JelType.toRealBoolean(isBetter.invoke(ctx, e, l[0])))
 					l.splice(0, this.elements.length, e);
 				else
 					l.push(e);
@@ -165,7 +164,7 @@ export default class List extends JelType implements Gettable {
 	}
 	
 	sub_jel_mapping: Object;
-	sub(start?: number, end?: number) {
+	sub(ctx: Context, start?: number, end?: number) {
 		return new List(this.elements.slice(start == null ? 0 : start >= 0 ? start : this.elements.length + start, 
 																				end == null ? this.elements.length : end >= 0 ? end : this.elements.length + end));
 	}
@@ -179,7 +178,7 @@ export default class List extends JelType implements Gettable {
 			if (isLess) 
 				l.sort((a0: any, b0: any)=>{
 					const a = JelType.member(ctx, a0, key), b = JelType.member(ctx, b0, key);
-					return JelType.toRealBoolean(isLess.invoke(a,b)) ? -1 : (JelType.toRealBoolean(isLess.invoke(b,a)) ? 1 : 0)
+					return JelType.toRealBoolean(isLess.invoke(ctx, a,b)) ? -1 : (JelType.toRealBoolean(isLess.invoke(ctx, b,a)) ? 1 : 0)
 				});
 			else
 				l.sort((a0: any, b0: any)=> { 
@@ -190,17 +189,17 @@ export default class List extends JelType implements Gettable {
 		else if (key instanceof Callable) {
 			if (isLess) 
 				l.sort((a0: any, b0: any)=>{
-					const a = key.invoke(a0), b = key.invoke(b0);
-					return JelType.toRealBoolean(isLess.invoke(a,b)) ? -1 : (JelType.toRealBoolean(isLess.invoke(b,a)) ? 1 : 0)
+					const a = key.invoke(ctx, a0), b = key.invoke(ctx, b0);
+					return JelType.toRealBoolean(isLess.invoke(ctx, a,b)) ? -1 : (JelType.toRealBoolean(isLess.invoke(ctx, b,a)) ? 1 : 0)
 				});
 			else
 				l.sort((a0: any, b0: any)=> { 
-					const a = key.invoke(a0), b = key.invoke(b0);
+					const a = key.invoke(ctx, a0), b = key.invoke(ctx, b0);
 					return JelType.toRealBoolean(JelType.op(ctx, '<', a, b)) ? -1 : (JelType.toRealBoolean(JelType.op(ctx, '>', a, b)) ? 1 : 0)
 				});
 		}
 		else if (isLess)
-			l.sort((a: any, b: any)=>JelType.toRealBoolean(isLess.invoke(a,b)) ? -1 : (JelType.toRealBoolean(isLess.invoke(b,a)) ? 1 : 0));
+			l.sort((a: any, b: any)=>JelType.toRealBoolean(isLess.invoke(ctx, a,b)) ? -1 : (JelType.toRealBoolean(isLess.invoke(ctx, b,a)) ? 1 : 0));
 		else
 			l.sort((a: any, b: any)=>JelType.toRealBoolean(JelType.op(ctx, '<', a, b)) ? -1 : (JelType.toRealBoolean(JelType.op(ctx, '>', a, b)) ? 1 : 0));
 
@@ -219,18 +218,18 @@ export default class List extends JelType implements Gettable {
 	max(ctx: Context, isLess?: Callable, key?: string | Callable): any {
 		if (typeof key == 'string') {
 			if (isLess) 
-				return this.findBest((a0: any, b0: any)=>!JelType.toRealBoolean(isLess.invoke(JelType.member(ctx, a0, key), JelType.member(ctx, b0, key))));
+				return this.findBest((a0: any, b0: any)=>!JelType.toRealBoolean(isLess.invoke(ctx, JelType.member(ctx, a0, key), JelType.member(ctx, b0, key))));
 			else
 				return this.findBest((a0: any, b0: any)=>!JelType.op(ctx, '<', JelType.member(ctx, a0, key), JelType.member(ctx, b0, key)).toRealBoolean());
 		}
 		else if (key instanceof Callable) {
 			if (isLess) 
-				return this.findBest((a0: any, b0: any)=>!JelType.toRealBoolean(isLess.invoke(key.invoke(a0), key.invoke(b0))));
+				return this.findBest((a0: any, b0: any)=>!JelType.toRealBoolean(isLess.invoke(ctx, key.invoke(ctx, a0), key.invoke(ctx, b0))));
 			else
-				return this.findBest((a0: any, b0: any)=>!JelType.op(ctx, '<', key.invoke(a0), key.invoke(b0)).toRealBoolean());
+				return this.findBest((a0: any, b0: any)=>!JelType.op(ctx, '<', key.invoke(ctx, a0), key.invoke(ctx, b0)).toRealBoolean());
 		}
 		else if (isLess)
-				return this.findBest((a0: any, b0: any)=>!JelType.toRealBoolean(isLess.invoke(a0, b0)));
+				return this.findBest((a0: any, b0: any)=>!JelType.toRealBoolean(isLess.invoke(ctx, a0, b0)));
 		else
 				return this.findBest((a0: any, b0: any)=>!JelType.op(ctx, '<', a0, b0).toRealBoolean());
 	}
@@ -239,18 +238,18 @@ export default class List extends JelType implements Gettable {
 	min(ctx: Context, isLess?: Callable, key?: string | Callable): any {
 		if (typeof key == 'string') {
 			if (isLess) 
-				return this.findBest((a0: any, b0: any)=>JelType.toRealBoolean(isLess.invoke(JelType.member(ctx, a0, key), JelType.member(ctx, b0, key))));
+				return this.findBest((a0: any, b0: any)=>JelType.toRealBoolean(isLess.invoke(ctx, JelType.member(ctx, a0, key), JelType.member(ctx, b0, key))));
 			else
 				return this.findBest((a0: any, b0: any)=>JelType.op(ctx, '<', JelType.member(ctx, a0, key), JelType.member(ctx, b0, key)).toRealBoolean());
 		}
 		else if (key instanceof Callable) {
 			if (isLess) 
-				return this.findBest((a0: any, b0: any)=>JelType.toRealBoolean(isLess.invoke(key.invoke(a0), key.invoke(b0))));
+				return this.findBest((a0: any, b0: any)=>JelType.toRealBoolean(isLess.invoke(ctx, key.invoke(ctx, a0), key.invoke(ctx, b0))));
 			else
-				return this.findBest((a0: any, b0: any)=>JelType.op(ctx, '<', key.invoke(a0), key.invoke(b0)).toRealBoolean());
+				return this.findBest((a0: any, b0: any)=>JelType.op(ctx, '<', key.invoke(ctx, a0), key.invoke(ctx, b0)).toRealBoolean());
 		}
 		else if (isLess)
-				return this.findBest((a0: any, b0: any)=>JelType.toRealBoolean(isLess.invoke(a0, b0)));
+				return this.findBest((a0: any, b0: any)=>JelType.toRealBoolean(isLess.invoke(ctx, a0, b0)));
 		else
 				return this.findBest((a0: any, b0: any)=>JelType.op(ctx, '<', a0, b0).toRealBoolean());
 	}
@@ -260,26 +259,26 @@ export default class List extends JelType implements Gettable {
 		return this.elements.length ? this : null;
 	}
 
-	static create_jel_mapping = {elements: 0};
-	static create(...args: any[]): any {
+	static create_jel_mapping = {elements: 1};
+	static create(ctx: Context, ...args: any[]): any {
 		return new List(args[0]);
 	}
 }
 
 List.prototype.JEL_PROPERTIES = {first:1, last: 1, length: 1};
 
-List.prototype.get_jel_mapping = {index: 0};
-List.prototype.each_jel_mapping = {f: 0};
-List.prototype.map_jel_mapping = {f: 0};
-List.prototype.filter_jel_mapping = {f: 0};
-List.prototype.reduce_jel_mapping = {f: 0, init: 1};
-List.prototype.hasAny_jel_mapping = {f: 0};
-List.prototype.hasOnly_jel_mapping = {f: 0};
-List.prototype.bestMatches_jel_mapping = {isBetter: 0};
-List.prototype.sub_jel_mapping = {start: 0, end: 1};
-List.prototype.sort_jel_mapping = {'>ctx': true, isLess: 1, key: 2};
-List.prototype.max_jel_mapping = {'>ctx': true, isLess: 1, key: 2};
-List.prototype.min_jel_mapping = {'>ctx': true, isLess: 1, key: 2};
+List.prototype.get_jel_mapping = {index: 1};
+List.prototype.each_jel_mapping = {f: 1};
+List.prototype.map_jel_mapping = {f: 1};
+List.prototype.filter_jel_mapping = {f: 1};
+List.prototype.reduce_jel_mapping = {f: 1, init: 2};
+List.prototype.hasAny_jel_mapping = {f: 1};
+List.prototype.hasOnly_jel_mapping = {f: 1};
+List.prototype.bestMatches_jel_mapping = {isBetter: 1};
+List.prototype.sub_jel_mapping = {start: 1, end: 2};
+List.prototype.sort_jel_mapping = {isLess: 1, key: 2};
+List.prototype.max_jel_mapping = {isLess: 1, key: 2};
+List.prototype.min_jel_mapping = {isLess: 1, key: 2};
 
 
 		

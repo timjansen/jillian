@@ -2,6 +2,8 @@ import JelType from '../JelType';
 import ApproximateNumber from './ApproximateNumber';
 import UnitValue from './UnitValue';
 import Fraction from './Fraction';
+import Context from '../Context';
+
 
 // This class is used to specify property values when there can be more than one value, especially for categories. It can either define min/max/typical values, or a complete matrix that defines how often which value occurs.
 export default class DistributionPoint extends JelType {
@@ -22,8 +24,8 @@ export default class DistributionPoint extends JelType {
 	}
 
   
-  static create_jel_mapping = {value: 0, share: 1};
-	static create(...args: any[]): DistributionPoint {
+  static create_jel_mapping = {value: 1, share: 2};
+	static create(ctx: Context, ...args: any[]): DistributionPoint {
 		return new DistributionPoint(args[0], args[1]);
 	}
 }

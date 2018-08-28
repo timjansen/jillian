@@ -27,7 +27,7 @@ export default class Translator extends JelType {
 	
 	// Returns nested Array of Matches with properties 'value' and 'meta', or Promise thereof.
 	// metaFilter is an optional Set of meta values that must be present in the results
-	matchAtPosition(ctx: Context, tokens: string[], idx: number, metaFilter?: Set<string>, incompleteMatch = false) {
+	matchAtPosition(ctx: Context, tokens: string[], idx: number, metaFilter?: Set<string>, incompleteMatch = false): List | Promise<List> {
 		return this.tree.match(ctx, tokens, idx, metaFilter, incompleteMatch);
 	}
 	
@@ -55,7 +55,7 @@ export default class Translator extends JelType {
 	}
 }
 
-Translator.prototype.match_jel_mapping = {'>ctx': true, input: 1, metaFilter: 2};
+Translator.prototype.match_jel_mapping = {input: 1, metaFilter: 2};
 
 
 

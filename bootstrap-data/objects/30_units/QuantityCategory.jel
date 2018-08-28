@@ -1,0 +1,10 @@
+Category('QuantityCategory', 
+	properties={
+	}, 
+	instanceDefaults={
+	},
+	instanceProperties={
+		primaryUnit: @UnitOfMeasureCategory,
+		imperialUnit: @UnitOfMeasureCategory
+	}
+)

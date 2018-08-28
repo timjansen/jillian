@@ -3,6 +3,7 @@ import PropertyHelper from './PropertyHelper';
 import DbRef from '../DbRef';
 import Dictionary from '../../jel/types/Dictionary';
 import List from '../../jel/types/List';
+import Context from '../../jel/Context';
 
 
 /**
@@ -20,8 +21,8 @@ export default class OptionPropertyType extends PropertyType {
     return [this.options];
   }
 	
-  static create_jel_mapping = {options: 0};
-  static create(...args: any[]) {
+  static create_jel_mapping = {options: 1};
+  static create(ctx: Context, ...args: any[]) {
     return new OptionPropertyType(args[0]);
   }
 }

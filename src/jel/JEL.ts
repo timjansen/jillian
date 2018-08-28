@@ -81,7 +81,6 @@ const TRANSLATOR_META_STOP = {',': true, ':': true, '=': true};
 const TRANSLATOR_META_VALUE_STOP = {',': true, ':': true};
 const TRANSLATOR_PATTERN_STOP = {'=>': true};
 const TRANSLATOR_LAMBDA_STOP = {',': true, '}': true};
-const TRANSLATOR_DOUBLE_BRACE_STOP = {'}': true};
 const PARAMETER_STOP: any = {')': true, ',': true};
 const IF_STOP = {'then': true};
 const THEN_STOP = {'else': true};
@@ -198,10 +197,9 @@ export default class JEL {
            }
         }
       }
-      else if (token.value == '{{') {
+      else if (token.value == '${') {
         if (tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == '}') {
           tokens.next();
-					JEL.expectOp(tokens, TRANSLATOR_DOUBLE_BRACE_STOP, "Need 2nd closing brace to end translator");
           return JEL.tryBinaryOps(tokens, new Translator(), precedence, stopOps);
         }
         
@@ -227,7 +225,7 @@ export default class JEL {
 									JEL.throwParseException(eq, "Expression ended unexpectedly.");
 								metaAssignments.push(new Assignment(name.value, expression));
 
-								const terminator = JEL.expectOp(tokens, TRANSLATOR_META_VALUE_STOP, "Expected colon or comm after expression in translator.");
+								const terminator = JEL.expectOp(tokens, TRANSLATOR_META_VALUE_STOP, "Expected colon or comma after expression in translator.");
 								if (terminator.value == ':')
 									break;
 							}
@@ -250,7 +248,6 @@ export default class JEL {
 					assignments.push(new PatternAssignment(keyPattern, JEL.parseExpression(tokens, precedence, TRANSLATOR_LAMBDA_STOP), metaAssignments));
 
 					if (JEL.expectOp(tokens, TRANSLATOR_LAMBDA_STOP, "Expecting comma or end of translator").value == '}') {
-						JEL.expectOp(tokens, TRANSLATOR_DOUBLE_BRACE_STOP, "Need 2nd closing brace to end translator");
 						return JEL.tryBinaryOps(tokens, new Translator(assignments), precedence, stopOps);
 					}
         }

@@ -1,4 +1,5 @@
 import JelType from '../../JelType';
+import Context from '../../Context';
 import Timestamp from './Timestamp';
 import TimeZone from './TimeZone';
 import TimeHint from './TimeHint';
@@ -16,18 +17,18 @@ export default abstract class TimeSpec extends JelType {
 	}
 
 	getStartTime_jel_mapping: Object;
-	abstract getStartTime(defaultTimeZone: TimeZone): Timestamp|Promise<Timestamp|undefined>|undefined;
+	abstract getStartTime(ctx: Context, defaultTimeZone: TimeZone): Timestamp|Promise<Timestamp|undefined>|undefined;
 
 	getEndTime_jel_mapping: Object;
-	abstract getEndTime(defaultTimeZone: TimeZone): Timestamp|Promise<Timestamp|undefined>|undefined;
+	abstract getEndTime(ctx: Context, defaultTimeZone: TimeZone): Timestamp|Promise<Timestamp|undefined>|undefined;
 
 	isContinous_jel_mapping: Object;
 	abstract isContinous(): FuzzyBoolean;
 
 	
 	isBefore_jel_mapping: Object;
-	isBefore(time: Timestamp, defaultTimeZone: TimeZone): FuzzyBoolean|Promise<FuzzyBoolean> {
-		const t0 = this.getEndTime(defaultTimeZone);
+	isBefore(ctx: Context, time: Timestamp, defaultTimeZone: TimeZone): FuzzyBoolean|Promise<FuzzyBoolean> {
+		const t0 = this.getEndTime(ctx, defaultTimeZone);
 		if (t0 instanceof Promise)
 			return t0.then(tx=>FuzzyBoolean.toFuzzyBoolean((tx != undefined) && (tx.msSinceEpoch < time.msSinceEpoch)));
 		else
@@ -35,8 +36,8 @@ export default abstract class TimeSpec extends JelType {
 	}
 	
 	isAfter_jel_mapping: Object;
-	isAfter(time: Timestamp, defaultTimeZone: TimeZone): FuzzyBoolean|Promise<FuzzyBoolean> {
-		const t0 = this.getStartTime(defaultTimeZone);
+	isAfter(ctx: Context, time: Timestamp, defaultTimeZone: TimeZone): FuzzyBoolean|Promise<FuzzyBoolean> {
+		const t0 = this.getStartTime(ctx, defaultTimeZone);
 		if (t0 instanceof Promise)
 			return t0.then(tx=>FuzzyBoolean.toFuzzyBoolean((tx != undefined) && (tx.msSinceEpoch > time.msSinceEpoch)));
 		else
@@ -45,20 +46,20 @@ export default abstract class TimeSpec extends JelType {
 	
 	// override if TimeSpec is not continous
 	contains_jel_mapping: Object;
-	contains(time: Timestamp, defaultTimeZone: TimeZone): FuzzyBoolean|Promise<FuzzyBoolean> {
-		const a: FuzzyBoolean|Promise<FuzzyBoolean> = this.isAfter(time, defaultTimeZone);
+	contains(ctx: Context, time: Timestamp, defaultTimeZone: TimeZone): FuzzyBoolean|Promise<FuzzyBoolean> {
+		const a: FuzzyBoolean|Promise<FuzzyBoolean> = this.isAfter(ctx, time, defaultTimeZone);
 		if (a instanceof FuzzyBoolean && a.toRealBoolean())
 			return FuzzyBoolean.FALSE;
-		return Util.resolveValues((a1: FuzzyBoolean, b1: FuzzyBoolean)=>a1.or(b1).negate(), a, this.isBefore(time, defaultTimeZone));
+		return Util.resolveValues((a1: FuzzyBoolean, b1: FuzzyBoolean)=>a1.or(ctx, b1).negate(), a, this.isBefore(ctx, time, defaultTimeZone));
 	}
 	
 	
 }
 
-TimeSpec.prototype.getStartTime_jel_mapping = {defaultTimeZone: 0};
-TimeSpec.prototype.getEndTime_jel_mapping = {defaultTimeZone: 0};
-TimeSpec.prototype.isBefore_jel_mapping = {time: 0, defaultTimeZone: 1};
-TimeSpec.prototype.isAfter_jel_mapping = {time: 0, defaultTimeZone: 1};
+TimeSpec.prototype.getStartTime_jel_mapping = {defaultTimeZone: 1};
+TimeSpec.prototype.getEndTime_jel_mapping = {defaultTimeZone: 1};
+TimeSpec.prototype.isBefore_jel_mapping = {time: 1, defaultTimeZone: 2};
+TimeSpec.prototype.isAfter_jel_mapping = {time: 1, defaultTimeZone: 2};
 TimeSpec.prototype.isContinous_jel_mapping = {};
-TimeSpec.prototype.contains_jel_mapping = {time: 0, defaultTimeZone: 1};
+TimeSpec.prototype.contains_jel_mapping = {time: 1, defaultTimeZone: 2};
 

@@ -37,8 +37,8 @@ export default class PartOfWeek extends JelType implements DateHint {
 		return [this.type];
 	}
 	
-	static create_jel_mapping = {type: 0};
-	static create(...args: any[]): any {
+	static create_jel_mapping = {type: 1};
+	static create(ctx: Context, ...args: any[]): any {
 		return new PartOfWeek(args[0]);
 	}
 

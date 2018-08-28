@@ -72,11 +72,11 @@ export default class Timestamp extends TimeSpec {
 		return super.op(ctx, operator, right);
 	}
 	
-	getStartTime(defaultTimeZone: TimeZone): Timestamp {
+	getStartTime(ctx: Context, defaultTimeZone: TimeZone): Timestamp {
 		return this;
 	}
 
-	getEndTime(defaultTimeZone: TimeZone): Timestamp {
+	getEndTime(ctx: Context, defaultTimeZone: TimeZone): Timestamp {
 		return this;
 	}
 
@@ -90,25 +90,25 @@ export default class Timestamp extends TimeSpec {
 	}
 	
 	toZonedDateTime_jel_mapping: Object;
-	toZonedDateTime(tz: TimeZone): ZonedDateTime {
+	toZonedDateTime(ctx: Context, tz: TimeZone): ZonedDateTime {
 		const m = moment(this.msSinceEpoch).tz(tz.tz);
 		return new ZonedDateTime(tz, new LocalDate(m.year(), m.month(), m.date()), new TimeOfDay(m.hour(), m.minute(), m.second()), m.milliseconds());
 	}
 
 	toLocalDateTime_jel_mapping: Object;
-	toLocalDateTime(tz: TimeZone): LocalDateTime {
+	toLocalDateTime(ctx: Context, tz: TimeZone): LocalDateTime {
 		const m = moment(this.msSinceEpoch).tz(tz.tz);
 		return new LocalDateTime(new LocalDate(m.year(), m.month(), m.date()), new TimeOfDay(m.hour(), m.minute(), m.second()));
 	}
 	
 	toLocalDate_jel_mapping: Object;
-	toLocalDate(tz: TimeZone): LocalDate {
+	toLocalDate(ctx: Context, tz: TimeZone): LocalDate {
 		const m = moment(this.msSinceEpoch).tz(tz.tz);
 		return new LocalDate(m.year(), m.month(), m.date());
 	}
 
 	toTimeOfDay_jel_mapping: Object;
-	toTimeOfDay(tz: TimeZone): TimeOfDay {
+	toTimeOfDay(ctx: Context, tz: TimeZone): TimeOfDay {
 		const m = moment(this.msSinceEpoch).tz(tz.tz);
 		return new TimeOfDay(m.hour(), m.minute(), m.second());
 	}
@@ -126,16 +126,16 @@ export default class Timestamp extends TimeSpec {
 		return new Timestamp(m.valueOf());
 	}
 	
-	static create_jel_mapping = {msSinceEpoch: 0, precisionInMs: 1};
-	static create(...args: any[]): any {
+	static create_jel_mapping = {msSinceEpoch: 1, precisionInMs: 2};
+	static create(ctx: Context, ...args: any[]): any {
 		return new Timestamp(args[0], args[1]);
 	}
 }
 
 Timestamp.prototype.toNumber_jel_mapping = {};
-Timestamp.prototype.toZonedDateTime_jel_mapping = {tz: 0};
-Timestamp.prototype.toLocalDateTime_jel_mapping = {tz: 0};
-Timestamp.prototype.toLocalDate_jel_mapping = {tz: 0};
-Timestamp.prototype.toTimeOfDay_jel_mapping = {tz: 0};
+Timestamp.prototype.toZonedDateTime_jel_mapping = {tz: 1};
+Timestamp.prototype.toLocalDateTime_jel_mapping = {tz: 1};
+Timestamp.prototype.toLocalDate_jel_mapping = {tz: 1};
+Timestamp.prototype.toTimeOfDay_jel_mapping = {tz: 1};
 
 

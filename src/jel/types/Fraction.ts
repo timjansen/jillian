@@ -161,13 +161,13 @@ export default class Fraction extends JelType {
 		return a0; 
  	}
 	
-	static create_jel_mapping = {numerator:0, denominator: 1, mixed: 2};
-	static create(...args: any[]): any {
+	static create_jel_mapping = {numerator:1, denominator: 2, mixed: 3};
+	static create(ctx: Context, ...args: any[]): any {
 		return new Fraction(args[0], args[1], args[2]);
 	}
 }
 
 Fraction.prototype.reverseOps = {'-': true, '/': true};
-Fraction.prototype.toNumber_jel_mapping = {min:0, max:1};
+Fraction.prototype.toNumber_jel_mapping = {};
 Fraction.prototype.simplify_jel_mapping = {};
 

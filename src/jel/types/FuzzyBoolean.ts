@@ -148,12 +148,12 @@ export default class FuzzyBoolean extends JelType {
 	}
 
 	and_jel_mapping: Object;
-	and(a: FuzzyBoolean): FuzzyBoolean {
+	and(ctx: Context, a: FuzzyBoolean): FuzzyBoolean {
 		return FuzzyBoolean.and(this, a);
 	}
 
 	or_jel_mapping: Object;
-	or(a: FuzzyBoolean): FuzzyBoolean {
+	or(ctx: Context, a: FuzzyBoolean): FuzzyBoolean {
 		return FuzzyBoolean.or(this, a);
 	}
 
@@ -179,15 +179,15 @@ export default class FuzzyBoolean extends JelType {
 	}
 
 	
-	static create_jel_mapping = {state: 0};
-	static create(...args: any[]): FuzzyBoolean {
+	static create_jel_mapping = {state: 1};
+	static create(ctx: Context, ...args: any[]): FuzzyBoolean {
 		return FuzzyBoolean.PREDEFINED.get(args[0]) || new FuzzyBoolean(args[0]);
 	}
 }
 
 FuzzyBoolean.init();
 FuzzyBoolean.prototype.toAbsoluteBoolean_jel_mapping = {};
-FuzzyBoolean.prototype.or_jel_mapping = {a: 0};
-FuzzyBoolean.prototype.and_jel_mapping = {a: 0};
+FuzzyBoolean.prototype.or_jel_mapping = {a: 1};
+FuzzyBoolean.prototype.and_jel_mapping = {a: 1};
 
 

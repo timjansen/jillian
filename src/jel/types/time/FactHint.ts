@@ -41,8 +41,8 @@ export default class FactHint extends TimeSpec {
 		return [this.factObject, this.factId, this.relation, this.delay];
 	}
 	
-	static create_jel_mapping = {factObject: 0, factId: 1, relation: 2, delay: 3};
-	static create(...args: any[]): any {
+	static create_jel_mapping = {factObject: 1, factId: 2, relation: 3, delay: 4};
+	static create(ctx: Context, ...args: any[]): any {
 		return new FactHint(args[0], args[1], args[2], args[3]);
 	}
 }

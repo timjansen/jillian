@@ -17,11 +17,11 @@ export default class LocalDateRange extends TimeSpec {
 		super();
 	}
 	
-  getStartTime(zone: TimeZone): Timestamp {
+  getStartTime(ctx: Context, zone: TimeZone): Timestamp {
 		return null as any; // TODO
 	}
 	
-	getEndTime(zone: TimeZone): Timestamp {
+	getEndTime(ctx: Context, zone: TimeZone): Timestamp {
 		return null as any; // TODO
 	}
 	
@@ -37,8 +37,8 @@ export default class LocalDateRange extends TimeSpec {
 		return [this.firstDay, this.lastDay];
 	}
 	
-	static create_jel_mapping = {firstDay: 0, lastDay: 1};
-	static create(...args: any[]): any {
+	static create_jel_mapping = {firstDay: 1, lastDay: 2};
+	static create(ctx: Context, ...args: any[]): any {
 		return new LocalDateRange(args[0], args[1]);
 	}
 }

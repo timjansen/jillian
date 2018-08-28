@@ -1,4 +1,5 @@
 import JelType from '../../JelType';
+import Context from '../../Context';
 import Timestamp from './Timestamp';
 import TimeZone from './TimeZone';
 import DateHint from './DateHint';
@@ -30,17 +31,17 @@ export default abstract class ZonedDateSpec extends TimeSpec implements DateHint
 	}
 	
 	getStartDate_jel_mapping: Object;
-	getStartDate(defaultTimeZone: TimeZone): ZonedDate|Promise<ZonedDate>|undefined {
+	getStartDate(ctx: Context, defaultTimeZone: TimeZone): ZonedDate|Promise<ZonedDate>|undefined {
 		return null as any; // TODO
 	}
 
 	getEndDate_jel_mapping: Object;
-	getEndDate(defaultTimeZone: TimeZone): ZonedDate|Promise<ZonedDate>|undefined {
+	getEndDate(ctx: Context, defaultTimeZone: TimeZone): ZonedDate|Promise<ZonedDate>|undefined {
 		return null as any; // TODO
 	}
 
 	isBefore_jel_mapping: Object;
-	isBefore(date: Timestamp|ZonedDate, defaultTimeZone: TimeZone): FuzzyBoolean|Promise<FuzzyBoolean> {
+	isBefore(ctx: Context, date: Timestamp|ZonedDate, defaultTimeZone: TimeZone): FuzzyBoolean|Promise<FuzzyBoolean> {
 /*		const t0 = this.getEndTime(defaultTimeZone);
 		if (t0 instanceof Promise)
 			return t0.then(tx=>(tx != undefined) && (tx.msSinceEpoch < time.msSinceEpoch));
@@ -51,7 +52,7 @@ export default abstract class ZonedDateSpec extends TimeSpec implements DateHint
 	}
 	
 	isAfter_jel_mapping: Object;
-	isAfter(date: Timestamp|ZonedDate, defaultTimeZone: TimeZone): FuzzyBoolean|Promise<FuzzyBoolean> {
+	isAfter(ctx: Context, date: Timestamp|ZonedDate, defaultTimeZone: TimeZone): FuzzyBoolean|Promise<FuzzyBoolean> {
 /*		const t0 = this.getStartTime(defaultTimeZone);
 		if (t0 instanceof Promise)
 			return t0.then(tx=>(tx != undefined) && (tx.msSinceEpoch > time.msSinceEpoch));
@@ -62,7 +63,7 @@ export default abstract class ZonedDateSpec extends TimeSpec implements DateHint
 	}
 	
 	// override if TimeSpec is not continous
-	contains(time: Timestamp|ZonedDate, defaultTimeZone: TimeZone): FuzzyBoolean|Promise<FuzzyBoolean> {
+	contains(ctx: Context, time: Timestamp|ZonedDate, defaultTimeZone: TimeZone): FuzzyBoolean|Promise<FuzzyBoolean> {
 /*		const b0 = this.isAfter(time, defaultTimeZone);
 		if (b0 === true)
 			return false;
@@ -76,6 +77,6 @@ export default abstract class ZonedDateSpec extends TimeSpec implements DateHint
 	
 }
 
-ZonedDateSpec.prototype.getStartDate_jel_mapping = {defaultTimeZone: 0};
-ZonedDateSpec.prototype.getEndDate_jel_mapping = {defaultTimeZone: 0};
+ZonedDateSpec.prototype.getStartDate_jel_mapping = {defaultTimeZone: 1};
+ZonedDateSpec.prototype.getEndDate_jel_mapping = {defaultTimeZone: 1};
 

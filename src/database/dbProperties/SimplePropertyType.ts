@@ -1,6 +1,7 @@
 import PropertyType from './PropertyType';
 import DbRef from '../DbRef';
 import Dictionary from '../../jel/types/Dictionary';
+import Context from '../../jel/Context';
 
 
 /**
@@ -26,8 +27,8 @@ export default class SimplePropertyType extends PropertyType {
     return [this.type, this.constants, this.types];
   }
 	
-  static create_jel_mapping = {type: 0, constants: 1, types: 2};
-  static create(...args: any[]) {
+  static create_jel_mapping = {type: 1, constants: 2, types: 3};
+  static create(ctx: Context, ...args: any[]) {
     return new SimplePropertyType(args[0], args[1], args[2]);
   }
 }

@@ -17,7 +17,7 @@ describe('jelTokenizer', function() {
       assert.deepEqual(Tokenizer.tokenize('<=+').tokens, [new Token(TokenType.Operator, '<='), new Token(TokenType.Operator, '+')]);
       assert.deepEqual(Tokenizer.tokenize('!a').tokens, [new Token(TokenType.Operator, '!'), new Token(TokenType.Identifier, 'a')]);
       assert.deepEqual(Tokenizer.tokenize('(a)').tokens, [new Token(TokenType.Operator, '('), new Token(TokenType.Identifier, 'a'), new Token(TokenType.Operator, ')')]);
-      assert.deepEqual(Tokenizer.tokenize('{{}} {}').tokens, [new Token(TokenType.Operator, '{{'), new Token(TokenType.Operator, '}'), new Token(TokenType.Operator, '}'), new Token(TokenType.Operator, '{'), new Token(TokenType.Operator, '}')]);
+      assert.deepEqual(Tokenizer.tokenize('${}} {}').tokens, [new Token(TokenType.Operator, '${'), new Token(TokenType.Operator, '}'), new Token(TokenType.Operator, '}'), new Token(TokenType.Operator, '{'), new Token(TokenType.Operator, '}')]);
     });
 
     it('should parse identifiers', function() {

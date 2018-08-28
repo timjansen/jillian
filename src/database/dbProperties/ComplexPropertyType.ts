@@ -2,6 +2,7 @@ import PropertyType from './PropertyType';
 import PropertyHelper from './PropertyHelper';
 import Dictionary from '../../jel/types/Dictionary';
 import List from '../../jel/types/List';
+import Context from '../../jel/Context';
 
 /**
  * Defines a complex type that has named, types fields.
@@ -18,7 +19,7 @@ export default class ComplexPropertyType extends PropertyType {
     super();
     
     const m = new Map();
-    fields.each((n, v)=>{
+    fields.elements.forEach((v, n)=>{
       m.set(n, PropertyHelper.convert(v));
     });
     this.fields = new Dictionary(m);
@@ -28,8 +29,8 @@ export default class ComplexPropertyType extends PropertyType {
     return {fields: this.fields};
   }
 
-  static create_jel_mapping = {fields: 0};
-  static create(...args: any[]) {
+  static create_jel_mapping = {fields: 1};
+  static create(ctx: Context, ...args: any[]) {
     return new ComplexPropertyType(args[0]);
   }
 }

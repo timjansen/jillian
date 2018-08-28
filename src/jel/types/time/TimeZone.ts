@@ -26,13 +26,13 @@ export default class TimeZone extends JelType {
 	}
 	
 	isDST_jel_mapping: Object;
-	isDST(time: Timestamp): FuzzyBoolean {
+	isDST(ctx: Context, time: Timestamp): FuzzyBoolean {
 		return FuzzyBoolean.toFuzzyBoolean(time.toMoment().tz(this.tz).isDST());
 	}
 	
 	// returns offset in minutes
 	getOffset_jel_mapping: Object;
-	getOffset(time: Timestamp): number {
+	getOffset(ctx: Context, time: Timestamp): number {
 		return this.getMomentZone().utcOffset(time.msSinceEpoch);
 	}
 	
@@ -63,12 +63,12 @@ export default class TimeZone extends JelType {
 		return [this.tz];
 	}
 	
-	static create_jel_mapping: any = {tz: 0};
-	static create(...args: any[]): any {
+	static create_jel_mapping: any = {tz: 1};
+	static create(ctx: Context, ...args: any[]): any {
 		return new TimeZone(args[0]);
 	}
 }
 
 TimeZone.prototype.JEL_PROPERTIES = {tz: 1};
-TimeZone.prototype.isDST_jel_mapping = {time: 0};
-TimeZone.prototype.getOffset_jel_mapping = {time: 0};
+TimeZone.prototype.isDST_jel_mapping = {time: 1};
+TimeZone.prototype.getOffset_jel_mapping = {time: 1};

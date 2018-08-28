@@ -18,7 +18,6 @@ export default class Pattern extends JelType {
 	}
 
 	match_jel_mapping: Object;
-	// can return value or Promise!!
 	match(ctx: Context, inputOrTokens: string | string[]): FuzzyBoolean | Promise<FuzzyBoolean> {
 		if (typeof inputOrTokens == 'string') {
 			const trimmed = inputOrTokens.trim();
@@ -44,5 +43,5 @@ export default class Pattern extends JelType {
 	
 }
 
-Pattern.prototype.match_jel_mapping = {'>ctx': true, input: 1};
+Pattern.prototype.match_jel_mapping = {input: 1};
 

@@ -120,8 +120,8 @@ export default class Duration extends JelType {
 		return [this.years, this.months, this.days, this.hours, this.minutes, this.seconds];
 	}
 	
-	static create_jel_mapping = {years: 0, months: 1, days: 2, hours: 3, minute: 4, seconds: 5};
-	static create(...args: any[]): any {
+	static create_jel_mapping = {years: 1, months: 2, days: 3, hours: 4, minute: 5, seconds: 6};
+	static create(ctx: Context, ...args: any[]): any {
 		return new Duration(args[0], args[1], args[2], args[3], args[4], args[5]);
 	}
 
@@ -129,6 +129,6 @@ export default class Duration extends JelType {
 
 Duration.prototype.fullDays_jel_mapping = {};
 Duration.prototype.simplify_jel_mapping = {};
-Duration.prototype.toEstimatedSeconds_jel_mapping = {'>ctx': true};
+Duration.prototype.toEstimatedSeconds_jel_mapping = {};
 
 

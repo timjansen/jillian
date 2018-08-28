@@ -28,7 +28,7 @@ export default class TemplateNode extends ComplexNode {
 		if (!ctx.translationDict || !ctx.translationDict.get)
 			throw new Error("Templates in patterns require 'translationDict' in Context");
 		
-		const template = ctx.translationDict.get(this.template);
+		const template = ctx.translationDict.get(ctx, this.template);
 		if (!template)
 			throw new Error(`Can not find template ${this.template} in translation dictionary`);
 

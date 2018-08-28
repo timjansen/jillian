@@ -19,11 +19,11 @@ export default class LocalDateTime extends TimeSpec {
 		super();
 	}
 	
-  getStartTime(zone: TimeZone): Timestamp {
+  getStartTime(ctx: Context, zone: TimeZone): Timestamp {
 		return null as any; // TODO
 	}
 	
-	getEndTime(zone: TimeZone): Timestamp {
+	getEndTime(ctx: Context, zone: TimeZone): Timestamp {
 		return null as any; // TODO
 	}
 	
@@ -39,8 +39,8 @@ export default class LocalDateTime extends TimeSpec {
 		return [this.date, this.time];
 	}
 	
-	static create_jel_mapping = {date: 0, time: 1};
-	static create(...args: any[]): any {
+	static create_jel_mapping = {date: 1, time: 2};
+	static create(ctx: Context, ...args: any[]): any {
 		return new LocalDateTime(args[0], args[1]);
 	}
 }

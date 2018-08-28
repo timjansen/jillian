@@ -1,0 +1,8 @@
+Thing('UnitValue', @BaseTypeCategory, 
+properties={
+	baseTypeDescriptor: {
+		isNumeric: true,
+		canBeRange: true,
+		canHaveMultipleValues: false
+	}
+})

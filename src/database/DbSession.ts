@@ -22,7 +22,7 @@ export default class DbSession implements IDbSession {
 
 	// implements IDbSession
 	createDbRef(distinctNameOrEntry: string | DbEntry, parameters?: Map<string, any>): IDbRef {
-		return DbRef.create(distinctNameOrEntry, parameters);
+		return new DbRef(distinctNameOrEntry, parameters);
 	}
 	
   // returns the entry, null if it does not exist, undefined if not in cache

@@ -59,8 +59,8 @@ export default class DurationRange extends JelType {
 		return [this.min, this.max];
 	}
 	
-	static create_jel_mapping = {min: 0, max: 1};
-	static create(...args: any[]): any {
+	static create_jel_mapping = {min: 1, max: 2};
+	static create(ctx: Context, ...args: any[]): any {
 		return new DurationRange(args[0], args[1]);
 	}
 

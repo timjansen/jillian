@@ -134,7 +134,7 @@ tmp.dir(function(err, path) {
 				assert.equal(cat.instanceDefault(ctx, 'a'), 5);
 
 				const grumpy = new Thing('GrumpyCat', cat, Dictionary.fromObject({b: 3, d: 5, x: "bar", w: "www"}));
-				assert.equal(grumpy.properties.get('b'), 3);
+				assert.equal(grumpy.properties.get(ctx, 'b'), 3);
 				assert.equal(grumpy.member(ctx, 'b'), 3);
 
 				const howard = new Thing('HowardTheDuck', animal);
@@ -143,7 +143,7 @@ tmp.dir(function(err, path) {
 				.then(()=>session.getFromDatabase('GrumpyCat') 
 					.then(cc=>{
 						assert.ok(!!cc);
-						assert.equal(cc.properties.get('b'), 3);
+						assert.equal(cc.properties.get(ctx, 'b'), 3);
 						assert.equal(cc.member(ctx, 'b'), 3);
 						assert.equal(cc.member(ctx, 'd'), 5);
 						assert.equal(cc.member(ctx, 'x'), 'bar');

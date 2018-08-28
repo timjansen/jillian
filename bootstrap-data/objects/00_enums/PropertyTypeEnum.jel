@@ -1,0 +1,1 @@
+Enum('PropertyTypeEnum', ['REQUIRED', 'OPTIONAL'])

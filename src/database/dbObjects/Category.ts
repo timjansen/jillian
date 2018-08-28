@@ -35,8 +35,8 @@ export default class Category extends DbEntry {
 		if (!distinctName.endsWith('Category'))
 			throw Error('By convention, all Category names must end with "Category". Illegal name: ' + distinctName);
 
-    this.superCategory = superCategory ? DbRef.create(superCategory) : null; 
-		instanceProperties.elements.forEach((value, key)=>this.instanceProperties.set(key, PropertyHelper.convert(value)));
+    this.superCategory = superCategory ? (superCategory instanceof DbRef ? superCategory : new DbRef(superCategory)) : null; 
+		instanceProperties.elements.forEach((value, key)=>this.instanceProperties.elements.set(key, PropertyHelper.convert(value)));
   }
 
   // returns promise with all matching objects
@@ -58,7 +58,7 @@ export default class Category extends DbEntry {
 
 	instanceDefault(ctx: Context, name: string, parameters?: Map<string, any>): any {
 		if (this.instanceDefaults.elements.has(name)) {
-			return this.instanceDefaults.get(name);
+			return this.instanceDefaults.elements.get(name);
 		}
 		else if (this.superCategory)
 			return Util.resolveValue((c: any)=>c.instanceDefault(ctx, name, parameters), this.superCategory.get(ctx));
@@ -68,7 +68,7 @@ export default class Category extends DbEntry {
 
 	instanceProperty(ctx: Context, name: string): EnumValue | Promise<EnumValue> | null {
 		if (this.instanceProperties.elements.has(name))
-			return this.instanceProperties.get(name);
+			return this.instanceProperties.elements.get(name);
 		else if (this.superCategory)
 			return Util.resolveValue((c: any)=>c.instanceProperty(ctx, name), this.superCategory.get(ctx));
 		else
@@ -79,10 +79,10 @@ export default class Category extends DbEntry {
 		return [this.distinctName, this.superCategory, this.properties, this.instanceDefaults, this.instanceProperties, this.mixinProperties, this.reality, this.hashCode];
   }
     
-  static create_jel_mapping = {distinctName: 0, superCategory: 1, properties: 2, 
-															 instanceDefaults: 3, instanceProperties: 4, mixinProperties: 5, 
-															 reality: 6, hashCode: 7};
-  static create(...args: any[]): any {
+  static create_jel_mapping = {distinctName: 1, superCategory: 2, properties: 3, 
+															 instanceDefaults: 4, instanceProperties: 5, mixinProperties: 6, 
+															 reality: 7, hashCode: 8};
+  static create(ctx: Context, ...args: any[]): any {
     return new Category(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
   }
 }

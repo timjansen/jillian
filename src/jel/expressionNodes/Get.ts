@@ -20,7 +20,7 @@ export default class Get extends JelNode {
     if (left == null)
       return left;
     else if ((left as any).get_jel_mapping)
-      return (left as any).get(name);
+      return (left as any).get(ctx, name);
     else if (name == null)
       return null;
     else 

@@ -5,6 +5,7 @@ import CategoryPropertyType from './CategoryPropertyType';
 import DbRef from '../DbRef';
 import Dictionary from '../../jel/types/Dictionary';
 import List from '../../jel/types/List';
+import Context from '../../jel/Context';
 
 
 
@@ -30,8 +31,8 @@ export default class DictionaryPropertyType extends PropertyType {
     return [this.keyType, this.valueTypes];
   }
 
-  static create_jel_mapping = {keyTypes: 0, valueTypes: 1};
-  static create(...args: any[]) {
+  static create_jel_mapping = {keyTypes: 1, valueTypes: 2};
+  static create(ctx: Context, ...args: any[]) {
     return new DictionaryPropertyType(args[0], args[1]);
   }
 }

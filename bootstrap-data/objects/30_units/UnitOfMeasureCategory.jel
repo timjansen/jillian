@@ -1,0 +1,11 @@
+Category('UnitOfMeasureCategory', 
+	properties={}, 
+	instanceDefaults={}, 
+	instanceProperties={
+		quantityCategory: @QuantityCategory,
+		isPrimaryUnit: @FuzzyBoolean
+		convertsTo: DictionaryPropertyType(@String, {f: FunctionPropertyType(['v']), factor: [@Number, null]})
+		multipliesTo: DictionaryPropertyType(@String, {f: FunctionPropertyType(['v']), factor: [@Number, null]})
+		dividesTo: DictionaryPropertyType(@String, {f: FunctionPropertyType(['v']), factor: [@Number, null]})
+	}
+)

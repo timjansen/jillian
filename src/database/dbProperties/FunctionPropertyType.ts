@@ -1,6 +1,7 @@
 import PropertyType from './PropertyType';
 import DbRef from '../DbRef';
 import List from '../../jel/types/List';
+import Context from '../../jel/Context';
 
 
 
@@ -21,8 +22,8 @@ export default class FunctionPropertyType extends PropertyType {
     return [this.args];
   }
 
-  static create_jel_mapping = {types: 0};
-  static create(...args: any[]) {
+  static create_jel_mapping = {types: 1};
+  static create(ctx: Context, ...args: any[]) {
     return new FunctionPropertyType(args[0]);
   }
 }

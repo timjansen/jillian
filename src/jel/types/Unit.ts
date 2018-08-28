@@ -96,13 +96,13 @@ export default class Unit extends JelType {
 		return [this.numeratorUnits, this.denominatorUnits];
 	}
 	
-	static create_jel_mapping = {value: 0, unit: 1};
-	static create(...args: any[]): Unit {
+	static create_jel_mapping = {value: 1, unit: 2};
+	static create(ctx: Context, ...args: any[]): Unit {
 		return new Unit(args[0], args[1]);
 	}
 }
 
 Unit.prototype.isSimple_jel_mapping = {};
-Unit.prototype.getSimpleType_jel_mapping = {'>ctx': true};
+Unit.prototype.getSimpleType_jel_mapping = {};
 
 

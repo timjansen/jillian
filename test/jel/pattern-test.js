@@ -158,9 +158,9 @@ describe('jelPatterns', function() {
     });
 
     it('should match templates', function() {
-        const tpl0 = exec('{{`a` => 1}}');
-        const tpl1 = exec('{{`a` => 1, x: `b` => 2, y: `b` => 12, x, y: `b` => 22}}');
-        const tpl2 = exec('{{`a [b [c]?]?` => 3, `a b c` => 4, `d e` => 5, `f {{tpl1}}` => 6}}');
+        const tpl0 = exec('${`a` => 1}');
+        const tpl1 = exec('${`a` => 1, x: `b` => 2, y: `b` => 12, x, y: `b` => 22}');
+        const tpl2 = exec('${`a [b [c]?]?` => 3, `a b c` => 4, `d e` => 5, `f {{tpl1}}` => 6}');
         const dict = new Dictionary({tpl0, tpl1, tpl2});
         const ctx = new Context(null, null, dict);
 

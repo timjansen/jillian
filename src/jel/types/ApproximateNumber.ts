@@ -30,7 +30,7 @@ export default class ApproximateNumber extends JelType {
 					const maxErrorDelta = JelType.toNumber(JelType.op(ctx, '+', this.maxError, right.maxError));
 					if (maxErrorDelta == 0)
 						return FuzzyBoolean.FALSE;
-					return FuzzyBoolean.create(Math.max(0, ACCURACY_FACTOR - (0.5*deltaEq / maxErrorDelta)));
+					return FuzzyBoolean.create(ctx, Math.max(0, ACCURACY_FACTOR - (0.5*deltaEq / maxErrorDelta)));
 				case '===':
 				case '>>':
 				case '<<':
@@ -51,8 +51,8 @@ export default class ApproximateNumber extends JelType {
 						return JelType.op(ctx, operator, this.value, right.value)
 					const deltaCmp = JelType.toNumber(JelType.singleOp(ctx, 'abs', JelType.op(ctx, '-', this.value, right.value))) * ACCURACY_FACTOR;
 					if (JelType.op(ctx, operator, this.value, right.value).toRealBoolean())
-						 return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.TRUE : FuzzyBoolean.create(Math.min(ACCURACY_FACTOR, 0.5 + 0.5 * deltaCmp / maxErrorDeltaCmp));
-					return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.FALSE : FuzzyBoolean.create(Math.max(0, ACCURACY_FACTOR*0.5 - 0.5 * deltaCmp / maxErrorDeltaCmp));
+						 return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.TRUE : FuzzyBoolean.create(ctx, Math.min(ACCURACY_FACTOR, 0.5 + 0.5 * deltaCmp / maxErrorDeltaCmp));
+					return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.FALSE : FuzzyBoolean.create(ctx, Math.max(0, ACCURACY_FACTOR*0.5 - 0.5 * deltaCmp / maxErrorDeltaCmp));
 
 				case '+':
 				case '-':
@@ -74,7 +74,7 @@ export default class ApproximateNumber extends JelType {
 						return FuzzyBoolean.TRUE;
 					else if (maxErrorDelta == 0)
 						return FuzzyBoolean.FALSE;
-					return FuzzyBoolean.create(Math.max(0, 1 - (0.5*deltaEq / maxErrorDelta)));
+					return FuzzyBoolean.create(ctx, Math.max(0, 1 - (0.5*deltaEq / maxErrorDelta)));
 				case '===':
 				case '>>':
 				case '<<':
@@ -94,8 +94,8 @@ export default class ApproximateNumber extends JelType {
 						return JelType.op(ctx, operator, this.value, right)
 					const deltaCmp = JelType.toNumber(JelType.singleOp(ctx, 'abs',JelType.op(ctx, '-', this.value, right))) * ACCURACY_FACTOR;
 					if (JelType.op(ctx, operator, this.value, right).toRealBoolean())
-						 return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.TRUE : FuzzyBoolean.create(Math.min(ACCURACY_FACTOR, 0.5 + 0.5 * deltaCmp / maxErrorDeltaCmp));
-					return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.FALSE : FuzzyBoolean.create(Math.max(0, ACCURACY_FACTOR*0.5 - 0.5 * deltaCmp / maxErrorDeltaCmp));
+						 return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.TRUE : FuzzyBoolean.create(ctx, Math.min(ACCURACY_FACTOR, 0.5 + 0.5 * deltaCmp / maxErrorDeltaCmp));
+					return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.FALSE : FuzzyBoolean.create(ctx, Math.max(0, ACCURACY_FACTOR*0.5 - 0.5 * deltaCmp / maxErrorDeltaCmp));
 					
 				case '+':
 				case '-':
@@ -142,8 +142,8 @@ export default class ApproximateNumber extends JelType {
 		return this.maxError != 0 ? [this.value, this.maxError] : [this.value];
 	}
 	
-	static create_jel_mapping = {value: 0, maxError: 1};
-	static create(...args: any[]): ApproximateNumber {
+	static create_jel_mapping = {value: 1, maxError: 2};
+	static create(ctx: Context, ...args: any[]): ApproximateNumber {
 		return new ApproximateNumber(args[0], args[1]);
 	}
 }

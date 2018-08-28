@@ -8,14 +8,14 @@ import JelType from './JelType';
 export default class FunctionCallable extends Callable {
 	argMapper: any;
 	
-	constructor(public f: Function, argMapper?: Array<string>|Object|string, public self?: any, public name?: string, public injectContext = false) {
+	constructor(public f: Function, argMapper?: Array<string>|Object|string, public self?: any, public name?: string) {
 		super();
 		this.argMapper = this.convertArgMapper(argMapper);  // map argName -> index. Null if named-argument-methods
 	}
 	
-	invokeWithObject(args: any[], argObj?: any, ctx?: Context): any {
+	invokeWithObject(ctx: Context, args: any[], argObj?: any, ): any {
 		if (this.argMapper) {
-			const allArgs = this.injectContext ? [ctx].concat(args) : Array.prototype.slice.call(args);
+			const allArgs = [ctx].concat(args);
 			if (argObj)
 				for (const name in argObj) {
 					const idx = this.argMapper[name];
@@ -29,26 +29,21 @@ export default class FunctionCallable extends Callable {
 		else {
 			if (args.length)
 				throw new Error(`Method only supports named arguments, but got ${args.length} anonymous argument(s).`);
-			return this.f.apply(this.self, this.injectContext ? [ctx, argObj || {}] : [argObj || {}]);
+			return this.f.apply(this.self, [ctx, argObj || {}]);
 		}
 	}
 	
-	invoke(...args: any[]): any {
-		return this.invokeWithObject(args);
-	}
-	
-	invokeWithContext(ctx: Context, ...args: any[]): any {
-		return this.invokeWithObject(args, null, ctx);
+	invoke(ctx: Context, ...args: any[]): any {
+		return this.invokeWithObject(ctx, args, null);
 	}
 	
 	// converts argmapper from array to object, if needed
 	convertArgMapper(argMapper?: Object|Array<string>|string): Object|null {
-		const offset = this.injectContext ? 1 : 0;
 		if (argMapper === JelType.NAMED_ARGUMENT_METHOD)
 			return null;
 		else if (argMapper instanceof Array) {
 			const o: any = {};
-			argMapper.forEach((name,idx)=>o[name] = idx + offset);
+			argMapper.forEach((name,idx)=>o[name] = idx + 1);
 			return o;
 		}
 		else

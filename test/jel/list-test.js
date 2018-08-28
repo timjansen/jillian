@@ -104,7 +104,7 @@ describe('jelList', function() {
   describe('each()', function() {
     it('iterates', function() {
       let x = 0;
-      const accumulator = new FunctionCallable((a, i)=>x+=a+2*i);
+      const accumulator = new FunctionCallable((ctx, a, i)=>x+=a+2*i);
       new JEL('[3, 2, 9].each(accumulator)').executeImmediately(new Context().setAll({accumulator}));
       assert.equal(x, 20);
     });
@@ -185,11 +185,11 @@ describe('jelList', function() {
 					super();
 				  this.a = x;
 			  }
-        static create(x) {
+        static create(ctx, x) {
           return new X(x);
         }
       }
-      X.create_jel_mapping = {x:0};
+      X.create_jel_mapping = {x:1};
       X.prototype.JEL_PROPERTIES = {a:1};
 			
 			const ctx = new Context().setAll({X});
@@ -232,11 +232,11 @@ describe('jelList', function() {
 					super();
 				  this.a = x;
 			  }
-        static create(x) {
+        static create(ctx, x) {
           return new X(x);
         }
       }
-      X.create_jel_mapping = {x:0};
+      X.create_jel_mapping = {x:1};
       X.prototype.JEL_PROPERTIES = {a:1};
 			
 			const ctx = new Context().setAll({X});

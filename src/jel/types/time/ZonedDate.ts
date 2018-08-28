@@ -35,8 +35,8 @@ export default class ZonedDate extends TimeSpec {
 		return [this.timeZone, this.year, this.month, this.day];
 	}
 	
-	static create_jel_mapping = {timeZone: 0, year: 1, month: 2, day: 3};
-	static create(...args: any[]): any {
+	static create_jel_mapping = {timeZone: 1, year: 2, month: 3, day: 4};
+	static create(ctx: Context, ...args: any[]): any {
 		return new ZonedDate(args[0], args[1], args[2], args[3]);
 	}
 }

@@ -36,7 +36,7 @@ describe('jelDictionary', function() {
       const d = new Dictionary(m, true);
       assert(d.elements === m);
       m.set('a', 10);
-      assert.equal(d.get('a'), 10);
+      assert.equal(d.get(dictContext, 'a'), 10);
     });
   });
   
@@ -73,7 +73,7 @@ describe('jelDictionary', function() {
   describe('each()', function() {
     it('iterates', function() {
       let x = '';
-      const accumulator = new FunctionCallable((k, v)=> x+=k+v );
+      const accumulator = new FunctionCallable((ctx, k, v)=> x+=k+v );
       new JEL('Dictionary(["3", 2, "9", 10]).each(accumulator)').executeImmediately(new Context().setAll({Dictionary, accumulator}));
       assert.equal(x, "32910");
     });

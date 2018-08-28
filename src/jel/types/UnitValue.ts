@@ -121,7 +121,7 @@ export default class UnitValue extends JelType {
 		return this.unit.getSimpleType(ctx).with(ctx, (tu: any) => {
 			const conversionF: Callable = tu.member(ctx, 'convertsTo').get(target);
 			if (conversionF != null)
-				return Util.resolveValue(v=>new Unit(v, target), conversionF.invokeWithContext(ctx, this.value));
+				return Util.resolveValue(v=>new Unit(v, target), conversionF.invoke(ctx, this.value));
 			else
 				return Promise.reject(new Error("Can not convert to unsupported type " + target));
 		}); 
@@ -140,14 +140,14 @@ export default class UnitValue extends JelType {
 		return [this.value, this.unit];
 	}
 	
-	static create_jel_mapping = {value: 0, unit: 1};
-	static create(...args: any[]): UnitValue {
+	static create_jel_mapping = {value: 1, unit: 2};
+	static create(ctx: Context, ...args: any[]): UnitValue {
 		return new UnitValue(args[0], args[1]);
 	}
 }
 
 UnitValue.prototype.reverseOps = {'-':1, '/': 1};
 UnitValue.prototype.toNumber_jel_mapping = {};
-UnitValue.prototype.convertTo_jel_mapping = {'>ctx': true, type: 1};
+UnitValue.prototype.convertTo_jel_mapping = {type: 1};
 UnitValue.prototype.JEL_PROPERTIES = {value:1, unit:1};
 

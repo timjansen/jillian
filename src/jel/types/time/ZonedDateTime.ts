@@ -33,8 +33,8 @@ export default class ZonedDateTime extends LocalDateTime {
 		return [this.timeZone, this.date, this.time, this.milliseconds];
 	}
 	
-	static create_jel_mapping = {timeZone: 0, date: 1, time: 2, milliseconds: 3};
-	static create(...args: any[]): any {
+	static create_jel_mapping = {timeZone: 1, date: 2, time: 3, milliseconds: 4};
+	static create(ctx: Context, ...args: any[]): any {
 		return new ZonedDateTime(args[0], args[1], args[2], args[3]);
 	}
 }

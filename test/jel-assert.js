@@ -43,10 +43,10 @@ class JelAssert {
 }
 
 class JelPromise extends JelType {
-	static create(value) {
+	static create(ctx, value) {
 		return new Promise((resolve)=>setTimeout(()=>resolve(value), 1));
 	}
-	static resolve(value) {
+	static resolve(ctx, value) {
 		return Promise.resolve(value);
 	}
 }
@@ -54,7 +54,7 @@ JelPromise.create_jel_mapping = ['value'];
 JelPromise.resolve_jel_mapping = ['value'];
 
 class JelConsole extends JelType {
-	static create(firstValue, ...values) {
+	static create(ctx, firstValue, ...values) {
 		console.log('JelConsole: ', firstValue, ...values);
 		return firstValue;
 	}

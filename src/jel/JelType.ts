@@ -164,7 +164,7 @@ export default class JelType {
 
 			const argMapper = obj[`${name}_jel_mapping`];
 			if (argMapper) {
-				const newCallable = new FunctionCallable(obj[name], argMapper, obj, name, argMapper['>ctx'] != null);
+				const newCallable = new FunctionCallable(obj[name], argMapper, obj, name);
 				obj[callableCacheKey] = newCallable;
 				return newCallable;
 			}
@@ -251,7 +251,7 @@ export default class JelType {
 
 JelType.prototype.reverseOps = {};
 
-JelType.prototype.op_jel_mapping = {'>ctx': true, operator:1, right:2};
-JelType.prototype.opReversed_jel_mapping = {'>ctx': true, operator:1, left:2};
-JelType.prototype.singleOp_jel_mapping = {'>ctx': true, operator: 1};
+JelType.prototype.op_jel_mapping = {operator:1, right:2};
+JelType.prototype.opReversed_jel_mapping = {operator:1, left:2};
+JelType.prototype.singleOp_jel_mapping = {operator: 1};
 JelType.prototype.toBoolean_jel_mapping = {};

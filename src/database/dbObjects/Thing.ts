@@ -20,7 +20,7 @@ export default class Thing extends DbEntry {
   
   constructor(distinctName: string, category: Category|DbRef, properties: Dictionary, reality: DbRef, hashCode: string) {
     super(distinctName, reality, hashCode, properties);
-    this.category = DbRef.create(category);
+    this.category = category instanceof DbRef ? category : new DbRef(category);
   }
   
   get databaseIndices(): Map<string, DbIndexDescriptor> {
@@ -39,8 +39,8 @@ export default class Thing extends DbEntry {
     return {distinctName: this.distinctName, reality: this.reality, category: this.category, properties: this.properties};
   }
 
-  static create_jel_mapping = {distinctName: 0, category: 1, properties: 2, reality: 3, hashCode: 4};
-  static create(...args: any[]) {
+  static create_jel_mapping = {distinctName: 1, category: 2, properties: 3, reality: 4, hashCode: 5};
+  static create(ctx: Context, ...args: any[]) {
     return new Thing(args[0], args[1], args[2], args[3], args[4]);
   }
 }

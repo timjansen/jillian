@@ -12,7 +12,7 @@ import Range from '../Range';
 /**
  * Represents a time of year, like a quarter or calendar week.
  */
-export default class TimeOfYear extends JelType implements DateHint {
+export default class PartOfYear extends JelType implements DateHint {
 	constructor(public type: PartOfYearType, public number: number) {
 		super();
 	}
@@ -38,9 +38,9 @@ export default class TimeOfYear extends JelType implements DateHint {
 		return [this.type, this.number];
 	}
 	
-	static create_jel_mapping = {type: 0, number: 1};
-	static create(...args: any[]): any {
-		return new TimeOfYear(args[0], args[1]);
+	static create_jel_mapping = {type: 1, number: 2};
+	static create(ctx: Context, ...args: any[]): any {
+		return new PartOfYear(args[0], args[1]);
 	}
 
 }

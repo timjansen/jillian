@@ -35,8 +35,8 @@ export default class EnumValue extends JelType {
 	}
 	
 	
-	static create_jel_mapping = {value: 0, parent: 1, };
-	static create(...args: any[]): EnumValue {
+	static create_jel_mapping = {value: 1, parent: 2 };
+	static create(ctx: Context, ...args: any[]): EnumValue {
 		return new EnumValue(args[0], args[1]);
 	}
 }

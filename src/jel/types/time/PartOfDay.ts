@@ -32,8 +32,8 @@ export default class PartOfDay extends JelType implements TimeHint {
 		return [this.type];
 	}
 	
-	static create_jel_mapping = {type: 0};
-	static create(...args: any[]): any {
+	static create_jel_mapping = {type: 1};
+	static create(ctx: Context, ...args: any[]): any {
 		return new PartOfDay(args[0]);
 	}
 

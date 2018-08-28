@@ -1,6 +1,7 @@
 import PropertyType from './PropertyType';
 import DbRef from '../DbRef';
 import Dictionary from '../../jel/types/Dictionary';
+import Context from '../../jel/Context';
 
 
 /**
@@ -16,8 +17,8 @@ export default class CategoryPropertyType extends PropertyType {
     return [this.superCategory, this.directChild];
   }
 
-  static create_jel_mapping = {superCategory: 0, directChild: 1};
-  static create(...args: any[]) {
+  static create_jel_mapping = {superCategory: 1, directChild: 2};
+  static create(ctx: Context, ...args: any[]) {
     return new CategoryPropertyType(args[0], args[1]);
   }
 }

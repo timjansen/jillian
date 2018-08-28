@@ -1,7 +1,16 @@
 import DbEntry from '../DbEntry';
 import DbRef from '../DbRef';
+import Context from '../../jel/Context';
 import List from '../../jel/types/List';
+import Dictionary from '../../jel/types/Dictionary';
 import EnumValue from '../../jel/types/EnumValue';
+
+function createProperties(distinctName: string, values: List) {
+	const d = new Map<string,any>();
+	const ref = new DbRef(distinctName);
+	values.elements.forEach(v=>d.set(v, new EnumValue(v, ref)));
+	return new Dictionary(d, true);
+}
 
 // Base class for enum definitions.
 export default class Enum extends DbEntry {
@@ -11,20 +20,17 @@ export default class Enum extends DbEntry {
 	 * @param values a List of strings with the possible values of the enum
 	 */
   constructor(distinctName: string, public values: List, reality: DbRef, hashCode: string) {
-    super(distinctName, reality, hashCode);
+    super(distinctName, reality, hashCode, createProperties(distinctName, values));
 		if (!distinctName.endsWith('Enum'))
 			throw Error('By convention, all Enum names must end with "Enum". Illegal name: ' + distinctName);
-
-		const ref = DbRef.create(distinctName);
-		values.elements.forEach(v=>this.set(v, new EnumValue(v, ref)));
   }
 
   getSerializationProperties(): Object {
     return [this.distinctName, this.values, this.reality, this.hashCode];
   }
 
-  static create_jel_mapping = {distinctName: 0, values: 1, reality: 2, hashCode: 3};
-  static create(...args: any[]) {
+  static create_jel_mapping = {distinctName: 1, values: 2, reality: 3, hashCode: 4};
+  static create(ctx: Context, ...args: any[]) {
     return new Enum(args[0], args[1], args[2], args[3]);
   }
 }

@@ -1,6 +1,7 @@
 import Category from './Category';
 import DbEntry from '../DbEntry';
 import DbRef from '../DbRef';
+import Context from '../../jel/Context';
 import PropertyType from '../dbProperties/PropertyType';
 import PropertyHelper from '../dbProperties/PropertyHelper';
 import DbIndexDescriptor from '../DbIndexDescriptor';
@@ -35,8 +36,8 @@ export default class MixinProperty extends DbEntry {
     return {distinctName: this.distinctName, type: this.type};
   }
 
-  static create_jel_mapping = {distinctName: 0, type: 1, categoryProperty: 2};
-  static create(...args: any[]) {
+  static create_jel_mapping = {distinctName: 1, type: 2, categoryProperty: 3};
+  static create(ctx: Context, ...args: any[]) {
     return new MixinProperty(args[0], args[1], args[2]);
   }
 }

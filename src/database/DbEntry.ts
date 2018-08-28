@@ -25,13 +25,13 @@ export default class DbEntry extends JelType {
 	member(ctx: Context, name: string, parameters?: Map<string, any>): any {
 		const v = super.member(ctx, name, parameters);
 		if (v === undefined && this.properties.elements.has(name))
-			return this.properties.get(name);
+			return this.properties.get(ctx, name);
 		else
 			return v;
 	}
 	
 	// sets a property
-  set(name: string, value: JelType|number|string): DbEntry {
+  set(ctx: Context, name: string, value: JelType|number|string): DbEntry {
 		this.properties.set(name, value);
 		return this;
 	}
@@ -40,8 +40,8 @@ export default class DbEntry extends JelType {
     return {distinctName: this.distinctName, reality: this.reality, properties: this.properties};
   }
 
-  static create_jel_mapping : Object = {distinctName: 0, reality: 1, hashCode: 2, properties: 3};
-  static create(...args: any[]): any {
+  static create_jel_mapping : Object = {distinctName: 1, reality: 2, hashCode: 3, properties: 4};
+  static create(ctx: Context, ...args: any[]): any {
     return new DbEntry(args[0], args[1], args[2], args[3]);
   }
 }

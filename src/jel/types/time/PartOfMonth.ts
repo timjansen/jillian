@@ -37,8 +37,8 @@ export default class PartOfMonth extends JelType implements DateHint {
 		return [this.type, this.count];
 	}
 	
-	static create_jel_mapping = {type: 0};
-	static create(...args: any[]): any {
+	static create_jel_mapping = {type: 1};
+	static create(ctx: Context, ...args: any[]): any {
 		return new PartOfMonth(args[0], args[1]);
 	}
 

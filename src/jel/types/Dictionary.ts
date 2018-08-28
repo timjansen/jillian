@@ -36,10 +36,10 @@ export default class Dictionary extends JelType {
 						return FuzzyBoolean.FALSE;
 					let result = FuzzyBoolean.TRUE;
 					for (let key of this.elements.keys())
-						if (!right.has(key))
+						if (!right.elements.has(key))
 							return FuzzyBoolean.FALSE;
 						else {
-							result = FuzzyBoolean.falsest(result, JelType.op(ctx, operator, this.get(key), right.get(key)));
+							result = FuzzyBoolean.falsest(result, JelType.op(ctx, operator, this.elements.get(key), right.elements.get(key)));
 							if (result.isClearlyFalse())
 								return result;
 						}
@@ -58,22 +58,20 @@ export default class Dictionary extends JelType {
 
 	
 	get_jel_mapping: Object;
-	get(key: any): any {
+	get(ctx: Context, key: any): any {
 		return this.elements.get(key);
 	}
 
 	has_jel_mapping: Object;
-	has(key: any): FuzzyBoolean {
+	has(ctx: Context, key: any): FuzzyBoolean {
 		return FuzzyBoolean.toFuzzyBoolean(this.elements.has(key));
 	}
 
-	set_jel_mapping: Object;
 	set(key: any, value: any): Dictionary {
 		this.elements.set(key, value);
 		return this;
 	}
 
-	putAll_jel_mapping: Object;
 	putAll(otherDict: any): Dictionary {
 		if (!otherDict)
 			return this;
@@ -112,60 +110,60 @@ export default class Dictionary extends JelType {
 	}
 
 	each_jel_mapping: Object;
-	each(f: Callable | ((key: string, value: any, index: number)=>void)): Dictionary {
+	each(ctx: Context, f: Callable | ((key: string, value: any, index: number)=>void)): Dictionary {
 		let i = 0;
 		if (typeof f == 'function')
 			this.elements.forEach((value, key) => f(key, value, i++));
 		else
-			this.elements.forEach((value, key) => f.invoke(key, value, i++));
+			this.elements.forEach((value, key) => f.invoke(ctx, key, value, i++));
 		return this;
 	}
 
 	map_jel_mapping: Object;
-	map(f: Callable): Dictionary {
+	map(ctx: Context, f: Callable): Dictionary {
 		let i = 0;
 		const d = new Dictionary();
-		this.elements.forEach((value, key) => d.set(key, f.invoke(key, value, i++)));
+		this.elements.forEach((value, key) => d.elements.set(key, f.invoke(ctx, key, value, i++)));
 		return d;
 	}
 
 	filter_jel_mapping: Object;
-	filter(f: Callable): Dictionary {
+	filter(ctx: Context, f: Callable): Dictionary {
 		let i = 0;
 		const d = new Dictionary();
 		this.elements.forEach((value, key) => {
-			if (JelType.toRealBoolean(f.invoke(key, value, i++)))
-				d.set(key, value);
+			if (JelType.toRealBoolean(f.invoke(ctx, key, value, i++)))
+				d.elements.set(key, value);
 		});
 		return d;
 	}
 	
 	reduce_jel_mapping: Object;
-	reduce(f: Callable, init: any = 0): any {
+	reduce(ctx: Context, f: Callable, init: any = 0): any {
 		let i = 0;
 		let a = init;
 		for (let key of this.elements.keys())
-			a = f.invoke(a, key, this.get(key), i++);
+			a = f.invoke(ctx, a, key, this.elements.get(key), i++);
 		return a;
 	}
 
 	hasAny_jel_mapping: Object;
-	hasAny(f: Callable): FuzzyBoolean {
+	hasAny(ctx: Context, f: Callable): FuzzyBoolean {
 		let i = 0;
 		for (let key of this.elements.keys()) {
-			const value = this.get(key);
-			if (JelType.toRealBoolean(f.invoke(key, value)))
+			const value = this.elements.get(key);
+			if (JelType.toRealBoolean(f.invoke(ctx, key, value)))
 				return FuzzyBoolean.TRUE;
 		}
 		return FuzzyBoolean.FALSE;
 	}
 
 	hasOnly_jel_mapping: Object;
-	hasOnly(f: Callable): FuzzyBoolean {
+	hasOnly(ctx: Context, f: Callable): FuzzyBoolean {
 		let i = 0;
 		for (let key of this.elements.keys()) {
-			const value = this.get(key);
-			if (!JelType.toRealBoolean(f.invoke(key, value)))
+			const value = this.elements.get(key);
+			if (!JelType.toRealBoolean(f.invoke(ctx, key, value)))
 				return FuzzyBoolean.FALSE;
 		}
 		return FuzzyBoolean.TRUE;
@@ -181,21 +179,21 @@ export default class Dictionary extends JelType {
 		return new Dictionary(new Map(Object.keys(o).map(k => [k, o[k]]) as any), true);
 	}
 
-	static create_jel_mapping = {list: 0}; // 2nd argument intentionally omittted!
-	static create(...args: any[]): any {
+	static create_jel_mapping = {list: 1}; // 2nd argument intentionally omittted!
+	static create(ctx: Context, ...args: any[]): any {
 		return new Dictionary(args[0]);  // 2nd argument intentionally omittted! They are not intended for JEL.
 	}
 }
 
 
 Dictionary.prototype.JEL_PROPERTIES = {size: true, anyKey: true, keys: true};
-Dictionary.prototype.get_jel_mapping = {key: 0};
-Dictionary.prototype.has_jel_mapping = {key: 0};
-Dictionary.prototype.each_jel_mapping = {f: 0};
-Dictionary.prototype.map_jel_mapping = {f: 0};
-Dictionary.prototype.filter_jel_mapping = {f: 0};
-Dictionary.prototype.reduce_jel_mapping = {f: 0, init: 1};
-Dictionary.prototype.hasAny_jel_mapping = {f: 0};
-Dictionary.prototype.hasOnly_jel_mapping = {f: 0};
+Dictionary.prototype.get_jel_mapping = {key: 1};
+Dictionary.prototype.has_jel_mapping = {key: 1};
+Dictionary.prototype.each_jel_mapping = {f: 1};
+Dictionary.prototype.map_jel_mapping = {f: 1};
+Dictionary.prototype.filter_jel_mapping = {f: 1};
+Dictionary.prototype.reduce_jel_mapping = {f: 1, init: 2};
+Dictionary.prototype.hasAny_jel_mapping = {f: 1};
+Dictionary.prototype.hasOnly_jel_mapping = {f: 1};
 
 		
