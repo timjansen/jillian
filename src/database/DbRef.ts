@@ -29,42 +29,37 @@ export default class DbRef extends JelType implements IDbRef {
 			return this.cached;
 		else if (this.cached === null)
 			return Promise.reject(new NotFoundError(this.distinctName));
-		
-		this.cached = ctx.dbSession.getFromCache(this.distinctName);
-		if (this.cached != null)
-			return this.cached;
-		else if (this.cached === null)
-			return Promise.reject(new NotFoundError(this.distinctName));
-		else
-			return ctx.dbSession.getFromDatabase(this.distinctName)
-				.then((r: DbEntry)=>this.cached = r)
+
+		const o = ctx.dbSession.get(this.distinctName);
+		if (o instanceof Promise) 
+			return o.then((r: DbEntry)=>this.cached = r)
 				.catch((e: any)=>{
 					if (e instanceof NotFoundError)
 						this.cached = null;
-					return e;
+					return Promise.reject(e);
 				});
+		else
+			return this.cached = o;	
 	}
+	
 
-	// Executes function with the object
-	with(ctx: Context, f: (obj: DbEntry)=>any): any {
+	// Executes function with the object. Returns f()'s return value, either directly or in Promise
+	with(ctx: Context, f: (obj: DbEntry)=>any): Promise<any> | any {
 		if (this.cached != null)
 			return f(this.cached);
 		else if (this.cached === null)
 			return Promise.reject(new NotFoundError(this.distinctName));
 
-		this.cached = ctx.dbSession.getFromCache(this.distinctName);
-		if (this.cached != null)
-			return f(this.cached);
-		else if (this.cached === null)
-			return Promise.reject(new NotFoundError(this.distinctName));
-		else
-			return ctx.dbSession.getFromDatabase(this.distinctName)
-				.then((r: DbEntry)=>f(this.cached = r))
-				.catch((e: any)=>{
+		const o = ctx.dbSession.get(this.distinctName);
+		if (o instanceof Promise) 
+			return o.catch((e: any)=>{
 					if (e instanceof NotFoundError)
 						this.cached = null;
-					return e;
-				});
+					return Promise.reject(e);
+				})
+			.then((r: DbEntry)=>f(this.cached = r));
+		else
+			return f(this.cached = o);
 	}
 
 	hasSameParameters(right: DbRef): boolean {
@@ -90,8 +85,9 @@ export default class DbRef extends JelType implements IDbRef {
 		else
 			return obj.member(ctx, name, this.parameters);
 	}
-	
-	member(ctx: Context, name: string, parameters?: Map<string, any>): any {
+
+	// Returns the member value with the given name, possible wrapped in a Promise
+	member(ctx: Context, name: string, parameters?: Map<string, any>): Promise<any> | any {
 		return this.with(ctx, o=>this.memberInternal(ctx, o, name, parameters));
 	}
 	
@@ -133,8 +129,8 @@ export default class DbRef extends JelType implements IDbRef {
 		return this.cached !== undefined;
 	}
 	
-  getSerializationProperties(): any[] {
-    return [this.distinctName, this.parameters];
+  getSerializationProperties(): any[] {		
+    return this.parameters ? [this.distinctName, this.parameters] : [this.distinctName];
   }	
 	
   static toPromise(ctx: Context, ref: DbRef | DbEntry): Promise<DbEntry | null> {

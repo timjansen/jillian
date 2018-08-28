@@ -18,7 +18,7 @@ export default class Enum extends DbEntry {
 		const ref = DbRef.create(distinctName);
 		values.elements.forEach(v=>this.set(v, new EnumValue(v, ref)));
   }
-  
+
   getSerializationProperties(): Object {
     return [this.distinctName, this.values, this.reality, this.hashCode];
   }

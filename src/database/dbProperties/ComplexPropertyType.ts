@@ -1,4 +1,5 @@
 import PropertyType from './PropertyType';
+import PropertyHelper from './PropertyHelper';
 import Dictionary from '../../jel/types/Dictionary';
 import List from '../../jel/types/List';
 
@@ -6,18 +7,19 @@ import List from '../../jel/types/List';
  * Defines a complex type that has named, types fields.
  */
 export default class ComplexPropertyType extends PropertyType {
-  fields: Dictionary; // string->List<PropertyType>
+  fields: Dictionary; // string->PropertyType
   
   /** 
-	 * dict string->PropertyType or string->List<PropertyType> . List allows you to specify more than one type.
-   *      The List may also contain 'null' as element, if the value may be null.
+	 * dict string->PropertyType or DbRef or Dictionary or string->List<PropertyType or DbRef or Dictionary> . 
+	 *      List allows you to specify more than one type.
+   *      The List may also contain 'null' as element, if the value is optional and may be null.
 	 */
   constructor(fields: Dictionary) {
     super();
     
     const m = new Map();
     fields.each((n, v)=>{
-      m.set(n, v instanceof List ? v : new List([v]));
+      m.set(n, PropertyHelper.convert(v));
     });
     this.fields = new Dictionary(m);
   }

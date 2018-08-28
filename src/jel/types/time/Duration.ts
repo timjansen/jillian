@@ -40,7 +40,7 @@ export default class Duration extends JelType {
 						(this.years == right.years && this.months == right.months && this.days == right.days && this.hours == right.hours && this.minutes == right.minutes && this.seconds > right.seconds));
 			}
 		}
-		else if (right instanceof UnitValue && right.unit.distinctName == 'Second') {
+		else if (right instanceof UnitValue && right.unit.isType(ctx, 'Second')) {
 			const value = right.toNumber();
 			const fixedSecs = this.hours * 3600 + this.minutes * 60 + this.seconds;
 			const minSecsDate = this.days * 23 * 3600 + (this.months * 28 * 24 - 1) * 3600 + this.years * 365 * 24 * 3600 + fixedSecs;

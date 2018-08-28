@@ -1,6 +1,7 @@
 import DbEntry from '../DbEntry';
 import DbRef from '../DbRef';
 import DbSession from '../DbSession';
+import PropertyHelper from '../dbProperties/PropertyHelper';
 import DbIndexDescriptor from '../DbIndexDescriptor';
 import Dictionary from '../../jel/types/Dictionary';
 import List from '../../jel/types/List';
@@ -14,23 +15,28 @@ DB_INDICES.set('subCategories', {type: 'category', property: 'superCategory', in
 
 export default class Category extends DbEntry {
   superCategory: DbRef | null;
+	instanceProperties = new Dictionary(); // name->List of PropertyType
   JEL_PROPERTIES: Object;
-	
   
 	/**
-	 * Creates a new Category 
+	 * Creates a new Category.
 	 * @param instanceDefaults a dictionary (name->any) of default values for Things of this category. 
-	 * @param instanceProperties a dictionary (name->EnumValue of @PropertyTypeEnum) to define required and optional properties.
+	 * @param instanceProperties a dictionary (name->list of PropertyType) to define category properties.
+	 *                           Allows shortcuts, see DictionaryPropertyType.
+	 * @param mixinProperties a dictionary (name->EnumValue of @PropertyTypeEnum) to define required and optional mixin 
+	 *    properties for Things.
 	 */
   constructor(distinctName: string, superCategory?: Category|DbRef, properties?: Dictionary, 
 							 public instanceDefaults = new Dictionary(),
-							 public instanceProperties = new Dictionary(),
-							 reality?: DbRef, hashCode?: string, ) {
+							 instanceProperties = new Dictionary(),
+							 public mixinProperties = new Dictionary(),
+							 reality?: DbRef, hashCode?: string) {
     super(distinctName, reality, hashCode, properties);
 		if (!distinctName.endsWith('Category'))
 			throw Error('By convention, all Category names must end with "Category". Illegal name: ' + distinctName);
 
     this.superCategory = superCategory ? DbRef.create(superCategory) : null; 
+		instanceProperties.elements.forEach((value, key)=>this.instanceProperties.set(key, PropertyHelper.convert(value)));
   }
 
   // returns promise with all matching objects
@@ -70,14 +76,14 @@ export default class Category extends DbEntry {
 	}
   
   getSerializationProperties(): Object {
-    return [this.distinctName, this.superCategory, this.properties, this.instanceDefaults, this.instanceProperties, this.reality, this.hashCode];
+		return [this.distinctName, this.superCategory, this.properties, this.instanceDefaults, this.instanceProperties, this.mixinProperties, this.reality, this.hashCode];
   }
     
   static create_jel_mapping = {distinctName: 0, superCategory: 1, properties: 2, 
-															 instanceDefaults: 3, instanceProperties: 4,
-															 reality: 5, hashCode: 6};
+															 instanceDefaults: 3, instanceProperties: 4, mixinProperties: 5, 
+															 reality: 6, hashCode: 7};
   static create(...args: any[]): any {
-    return new Category(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+    return new Category(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
   }
 }
 

@@ -8,6 +8,7 @@ import TimeZone from './TimeZone';
 import LocalDateTime from './LocalDateTime';
 import LocalDate from './LocalDate';
 import TimeOfDay from './TimeOfDay';
+import Util from '../../../util/Util';
 import * as moment from 'moment-timezone';
 import Moment = moment.Moment;
 
@@ -58,16 +59,15 @@ export default class Timestamp extends TimeSpec {
 			}
 		}
 		else if (right instanceof UnitValue) {
-			const v = right.convertToValue(ctx, 'Millisecond');
-			if (v === undefined)
-				throw new Error('Can not convert right operand to milliseconds');
-
-			switch (operator) {
-				case '+':
-					return new Timestamp(this.msSinceEpoch + v, this.precisionInMs);
-				case '-':
-					return new Timestamp(this.msSinceEpoch - v, this.precisionInMs);
-			}
+			return Util.resolveValue((v: any)=> {
+				switch (operator) {
+					case '+':
+						return new Timestamp(this.msSinceEpoch + v.value, this.precisionInMs);
+					case '-':
+						return new Timestamp(this.msSinceEpoch - v.value, this.precisionInMs);
+				}
+				return super.op(ctx, operator, right);
+			}, right.convertTo(ctx, 'Millisecond'));
 		}
 		return super.op(ctx, operator, right);
 	}

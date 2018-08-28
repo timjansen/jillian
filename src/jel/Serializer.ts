@@ -36,7 +36,7 @@ export default class Serializer {
 						r += '\n'+spaces(2);
 					if (typeof key == 'string' && /^[a-zA-Z_]\w*$/.test(key))
 						r += key;
-					else 
+					else
 						r += Serializer.serialize(key, pretty, indent);
 					r += (pretty ? ': ' : ':') + Serializer.serialize(value, pretty, indent)
 					if (i++ < last)

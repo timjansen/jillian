@@ -17,7 +17,7 @@ export default class DurationRange extends JelType {
 	
 	op(ctx: Context, operator: string, right: any): any {
 		if ((right instanceof Duration) ||
-			 (right instanceof UnitValue && right.unit.distinctName == 'Second')) {
+			 (right instanceof UnitValue && right.unit.isType(ctx, 'Second'))) {
 			switch (operator) {
 				case '+':
 				case '-':

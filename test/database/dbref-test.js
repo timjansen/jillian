@@ -17,26 +17,28 @@ describe('DbRef', function() {
 			assert.strictEqual(r.get('fakeSession'), dbe);
 		});
 		
-		it('gets a DbEntry from the session cache', function() {
+		it('gets a DbEntry without Promise', function() {
 			const dbe = new DbEntry('Test');
-			const fakeSession = {getFromCache: ()=>dbe};
+			const fakeSession = {get: ()=>dbe};
+			const fakeCtx = new Context(undefined, fakeSession);
 			const r = new DbRef('Test', new Map([['a', 4]]));
-			const obj = r.get(new Context(undefined, fakeSession), fakeSession);
+			const obj = r.get(fakeCtx);
 			assert.strictEqual(obj.distinctName, 'Test');
 		});
 		
-		it('gets a DbEntry from the database', function() {
+		it('gets a DbEntry with Promise', function() {
 			const dbe = new DbEntry('Test');
-			const fakeSession = {getFromCache: ()=>undefined, getFromDatabase: ()=>Promise.resolve(dbe)};
+			const fakeSession = {get: ()=>Promise.resolve(dbe)};
+			const fakeCtx = new Context(undefined, fakeSession);
 			const r = new DbRef('Test', new Map([['a', 4]]));
-			const objPromise = r.get(new Context(undefined, fakeSession));
+			const objPromise = r.get(fakeCtx);
 			return objPromise.then(obj=>{assert.strictEqual(obj.distinctName, 'Test');});
 		});
 		
 		it('caches DbEntries', function() {
 			let c = 0;
 			const dbe = new DbEntry('Test');
-			const fakeSession = {getFromCache: function() {c++; return dbe}};
+			const fakeSession = {get: function() {c++; return dbe}};
 			const fakeCtx = new Context(undefined, fakeSession);
 			const r = new DbRef('Test');
 			const dbe1 = r.get(fakeCtx);
@@ -82,7 +84,7 @@ describe('DbRef', function() {
 		
 		it('gets a DbEntry from the session cache', function() {
 			const dbe = new DbEntry('Test');
-			const fakeSession = {getFromCache: ()=>dbe};
+			const fakeSession = {get: ()=>dbe};
 			const r = new DbRef('Test', new Map([['a', 4]]));
 			assert.equal(r.with(new Context(undefined, fakeSession), obj=>assert.strictEqual(obj.distinctName, 'Test') || 1), 1);
 		});
@@ -92,7 +94,7 @@ describe('DbRef', function() {
 	describe('getAsync()', function() {
 		it('wraps cached entries in a Promise', function() {
 			const dbe = new DbEntry('Test');
-			const fakeSession = {getFromCache: ()=>dbe};
+			const fakeSession = {get: ()=>dbe};
 			const r = new DbRef('Test', new Map([['a', 4]]));
 			const objPromise = r.getAsync(new Context(undefined, fakeSession));
 			return objPromise.then(obj=>{assert.strictEqual(obj.distinctName, 'Test');});

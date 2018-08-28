@@ -1,6 +1,8 @@
 import PropertyType from './PropertyType';
+import PropertyHelper from './PropertyHelper';
 import DbRef from '../DbRef';
 import List from '../../jel/types/List';
+import Dictionary from '../../jel/types/Dictionary';
 
 
 
@@ -8,15 +10,15 @@ import List from '../../jel/types/List';
  * Declares a property type that is a list.
  */
 export default class ListPropertyType extends PropertyType {
-	public types: List;
+	public types: PropertyType;
 	
 	/**
 	 * types - one or more PropertyTypes to define the acceptable member types of the list. 
 	 *         The List may also contain 'null' as element, if the List can have nulls.
 	 */
-  constructor(types: List|PropertyType) {
+  constructor(types: List|PropertyType|DbRef|Dictionary) {
     super();
-		this.types = types instanceof List ? types : new List([types]);
+		this.types = PropertyHelper.convert(types);
   }
   
   getSerializationProperties(): Object {
