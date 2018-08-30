@@ -9,7 +9,7 @@ import Gettable from '../Gettable';
  * List is an immutable array-like object that is accessible from JEL.
  */
 export default class List extends JelType implements Gettable {
-	elements: any[];
+	elements: any[]; // list elements, guaranteed to be no Promises
 
 	JEL_PROPERTIES: Object;
 
@@ -28,20 +28,13 @@ export default class List extends JelType implements Gettable {
 		if (right instanceof List) {
 			switch(operator) {
 				case '==':
+				case '===':
 					if (this.elements.length != right.elements.length)
 						return FuzzyBoolean.FALSE;
 					let result: FuzzyBoolean | Promise<FuzzyBoolean> = FuzzyBoolean.TRUE;
 					for (let i = 0; i < this.elements.length; i++)
-						result = FuzzyBoolean.falsestWithPromises(ctx, result, JelType.op(ctx, '==', this.elements[i], right.elements[i]));
+						result = FuzzyBoolean.falsestWithPromises(ctx, result, JelType.op(ctx, operator, this.elements[i], right.elements[i]));
 					return result;
-				case '===':
-					if (this.elements.length != right.elements.length)
-						return FuzzyBoolean.FALSE;
-					for (let i = 0; i < this.elements.length; i++) {
-						if (!JelType.op(ctx, '===', this.elements[i], right.elements[i]).toRealBoolean()) // no Promise support needed with '==='
-							return FuzzyBoolean.FALSE;
-					}
-					return FuzzyBoolean.TRUE;
 				case '+':
 					return new List(this.elements.concat(right.elements));
 			}
@@ -104,14 +97,44 @@ export default class List extends JelType implements Gettable {
 	}
 	
 	each_jel_mapping: Object;
-	each(ctx: Context, f: Callable): List {
-		this.elements.forEach((a,i)=>f.invoke(ctx, a,i));
-		return this;
+	each(ctx: Context, f: Callable): List | Promise<List> {
+		const self = this;
+		let i = 0;
+		const len = this.elements.length;
+		function exec(): Promise<List> | List {
+			while (i < len) {
+				const r = f.invoke(ctx, self.elements[i], i);
+				i++;
+				if (r instanceof Promise)
+					return r.then(exec);
+			}
+			return self;
+		}
+		return exec();
 	}
 
 	map_jel_mapping: Object;
-	map(ctx: Context, f: Callable): List {
+	map(ctx: Context, f: Callable): List | Promise<List> {
 		return new List(this.elements.map((a,i)=>f.invoke(ctx, a, i)));
+
+		const self = this;
+		const newList: any[] = [];
+		let i = 0;
+		const len = this.elements.length;
+		function exec(): Promise<undefined> | undefined {
+			while (i < len) {
+				const r = f.invoke(ctx, self.elements[i], i);
+				i++;
+				if (r instanceof Promise)
+					return r.then(v=> {
+						newList.push(v);
+						return exec();
+					});
+				else
+					newList.push(r);
+			}
+		}
+		return Util.resolveValue(()=>new List(newList), exec());
 	}
 
 	filter_jel_mapping: Object;

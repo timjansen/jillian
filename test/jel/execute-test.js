@@ -25,6 +25,8 @@ const Call = require('../../build/jel/expressionNodes/Call.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
 
+const ctx = new Context().setAll({JelPromise, JelConsole});
+
 describe('JEL', function() {
   describe('execute()', function() {
     
@@ -196,6 +198,8 @@ describe('JEL', function() {
       assert.deepEqual(new JEL('[]').executeImmediately().elements, []);
       assert.deepEqual(new JEL('[1]').executeImmediately().elements, [1]);
       assert.deepEqual(new JEL('[7, 9-4, 7*3]').executeImmediately().elements, [7, 5, 21]);
+      
+			return new JEL('[JelPromise(2), 0, JelPromise.resolve(8), JelPromise(9), JelPromise.resolve(7), 5]').execute(ctx).then(r=> assert.deepEqual(r.elements, [2, 0, 8, 9, 7, 5]));
     });
 
     it('supports dictionaries', function() {
@@ -207,7 +211,9 @@ describe('JEL', function() {
       assert.deepEqual(new JEL('{a: {b: 2}}').executeImmediately().toObjectDebug().a.toObjectDebug().b, 2);
       
       assert.throws(()=>new JEL('{a: 1, a: 2}').executeImmediately());
-    });
+
+      return new JEL("{a: JelPromise(1), b: 2, c: JelPromise(3), d: JelPromise.resolve(6)}").execute(ctx).then(r=>assert.deepEqual(r.toObjectDebug(), {a: 1, b: 2, c: 3, d: 6}));
+		});
 
 
     it('supports translators', function() {
