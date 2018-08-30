@@ -50,10 +50,21 @@ export default class UnitValue extends JelType {
 				}
 			}
 			else {
+				switch (operator) {
+					case '===':
+					case '>>':
+					case '<<':
+					case '>>=':
+					case '<<=':
+						return FuzzyBoolean.FALSE;	
+					case '!==':
+						return FuzzyBoolean.TRUE;
+				}
+
 				function defaultOp() {
 					return new UnitValue(JelType.op(ctx, operator, this.value, right.value), JelType.op(ctx, operator, this.unit, right.unit));
 				}
-				
+
 				return Util.catchValue(Util.resolveValue((leftConverted: UnitValue)=>JelType.op(ctx, operator, leftConverted, right), this.convertTo(ctx, right.unit)),
 					convertE=> {
 						if (this.unit.isSimple().toRealBoolean() && right.unit.isSimple().toRealBoolean()) {

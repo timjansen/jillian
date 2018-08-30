@@ -1,3 +1,4 @@
+import Util from '../../util/Util';
 import JelType from '../JelType';
 import Context from '../Context';
 import FuzzyBoolean from './FuzzyBoolean';
@@ -31,7 +32,7 @@ export default class List extends JelType implements Gettable {
 						return FuzzyBoolean.FALSE;
 					let result = FuzzyBoolean.TRUE;
 					for (let i = 0; i < this.elements.length; i++) {
-						result = FuzzyBoolean.falsest(ctx, result, JelType.op(ctx, '==', this.elements[i], right.elements[i]));
+						result = FuzzyBoolean.falsest(ctx, result, JelType.op(ctx, '==', this.elements[i], right.elements[i])); // TODO: with UnitValue, op() may return promise
 						if (result.isClearlyFalse())
 							return result;
 					}
@@ -40,7 +41,7 @@ export default class List extends JelType implements Gettable {
 					if (this.elements.length != right.elements.length)
 						return FuzzyBoolean.FALSE;
 					for (let i = 0; i < this.elements.length; i++) {
-						if (!JelType.op(ctx, '===', this.elements[i], right.elements[i]).toRealBoolean())
+						if (!JelType.op(ctx, '===', this.elements[i], right.elements[i]).toRealBoolean()) // no Promise support needed with '---'
 							return FuzzyBoolean.FALSE;
 					}
 					return FuzzyBoolean.TRUE;

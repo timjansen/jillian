@@ -178,6 +178,13 @@ export default class FuzzyBoolean extends JelType {
 		return a.state < b.state ? a : b;
 	}
 
+	static falsestWithPromises(ctx: Context, a: FuzzyBoolean | Promise<FuzzyBoolean>, b: FuzzyBoolean | Promise<FuzzyBoolean>): FuzzyBoolean | Promise<FuzzyBoolean> {
+		if (a instanceof Promise || b instanceof Promise)
+			return Util.resolveValues(FuzzyBoolean.falsest, ctx, a, b);
+		else
+			return FuzzyBoolean.falsest(ctx, a, b);
+	}
+
 	
 	static create_jel_mapping = {state: 1};
 	static create(ctx: Context, ...args: any[]): FuzzyBoolean {

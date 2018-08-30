@@ -84,15 +84,15 @@ export default class WorkerPool {
 		
 		for (let i = 0; i < this.jobs.length; i++) {
 			const job = this.jobs[i];
-			const tasksToStart = Math.min(this.maxSimultanousWorkers - this.currentWorkerNum, job.preparedTasks.size);
 			const tasks = job.preparedTasks.values();
 
-			for (let j = 0; j < tasksToStart; j++) {
+			while (job.preparedTasks.size > 0 && this.currentWorkerNum < this.maxSimultanousWorkers) {
 				const task = tasks.next().value;
 				job.preparedTasks.delete(task);
-				this.currentWorkerNum++;
-				job.worker(task)
-					.then((result: any)=>{
+				const workerResult = job.worker(task);
+				if (workerResult instanceof Promise) {
+					this.currentWorkerNum++;
+					workerResult.then((result: any)=>{
 						job.finishedTasks++;
 						if (result != null || !job.ignoreNull)
 							job.resultList.push(result); 
@@ -108,6 +108,15 @@ export default class WorkerPool {
 						this.currentWorkerNum--; 
 						this.runTasks();
 					});
+				}
+				else {
+					job.finishedTasks++;
+					if (workerResult != null || !job.ignoreNull)
+						job.resultList.push(workerResult); 
+					if (job.finishedTasks >= job.taskCount)
+						job.resolve(job.resultList);
+				}
+					
 			}
 			if (this.currentWorkerNum >= this.maxSimultanousWorkers)
 				break;

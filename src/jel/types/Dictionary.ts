@@ -34,15 +34,12 @@ export default class Dictionary extends JelType {
 				case '===':
 					if (this.elements.size != right.elements.size)
 						return FuzzyBoolean.FALSE;
-					let result = FuzzyBoolean.TRUE;
+					let result: FuzzyBoolean | Promise<FuzzyBoolean> = FuzzyBoolean.TRUE;
 					for (let key of this.elements.keys())
 						if (!right.elements.has(key))
 							return FuzzyBoolean.FALSE;
-						else {
-							result = FuzzyBoolean.falsest(ctx, result, JelType.op(ctx, operator, this.elements.get(key), right.elements.get(key)));
-							if (result.isClearlyFalse())
-								return result;
-						}
+						else
+							result = FuzzyBoolean.falsestWithPromises(ctx, result, JelType.op(ctx, operator, this.elements.get(key), right.elements.get(key)));
 					return result;
 			}
 		}
