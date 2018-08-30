@@ -24,8 +24,19 @@ export default class Dictionary extends JelNode {
   // override
   execute(ctx: Context): any {
     const map = new Map();
-    this.elements.forEach(a => map.set(a.name, a.execute(ctx)));
-    return new JelDictionary(map, true);
+		const promises: Promise<any>[] = [];
+    this.elements.forEach(a => {
+			const value = a.execute(ctx);
+			if (value instanceof Promise)
+				promises.push(value.then(v=>map.set(a.name, v)));
+			else
+				map.set(a.name, value);
+		});
+		
+		if (promises.length)
+			return Promise.all(promises).then(()=>new JelDictionary(map, true));
+		else
+	    return new JelDictionary(map, true);
   }
   
   // override

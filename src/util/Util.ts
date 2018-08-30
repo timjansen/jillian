@@ -86,6 +86,14 @@ export default class Util {
 			return f(...values);
 	}
 
+	static resolveArray(f: (array: any[])=>any, arr: any[]): any {
+		if (arr.find(v=>v instanceof Promise))
+			return Promise.all(arr).then(f);
+		else 
+			return f(arr);
+	}
+
+	
 	static catchValue(value: any, f: (e: any)=>any): any {
 		if (value instanceof Promise)
 			return value.catch(f);

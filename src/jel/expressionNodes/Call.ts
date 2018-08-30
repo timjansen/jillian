@@ -42,8 +42,7 @@ export default class Call extends JelNode {
     const args = this.argList.map(a=>a.execute(ctx));
     const argObjValues = this.namedArgs.map(a=>a.execute(ctx));
 
-    return resolveValueObj(objArgs=>Util.resolveValues((...listArgs: any[])=>callable.invokeWithObject(ctx, listArgs, objArgs), ...args),
-                                this.namedArgs, argObjValues);
+    return resolveValueObj(objArgs=>Util.resolveArray((listArgs: any[])=>callable.invokeWithObject(ctx, listArgs, objArgs), args), this.namedArgs, argObjValues);
   }
   
   private callLeft(ctx: Context, left: JelNode): any {
@@ -55,8 +54,8 @@ export default class Call extends JelNode {
         throw new Error(`Call failed. Tried to create '${left.constructor.name}', but it does not support creation. It needs a public create() method.`);
       return this.callCallable(ctx, callable);
     }
-    else if (left == null) 
-      return null;
+    else 
+        throw new Error(`Can not call function on null`);
   }
   
   // override

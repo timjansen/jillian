@@ -30,18 +30,15 @@ export default class List extends JelType implements Gettable {
 				case '==':
 					if (this.elements.length != right.elements.length)
 						return FuzzyBoolean.FALSE;
-					let result = FuzzyBoolean.TRUE;
-					for (let i = 0; i < this.elements.length; i++) {
-						result = FuzzyBoolean.falsest(ctx, result, JelType.op(ctx, '==', this.elements[i], right.elements[i])); // TODO: with UnitValue, op() may return promise
-						if (result.isClearlyFalse())
-							return result;
-					}
+					let result: FuzzyBoolean | Promise<FuzzyBoolean> = FuzzyBoolean.TRUE;
+					for (let i = 0; i < this.elements.length; i++)
+						result = FuzzyBoolean.falsestWithPromises(ctx, result, JelType.op(ctx, '==', this.elements[i], right.elements[i]));
 					return result;
 				case '===':
 					if (this.elements.length != right.elements.length)
 						return FuzzyBoolean.FALSE;
 					for (let i = 0; i < this.elements.length; i++) {
-						if (!JelType.op(ctx, '===', this.elements[i], right.elements[i]).toRealBoolean()) // no Promise support needed with '---'
+						if (!JelType.op(ctx, '===', this.elements[i], right.elements[i]).toRealBoolean()) // no Promise support needed with '==='
 							return FuzzyBoolean.FALSE;
 					}
 					return FuzzyBoolean.TRUE;
@@ -71,8 +68,6 @@ export default class List extends JelType implements Gettable {
 					const l = this.elements.slice();
 					l.push(right);
 					return new List(l);
-				case '-':
-					return new List(this.elements.filter(e=>!JelType.op(ctx, '==', e, right).toRealBoolean()));
 			}
 		}
 		return super.op(ctx, operator, right);
@@ -116,7 +111,7 @@ export default class List extends JelType implements Gettable {
 
 	map_jel_mapping: Object;
 	map(ctx: Context, f: Callable): List {
-		return new List(this.elements.map((a,i)=>f.invoke(ctx, a,i)));
+		return new List(this.elements.map((a,i)=>f.invoke(ctx, a, i)));
 	}
 
 	filter_jel_mapping: Object;

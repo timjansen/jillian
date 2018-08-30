@@ -5,7 +5,7 @@ import JelList from '../types/List';
 import Util from '../../util/Util';
 
 /**
- * Represents a List literal, like in JavaScript.Represents
+ * Represents a List literal, like in JavaScript.
  *
  * Examples:
  *	[]              // empty lists
@@ -19,7 +19,7 @@ export default class List extends JelNode {
 
   // override
   execute(ctx: Context): JelList { 
-    return new JelList(this.elements.map(e=>e.execute(ctx)));
+    return Util.resolveArray((l: any[])=>new JelList(l), this.elements.map(e=>e.execute(ctx)));
   }
   
   // override
@@ -30,7 +30,7 @@ export default class List extends JelNode {
 	}
 
   toString(): string {
-		return `{${this.elements.map(s=>s.toString()).join(', ')}}`;
+		return `[${this.elements.map(s=>s.toString()).join(', ')}]`;
 	}  
 	
   getSerializationProperties(): any[] {
