@@ -1,0 +1,4 @@
+Thing('Energy', @QuantityCategory,
+	properties={
+		primaryUnit: @Piece
+})

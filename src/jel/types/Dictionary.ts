@@ -39,7 +39,7 @@ export default class Dictionary extends JelType {
 						if (!right.elements.has(key))
 							return FuzzyBoolean.FALSE;
 						else {
-							result = FuzzyBoolean.falsest(result, JelType.op(ctx, operator, this.elements.get(key), right.elements.get(key)));
+							result = FuzzyBoolean.falsest(ctx, result, JelType.op(ctx, operator, this.elements.get(key), right.elements.get(key)));
 							if (result.isClearlyFalse())
 								return result;
 						}

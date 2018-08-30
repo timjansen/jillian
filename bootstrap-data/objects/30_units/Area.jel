@@ -1,0 +1,5 @@
+Thing('Area', @QuantityCategory,
+	properties={
+		primaryUnit: @SquareMeter,
+		imperialUnit: @SquareFood
+})

@@ -85,6 +85,18 @@ export default class Util {
 		else 
 			return f(...values);
 	}
+
+	static catchValue(value: any, f: (e: any)=>any): any {
+		if (value instanceof Promise)
+			return value.catch(f);
+		else
+			return value;
+	}
+	
+	static resolveInvoke(obj: any, f: any, ...args: any[]): any {
+		return Util.resolveValues((obj: any, f: any, ...args: any[])=>f.apply(obj, args));
+	}
+
 	
 	static denull<T>(x: T | null | undefined, msg?: string): T {
 		if (x == null)

@@ -1,0 +1,5 @@
+Thing('Mass', @QuantityCategory,
+	properties={
+		primaryUnit: @Kilogramm,
+		imperialUnit: @Ounce
+})

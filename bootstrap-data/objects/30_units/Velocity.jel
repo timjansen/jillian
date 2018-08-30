@@ -1,0 +1,5 @@
+Thing('Velocity', @QuantityCategory,
+	properties={
+		primaryUnit: @MeterPerSecond,
+		imperialUnit: @MilesPerHour
+})

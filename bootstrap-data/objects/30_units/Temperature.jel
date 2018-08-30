@@ -1,0 +1,5 @@
+Thing('Temperature', @QuantityCategory,
+	properties={
+		primaryUnit: @DegreeCelsius,
+		imperialUnit: @DegreeFahrenheit
+})

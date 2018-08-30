@@ -1,0 +1,5 @@
+Thing('Length', @QuantityCategory,
+	properties={
+		primaryUnit: @Meter,
+		imperialUnit: @Food
+})

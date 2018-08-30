@@ -1,0 +1,4 @@
+Thing('SpicyHeat', @QuantityCategory,
+	properties={
+		primaryUnit: @Shu
+})

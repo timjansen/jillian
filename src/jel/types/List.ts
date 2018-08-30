@@ -31,7 +31,7 @@ export default class List extends JelType implements Gettable {
 						return FuzzyBoolean.FALSE;
 					let result = FuzzyBoolean.TRUE;
 					for (let i = 0; i < this.elements.length; i++) {
-						result = FuzzyBoolean.falsest(result, JelType.op(ctx, '==', this.elements[i], right.elements[i]));
+						result = FuzzyBoolean.falsest(ctx, result, JelType.op(ctx, '==', this.elements[i], right.elements[i]));
 						if (result.isClearlyFalse())
 							return result;
 					}

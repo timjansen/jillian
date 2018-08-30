@@ -19,7 +19,7 @@ export default class UnitValue extends JelType {
 	public value: number | Fraction | ApproximateNumber;
 	public unit: Unit;
 	
-	constructor(value: number | Fraction | ApproximateNumber, unit: IDbRef | Unit) {
+	constructor(value: number | Fraction | ApproximateNumber, unit: IDbRef | Unit | string) {
 		super();
 		this.value = value;
 		this.unit = unit instanceof Unit ? unit : new Unit(unit);
@@ -54,26 +54,29 @@ export default class UnitValue extends JelType {
 					return new UnitValue(JelType.op(ctx, operator, this.value, right.value), JelType.op(ctx, operator, this.unit, right.unit));
 				}
 				
-				const leftConverted = this.convertTo(ctx, right.unit);
-				if (leftConverted) 
-					return JelType.op(ctx, operator, leftConverted, right);
-				else if (this.unit.isSimple().toRealBoolean() && right.unit.isSimple().toRealBoolean()) {
-					const rightUnit = right.unit.getSimpleType(ctx).distinctName;
-					switch (operator) {
-					case '*':
-							return this.unit.getSimpleType(ctx).with(ctx, 
-																				st=>st.member(ctx, 'multipliesTo').has(rightUnit).toRealBoolean() ? st.member(ctx, 'multipliesTo').get(rightUnit).f(this) : defaultOp());
-					case '/':
-							return this.unit.getSimpleType(ctx).with(ctx, 
-																				st=>st.member(ctx, 'dividesTo').has(rightUnit).toRealBoolean() ? st.member(ctx, 'dividesTo').get(rightUnit).f(this) : defaultOp());
-					}
-				}
-				else
-					switch (operator) {
-					case '*':
-					case '/':
-							return defaultOp();
-					}
+				return Util.catchValue(Util.resolveValue((leftConverted: UnitValue)=>JelType.op(ctx, operator, leftConverted, right), this.convertTo(ctx, right.unit)),
+					convertE=> {
+						if (this.unit.isSimple().toRealBoolean() && right.unit.isSimple().toRealBoolean()) {
+							const rightUnit = right.unit.getSimpleType(ctx).distinctName;
+							switch (operator) {
+							case '*':
+									return this.unit.getSimpleType(ctx).with(ctx, 
+																						st=>st.member(ctx, 'multipliesTo').has(rightUnit).toRealBoolean() ? 
+																													 new UnitValue(st.member(ctx, 'multipliesTo').get(rightUnit).f(this), rightUnit) : defaultOp());
+							case '/':
+									return this.unit.getSimpleType(ctx).with(ctx, 
+																						st=>st.member(ctx, 'dividesTo').has(rightUnit).toRealBoolean() ? 
+																													 new UnitValue(st.member(ctx, 'dividesTo').get(rightUnit).f(this), rightUnit) : defaultOp());
+							}
+						}
+						else
+							switch (operator) {
+							case '*':
+							case '/':
+									return defaultOp();
+							}
+						return super.op(ctx, operator, right);
+				});
 			}
 		}
 		else if (typeof right == 'number' || right instanceof Fraction || right instanceof ApproximateNumber) {

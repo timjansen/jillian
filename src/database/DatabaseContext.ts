@@ -6,6 +6,7 @@ import DbRef from './DbRef';
 import Category from './dbObjects/Category';
 import Thing from './dbObjects/Thing';
 
+import Math from '../jel/types/Math';
 import Dictionary from '../jel/types/Dictionary';
 import FuzzyBoolean from '../jel/types/FuzzyBoolean';
 import ApproximateNumber from '../jel/types/ApproximateNumber';
@@ -20,7 +21,7 @@ import Translator from '../jel/types/Translator';
 import EnumValue from '../jel/types/EnumValue';
 
 const CTX_IDENTIFIERS = {DbEntry, DbRef, Category, Thing, FuzzyBoolean, ApproximateNumber, Range, Fraction, UnitValue,
-												Dictionary, List, Distribution, DistributionPoint, Pattern, Translator,
+												Math, Dictionary, List, Distribution, DistributionPoint, Pattern, Translator,
 												EnumValue};
 
 export default class DatabaseContext {

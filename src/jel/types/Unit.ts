@@ -91,7 +91,6 @@ export default class Unit extends JelType {
 		return FuzzyBoolean.toFuzzyBoolean(this.getSimpleType(ctx).distinctName == (typeof unit == 'string' ? unit : unit.distinctName));
 	}
 	
-	
 	getSerializationProperties(): any[] {
 		return [this.numeratorUnits, this.denominatorUnits];
 	}

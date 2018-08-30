@@ -17,7 +17,7 @@
 {value: -0.75, unit: 'turns', accuracy: 0.01}  // accuracy: 0.01 turns
 {value: 1, unit: 'radian'}                     // accuracy: 0
 {value: 1, unit: 'radian', accuracy: 0.01}     // accuracy: 0.01 radian
-{value: 2, unit: 'piRadian'}                   // piRadian is the radian divided by Math.Pi. accuracy: 0
+{value: 2, unit: 'gradian'}                   // piRadian is the radian divided by Math.Pi. accuracy: 0
 
 
 

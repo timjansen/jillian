@@ -1,5 +1,6 @@
 import JelType from '../JelType';
 import Context from '../Context';
+import Util from '../../util/Util';
 
 /**
  * Represents a boolean type that has, beside clear true and false, also a notion of 'barely true' and 'barely false'.
@@ -149,32 +150,31 @@ export default class FuzzyBoolean extends JelType {
 
 	and_jel_mapping: Object;
 	and(ctx: Context, a: FuzzyBoolean): FuzzyBoolean {
-		return FuzzyBoolean.and(this, a);
+		return FuzzyBoolean.and(ctx, this, a);
 	}
 
 	or_jel_mapping: Object;
 	or(ctx: Context, a: FuzzyBoolean): FuzzyBoolean {
-		return FuzzyBoolean.or(this, a);
+		return FuzzyBoolean.or(ctx, this, a);
 	}
-
 	
-	static and_jel_mapping = {a: 0, b: 1};
-	static and(a: FuzzyBoolean, b: FuzzyBoolean): FuzzyBoolean {
+	static and_jel_mapping = {a: 1, b: 2};
+	static and(ctx: Context, a: FuzzyBoolean, b: FuzzyBoolean): FuzzyBoolean {
 		return a.toRealBoolean() ? b : a;
 	}
 
-	static or_jel_mapping = {a: 0, b: 1};
-	static or(a: FuzzyBoolean, b: FuzzyBoolean): FuzzyBoolean {
+	static or_jel_mapping = {a: 1, b: 2};
+	static or(ctx: Context, a: FuzzyBoolean, b: FuzzyBoolean): FuzzyBoolean {
 		return a.toRealBoolean() ? a : b;
 	}
 
-	static truest_jel_mapping = {a: 0, b: 1};
-	static truest(a: FuzzyBoolean, b: FuzzyBoolean): FuzzyBoolean {
+	static truest_jel_mapping = {a: 1, b: 2};
+	static truest(ctx: Context, a: FuzzyBoolean, b: FuzzyBoolean): FuzzyBoolean {
 		return a.state > b.state ? a : b;
 	}
 
-	static falsest_jel_mapping = {a: 0, b: 1};
-	static falsest(a: FuzzyBoolean, b: FuzzyBoolean): FuzzyBoolean {
+	static falsest_jel_mapping = {a: 1, b: 2};
+	static falsest(ctx: Context, a: FuzzyBoolean, b: FuzzyBoolean): FuzzyBoolean {
 		return a.state < b.state ? a : b;
 	}
 

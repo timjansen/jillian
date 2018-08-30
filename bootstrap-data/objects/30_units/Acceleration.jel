@@ -1,0 +1,4 @@
+Thing('Acceleration', @QuantityCategory,
+	properties={
+		primaryUnit: @MeterPerSecondSquared
+})

@@ -3,9 +3,11 @@ Category('UnitOfMeasureCategory',
 	instanceDefaults={}, 
 	instanceProperties={
 		quantityCategory: @QuantityCategory,
-		isPrimaryUnit: @FuzzyBoolean
-		convertsTo: DictionaryPropertyType(@String, {f: FunctionPropertyType(['v']), factor: [@Number, null]})
-		multipliesTo: DictionaryPropertyType(@String, {f: FunctionPropertyType(['v']), factor: [@Number, null]})
-		dividesTo: DictionaryPropertyType(@String, {f: FunctionPropertyType(['v']), factor: [@Number, null]})
+		isPrimaryUnit: @FuzzyBoolean,
+		idealMin: [@Number, null],  // should be converted if lower (>= 0, absolute value)
+		idealMax: [@Number, null],  // should be converted if higher
+		convertsTo: DictionaryPropertyType(@String, {f: FunctionPropertyType(['v']), factor: [@Number, @Fraction, null], idealMin: [@Number, null], idealMax: [@Number, null]})
+		multipliesTo: DictionaryPropertyType(@String, {f: FunctionPropertyType(['v']), factor: [@Number, @Fraction, null]})
+		dividesTo: DictionaryPropertyType(@String, {f: FunctionPropertyType(['v']), factor: [@Number, @Fraction, null]})
 	}
 )

@@ -1,0 +1,5 @@
+Thing('Volume', @QuantityCategory,
+	properties={
+		primaryUnit: @CubicMeter,
+		imperialUnit: @CubicInch
+})
