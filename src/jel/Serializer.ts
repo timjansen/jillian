@@ -89,7 +89,7 @@ export default class Serializer {
 			else if (typeof obj.length == 'number') 
 				return Serializer.serializeArray(obj, pretty, indent);
 			else
-				return '"unsupported object"';
+				return `"unsupported object. type=${obj?obj.constructor.name:'?'}"`;
 		}
 		else if (type == 'string' || type == 'number' || type == 'boolean')
 			return JSON.stringify(obj);

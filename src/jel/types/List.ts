@@ -115,8 +115,6 @@ export default class List extends JelType implements Gettable {
 
 	map_jel_mapping: Object;
 	map(ctx: Context, f: Callable): List | Promise<List> {
-		return new List(this.elements.map((a,i)=>f.invoke(ctx, a, i)));
-
 		const self = this;
 		const newList: any[] = [];
 		let i = 0;
@@ -139,47 +137,136 @@ export default class List extends JelType implements Gettable {
 
 	filter_jel_mapping: Object;
 	filter(ctx: Context, f: Callable): List {
-		return new List(this.elements.filter((a,i)=>JelType.toRealBoolean(f.invoke(ctx, a,i))));
+		const self = this;
+		const newList: any[] = [];
+		let i = 0;
+		const len = this.elements.length;
+		function exec(): Promise<undefined> | undefined {
+			while (i < len) {
+				const e = self.elements[i];
+				const r = f.invoke(ctx, e, i);
+				i++;
+				if (r instanceof Promise)
+					return r.then(v=> {
+						if (JelType.toRealBoolean(v))
+							newList.push(e);
+						return exec();
+					});
+				else if (JelType.toRealBoolean(r))
+					newList.push(e);
+			}
+		}
+		return Util.resolveValue(()=>new List(newList), exec());
 	}
 	
 	reduce_jel_mapping: Object;
 	reduce(ctx: Context, f: Callable, init: any): any {
-		return this.elements.reduce((a,e,i)=>f.invoke(ctx, a,e,i), init);
+		const self = this;
+		let result: any = init;
+		let i = 0;
+		const len = this.elements.length;
+		function exec(): Promise<undefined> | undefined {
+			while (i < len) {
+				const r = f.invoke(ctx, self.elements[i], result, i);
+				i++;
+				if (r instanceof Promise)
+					return r.then(v=> {
+						result = v;
+						return exec();
+					});
+				else 
+					result = r;
+			}
+			return result;
+		}
+		return exec();
 	}
 
 	hasAny_jel_mapping: Object;
-	hasAny(ctx: Context, f: Callable): boolean {
-		for (let i = 0; i < this.elements.length; i++)
-			if (JelType.toRealBoolean(f.invoke(ctx, this.elements[i], i)))
-				return true;
-		return false;
+	hasAny(ctx: Context, f: Callable): FuzzyBoolean | Promise<FuzzyBoolean> {
+		const self = this;
+		let i = 0;
+		const len = this.elements.length;
+		function exec(): Promise<FuzzyBoolean> | FuzzyBoolean {
+			while (i < len) {
+				const r = f.invoke(ctx, self.elements[i], i);
+				i++;
+				if (r instanceof Promise)
+					return r.then(v=> v.toRealBoolean() ? FuzzyBoolean.TRUE : exec());
+				else if (r.toRealBoolean())
+					return FuzzyBoolean.TRUE;
+			}
+			return FuzzyBoolean.FALSE;
+		}
+		return exec();
 	}
 
 	hasOnly_jel_mapping: Object;
-	hasOnly(ctx: Context, f: Callable): boolean {
-		for (let i = 0; i < this.elements.length; i++)
-			if (!JelType.toRealBoolean(f.invoke(ctx, this.elements[i], i)))
-				return false;
-		return true;
+	hasOnly(ctx: Context, f: Callable): FuzzyBoolean | Promise<FuzzyBoolean> {
+		const self = this;
+		let i = 0;
+		const len = this.elements.length;
+		function exec(): Promise<FuzzyBoolean> | FuzzyBoolean {
+			while (i < len) {
+				const r = f.invoke(ctx, self.elements[i], i);
+				i++;
+				if (r instanceof Promise)
+					return r.then(v=> v.toRealBoolean() ? exec() : FuzzyBoolean.FALSE);
+				else if (!r.toRealBoolean())
+					return FuzzyBoolean.FALSE;
+			}
+			return FuzzyBoolean.TRUE;
+		}
+		return exec();
 	}
 	
 	// isBetter(a,b) checks whether a is better than b (must return false is both are equally good)
+	// returns one or more that items that were better than everything else.
 	bestMatches_jel_mapping: Object;
 	bestMatches(ctx: Context, isBetter: Callable): List {
 		if (!this.elements.length)
 			return List.empty;
 		
+		const self = this;
 		const l = [this.first];
-		for (let i = 1; i < this.elements.length; i++) {
-			const e = this.elements[i];
-			if (!JelType.toRealBoolean(isBetter.invoke(ctx, l[0], e))) {
-				if (JelType.toRealBoolean(isBetter.invoke(ctx, e, l[0])))
-					l.splice(0, this.elements.length, e);
-				else
-					l.push(e);
-			}
+		let i = 1;
+		const len = this.elements.length;
+		
+		function check1Passed(e: any): undefined | Promise<any> {
+			const check2 = isBetter.invoke(ctx, e, l[0]);
+			if (check2 instanceof Promise) 
+				return check2.then(v=>JelType.toRealBoolean(v) ? l.splice(0, self.elements.length, e) : l.push(e))
+			else if (JelType.toRealBoolean(check2))
+				l.splice(0, self.elements.length, e);
+			else
+				l.push(e);
 		}
-		return new List(l);
+		
+		function exec(): any[] | Promise<any[]> {
+			while (i < len) {
+				const e = self.elements[i++];
+				const check1 = isBetter.invoke(ctx, l[0], e);
+				if (check1 instanceof Promise) 
+					return check1.then((v: any) => {
+						if (!JelType.toRealBoolean(v)) {
+							const c2 = check1Passed(e);
+							if (c2 instanceof Promise)
+								return c2.then(exec);
+							else
+								return exec();
+						}
+						else
+							return exec();
+					});
+				else if (!JelType.toRealBoolean(check1)) {
+					const check2 = check1Passed(e);
+					if (check2)
+						return check2.then(exec);
+				}
+			}
+			return l;
+		}
+		return Util.resolveValue(l=>new List(l), exec());
 	}
 	
 	sub_jel_mapping: Object;

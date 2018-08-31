@@ -38,7 +38,7 @@ describe('jelSerializer', function() {
     
     
     it('should serialize anonymous objects using an error message', function() {
-      assert.equal(s.serialize({x: 0}), '"unsupported object"');
+      assert.equal(s.serialize({x: 0}), '"unsupported object. type=Object"');
     });
     
     it('should use getSerializationProperties() for objects, with argument names', function() {

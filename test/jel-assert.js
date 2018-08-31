@@ -21,12 +21,23 @@ class JelAssert {
 		return s;
 	}
 
+	execPromise(s) {
+		if (typeof s == 'string')
+			return new JEL(s).execute(this.ctx);
+		return Promise.resolve(s);
+	}
+
 	equal(a, b, c) {
 		assert.equal(Serializer.serialize(this.exec(a)), Serializer.serialize(this.exec(b)), c);
 	}
 
 	notEqual(a, b, c) {
 		assert.notEqual(Serializer.serialize(this.exec(a)), Serializer.serialize(this.exec(b)), c);
+	}
+
+	equalPromise(a, b, c) {
+		const a0 = this.execPromise(a), b0 = this.execPromise(b);
+		return Promise.all([a0, b0]).then(x=>this.equal(Serializer.serialize(x[0]), Serializer.serialize(x[1]), c));
 	}
 	
 	fuzzy(a, min, max) {
@@ -39,7 +50,6 @@ class JelAssert {
 		else
 			assert.ok(r.state == min, `Expected fuzzy boolean with state=${min}, but got state=${r.state}`);
 	}
-
 }
 
 class JelPromise extends JelType {
