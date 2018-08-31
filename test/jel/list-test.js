@@ -203,8 +203,17 @@ describe('jelList', function() {
     });
     it('sorts by default sorter', function() {
       jelAssert.equal('[3, 2, 9, 5].sort()', new List([2, 3, 5, 9])); 
+      jelAssert.equal('[1, 2, 3, 4].sort()', new List([1, 2, 3, 4])); 
+      jelAssert.equal('[4, 3, 2, 1].sort()', new List([1, 2, 3, 4])); 
+      jelAssert.equal('[1, 2, 3, 4, 5].sort()', new List([1, 2, 3, 4, 5])); 
+      jelAssert.equal('[5, 1, 2, 3, 4].sort()', new List([1, 2, 3, 4, 5])); 
+      jelAssert.equal('[5, 4, 3, 2, 1].sort()', new List([1, 2, 3, 4, 5])); 
+      jelAssert.equal('[0, 0, 0, 0].sort()', new List([0, 0, 0, 0])); 
+      jelAssert.equal('[0, 0, 0, 1, 0].sort()', new List([0, 0, 0, 0, 1])); 
       jelAssert.equal('[9, 2, 3, 5].sort()', new List([2, 3, 5, 9])); 
       jelAssert.equal('[1, 3, 3, 5, 9, 9].sort()', new List([1, 3, 3, 5, 9, 9])); 
+      jelAssert.equal('[1, 4, 3, 6, 3, 7, 8, 2, 5, 9, 9].sort()', new List([1, 2, 3, 3, 4, 5, 6, 7, 8, 9, 9])); 
+      jelAssert.equal('[100, 3, 33, 5, 7, 3, 6, 8, 9, 4, 3, 5, 6, 99, 33, 66, 77, 88, 99, 9].sort()', new List([3, 3, 3, 4, 5, 5, 6, 6, 7, 8, 9, 9, 33, 33, 66, 77, 88, 99, 99, 100])); 
     });
     it('sorts by lambda', function() {
       jelAssert.equal('[3, 2, 9, 5].sort((a,b)=>a<b)', new List([2, 3, 5, 9])); 

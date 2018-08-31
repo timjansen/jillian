@@ -274,42 +274,83 @@ export default class List extends JelType implements Gettable {
 		return new List(this.elements.slice(start == null ? 0 : start >= 0 ? start : this.elements.length + start, 
 																				end == null ? this.elements.length : end >= 0 ? end : this.elements.length + end));
 	}
+
+	// TODO: handle promises
+	private partition(ctx: Context, l: any[], start: number, end: number, isLess: (a: any, b: any)=>boolean|Promise<boolean>): number | Promise<number> {
+		const pivot = l[end];
+		let i = (start - 1)  // Index of smaller element
+
+		for (let j = start; j <= end - 1; j++) {
+			if (isLess(l[j], pivot)) {
+				i++;
+				const tmp = l[i];
+				l[i] = l[j];
+				l[j] = tmp;
+			}
+		}
+		const tmp = l[i + 1];
+		l[i + 1] = l[end];
+		l[end] = tmp;
+    return i + 1;
+	}
+	
+	private quickSort(ctx: Context, l: any[], start: number, end: number, isLess: (a: any, b: any)=>boolean|Promise<boolean>): undefined | Promise<any> {
+		if (start < end) {
+			const pi = this.partition(ctx, l, start, end, isLess);
+			if (pi instanceof Promise)
+				return pi.then(pi=>Promise.all([this.quickSort(ctx, l, start, pi - 1, isLess), this.quickSort(ctx, l, pi + 1, end, isLess)]));
+
+			this.quickSort(ctx, l, start, pi - 1, isLess);
+			this.quickSort(ctx, l, pi + 1, end, isLess);
+		}
+	}
+	
+	private static toPromisedRealBoolean(b: FuzzyBoolean | Promise<FuzzyBoolean>): boolean | Promise<boolean> {
+		if (b instanceof Promise)
+			return b.then(v=>JelType.toRealBoolean(v));
+		else
+			return JelType.toRealBoolean(b);
+	}
 	
 	// isLess(a, b) checks whether a<b . If a==b or a>b, is must return false. If a==b, then !isLess(a,b)&&!isLess(b,a)
 	// key is either the string of a property name, or a function key(a) that return the key for a.
 	sort_jel_mapping: Object;
 	sort(ctx: Context, isLess?: Callable, key?: string | Callable): List {
+		if (this.elements.length < 2)
+			return this;
+
 		const l: any[] = Array.prototype.slice.call(this.elements);
+		let r: undefined | Promise<any> = undefined;
 		if (typeof key == 'string') {
 			if (isLess) 
-				l.sort((a0: any, b0: any)=>{
+				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>{
 					const a = JelType.member(ctx, a0, key), b = JelType.member(ctx, b0, key);
-					return JelType.toRealBoolean(isLess.invoke(ctx, a,b)) ? -1 : (JelType.toRealBoolean(isLess.invoke(ctx, b,a)) ? 1 : 0)
+					return List.toPromisedRealBoolean(Util.resolveValues((a: any, b: any)=>isLess.invoke(ctx, a, b), a, b));
 				});
 			else
-				l.sort((a0: any, b0: any)=> { 
+				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>{
 					const a = JelType.member(ctx, a0, key), b = JelType.member(ctx, b0, key);
-					return JelType.toRealBoolean(JelType.op(ctx, '<', a, b)) ? -1 : (JelType.toRealBoolean(JelType.op(ctx, '>', a, b)) ? 1 : 0)
+					return List.toPromisedRealBoolean(Util.resolveValues((a: any, b: any)=>JelType.op(ctx, '<', a, b), a, b));
 				});
 		}
 		else if (key instanceof Callable) {
 			if (isLess) 
-				l.sort((a0: any, b0: any)=>{
+				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>{
 					const a = key.invoke(ctx, a0), b = key.invoke(ctx, b0);
-					return JelType.toRealBoolean(isLess.invoke(ctx, a,b)) ? -1 : (JelType.toRealBoolean(isLess.invoke(ctx, b,a)) ? 1 : 0)
+					return List.toPromisedRealBoolean(Util.resolveValues((a: any, b: any)=>isLess.invoke(ctx, a, b), a, b));
 				});
 			else
-				l.sort((a0: any, b0: any)=> { 
+				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>{
 					const a = key.invoke(ctx, a0), b = key.invoke(ctx, b0);
-					return JelType.toRealBoolean(JelType.op(ctx, '<', a, b)) ? -1 : (JelType.toRealBoolean(JelType.op(ctx, '>', a, b)) ? 1 : 0)
+					return List.toPromisedRealBoolean(Util.resolveValues((a: any, b: any)=>JelType.op(ctx, '<', a, b), a, b));
 				});
 		}
 		else if (isLess)
-			l.sort((a: any, b: any)=>JelType.toRealBoolean(isLess.invoke(ctx, a,b)) ? -1 : (JelType.toRealBoolean(isLess.invoke(ctx, b,a)) ? 1 : 0));
+			r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>List.toPromisedRealBoolean(isLess.invoke(ctx, a0, b0)));
 		else
-			l.sort((a: any, b: any)=>JelType.toRealBoolean(JelType.op(ctx, '<', a, b)) ? -1 : (JelType.toRealBoolean(JelType.op(ctx, '>', a, b)) ? 1 : 0));
+			r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>List.toPromisedRealBoolean(JelType.op(ctx, '<', a0, b0)));
 
-		return new List(l);
+		return Util.resolveValue(()=>new List(l), r);
 	}
 
 	private findBest(isBetter: (a: any, b: any)=>boolean): any {
