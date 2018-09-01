@@ -275,23 +275,41 @@ export default class List extends JelType implements Gettable {
 																				end == null ? this.elements.length : end >= 0 ? end : this.elements.length + end));
 	}
 
-	// TODO: handle promises
 	private partition(ctx: Context, l: any[], start: number, end: number, isLess: (a: any, b: any)=>boolean|Promise<boolean>): number | Promise<number> {
+		function swap(a: number, b: number): void {
+			const tmp = l[a];
+			l[a] = l[b];
+			l[b] = tmp;
+		}
 		const pivot = l[end];
-		let i = (start - 1)  // Index of smaller element
-
-		for (let j = start; j <= end - 1; j++) {
-			if (isLess(l[j], pivot)) {
-				i++;
-				const tmp = l[i];
-				l[i] = l[j];
-				l[j] = tmp;
+		let i = start - 1;
+		let j = start;
+		function exec(): Promise<any> | undefined {
+			while (j <= end - 1) {
+				const il = isLess(l[j], pivot);
+				if (il instanceof Promise) {
+					return il.then(ilr=> {
+						if (ilr) {
+							i++;
+							swap(i, j);
+						}
+						j++;
+						return exec();
+					});
+				}
+				else if (il) {
+					i++;
+					swap(i, j);
+				}
+				j++;
 			}
 		}
-		const tmp = l[i + 1];
-		l[i + 1] = l[end];
-		l[end] = tmp;
-    return i + 1;
+		
+		const ex = exec();
+		if (ex instanceof Promise) 
+			return ex.then(()=>swap(i+1, end) || i+1);
+		swap(i+1, end);
+		return i + 1;
 	}
 	
 	private quickSort(ctx: Context, l: any[], start: number, end: number, isLess: (a: any, b: any)=>boolean|Promise<boolean>): undefined | Promise<any> {

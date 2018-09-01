@@ -244,6 +244,38 @@ describe('jelList', function() {
       jelAssert.equal('[{a: 17}, {a: 3}, {a: 11}, {a: 9}].sort((a,b)=>a<b, key=o=>o.get("a")).map(o=>o.get("a"))', new List([3, 9, 11, 17])); 
       jelAssert.equal('[{a: "xxxx"}, {a: "xx"}, {a: "x"}, {a: "xxxxxx"}].sort(isLess=(a,b)=>a.length<b.length, key=o=>o.get("a")).map(o=>o.get("a"))', new List(["x", "xx", "xxxx", "xxxxxx"])); 
     });
+    it('handles Promises in the comparator', function() {
+      class X extends JelType {
+     	  constructor(x) {
+					super();
+				  this.a = x;
+			  }
+				member(ctx, name, parameters) {
+					return JelPromise.rnd(ctx, this.a);
+				}
+				
+				static create(ctx, x) {
+          return new X(x);
+        }
+      }
+      X.create_jel_mapping = {x:1};
+
+			const je2 = new JelAssert(new Context().setAll({X}));
+			
+			JelPromise.resetRnd();
+			return Promise.all([
+				jelAssert.equalPromise('[3, 1, 2].sort((a,b)=>JelPromise(a<b))', new List([1, 2, 3])),
+				jelAssert.equalPromise('[2, 1].sort((a,b)=>JelPromise(a<b))', new List([1, 2])),
+				jelAssert.equalPromise('[2, 1].sort((a,b)=>JelPromise(a>b))', new List([2, 1])),
+				jelAssert.equalPromise('[1, 2, 3, 4, 5, 6].sort((a,b)=>JelPromise(a<b))', new List([1, 2, 3, 4, 5, 6])),
+				jelAssert.equalPromise('[1, 2, 3, 4, 5, 6].sort((a,b)=>JelPromise.rnd(a<b))', new List([1, 2, 3, 4, 5, 6])),
+				jelAssert.equalPromise('[10, 2, 30, 4, 50, 6, 1, 3, 4, 50, 50, 5].sort((a,b)=>JelPromise.rnd(a<b))', new List([1, 2, 3, 4, 4, 5, 6, 10, 30, 50, 50, 50])),
+				je2.equalPromise('[X(17), X(3), X(11), X(9), X(20), X(22)].sort((a,b)=>a<b, key="a").map(o=>o.a)', new List([3, 9, 11, 17, 20, 22])),
+				jelAssert.equalPromise('[{a: 17}, {a: 3}, {a: 11}, {a: 9}].sort((a,b)=>a<b, key=o=>JelPromise.rnd(o.get("a"))).map(o=>o.get("a"))', new List([3, 9, 11, 17]))
+			]);
+    });
+
+		
   });
 	
 	

@@ -52,9 +52,23 @@ class JelAssert {
 	}
 }
 
+let next = 0;
+
 class JelPromise extends JelType {
+	static resetRnd() {
+		next = 0;
+	}
 	static create(ctx, value) {
 		return new Promise((resolve)=>setTimeout(()=>resolve(value), 1));
+	}
+	static rnd(ctx, value) {
+		next++;
+		if (next % 3 === 0)
+			return JelPromise.create(ctx, value);
+		else if (next % 3 == 1)
+			return JelPromise.resolve(ctx, value);
+		else
+			return value;
 	}
 	static resolve(ctx, value) {
 		return Promise.resolve(value);
@@ -62,6 +76,7 @@ class JelPromise extends JelType {
 }
 JelPromise.create_jel_mapping = ['value'];
 JelPromise.resolve_jel_mapping = ['value'];
+JelPromise.rnd_jel_mapping = ['value'];
 
 class JelConsole extends JelType {
 	static create(ctx, firstValue, ...values) {
