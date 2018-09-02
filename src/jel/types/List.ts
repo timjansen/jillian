@@ -136,7 +136,7 @@ export default class List extends JelType implements Gettable {
 	}
 
 	filter_jel_mapping: Object;
-	filter(ctx: Context, f: Callable): List {
+	filter(ctx: Context, f: Callable): Promise<List> | List {
 		const self = this;
 		const newList: any[] = [];
 		let i = 0;
@@ -160,7 +160,7 @@ export default class List extends JelType implements Gettable {
 	}
 	
 	reduce_jel_mapping: Object;
-	reduce(ctx: Context, f: Callable, init: any): any {
+	reduce(ctx: Context, f: Callable, init: any): Promise<any> | any {
 		const self = this;
 		let result: any = init;
 		let i = 0;
@@ -223,7 +223,7 @@ export default class List extends JelType implements Gettable {
 	// isBetter(a,b) checks whether a is better than b (must return false is both are equally good)
 	// returns one or more that items that were better than everything else.
 	bestMatches_jel_mapping: Object;
-	bestMatches(ctx: Context, isBetter: Callable): List {
+	bestMatches(ctx: Context, isBetter: Callable): List | Promise<List> {
 		if (!this.elements.length)
 			return List.empty;
 		
@@ -333,7 +333,7 @@ export default class List extends JelType implements Gettable {
 	// isLess(a, b) checks whether a<b . If a==b or a>b, is must return false. If a==b, then !isLess(a,b)&&!isLess(b,a)
 	// key is either the string of a property name, or a function key(a) that return the key for a.
 	sort_jel_mapping: Object;
-	sort(ctx: Context, isLess?: Callable, key?: string | Callable): List {
+	sort(ctx: Context, isLess?: Callable, key?: string | Callable): List | Promise<List> {
 		if (this.elements.length < 2)
 			return this;
 

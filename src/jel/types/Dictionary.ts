@@ -107,63 +107,141 @@ export default class Dictionary extends JelType {
 	}
 
 	each_jel_mapping: Object;
-	each(ctx: Context, f: Callable | ((key: string, value: any, index: number)=>void)): Dictionary {
+	each(ctx: Context, f: Callable): Dictionary | Promise<Dictionary> {
+		const self = this;
 		let i = 0;
-		if (typeof f == 'function')
-			this.elements.forEach((value, key) => f(key, value, i++));
-		else
-			this.elements.forEach((value, key) => f.invoke(ctx, key, value, i++));
-		return this;
+		const it = this.elements.keys();
+		function exec(): Promise<Dictionary> | Dictionary {
+			while (true) {
+				const next = it.next();
+				if (next.done)
+					return self;
+				const r = f.invoke(ctx, next.value, self.elements.get(next.value), i);
+				i++;
+				if (r instanceof Promise)
+					return r.then(exec);
+			}
+		}
+		return exec();
 	}
 
 	map_jel_mapping: Object;
-	map(ctx: Context, f: Callable): Dictionary {
+	map(ctx: Context, f: Callable): Dictionary | Promise<Dictionary> {
+		const self = this;
+		const newDict = new Dictionary();
 		let i = 0;
-		const d = new Dictionary();
-		this.elements.forEach((value, key) => d.elements.set(key, f.invoke(ctx, key, value, i++)));
-		return d;
+		const it = this.elements.keys();
+		function exec(): Promise<Dictionary> | Dictionary {
+			while (true) {
+				const next = it.next();
+				if (next.done)
+					return newDict;
+				const r = f.invoke(ctx, next.value, self.elements.get(next.value), i);
+				i++;
+				if (r instanceof Promise)
+					return r.then(v=> {
+						newDict.set(next.value, v);
+						return exec();
+					});
+				else
+					newDict.set(next.value, r);
+			}
+		}
+		return exec();
 	}
 
 	filter_jel_mapping: Object;
-	filter(ctx: Context, f: Callable): Dictionary {
+	filter(ctx: Context, f: Callable): Dictionary | Promise<Dictionary> {
+		const self = this;
+		const newDict = new Dictionary();
 		let i = 0;
-		const d = new Dictionary();
-		this.elements.forEach((value, key) => {
-			if (JelType.toRealBoolean(f.invoke(ctx, key, value, i++)))
-				d.elements.set(key, value);
-		});
-		return d;
+		const it = this.elements.keys();
+		function exec(): Promise<Dictionary> | Dictionary {
+			while (true) {
+				const next = it.next();
+				if (next.done)
+					return newDict;
+				const r = f.invoke(ctx, next.value, self.elements.get(next.value), i);
+				i++;
+				if (r instanceof Promise)
+					return r.then(v=> {
+						if (JelType.toRealBoolean(v))
+							newDict.set(next.value, self.elements.get(next.value));
+						return exec();
+					});
+				else if (JelType.toRealBoolean(r))
+					newDict.set(next.value, self.elements.get(next.value));
+			}
+		}
+		return exec();
 	}
 	
 	reduce_jel_mapping: Object;
 	reduce(ctx: Context, f: Callable, init: any = 0): any {
+		const self = this;
+		let result: any = init;
 		let i = 0;
-		let a = init;
-		for (let key of this.elements.keys())
-			a = f.invoke(ctx, a, key, this.elements.get(key), i++);
-		return a;
+		const it = this.elements.keys();
+		function exec(): Promise<Dictionary> | Dictionary {
+			while (true) {
+				const next = it.next();
+				if (next.done)
+					return result;
+				const r = f.invoke(ctx, result, next.value, self.elements.get(next.value), i);
+				i++;
+				if (r instanceof Promise)
+					return r.then(v=> {
+						result = v;
+						return exec();
+					});
+				else 
+					result = r;
+			}
+			return result;
+		}
+		return exec();
 	}
 
 	hasAny_jel_mapping: Object;
-	hasAny(ctx: Context, f: Callable): FuzzyBoolean {
+	hasAny(ctx: Context, f: Callable): FuzzyBoolean | Promise<FuzzyBoolean> {
+		const self = this;
 		let i = 0;
-		for (let key of this.elements.keys()) {
-			const value = this.elements.get(key);
-			if (JelType.toRealBoolean(f.invoke(ctx, key, value)))
-				return FuzzyBoolean.TRUE;
+		const it = this.elements.keys();
+		function exec(): Promise<FuzzyBoolean> | FuzzyBoolean {
+			while (true) {
+				const next = it.next();
+				if (next.done)
+					return FuzzyBoolean.FALSE;
+				const r = f.invoke(ctx, next.value, self.elements.get(next.value), i);
+				i++;
+				if (r instanceof Promise)
+					return r.then(v=> v.toRealBoolean() ? FuzzyBoolean.TRUE : exec());
+				else if (r.toRealBoolean())
+					return FuzzyBoolean.TRUE;
+			}
 		}
-		return FuzzyBoolean.FALSE;
+		return exec();
 	}
 
 	hasOnly_jel_mapping: Object;
-	hasOnly(ctx: Context, f: Callable): FuzzyBoolean {
+	hasOnly(ctx: Context, f: Callable): FuzzyBoolean | Promise<FuzzyBoolean> {
+		const self = this;
 		let i = 0;
-		for (let key of this.elements.keys()) {
-			const value = this.elements.get(key);
-			if (!JelType.toRealBoolean(f.invoke(ctx, key, value)))
-				return FuzzyBoolean.FALSE;
+		const it = this.elements.keys();
+		function exec(): Promise<FuzzyBoolean> | FuzzyBoolean {
+			while (true) {
+				const next = it.next();
+				if (next.done)
+					return FuzzyBoolean.TRUE;
+				const r = f.invoke(ctx, next.value, self.elements.get(next.value), i);
+				i++;
+				if (r instanceof Promise)
+					return r.then(v=> v.toRealBoolean() ? exec() : FuzzyBoolean.FALSE);
+				else if (!r.toRealBoolean())
+					return FuzzyBoolean.FALSE;
+			}
 		}
-		return FuzzyBoolean.TRUE;
+		return exec();
 	}
 
 	toObjectDebug(): any {

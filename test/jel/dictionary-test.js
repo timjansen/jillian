@@ -5,20 +5,22 @@ const assert = require('assert');
 const Dictionary = require('../../build/jel/types/Dictionary.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
 const List = require('../../build/jel/types/List.js').default;
+const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
 const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
-const jelAssert = new JelAssert();
 
-const dictContext = new Context().setAll({Dictionary});
+const dictContext = new Context().setAll({Dictionary, FuzzyBoolean, JelPromise});
+const jelAssert = new JelAssert(dictContext);
+
 
 describe('jelDictionary', function() {
   describe('constructor()', function() {
     it('creates empty dicts', function() {
-      assert.deepEqual(new Dictionary().elements.size, 0); 
+      assert.equal(new Dictionary().elements.size, 0); 
     });
     it('creates dicts from Maps', function() {
-      assert.deepEqual(new Dictionary(new Map([])).size, 0); 
+      assert.equal(new Dictionary(new Map([])).size, 0); 
       assert.deepEqual(new Dictionary(new Map([['a', 5], ['c', 3]])).toObjectDebug(), {a: 5, c: 3}); 
     });
     it('creates dicts from other dicts', function() {
@@ -57,55 +59,69 @@ describe('jelDictionary', function() {
 
   describe('size', function() {
     it('returns the size', function() {
-      jelAssert.equal(new JEL('Dictionary(["v", 3, "b", 9]).size').executeImmediately(dictContext), 2); 
-      jelAssert.equal(new JEL('{v: 3, d: 1}.size').executeImmediately(dictContext), 2); 
-      jelAssert.equal(new JEL('Dictionary().size').executeImmediately(dictContext), 0);
+      jelAssert.equal('Dictionary(["v", 3, "b", 9]).size', 2); 
+      jelAssert.equal('{v: 3, d: 1}.size', 2); 
+      jelAssert.equal('Dictionary().size', 0);
     });
   });
 
   
   describe('map()', function() {
     it('maps', function() {
-      jelAssert.equal(new JEL('Dictionary(["v", 3, "b", 9]).map((k,v)=>v+1)').executeImmediately(dictContext).toObjectDebug(), {v: 4, b: 10}); 
+      jelAssert.equalPromise('Dictionary(["v", 3, "b", 9]).map((k,v)=>v+1)', new Dictionary({v: 4, b: 10})); 
+      return jelAssert.equalPromise('Dictionary(["v", 3, "b", 9]).map((k,v)=>JelPromise(v+1))', new Dictionary({v: 4, b: 10})); 
     });
   });
 
   describe('each()', function() {
     it('iterates', function() {
       let x = '';
-      const accumulator = new FunctionCallable((ctx, k, v)=> x+=k+v );
+      const accumulator = new FunctionCallable((ctx, k, v)=> x+=k+'-'+v+',' );
       new JEL('Dictionary(["3", 2, "9", 10]).each(accumulator)').executeImmediately(new Context().setAll({Dictionary, accumulator}));
-      assert.equal(x, "32910");
+      assert.equal(x, "3-2,9-10,");
+    });
+    it('iterates with promises', function() {
+      let x = '';
+      const accumulator = new FunctionCallable((ctx, k, v)=> Promise.resolve(x+=k+'-'+v+','));
+      return new JEL('Dictionary(["3", 2, "9", 10, "a", 11, "b", 22]).each(accumulator)').execute(new Context(dictContext).setAll({accumulator}))
+				.then(()=>assert.equal(x, "3-2,9-10,a-11,b-22,"));
     });
   });
 
   describe('filter()', function() {
     it('filters', function() {
-      assert.deepEqual(new JEL("{a:3, c: 9, x: 12, y: 1}.filter((k,v)=>v>5)").executeImmediately().toObjectDebug(), {c: 9, x: 12});
+			JelPromise.resetRnd();
+      jelAssert.equal("{a:3, c: 9, x: 12, y: 1}.filter((k,v)=>v>5)", new Dictionary({c: 9, x: 12}));
+      return jelAssert.equalPromise("{a:3, c: 9, x: 12, y: 1}.filter((k,v)=>JelPromise.rnd(v>5))", new Dictionary({c: 9, x: 12}));
     });
   });
 
   describe('reduce()', function() {
     it('reduces', function() {
-      assert.equal(new JEL("{a:3, c: 9, x: 12, y: 1}.reduce((a,k,v)=>a+v, 2)").executeImmediately(), 27);
+       jelAssert.equal("{a:3, c: 9, x: 12, y: 1}.reduce((a,k,v)=>a+v, 2)", 27);
+       return jelAssert.equalPromise("{a:3, c: 9, x: 12, y: 1}.reduce((a,k,v)=>JelPromise(a+v), 2)", 27);
     });
   });
 
   describe('hasAny()', function() {
     it('finds something', function() {
-      assert.strictEqual(new JEL('{a:3, b:2, c:9}.hasAny((k,x)=>x>2 && k!="a")').executeImmediately().state, 1); 
-      assert.strictEqual(new JEL('{a:3, b:8, c:17, d:39, e:2, f:9}.hasAny((k,x)=>x>2 && k!="k")').executeImmediately().state, 1); 
+			JelPromise.resetRnd();
+      jelAssert.equal('{a:3, b:2, c:9}.hasAny((k,x)=>x>2 && k!="a")', FuzzyBoolean.TRUE); 
+      jelAssert.equal('{a:3, b:8, c:17, d:39, e:2, f:9}.hasAny((k,x)=>x>2 && k!="k")', FuzzyBoolean.TRUE); 
+      return jelAssert.equalPromise('{a:3, b:8, c:17, d:39, e:2, f:9}.hasAny((k,x)=>JelPromise.rnd(x>2 && k!="k"))', FuzzyBoolean.TRUE); 
     });
     it('finds nothing', function() {
-      assert.strictEqual(new JEL('{a:3, b:2, c:9}.hasAny((k,x)=>x>5 && k=="a")').executeImmediately().state, 0); 
+      jelAssert.equal('{a:3, b:2, c:9}.hasAny((k,x)=>x>5 && k=="a")', FuzzyBoolean.FALSE); 
+      return jelAssert.equalPromise('{a:3, b:2, c:9}.hasAny((k,x)=>JelPromise(x>5 && k=="a"))', FuzzyBoolean.FALSE); 
     });
   });
 
   describe('hasOnly()', function() {
     it('finds all', function() {
-      assert.strictEqual(new JEL('{a:3, b:2, c:9}.hasOnly((k,x)=>x>1 && k!="a")').executeImmediately().state, 0); 
-      assert.strictEqual(new JEL('{a:3, b:8, c:17, d:39, e:2, f:9}.hasOnly((k,x)=>x>1)').executeImmediately().state, 1); 
-      assert.strictEqual(new JEL('{a:3, b:2, c:9}.hasOnly((k,x)=>x>5)').executeImmediately().state, 0); 
+      jelAssert.equal('{a:3, b:2, c:9}.hasOnly((k,x)=>x>1 && k!="a")', FuzzyBoolean.FALSE); 
+      jelAssert.equal('{a:3, b:8, c:17, d:39, e:2, f:9}.hasOnly((k,x)=>x>1)', FuzzyBoolean.TRUE); 
+      jelAssert.equal('{a:3, b:2, c:9}.hasOnly((k,x)=>x>5)', FuzzyBoolean.FALSE); 
+      return jelAssert.equalPromise('{a:3, b:2, c:9}.hasOnly((k,x)=>JelPromise(x>5))', FuzzyBoolean.FALSE); 
     });
   });
 
