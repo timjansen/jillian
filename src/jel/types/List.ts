@@ -341,27 +341,23 @@ export default class List extends JelType implements Gettable {
 		let r: undefined | Promise<any> = undefined;
 		if (typeof key == 'string') {
 			if (isLess) 
-				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>{
-					const a = JelType.member(ctx, a0, key), b = JelType.member(ctx, b0, key);
-					return List.toPromisedRealBoolean(Util.resolveValues((a: any, b: any)=>isLess.invoke(ctx, a, b), a, b));
-				});
+				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>
+					List.toPromisedRealBoolean(Util.resolveValues((a: any, b: any)=>isLess.invoke(ctx, a, b), JelType.member(ctx, a0, key), JelType.member(ctx, b0, key)))
+				);
 			else
-				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>{
-					const a = JelType.member(ctx, a0, key), b = JelType.member(ctx, b0, key);
-					return List.toPromisedRealBoolean(Util.resolveValues((a: any, b: any)=>JelType.op(ctx, '<', a, b), a, b));
-				});
+				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>
+					List.toPromisedRealBoolean(Util.resolveValues((a: any, b: any)=>JelType.op(ctx, '<', a, b), JelType.member(ctx, a0, key), JelType.member(ctx, b0, key)))
+				);
 		}
 		else if (key instanceof Callable) {
 			if (isLess) 
-				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>{
-					const a = key.invoke(ctx, a0), b = key.invoke(ctx, b0);
-					return List.toPromisedRealBoolean(Util.resolveValues((a: any, b: any)=>isLess.invoke(ctx, a, b), a, b));
-				});
+				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>
+					List.toPromisedRealBoolean(Util.resolveValues((a: any, b: any)=>isLess.invoke(ctx, a, b), key.invoke(ctx, a0), key.invoke(ctx, b0)))
+				);
 			else
-				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>{
-					const a = key.invoke(ctx, a0), b = key.invoke(ctx, b0);
-					return List.toPromisedRealBoolean(Util.resolveValues((a: any, b: any)=>JelType.op(ctx, '<', a, b), a, b));
-				});
+				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>
+					List.toPromisedRealBoolean(Util.resolveValues((a: any, b: any)=>JelType.op(ctx, '<', a, b), key.invoke(ctx, a0), key.invoke(ctx, b0)))
+				);
 		}
 		else if (isLess)
 			r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>List.toPromisedRealBoolean(isLess.invoke(ctx, a0, b0)));
@@ -371,52 +367,60 @@ export default class List extends JelType implements Gettable {
 		return Util.resolveValue(()=>new List(l), r);
 	}
 
-	private findBest(isBetter: (a: any, b: any)=>boolean): any {
-		let best:any = undefined;
-		for (let e of this.elements)
-			if (best === undefined || isBetter(e, best))
-				best = e;
-		return best;
+	private findBest(isBetter: (a: any, b: any)=>FuzzyBoolean|Promise<FuzzyBoolean>, inverse: boolean): any {
+		if (!this.elements.length)
+			return null;
+		
+		const self = this;
+		let l = this.first;
+		let i = 1;
+		const len = this.elements.length;
+		
+		function exec(): any[] | Promise<any[]> {
+			while (i < len) {
+				const e = self.elements[i++];
+				const check1 = isBetter(l, e);
+				if (check1 instanceof Promise) 
+					return check1.then((v: any) => {
+						if (JelType.toRealBoolean(v) != inverse)
+							l = e;
+						return exec();
+					});
+				else if (JelType.toRealBoolean(check1) != inverse)
+					l = e;
+			}
+			return l;
+		}
+		return exec();
+	}
+	
+	private minMax(ctx: Context, isMax: boolean, isLess?: Callable, key?:string | Callable): any {
+		if (typeof key == 'string') {
+			if (isLess) 
+				return this.findBest((a0: any, b0: any)=>Util.resolveValues((a: any, b: any)=>isLess.invoke(ctx, a, b), JelType.member(ctx, a0, key), JelType.member(ctx, b0, key)), isMax);
+			else
+				return this.findBest((a0: any, b0: any)=>Util.resolveValues((a: any, b: any)=>JelType.op(ctx, '<', a, b), JelType.member(ctx, a0, key), JelType.member(ctx, b0, key)), isMax);
+		}
+		else if (key instanceof Callable) {
+			if (isLess) 
+				return this.findBest((a0: any, b0: any)=>Util.resolveValues((a: any, b: any)=>isLess.invoke(ctx, a, b), key.invoke(ctx, a0), key.invoke(ctx, b0)), isMax);
+			else
+				return this.findBest((a0: any, b0: any)=>Util.resolveValues((a: any, b: any)=>JelType.op(ctx, '<', a, b), key.invoke(ctx, a0), key.invoke(ctx, b0)), isMax);
+		}
+		else if (isLess)
+				return this.findBest((a0: any, b0: any)=>isLess.invoke(ctx, a0, b0), isMax);
+		else
+				return this.findBest((a0: any, b0: any)=>JelType.op(ctx, '<', a0, b0), isMax);
 	}
 	
 	max_jel_mapping: Object;
 	max(ctx: Context, isLess?: Callable, key?: string | Callable): any {
-		if (typeof key == 'string') {
-			if (isLess) 
-				return this.findBest((a0: any, b0: any)=>!JelType.toRealBoolean(isLess.invoke(ctx, JelType.member(ctx, a0, key), JelType.member(ctx, b0, key))));
-			else
-				return this.findBest((a0: any, b0: any)=>!JelType.op(ctx, '<', JelType.member(ctx, a0, key), JelType.member(ctx, b0, key)).toRealBoolean());
-		}
-		else if (key instanceof Callable) {
-			if (isLess) 
-				return this.findBest((a0: any, b0: any)=>!JelType.toRealBoolean(isLess.invoke(ctx, key.invoke(ctx, a0), key.invoke(ctx, b0))));
-			else
-				return this.findBest((a0: any, b0: any)=>!JelType.op(ctx, '<', key.invoke(ctx, a0), key.invoke(ctx, b0)).toRealBoolean());
-		}
-		else if (isLess)
-				return this.findBest((a0: any, b0: any)=>!JelType.toRealBoolean(isLess.invoke(ctx, a0, b0)));
-		else
-				return this.findBest((a0: any, b0: any)=>!JelType.op(ctx, '<', a0, b0).toRealBoolean());
+		return this.minMax(ctx, false, isLess, key);
 	}
 
 	min_jel_mapping: Object;
 	min(ctx: Context, isLess?: Callable, key?: string | Callable): any {
-		if (typeof key == 'string') {
-			if (isLess) 
-				return this.findBest((a0: any, b0: any)=>JelType.toRealBoolean(isLess.invoke(ctx, JelType.member(ctx, a0, key), JelType.member(ctx, b0, key))));
-			else
-				return this.findBest((a0: any, b0: any)=>JelType.op(ctx, '<', JelType.member(ctx, a0, key), JelType.member(ctx, b0, key)).toRealBoolean());
-		}
-		else if (key instanceof Callable) {
-			if (isLess) 
-				return this.findBest((a0: any, b0: any)=>JelType.toRealBoolean(isLess.invoke(ctx, key.invoke(ctx, a0), key.invoke(ctx, b0))));
-			else
-				return this.findBest((a0: any, b0: any)=>JelType.op(ctx, '<', key.invoke(ctx, a0), key.invoke(ctx, b0)).toRealBoolean());
-		}
-		else if (isLess)
-				return this.findBest((a0: any, b0: any)=>JelType.toRealBoolean(isLess.invoke(ctx, a0, b0)));
-		else
-				return this.findBest((a0: any, b0: any)=>JelType.op(ctx, '<', a0, b0).toRealBoolean());
+		return this.minMax(ctx, true, isLess, key);
 	}
 
 	

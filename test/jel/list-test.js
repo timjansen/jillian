@@ -287,6 +287,7 @@ describe('jelList', function() {
       jelAssert.equal('[1].max()', 1);
       jelAssert.equal('[].min((a,b)=>a>b)', undefined);
       jelAssert.equal('[1].max((a,b)=>a>b)', 1);
+			return jelAssert.equalPromise('[1].max((a,b)=>JelPromise(a>b))', 1);
     });
     it('find by default sorter', function() {
       jelAssert.equal('[3, 2, 9, 5].min()', 2);
@@ -296,7 +297,7 @@ describe('jelList', function() {
     it('find by lambda', function() {
       jelAssert.equal('[3, 2, 9, 5].max((a,b)=>a<b)', 9);
       jelAssert.equal('[9, 2, 3, 5].min((a,b)=>a<b)', 2)
-      jelAssert.equal("['foo', 'blabla', 'bar', 'blablabla'].min((a,b)=>a.length<b.length)", '"foo"');
+      jelAssert.equal("['foo', 'blabla', 'bar', 'blablabla'].min((a,b)=>a.length<b.length)", '"bar"');
       jelAssert.equal("['foo', 'blabla', 'bar', 'blablabla'].max((a,b)=>a.length<b.length)", '"blablabla"');
     });
     it('finds by string key', function() {
@@ -305,6 +306,9 @@ describe('jelList', function() {
 					super();
 				  this.a = x;
 			  }
+				member(ctx, name, parameters) {
+					return JelPromise.rnd(ctx, this.a);
+				}
         static create(ctx, x) {
           return new X(x);
         }
@@ -312,12 +316,15 @@ describe('jelList', function() {
       X.create_jel_mapping = {x:1};
       X.prototype.JEL_PROPERTIES = {a:1};
 			
-			const je2 = new JelAssert(new Context().setAll({X}));
+			JelPromise.resetRnd();
+			const je2 = new JelAssert(new Context(ctx).setAll({X}));
 
-			je2.equal('[X(17), X(3), X(11), X(9)].min(key="a").a', 3); 
-			je2.equal('[X(17), X(3), X(11), X(9)].max(key="a").a', 17); 
-      je2.equal('[X(17), X(3), X(11), X(9)].min(isLess=(a,b)=>a<b, key="a").a', 3); 
-      je2.equal('[X(17), X(3), X(11), X(9)].max(isLess=(a,b)=>a<b, key="a").a', 17); 
+			return Promise.all([
+				je2.equalPromise('[X(17), X(3), X(11), X(9)].min(key="a").a', 3),
+				je2.equalPromise('[X(17), X(3), X(11), X(9)].max(key="a").a', 17), 
+				je2.equalPromise('[X(17), X(3), X(11), X(9)].min(isLess=(a,b)=>a<b, key="a").a', 3),
+				je2.equalPromise('[X(17), X(3), X(11), X(9)].max(isLess=(a,b)=>JelPromise(a<b), key="a").a', 17) 
+			]);
     });
     it('find by key function', function() {
       jelAssert.equal('[{a: 17}, {a: 3}, {a: 11}, {a: 9}].min(key=o=>o.get("a")).get("a")', 3); 
@@ -326,6 +333,7 @@ describe('jelList', function() {
       jelAssert.equal('[{a: 17}, {a: 3}, {a: 11}, {a: 9}].max((a,b)=>a<b, key=o=>o.get("a")).get("a")', 17); 
       jelAssert.equal('[{a: "xxxx"}, {a: "xx"}, {a: "x"}, {a: "xxxxxx"}].min(isLess=(a,b)=>a.length<b.length, key=o=>o.get("a")).get("a")', "'x'"); 
       jelAssert.equal('[{a: "xxxx"}, {a: "xx"}, {a: "x"}, {a: "xxxxxx"}].max(isLess=(a,b)=>a.length<b.length, key=o=>o.get("a")).get("a")', "'xxxxxx'"); 
+			return jelAssert.equalPromise('[{a: 17}, {a: 3}, {a: 11}, {a: 9}].max((a,b)=>JelPromise(a<b), key=JelPromise.rnd(o=>o.get("a"))).get("a")', 17); 
     });
   });
 
