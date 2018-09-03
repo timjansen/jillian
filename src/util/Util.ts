@@ -93,23 +93,39 @@ export default class Util {
 			return f(arr);
 	}
 	
+	/**
+	 * Helper to invoke a function promiseGenerator for every element of an array, in which the function may return a Promise or not.
+	 * promiseProcessor is called when promiseGenerator's return value is available (thus either immediately or when the Promise resolved).
+	 * If promiseProcessor returns a value other than undefined, processing the list is aborted.
+	 * When either all list elements have been processed, or promiseProcessor returned a non-undefined value, the optional resultGenerator can
+	 * be called. Its parameter is either the value returned by promiseProcessor, or undefined if list processing has not been aborted.
+	 * The processPromiseList returns the return value of resultGenerator, if given, or the value returned by promiseProcessor if it returned something,
+	 * or undefined. If any promiseGenerator invokation returned a Promise, the return value is wrapped in a Promise.
+	 */
 	static processPromiseList(list: any[], promiseGenerator: (listValue: any, step: number)=>any|Promise<any>, 
 														promiseProcessor: (generatedValue: any, listValue: any, step: number)=>void,
-														resultGenerator?: ()=>any): any| Promise<any> {
+														resultGenerator?: (processorResult: any)=>any): any| Promise<any> {
 		let i = 0;
 		const len = list.length;
 		function exec(): Promise<any> | any {
 			while (i < len) {
 				const e = list[i];
 				const r = promiseGenerator(e, i);
-				i++;
 				if (r instanceof Promise)
 					return r.then(v=>{
-						promiseProcessor(v, e, i);
-						return exec();
+						const p = promiseProcessor(v, e, i);
+						i++;
+						if (p === undefined)
+							return exec();
+						else
+							return p;
 					});
-				else
-					promiseProcessor(r, e, i);
+				else {
+					const p = promiseProcessor(r, e, i);
+					i++;
+					if (p !== undefined)
+						return p;
+				}
 			}
 		}
 		
@@ -119,7 +135,6 @@ export default class Util {
 			return exec();
 	}
 
-	
 	static catchValue(value: any, f: (e: any)=>any): any {
 		if (value instanceof Promise)
 			return value.catch(f);

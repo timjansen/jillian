@@ -111,34 +111,39 @@ export default class Distribution extends JelType {
 			if (lt.toRealBoolean() || gt.toRealBoolean())
 				return null;
 			
-			// TODO: support promises
-			let ri = 0;
-			while (true) {
-				const r = this.points[ri];
-				if (JelType.op(ctx, '==', r.value, value).toRealBoolean())
-					return r.share;
-				if (JelType.op(ctx, '>', r.value, value).toRealBoolean() || ri == this.points.length-1)
-					break;
-				ri++;
-			}
-			
-			let li = ri - 1;
-			if (li < 0) {
-				li++;
-				ri++;
-			}
+			let bestShare: any = undefined;
+			let ri: number | undefined = undefined;
 
-			const lp: DistributionPoint = this.points[li], rp: DistributionPoint = this.points[ri];
+			return Util.processPromiseList(this.points, r=>JelType.op(ctx, '==', r.value, value), (p, r)=>{
+				if (p.toRealBoolean()) 
+					bestShare = r.share;
+			}, ()=>{
+				if (bestShare != undefined)
+					return bestShare;
+				
+				return Util.processPromiseList(this.points, r=>JelType.op(ctx, '>', r.value, value), (p, r, rstep)=>{
+					if (p.toRealBoolean() && ri == undefined)
+						ri = rstep;
+				}, ()=>{
+					
+					ri = ri == undefined ? this.points.length-1 : ri;
+					let li = ri - 1;
+					if (li < 0) {
+						li++;
+						ri++;
+					}
 
-			// linear interpolation
-			// P       = x * (rp-lp) + lp
-			// P.value = x * (rp.value-lp.value) + lp.value
-			// P.share = x * (rp.share-lp.share) + lp.share
-			// x = (P.value-lp.value)/(rp.value-lp.value)
-			// P.share = (P.value-lp.value)*(rp.share-lp.share)/(rp.value-lp.value)  + lp.share
+					const lp: DistributionPoint = this.points[li], rp: DistributionPoint = this.points[ri];
+					// linear interpolation
+					// P       = x * (rp-lp) + lp
+					// P.value = x * (rp.value-lp.value) + lp.value
+					// P.share = x * (rp.share-lp.share) + lp.share
+					// x = (P.value-lp.value)/(rp.value-lp.value)
+					// P.share = (P.value-lp.value)*(rp.share-lp.share)/(rp.value-lp.value)  + lp.share
 
-			return JelType.toNumberWithPromise(JelType.opWithPromises(ctx, '+', JelType.opWithPromises(ctx, '/', JelType.opWithPromises(ctx, '*', JelType.opWithPromises(ctx, '-', value, lp.value), rp.share - lp.share), JelType.opWithPromises(ctx, '-', rp.value, lp.value)),  lp.share));
-
+					return JelType.toNumberWithPromise(JelType.opWithPromises(ctx, '+', JelType.opWithPromises(ctx, '/', JelType.opWithPromises(ctx, '*', JelType.opWithPromises(ctx, '-', value, lp.value), rp.share - lp.share), JelType.opWithPromises(ctx, '-', rp.value, lp.value)),  lp.share));
+				});
+			});
 		}, JelType.op(ctx, '<', value, this.min(ctx)), JelType.op(ctx, '>', value, this.max(ctx)));
 	}
 	
@@ -147,16 +152,16 @@ export default class Distribution extends JelType {
 			switch (operator) {
 				case '==': 
 				case '===':
-					// TODO: promises
-					if (!JelType.op(ctx, '===', this.average, right.average).toRealBoolean())
-						return FuzzyBoolean.FALSE;
-					if (this.points.length != right.points.length)
-						return FuzzyBoolean.FALSE;
-					for (let i = 0; i < this.points.length; i++)
-						if (JelType.toNumber(this.points[i].value) != JelType.toNumber(right.points[i].value) || this.points[i].share !=right.points[i].share)
+					return Util.resolveValues((eq: FuzzyBoolean)=>{
+						if (!eq.toRealBoolean())
 							return FuzzyBoolean.FALSE;
-					return FuzzyBoolean.TRUE;
-
+						if (this.points.length != right.points.length)
+							return FuzzyBoolean.FALSE;
+						for (let i = 0; i < this.points.length; i++)
+							if (JelType.toNumber(this.points[i].value) != JelType.toNumber(right.points[i].value) || this.points[i].share !=right.points[i].share)
+								return FuzzyBoolean.FALSE;
+						return FuzzyBoolean.TRUE;
+					}, JelType.op(ctx, '===', this.average, right.average));
 				case '>>':
 				case '>>=':
 					return JelType.op(ctx, operator, this.min(ctx), right.max(ctx));
@@ -166,21 +171,23 @@ export default class Distribution extends JelType {
 
 				case '>':
 				case '>=':
-					// TODO: promises!
-					if (JelType.op(ctx, operator, this.min(ctx), right.max(ctx)).toRealBoolean())
-						return FuzzyBoolean.TRUE;
-					if (JelType.op(ctx, INVERSE_OP[operator], this.min(ctx), right.max(ctx)).toRealBoolean())
-						return FuzzyBoolean.FALSE;
-					return FuzzyBoolean.create(ctx, (JelType.op(ctx, operator, this.mean(ctx), right.mean(ctx)).state-0.5)/2+0.5);
+					return Util.resolveValues((op: FuzzyBoolean, inOp: FuzzyBoolean)=> {
+						if (op.toRealBoolean())
+							return FuzzyBoolean.TRUE;
+						if (inOp.toRealBoolean())
+							return FuzzyBoolean.FALSE;
+						return Util.resolveValue((meanCmp: FuzzyBoolean)=>FuzzyBoolean.create(ctx, (meanCmp.state-0.5)/2+0.5), JelType.op(ctx, operator, this.mean(ctx), right.mean(ctx)));
+					}, JelType.op(ctx, operator, this.min(ctx), right.max(ctx)), JelType.op(ctx, INVERSE_OP[operator], this.min(ctx), right.max(ctx)));
 					
 				case '<':
 				case '<=':
-					// TODO: promises
-					if (JelType.op(ctx, operator, this.max(ctx), right.min(ctx)).toRealBoolean())
-						return FuzzyBoolean.TRUE;
-					if (JelType.op(ctx, INVERSE_OP[operator], this.max(ctx), right.min(ctx)).toRealBoolean())
-						return FuzzyBoolean.FALSE;
-					return FuzzyBoolean.create(ctx, (JelType.op(ctx, operator, this.mean(ctx), right.mean(ctx)).state-0.5)/2+0.5);
+					return Util.resolveValues((op: FuzzyBoolean, inOp: FuzzyBoolean)=> {
+						if (op.toRealBoolean())
+							return FuzzyBoolean.TRUE;
+						if (inOp.toRealBoolean())
+							return FuzzyBoolean.FALSE;
+						return Util.resolveValue((meanCmp: FuzzyBoolean)=>FuzzyBoolean.create(ctx, (meanCmp.state-0.5)/2+0.5), JelType.op(ctx, operator, this.mean(ctx), right.mean(ctx)));
+					}, JelType.op(ctx, operator, this.max(ctx), right.min(ctx)), JelType.op(ctx, INVERSE_OP[operator], this.max(ctx), right.min(ctx)));
 			}
 		}
 		else if (typeof right == 'number' || right instanceof Fraction || right instanceof ApproximateNumber || right instanceof UnitValue) {

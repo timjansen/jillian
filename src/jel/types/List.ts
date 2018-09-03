@@ -116,7 +116,7 @@ export default class List extends JelType implements Gettable {
 	map_jel_mapping: Object;
 	map(ctx: Context, f: Callable): List | Promise<List> {
 		const newList: any[] = [];
-		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, i), v=>newList.push(v), ()=>new List(newList));
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, i), v=>{newList.push(v);}, ()=>new List(newList));
 	}
 
 	filter_jel_mapping: Object;
@@ -133,45 +133,17 @@ export default class List extends JelType implements Gettable {
 	reduce(ctx: Context, f: Callable, init: any): Promise<any> | any {
 		let result: any = init;
 		
-		return Util.processPromiseList(this.elements, (v,i)=>f.invoke(ctx, v, result, i), v=>result=v, ()=>result);
+		return Util.processPromiseList(this.elements, (v,i)=>f.invoke(ctx, v, result, i), v=>{result=v;}, ()=>result);
 	}
 
 	hasAny_jel_mapping: Object;
 	hasAny(ctx: Context, f: Callable): FuzzyBoolean | Promise<FuzzyBoolean> {
-		const self = this;
-		let i = 0;
-		const len = this.elements.length;
-		function exec(): Promise<FuzzyBoolean> | FuzzyBoolean {
-			while (i < len) {
-				const r = f.invoke(ctx, self.elements[i], i);
-				i++;
-				if (r instanceof Promise)
-					return r.then(v=> v.toRealBoolean() ? FuzzyBoolean.TRUE : exec());
-				else if (r.toRealBoolean())
-					return FuzzyBoolean.TRUE;
-			}
-			return FuzzyBoolean.FALSE;
-		}
-		return exec();
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, i), (v, e)=>JelType.toRealBoolean(v) ? FuzzyBoolean.TRUE : undefined, r=>r || FuzzyBoolean.FALSE);
 	}
 
 	hasOnly_jel_mapping: Object;
 	hasOnly(ctx: Context, f: Callable): FuzzyBoolean | Promise<FuzzyBoolean> {
-		const self = this;
-		let i = 0;
-		const len = this.elements.length;
-		function exec(): Promise<FuzzyBoolean> | FuzzyBoolean {
-			while (i < len) {
-				const r = f.invoke(ctx, self.elements[i], i);
-				i++;
-				if (r instanceof Promise)
-					return r.then(v=> v.toRealBoolean() ? exec() : FuzzyBoolean.FALSE);
-				else if (!r.toRealBoolean())
-					return FuzzyBoolean.FALSE;
-			}
-			return FuzzyBoolean.TRUE;
-		}
-		return exec();
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, i), (v, e)=>JelType.toRealBoolean(v) ? undefined : FuzzyBoolean.FALSE, r=>r || FuzzyBoolean.TRUE);
 	}
 	
 	// isBetter(a,b) checks whether a is better than b (must return false is both are equally good)
