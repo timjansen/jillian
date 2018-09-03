@@ -92,6 +92,32 @@ export default class Util {
 		else 
 			return f(arr);
 	}
+	
+	static processPromiseList(list: any[], promiseGenerator: (listValue: any, step: number)=>any|Promise<any>, 
+														promiseProcessor: (generatedValue: any, listValue: any, step: number)=>void,
+														resultGenerator?: ()=>any): any| Promise<any> {
+		let i = 0;
+		const len = list.length;
+		function exec(): Promise<any> | any {
+			while (i < len) {
+				const e = list[i];
+				const r = promiseGenerator(e, i);
+				i++;
+				if (r instanceof Promise)
+					return r.then(v=>{
+						promiseProcessor(v, e, i);
+						return exec();
+					});
+				else
+					promiseProcessor(r, e, i);
+			}
+		}
+		
+		if (resultGenerator)
+			return Util.resolveValue(resultGenerator, exec());
+		else
+			return exec();
+	}
 
 	
 	static catchValue(value: any, f: (e: any)=>any): any {

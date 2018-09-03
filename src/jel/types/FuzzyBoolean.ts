@@ -158,14 +158,28 @@ export default class FuzzyBoolean extends JelType {
 		return FuzzyBoolean.or(ctx, this, a);
 	}
 	
-	static and_jel_mapping = {a: 1, b: 2};
-	static and(ctx: Context, a: FuzzyBoolean, b: FuzzyBoolean): FuzzyBoolean {
-		return a.toRealBoolean() ? b : a;
+	static and_jel_mapping = {};
+	static and(ctx: Context, ...args: FuzzyBoolean[]): FuzzyBoolean {
+		let pos = 1;
+		let r = args[0];
+		while (pos < args.length)
+			if (r.toRealBoolean())
+				r = args[pos++];
+			else
+				return r;
+		return r;	
 	}
 
-	static or_jel_mapping = {a: 1, b: 2};
-	static or(ctx: Context, a: FuzzyBoolean, b: FuzzyBoolean): FuzzyBoolean {
-		return a.toRealBoolean() ? a : b;
+	static or_jel_mapping = {};
+	static or(ctx: Context, ...args: FuzzyBoolean[]): FuzzyBoolean {
+		let pos = 1;
+		let r = args[0];
+		while (pos < args.length)
+			if (r.toRealBoolean())
+				return r;
+			else
+				r = args[pos++];
+		return r;
 	}
 
 	static truest_jel_mapping = {a: 1, b: 2};
@@ -183,6 +197,14 @@ export default class FuzzyBoolean extends JelType {
 			return Util.resolveValues(FuzzyBoolean.falsest, ctx, a, b);
 		else
 			return FuzzyBoolean.falsest(ctx, a, b);
+	}
+
+	static andWithPromises(...args: (FuzzyBoolean | Promise<FuzzyBoolean>)[]): FuzzyBoolean | Promise<FuzzyBoolean> {
+			return Util.resolveArray(args=>FuzzyBoolean.and(new Context(), ...args), args);
+	}
+
+	static orWithPromises(...args: (FuzzyBoolean | Promise<FuzzyBoolean>)[]): FuzzyBoolean | Promise<FuzzyBoolean> {
+			return Util.resolveArray(args=>FuzzyBoolean.or(new Context(), ...args), args);
 	}
 
 	

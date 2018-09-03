@@ -80,5 +80,28 @@ const jelAssert = new JelAssert(new Context().setAll({FuzzyBoolean}));
 			jelAssert.equal(FuzzyBoolean.TRUE, "FuzzyBoolean(0) >>= 0");
 			jelAssert.equal(FuzzyBoolean.TRUE, "FuzzyBoolean(0) <<= 0.1");
 		});
+		
+		it('supports and and or', function() {
+			jelAssert.equal("FuzzyBoolean.and(true, true, true, true)", FuzzyBoolean.TRUE);
+			jelAssert.equal("FuzzyBoolean.and(true, true, false, true)", FuzzyBoolean.FALSE);
+			jelAssert.equal("FuzzyBoolean.and(false, false, false, true)", FuzzyBoolean.FALSE);
+			jelAssert.equal("FuzzyBoolean.and(false, false, false, false)", FuzzyBoolean.FALSE);
+
+			jelAssert.equal("FuzzyBoolean.or(true, true, true, true)", FuzzyBoolean.TRUE);
+			jelAssert.equal("FuzzyBoolean.or(true, true, false, true)", FuzzyBoolean.TRUE);
+			jelAssert.equal("FuzzyBoolean.or(false, false, false, true)", FuzzyBoolean.TRUE);
+			jelAssert.equal("FuzzyBoolean.or(false, false, false, false)", FuzzyBoolean.FALSE);
+
+			jelAssert.equal("FuzzyBoolean.TRUE.and(true)", FuzzyBoolean.TRUE);
+			jelAssert.equal("FuzzyBoolean.TRUE.and(false)", FuzzyBoolean.FALSE);
+			jelAssert.equal("FuzzyBoolean.FALSE.and(true)", FuzzyBoolean.FALSE);
+			jelAssert.equal("FuzzyBoolean.FALSE.and(false)", FuzzyBoolean.FALSE);
+
+			jelAssert.equal("FuzzyBoolean.TRUE.or(true)", FuzzyBoolean.TRUE);
+			jelAssert.equal("FuzzyBoolean.TRUE.or(false)", FuzzyBoolean.TRUE);
+			jelAssert.equal("FuzzyBoolean.FALSE.or(true)", FuzzyBoolean.TRUE);
+			jelAssert.equal("FuzzyBoolean.FALSE.or(false)", FuzzyBoolean.FALSE);
+
+		});
 	});
 

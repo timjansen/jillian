@@ -1,11 +1,14 @@
+import Util from '../../util/Util';
 import JelType from '../JelType';
 import Context from '../Context';
 import Fraction from './Fraction';
+import Callable from '../Callable';
 import UnitValue from './UnitValue';
 import ApproximateNumber from './ApproximateNumber';
 import FuzzyBoolean from './FuzzyBoolean';
 
 const RANGE_NUM_OPS: any = {'+': true, '-': true, '*': true, '/': true};
+
 
 /**
  * Represents a range of numeric values. Numbers can be primitive numbers of UnitValues. 
@@ -26,9 +29,9 @@ export default class Range extends JelType {
 			return this.op(ctx, '==', right).negate();
 		else if (right instanceof Range) {
 			if (operator == '==')
-				return this.contains(ctx, right.min).or(ctx, this.contains(ctx, right.max)).or(ctx, right.contains(ctx, this.min)).or(ctx, right.contains(ctx, this.max));
+				return FuzzyBoolean.orWithPromises(this.contains(ctx, right.min), this.contains(ctx, right.max), right.contains(ctx, this.min), right.contains(ctx, this.max));
 			else if (operator == '===')
-				return JelType.op(ctx, '===', this.min, right.min).and(ctx, JelType.op(ctx, '===', this.max, right.max));
+				return FuzzyBoolean.andWithPromises(JelType.op(ctx, '===', this.min, right.min), JelType.op(ctx, '===', this.max, right.max));
 			else if (operator == '>>')
 				return (right.max == null || this.min == null) ? FuzzyBoolean.FALSE : JelType.op(ctx, '>>', this.min, right.max);
 			else if (operator == '<<')
@@ -50,7 +53,7 @@ export default class Range extends JelType {
 			if (operator == '==')
 				return this.contains(ctx, right);
 			else if (operator == '===')
-				return JelType.op(ctx, '===', this.min, right).and(ctx, JelType.op(ctx, '===', this.max, right));
+				return FuzzyBoolean.andWithPromises(JelType.op(ctx, '===', this.min, right), JelType.op(ctx, '===', this.max, right));
 			else if (operator == '>>')
 				return this.min != null ? JelType.op(ctx, '>>', this.min, right) : FuzzyBoolean.FALSE;
 			else if (operator == '<<')
@@ -60,13 +63,13 @@ export default class Range extends JelType {
 			else if (operator == '<')
 				return this.max != null ? JelType.op(ctx, '<', this.max, right) : FuzzyBoolean.FALSE;
 			else if (operator == '>>=')
-				return this.op(ctx, '>>', right).or(ctx, this.contains(ctx, right));
+				return FuzzyBoolean.orWithPromises(this.op(ctx, '>>', right), this.contains(ctx, right));
 			else if (operator == '<<=')
-				return this.op(ctx, '<<', right).or(ctx, this.contains(ctx, right));
+				return FuzzyBoolean.orWithPromises(this.op(ctx, '<<', right), this.contains(ctx, right));
 			else if (operator == '>=')
-				return this.op(ctx, '>', right).or(ctx, this.contains(ctx, right));
+				return FuzzyBoolean.orWithPromises(this.op(ctx, '>', right), this.contains(ctx, right));
 			else if (operator == '<=')
-				return this.op(ctx, '<', right).or(ctx, this.contains(ctx, right));
+				return FuzzyBoolean.orWithPromises(this.op(ctx, '<', right), this.contains(ctx, right));
 			else if (operator in RANGE_NUM_OPS)
 				return new Range(this.min != null ? JelType.op(ctx, operator, this.min, right) : this.min, 
 												 this.max != null ? JelType.op(ctx, operator, this.max, right) : this.max);
@@ -75,14 +78,14 @@ export default class Range extends JelType {
 	}
 	
 	contains_jel_mapping: Object;
-	contains(ctx: Context, right: any): FuzzyBoolean {
-		return (this.min == null ? FuzzyBoolean.TRUE : JelType.op(ctx, '<=', this.min, right)).and(ctx, this.max == null ? FuzzyBoolean.TRUE : JelType.op(ctx, '>=', this.max, right));
+	contains(ctx: Context, right: any): FuzzyBoolean | Promise<FuzzyBoolean> {
+		return FuzzyBoolean.andWithPromises(this.min == null ? FuzzyBoolean.TRUE : JelType.op(ctx, '<=', this.min, right), this.max == null ? FuzzyBoolean.TRUE : JelType.op(ctx, '>=', this.max, right));
 	}
 
 	middle_jel_mapping: Object;
 	middle(ctx: Context): number | Fraction | UnitValue | ApproximateNumber | null {
 		if (this.min != null && this.max != null)
-			return JelType.singleOp(ctx, 'abs', JelType.op(ctx, '-', this.min, this.max));
+			return JelType.singleOpWithPromise(ctx, 'abs', JelType.op(ctx, '-', this.min, this.max));
 		else
 			return null;
 	}

@@ -115,71 +115,25 @@ export default class List extends JelType implements Gettable {
 
 	map_jel_mapping: Object;
 	map(ctx: Context, f: Callable): List | Promise<List> {
-		const self = this;
 		const newList: any[] = [];
-		let i = 0;
-		const len = this.elements.length;
-		function exec(): Promise<undefined> | undefined {
-			while (i < len) {
-				const r = f.invoke(ctx, self.elements[i], i);
-				i++;
-				if (r instanceof Promise)
-					return r.then(v=> {
-						newList.push(v);
-						return exec();
-					});
-				else
-					newList.push(r);
-			}
-		}
-		return Util.resolveValue(()=>new List(newList), exec());
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, i), v=>newList.push(v), ()=>new List(newList));
 	}
 
 	filter_jel_mapping: Object;
 	filter(ctx: Context, f: Callable): Promise<List> | List {
-		const self = this;
 		const newList: any[] = [];
-		let i = 0;
-		const len = this.elements.length;
-		function exec(): Promise<undefined> | undefined {
-			while (i < len) {
-				const e = self.elements[i];
-				const r = f.invoke(ctx, e, i);
-				i++;
-				if (r instanceof Promise)
-					return r.then(v=> {
-						if (JelType.toRealBoolean(v))
-							newList.push(e);
-						return exec();
-					});
-				else if (JelType.toRealBoolean(r))
-					newList.push(e);
-			}
-		}
-		return Util.resolveValue(()=>new List(newList), exec());
+
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, i), (v, e)=> {
+			if (JelType.toRealBoolean(v))
+				newList.push(e);
+		}, ()=>new List(newList));
 	}
 	
 	reduce_jel_mapping: Object;
 	reduce(ctx: Context, f: Callable, init: any): Promise<any> | any {
-		const self = this;
 		let result: any = init;
-		let i = 0;
-		const len = this.elements.length;
-		function exec(): Promise<undefined> | undefined {
-			while (i < len) {
-				const r = f.invoke(ctx, self.elements[i], result, i);
-				i++;
-				if (r instanceof Promise)
-					return r.then(v=> {
-						result = v;
-						return exec();
-					});
-				else 
-					result = r;
-			}
-			return result;
-		}
-		return exec();
+		
+		return Util.processPromiseList(this.elements, (v,i)=>f.invoke(ctx, v, result, i), v=>result=v, ()=>result);
 	}
 
 	hasAny_jel_mapping: Object;

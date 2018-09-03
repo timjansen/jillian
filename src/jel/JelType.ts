@@ -121,6 +121,12 @@ export default class JelType {
 		throw new Error(`Operator "${operator}" is not supported for primitive types`);
 	}
 	
+	// op version with promises to simplify calculations
+	static opWithPromises(ctx: Context, operator: string, left: any | Promise<any>, right: any | Promise<any>): any | Promise<any> {
+		return Util.resolveValues((left: any, right: any)=>JelType.op(ctx, operator, left, right), left, right);
+	}
+
+	
 	static singleOp(ctx: Context, operator: string, left: any): any {
 		if (left instanceof JelType)
 			return left.singleOp(ctx, operator);
@@ -132,6 +138,10 @@ export default class JelType {
 			throw new Error(`Operator "${operator}" is not supported for primitive types`);
 		return nativeOp(left);
 	}
+
+	static singleOpWithPromise(ctx: Context, operator: string, left: any | Promise<any>): any | Promise<any> {
+		return Util.resolveValue((left: any)=>JelType.singleOp(ctx, operator, left), left);
+	}
 	
 	static toRealBoolean(obj: any): boolean {
 		if (obj instanceof JelType)
@@ -142,6 +152,10 @@ export default class JelType {
 	
 	static toNumber(n: any): number {
 		return typeof n == 'number' ? n : n.toNumber();
+	}
+
+	static toNumberWithPromise(n: any | Promise<any>): number | Promise<number> {
+		return Util.resolveValue(JelType.toNumber, n);
 	}
 	
 	static member(ctx: Context, obj: any, name: string, parameters?: Map<string, any>): any {
@@ -210,7 +224,7 @@ export default class JelType {
 			return right.opReversed(ctx, operator, this);
 		throw new Error(`Operator "${operator}" is not supported for this type`);
 	}
-
+	
 	// To be used if the right-hand side is this type, and the left-hand side is a primitive.
 	// Left is guaranteed to be a non-null primitive.
 	// You must also define the supported operators in the field reverseOps!
