@@ -69,6 +69,13 @@ export default class Util {
 		return r;
 	}
 	
+	static toMap(obj: Object): Map<string, any> {
+		const r = new Map<string, any>();
+		for (const name in obj) 
+			r.set(name, (obj as any)[name]);
+		return r;
+	}
+	
 	static resolveValue(f: (e: any)=>any, value: any): any {
 		if (value instanceof Promise)
 			return value.then(f);

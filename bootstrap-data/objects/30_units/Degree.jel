@@ -1,0 +1,14 @@
+Thing('Degree', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Angle,
+		isPrimaryUnit: true,
+		idealMin: 0,
+		idealMax: 3*360,
+		convertsTo: {
+			Turn: {f: v=>v/360, factor: Fraction(1, 360), idealMin: 90},
+			Radian: {f: v=>v/360*2*Math.PI, factor: 2*Math.PI/360},
+			Gradian: {f: v=>v/400, factor: Fraction(400, 360)}
+		}
+})
+
+

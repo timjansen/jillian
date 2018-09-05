@@ -68,14 +68,14 @@ export default class UnitValue extends JelType {
 				return Util.catchValue(Util.resolveValue((leftConverted: UnitValue)=>JelType.op(ctx, operator, leftConverted, right), this.convertTo(ctx, right.unit)),
 					convertE=> {
 						if (this.unit.isSimple().toRealBoolean() && right.unit.isSimple().toRealBoolean()) {
-							const rightUnit = right.unit.getSimpleType(ctx).distinctName;
+							const rightUnit = right.unit.toSimpleType(ctx).distinctName;
 							switch (operator) {
 							case '*':
-									return this.unit.getSimpleType(ctx).with(ctx, 
+									return this.unit.toSimpleType(ctx).with(ctx, 
 																						st=>st.member(ctx, 'multipliesTo').has(rightUnit).toRealBoolean() ? 
 																													 new UnitValue(st.member(ctx, 'multipliesTo').get(rightUnit).f(this), rightUnit) : defaultOp());
 							case '/':
-									return this.unit.getSimpleType(ctx).with(ctx, 
+									return this.unit.toSimpleType(ctx).with(ctx, 
 																						st=>st.member(ctx, 'dividesTo').has(rightUnit).toRealBoolean() ? 
 																													 new UnitValue(st.member(ctx, 'dividesTo').get(rightUnit).f(this), rightUnit) : defaultOp());
 							}
@@ -127,12 +127,12 @@ export default class UnitValue extends JelType {
 		if (target instanceof Unit) {
 			if (!target.isSimple().toRealBoolean())
 				return Promise.reject(new Error('UnitValue can only convert to simple Unit types.'));
-			return this.convertTo(ctx, target.getSimpleType(ctx).distinctName);
+			return this.convertTo(ctx, target.toSimpleType(ctx).distinctName);
 		}
 		else if (typeof target != 'string')
 			return this.convertTo(ctx, target.distinctName);
 		
-		return this.unit.getSimpleType(ctx).with(ctx, (tu: any) => {
+		return this.unit.toSimpleType(ctx).with(ctx, (tu: any) => {
 			const conversionF: Callable = tu.member(ctx, 'convertsTo').get(target);
 			if (conversionF != null)
 				return Util.resolveValue(v=>new Unit(v, target), conversionF.invoke(ctx, this.value));

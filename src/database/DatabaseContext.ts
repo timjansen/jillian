@@ -12,6 +12,7 @@ import FuzzyBoolean from '../jel/types/FuzzyBoolean';
 import ApproximateNumber from '../jel/types/ApproximateNumber';
 import Range from '../jel/types/Range';
 import Fraction from '../jel/types/Fraction';
+import Unit from '../jel/types/Unit';
 import UnitValue from '../jel/types/UnitValue';
 import List from '../jel/types/List';
 import Distribution from '../jel/types/Distribution';
@@ -20,7 +21,7 @@ import Pattern from '../jel/types/Pattern';
 import Translator from '../jel/types/Translator';
 import EnumValue from '../jel/types/EnumValue';
 
-const CTX_IDENTIFIERS = {DbEntry, DbRef, Category, Thing, FuzzyBoolean, ApproximateNumber, Range, Fraction, UnitValue,
+const CTX_IDENTIFIERS = {DbEntry, DbRef, Category, Thing, FuzzyBoolean, ApproximateNumber, Range, Fraction, Unit, UnitValue,
 												Math, Dictionary, List, Distribution, DistributionPoint, Pattern, Translator,
 												EnumValue};
 

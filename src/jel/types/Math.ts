@@ -85,7 +85,7 @@ export default class JelMath extends JelType {
 		if (x instanceof UnitValue) {
 			if (!x.unit.isSimple())
 				throw new Error('Supports only Radians, Degree, Turn and Gradian as unit, but no complex unit types');
-			const	st = x.unit.getSimpleType(ctx).distinctName;
+			const	st = x.unit.toSimpleType(ctx).distinctName;
 			if (!(st in JelMath.unitFactors))
 				throw new Error('Supports only Radians, Degree, Turn and Gradian as unit, but not ' + st);
 			return f(JelType.toNumber(x.value) / JelMath.unitFactors[st]);

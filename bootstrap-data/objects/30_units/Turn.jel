@@ -1,0 +1,13 @@
+Thing('Turn', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Angle,
+		isPrimaryUnit: false,
+		idealMin: 0.25,
+		convertsTo: {
+			Degree: {f: v=>v*360, factor: 360, idealMax: 3},
+			Radian: {f: v=>v*2*Math.PI, factor: 2*Math.PI},
+			Gradian: {f: v=>v*400, factor: 400}
+		}	
+})
+
+

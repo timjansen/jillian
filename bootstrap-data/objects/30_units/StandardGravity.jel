@@ -1,0 +1,6 @@
+Thing('StandardGravity', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Acceleration,
+		isPrimaryUnit: false,
+		convertsTo: {MeterPerSecondQuared: {f: v=>v*9.80665, factor: 9.80665}}
+})

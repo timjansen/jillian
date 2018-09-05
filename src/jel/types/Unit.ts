@@ -2,14 +2,32 @@ import JelType from '../JelType';
 import Context from '../Context';
 import {IDbRef} from '../IDatabase';
 import FuzzyBoolean from './FuzzyBoolean';
+import List from './List';
+import Dictionary from './Dictionary';
 
 function mergeUnitMaps(a: Map<string, number>, b?: Map<string, number>): Map<string, number> {
 	const r = new Map<string, number>();
-	a.forEach((v, k)=>r.set(k, (r.get(k) || 0) + 1));
+	a.forEach((v, k)=>r.set(k, (r.get(k) || 0) + v));
 	if (b)
-		b.forEach((v, k)=>r.set(k, (r.get(k) || 0) + 1));
+		b.forEach((v, k)=> {
+			const e = r.get(k);
+			if (e == null)
+				r.set(k, v);
+			else if (e == -v)
+				r.delete(k);
+			else
+				r.set(k, e + v);
+		});
 	return r;
 }
+
+function invertUnitMap(a: Map<string, number>): Map<string, number> {
+	const r = new Map<string, number>();
+	a.forEach((v, k)=>r.set(k, -v));
+	return r;
+}
+
+
 
 /**
  * Represents a unit. Supports complex units, like '1/s' or 'm*m*m/kw'.
@@ -17,28 +35,34 @@ function mergeUnitMaps(a: Map<string, number>, b?: Map<string, number>): Map<str
 export default class Unit extends JelType {
 	JEL_PROPERTIES: Object;
 	
-	public numeratorUnits = new Map<string,number>();    // distinctName->count
-	public denominatorUnits = new Map<string,number>();
+	public units = new Map<string,number>();    // distinctName->exponent
+	private simple: boolean;
 
-	constructor(numeratorUnits: IDbRef[] | IDbRef | string| Map<string,number>, denominatorUnits: IDbRef[] | IDbRef | string| Map<string,number> = []) {
+	constructor(numeratorUnits: List | IDbRef | string | Dictionary, denominatorUnits?: List | IDbRef | string) {
 		super();
-		if (Array.isArray(numeratorUnits))
-			numeratorUnits.forEach(n=>this.numeratorUnits.set(n.distinctName, (this.numeratorUnits.get(n.distinctName) || 0) + 1));
-		else if (numeratorUnits instanceof Map)
-			this.numeratorUnits = numeratorUnits as Map<string, number>;
-		else if (typeof numeratorUnits == 'string')
-			this.numeratorUnits.set(numeratorUnits, 1);
-		else
-			this.numeratorUnits.set((numeratorUnits as IDbRef).distinctName, 1);
-
-		if (Array.isArray(denominatorUnits))
-			denominatorUnits.forEach(n=>this.denominatorUnits.set(n.distinctName, (this.denominatorUnits.get(n.distinctName) || 0) + 1));
-		else if (numeratorUnits instanceof Map)
-			this.denominatorUnits = denominatorUnits as Map<string, number>;
+		if (numeratorUnits instanceof List) {
+			numeratorUnits.elements.forEach(n=>this.units.set(n.distinctName, (this.units.get(n.distinctName) || 0) + 1));
+			this.simple = numeratorUnits.elements.length == 1 && !denominatorUnits;
+		}
+		else if (numeratorUnits instanceof Dictionary) {
+			this.units = numeratorUnits.elements as Map<string, number>;
+			this.simple = this.units.size == 1 && this.units.values().next().value == 1  && !denominatorUnits;
+		}
+		else if (typeof numeratorUnits == 'string') {
+			this.units.set(numeratorUnits, 1);
+			this.simple = !denominatorUnits;
+		}
+		else {
+			this.units.set((numeratorUnits as IDbRef).distinctName, 1);
+			this.simple = !denominatorUnits;
+		}
+		
+		if (denominatorUnits instanceof List)
+			denominatorUnits.elements.forEach(n=>this.units.set(n.distinctName, (this.units.get(n.distinctName) || 0) - 1));
 		else if (typeof denominatorUnits == 'string')
-			this.denominatorUnits.set(denominatorUnits, 1);
-		else
-			this.denominatorUnits.set((denominatorUnits as IDbRef).distinctName, 1);
+			this.units.set(denominatorUnits, -1);
+		else if (denominatorUnits)
+			this.units.set((denominatorUnits as IDbRef).distinctName, -1);
 	}
 
 	op(ctx: Context, operator: string, right: any): any {
@@ -51,57 +75,54 @@ export default class Unit extends JelType {
 			case '!==':
 					return FuzzyBoolean.toFuzzyBoolean(!this.equals(right));
 			case '*':
-					return new Unit(mergeUnitMaps(this.numeratorUnits, right.numeratorUnits), mergeUnitMaps(this.denominatorUnits, right.denominatorUnits));
+					return new Unit(new Dictionary(mergeUnitMaps(this.units, right.units), true));
 			case '/':
-					return new Unit(mergeUnitMaps(this.numeratorUnits, right.denominatorUnits), mergeUnitMaps(this.denominatorUnits, right.numeratorUnits));
+					return new Unit(new Dictionary(mergeUnitMaps(this.units, invertUnitMap(right.units)), true));
 			}
 		}
 		return super.op(ctx, operator, right);
 	}
 
 	equals(right: Unit): boolean {
-		if (this.numeratorUnits.size != right.numeratorUnits.size ||
-				this.denominatorUnits.size != right.denominatorUnits.size)
+		if (this.units.size != right.units.size)
 			return false;
-		for (let key of this.numeratorUnits.keys())
-			if (this.numeratorUnits.get(key) != right.numeratorUnits.get(key))
-				return false;
-		for (let key of this.denominatorUnits.keys())
-			if (this.denominatorUnits.get(key) != right.denominatorUnits.get(key))
+		for (let key of this.units.keys())
+			if (this.units.get(key) != right.units.get(key))
 				return false;
 		return true;
 	}
 	
 	isSimple_jel_mapping: Object;
 	isSimple(): FuzzyBoolean {
-		return FuzzyBoolean.toFuzzyBoolean(this.numeratorUnits.size == 1 && !this.denominatorUnits.size);
+		return FuzzyBoolean.toFuzzyBoolean(this.simple);
 	}
 	
-	getSimpleType_jel_mapping: Object;
-	getSimpleType(ctx: Context): IDbRef {
-		if (!this.isSimple().toRealBoolean())
-			throw new Error("UnitValue.getSimpleType() can only be called on simple types");
-		return ctx.dbSession.createDbRef(this.numeratorUnits.keys().next());
+	toSimpleType_jel_mapping: Object;
+	toSimpleType(ctx: Context): IDbRef {
+		if (!this.simple)
+			throw new Error("UnitValue.toSimpleType() can only be called on simple types");
+		return ctx.dbSession.createDbRef(this.units.keys().next().value);
 	}
 
 	isType_jel_mapping: Object;
 	isType(ctx: Context, unit: IDbRef | string): FuzzyBoolean {
-		if (!this.isSimple().toRealBoolean())
+		if (!this.simple)
 			return FuzzyBoolean.FALSE;
-		return FuzzyBoolean.toFuzzyBoolean(this.getSimpleType(ctx).distinctName == (typeof unit == 'string' ? unit : unit.distinctName));
+		return FuzzyBoolean.toFuzzyBoolean(this.toSimpleType(ctx).distinctName == (typeof unit == 'string' ? unit : unit.distinctName));
 	}
 	
 	getSerializationProperties(): any[] {
-		return [this.numeratorUnits, this.denominatorUnits];
+		return [new Dictionary(this.units, true)];
 	}
 	
-	static create_jel_mapping = {value: 1, unit: 2};
+	static create_jel_mapping = {numeratorUnits: 1, denominatorUnits: 2, units: 1};
 	static create(ctx: Context, ...args: any[]): Unit {
 		return new Unit(args[0], args[1]);
 	}
 }
 
 Unit.prototype.isSimple_jel_mapping = {};
-Unit.prototype.getSimpleType_jel_mapping = {};
+Unit.prototype.toSimpleType_jel_mapping = {};
+Unit.prototype.isType_jel_mapping = {unit: 1};
 
 

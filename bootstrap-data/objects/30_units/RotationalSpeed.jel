@@ -1,0 +1,4 @@
+Thing('RotationalSpeed', @QuantityCategory,
+	properties={
+		primaryUnit: @RotationsPerMinute
+})

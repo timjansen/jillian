@@ -1,0 +1,4 @@
+Thing('Duration', @QuantityCategory,
+	properties={
+		primaryUnit: @Second
+})
