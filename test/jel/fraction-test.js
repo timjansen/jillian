@@ -18,6 +18,7 @@ describe('Fraction', function() {
 		jelAssert.equal(new Fraction(7, 16), "Fraction(4, 8) - Fraction(1, 16)");
 		jelAssert.equal(new Fraction(1, 4), "Fraction(1, 2) * Fraction(1, 2)");
 		jelAssert.equal(new Fraction(1, 1), "Fraction(1, 2) / Fraction(1, 2)");
+		jelAssert.equal(0.25, "Fraction(1, 2) ^ Fraction(4, 2)");
 
 		jelAssert.equal(FuzzyBoolean.TRUE, "Fraction(2, 4) == Fraction(1, 2)");
 		jelAssert.equal(FuzzyBoolean.TRUE, "Fraction(2, 4) === Fraction(1, 2)");
@@ -52,6 +53,7 @@ describe('Fraction', function() {
 		jelAssert.equal(new Fraction(-1, 2), "Fraction(4, 8) - 1");
 		jelAssert.equal(new Fraction(3, 2), "Fraction(1, 2) * 3");
 		jelAssert.equal(new Fraction(1, 4), "Fraction(1, 2) / 2");
+		jelAssert.equal(2, "Fraction(1, 2) ^ -1");
 
 		jelAssert.equal(FuzzyBoolean.TRUE, "Fraction(4, 4) == 1");
 		jelAssert.equal(FuzzyBoolean.TRUE, "Fraction(4, 4) === 1");

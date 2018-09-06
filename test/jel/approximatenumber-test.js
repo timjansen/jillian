@@ -21,6 +21,7 @@ describe('ApproximateNumber', function() {
 		jelAssert.equal("ApproximateNumber(1, 2) * ApproximateNumber(1, 2)", new ApproximateNumber(1, 4));
 		jelAssert.equal("ApproximateNumber(2, 2) * ApproximateNumber(3, 2)", new ApproximateNumber(6, 10));
 		jelAssert.equal("ApproximateNumber(1, 2) / ApproximateNumber(1, 2)", new ApproximateNumber(1, 4));
+		jelAssert.equal("ApproximateNumber(4, 2) ^ ApproximateNumber(3, 1)", new ApproximateNumber(64,8));
 
 		jelAssert.equal("ApproximateNumber(1, 0) == ApproximateNumber(1, 0)", FuzzyBoolean.TRUE);
 		jelAssert.equal("ApproximateNumber(1, 4) == ApproximateNumber(1, 2)", FuzzyBoolean.TRUE);
@@ -80,6 +81,8 @@ describe('ApproximateNumber', function() {
 		jelAssert.equal("ApproximateNumber(4, 8) - 1", new ApproximateNumber(3, 8));
 		jelAssert.equal("ApproximateNumber(1, 2) * 3", new ApproximateNumber(3, 6));
 		jelAssert.equal("ApproximateNumber(8, 2) / 2", new ApproximateNumber(4, 4));
+		jelAssert.equal("ApproximateNumber(4, 2) ^ 3", new ApproximateNumber(64, 8));
+
 
 		jelAssert.equal("2 + ApproximateNumber(1, 4)", new ApproximateNumber(3, 4));
 		jelAssert.equal("5 - ApproximateNumber(4, 8)", new ApproximateNumber(1, 8));

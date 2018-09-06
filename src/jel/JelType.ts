@@ -52,6 +52,7 @@ const NATIVE_OPS: any = {
 	'&&': (l: any,r: any): any =>l&&r,
 	'||': (l: any,r: any): any =>l||r,
 	'.': (l: any,r: any): any =>l[r],
+	'^': (l: any,r: any): any =>Math.pow(l, r),
 	'==': (l: any,r: any): any =>MyFuzzyBoolean.toFuzzyBoolean(l===r),
 	'===': (l: any,r: any): any =>MyFuzzyBoolean.toFuzzyBoolean(l===r),
 	'!=': (l: any,r: any): any =>MyFuzzyBoolean.toFuzzyBoolean(l!=r),

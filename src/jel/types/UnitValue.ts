@@ -94,7 +94,8 @@ export default class UnitValue extends JelType {
 				switch (operator) {
 				case '*':
 				case '/':
-					return new UnitValue(JelType.op(ctx, operator, this.value, right), this.unit);
+				case '^':
+					return new UnitValue(JelType.op(ctx, operator, this.value, right), JelType.op(ctx, operator, this.unit, right));
 				}		
 		}
 		return super.op(ctx, operator, right);
@@ -133,11 +134,21 @@ export default class UnitValue extends JelType {
 			return this.convertTo(ctx, target.distinctName);
 		
 		return this.unit.toSimpleType(ctx).with(ctx, (tu: any) => {
-			const conversionF: Callable = tu.member(ctx, 'convertsTo').get(target);
-			if (conversionF != null)
-				return Util.resolveValue(v=>new Unit(v, target), conversionF.invoke(ctx, this.value));
-			else
+			const conversionObj: Map<string, any> = tu.member(ctx, 'convertsTo').get(target);
+			if (conversionObj != null) {
+				const f: Callable = conversionObj.get('f');
+				if (f)
+					return Util.resolveValue(v=>new Unit(v, target), f.invoke(ctx, this.value));
+				const factor: number | Fraction = conversionObj.get('factor');
+				if (factor)
+					return Util.resolveValue(v=>new Unit(v, target), JelType.op(ctx, '*', factor, this.value));
+				else
+					return Promise.reject(new Error("Can not convert from "+tu.distinctName+" to type " + target+": neither factor not function set."));
+			}
+			else if (JelType.toRealBoolean(tu.member(ctx, 'isPrimaryUnit')))
 				return Promise.reject(new Error("Can not convert to unsupported type " + target));
+			else
+				return tu.member(ctx, 'quantityCategory').with(ctx, (qc: any) => Util.resolveValue(p=>p.convertTo(ctx, target), this.convertTo(ctx, qc.member(ctx, 'primaryUnit'))));
 		}); 
 	}
 	

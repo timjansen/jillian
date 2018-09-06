@@ -2,6 +2,7 @@ Thing('Gradian', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Angle,
 		isPrimaryUnit: false,
+		type: @UnitTypeEnum.OUTDATED,
 		idealMin: 0,
 		idealMax: 3*400,
 		convertsTo: {

@@ -33,6 +33,7 @@ describe('jelTokenizer', function() {
     it('should parse values', function() {
       assert.deepEqual(Tokenizer.tokenize('3.5 null true "hello" "hi\\n\\"di\\"\\tho" \'huhu\'').tokens, [new Token(TokenType.Literal, 3.5), new Token(TokenType.Literal, null), new Token(TokenType.Literal, true),
                                                                          new Token(TokenType.Literal, 'hello'), new Token(TokenType.Literal, 'hi\n"di"\tho'), new Token(TokenType.Literal, 'huhu')]);
+      assert.deepEqual(Tokenizer.tokenize('1e3 1e-3 4e2 -4e2').tokens, [new Token(TokenType.Literal, 1e3), new Token(TokenType.Literal, 1e-3), new Token(TokenType.Literal, 4e2), new Token(TokenType.Operator, '-'), new Token(TokenType.Literal, 4e2)]);
     });
 
     it('should parse patterns', function() {

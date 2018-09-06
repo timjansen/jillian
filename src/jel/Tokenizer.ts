@@ -27,8 +27,8 @@ export default class Tokenizer {
 	}
 	
   static tokenize(input: string): TokenReader {
-    //          line comment   full comment                 Number                        Operator                                                                                     Identifier-like     pattern           single-quoted    double-quoted        illegal
-    const re = /\/\/.*(?:\n|$)|\/\*(?:[^\*]+|\*+[^\/])*\*\/|(\d+(?:\.\d+)?(?:e[+-]?\d+)?)|([\(\)\[\]:\.,\+\-\*\/%@]|\$\{|\{|\}|=>|===|==|=|<<=|>>=|>=|<=|>>|<<|>|<|!==|!=|!|\|\||\&\&)|([a-zA-Z_$][\w_$]*)|(`(?:\\.|[^`])*`)|('(?:\\.|[^'])*'|"(?:\\.|[^"])*")|\s+|(.+)/g;
+    //          line comment   full comment                 Number                        Operator                                                                                      Identifier-like     pattern           single-quoted    double-quoted        illegal
+    const re = /\/\/.*(?:\n|$)|\/\*(?:[^\*]+|\*+[^\/])*\*\/|(\d+(?:\.\d+)?(?:e[+-]?\d+)?)|([\(\)\[\]:\.,\+\-\*\/^%@]|\$\{|\{|\}|=>|===|==|=|<<=|>>=|>=|<=|>>|<<|>|<|!==|!=|!|\|\||\&\&)|([a-zA-Z_$][\w_$]*)|(`(?:\\.|[^`])*`)|('(?:\\.|[^'])*'|"(?:\\.|[^"])*")|\s+|(.+)/g;
     // groups:
     // group 1: number
     // group 2: operator

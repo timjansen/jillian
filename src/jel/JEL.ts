@@ -50,6 +50,7 @@ const binaryOperators: any = { // op->precedence
   '||': 5,
   'instanceof': 16,
   'derivativeof': 16,
+	'^': 17,
   '+': 13,
   '-': 13,
   '*': 14,

@@ -35,6 +35,8 @@ describe('JEL', function() {
       assert.equal(new JEL('+5').executeImmediately(), 5);
       assert.equal(new JEL('-5').executeImmediately(), -5);
       assert.equal(new JEL('- 5').executeImmediately(), -5);
+      assert.equal(new JEL('1e5').executeImmediately(), 1e5);
+      assert.equal(new JEL('-1e-5').executeImmediately(), -1e-5);
       assert.equal(new JEL('"foo"').executeImmediately(), 'foo');
       assert.equal(new JEL('true').executeImmediately().state, 1);
       assert.equal(new JEL('null').executeImmediately(), null);
@@ -51,6 +53,8 @@ describe('JEL', function() {
       assert.equal(new JEL('5+5').executeImmediately(), 10);
       assert.equal(new JEL('5*5').executeImmediately(), 25);
       assert.equal(new JEL('7-5').executeImmediately(), 2);
+      assert.equal(new JEL('7^2').executeImmediately(), 49);
+      assert.equal(new JEL('0.5^-1').executeImmediately(), 2);
       assert.equal(new JEL('!true').executeImmediately().state, 0);
       assert.equal(new JEL('-(10/2)').executeImmediately(), -5);
       assert.equal(new JEL('"foo"+"bar"').executeImmediately(), "foobar");

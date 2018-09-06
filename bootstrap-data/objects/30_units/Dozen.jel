@@ -1,0 +1,12 @@
+Thing('Dozen', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Angle,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.OTHER,
+		idealMin: 12,
+		idealMax: 36,
+		granularity: 0.5,	
+		convertsTo: {
+			Pieces: {f: v=>v/12, factor: Fraction(1, 12)}
+		}
+})

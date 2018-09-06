@@ -4,9 +4,11 @@ Category('UnitOfMeasureCategory',
 	instanceProperties={
 		quantityCategory: @QuantityCategory,
 		isPrimaryUnit: @FuzzyBoolean,
+		type: @UnitTypeEnum, 
 		idealMin: [@Number, null],  // should be converted if lower (>= 0, absolute value)
 		idealMax: [@Number, null],  // should be converted if higher
-		convertsTo: DictionaryPropertyType(@String, {f: FunctionPropertyType(['v']), factor: [@Number, @Fraction, null], idealMin: [@Number, null], idealMax: [@Number, null]})
+		granularity: [@Number, null], // if the unit can not easily be divided. E.g. For Dollar it would be 0.01, for Dozens it would be 0.5
+		convertsTo: DictionaryPropertyType(@String, {f: FunctionPropertyType(['v']), factor: [@Number, @Fraction, null]})
 		multipliesTo: DictionaryPropertyType(@String, {f: FunctionPropertyType(['v']), factor: [@Number, @Fraction, null]})
 		dividesTo: DictionaryPropertyType(@String, {f: FunctionPropertyType(['v']), factor: [@Number, @Fraction, null]})
 	}

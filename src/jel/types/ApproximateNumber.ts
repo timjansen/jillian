@@ -61,6 +61,9 @@ export default class ApproximateNumber extends JelType {
 				case '/':
 					return new ApproximateNumber(JelType.op(ctx, operator, this.value, right.value), 
 																			 JelType.op(ctx, '+', JelType.singleOp(ctx, 'abs', JelType.op(ctx, '*', this.maxError, right.value)), JelType.singleOp(ctx, 'abs', JelType.op(ctx, '*', right.maxError, this.value))));
+				case '^':
+					return new ApproximateNumber(Math.pow(this.toNumber(), right.toNumber()), Math.pow(JelType.toNumber(this.maxError), right.toNumber()));
+					
 			}
 		}
 		else if (typeof right == 'number' || right instanceof Fraction) {
@@ -103,6 +106,9 @@ export default class ApproximateNumber extends JelType {
 				case '*':
 				case '/':
 					return new ApproximateNumber(JelType.op(ctx, operator, this.value, right), JelType.singleOp(ctx, 'abs', JelType.op(ctx, '*', this.maxError, right)));
+				case '^':
+					return new ApproximateNumber(Math.pow(JelType.toNumber(this.value), JelType.toNumber(right)), 
+																			 Math.pow(JelType.toNumber(this.maxError), JelType.toNumber(right)));
 			}		
 		}
 		return super.op(ctx, operator, right);
@@ -115,6 +121,8 @@ export default class ApproximateNumber extends JelType {
 					return new ApproximateNumber(JelType.op(ctx, operator, left, this.value), this.maxError);
 				case '/': 
 					return new ApproximateNumber(JelType.op(ctx, operator, left, this.value), JelType.singleOp(ctx, 'abs', JelType.op(ctx, '*', this.maxError, left)));
+				case '^':
+					return Math.pow(left, this.toNumber());
 			}
 		}
 		return super.opReversed(ctx, operator, left);

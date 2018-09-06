@@ -58,6 +58,10 @@ export default class Fraction extends JelType {
 					return new Fraction(l.numerator * right, l.denominator, l.mixed).simplify();
 				case '/':
 					return new Fraction(l.numerator, l.denominator*right, l.mixed).simplify();
+					
+				case '^': 
+					return Math.pow(this.toNumber(), right);
+
 				default:
 					return JelType.op(ctx, operator, this.toNumber(), right);
 			}
@@ -94,9 +98,12 @@ export default class Fraction extends JelType {
 					return new Fraction(l.numerator*r.numerator, l.denominator*r.denominator, l.mixed).simplify();
 				case '/':
 					return new Fraction(l.numerator*r.denominator, l.denominator*r.numerator, l.mixed).simplify();
+
+				default:
+					return JelType.op(ctx, operator, this.toNumber(), right.toNumber());
 			}
 		}
-		super.op(ctx, operator, right);
+		return super.op(ctx, operator, right);
 	}
 
 	opReversed(ctx: Context, operator: string, left: any): any {	
@@ -108,6 +115,8 @@ export default class Fraction extends JelType {
 					return new Fraction(left*this.denominator-this.numerator, this.denominator, this.mixed).simplify();
 				case '/':
 					return new Fraction(left*this.denominator, this.numerator, this.mixed).simplify();
+				case '^':
+					return Math.pow(left, this.toNumber());
 			}
 		}
 		return super.op(ctx, operator, left);

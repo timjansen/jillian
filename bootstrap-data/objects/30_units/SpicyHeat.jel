@@ -1,4 +1,6 @@
 Thing('SpicyHeat', @QuantityCategory,
 	properties={
-		primaryUnit: @Shu
+		primaryUnit: @Shu,
+		type: @UnitTypeEnum.OTHER
+
 })

@@ -88,6 +88,10 @@ tmp.dir(function(err, path) {
 					jelAssert.equal("Unit(@Meter) * Unit('Meter')", "Unit({Meter: 2})");
 					assert.deepEqual(new JEL("Unit([@Meter, @Meter, @Pieces], [@Kilogram]) * Unit(@Watt, [@Liter, @Meter])").executeImmediately(session.ctx).units, Util.toMap({Meter: 1, Pieces: 1, Watt: 1, Liter: -1, Kilogram: -1}));
 					assert.deepEqual(new JEL("Unit([@Meter, @Meter, @Pieces], [@Kilogram]) / Unit(@Watt, [@Liter, @Meter])").executeImmediately(session.ctx).units, Util.toMap({Meter: 3, Pieces: 1, Watt: -1, Liter: 1, Kilogram: -1}));
+
+					jelAssert.equal("Unit(@Meter) * 3", "Unit({Meter: 1})");
+					jelAssert.equal("Unit(@Meter) / 3", "Unit({Meter: 1})");
+					jelAssert.equal("Unit(@Meter) ^ 3", "Unit({Meter: 3})");
 				});
 
 				it('supports isSimple()', function() {

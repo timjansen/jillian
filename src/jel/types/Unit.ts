@@ -2,6 +2,8 @@ import JelType from '../JelType';
 import Context from '../Context';
 import {IDbRef} from '../IDatabase';
 import FuzzyBoolean from './FuzzyBoolean';
+import Fraction from './Fraction';
+import ApproximateNumber from './ApproximateNumber';
 import List from './List';
 import Dictionary from './Dictionary';
 
@@ -24,6 +26,12 @@ function mergeUnitMaps(a: Map<string, number>, b?: Map<string, number>): Map<str
 function invertUnitMap(a: Map<string, number>): Map<string, number> {
 	const r = new Map<string, number>();
 	a.forEach((v, k)=>r.set(k, -v));
+	return r;
+}
+
+function multiplyUnitMap(factor: number, a: Map<string, number>): Map<string, number> {
+	const r = new Map<string, number>();
+	a.forEach((v, k)=>r.set(k, factor*v));
 	return r;
 }
 
@@ -78,6 +86,15 @@ export default class Unit extends JelType {
 					return new Unit(new Dictionary(mergeUnitMaps(this.units, right.units), true));
 			case '/':
 					return new Unit(new Dictionary(mergeUnitMaps(this.units, invertUnitMap(right.units)), true));
+			}
+		}
+		else if (typeof right == 'number' || right instanceof Fraction || right instanceof ApproximateNumber) { 
+			switch (operator) {
+			case '^':
+				return new Unit(new Dictionary(multiplyUnitMap(JelType.toNumber(right), this.units), true));
+			case '*':
+			case '/':
+				return this;
 			}
 		}
 		return super.op(ctx, operator, right);
