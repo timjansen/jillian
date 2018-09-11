@@ -1,0 +1,13 @@
+Thing('SquareCentimeter', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Length,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.METRIC,
+		idealMin: 1,
+		idealMax: 2e4,
+		convertsTo: {
+			Meter: {factor: 1e-4}
+		}
+})
+
+

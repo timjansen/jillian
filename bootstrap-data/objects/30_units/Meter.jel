@@ -1,0 +1,24 @@
+Thing('Meter', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Length,
+		isPrimaryUnit: true,
+		type: @UnitTypeEnum.SI,
+		idealMin: 1,
+		idealMax: 2000,
+		convertsTo: {
+			Centimeter: {factor: 100},
+			Millimeter: {factor: 1e3},
+			Micrometer: {factor: 1e6},
+			Nanometer: {factor: 1e9},
+			Kilometer: {factor: 1e-3},
+			
+			Lightyear: {factor: 1/9.461e15},
+			
+			Inch: {factor: 1/0.0254},
+			Foot: {factor: 1/0.3048},
+			Yard: {factor: 1/0.9144},
+			Mile: {factor: 1/1609.344}
+		}
+})
+
+

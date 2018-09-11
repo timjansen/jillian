@@ -1,0 +1,18 @@
+Thing('USGallon', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Volume,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.US,
+		idealMin: 1,
+		convertsTo: {
+			CubicMeter: {factor: 128/33814.022558919},
+			USFluidOunce: {factor: 128},
+			USCup: {factor: 16},
+			USPint: {factor: 32},
+			USQuart: {factor: Fraction(1, 4)},
+			OilBarrel: {factor: Fraction(1, 42)}
+		}
+})
+
+
+

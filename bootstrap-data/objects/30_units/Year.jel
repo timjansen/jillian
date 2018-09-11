@@ -1,0 +1,14 @@
+Thing('Year', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Time,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.METRIC,
+		idealMin: 1,
+		idealMax: 365,
+		convertsTo: {
+			Second: {factor: 365*24*3600},
+			Day: {factor: 365}
+		}
+})
+
+

@@ -1,0 +1,12 @@
+Thing('SquareNanometer', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Length,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.METRIC,
+		idealMax: 1e6,
+		convertsTo: {
+			Meter: {factor: 1e-18}
+		}
+})
+
+

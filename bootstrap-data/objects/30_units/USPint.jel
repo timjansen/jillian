@@ -1,0 +1,19 @@
+Thing('USPint', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Volume,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.US,
+		idealMin: 1,
+		idealMax: 4,
+		convertsTo: {
+			CubicMeter: {factor: 16/33814.022558919},
+			USFluidOunce: {factor: 16},
+			USCup: {factor: 2},
+			USQuart: {factor: Fraction(1, 2)},
+			USGallon: {factor: Fraction(1, 8)},
+			OilBarrel: {factor: Fraction(1, 42*8)}
+		}
+})
+
+
+

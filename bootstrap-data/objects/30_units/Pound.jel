@@ -1,0 +1,14 @@
+Thing('Pound', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Mass,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.IMPERIAL,
+		idealMin: 1,
+		idealMax: 1000,
+		convertsTo: {
+			Kilogram: {factor: 0.453592},
+			Ounce: {factor: 16},
+			Stone: {factor: Fraction(1, 14)},
+			ImperialTon: {factor: Fraction(1, 2000)}
+		}
+})

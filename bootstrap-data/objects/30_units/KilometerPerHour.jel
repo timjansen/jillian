@@ -1,0 +1,12 @@
+Thing('KilometerPerHour', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Velocity,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.METRIC,
+		convertsTo: {
+			MeterPerSecond: {factor: 0.277778},
+			MilesPerHour: {factor: 0.621371}
+		}
+})
+
+

@@ -1,0 +1,15 @@
+Thing('OilBarrel', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Volume,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.US,
+		idealMin: 1,
+		convertsTo: {
+			CubicMeter: {factor: (42*128)/33814.022558919},
+			USGallon: {factor: 42},
+			USFluidOunce: {factor: 128*42}
+		}
+})
+
+
+

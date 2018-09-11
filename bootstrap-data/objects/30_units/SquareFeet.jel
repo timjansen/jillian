@@ -1,0 +1,15 @@
+Thing('SquareFeet', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Length,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.IMPERIAL,
+		idealMin: 1,
+		idealMax: 20000,
+		convertsTo: {
+			SquareMeter: {factor: 0.3048^2},
+			SquareInch: {factor: Fraction(1, 144)},
+			SquareYard: {factor: 9}
+		}
+})
+
+

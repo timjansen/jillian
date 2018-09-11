@@ -1,6 +1,6 @@
 Thing('Dozen', @UnitOfMeasureCategory,
 	properties={
-		quantityCategory: @Angle,
+		quantityCategory: @Pieces,
 		isPrimaryUnit: false,
 		type: @UnitTypeEnum.OTHER,
 		idealMin: 12,

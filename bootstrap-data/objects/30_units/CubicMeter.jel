@@ -1,0 +1,30 @@
+Thing('CubicMeter', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Volume,
+		isPrimaryUnit: true,
+		type: @UnitTypeEnum.SI,
+		idealMin: 1,
+		idealMax: 1e4,
+		convertsTo: {
+			CubicCentimeter: {factor: 1e6}, 
+			CubicMillimeter: {factor: 1e9},
+			CubicKilometer: {factor: 1e-9},
+			
+			CubicInch: {factor: 1/0.0254^3},
+			CubicFeet: {factor: 1/0.3048^3},
+			CubicYard: {factor: 1/0.9144^3},
+			CubicMile: {factor: 1/1609.344^3},
+			
+			MilliLitre: {factor: 1e6},
+			Litre: {factor: 1000},
+			
+			USFluidOunce: {factor: 33814.022558919},
+			USCup: {factor: 33814.022558919/8},
+			USPint: {factor: 33814.022558919/16},
+			USQuart: {factor: 33814.022558919/32},
+			USGallon: {factor: 33814.022558919/128},
+			OilBarrel: {factor: 33814.022558919/(42*128)}
+		}
+})
+
+

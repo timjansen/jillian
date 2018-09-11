@@ -1,0 +1,19 @@
+Thing('USCup', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Volume,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.US,
+		idealMin: 1,
+		idealMax: 4,
+		convertsTo: {
+			CubicMeter: {factor: 8/33814.022558919},
+			USFluidOunce: {factor: 8},
+			USPint: {factor: Fraction(1, 2)},
+			USQuart: {factor: Fraction(1, 4)},
+			USGallon: {factor: Fraction(1, 16)},
+			OilBarrel: {factor: Fraction(1, 42*16)}
+		}
+})
+
+
+

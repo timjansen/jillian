@@ -1,0 +1,4 @@
+Thing('Force', @QuantityCategory,
+	properties={
+		primaryUnit: @Newton
+})

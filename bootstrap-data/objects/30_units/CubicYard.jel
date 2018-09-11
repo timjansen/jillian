@@ -1,0 +1,14 @@
+Thing('CubicYard', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Volume,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.IMPERIAL,
+		idealMin: 1,
+		convertsTo: {
+			CubicMeter: {factor: 0.0254^3 * 36^3},
+			CubicInch: {factor: 36^3},
+			CubicFeet: {factor: 3^3}
+		}
+})
+
+

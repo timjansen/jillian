@@ -1,0 +1,13 @@
+Thing('ImperialTon', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Mass,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.IMPERIAL,
+		idealMin: 1
+		convertsTo: {
+			Kilogram: {factor: 907.185},
+			Ounce: {factor: 2000*16},
+			Pound: {factor: 2000},
+			Stone: {factor: Fraction(2000, 14)}
+		}
+})

@@ -1,0 +1,13 @@
+Thing('Kilometer', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Length,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.SI,
+		idealMin: 1,
+		idealMax: 9.461e12/2,
+		convertsTo: {
+			Meter: {factor: 1e3}
+		}
+})
+
+

@@ -1,0 +1,12 @@
+Thing('DegreeCelsius', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Temperature,
+		isPrimaryUnit: true,
+		type: @UnitTypeEnum.OTHER,
+		convertsTo: {
+			DegreeFahrenheit: {f: x=>x*Fraction(9/5) + 32},
+			Kelvin: {f: x=>x+273.15}
+		}
+})
+
+

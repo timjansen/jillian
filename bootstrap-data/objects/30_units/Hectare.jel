@@ -1,0 +1,13 @@
+Thing('Hectare', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Length,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.OTHER,
+		idealMin: 1,
+		idealMax: 1000,
+		convertsTo: {
+			SquareMeter: {factor: 1e4}
+		}
+})
+
+

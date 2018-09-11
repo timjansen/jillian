@@ -1,0 +1,11 @@
+Thing('Kilopond', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Force,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.OTHER,
+		convertsTo: {
+			Kilopond: {factor: 1/9.806650}
+		}
+})
+
+

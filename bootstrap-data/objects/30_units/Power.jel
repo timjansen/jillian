@@ -1,0 +1,4 @@
+Thing('Power', @QuantityCategory,
+	properties={
+		primaryUnit: @Watt 
+})

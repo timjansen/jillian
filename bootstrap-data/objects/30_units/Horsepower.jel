@@ -1,0 +1,13 @@
+Thing('Horsepower', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Power,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.IMPERIAL,
+		idealMin: 1,
+		convertsTo: {
+			Watt: {factor: 745.69987158227022},
+			MetricHorsepower: {factor: 745.69987158227022/735.49875}
+		}
+})
+
+

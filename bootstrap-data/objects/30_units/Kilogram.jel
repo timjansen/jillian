@@ -1,0 +1,20 @@
+Thing('Kilogram', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Mass,
+		isPrimaryUnit: true,
+		type: @UnitTypeEnum.SI,
+		idealMin: 0.1,
+		idealMax: 2000,
+		convertsTo: {
+			Gram: {factor: 1000},
+			Milligram: {factor: 1e6},
+			MetricTon: {factor: Fraction(1, 1000)},
+			
+			Ounce: {factor: 35.274},
+			Pound: {factor: 2.20462},
+			Stone: {factor: 0.157473},
+			ImperialTon: {factor: 0.00110231}
+		}
+})
+
+

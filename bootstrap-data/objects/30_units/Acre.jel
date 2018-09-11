@@ -1,0 +1,12 @@
+Thing('Acre', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Length,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.OTHER,
+		idealMin: 1,
+		convertsTo: {
+			SquareMeter: {factor: 1/0.000247105}
+		}
+})
+
+

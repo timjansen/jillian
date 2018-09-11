@@ -1,0 +1,19 @@
+Thing('Hour', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Time,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.METRIC,
+		idealMin: 1,
+		idealMax: 48,
+		convertsTo: {
+			Second: {factor: 3600},
+			Minute: {factor: Fraction(1, 60)},
+			Day: {factor: Fraction(1, 24)},
+			Year: {factor: Fraction(1, 24*365)},
+			Millisecond: {factor: 3600*1e3},
+			Microsecond: {factor: 3600*1e6},
+			Nanosecond: {factor: 3600*1e9}
+		}
+})
+
+

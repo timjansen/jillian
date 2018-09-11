@@ -1,0 +1,10 @@
+Thing('MetricTon', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Mass,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.SI,
+		idealMin: 1,
+		convertsTo: {
+			Kilogram: {factor: 1000}
+		}
+})

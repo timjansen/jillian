@@ -1,0 +1,25 @@
+Thing('SquareMeter', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Length,
+		isPrimaryUnit: true,
+		type: @UnitTypeEnum.SI,
+		idealMin: 1,
+		idealMax: 1e4,
+		convertsTo: {
+			SquareCentimeter: {factor: 1e4}, 
+			SquareMillimeter: {factor: 1e6},
+			SquareMicrometer: {factor: 1e12},
+			SquareNanometer: {factor: 1e18},
+			SquareKilometer: {factor: 1e-6},
+			
+			SquareInch: {factor: 1/0.0254^2},
+			SquareFeet: {factor: 1/0.3048^2},
+			SquareYard: {factor: 1/0.9144^2},
+			SquareMile: {factor: 1/1609.344^2},
+			
+			Acre: {factor: 0.000247105},
+			Hectare: {factor: 1e-4}
+		}
+})
+
+

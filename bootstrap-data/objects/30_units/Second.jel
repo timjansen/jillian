@@ -1,0 +1,19 @@
+Thing('Second', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Time,
+		isPrimaryUnit: true,
+		type: @UnitTypeEnum.SI,
+		idealMin: 1,
+		idealMax: 120,
+		convertsTo: {
+			Minute: {factor: Fraction(1, 60)},
+			Hour: {factor: Fraction(1, 3600)},
+			Day: {factor: Fraction(1, 3600*24)},
+			Year: {factor: Fraction(1, 3600*24*365)},
+			Millisecond: {factor: 1e3},
+			Microsecond: {factor: 1e6},
+			Nanosecond: {factor: 1e9}
+		}
+})
+
+

@@ -1,6 +1,0 @@
-Thing('SpicyHeat', @QuantityCategory,
-	properties={
-		primaryUnit: @Shu,
-		type: @UnitTypeEnum.OTHER
-
-})

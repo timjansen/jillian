@@ -1,0 +1,14 @@
+Thing('CubicMillimeter', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Volume,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.METRIC,
+		idealMax: 1e5,
+		convertsTo: {
+			CubicCentimeter: {factor: 1e-3}, 
+			CubicMeter: {factor: 1e-9},
+			CubicKilometer: {factor: 1e-12}
+		}
+})
+
+

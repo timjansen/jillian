@@ -1,0 +1,13 @@
+Thing('Millilitre', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Volume,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.METRIC,
+		idealMin: 1,
+		convertsTo: {
+			CubicMeter: {factor: 1e-6},
+			Millilitre: {factor: 1e-3}
+		}
+})
+
+

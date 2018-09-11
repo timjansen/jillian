@@ -1,0 +1,1 @@
+Enum('UnitTypeEnum', ['SI', 'IMPERIAL', 'METRIC', 'US', 'OUTDATED', 'OTHER'])

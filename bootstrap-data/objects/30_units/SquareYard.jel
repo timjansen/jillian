@@ -1,0 +1,13 @@
+Thing('SquareYard', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Length,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.IMPERIAL,
+		idealMin: 1,
+		idealMax: 20000,
+		convertsTo: {
+			SquareMeter: {factor: 0.9144^2}
+		}
+})
+
+

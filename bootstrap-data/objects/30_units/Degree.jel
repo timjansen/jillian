@@ -6,7 +6,7 @@ Thing('Degree', @UnitOfMeasureCategory,
 		idealMin: 0,
 		idealMax: 3*360,
 		convertsTo: {
-			Turn: {factor: Fraction(1, 360), idealMin: 90},
+			Turn: {factor: Fraction(1, 360)},
 			Radian: {factor: 2*Math.PI/360},
 			Gradian: {factor: Fraction(400, 360)}
 		}

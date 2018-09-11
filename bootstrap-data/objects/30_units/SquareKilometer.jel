@@ -1,0 +1,12 @@
+Thing('SquareKilometer', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Length,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.METRIC,
+		idealMin: 1,
+		convertsTo: {
+			SquareMeter: {factor: 1e6},
+		}
+})
+
+

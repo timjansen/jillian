@@ -1,0 +1,14 @@
+Thing('MeterPerSecond', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Velocity,
+		isPrimaryUnit: true,
+		type: @UnitTypeEnum.SI,
+		convertsTo: {
+			MilesPerHour: {factor: 2.236936},
+			KilometerPerHour: {factor: 3.6},
+			FootPerSecond: {factor: 3.280840},
+			Knot: {factor: 1.943844}
+		}
+})
+
+

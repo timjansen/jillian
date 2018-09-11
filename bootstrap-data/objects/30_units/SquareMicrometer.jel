@@ -1,0 +1,13 @@
+Thing('SquareMicrometer', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Length,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.METRIC,
+		idealMin: 1,
+		idealMax: 1e6,
+		convertsTo: {
+			Meter: {factor: 1e-12}
+		}
+})
+
+

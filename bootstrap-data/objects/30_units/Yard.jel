@@ -1,0 +1,13 @@
+Thing('Yard', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Length,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.IMPERIAL,
+		convertsTo: {
+			Meter: {factor: 0.9144},
+			Inch: {factor: Fraction(1, 36)},
+			Foot: {factor: Fraction(1, 3)}
+		}
+})
+
+

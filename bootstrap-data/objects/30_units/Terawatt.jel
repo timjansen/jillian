@@ -1,0 +1,15 @@
+Thing('Terawatt', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Power,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.METRIC,
+		idealMin: 1,
+		convertsTo: {
+			Watt: {factor: 1e12},
+			Kilowatt: {factor: 1e9},
+			Megawatt: {factor: 1e6},
+			Terawatt: {factor: 1e3}
+		}
+})
+
+
