@@ -27,7 +27,7 @@ const CTX_IDENTIFIERS = {DbEntry, DbRef, Category, Thing, FuzzyBoolean, Approxim
 
 export default class DatabaseContext {
   static create(ctx?: Context, dbSession?: DbSession, translationDict?: Dictionary): Context {
-    return new Context(ctx, dbSession, translationDict).setAll(CTX_IDENTIFIERS);
+    return new Context(ctx, dbSession as any, translationDict).setAll(CTX_IDENTIFIERS);
   }
 	
 	static add(ctx: Context): Context {

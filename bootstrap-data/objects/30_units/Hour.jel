@@ -13,7 +13,8 @@ Thing('Hour', @UnitOfMeasureCategory,
 			Millisecond: {factor: 3600*1e3},
 			Microsecond: {factor: 3600*1e6},
 			Nanosecond: {factor: 3600*1e9}
-		}
+		},
+		usedBy: [@MilesPerHour, @KilometerPerHour]
 })
 
 

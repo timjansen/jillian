@@ -19,7 +19,9 @@ Thing('SquareMeter', @UnitOfMeasureCategory,
 			
 			Acre: {factor: 0.000247105},
 			Hectare: {factor: 1e-4}
-		}
+		},
+		createFrom: [Unit({Meter: 2})],
+		usedBy: [@CubicMeter]
 })
 
 

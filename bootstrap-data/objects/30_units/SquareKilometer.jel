@@ -6,7 +6,9 @@ Thing('SquareKilometer', @UnitOfMeasureCategory,
 		idealMin: 1,
 		convertsTo: {
 			SquareMeter: {factor: 1e6},
-		}
+		},
+		createFrom: [Unit({Kilometer: 2})],
+		usedBy: [@CubicKilometer]
 })
 
 

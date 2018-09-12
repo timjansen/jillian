@@ -118,7 +118,7 @@ export default class Unit extends JelType {
 	toSimpleType(ctx: Context): IDbRef {
 		if (!this.simple)
 			throw new Error("UnitValue.toSimpleType() can only be called on simple types");
-		return ctx.dbSession.createDbRef(this.units.keys().next().value);
+		return ctx.getSession().createDbRef(this.units.keys().next().value);
 	}
 
 	isType_jel_mapping: Object;

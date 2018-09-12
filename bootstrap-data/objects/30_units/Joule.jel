@@ -5,7 +5,9 @@ Thing('Joule', @UnitOfMeasureCategory,
 		type: @UnitTypeEnum.SI,
 		convertsTo: {
 			Kilocalorie: {factor: 0.0002388458966275}
-		}
+		},
+		createFrom: [Unit({Kilogram: 1, Meter: 2, Second: -2}), Unit({Watt: 1, Second: -1}), Unit({Newton: 1, Meter: 1}), Unit({Kilogram: 1, SquareMeter: 1, Second: -2})],
+		usedBy: [@Watt, @Newton]
 })
 
 

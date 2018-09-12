@@ -13,7 +13,8 @@ Thing('Minute', @UnitOfMeasureCategory,
 			Millisecond: {factor: 60*1e3},
 			Microsecond: {factor: 60*1e6},
 			Nanosecond: {factor: 60*1e9}
-		}
+		},
+		usedBy: [@RotationsPerMinute]
 })
 
 

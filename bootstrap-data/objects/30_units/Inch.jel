@@ -8,7 +8,8 @@ Thing('Inch', @UnitOfMeasureCategory,
 			Meter: {factor: 0.0254},
 			Foot: {factor: 12},
 			Yard: {factor: 36}
-		}
+		},
+		usedBy: [@CubicInch, @SquareInch]
 })
 
 

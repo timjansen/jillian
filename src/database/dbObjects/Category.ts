@@ -41,7 +41,7 @@ export default class Category extends DbEntry {
 
   // returns promise with all matching objects
   getInstances(ctx: Context, filterFunc: (o: DbEntry)=>boolean): Promise<Category[]> {
-    return ctx.dbSession.getByIndex(this, 'catEntries', filterFunc) as Promise<Category[]>;
+    return (ctx.getSession() as DbSession).getByIndex(this, 'catEntries', filterFunc) as Promise<Category[]>;
   }
 
   get databaseIndices(): Map<string, DbIndexDescriptor> {

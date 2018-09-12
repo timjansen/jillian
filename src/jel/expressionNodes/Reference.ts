@@ -1,7 +1,7 @@
 import JelNode from './JelNode';
 import Assignment from './Assignment';
 import Context from '../Context';
-import {IDbRef} from '../IDatabase';
+import {IDbRef, IDbSession} from '../IDatabase';
 import Util from '../../util/Util';
 
 
@@ -29,15 +29,16 @@ export default class Reference extends JelNode {
   
   // override
   execute(ctx: Context): any {
+		const dbSession: IDbSession = ctx.getSession();
 		if (!this.ref) {
 			if (!this.parameters.length)
-				this.ref = ctx.dbSession.createDbRef(this.name);
+				this.ref = dbSession.createDbRef(this.name);
 			else {
 				const params = resolveValueMap(ctx, this.parameters);
 				if (params instanceof Promise)
-					this.ref = params.then(p=>this.ref = ctx.dbSession.createDbRef(this.name, p));
+					this.ref = params.then(p=>this.ref = dbSession.createDbRef(this.name, p));
 				else
-					this.ref = ctx.dbSession.createDbRef(this.name, params);
+					this.ref = dbSession.createDbRef(this.name, params);
 			}
 		}
     return this.ref;

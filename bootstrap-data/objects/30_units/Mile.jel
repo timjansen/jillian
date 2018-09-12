@@ -6,7 +6,8 @@ Thing('Mile', @UnitOfMeasureCategory,
 		idealMin: 1,
 		convertsTo: {
 			Meter: {factor: 1609.344}
-		}
+		},
+		usedBy [@MilesPerHour, @SquareMile, @CubicMile]
 })
 
 

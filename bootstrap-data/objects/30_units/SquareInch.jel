@@ -9,7 +9,9 @@ Thing('SquareInch', @UnitOfMeasureCategory,
 			SquareFeet: {factor: 12^2},
 			SquareYard: {factor: 36^2},
 			SquareMile: {factor: 27878000}
-		}
+		},
+		createFrom: [Unit({Inch: 2})],
+		usedBy: [@CubicInch]
 })
 
 

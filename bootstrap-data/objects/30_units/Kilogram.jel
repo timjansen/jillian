@@ -14,7 +14,8 @@ Thing('Kilogram', @UnitOfMeasureCategory,
 			Pound: {factor: 2.20462},
 			Stone: {factor: 0.157473},
 			ImperialTon: {factor: 0.00110231}
-		}
+		},
+		usedBy: [@Joule, @Newton, @Watt]
 })
 
 

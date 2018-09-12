@@ -3,5 +3,6 @@ Thing('MeterPerSecondSquared', @UnitOfMeasureCategory,
 		quantityCategory: @Acceleration,
 		isPrimaryUnit: true,
 		type: @UnitTypeEnum.SI,
-		convertsTo: {StandardGravity: {f: v=>v/9.80665, factor: 1/9.80665}}
+		convertsTo: {StandardGravity: {f: v=>v/9.80665, factor: 1/9.80665}},
+		createFrom: Unit({Meter: 1, Second: -2})
 })

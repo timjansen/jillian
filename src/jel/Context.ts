@@ -6,7 +6,7 @@ import {IDbSession} from './IDatabase';
  * Manages the context containing all variables.
  */
 export default class Context {
-	dbSession: any;
+	dbSession: IDbSession | undefined;
 	translationDict: Dictionary;
 	
 	private frame: Map<string, any>;
@@ -39,6 +39,12 @@ export default class Context {
 			for (const name in obj) 
 				this.set(name, obj[name]);
 		return this.freeze();
+	}
+	
+	getSession(): IDbSession {
+		if (!this.dbSession)
+			throw new Error("No session available in this Context");
+		return this.dbSession;
 	}
 	
 	freeze(): Context {

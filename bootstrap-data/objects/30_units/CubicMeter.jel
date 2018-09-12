@@ -24,7 +24,8 @@ Thing('CubicMeter', @UnitOfMeasureCategory,
 			USQuart: {factor: 33814.022558919/32},
 			USGallon: {factor: 33814.022558919/128},
 			OilBarrel: {factor: 33814.022558919/(42*128)}
-		}
+		},
+		createFrom: [Unit({Meter: 3}), Unit({Meter: 1, SquareMeter: 1})]
 })
 
 

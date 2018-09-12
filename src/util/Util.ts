@@ -29,7 +29,7 @@ export default class Util {
 		for (const l of list) {
 			const fr = f(l);
 			if (Array.isArray(fr))
-				r.push.apply(r, fr);
+				r.push(...fr);
 			else if (fr != null)
 				r.push(fr);
 		}

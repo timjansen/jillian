@@ -254,9 +254,9 @@ export default class Dictionary extends JelType {
 		return new Dictionary(new Map(Object.keys(o).map(k => [k, o[k]]) as any), true);
 	}
 
-	static create_jel_mapping = {list: 1}; // 2nd argument intentionally omittted!
+	static create_jel_mapping = {list: 1}; // 2nd ctor argument intentionally omittted!
 	static create(ctx: Context, ...args: any[]): any {
-		return new Dictionary(args[0]);  // 2nd argument intentionally omittted! They are not intended for JEL.
+		return new Dictionary(args[0]);  // 2nd ctor argument intentionally omittted! They are not intended for JEL.
 	}
 }
 

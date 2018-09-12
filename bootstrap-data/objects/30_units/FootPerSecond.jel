@@ -5,7 +5,8 @@ Thing('FootPerSecond', @UnitOfMeasureCategory,
 		type: @UnitTypeEnum.IMPERIAL,
 		convertsTo: {
 			MeterPerSecond: {factor: 0.3048}
-		}
+		},
+		createFrom: [Unit(@Foot, @Second)]
 })
 
 

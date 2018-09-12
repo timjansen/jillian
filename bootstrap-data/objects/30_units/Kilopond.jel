@@ -4,7 +4,7 @@ Thing('Kilopond', @UnitOfMeasureCategory,
 		isPrimaryUnit: false,
 		type: @UnitTypeEnum.OTHER,
 		convertsTo: {
-			Kilopond: {factor: 1/9.806650}
+			Newton: {factor: 1/9.806650}
 		}
 })
 

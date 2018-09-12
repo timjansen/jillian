@@ -13,7 +13,10 @@ Thing('Watt', @UnitOfMeasureCategory,
 			Terawatt: {factor: Fraction(1, 1e12)},
 			Horsepower: {factor: 1/745.69987158227022},
 			MetricHorsepower: {factor: 1/735.49875}
-		}
+		},
+		createFrom: [Unit({Kilogram: 1, Meter: 2, Second: -3}), Unit({Joule: 1, Second: -1}), Unit({Newton: 1, Meter: 1, Second: -1}), Unit({Kilogram: 1, SquareMeter: 1, Second: -3})],
+		usedBy: [@Joule, @Newton]
+
 })
 
 

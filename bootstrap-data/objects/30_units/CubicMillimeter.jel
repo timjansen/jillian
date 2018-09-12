@@ -8,7 +8,8 @@ Thing('CubicMillimeter', @UnitOfMeasureCategory,
 			CubicCentimeter: {factor: 1e-3}, 
 			CubicMeter: {factor: 1e-9},
 			CubicKilometer: {factor: 1e-12}
-		}
+		},
+		createFrom: [Unit({Millimeter: 3}), Unit({Millimeter: 1, SquareMillimeter: 1})]
 })
 
 

@@ -8,7 +8,8 @@ Thing('MeterPerSecond', @UnitOfMeasureCategory,
 			KilometerPerHour: {factor: 3.6},
 			FootPerSecond: {factor: 3.280840},
 			Knot: {factor: 1.943844}
-		}
+		},
+		createFrom: Unit(@Meter, @Second)
 })
 
 

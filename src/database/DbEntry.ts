@@ -1,15 +1,17 @@
 import JelType from '../jel/JelType';
 import Serializable from '../jel/Serializable';
 import Context from '../jel/Context';
+import {IDbEntry} from '../jel/IDatabase';
 import Dictionary from '../jel/types/Dictionary';
 import DbIndexDescriptor from './DbIndexDescriptor';
+import DbRef from './DbRef';
 import List from '../jel/types/List';
 
 const tifu = require('tifuhash');
 
 // Base class for any kind of physical or immaterial instance of a category
 // Note that all references to other DbEntrys must be stored as a DbRef!!
-export default class DbEntry extends JelType {
+export default class DbEntry extends JelType implements IDbEntry {
   
   constructor(public distinctName: string, public reality: any, 
 							 public hashCode: string = tifu.hash(distinctName), 
@@ -29,6 +31,19 @@ export default class DbEntry extends JelType {
 		else
 			return v;
 	}
+	
+	// Calls callback with value of member. If it's a DbRef, it's automatically resolved.
+	withMember<T>(ctx: Context, name: string, f: (value: any)=>T): T | Promise<T> {
+		const v = this.member(ctx, name);
+		if (v instanceof DbRef)
+			return v.with(ctx, f);
+		else if (v instanceof Promise)
+			return v.then(f);
+		else
+			return f(v);
+	}
+	
+	
 	
 	// sets a property
   set(ctx: Context, name: string, value: JelType|number|string): DbEntry {

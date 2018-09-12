@@ -30,7 +30,7 @@ export default class DbRef extends JelType implements IDbRef {
 		else if (this.cached === null)
 			return Promise.reject(new NotFoundError(this.distinctName));
 
-		const o = ctx.dbSession.get(this.distinctName);
+		const o = (ctx.getSession() as DbSession).get(this.distinctName);
 		if (o instanceof Promise) 
 			return o.then((r: DbEntry)=>this.cached = r)
 				.catch((e: any)=>{
@@ -44,13 +44,13 @@ export default class DbRef extends JelType implements IDbRef {
 	
 
 	// Executes function with the object. Returns f()'s return value, either directly or in Promise
-	with(ctx: Context, f: (obj: DbEntry)=>any): Promise<any> | any {
+	with<T>(ctx: Context, f: (obj: DbEntry)=>T): Promise<T> | T {
 		if (this.cached != null)
 			return f(this.cached);
 		else if (this.cached === null)
 			return Promise.reject(new NotFoundError(this.distinctName));
 
-		const o = ctx.dbSession.get(this.distinctName);
+		const o = (ctx.getSession() as DbSession).get(this.distinctName);
 		if (o instanceof Promise) 
 			return o.catch((e: any)=>{
 					if (e instanceof NotFoundError)
@@ -62,6 +62,12 @@ export default class DbRef extends JelType implements IDbRef {
 			return f(this.cached = o);
 	}
 
+	// Retrieves a single member from the object and calls the callback function with it. 
+	withMember<T>(ctx: Context, name: string, f: (v: any)=>T): Promise<T> | T {
+		return this.with(ctx, o=>o.withMember(ctx, name, f)) as Promise<T> | T;
+	}
+
+	
 	hasSameParameters(right: DbRef): boolean {
 		if (!this.parameters != !right.parameters)
 			return false;
@@ -122,7 +128,7 @@ export default class DbRef extends JelType implements IDbRef {
 		else if (this.cached === null)
 			return Promise.reject(new NotFoundError(this.distinctName));
 		else
-			return ctx.dbSession.getFromDatabase(this.distinctName);
+			return (ctx.getSession() as DbSession).getFromDatabase(this.distinctName);
 	}
 	
 	get isAvailable(): boolean {

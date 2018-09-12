@@ -13,7 +13,8 @@ Thing('Second', @UnitOfMeasureCategory,
 			Millisecond: {factor: 1e3},
 			Microsecond: {factor: 1e6},
 			Nanosecond: {factor: 1e9}
-		}
+		},
+		usedBy: [@MeterPerSecond, @MeterPerSecondSquared]
 })
 
 

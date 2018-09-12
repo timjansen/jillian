@@ -86,7 +86,7 @@ export default class Duration extends JelType {
 		const yDays = self.years % 4 * 365 + Math.floor(self.years / 4) * 4 * 365.25;
 		const mDays = Math.trunc(self.months * 30.5);
 		const hours = (yDays + mDays + self.days) * 24 + self.hours;
-		return new UnitValue(hours * 3600 + self.minutes * 60 + self.seconds, ctx.dbSession.createDbRef('Second'));
+		return new UnitValue(hours * 3600 + self.minutes * 60 + self.seconds, 'Second');
 	}
 	
 	fullDays_jel_mapping: any;

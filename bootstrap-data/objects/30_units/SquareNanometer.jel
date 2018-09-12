@@ -6,7 +6,9 @@ Thing('SquareNanometer', @UnitOfMeasureCategory,
 		idealMax: 1e6,
 		convertsTo: {
 			Meter: {factor: 1e-18}
-		}
+		},
+		createFrom: [Unit({Nanometer: 2})],
+		usedBy: [@CubicNanometer]
 })
 
 

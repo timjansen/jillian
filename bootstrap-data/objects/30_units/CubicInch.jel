@@ -9,7 +9,8 @@ Thing('CubicInch', @UnitOfMeasureCategory,
 			CubicMeter: {factor: 0.0254^3},
 			CubicFeet: {factor: 1/12^3},
 			CubicYard: {factor: 1/36^3}
-		}
+		},
+		createFrom: [Unit({Inch: 3}), Unit({Inch: 1, SquareInch: 1})]
 })
 
 

@@ -5,7 +5,9 @@ Thing('Newton', @UnitOfMeasureCategory,
 		type: @UnitTypeEnum.SI,
 		convertsTo: {
 			Kilopond: {factor: 9.806650}
-		}
+		},
+		createFrom: [Unit({Kilogram: 1, Meter: 1, Second: -2}), Unit({Joule: 1, Meter: 1}), Unit({Watt: 1, Meter: 1, Second: -1})],
+		usedBy: [@Joule, @Watt]
 })
 
 

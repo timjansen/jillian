@@ -7,7 +7,9 @@ Thing('SquareYard', @UnitOfMeasureCategory,
 		idealMax: 20000,
 		convertsTo: {
 			SquareMeter: {factor: 0.9144^2}
-		}
+		},
+		createFrom: [Unit({Yard: 2})],
+		usedBy: [@CubicYard]
 })
 
 

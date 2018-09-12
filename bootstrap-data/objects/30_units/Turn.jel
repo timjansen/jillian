@@ -8,7 +8,8 @@ Thing('Turn', @UnitOfMeasureCategory,
 			Degree: {f: v=>v*360, factor: 360},
 			Radian: {f: v=>v*2*Math.PI, factor: 2*Math.PI},
 			Gradian: {f: v=>v*400, factor: 400}
-		}	
+		},
+		usedBy: [@RotationsPerMinute]
 })
 
 

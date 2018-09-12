@@ -6,7 +6,9 @@ Thing('SquareMile', @UnitOfMeasureCategory,
 		idealMin: 1,
 		convertsTo: {
 			SquareMeter: {factor: 1609.344^2}
-		}
+		},
+		createFrom: [Unit({Mile: 2})],
+		usedBy: [@CubicMile]
 })
 
 

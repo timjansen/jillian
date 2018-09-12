@@ -7,7 +7,9 @@ Thing('SquareCentimeter', @UnitOfMeasureCategory,
 		idealMax: 2e4,
 		convertsTo: {
 			Meter: {factor: 1e-4}
-		}
+		},
+		createFrom: [Unit({Centimeter: 2})],
+		usedBy: [@CubicCentimeter]
 })
 
 
