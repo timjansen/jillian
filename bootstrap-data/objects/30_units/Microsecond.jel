@@ -6,7 +6,7 @@ Thing('Microsecond', @UnitOfMeasureCategory,
 		idealMin: 1,
 		idealMax: 1000,
 		convertsTo: {
-			Second: {factor: Fraction(1, 1e6)}
+			Second: {factor: Fraction(1, 1e6)},
 			Millisecond: {factor: Fraction(1, 1000)},
 			Nanosecond: {factor: 1e3}
 		}

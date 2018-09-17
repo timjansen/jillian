@@ -1,7 +1,7 @@
 Thing('Number', @BaseTypeCategory, 
 properties={
 	baseTypeDescriptor: {
-		isNumeric: true
+		isNumeric: true,
 		canBeRange: false,
 		canHaveMultipleValues: false
 	}

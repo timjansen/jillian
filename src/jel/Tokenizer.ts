@@ -28,7 +28,7 @@ export default class Tokenizer {
 	
   static tokenize(input: string): TokenReader {
     //          line comment   full comment                 Number                        Operator                                                                                      Identifier-like     pattern           single-quoted    double-quoted        illegal
-    const re = /\/\/.*(?:\n|$)|\/\*(?:[^\*]+|\*+[^\/])*\*\/|(\d+(?:\.\d+)?(?:e[+-]?\d+)?)|([\(\)\[\]:\.,\+\-\*\/^%@]|\$\{|\{|\}|=>|===|==|=|<<=|>>=|>=|<=|>>|<<|>|<|!==|!=|!|\|\||\&\&)|([a-zA-Z_$][\w_$]*)|(`(?:\\.|[^`])*`)|('(?:\\.|[^'])*'|"(?:\\.|[^"])*")|\s+|(.+)/g;
+    const re = /\/\/.*(?:\n|$)|\/\*(?:[^\*]+|\*+[^\/])*\*\/|(\d+(?:\.\d+)?(?:e[+-]?\d+)?)|([\(\)\[\]:\.,\+\*\/^%@]|-|\$\{|\{|\}|=>|===|==|=|<<=|>>=|>=|<=|>>|<<|>|<|!==|!=|!|\|\||\&\&)|([a-zA-Z_$][\w_$]*)|(`(?:\\.|[^`])*`)|('(?:\\.|[^'])*'|"(?:\\.|[^"])*")|\s+|(.+)/g;
     // groups:
     // group 1: number
     // group 2: operator
@@ -37,31 +37,48 @@ export default class Tokenizer {
     // group 5: quoted string
     // group 6: illegal char
     
-    let matches, tokensLeft = 10000;
+		const lineNumbers: number[] = [];
+		let pos = -1;
+		while (pos <= input.length) {
+			pos = input.indexOf('\n', pos + 1);
+			if (pos < 0)
+				break;
+			lineNumbers.push(pos);
+		}
+		lineNumbers.push(input.length);
+		
+    let matches, tokensLeft = 10000, line = 1;
     const tokens: Token[] = [];
     while ((matches = re.exec(input)) && tokensLeft--) {
+			const index = matches.index;
+			while (lineNumbers[line-1] < index)
+				line++;
+			const col = index - ((line > 1) ? lineNumbers[line-2] : -1);
+			
       if (matches[2])
-        tokens.push(new Token(TokenType.Operator, matches[2]));
+        tokens.push(new Token(line, col, TokenType.Operator, matches[2]));
       else if (matches[3] && matches[3] in constants)
-        tokens.push(new Token(TokenType.Literal, constants[matches[3]]));
+        tokens.push(new Token(line, col, TokenType.Literal, constants[matches[3]]));
       else if (matches[3] && matches[3] in wordOperators)
-        tokens.push(new Token(TokenType.Operator, matches[3]));
+        tokens.push(new Token(line, col, TokenType.Operator, matches[3]));
       else if (matches[3])
-        tokens.push(new Token(TokenType.Identifier, matches[3])); 
+        tokens.push(new Token(line, col, TokenType.Identifier, matches[3])); 
       else if (matches[1])
-        tokens.push(new Token(TokenType.Literal, parseFloat(matches[1])));
+        tokens.push(new Token(line, col, TokenType.Literal, parseFloat(matches[1])));
       else if (matches[4])
-        tokens.push(new Token(TokenType.Pattern, Tokenizer.unescape(matches[4].replace(/^.|.$/g, ''))));
+        tokens.push(new Token(line, col, TokenType.Pattern, Tokenizer.unescape(matches[4].replace(/^.|.$/g, ''))));
       else if (matches[5])
-        tokens.push(new Token(TokenType.Literal, Tokenizer.unescape(matches[5].replace(/^.|.$/g, ''))));
+        tokens.push(new Token(line, col, TokenType.Literal, Tokenizer.unescape(matches[5].replace(/^.|.$/g, ''))));
       else if (matches[6])
-        throw new Error(`Unsupported token found: "${matches[6]}"`);
+        throw new Error(`Unsupported token found at line ${line}, column ${col}: "${matches[6]}"`);
     }
+		if (tokensLeft < 1)
+			throw new Error('Input too large for tokenizer');
     return new TokenReader(tokens);
   } 
   
   
-  static tokenizePattern(pattern: string): TokenReader {
+  static tokenizePattern(line: number, column: number, pattern: string): TokenReader {
 		//          simple word              choice ops      template
 		const re = /\s*(?:([^\s\[\{\|\[\]]+)|(\[|\]\?|\]|\|)|\{\{((?:[^}]|\}[^}])+)\}\}|(.*))\s*/g;
 		
@@ -69,25 +86,25 @@ export default class Tokenizer {
     const tokens: Token[] = [];
     while ((m = re.exec(pattern)) && tokensLeft--) {
 			if (m[1] != null)
-				tokens.push(new Token(TokenType.Word, m[1]));
+				tokens.push(new Token(line, column, TokenType.Word, m[1]));
 			else if (m[2] != null)
-				tokens.push(new Token(TokenType.Operator, m[2]));
+				tokens.push(new Token(line, column, TokenType.Operator, m[2]));
 			else if (m[3] != null)
-				tokens.push(Tokenizer.parsePatternTemplate(m[3]));
+				tokens.push(Tokenizer.parsePatternTemplate(line, column, m[3]));
 			else if (m[4])
         throw new Error(`Unsupported token found in pattern: "${m[4]}"`);
     }
     return new TokenReader(tokens);
 	}
 
-	static parsePatternTemplate(tpl: string): Token {
+	static parsePatternTemplate(line: number, column: number, tpl: string): Token {
 		const m = patternTemplateRE.exec(tpl);
 		if (m)
-			return new TemplateToken(m[1], m[2], m[3] ? new Set(m[3].split('.')) : new Set(), m[4]);
+			return new TemplateToken(line, column, m[1], m[2], m[3] ? new Set(m[3].split('.')) : new Set(), m[4]);
 
 		const rm = patternRegexpRE.exec(tpl)
 		if (rm)
-			return new RegExpToken(rm[1], 
+			return new RegExpToken(line, column, rm[1], 
 														 rm[2].match(patternRegexpFinderRE)!.map(r=>Tokenizer.unescape(r).replace(/^.|.$/g, '')), 
 														 rm[3]);
 

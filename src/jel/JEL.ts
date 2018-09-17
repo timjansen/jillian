@@ -191,7 +191,7 @@ export default class JEL {
           }
           else { // short notation {a}
             if (name.type != TokenType.Identifier)
-              JEL.throwParseException(separator, "Dictionary entries require a value, unless an identifier is used in the short notation.");
+              JEL.throwParseException(separator, "Dictionary entries require a value, unless an identifier is used in the short notation;");
             assignments.push(new Assignment(name.value, new Variable(name.value)));
             if (separator.value == '}')
               return JEL.tryBinaryOps(tokens, new Dictionary(assignments), precedence, stopOps);
@@ -215,11 +215,11 @@ export default class JEL {
 						
 						while (true) {
 							if (!tokens.hasNext())
-								JEL.throwParseException(token, "Expected identifier for translator meta.");
+								JEL.throwParseException(token, "Expected identifier for translator meta");
 							const name = tokens.next();
 							if (name.type != TokenType.Identifier)
-								JEL.throwParseException(name || token, "Expected identifier for translator meta.");
-							const eq = JEL.expectOp(tokens, TRANSLATOR_META_STOP, "Expected equal sign or comma or colon after meta name.");
+								JEL.throwParseException(name || token, "Expected identifier for translator meta");
+							const eq = JEL.expectOp(tokens, TRANSLATOR_META_STOP, "Expected equal sign or comma or colon after meta name");
 							if (eq.value == '=') {
 								const expression = JEL.parseExpression(tokens, PARENS_PRECEDENCE, TRANSLATOR_META_VALUE_STOP);
 								if (!expression)
@@ -258,7 +258,7 @@ export default class JEL {
         if (t2.type != TokenType.Identifier)
           JEL.throwParseException(token, "Expected identifier after '@' for reference.");
 				if (tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == '(') {
-					const assignments: Assignment[] = JEL.parseParameters(tokens, PARENS_PRECEDENCE, PARAMETER_STOP, ')', "Expected comma or closing parens.", 'parameter');
+					const assignments: Assignment[] = JEL.parseParameters(tokens, PARENS_PRECEDENCE, PARAMETER_STOP, ')', "Expected comma or closing parens", 'parameter');
 	        return JEL.tryBinaryOps(tokens, new Reference(t2.value, assignments), precedence, stopOps);
 				}
 				else
@@ -275,7 +275,7 @@ export default class JEL {
 				return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, Literal.TRUE), precedence, stopOps);
       }
       else if (token.value == 'with') {
-        const assignments: Assignment[] = JEL.parseParameters(tokens, WITH_PRECEDENCE, WITH_STOP, ':', "Expected colon or equal sign after expression in 'with' statement.", 'constant');
+        const assignments: Assignment[] = JEL.parseParameters(tokens, WITH_PRECEDENCE, WITH_STOP, ':', "Expected colon or equal sign after expression in 'with' statement,", 'constant');
         return new With(assignments, JEL.parseExpression(tokens, precedence, stopOps));
       }
     }
@@ -309,7 +309,7 @@ export default class JEL {
 
     const binOpToken = tokens.peek();
     if (binOpToken.type != TokenType.Operator)
-      JEL.throwParseException(binOpToken, "Expected operator here");
+      JEL.throwParseException(binOpToken, "Expected operator");
     
     if (stopOps[binOpToken.value])
        return left;
@@ -428,7 +428,7 @@ export default class JEL {
   }
   
   static createPattern(value: string, jelToken: Token): Pattern {
-    return new Pattern(JEL.parsePattern(Tokenizer.tokenizePattern(value), jelToken)!, value);
+    return new Pattern(JEL.parsePattern(Tokenizer.tokenizePattern(jelToken ? jelToken.line : 1, jelToken ? jelToken.column : 1, value), jelToken)!, value);
   }
   
 	

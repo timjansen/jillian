@@ -15,7 +15,7 @@ const fs = require('fs');
 const assert = require('assert');
 
 function getCtx(db) {
-	return DatabaseContext.create(undefined, new DbSession(db));
+	return DatabaseContext.forDatabase(db);
 }
 
 tmp.dir(function(err, path) {
@@ -144,7 +144,7 @@ tmp.dir(function(err, path) {
 			return Database.create(path+'/db9', new DatabaseConfig({sizing: 99}))
 			.then(db=> {
 				const ctx = getCtx(db);
-				return db.loadDir(getCtx(db), 'test/database/data/loadTest')
+				return db.loadDir('test/database/data/loadTest')
 				.then(n=>{
 					assert.equal(5, n);
 					return db.get(ctx, 'AThing2');

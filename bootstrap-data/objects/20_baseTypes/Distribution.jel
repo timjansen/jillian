@@ -1,7 +1,7 @@
 Thing('Distribution', @BaseTypeCategory, 
 properties={
 	baseTypeDescriptor: {
-		isNumeric: true
+		isNumeric: true,
 		canBeRange: true,
 		canHaveMultipleValues: false
 	}

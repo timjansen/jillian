@@ -26,6 +26,14 @@ export default class Context {
 			return this.parent.get(name);
 		throw new Error(`Can not read unknown variable ${name}.`);
 	}
+
+	getOrNull(name: string): any {
+		if (this.frame.has(name))
+				return this.frame.get(name);
+		if (this.parent)
+			return this.parent.get(name);
+		return null;
+	}
 	
 	set(name: string, value: any): Context {
 		if (this.frozen)

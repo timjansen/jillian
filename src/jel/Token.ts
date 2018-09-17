@@ -11,13 +11,13 @@ export const enum TokenType {
 }
 
 export class Token {
-	constructor(public type: TokenType, public value: any) {
+	constructor(public line: number, public column: number, public type: TokenType, public value: any) {
 	}
 }
 
 export class TemplateToken extends Token {
-	constructor(name: string | undefined, public template: string, public metaFilter: Set<string>, public expression?: string) {
-		super(TokenType.Template, name);
+	constructor(line: number, column: number, name: string | undefined, public template: string, public metaFilter: Set<string>, public expression?: string) {
+		super(line, column, TokenType.Template, name);
 	}
 	
 	get name() {
@@ -27,8 +27,8 @@ export class TemplateToken extends Token {
 
 export class RegExpToken extends Token {
 	hints: string;
-	constructor(name: string | undefined, public regexps: string[], public expression?: string) {
-		super(TokenType.RegExp, name);
+	constructor(line: number, column: number, name: string | undefined, public regexps: string[], public expression?: string) {
+		super(line, column, TokenType.RegExp, name);
 	}
 	
 	get name() {

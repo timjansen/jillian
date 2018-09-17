@@ -2,6 +2,7 @@
   "name": "jillian",
   "version": "1.0.0",
   "description": "Natural language database",
+  "engines" : { "node" : ">=10.10.0" },
   "main": "src/jillian.js",
   "scripts": {
     "test": "tsc && mocha --recursive"

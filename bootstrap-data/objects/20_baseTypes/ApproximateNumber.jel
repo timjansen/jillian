@@ -1,7 +1,7 @@
 Thing('ApproximateNumber', @BaseTypeCategory, 
 properties={
 	baseTypeDescriptor: {
-		isNumeric: true
+		isNumeric: true,
 		canBeRange: true,
 		canHaveMultipleValues: false
 	}

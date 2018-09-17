@@ -1,7 +1,7 @@
-Thing('Pattern', @BaseTypeCategory, 
+Thing('Range', @BaseTypeCategory, 
 properties={
 	baseTypeDescriptor: {
-		isNumeric: false
+		isNumeric: false,
 		canBeRange: false,
 		canHaveMultipleValues: false
 	}

@@ -187,24 +187,23 @@ export default class Database {
 	 * Loads all .jel files from a directory and stores them in the database. 
 	 * Each .jel file must contain one complete DbEntry. Categories must end with 'Category.jel' so they can be loaded first.
 	 * Files without .jel extension are ignored.
-	 * @param ctx a Context to load with. Must have a dbSession.
 	 * @param dirPath the path of the directory to load
 	 * @param recursive if true, loadDir() will load data from subdirectories
 	 * @return a Promise with the number of loaded objects, or a DatabaseError
 	 */
-	loadDir(ctx: Context, dirPath: string, recursive = true): Promise<number> {
+	loadDir(dirPath: string, recursive = true): Promise<number> {
 		const pool = new WorkerPool();
-		const sCtx = DatabaseContext.add(ctx);
+		const ctx = DatabaseContext.forDatabase(this);
 		const db = this;
 		return db.init(config=>{
 
 			// returns Promise of [categoryFiles, entryFiles, dirs] for a single directory
 			function getPaths(dir: string): Promise<string[][]> {
-				return fs.readdir(dir)
-				.then(files=>pool.runJob(files, f=>fs.stat(path.join(dir, f)).then(stat=>[f, f.endsWith('.jel') && stat.isFile(), f.endsWith('Category.jel'), stat.isDirectory()] as any)))
-				.then(r=>[r.filter(a=>a[1] && a[2]).map(a=>path.join(dir, a[0])), 
-									r.filter(a=>a[1] && !a[2]).map(a=>path.join(dir, a[0])),
-								  r.filter(a=>a[3]).map(a=>path.join(dir, a[0]))]);
+				return (fs as any).readdir(dir, {withFileTypes: true}) // TODO: remove any when new readdir signature available
+				.then((files: any[])=>files.map(stat=>[stat.name, stat.name.endsWith('.jel') && stat.isFile(), stat.name.endsWith('Category.jel'), stat.isDirectory()] as any)) // TODO: replace any->fs.Dirent when available
+				.then((r: any)=>[r.filter((a: any)=>a[1] && a[2]).map((a: any)=>path.join(dir, a[0])), 
+									r.filter((a: any)=>a[1] && !a[2]).map((a: any)=>path.join(dir, a[0])),
+								  r.filter((a: any)=>a[3]).map((a: any)=>path.join(dir, a[0]))]);
 			}
 
 			// returns Promise of [categoryFiles, entryFiles] for recursive dir structure
@@ -220,7 +219,7 @@ export default class Database {
 			}
 			return getPathsRecursive(dirPath, recursive).then(r=> {
 				const [categoryFiles, entryFiles] = r;
-				return pool.runJobIgnoreNull(categoryFiles, file=>db.readEntry(sCtx, file.replace(/^.*\/|\.jel$/g, ''), file) as Promise<Category | null>)
+				return pool.runJobIgnoreNull(categoryFiles, file=>db.readEntry(ctx, file.replace(/^.*\/|\.jel$/g, ''), file) as Promise<Category | null>)
 					.then(categories=> {
 						const providedCats = new Set<string>(categories.map(c=>c.distinctName));
 						const availableCats = new Set<string>(); // set of distinct names
@@ -234,7 +233,7 @@ export default class Database {
 																				.then(e=>(e ? c : Promise.reject(new DatabaseError(`There is no definition for Category ${c.superCategory!.distinctName}" required as superCategory for ${c.distinctName}`)) as any)))
 								.then((checkedCats: Category[])=> {
 									checkedCats.forEach(c=>availableCats.add(c.distinctName));
-									return db.put(sCtx, ...readyCats.concat(checkedCats))
+									return db.put(ctx, ...readyCats.concat(checkedCats))
 										.then(()=> !futureCats.length ? Promise.resolve() : 
 													iterationsLeft>0 ? loadCategories(futureCats, iterationsLeft-1) : 
 													Promise.reject(new DatabaseError(`Can not load categories after ${MAX_ITERATIONS}. There appears to be a loop in superCategory relations.`)));
@@ -242,8 +241,8 @@ export default class Database {
 						}
 
 						return loadCategories(categories, MAX_ITERATIONS).then(()=>
-							pool.runJobIgnoreNull(entryFiles, file=>db.readEntry(sCtx, file.replace(/^.*\/|\.jel$/g, ''), file)
-												 							        .then(entry=>db.put(sCtx, entry as DbEntry)))
+							pool.runJobIgnoreNull(entryFiles, file=>db.readEntry(ctx, file.replace(/^.*\/|\.jel$/g, ''), file)
+												 							        .then(entry=>db.put(ctx, entry as DbEntry)))
 						);
 					})
 					.then(()=>categoryFiles.length + entryFiles.length);

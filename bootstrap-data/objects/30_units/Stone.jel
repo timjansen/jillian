@@ -3,7 +3,7 @@ Thing('Stone', @UnitOfMeasureCategory,
 		quantityCategory: @Mass,
 		isPrimaryUnit: false,
 		type: @UnitTypeEnum.IMPERIAL,
-		idealMin: 1
+		idealMin: 1,
 		idealMax: Math.round(2000/14),
 		convertsTo: {
 			Kilogram: {factor: 6.35029},

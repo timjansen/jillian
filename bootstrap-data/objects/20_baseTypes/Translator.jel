@@ -1,7 +1,7 @@
 Thing('Translator', @BaseTypeCategory, 
 properties={
 	baseTypeDescriptor: {
-		isNumeric: false
+		isNumeric: false,
 		canBeRange: false,
 		canHaveMultipleValues: false
 	}
