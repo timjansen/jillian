@@ -124,42 +124,45 @@ export default class UnitValue extends JelType {
 	}
 	
 	private convertSimpleTo(ctx: Context, target: string, mustBePrimaryUnit: boolean): Promise<UnitValue> | UnitValue {
-		return this.unit.toSimpleType(ctx).with(ctx, (thisSimplifiedUnit: IDbEntry) => {
-			const conversionDict: Dictionary = thisSimplifiedUnit.member(ctx, 'convertsTo');
+		const simpleUnit: IDbRef = this.unit.toSimpleType(ctx);
+		return simpleUnit.withMember(ctx, 'convertsTo', (conversionDict: Dictionary) => {
 			if (!conversionDict)
-					return Promise.reject(new Error("Can not convert "+thisSimplifiedUnit.distinctName+" to any other units. No convertsTo property defined."));
+					return Promise.reject(new Error("Can not convert "+simpleUnit.distinctName+" to any other units. No convertsTo property defined."));
 
 			const conversionObj: Dictionary = conversionDict.elements.get(target);
 			if (conversionObj != null) {
 				const f: any = conversionObj.elements.get('f');
 				if (f) {
 					if (!(f instanceof Callable))
-						return Promise.reject(new Error(`Broken configuration in ${thisSimplifiedUnit.distinctName}.convertsTo.${target}: should be Callable, but is ${f}.`));
+						return Promise.reject(new Error(`Broken configuration in ${simpleUnit.distinctName}.convertsTo.${target}: should be Callable, but is ${f}.`));
 					return Util.resolveValue(v=>new UnitValue(v, target), f.invoke(ctx, this.value));
 				}
 				const factor: number | Fraction = conversionObj.elements.get('factor');
 				if (factor)
 					return Util.resolveValue(v=>new UnitValue(v, target), JelType.op(ctx, '*', factor, this.value));
 				else
-					return Promise.reject(new Error("Can not convert from "+thisSimplifiedUnit.distinctName+" to type " + target+": neither factor not function set."));
+					return Promise.reject(new Error("Can not convert from "+simpleUnit.distinctName+" to type " + target+": neither factor not function set."));
 			}
-			else if (JelType.toRealBoolean(thisSimplifiedUnit.member(ctx, 'isPrimaryUnit')))
-				return Promise.reject(new Error(`Can not convert from unit ${this.unit.toString()} to unit ${target}. No conversion rule available.`));
-			else {
-				const qcRef: IDbRef = thisSimplifiedUnit.member(ctx, 'quantityCategory');
-				if (!qcRef)
-					return Promise.reject(new Error(`Unit ${thisSimplifiedUnit.distinctName} is missing required property quantityCategory.`));
-				
-				return qcRef.withMember(ctx, 'primaryUnit', (primaryUnitRef: IDbRef | null) => {
-					if (primaryUnitRef == null)
-						return Promise.reject(new Error(`Unit ${thisSimplifiedUnit.distinctName} is missing required property primaryUnit.`));
-					return primaryUnitRef.withMember(ctx, 'isPrimaryUnit', (isPrimaryUnit: FuzzyBoolean | null) => {
-						if (!JelType.toRealBoolean(isPrimaryUnit))
-							return Promise.reject(new Error(`Unit ${qcRef.distinctName} defines ${primaryUnitRef.distinctName} as primary unit, but isPrimaryUnit is not set to true.`));
-						return Util.resolveValue(p=>p.convertSimpleTo(ctx, target, false), this.convertSimpleTo(ctx, primaryUnitRef.distinctName, true));
+			else 
+				return simpleUnit.withMember(ctx, 'isPrimaryUnit', (isPrimaryUnit: any)=> {
+					if (JelType.toRealBoolean(isPrimaryUnit))
+						return Promise.reject(new Error(`Can not convert from unit ${this.unit.toString()} to unit ${target}. No conversion rule available.`));
+
+					return simpleUnit.withMember(ctx, 'quantityCategory', (qc: IDbEntry | null)=> {
+						if (!qc)
+							return Promise.reject(new Error(`Unit ${simpleUnit.distinctName} is missing required property quantityCategory.`));
+
+						return qc.withMember(ctx, 'primaryUnit', (primaryUnit: IDbEntry | null) => {
+							if (primaryUnit == null)
+								return Promise.reject(new Error(`Unit ${simpleUnit.distinctName} is missing required property primaryUnit.`));
+							return primaryUnit.withMember(ctx, 'isPrimaryUnit', (isPrimaryUnit: FuzzyBoolean | null) => {
+								if (!JelType.toRealBoolean(isPrimaryUnit))
+									return Promise.reject(new Error(`Unit ${qc.distinctName} defines ${primaryUnit.distinctName} as primary unit, but isPrimaryUnit is not set to true.`));
+								return Util.resolveValue(p=>p.convertSimpleTo(ctx, target, false), this.convertSimpleTo(ctx, primaryUnit.distinctName, true));
+							});
+						});
 					});
 				});
-			};
 		});
 	}
 
