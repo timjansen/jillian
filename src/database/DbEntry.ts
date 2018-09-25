@@ -38,13 +38,11 @@ export default class DbEntry extends JelType implements IDbEntry {
 		if (v instanceof DbRef)
 			return v.with(ctx, f);
 		else if (v instanceof Promise)
-			return v.then(f);
+			return v.then(val=>val instanceof DbRef ? val.with(ctx, f) : f(val));
 		else
 			return f(v);
 	}
-	
-	
-	
+		
 	// sets a property
   set(ctx: Context, name: string, value: JelType|number|string): DbEntry {
 		this.properties.set(name, value);

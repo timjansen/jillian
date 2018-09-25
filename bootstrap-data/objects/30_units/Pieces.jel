@@ -1,4 +1,4 @@
-Thing('Energy', @QuantityCategory,
+Thing('Pieces', @QuantityCategory,
 	properties={
 		primaryUnit: @Piece
 })

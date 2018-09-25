@@ -1,3 +1,8 @@
+/*
+ * Defines a category for all units. 
+ * Instances of this category must define all properties directly, and must not inherit any of the properties, because UnitValue is not prepared
+ * to handle Promises when accessing a member.
+ */
 Category('UnitOfMeasureCategory', 
 	properties={}, 
 	instanceDefaults={}, 

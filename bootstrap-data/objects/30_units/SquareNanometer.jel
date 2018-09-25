@@ -1,11 +1,11 @@
 Thing('SquareNanometer', @UnitOfMeasureCategory,
 	properties={
-		quantityCategory: @Length,
+		quantityCategory: @Area,
 		isPrimaryUnit: false,
 		type: @UnitTypeEnum.METRIC,
 		idealMax: 1e6,
 		convertsTo: {
-			Meter: {factor: 1e-18}
+			SquareMeter: {factor: 1e-18}
 		},
 		createFrom: [Unit({Nanometer: 2})],
 		usedBy: [@CubicNanometer]

@@ -9,7 +9,8 @@ Thing('MeterPerSecond', @UnitOfMeasureCategory,
 			FootPerSecond: {factor: 3.280840},
 			Knot: {factor: 1.943844}
 		},
-		createFrom: Unit(@Meter, @Second)
+		createFrom: [Unit(@Meter, @Second)],
+		usedBy: [@MeterPerSecondSquared]
 })
 
 

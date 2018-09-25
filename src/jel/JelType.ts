@@ -223,7 +223,7 @@ export default class JelType {
 			return MyFuzzyBoolean.truest(this.op(ctx, '>>', right), this.op(ctx, '===', right)).negate();
 		if (right instanceof JelType && right.reverseOps && operator in right.reverseOps)
 			return right.opReversed(ctx, operator, this);
-		throw new Error(`Operator "${operator}" is not supported for this type`);
+		throw new Error(`Operator "${operator}" is not supported for type "${this.constructor.name}" as left operand and right operand "${right == null ? 'null' : right.constructor.name}"`);
 	}
 	
 	// To be used if the right-hand side is this type, and the left-hand side is a primitive.
@@ -232,7 +232,7 @@ export default class JelType {
 	// Usually this is used for the operators '-' and '/', and possibly comparisons as well.
 	opReversed_jel_mapping: Object;
 	opReversed(ctx: Context, operator: string, left: any): any {
-		throw new Error(`Operator "${operator}" is not supported for this type (in reversed operation)`);
+		throw new Error(`Operator "${operator}" is not supported for type "${this.constructor.name}" (in reversed operation)`);
 	}
 
 	
@@ -241,7 +241,7 @@ export default class JelType {
 	 */
 	singleOp_jel_mapping: Object;
 	singleOp(ctx: Context, operator: string): any {
-		throw new Error(`Operator "${operator}" is not supported for this type`);
+		throw new Error(`Operator "${operator}" is not supported for type "${this.constructor.name}"`);
 	}
 
 	member_jel_mapping: Object;
@@ -252,7 +252,7 @@ export default class JelType {
 	
 	toBoolean_jel_mapping: Object;
 	toBoolean(): any { // this is any to avoid the circular dep in TypeScript, but would be FuzzyB
-		throw new Error(`Boolean conversion not supported for this type`);
+		throw new Error(`Boolean conversion not supported for type "${this.constructor.name}"`);
 	}
 	
 	getSerializationProperties(): Object|any[] {

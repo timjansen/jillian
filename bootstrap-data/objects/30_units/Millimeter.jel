@@ -7,7 +7,8 @@ Thing('Millimeter', @UnitOfMeasureCategory,
 		idealMax: 100,
 		convertsTo: {
 			Meter: {factor: Fraction(1, 1000)}
-		}
+		},
+		usedBy: [@SquareMillimeter, @CubicMillimeter]
 })
 
 

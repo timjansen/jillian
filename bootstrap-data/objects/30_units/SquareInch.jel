@@ -1,6 +1,6 @@
 Thing('SquareInch', @UnitOfMeasureCategory,
 	properties={
-		quantityCategory: @Length,
+		quantityCategory: @Area,
 		isPrimaryUnit: false,
 		type: @UnitTypeEnum.IMPERIAL,
 		idealMax: 2*144,

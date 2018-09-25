@@ -1,6 +1,6 @@
 Thing('SquareKilometer', @UnitOfMeasureCategory,
 	properties={
-		quantityCategory: @Length,
+		quantityCategory: @Area,
 		isPrimaryUnit: false,
 		type: @UnitTypeEnum.METRIC,
 		idealMin: 1,

@@ -1,12 +1,12 @@
 Thing('SquareCentimeter', @UnitOfMeasureCategory,
 	properties={
-		quantityCategory: @Length,
+		quantityCategory: @Area,
 		isPrimaryUnit: false,
 		type: @UnitTypeEnum.METRIC,
 		idealMin: 1,
 		idealMax: 2e4,
 		convertsTo: {
-			Meter: {factor: 1e-4}
+			SquareMeter: {factor: 1e-4}
 		},
 		createFrom: [Unit({Centimeter: 2})],
 		usedBy: [@CubicCentimeter]

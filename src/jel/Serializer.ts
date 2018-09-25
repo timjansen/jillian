@@ -1,6 +1,8 @@
 import Dictionary from './types/Dictionary';
+import FuzzyBoolean from './types/FuzzyBoolean';
 import List from './types/List';
 import Pattern from './types/Pattern';
+import LambdaCallable from './LambdaCallable';
 import {isDbRef} from './IDatabase';
 import Util from '../util/Util';
 import Serializable from './Serializable';
@@ -25,7 +27,11 @@ export default class Serializer {
 
 		const type = typeof obj;
 		if (type == 'object') {
-			if (obj instanceof Dictionary) {
+			if (obj instanceof FuzzyBoolean)
+				return obj.state == 0 ? 'false' : obj.state == 1 ? 'true' : `FuzzyBoolean(${obj.state})`;
+			else if (isDbRef(obj))
+				return '@'+obj.distinctName;
+			else if (obj instanceof Dictionary) {
 				if (!obj.size)
 					return "{}";
 				let r = '{';
@@ -50,8 +56,6 @@ export default class Serializer {
 				return Serializer.serializeArray(obj.elements, pretty, indent);
 			else if (obj instanceof Pattern) 
 				return '`' + obj.patternText.replace(/`/g, '\\`') + '`';
-			else if (isDbRef(obj))
-				return '@'+obj.distinctName;
 			else if ('getSerializationProperties' in obj) {
 				const props = (obj as Serializable).getSerializationProperties();
 				let r = obj.constructor.name + '(';
@@ -88,8 +92,10 @@ export default class Serializer {
 			}
 			else if (typeof obj.length == 'number') 
 				return Serializer.serializeArray(obj, pretty, indent);
+			else if (obj instanceof LambdaCallable)
+				return obj.toString();
 			else
-				return `"unsupported object. type=${obj?obj.constructor.name:'?'}"`;
+				return `"unserializable object. type=${obj?obj.constructor.name:'?'}"`;
 		}
 		else if (type == 'string' || type == 'number' || type == 'boolean')
 			return JSON.stringify(obj);

@@ -17,10 +17,12 @@ export default class Fraction extends JelType {
 			this.numerator = -numerator;
 			this.denominator = -denominator;
 		}
-		else {
+		else if (denominator > 0) {
 			this.numerator = numerator; 
 			this.denominator = denominator; 
 		}
+		else 
+			throw Error("Denominator in Fraction must not be 0");
 	}
 	
 	op(ctx: Context, operator: string, right: any): any {
@@ -29,6 +31,9 @@ export default class Fraction extends JelType {
 				return JelType.op(ctx, operator, this.toNumber(), right);
 
 			const l = this.simplify();
+			if (!(l instanceof Fraction))
+				return JelType.op(ctx, operator, l, right);
+			
 			switch (operator) {
 				case '==':
 				case '===':
@@ -69,6 +74,13 @@ export default class Fraction extends JelType {
 		else if (right instanceof Fraction) {
 			const l = this.simplify();
 			const r = right.simplify();
+			if (!((l instanceof Fraction) && (r instanceof Fraction))) {
+				if (operator == '/' && typeof l == 'number' && typeof r == 'number')
+					return new Fraction(l, r, this.mixed).simplify();
+				else 
+					return JelType.op(ctx, operator, l, r);
+			}
+			
 			switch (operator) {
 				case '==':
 				case '===':
@@ -111,8 +123,12 @@ export default class Fraction extends JelType {
 			if (!Number.isInteger(left))
 				return JelType.op(ctx, operator, left, this.toNumber());
 			switch (operator) {
+				case '+':
+					return new Fraction(left*this.denominator+this.numerator, this.denominator, this.mixed).simplify();
 				case '-':
 					return new Fraction(left*this.denominator-this.numerator, this.denominator, this.mixed).simplify();
+				case '*':
+					return new Fraction(left*this.numerator, this.denominator, this.mixed).simplify();
 				case '/':
 					return new Fraction(left*this.denominator, this.numerator, this.mixed).simplify();
 				case '^':
@@ -146,10 +162,12 @@ export default class Fraction extends JelType {
 	}
 	
 	simplify_jel_mapping: Object;
-	simplify(): Fraction {
+	simplify(): Fraction | number {
 		const n = Fraction.gcd(this.numerator, this.denominator);
 		if (n == 1)
 			return this;
+		else if (n == this.denominator)
+			return this.numerator / this.denominator;
 		else
 			return new Fraction(this.numerator / n, this.denominator / n, this.mixed); 
 	}

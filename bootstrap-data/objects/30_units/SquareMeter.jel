@@ -1,6 +1,6 @@
 Thing('SquareMeter', @UnitOfMeasureCategory,
 	properties={
-		quantityCategory: @Length,
+		quantityCategory: @Area,
 		isPrimaryUnit: true,
 		type: @UnitTypeEnum.SI,
 		idealMin: 1,

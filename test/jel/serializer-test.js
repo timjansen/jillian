@@ -5,6 +5,7 @@ const assert = require('assert');
 const s = require('../../build/jel/Serializer.js').default;
 const Dictionary = require('../../build/jel/types/Dictionary.js').default;
 const Pattern = require('../../build/jel/types/Pattern.js').default;
+const JEL = require('../../build/jel/JEL.js').default;
 
 describe('jelSerializer', function() {
   describe('serialize()', function() {
@@ -38,7 +39,7 @@ describe('jelSerializer', function() {
     
     
     it('should serialize anonymous objects using an error message', function() {
-      assert.equal(s.serialize({x: 0}), '"unsupported object. type=Object"');
+      assert.equal(s.serialize({x: 0}), '"unserializable object. type=Object"');
     });
     
     it('should use getSerializationProperties() for objects, with argument names', function() {
@@ -74,7 +75,12 @@ describe('jelSerializer', function() {
     it('should serialize patterns', function() {
       assert.equal(s.serialize(new Pattern(null, 'ab c\nd')), '`ab c\nd`');
     });
-    
+
+		it('should serialize Lambda expressions', function() {
+      assert.equal(s.serialize(new JEL("a=>a+1").executeImmediately()), 'a=>(a + 1)');
+      assert.equal(s.serialize(new JEL("(a, b,  c )=>with d=a+b: a.b(c , if a==1 then d else a, @Ref)").executeImmediately()), '(a, b, c)=>with d=(a + b): a.b(c, if (a == 1) then d else a, @Ref)');
+    });
+
     
     it('should pretty print', function() {
       assert.equal(s.serialize([1, 2, 3], true), '[1, 2, 3]');

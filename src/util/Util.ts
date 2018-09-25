@@ -83,6 +83,13 @@ export default class Util {
 			return f(value);
 	}
 
+	static resolveValueAndError(f: (e: any)=>any, err: any, value: any): any {
+		if (value instanceof Promise)
+			return value.then(f, err);
+		else
+			return f(value);
+	}
+
 	static resolveValues(f: Function, ...values: any[]): any {
 		if (!values.length)
 			return f();

@@ -9,7 +9,7 @@ Thing('Foot', @UnitOfMeasureCategory,
 			Inch: {factor: Fraction(1, 12)},
 			Yard: {factor: 3}
 		},
-		usedBy: [@CubicFoot, @SquareFoot]
+		usedBy: [@CubicFeet, @SquareFeet]
 })
 
 

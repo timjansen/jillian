@@ -16,7 +16,9 @@ export interface IDbRef {
 	distinctName: string;
 	
 	with<T>(ctx: Context, f: (obj: IDbEntry)=>T): Promise<T> | T;
+	withMember<T>(ctx: Context, name: string, f: (v: any)=>T): Promise<T> | T;
 	get(ctx: Context): Promise<IDbEntry> | IDbEntry;
+	member(ctx: Context, name: string, parameters?: Map<string, any>): Promise<any> | any;
 }
 
 export interface IDbSession {

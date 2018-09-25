@@ -1,6 +1,6 @@
 Thing('SquareMile', @UnitOfMeasureCategory,
 	properties={
-		quantityCategory: @Length,
+		quantityCategory: @Area,
 		isPrimaryUnit: false,
 		type: @UnitTypeEnum.IMPERIAL,
 		idealMin: 1,

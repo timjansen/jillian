@@ -19,7 +19,7 @@ Thing('Meter', @UnitOfMeasureCategory,
 			Yard: {factor: 1/0.9144},
 			Mile: {factor: 1/1609.344}
 		},
-		usedBy: [@MeterPerSecond, @MeterPerSecondQuared]
+		usedBy: [@SquareMeter, @CubicMeter, @MeterPerSecond, @MeterPerSecondSquared]
 })
 
 

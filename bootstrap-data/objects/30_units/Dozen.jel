@@ -7,6 +7,6 @@ Thing('Dozen', @UnitOfMeasureCategory,
 		idealMax: 36,
 		granularity: 0.5,	
 		convertsTo: {
-			Pieces: {f: v=>v/12, factor: Fraction(1, 12)}
+			Pieces: {factor: 12}
 		}
 })

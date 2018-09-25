@@ -117,7 +117,7 @@ export default class Unit extends JelType {
 	toSimpleType_jel_mapping: Object;
 	toSimpleType(ctx: Context): IDbRef {
 		if (!this.simple)
-			throw new Error("UnitValue.toSimpleType() can only be called on simple types");
+			throw new Error(`UnitValue.toSimpleType() can only be called on simple types, not on complex unit ${this.toString()}.`);
 		return ctx.getSession().createDbRef(this.units.keys().next().value);
 	}
 
@@ -130,6 +130,10 @@ export default class Unit extends JelType {
 	
 	getSerializationProperties(): any[] {
 		return [new Dictionary(this.units, true)];
+	}
+	
+	toString(): string {
+		return Array.from(this.units.entries()).map((r: any) =>r[1] != 1 ? `${r[0]}^${r[1]}` : r[0]).join('*');
 	}
 	
 	static create_jel_mapping = {numeratorUnits: 1, denominatorUnits: 2, units: 1};

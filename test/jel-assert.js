@@ -50,6 +50,17 @@ class JelAssert {
 		else
 			assert.ok(r.state == min, `Expected fuzzy boolean with state=${min}, but got state=${r.state}`);
 	}
+
+	fuzzyPromise(a, min, max) {
+		return this.execPromise(a).then(r=>{
+			if (max != null) {
+				assert.ok(r.state >= min, `Expected fuzzy boolean min=${min} max=${max}, but got state=${r.state}`);
+				assert.ok(r.state <= max, `Expected fuzzy boolean min=${min} max=${max}, but got state=${r.state}`);
+			}
+			else
+				assert.ok(r.state == min, `Expected fuzzy boolean with state=${min}, but got state=${r.state}`);
+		});
+	}
 }
 
 let next = 0;

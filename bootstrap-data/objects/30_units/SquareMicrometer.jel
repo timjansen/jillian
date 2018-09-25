@@ -1,12 +1,12 @@
 Thing('SquareMicrometer', @UnitOfMeasureCategory,
 	properties={
-		quantityCategory: @Length,
+		quantityCategory: @Area,
 		isPrimaryUnit: false,
 		type: @UnitTypeEnum.METRIC,
 		idealMin: 1,
 		idealMax: 1e6,
 		convertsTo: {
-			Meter: {factor: 1e-12}
+			SquareMeter: {factor: 1e-12}
 		},
 		createFrom: [Unit({Micrometer: 2})],
 		usedBy: [@CubicMicrometer]

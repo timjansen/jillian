@@ -4,6 +4,6 @@ Thing('Piece', @UnitOfMeasureCategory,
 		isPrimaryUnit: true,
 		type: @UnitTypeEnum.OTHER,
 		convertsTo: {
-			Dozen: {factor: 12}
+			Dozen: {factor: Fraction(1, 12)}
 		}
 })
