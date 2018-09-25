@@ -220,6 +220,7 @@ export default class UnitValue extends JelType {
 		});
 	}
 	
+
 	// Converts all sub-units in Unit to the primary units (e.g. inch->meter, hp->watt)
 	toPrimaryUnits_jel_mapping: Object;
 	toPrimaryUnits(ctx: Context): UnitValue | Promise<UnitValue> {
@@ -228,50 +229,52 @@ export default class UnitValue extends JelType {
 		const categories: Map<string, IDbEntry> = new Map();
 		
 		return Util.resolveArray((unitEntries: IDbEntry[])=>{
-			const nonPrimaryUnits: IDbEntry[] = unitEntries.filter(u=>!JelType.toRealBoolean(u.member(ctx, 'isPrimaryUnit')));
-			if (!nonPrimaryUnits.length)
-				return this;
-			
-			const catNames: Set<string> = new Set(nonPrimaryUnits.map(u=>u.member(ctx, 'quantityCategory').distinctName));		
-			
-			
-			return Util.resolveArray((cats: IDbEntry[])=>{
-				cats.forEach((u: IDbEntry)=>categories.set(u.distinctName, u));
-				nonPrimaryUnits.forEach(u=> {
-					const qCatName: string = u.member(ctx, 'quantityCategory').distinctName;
-					const qCat: IDbEntry | undefined = categories.get(qCatName);
-					if (!qCat)
-						throw new Error(`Internal error while converting UnitValue while retrieving ${qCatName}`);
-					const primaryUnit: IDbRef = qCat.member(ctx, 'primaryUnit');
-					if (!primaryUnit)
-						throw new Error(`Invalid Category @${qCatName}, missing property primaryUnit`);
-					
-					const convertsTo: Dictionary = u.member(ctx, 'convertsTo');
-					if (convertsTo && convertsTo.elements.has(primaryUnit.distinctName)) {
-						const t = convertsTo.elements.get(primaryUnit.distinctName);
-						if (!(t instanceof Dictionary))
-							throw new Error(`@${u.distinctName}.convertsTo.${primaryUnit.distinctName} must be a Dictionary, but has a different type.`);
-						const newUnitMap = new Dictionary(uv.unit.units);
-						const exp = newUnitMap.elements.get(u.distinctName);
-						newUnitMap.elements.delete(u.distinctName);
-						newUnitMap.elements.set(primaryUnit.distinctName, (newUnitMap.elements.get(primaryUnit.distinctName) || 0) + exp);
-						if (t.elements.has('factor'))
-							uv = new UnitValue(JelType.op(ctx, '*', uv.value, JelType.op(ctx, '^', t.elements.get('factor'), exp)), new Unit(newUnitMap));
-						else if (t.elements.has('f') && exp == 1) {
-							uv = new UnitValue(t.elements.get('f').invoke(ctx, uv.value), new Unit(newUnitMap));
+			return Util.resolveArray((unitEntryFilter: any[]) => {
+				const nonPrimaryUnits: IDbEntry[] = unitEntries.filter((u, i)=>!JelType.toRealBoolean(unitEntryFilter[i]));
+				if (!nonPrimaryUnits.length)
+					return this;
+
+				const catNames: Set<string> = new Set(nonPrimaryUnits.map(u=>u.member(ctx, 'quantityCategory').distinctName));		
+
+				return Util.resolveArray((cats: IDbEntry[])=>{
+					cats.forEach((u: IDbEntry)=>categories.set(u.distinctName, u));
+					nonPrimaryUnits.forEach(u=> {
+						const qCatName: string = u.member(ctx, 'quantityCategory').distinctName;
+						const qCat: IDbEntry | undefined = categories.get(qCatName);
+						if (!qCat)
+							throw new Error(`Internal error while converting UnitValue while retrieving ${qCatName}`);
+						const primaryUnit: IDbRef = qCat.member(ctx, 'primaryUnit');
+						if (!primaryUnit)
+							throw new Error(`Invalid Category @${qCatName}, missing property primaryUnit`);
+
+						const convertsTo: Dictionary = u.member(ctx, 'convertsTo');
+						if (convertsTo && convertsTo.elements.has(primaryUnit.distinctName)) {
+							const t = convertsTo.elements.get(primaryUnit.distinctName);
+							if (!(t instanceof Dictionary))
+								throw new Error(`@${u.distinctName}.convertsTo.${primaryUnit.distinctName} must be a Dictionary, but has a different type.`);
+							const newUnitMap = new Dictionary(uv.unit.units);
+							const exp = newUnitMap.elements.get(u.distinctName);
+							newUnitMap.elements.delete(u.distinctName);
+							newUnitMap.elements.set(primaryUnit.distinctName, (newUnitMap.elements.get(primaryUnit.distinctName) || 0) + exp);
+							if (t.elements.has('factor'))
+								uv = new UnitValue(JelType.op(ctx, '*', uv.value, JelType.op(ctx, '^', t.elements.get('factor'), exp)), new Unit(newUnitMap));
+							else if (t.elements.has('f') && exp == 1) {
+								uv = new UnitValue(t.elements.get('f').invoke(ctx, uv.value), new Unit(newUnitMap));
+							}
 						}
-					}
-				});
-				return uv;
-			}, Array.from(catNames).map(u=>ctx.getSession().get(u)));
+					});
+					return uv;
+				}, Array.from(catNames).map(u=>ctx.getSession().get(u)));
+			}, unitEntries.map(u=>u.member(ctx, 'isPrimaryUnit')));
 		}, unitNames.map(u=>ctx.getSession().get(u)));
+
 	}
 	
 	private trySimplification(ctx: Context, uv: UnitValue): UnitValue | Promise<UnitValue|undefined> |  undefined {
 		const unitNames: string[] = Array.from(uv.unit.units.keys());
 		return Util.resolveArray((unitEntries: IDbEntry[])=>{
 			const possibleUnits: Set<string> = new Set(Util.collect(unitEntries, e=> {
-				const usedBy: List | null = e.member(ctx, 'usedBy');
+				const usedBy: any = e.member(ctx, 'usedBy');
 				if (usedBy instanceof List)
 					return usedBy.elements.map(e=>e.distinctName);
 				else if (usedBy)
@@ -280,7 +283,7 @@ export default class UnitValue extends JelType {
 			
 			return Util.resolveArray((unitEntries: IDbEntry[])=>{
 				for (let u of unitEntries) {
-					const conversions: List | null = u.member(ctx, 'createFrom');
+					const conversions: any = u.member(ctx, 'createFrom');
 					if (conversions instanceof List)
 						for (let conv of conversions.elements) {
 							if (conv.equals(uv.unit))
