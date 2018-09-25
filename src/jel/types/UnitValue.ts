@@ -125,8 +125,8 @@ export default class UnitValue extends JelType {
 	
 	private convertSimpleTo(ctx: Context, target: string, mustBePrimaryUnit: boolean): Promise<UnitValue> | UnitValue {
 		const simpleUnit: IDbRef = this.unit.toSimpleType(ctx);
-		return simpleUnit.withMember(ctx, 'convertsTo', (conversionDict: Dictionary) => {
-			if (!conversionDict)
+		return simpleUnit.withMember(ctx, 'convertsTo', (conversionDict: any) => {
+			if (!(conversionDict instanceof Dictionary))
 					return Promise.reject(new Error("Can not convert "+simpleUnit.distinctName+" to any other units. No convertsTo property defined."));
 
 			const conversionObj: Dictionary = conversionDict.elements.get(target);
@@ -148,14 +148,15 @@ export default class UnitValue extends JelType {
 					if (JelType.toRealBoolean(isPrimaryUnit))
 						return Promise.reject(new Error(`Can not convert from unit ${this.unit.toString()} to unit ${target}. No conversion rule available.`));
 
-					return simpleUnit.withMember(ctx, 'quantityCategory', (qc: IDbEntry | null)=> {
-						if (!qc)
+					return simpleUnit.withMember(ctx, 'quantityCategory', (qc: any)=> {
+						if (!(qc && qc.isDBEntry))
 							return Promise.reject(new Error(`Unit ${simpleUnit.distinctName} is missing required property quantityCategory.`));
 
-						return qc.withMember(ctx, 'primaryUnit', (primaryUnit: IDbEntry | null) => {
-							if (primaryUnit == null)
+						return qc.withMember(ctx, 'primaryUnit', (primaryUnit: any) => {
+							if (!(primaryUnit && primaryUnit.isDBEntry))
 								return Promise.reject(new Error(`Unit ${simpleUnit.distinctName} is missing required property primaryUnit.`));
-							return primaryUnit.withMember(ctx, 'isPrimaryUnit', (isPrimaryUnit: FuzzyBoolean | null) => {
+
+							return primaryUnit.withMember(ctx, 'isPrimaryUnit', (isPrimaryUnit: any) => {
 								if (!JelType.toRealBoolean(isPrimaryUnit))
 									return Promise.reject(new Error(`Unit ${qc.distinctName} defines ${primaryUnit.distinctName} as primary unit, but isPrimaryUnit is not set to true.`));
 								return Util.resolveValue(p=>p.convertSimpleTo(ctx, target, false), this.convertSimpleTo(ctx, primaryUnit.distinctName, true));
@@ -174,41 +175,48 @@ export default class UnitValue extends JelType {
 	
 	private convertComplexTo(ctx: Context, target: string): Promise<UnitValue> | UnitValue {
 		return ctx.getSession().with(target, (targetEntry: IDbEntry) =>{
-			const compatTypes: List | null = targetEntry.member(ctx, 'createFrom');
-			// attempt 1: direct conversion
-			if (compatTypes instanceof List && compatTypes.elements.length) {
-				const a1 = UnitValue.tryComplexConversion(this, target, compatTypes.elements);
-				if (a1)
-					return a1;
-			}
-
-			return Util.resolveValue((primeUV: UnitValue) =>{
-				// attempt 2: convert this to primary units, and then try to convert to target
+			return targetEntry.withMember(ctx, 'createFrom', (compatTypes: any) => {
+				// attempt 1: direct conversion
 				if (compatTypes instanceof List && compatTypes.elements.length) {
-					const a2 = UnitValue.tryComplexConversion(primeUV, target, compatTypes.elements);
-					if (a2)
-						return a2;
+					const a1 = UnitValue.tryComplexConversion(this, target, compatTypes.elements);
+					if (a1)
+						return a1;
 				}
-				
-				// attempt 3: try to convert primary units to target type's primary unit, and then convert to target
-				return targetEntry.withMember(ctx, 'quantityCategory', (qCategory: IDbEntry)=> {
-					const primaryUnit: IDbRef = qCategory.member(ctx, 'primaryUnit');
-					if (primaryUnit.distinctName == target)
-						return Promise.reject(new Error(`UnitValue with unit ${this.unit.toString()} is not compatible with target type ${target}. ${target} is a primary unit, but has no compatible conversion rules.`));
-					
-					return primaryUnit.with(ctx, (pu: IDbEntry)=>{
-						const pCompatTypes: List | null = pu.member(ctx, 'createFrom');
-						if (!(pCompatTypes instanceof List) || !pCompatTypes.elements.length)
-							return Promise.reject(new Error(`UnitValue with unit ${this.unit.toString()} is not compatible with target type ${target}. Primary unit ${pu.distinctName} has no conversion rules.`));
-						const p1 = UnitValue.tryComplexConversion(primeUV, primaryUnit.distinctName, pCompatTypes.elements);
-						if (p1)
-							return p1.convertTo(ctx, target);
-						else
-							return Promise.reject(new Error(`UnitValue with unit ${this.unit.toString()} is not compatible with target type ${target}. No way to convert ${primeUV.unit.toString()} to ${pu.distinctName}.`));
+
+				return Util.resolveValue((primeUV: UnitValue) =>{
+					// attempt 2: convert this to primary units, and then try to convert to target
+					if (compatTypes instanceof List && compatTypes.elements.length) {
+						const a2 = UnitValue.tryComplexConversion(primeUV, target, compatTypes.elements);
+						if (a2)
+							return a2;
+					}
+
+					// attempt 3: try to convert primary units to target type's primary unit, and then convert to target
+					return targetEntry.withMember(ctx, 'quantityCategory', (qCategory: any)=> {
+						if (!(qCategory && qCategory.isDBEntry))
+							return Promise.reject(new Error(`Category ${targetEntry.distinctName} does not have required property 'quantityCategory'.`));
+						
+						return qCategory.withMember(ctx, 'primaryUnit', (primaryUnit: any) => {
+							if (!(primaryUnit && primaryUnit.isDBEntry))
+								return Promise.reject(new Error(`Category ${qCategory.distinctName} does not have required property 'primaryUnit'.`));
+
+							if (primaryUnit.distinctName == target)
+								return Promise.reject(new Error(`UnitValue with unit ${this.unit.toString()} is not compatible with target type ${target}. ${target} is a primary unit, but has no compatible conversion rules.`));
+
+							return primaryUnit.withMember(ctx, 'createFrom', (pCompatTypes: any) => {
+								if (!(pCompatTypes instanceof List) || !pCompatTypes.elements.length)
+									return Promise.reject(new Error(`UnitValue with unit ${this.unit.toString()} is not compatible with target type ${target}. Primary unit ${primaryUnit.distinctName} has no conversion rules.`));
+								const p1 = UnitValue.tryComplexConversion(primeUV, primaryUnit.distinctName, pCompatTypes.elements);
+								if (p1)
+									return p1.convertTo(ctx, target);
+								else
+									return Promise.reject(new Error(`UnitValue with unit ${this.unit.toString()} is not compatible with target type ${target}. No way to convert ${primeUV.unit.toString()} to ${primaryUnit.distinctName}.`));
+							});
+						});
 					});
-				});
-				
-			}, this.toPrimaryUnits(ctx));
+
+				}, this.toPrimaryUnits(ctx));
+			});
 		});
 	}
 	

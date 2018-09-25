@@ -11,7 +11,7 @@ import NotFoundError from './NotFoundError';
 export default class DbRef extends JelType implements IDbRef {
 	distinctName: string;
 	cached: DbEntry | undefined | null;    // stores null for entries that have not been found, undefined if the existance is unknown
-	isIDBRef = true;
+	isIDBRef: boolean = true;
 	
 	constructor(distinctNameOrEntry: string | DbEntry, public parameters?: Map<string, any>) {
 		super();
@@ -150,6 +150,5 @@ export default class DbRef extends JelType implements IDbRef {
 		return new DbRef(args[0], args[1]);
 	}
 }
-
 
 

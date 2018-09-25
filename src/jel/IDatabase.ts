@@ -2,6 +2,7 @@ import Context from './Context';
 
 
 export interface IDbEntry {
+	isDBEntry: boolean;
 	distinctName: string;
 	member(ctx: Context, name: string, parameters?: Map<string, any>): any;
 	withMember<T>(ctx: Context, name: string, f: (value: any)=>T): T | Promise<T>;
