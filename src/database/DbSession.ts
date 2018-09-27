@@ -46,6 +46,14 @@ export default class DbSession implements IDbSession {
     return this.getFromDatabase(distinctName);
   }
 
+  getMember(distinctName: string, property: string): Promise<any> | any {
+		const o = this.get(distinctName);
+		if (o instanceof Promise)
+			return o.then(p=>p.member(this.ctx, property));
+		else
+			return o.member(this.ctx, property);
+  }
+	
 	with<T>(distinctName: string, f: (o: DbEntry)=>T): Promise<T> | T {
     const cachedEntry = this.getFromCache(distinctName);
     if (cachedEntry != null)

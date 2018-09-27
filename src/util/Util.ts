@@ -152,26 +152,25 @@ export default class Util {
 	/**
 	 * Process a series of functions on an array, while making sure that any Promises in the array have been
 	 * resolved before calling the next function. 
-	 * It takes the input array, waits for any promise in the array to resolve and replaces the promise with the
+	 * It takes the input array, waits for any promise in the array to resolve, replaces the promise with the
 	 * actual value, and then calls the first processor with on all values that are not undefined. The return values of
-	 * the first processor will be put into an array.
+	 * the first processor will be put into an array. If the processor returns undefined, the entry will not be added to the result array.
+	 * If the processor returns an array, all elements will be put into the result array.
 	 * The resulting array will then be used as input for the second function,  then it runs the third function and so on,
 	 * until either all functions have been executed, or the array becomes empty. 
 	 * The function returns either an array of the last function's return values (if no Promises were in any array), or
 	 * a promise to such an array.
 	 */
-	private static promisePipeline(inputArray: any[], ...processors: ((input: any)=>any)[]): any[] | Promise<any[]> {
+	static promisePipeline(inputArray: any[], ...processors: ((input: any)=>any)[]): any[] | Promise<any[]> {
 		function processStep(inputArray: any[], processor: (input: any)=>any): any[] | Promise<any[]> {
 			if (inputArray.find(v=>v instanceof Promise))
-				return Promise.all(inputArray).then(na=>na.map(processor));
+				return Promise.all(inputArray).then(na=>Util.collect(na, processor));
 			else
-				return inputArray.map(processor);
+				return Util.collect(inputArray, processor);
 		}
 		
 		let a = inputArray;
-		return Util.processPromiseList(processors.concat((x: any)=>x), proc=>processStep(a, proc), newA=>{
-			a = newA.filter((e: any)=>e!==undefined);
-		});
+		return Util.processPromiseList(processors.concat((x: any)=>x), proc=>processStep(a, proc), newA=>{a = newA; return;}, x=>a);
 	}
 
 	static catchValue(value: any, f: (e: any)=>any): any {

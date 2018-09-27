@@ -267,33 +267,31 @@ export default class UnitValue extends JelType {
 				}, Array.from(catNames).map(u=>ctx.getSession().get(u)));
 			}, unitEntries.map(u=>u.member(ctx, 'isPrimaryUnit')));
 		}, unitNames.map(u=>ctx.getSession().get(u)));
-
 	}
 	
 	private trySimplification(ctx: Context, uv: UnitValue): UnitValue | Promise<UnitValue|undefined> |  undefined {
 		const unitNames: string[] = Array.from(uv.unit.units.keys());
 		return Util.resolveArray((unitEntries: IDbEntry[])=>{
-			const possibleUnits: Set<string> = new Set(Util.collect(unitEntries, e=> {
+			const possibleUnits: string[] = Util.collect(unitEntries, e=> {
 				const usedBy: any = e.member(ctx, 'usedBy');
 				if (usedBy instanceof List)
 					return usedBy.elements.map(e=>e.distinctName);
 				else if (usedBy)
 					return Promise.reject(new Error(`Broken usedBy property in ${e.distinctName}, should be List.`));
-			}));
+			});
 			
-			return Util.resolveArray((unitEntries: IDbEntry[])=>{
+			return Util.resolveArray((unitEntries: any[])=>{
 				for (let u of unitEntries) {
-					const conversions: any = u.member(ctx, 'createFrom');
-					if (conversions instanceof List)
-						for (let conv of conversions.elements) {
+					if (u.createFrom instanceof List)
+						for (let conv of u.createFrom.elements) {
 							if (conv.equals(uv.unit))
 								return new UnitValue(uv.value, new Unit(u.distinctName));
 						}
-					else if (conversions)
-						return Promise.reject(new Error(`Broken createFrom property in ${u.distinctName}, should be List. Value: \n${conversions}`));
+					else if (u.createFrom)
+						return Promise.reject(new Error(`Broken createFrom property in ${u.distinctName}, should be List. Value: \n${u.createFrom}`));
 				}
-			}, Array.from(possibleUnits).map(u=>ctx.getSession().get(u)));
-		}, unitNames.map(u=>ctx.getSession().get(u)));
+			}, Array.from(new Set(possibleUnits)).map(possibleUnit=>Util.resolveValue(createFrom=>({createFrom, distinctName: possibleUnit}), ctx.getSession().getMember(possibleUnit, 'createFrom'))));
+		}, unitNames.map(unitName=>ctx.getSession().get(unitName)));
 	}
 	
 	// attempts to simplify the UnitValue to the simplest possible type

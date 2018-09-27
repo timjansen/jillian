@@ -24,8 +24,12 @@ export interface IDbRef {
 
 export interface IDbSession {
 	createDbRef(distinctName: string, parameters?: Map<string, any>): any;
+
 	get(distinctName: string): IDbEntry | Promise<IDbEntry>;
+  getMember(distinctName: string, property: string): Promise<any> | any;
+
 	with<T>(distinctName: string, f: (obj: IDbEntry)=>T): Promise<T> | T;
+	withMember<T>(distinctName: string, name: string, f: (v: any)=>T): Promise<T> | T;
 }
 	
 /**
