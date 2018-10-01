@@ -42,7 +42,7 @@ export default class Call extends JelNode {
     const args = this.argList.map(a=>a.execute(ctx));
     const argObjValues = this.namedArgs.map(a=>a.execute(ctx));
 
-    return resolveValueObj(objArgs=>Util.resolveArray((listArgs: any[])=>callable.invokeWithObject(ctx, listArgs, objArgs), args), this.namedArgs, argObjValues);
+    return resolveValueObj(objArgs=>Util.resolveArray(args, (listArgs: any[])=>callable.invokeWithObject(ctx, listArgs, objArgs)), this.namedArgs, argObjValues);
   }
   
   private callLeft(ctx: Context, left: JelNode): any {
@@ -60,7 +60,7 @@ export default class Call extends JelNode {
   
   // override
   execute(ctx: Context): any {
-    return Util.resolveValue(v=>this.callLeft(ctx, v), this.left.execute(ctx));
+    return Util.resolveValue(this.left.execute(ctx), v=>this.callLeft(ctx, v));
   }
   
   // overrride

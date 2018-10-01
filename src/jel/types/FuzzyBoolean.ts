@@ -200,11 +200,11 @@ export default class FuzzyBoolean extends JelType {
 	}
 
 	static andWithPromises(...args: (FuzzyBoolean | Promise<FuzzyBoolean>)[]): FuzzyBoolean | Promise<FuzzyBoolean> {
-			return Util.resolveArray(args=>FuzzyBoolean.and(new Context(), ...args), args);
+			return Util.resolveArray(args, args=>FuzzyBoolean.and(new Context(), ...args));
 	}
 
 	static orWithPromises(...args: (FuzzyBoolean | Promise<FuzzyBoolean>)[]): FuzzyBoolean | Promise<FuzzyBoolean> {
-			return Util.resolveArray(args=>FuzzyBoolean.or(new Context(), ...args), args);
+			return Util.resolveArray(args, args=>FuzzyBoolean.or(new Context(), ...args));
 	}
 
 	

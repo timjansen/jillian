@@ -51,7 +51,7 @@ export default class Category extends DbEntry {
 	member(ctx: Context, name: string, parameters?: Map<string, any>): any {
 		const v = super.member(ctx, name, parameters);
 		if (v === undefined && this.superCategory)
-			return Util.resolveValue((c: any)=>c.member(ctx, name, parameters), this.superCategory.get(ctx));
+			return Util.resolveValue(this.superCategory.get(ctx), (c: any)=>c.member(ctx, name, parameters));
 		else
 			return v;
 	}
@@ -61,7 +61,7 @@ export default class Category extends DbEntry {
 			return this.instanceDefaults.elements.get(name);
 		}
 		else if (this.superCategory)
-			return Util.resolveValue((c: any)=>c.instanceDefault(ctx, name, parameters), this.superCategory.get(ctx));
+			return Util.resolveValue(this.superCategory.get(ctx), (c: any)=>c.instanceDefault(ctx, name, parameters));
 		else
 			return null;
 	}
@@ -70,7 +70,7 @@ export default class Category extends DbEntry {
 		if (this.instanceProperties.elements.has(name))
 			return this.instanceProperties.elements.get(name);
 		else if (this.superCategory)
-			return Util.resolveValue((c: any)=>c.instanceProperty(ctx, name), this.superCategory.get(ctx));
+			return Util.resolveValue(this.superCategory.get(ctx), (c: any)=>c.instanceProperty(ctx, name));
 		else
 			return null;
 	}

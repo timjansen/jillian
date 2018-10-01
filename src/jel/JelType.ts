@@ -141,7 +141,7 @@ export default class JelType {
 	}
 
 	static singleOpWithPromise(ctx: Context, operator: string, left: any | Promise<any>): any | Promise<any> {
-		return Util.resolveValue((left: any)=>JelType.singleOp(ctx, operator, left), left);
+		return Util.resolveValue(left, (left: any)=>JelType.singleOp(ctx, operator, left));
 	}
 	
 	static toRealBoolean(obj: any): boolean {
@@ -156,7 +156,7 @@ export default class JelType {
 	}
 
 	static toNumberWithPromise(n: any | Promise<any>): number | Promise<number> {
-		return Util.resolveValue(JelType.toNumber, n);
+		return Util.resolveValue(n, JelType.toNumber);
 	}
 	
 	static member(ctx: Context, obj: any, name: string, parameters?: Map<string, any>): any {

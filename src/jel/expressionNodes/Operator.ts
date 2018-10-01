@@ -50,7 +50,7 @@ export default class Operator extends JelNode {
   }
 
   private evaluateLeftFirstOp(ctx: Context): any {
-    return Util.resolveValue(left=>this.leftFirstOps(ctx, left), this.left.execute(ctx));
+    return Util.resolveValue(this.left.execute(ctx), left=>this.leftFirstOps(ctx, left));
   }
   
   private leftFirstOps(ctx: Context, left: JelNode): any {

@@ -69,10 +69,10 @@ export default class UnitValue extends JelType {
 					case '<':
 					case '<=':
 					case '>=':
-						return Util.resolveValueAndError(converted => JelType.op(ctx, operator, converted, right), ()=>FuzzyBoolean.toFuzzyBoolean(operator == '!=' || operator == '!=='), this.convertTo(ctx, right.unit));
+						return Util.resolveValueAndError(this.convertTo(ctx, right.unit), converted => JelType.op(ctx, operator, converted, right), ()=>FuzzyBoolean.toFuzzyBoolean(operator == '!=' || operator == '!=='));
 					case '+':
 					case '-':
-						return Util.resolveValueAndError(converted => JelType.op(ctx, operator, converted, right), ()=>Promise.reject(new Error(`Can not apply`)), this.convertTo(ctx, right.unit));
+						return Util.resolveValueAndError(this.convertTo(ctx, right.unit), converted => JelType.op(ctx, operator, converted, right), ()=>Promise.reject(new Error(`Can not apply`)));
 				}
 			}
 		}
@@ -135,11 +135,11 @@ export default class UnitValue extends JelType {
 				if (f) {
 					if (!(f instanceof Callable))
 						return Promise.reject(new Error(`Broken configuration in ${simpleUnit.distinctName}.convertsTo.${target}: should be Callable, but is ${f}.`));
-					return Util.resolveValue(v=>new UnitValue(v, target), f.invoke(ctx, this.value));
+					return Util.resolveValue(f.invoke(ctx, this.value), v=>new UnitValue(v, target));
 				}
 				const factor: number | Fraction = conversionObj.elements.get('factor');
 				if (factor)
-					return Util.resolveValue(v=>new UnitValue(v, target), JelType.op(ctx, '*', factor, this.value));
+					return Util.resolveValue(JelType.op(ctx, '*', factor, this.value), v=>new UnitValue(v, target));
 				else
 					return Promise.reject(new Error("Can not convert from "+simpleUnit.distinctName+" to type " + target+": neither factor not function set."));
 			}
@@ -159,7 +159,7 @@ export default class UnitValue extends JelType {
 							return primaryUnit.withMember(ctx, 'isPrimaryUnit', (isPrimaryUnit: any) => {
 								if (!JelType.toRealBoolean(isPrimaryUnit))
 									return Promise.reject(new Error(`Unit ${qc.distinctName} defines ${primaryUnit.distinctName} as primary unit, but isPrimaryUnit is not set to true.`));
-								return Util.resolveValue(p=>p.convertSimpleTo(ctx, target, false), this.convertSimpleTo(ctx, primaryUnit.distinctName, true));
+								return Util.resolveValue(this.convertSimpleTo(ctx, primaryUnit.distinctName, true), p=>p.convertSimpleTo(ctx, target, false));
 							});
 						});
 					});
@@ -183,7 +183,7 @@ export default class UnitValue extends JelType {
 						return a1;
 				}
 
-				return Util.resolveValue((primeUV: UnitValue) =>{
+				return Util.resolveValue(this.toPrimaryUnits(ctx), (primeUV: UnitValue) =>{
 					// attempt 2: convert this to primary units, and then try to convert to target
 					if (compatTypes instanceof List && compatTypes.elements.length) {
 						const a2 = UnitValue.tryComplexConversion(primeUV, target, compatTypes.elements);
@@ -215,7 +215,7 @@ export default class UnitValue extends JelType {
 						});
 					});
 
-				}, this.toPrimaryUnits(ctx));
+				});
 			});
 		});
 	}
@@ -228,15 +228,15 @@ export default class UnitValue extends JelType {
 		const unitNames: string[] = Array.from(this.unit.units.keys());
 		const categories: Map<string, IDbEntry> = new Map();
 		
-		return Util.resolveArray((unitEntries: IDbEntry[])=>{
-			return Util.resolveArray((unitEntryFilter: any[]) => {
+		return Util.resolveArray(unitNames.map(u=>ctx.getSession().get(u)), (unitEntries: IDbEntry[])=>{
+			return Util.resolveArray(unitEntries.map(u=>u.member(ctx, 'isPrimaryUnit')), (unitEntryFilter: any[]) => {
 				const nonPrimaryUnits: IDbEntry[] = unitEntries.filter((u, i)=>!JelType.toRealBoolean(unitEntryFilter[i]));
 				if (!nonPrimaryUnits.length)
 					return this;
 
 				const catNames: Set<string> = new Set(nonPrimaryUnits.map(u=>u.member(ctx, 'quantityCategory').distinctName));		
 
-				return Util.resolveArray((cats: IDbEntry[])=>{
+				return Util.resolveArray(Array.from(catNames).map(u=>ctx.getSession().get(u)), (cats: IDbEntry[])=>{
 					cats.forEach((u: IDbEntry)=>categories.set(u.distinctName, u));
 					nonPrimaryUnits.forEach(u=> {
 						const qCatName: string = u.member(ctx, 'quantityCategory').distinctName;
@@ -264,14 +264,16 @@ export default class UnitValue extends JelType {
 						}
 					});
 					return uv;
-				}, Array.from(catNames).map(u=>ctx.getSession().get(u)));
-			}, unitEntries.map(u=>u.member(ctx, 'isPrimaryUnit')));
-		}, unitNames.map(u=>ctx.getSession().get(u)));
+				});
+			});
+		});
 	}
 	
 	private trySimplification(ctx: Context, uv: UnitValue): UnitValue | Promise<UnitValue|undefined> |  undefined {
 		const unitNames: string[] = Array.from(uv.unit.units.keys());
-		return Util.resolveArray((unitEntries: any[])=>{
+		return Util.resolveArray(unitNames.map(distinctName=>Util.resolveValue(ctx.getSession().getMember(distinctName, 'usedBy'), 
+																																					 usedBy=>({distinctName, usedBy}))), 
+			(unitEntries: any[])=>{
 			const possibleUnits: string[] = Util.collect(unitEntries, e=> {
 				const usedBy: any = e.usedBy;
 				if (usedBy instanceof List)
@@ -280,7 +282,9 @@ export default class UnitValue extends JelType {
 					throw new Error(`Broken usedBy property in ${e.distinctName}, should be List.`);
 			});
 			
-			return Util.resolveArray((unitEntries: any[])=>{
+			return Util.resolveArray(Array.from(new Set(possibleUnits)).map(possibleUnit=>Util.resolveValue(ctx.getSession().getMember(possibleUnit, 'createFrom'), 
+																																																			createFrom=>({createFrom, distinctName: possibleUnit}))), 
+				(unitEntries: any[])=>{
 				for (let u of unitEntries) {
 					if (u.createFrom instanceof List)
 						for (let conv of u.createFrom.elements) {
@@ -290,8 +294,8 @@ export default class UnitValue extends JelType {
 					else if (u.createFrom)
 						return Promise.reject(new Error(`Broken createFrom property in ${u.distinctName}, should be List. Value: \n${u.createFrom}`));
 				}
-			}, Array.from(new Set(possibleUnits)).map(possibleUnit=>Util.resolveValue(createFrom=>({createFrom, distinctName: possibleUnit}), ctx.getSession().getMember(possibleUnit, 'createFrom'))));
-		}, unitNames.map(distinctName=>Util.resolveValue(usedBy=>({distinctName, usedBy}), ctx.getSession().getMember(distinctName, 'usedBy'))));
+			});
+		});
 	}
 	
 	// attempts to simplify the UnitValue to the simplest possible type
@@ -299,7 +303,7 @@ export default class UnitValue extends JelType {
 	simplify(ctx: Context): UnitValue | Promise<UnitValue> {
 		if (this.unit.isSimple().toRealBoolean())
 			return this;
-		return Util.resolveValue(t1=>t1 || Util.resolveValue(t2=>t2 || this, Util.resolveValue(t3=>this.trySimplification(ctx, t3), this.toPrimaryUnits(ctx))), this.trySimplification(ctx, this));
+		return Util.resolveValue(this.trySimplification(ctx, this), t1=>t1 || Util.resolveValue(Util.resolveValue(this.toPrimaryUnits(ctx), t3=>this.trySimplification(ctx, t3)), t2=>t2 || this));
 	}
 	
 	round_jel_mapping: Object;

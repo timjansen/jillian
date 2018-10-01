@@ -176,7 +176,7 @@ export default class Distribution extends JelType {
 							return FuzzyBoolean.TRUE;
 						if (inOp.toRealBoolean())
 							return FuzzyBoolean.FALSE;
-						return Util.resolveValue((meanCmp: FuzzyBoolean)=>FuzzyBoolean.create(ctx, (meanCmp.state-0.5)/2+0.5), JelType.op(ctx, operator, this.mean(ctx), right.mean(ctx)));
+						return Util.resolveValue(JelType.op(ctx, operator, this.mean(ctx), right.mean(ctx)), (meanCmp: FuzzyBoolean)=>FuzzyBoolean.create(ctx, (meanCmp.state-0.5)/2+0.5));
 					}, JelType.op(ctx, operator, this.min(ctx), right.max(ctx)), JelType.op(ctx, INVERSE_OP[operator], this.min(ctx), right.max(ctx)));
 					
 				case '<':
@@ -186,7 +186,7 @@ export default class Distribution extends JelType {
 							return FuzzyBoolean.TRUE;
 						if (inOp.toRealBoolean())
 							return FuzzyBoolean.FALSE;
-						return Util.resolveValue((meanCmp: FuzzyBoolean)=>FuzzyBoolean.create(ctx, (meanCmp.state-0.5)/2+0.5), JelType.op(ctx, operator, this.mean(ctx), right.mean(ctx)));
+						return Util.resolveValue(JelType.op(ctx, operator, this.mean(ctx), right.mean(ctx)), (meanCmp: FuzzyBoolean)=>FuzzyBoolean.create(ctx, (meanCmp.state-0.5)/2+0.5));
 					}, JelType.op(ctx, operator, this.max(ctx), right.min(ctx)), JelType.op(ctx, INVERSE_OP[operator], this.max(ctx), right.min(ctx)));
 			}
 		}

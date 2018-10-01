@@ -18,7 +18,7 @@ export default class Condition extends JelNode {
   
   // override
   execute(ctx: Context): any {
-    return Util.resolveValue(v=>this.runOnValue(ctx, v), this.condition.execute(ctx));
+    return Util.resolveValue(this.condition.execute(ctx), v=>this.runOnValue(ctx, v));
   }
   
   // override

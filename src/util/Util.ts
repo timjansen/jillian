@@ -76,14 +76,14 @@ export default class Util {
 		return r;
 	}
 	
-	static resolveValue(f: (e: any)=>any, value: any): any {
+	static resolveValue(value: any, f: (e: any)=>any): any {
 		if (value instanceof Promise)
 			return value.then(f);
 		else
 			return f(value);
 	}
 
-	static resolveValueAndError(f: (e: any)=>any, err: any, value: any): any {
+	static resolveValueAndError(value: any, f: (e: any)=>any, err: any): any {
 		if (value instanceof Promise)
 			return value.then(f, err);
 		else 
@@ -115,7 +115,7 @@ export default class Util {
 			}
 	}
 
-	static resolveArray(f: (array: any[])=>any, arr: any[]): any {
+	static resolveArray(arr: any[], f: (a: any[])=>any): any {
 		if (arr.find(v=>v instanceof Promise))
 			return Promise.all(arr).then(f);
 		else  
@@ -164,7 +164,7 @@ export default class Util {
 		}
 		
 		if (resultGenerator)
-			return Util.resolveValue(resultGenerator, exec());
+			return Util.resolveValue(exec(), resultGenerator);
 		else
 			return exec();
 	}

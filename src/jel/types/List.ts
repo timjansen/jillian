@@ -192,7 +192,7 @@ export default class List extends JelType implements Gettable {
 			}
 			return l;
 		}
-		return Util.resolveValue(l=>new List(l), exec());
+		return Util.resolveValue(exec(), l=>new List(l));
 	}
 	
 	sub_jel_mapping: Object;
@@ -290,7 +290,7 @@ export default class List extends JelType implements Gettable {
 		else
 			r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>List.toPromisedRealBoolean(JelType.op(ctx, '<', a0, b0)));
 
-		return Util.resolveValue(()=>new List(l), r);
+		return Util.resolveValue(r, ()=>new List(l));
 	}
 
 	private findBest(isBetter: (a: any, b: any)=>FuzzyBoolean|Promise<FuzzyBoolean>, inverse: boolean): any {

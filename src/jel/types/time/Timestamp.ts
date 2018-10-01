@@ -59,7 +59,7 @@ export default class Timestamp extends TimeSpec {
 			}
 		}
 		else if (right instanceof UnitValue) {
-			return Util.resolveValue((v: any)=> {
+			return Util.resolveValue(right.convertTo(ctx, 'Millisecond'), (v: any)=> {
 				switch (operator) {
 					case '+':
 						return new Timestamp(this.msSinceEpoch + v.value, this.precisionInMs);
@@ -67,7 +67,7 @@ export default class Timestamp extends TimeSpec {
 						return new Timestamp(this.msSinceEpoch - v.value, this.precisionInMs);
 				}
 				return super.op(ctx, operator, right);
-			}, right.convertTo(ctx, 'Millisecond'));
+			});
 		}
 		return super.op(ctx, operator, right);
 	}
