@@ -271,13 +271,13 @@ export default class UnitValue extends JelType {
 	
 	private trySimplification(ctx: Context, uv: UnitValue): UnitValue | Promise<UnitValue|undefined> |  undefined {
 		const unitNames: string[] = Array.from(uv.unit.units.keys());
-		return Util.resolveArray((unitEntries: IDbEntry[])=>{
+		return Util.resolveArray((unitEntries: any[])=>{
 			const possibleUnits: string[] = Util.collect(unitEntries, e=> {
-				const usedBy: any = e.member(ctx, 'usedBy');
+				const usedBy: any = e.usedBy;
 				if (usedBy instanceof List)
 					return usedBy.elements.map(e=>e.distinctName);
 				else if (usedBy)
-					return Promise.reject(new Error(`Broken usedBy property in ${e.distinctName}, should be List.`));
+					throw new Error(`Broken usedBy property in ${e.distinctName}, should be List.`);
 			});
 			
 			return Util.resolveArray((unitEntries: any[])=>{
@@ -291,7 +291,7 @@ export default class UnitValue extends JelType {
 						return Promise.reject(new Error(`Broken createFrom property in ${u.distinctName}, should be List. Value: \n${u.createFrom}`));
 				}
 			}, Array.from(new Set(possibleUnits)).map(possibleUnit=>Util.resolveValue(createFrom=>({createFrom, distinctName: possibleUnit}), ctx.getSession().getMember(possibleUnit, 'createFrom'))));
-		}, unitNames.map(unitName=>ctx.getSession().get(unitName)));
+		}, unitNames.map(distinctName=>Util.resolveValue(usedBy=>({distinctName, usedBy}), ctx.getSession().getMember(distinctName, 'usedBy'))));
 	}
 	
 	// attempts to simplify the UnitValue to the simplest possible type

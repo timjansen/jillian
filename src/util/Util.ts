@@ -86,25 +86,45 @@ export default class Util {
 	static resolveValueAndError(f: (e: any)=>any, err: any, value: any): any {
 		if (value instanceof Promise)
 			return value.then(f, err);
-		else
-			return f(value);
+		else 
+			try {
+				return f(value);
+			}
+			catch (e) {
+				return Promise.reject(e);
+			}
 	}
 
 	static resolveValues(f: Function, ...values: any[]): any {
-		if (!values.length)
-			return f();
+		if (!values.length) 
+			try {
+				return f();
+			}
+			catch (e) {
+				return Promise.reject(e);
+			}
 		
 		if (values.find(v=>v instanceof Promise))
 			return Promise.all(values).then(v=>f(...v));
-		else 
-			return f(...values);
+		else  
+			try {
+				return f(...values);
+			}
+			catch (e) {
+				return Promise.reject(e);
+			}
 	}
 
 	static resolveArray(f: (array: any[])=>any, arr: any[]): any {
 		if (arr.find(v=>v instanceof Promise))
 			return Promise.all(arr).then(f);
-		else 
-			return f(arr);
+		else  
+			try {
+				return f(arr);
+			}
+			catch (e) {
+				return Promise.reject(e);
+			}
 	}
 	
 	/**

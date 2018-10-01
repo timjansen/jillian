@@ -329,10 +329,10 @@ describe('JEL', function() {
       A.add2_jel_mapping = 'named';
      
       assert.equal(new JEL('A.add2()').executeImmediately(new Context().setAll({A})), 573);
-      assert.throws(()=>new JEL('A.add2(1, 2, 3)').executeImmediately(new Context().setAll({A})));
       assert.equal(new JEL('A.add2(a=1, b=2, c=3)').executeImmediately(new Context().setAll({A})), 321);
       assert.equal(new JEL('A.add2(c=7)').executeImmediately(new Context().setAll({A})), 773);
       assert.equal(new JEL('A.add2(c=7, a=5)').executeImmediately(new Context().setAll({A})), 775);
+      return new JEL('A.add2(1, 2, 3)').execute(new Context().setAll({A})).then(()=>assert.fail('Should get error'), ()=>1);
    });
 
     
