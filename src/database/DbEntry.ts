@@ -12,7 +12,7 @@ const tifu = require('tifuhash');
 // Base class for any kind of physical or immaterial instance of a category
 // Note that all references to other DbEntrys must be stored as a DbRef!!
 export default class DbEntry extends JelType implements IDbEntry {
-  isDBEntry: boolean;
+  isIDBEntry: boolean;
 	
   constructor(public distinctName: string, public reality: any, 
 							 public hashCode: string = tifu.hash(distinctName), 
@@ -60,5 +60,5 @@ export default class DbEntry extends JelType implements IDbEntry {
   }
 }
 
-DbEntry.prototype.isDBEntry = true;
+DbEntry.prototype.isIDBEntry = true;
 

@@ -158,6 +158,7 @@ export default class JelType {
 	static toNumberWithPromise(n: any | Promise<any>): number | Promise<number> {
 		return Util.resolveValue(n, JelType.toNumber);
 	}
+
 	
 	static member(ctx: Context, obj: any, name: string, parameters?: Map<string, any>): any {
 		const isClass = JelType.isPrototypeOf(obj);

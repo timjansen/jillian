@@ -94,7 +94,7 @@ export default class DbRef extends JelType implements IDbRef {
 
 	// Returns the member value with the given name, possibly wrapped in a Promise
 	member(ctx: Context, name: string, parameters?: Map<string, any>): Promise<any> | any {
-		return this.with(ctx, o=>this.memberInternal(ctx, o, name, parameters));
+		return this.with(ctx, (o: DbEntry) =>this.memberInternal(ctx, o, name, parameters));
 	}
 	
 	op(ctx: Context, operator: string, right: any): any {
