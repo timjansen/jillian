@@ -4,6 +4,7 @@ export const enum TokenType {
 	Literal,
 	Identifier,
 	Pattern,
+	Fraction,
 		
 	Word = 20,
 	Template,
@@ -33,6 +34,12 @@ export class RegExpToken extends Token {
 	
 	get name() {
 		return this.value;
+	}
+}
+
+export class FractionToken extends Token {
+	constructor(line: number, column: number, public numerator: number, public denominator: number) {
+		super(line, column, TokenType.Fraction, numerator/denominator);
 	}
 }
 

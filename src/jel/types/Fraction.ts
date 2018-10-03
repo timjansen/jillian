@@ -25,6 +25,10 @@ export default class Fraction extends JelType {
 			throw Error("Denominator in Fraction must not be 0");
 	}
 	
+	equals(other: Fraction): boolean {
+		return this.numerator === other.numerator && this.denominator === other.denominator;
+	}
+	
 	op(ctx: Context, operator: string, right: any): any {
 		if (typeof right == 'number') {
 			if (!Number.isInteger(right))
@@ -65,7 +69,14 @@ export default class Fraction extends JelType {
 					return new Fraction(l.numerator, l.denominator*right, l.mixed).simplify();
 					
 				case '^': 
-					return Math.pow(this.toNumber(), right);
+					if (Number.isInteger(right) && right > 0) 
+						return new Fraction(Math.pow(this.numerator, right), Math.pow(this.denominator, right)).simplify();
+					else if (right == 0)
+						return 1;
+					else if (right == -1)
+						return new Fraction(this.denominator, this.numerator).simplify();
+					else
+						return Math.pow(this.toNumber(), right);
 
 				default:
 					return JelType.op(ctx, operator, this.toNumber(), right);
@@ -163,6 +174,9 @@ export default class Fraction extends JelType {
 	
 	simplify_jel_mapping: Object;
 	simplify(): Fraction | number {
+		if (this.denominator == 1)
+			return this.numerator;
+		
 		const n = Fraction.gcd(this.numerator, this.denominator);
 		if (n == 1)
 			return this;

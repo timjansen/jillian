@@ -5,7 +5,7 @@ Tokenizes a JEL input string.
 
 import Util from '../util/Util';
 import TokenReader from './TokenReader';
-import {TokenType, Token, TemplateToken, RegExpToken} from './Token';
+import {TokenType, Token, TemplateToken, RegExpToken, FractionToken} from './Token';
 
 const wordOperators: any = {'instanceof': true, 'derivativeof': true, 'if': true, 'then': true, 'else': true, 'with': true, 'abs': true};
 const constants: any = {'null': null, 'true': true, 'false': false};
@@ -20,6 +20,8 @@ const patternRegexpRE = /^\s*(?:([a-zA-Z_$][\w_$]*):)?\s*((?:\/(?:\\.|[^\/])+\/\
 // to find regexps in the regexp patten
 const patternRegexpFinderRE = /\/(?:\\.|[^\/])+\//g;
 
+// to parse a fraction
+const fractionRE = /^(\d+)\s*\/\s*(\d+)$/;
 
 export default class Tokenizer {
 	static unescape(s: string): string {
@@ -27,15 +29,16 @@ export default class Tokenizer {
 	}
 	
   static tokenize(input: string): TokenReader {
-    //          line comment   full comment                 Number                        Operator                                                                                      Identifier-like     pattern           single-quoted    double-quoted        illegal
-    const re = /\/\/.*(?:\n|$)|\/\*(?:[^\*]+|\*+[^\/])*\*\/|(\d+(?:\.\d+)?(?:e[+-]?\d+)?)|([\(\)\[\]:\.,\+\*\/^%@]|-|\$\{|\{|\}|=>|===|==|=|<<=|>>=|>=|<=|>>|<<|>|<|!==|!=|!|\|\||\&\&)|([a-zA-Z_$][\w_$]*)|(`(?:\\.|[^`])*`)|('(?:\\.|[^'])*'|"(?:\\.|[^"])*")|\s+|(.+)/g;
+    //          line comment   full comment                | Fraction                       |Number                        Operator                                                                                           Identifier-like     pattern           single-quoted    double-quoted        illegal
+    const re = /\/\/.*(?:\n|$)|\/\*(?:[^\*]+|\*+[^\/])*\*\/|(\d+\s*\/\s*[1-9]\d*(?![e.0-9]))|(\d+(?:\.\d+)?(?:e[+-]?\d+)?)|([\(\)\[\]:\.,\*\/^%@]|\+-|\+|-|\$\{|\{|\}|=>|===|==|=|<<=|>>=|>=|<=|>>|<<|>|<|!==|!=|!|\|\||\&\&)|([a-zA-Z_$][\w_$]*)|(`(?:\\.|[^`])*`)|('(?:\\.|[^'])*'|"(?:\\.|[^"])*")|\s+|(.+)/g;
     // groups:
-    // group 1: number
-    // group 2: operator
-    // group 3: identifier
-    // group 4: pattern
-    // group 5: quoted string
-    // group 6: illegal char
+    // group 1: fraction
+    // group 2: number
+    // group 3: operator
+    // group 5: identifier
+    // group 5: pattern
+    // group 6: quoted string
+    // group 7: illegal char
     
 		const lineNumbers: number[] = [];
 		let pos = -1;
@@ -55,22 +58,28 @@ export default class Tokenizer {
 				line++;
 			const col = index - ((line > 1) ? lineNumbers[line-2] : -1);
 			
-      if (matches[2])
-        tokens.push(new Token(line, col, TokenType.Operator, matches[2]));
-      else if (matches[3] && matches[3] in constants)
-        tokens.push(new Token(line, col, TokenType.Literal, constants[matches[3]]));
-      else if (matches[3] && matches[3] in wordOperators)
+      if (matches[3])
         tokens.push(new Token(line, col, TokenType.Operator, matches[3]));
-      else if (matches[3])
-        tokens.push(new Token(line, col, TokenType.Identifier, matches[3])); 
-      else if (matches[1])
-        tokens.push(new Token(line, col, TokenType.Literal, parseFloat(matches[1])));
+      else if (matches[4] && matches[4] in constants)
+        tokens.push(new Token(line, col, TokenType.Literal, constants[matches[4]]));
+      else if (matches[4] && matches[4] in wordOperators)
+        tokens.push(new Token(line, col, TokenType.Operator, matches[4]));
       else if (matches[4])
-        tokens.push(new Token(line, col, TokenType.Pattern, Tokenizer.unescape(matches[4].replace(/^.|.$/g, ''))));
+        tokens.push(new Token(line, col, TokenType.Identifier, matches[4])); 
+      else if (matches[2])
+        tokens.push(new Token(line, col, TokenType.Literal, parseFloat(matches[2])));
       else if (matches[5])
-        tokens.push(new Token(line, col, TokenType.Literal, Tokenizer.unescape(matches[5].replace(/^.|.$/g, ''))));
+        tokens.push(new Token(line, col, TokenType.Pattern, Tokenizer.unescape(matches[5].replace(/^.|.$/g, ''))));
       else if (matches[6])
-        throw new Error(`Unsupported token found at line ${line}, column ${col}: "${matches[6]}"`);
+        tokens.push(new Token(line, col, TokenType.Literal, Tokenizer.unescape(matches[6].replace(/^.|.$/g, ''))));
+      else if (matches[7])
+        throw new Error(`Unsupported token found at line ${line}, column ${col}: "${matches[7]}"`);
+      else if (matches[1]) {
+				const fractionMatch = fractionRE.exec(matches[1]);
+				if (!fractionMatch)
+					throw new Error(`Unsupported token found at line ${line}, column ${col}: "${matches[1]}"`);
+        tokens.push(new FractionToken(line, col, parseInt(fractionMatch[1]), parseInt(fractionMatch[2])));
+			}
     }
 		if (tokensLeft < 1)
 			throw new Error('Input too large for tokenizer');

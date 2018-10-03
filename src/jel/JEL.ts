@@ -4,7 +4,7 @@
 
 import Util from '../util/Util';
 import Tokenizer from './Tokenizer';
-import {Token, TokenType, TemplateToken, RegExpToken} from './Token';
+import {Token, TokenType, TemplateToken, RegExpToken, FractionToken} from './Token';
 import TokenReader from './TokenReader';
 import Context from './Context';
 import JelType from './JelType';
@@ -12,6 +12,7 @@ import Pattern from './types/Pattern';
 import ParseError from './ParseError';
 import JelNode from './expressionNodes/JelNode';
 import Literal from './expressionNodes/Literal';
+import Fraction from './expressionNodes/Fraction';
 import ExpressionPattern from './expressionNodes/Pattern';
 import Variable from './expressionNodes/Variable';
 import Operator from './expressionNodes/Operator';
@@ -123,6 +124,8 @@ export default class JEL {
     const token = JEL.nextOrThrow(tokens, "Unexpected end, expected another token");
     if (token.type == TokenType.Literal) 
       return JEL.tryBinaryOps(tokens, new Literal(token.value), precedence, stopOps);
+    if (token.type == TokenType.Fraction) 
+      return JEL.tryBinaryOps(tokens, new Fraction((token as FractionToken).numerator, (token as FractionToken).denominator), precedence, stopOps);
     if (token.type == TokenType.Identifier) {
       const lambda = JEL.tryLambda(tokens, token.value, precedence, stopOps);
       return JEL.tryBinaryOps(tokens, lambda || new Variable(token.value), precedence, stopOps);
@@ -136,6 +139,10 @@ export default class JEL {
         if ((token.value == '-' || token.value == '+') && tokens.peek() && tokens.peek().type == TokenType.Literal) {
           const number = tokens.next();
           return JEL.tryBinaryOps(tokens, new Literal(token.value == '-' ? -number.value : number.value), precedence, stopOps);
+        }
+        if ((token.value == '-' || token.value == '+') && tokens.peek() && tokens.peek().type == TokenType.Fraction) {
+          const number = tokens.next();
+					return JEL.tryBinaryOps(tokens, new Fraction((number as FractionToken).numerator * (token.value == '-' ? -1 : 1), (number as FractionToken).denominator), precedence, stopOps);
         }
         const operand = JEL.parseExpression(tokens, unOp, stopOps);
         return JEL.tryBinaryOps(tokens, new Operator(token.value, operand), precedence, stopOps);

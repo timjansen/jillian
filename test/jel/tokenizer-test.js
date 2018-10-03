@@ -3,7 +3,7 @@
 require('source-map-support').install();
 const assert = require('assert');
 const Tokenizer = require('../../build/jel/Tokenizer.js').default;
-const {Token, TokenType, RegExpToken, TemplateToken} = require('../../build/jel/Token.js');
+const {Token, TokenType, RegExpToken, TemplateToken, FractionToken} = require('../../build/jel/Token.js');
 
 describe('jelTokenizer', function() {
   describe('tokenize()', function() {
@@ -44,6 +44,12 @@ describe('jelTokenizer', function() {
 																																				new Token(1, 24, TokenType.Operator, '-'), new Token(1, 25, TokenType.Literal, 273.16)]);
     });
 
+	   it('should parse fractions', function() {
+      assert.deepEqual(Tokenizer.tokenize('1/2 3.0 / 4 5 / 4').tokens, [new FractionToken(1, 1, 1, 2), new Token(1, 5, TokenType.Literal, 3), new Token(1, 9, TokenType.Operator, '/'),
+																																			 new Token(1, 11, TokenType.Literal, 4), new FractionToken(1, 13, 5, 4)]);
+    });
+
+		
     it('should parse patterns', function() {
       assert.deepEqual(Tokenizer.tokenize('`test` `te\\nst`').tokens, [new Token(1, 1, TokenType.Pattern, 'test'), new Token(1, 8, TokenType.Pattern, 'te\nst')]);
     });

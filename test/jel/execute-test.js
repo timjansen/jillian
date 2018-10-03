@@ -10,6 +10,7 @@ const Context = require('../../build/jel/Context.js').default;
 const JelType = require('../../build/jel/JelType.js').default;
 const JelList = require('../../build/jel/types/List.js').default;
 const JelDictionary = require('../../build/jel/types/Dictionary.js').default;
+const Fraction = require('../../build/jel/types/Fraction.js').default;
 const JelNode = require('../../build/jel/expressionNodes/JelNode.js').default;
 const Literal = require('../../build/jel/expressionNodes/Literal.js').default;
 const Variable = require('../../build/jel/expressionNodes/Variable.js').default;
@@ -42,6 +43,13 @@ describe('JEL', function() {
       assert.equal(new JEL('null').executeImmediately(), null);
     });
 
+		it('should execute a simple fractions', function() {
+      jelAssert.equal('5/2', new Fraction(5, 2));
+      jelAssert.equal('+3/7', new Fraction(3, 7));
+      jelAssert.equal('-2/7', new Fraction(-2, 7));
+    });
+
+		
    it('should execute patterns', function() {
       assert.equal(new JEL('`a b c`').executeImmediately().toString(), 'Pattern(text=`a b c`)');
       assert.equal(new JEL('`a b c`.match("a  b c")').executeImmediately().state, 1);
@@ -56,7 +64,7 @@ describe('JEL', function() {
       assert.equal(new JEL('7^2').executeImmediately(), 49);
       assert.equal(new JEL('0.5^-1').executeImmediately(), 2);
       assert.equal(new JEL('!true').executeImmediately().state, 0);
-      assert.equal(new JEL('-(10/2)').executeImmediately(), -5);
+      assert.equal(new JEL('-(10/2.0)').executeImmediately(), -5);
       assert.equal(new JEL('"foo"+"bar"').executeImmediately(), "foobar");
       assert.equal(new JEL('5>5').executeImmediately().state, 0);
       assert.equal(new JEL('5<5').executeImmediately().state, 0);
