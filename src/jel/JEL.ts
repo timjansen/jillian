@@ -28,6 +28,7 @@ import With from './expressionNodes/With';
 import Lambda from './expressionNodes/Lambda';
 import Call from './expressionNodes/Call';
 import Get from './expressionNodes/Get';
+import UnitValue from './expressionNodes/UnitValue';
 
 const binaryOperators: any = { // op->precedence
   '.': 19,
@@ -114,13 +115,21 @@ export default class JEL {
 		JEL.throwParseException(tokens.last(), msg);
 		return undefined as any; // just to make Typescript happy
 	}
-  
+	 
   static parseExpression(tokens: TokenReader, precedence = 0, stopOps = NO_STOP): JelNode {
     const token = JEL.nextOrThrow(tokens, "Unexpected end, expected another token");
-    if (token.type == TokenType.Literal) 
-      return JEL.tryBinaryOps(tokens, new Literal(token.value), precedence, stopOps);
-    if (token.type == TokenType.Fraction) 
-      return JEL.tryBinaryOps(tokens, new Fraction((token as FractionToken).numerator, (token as FractionToken).denominator), precedence, stopOps);
+    if (token.type == TokenType.Literal) {
+			if (typeof token.value == 'number' && tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == '@')
+				return JEL.parseUnitValue(tokens, new Literal(token.value), precedence, stopOps);
+			else
+	      return JEL.tryBinaryOps(tokens, new Literal(token.value), precedence, stopOps);
+		}
+    if (token.type == TokenType.Fraction) {
+			if (tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == '@')
+				return JEL.parseUnitValue(tokens, new Fraction((token as FractionToken).numerator, (token as FractionToken).denominator), precedence, stopOps);
+			else
+	      return JEL.tryBinaryOps(tokens, new Fraction((token as FractionToken).numerator, (token as FractionToken).denominator), precedence, stopOps);
+		}
     if (token.type == TokenType.Identifier) {
       const lambda = JEL.tryLambda(tokens, token.value, precedence, stopOps);
       return JEL.tryBinaryOps(tokens, lambda || new Variable(token.value), precedence, stopOps);
@@ -131,14 +140,16 @@ export default class JEL {
     if (token.type == TokenType.Operator) {
       const unOp = unaryOperators[token.value];
       if (unOp) {
-        if ((token.value == '-' || token.value == '+') && tokens.peek() && tokens.peek().type == TokenType.Literal) {
-          const number = tokens.next();
-          return JEL.tryBinaryOps(tokens, new Literal(token.value == '-' ? -number.value : number.value), precedence, stopOps);
-        }
-        if ((token.value == '-' || token.value == '+') && tokens.peek() && tokens.peek().type == TokenType.Fraction) {
-          const number = tokens.next();
-					return JEL.tryBinaryOps(tokens, new Fraction((number as FractionToken).numerator * (token.value == '-' ? -1 : 1), (number as FractionToken).denominator), precedence, stopOps);
-        }
+        if ((token.value == '-' || token.value == '+') && tokens.hasNext() && ((tokens.peek().type == TokenType.Literal && typeof tokens.peek().value == 'number')  || tokens.peek().type == TokenType.Fraction)) {
+					const number = tokens.next();
+					const node = number.type == TokenType.Literal ? new Literal(token.value == '-' ? -number.value : number.value) : 
+						new Fraction((number as FractionToken).numerator * (token.value == '-' ? -1 : 1), (number as FractionToken).denominator);
+
+					if (tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == '@')
+						return JEL.parseUnitValue(tokens, node, precedence, stopOps);
+					else
+	      		return JEL.tryBinaryOps(tokens, node, precedence, stopOps);
+				}
         const operand = JEL.parseExpression(tokens, unOp, stopOps);
         return JEL.tryBinaryOps(tokens, new Operator(token.value, operand), precedence, stopOps);
       }
@@ -276,6 +287,17 @@ export default class JEL {
 			}
 		}
 	}
+	
+	static parseUnitValue(tokens: TokenReader, content: JelNode, precedence: number, stopOps: any) {
+		tokens.next();
+		
+		let t2 = JEL.nextOrThrow(tokens, "Expected identifier after '@' for reference / unit value.");
+    if (t2.type != TokenType.Identifier)
+			JEL.throwParseException(t2, "Expected identifier after '@' for reference / unit value.");
+
+		return JEL.tryBinaryOps(tokens, new UnitValue(content, t2.value), precedence, stopOps);
+	}
+
 	
 	static parseList(tokens: TokenReader, startToken: Token, precedence: number, stopOps: any): JelNode {
 		const possibleEOL = tokens.peek();

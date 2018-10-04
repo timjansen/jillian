@@ -51,6 +51,7 @@ tmp.dir(function(err, path) {
 					assert.ok(new JEL("Unit(@Meter)").executeImmediately(session.ctx) instanceof Unit);
 					jelAssert.equal("Unit(@Second)", "Unit(@Second)");
 					jelAssert.notEqual("Unit(@Second)", "Unit(@Meter)");
+					jelAssert.equal("1 @Second", "UnitValue(1, @Second)");
 				});
 
 				it('has operators', function() {

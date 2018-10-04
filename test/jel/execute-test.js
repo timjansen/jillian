@@ -11,6 +11,7 @@ const JelType = require('../../build/jel/JelType.js').default;
 const JelList = require('../../build/jel/types/List.js').default;
 const JelDictionary = require('../../build/jel/types/Dictionary.js').default;
 const Fraction = require('../../build/jel/types/Fraction.js').default;
+const UnitValue = require('../../build/jel/types/UnitValue.js').default;
 const JelNode = require('../../build/jel/expressionNodes/JelNode.js').default;
 const Literal = require('../../build/jel/expressionNodes/Literal.js').default;
 const Variable = require('../../build/jel/expressionNodes/Variable.js').default;
@@ -47,6 +48,15 @@ describe('JEL', function() {
       jelAssert.equal('5/2', new Fraction(5, 2));
       jelAssert.equal('+3/7', new Fraction(3, 7));
       jelAssert.equal('-2/7', new Fraction(-2, 7));
+    });
+
+		it('should execute a UnitValues', function() {
+      jelAssert.equal('1 @Meter', new UnitValue(1, 'Meter'));
+      jelAssert.equal('5.5 @Meter', new UnitValue(5.5, 'Meter'));
+      jelAssert.equal('-2 @Second', new UnitValue(-2, 'Second'));
+      jelAssert.equal('1/4 @Inch', new UnitValue(new Fraction(1, 4), 'Inch'));
+      jelAssert.equal('-3/4 @Mile', new UnitValue(new Fraction(-3, 4), 'Mile'));
+      jelAssert.equal('1 @Meter + 1 @Meter', new UnitValue(2, 'Meter'));
     });
 
 		
