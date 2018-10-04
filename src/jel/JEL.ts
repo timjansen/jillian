@@ -350,7 +350,7 @@ export default class JEL {
     
     const opPrecedence = binaryOperators[binOpToken.value] as number;
     if (!opPrecedence)
-      JEL.throwParseException(binOpToken, "Unexpected operator");
+      JEL.throwParseException(binOpToken, `Unexpected operator "${binOpToken.value}"`);
     
     if (opPrecedence <= precedence)
       return left;

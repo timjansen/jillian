@@ -24,16 +24,27 @@ Examples:
 	2.54
 	10.43e-23
 
-3. Booleans: true and false
+
+3. Fractions: have two integers as numerator and denominator
+
+Examples:
+  1/2
+  -10/11
+  40/20
+
+
+4. Booleans: true and false
 
 Examples: 
 	true
 	false
 
-4. Null	
+
+5. Null	
 
 Example:
 	null
+		
 	
 
 Comments
@@ -69,6 +80,8 @@ Examples:
 	obj.print("hello")
 
 
+
+
 References
 ------------------
 JEL has built-in support for database lookups of named objects.
@@ -76,6 +89,17 @@ JEL has built-in support for database lookups of named objects.
 Examples:
 	@Bird    // returns the category Bird
 	@Mars    // returns the instance called Mars
+
+
+Unit Values
+-------------
+Numbers and Fractions can be used as values with quantity unit.
+
+Examples:
+  2 @Meter
+	1/2 @Inch
+	2.5 @Second
+
 
 
 Lists
