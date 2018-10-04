@@ -78,7 +78,7 @@ Examples:
 	obj.property > 2 || obj.property < 0
 	mul(6, 7)
 	obj.print("hello")
-
+	200 +- 10      // Creates an approximate number with an max error of 10
 
 
 
@@ -93,13 +93,13 @@ Examples:
 
 Unit Values
 -------------
-Numbers and Fractions can be used as values with quantity unit.
+Numbers and Fractions can be used as values with quantity unit. You can also create approximate numbers with units.
 
 Examples:
   2 @Meter
 	1/2 @Inch
 	2.5 @Second
-
+	1 @Meter +- 5 @Centimeter
 
 
 Lists

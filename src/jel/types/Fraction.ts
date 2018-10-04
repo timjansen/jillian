@@ -1,6 +1,7 @@
 import JelType from '../JelType';
 import Context from '../Context';
 import FuzzyBoolean from './FuzzyBoolean';
+import ApproximateNumber from './ApproximateNumber';
 
 /**
  * Represents a fraction.
@@ -77,7 +78,9 @@ export default class Fraction extends JelType {
 						return new Fraction(this.denominator, this.numerator).simplify();
 					else
 						return Math.pow(this.toNumber(), right);
-
+				case '+-':
+					return new ApproximateNumber(this, right);
+					
 				default:
 					return JelType.op(ctx, operator, this.toNumber(), right);
 			}
@@ -121,6 +124,8 @@ export default class Fraction extends JelType {
 					return new Fraction(l.numerator*r.numerator, l.denominator*r.denominator, l.mixed).simplify();
 				case '/':
 					return new Fraction(l.numerator*r.denominator, l.denominator*r.numerator, l.mixed).simplify();
+				case '+-':
+					return new ApproximateNumber(this, right);
 
 				default:
 					return JelType.op(ctx, operator, this.toNumber(), right.toNumber());
@@ -144,6 +149,8 @@ export default class Fraction extends JelType {
 					return new Fraction(left*this.denominator, this.numerator, this.mixed).simplify();
 				case '^':
 					return Math.pow(left, this.toNumber());
+				case '+-':
+					return new ApproximateNumber(left, this);
 			}
 		}
 		return super.op(ctx, operator, left);
@@ -208,7 +215,7 @@ export default class Fraction extends JelType {
 	}
 }
 
-Fraction.prototype.reverseOps = {'-': true, '/': true};
+Fraction.prototype.reverseOps = {'-': true, '/': true, '+-': true};
 Fraction.prototype.toNumber_jel_mapping = {};
 Fraction.prototype.simplify_jel_mapping = {};
 

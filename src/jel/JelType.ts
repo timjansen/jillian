@@ -2,7 +2,7 @@ import FunctionCallable from './FunctionCallable';
 import Context from './Context';
 import Util from '../util/Util';
 
-let MyFuzzyBoolean: any;
+let MyFuzzyBoolean: any, MyApproximateNumber: any;
 
 // ops that can swap the left and right operands
 const REVERSIBLE_OPS: any = {
@@ -64,7 +64,8 @@ const NATIVE_OPS: any = {
 	'>': (l: any,r: any): any =>MyFuzzyBoolean.toFuzzyBoolean(l>r),
 	'>>': (l: any,r: any): any =>MyFuzzyBoolean.toFuzzyBoolean(l>r),
 	'>=': (l: any,r: any): any =>MyFuzzyBoolean.toFuzzyBoolean(l>=r),
-	'>>=': (l: any,r: any): any =>MyFuzzyBoolean.toFuzzyBoolean(l>=r)
+	'>>=': (l: any,r: any): any =>MyFuzzyBoolean.toFuzzyBoolean(l>=r),
+	'+-': (l: any, r: any): any =>MyApproximateNumber.fromNumber(l, r)
 };
 
 const SINGLE_NATIVE_OPS: any = {
@@ -262,6 +263,9 @@ export default class JelType {
 	
 	static setFuzzyBoolean(b: any): void {
 		MyFuzzyBoolean = b;
+	}
+	static setApproximateNumber(b: any): void {
+		MyApproximateNumber = b;
 	}
 }
 

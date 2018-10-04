@@ -166,6 +166,18 @@ tmp.dir(function(err, path) {
 						jelAssert.fuzzyPromise("1 @Meter != 100 @Centimeter", 0)
 					]);
 				});
+				
+				it('works with approximate numbers', function() {
+					return Promise.all([
+						jelAssert.equalPromise("15 @Meter +- 3", new UnitValue(new ApproximateNumber(15, 3), 'Meter')),
+						jelAssert.equalPromise("20 @Meter +- 0.5 @Meter", new UnitValue(new ApproximateNumber(20, 0.5), 'Meter')),
+						jelAssert.equalPromise("10 @Meter +- 1/2 @Meter", new UnitValue(new ApproximateNumber(10, new Fraction(1, 2)), 'Meter')),
+						jelAssert.equalPromise("10/8 @Meter +- 1/8 @Meter", new UnitValue(new ApproximateNumber(new Fraction(10, 8), new Fraction(1, 8)), 'Meter')),
+						jelAssert.equalPromise("3/4 @Meter +- 0.5 @Meter", new UnitValue(new ApproximateNumber(new Fraction(3, 4), 0.5), 'Meter')),
+						jelAssert.equalPromise("1 @Meter +- 1 @Centimeter", new UnitValue(new ApproximateNumber(1, new Fraction(1, 100)), 'Meter')),
+						jelAssert.equalPromise("30 @Meter +- (1 @Meter +- 0.5 @Meter)", new UnitValue(new ApproximateNumber(30, 1.5), 'Meter'))
+					]);
+				});
 
 				it('supports toPrimaryUnits()', function() {
 					return Promise.all([

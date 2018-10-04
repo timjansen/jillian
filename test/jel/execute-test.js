@@ -54,6 +54,7 @@ describe('JEL', function() {
       jelAssert.equal('1 @Meter', new UnitValue(1, 'Meter'));
       jelAssert.equal('5.5 @Meter', new UnitValue(5.5, 'Meter'));
       jelAssert.equal('-2 @Second', new UnitValue(-2, 'Second'));
+      jelAssert.equal('+3 @Second', new UnitValue(3, 'Second'));
       jelAssert.equal('1/4 @Inch', new UnitValue(new Fraction(1, 4), 'Inch'));
       jelAssert.equal('-3/4 @Mile', new UnitValue(new Fraction(-3, 4), 'Mile'));
       jelAssert.equal('1 @Meter + 1 @Meter', new UnitValue(2, 'Meter'));

@@ -51,6 +51,8 @@ export default class UnitValue extends JelType {
 						return JelType.op(ctx, operator, this.value, right.value);
 				case '*':
 						return new UnitValue(JelType.op(ctx, operator, this.value, right.value), JelType.op(ctx, operator, this.unit, right.unit)).simplify(ctx);
+				case '+-':
+					return this.toApproxNumber(right.value instanceof ApproximateNumber ? JelType.op(ctx, '+', right.value.value, right.value.maxError) : right.value);
 				}
 			}
 			else {
@@ -74,6 +76,8 @@ export default class UnitValue extends JelType {
 					case '+':
 					case '-':
 						return Util.resolveValueAndError(this.convertTo(ctx, right.unit), converted => JelType.op(ctx, operator, converted, right), ()=>Promise.reject(new Error(`Can not apply`)));
+					case '+-':
+						return Util.resolveValue(right.convertTo(ctx, this.unit), converted=>this.toApproxNumber(converted.value));
 				}
 			}
 		}
@@ -83,9 +87,21 @@ export default class UnitValue extends JelType {
 				case '/':
 				case '^':
 					return new UnitValue(JelType.op(ctx, operator, this.value, right), JelType.op(ctx, operator, this.unit, right)).simplify(ctx);
-				}		
+				case '+-':
+					if (right instanceof ApproximateNumber)
+						return this.toApproxNumber(JelType.op(ctx, '+', right.value, right.maxError));
+					else
+						return this.toApproxNumber(right);
+				}
 		}
 		return super.op(ctx, operator, right);
+	}
+	
+	private toApproxNumber(newError: number | Fraction): UnitValue {
+		if (this.value instanceof ApproximateNumber)
+			return new UnitValue(new ApproximateNumber(this.value.value, newError), this.unit);
+		else
+			return new UnitValue(new ApproximateNumber(this.value, newError), this.unit);
 	}
 	
 	singleOp(ctx: Context, operator: string): any {
@@ -325,7 +341,7 @@ export default class UnitValue extends JelType {
 	}
 }
 
-UnitValue.prototype.reverseOps = {'-':1, '/': 1};
+UnitValue.prototype.reverseOps = {'-':1, '/': 1, '+-': 1};
 UnitValue.prototype.toNumber_jel_mapping = {};
 UnitValue.prototype.convertTo_jel_mapping = {type: 1};
 UnitValue.prototype.round_jel_mapping = {};

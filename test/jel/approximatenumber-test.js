@@ -4,6 +4,7 @@ require('source-map-support').install();
 const Context = require('../../build/jel/Context.js').default;
 const ApproximateNumber = require('../../build/jel/types/ApproximateNumber.js').default;
 const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
+const Fraction = require('../../build/jel/types/Fraction.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 const jelAssert = new JelAssert(new Context().setAll({ApproximateNumber}));
 
@@ -11,6 +12,11 @@ describe('ApproximateNumber', function() {
 	it('creates and serializes', function() {
 		jelAssert.equal("ApproximateNumber(1, 2)", new ApproximateNumber(1, 2));
 		jelAssert.equal("ApproximateNumber(1, 0)", new ApproximateNumber(1));
+		jelAssert.equal("1 +- 2", new ApproximateNumber(1, 2));
+		jelAssert.equal("1 +- 0", new ApproximateNumber(1));
+		jelAssert.equal("1/2+-1/4", new ApproximateNumber(new Fraction(1, 2), new Fraction(1, 4)));
+		jelAssert.equal("4+-1/4", new ApproximateNumber(4, new Fraction(1, 4)));
+		jelAssert.equal("1/2+-5", new ApproximateNumber(new Fraction(1, 2), 5));
 		jelAssert.notEqual("ApproximateNumber(1, 3)", new ApproximateNumber(1, 2));
 	});
 	
