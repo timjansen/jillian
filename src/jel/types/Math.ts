@@ -49,7 +49,7 @@ export default class JelMath extends JelType {
 		return new UnitValue(radians * JelMath.unitFactors[unit], o);
 	}
 	
-	// Returns either number in radians, or converts to the given unit. Must be @Degree, @Radian, @Gradian or @Turn. Defaults to @Radian
+	// Returns either number in radians, or converts to the given unit. Must be @Degree, @Radian, @Gradian or @Turn. Defaults to @Radian as plain number.
 	static acos_jel_mapping = {x: 1, unit: 2};
 	static acos(ctx: Context, x: number | Fraction | UnitValue | ApproximateNumber, unit?: IDbRef | string): number | UnitValue {
 		const r = Math.acos(JelType.toNumber(x));
@@ -84,7 +84,7 @@ export default class JelMath extends JelType {
 	private static trigo(f: (x: number)=>number, ctx: Context, x: number | Fraction | UnitValue | ApproximateNumber): number {
 		if (x instanceof UnitValue) {
 			if (!x.unit.isSimple())
-				throw new Error('Supports only Radians, Degree, Turn and Gradian as unit, but no complex unit types');
+				throw new Error('Supports only Radians, Degree, Turn and Gradian as unit, but no complex unit types. Given: ' + x.unit.toString());
 			const	st = x.unit.toSimpleType(ctx).distinctName;
 			if (!(st in JelMath.unitFactors))
 				throw new Error('Supports only Radians, Degree, Turn and Gradian as unit, but not ' + st);

@@ -121,7 +121,24 @@ tmp.dir(function(err, path) {
 							])
 					}));
 			});
+			
+			it('supports isExtending', function() {
+				const lf = new Category('LifeFormCategory');
+				const animal = new Category('Animal5Category', lf);
+				const cat = new Category('Cat5Category', animal);
+				
+				assert.equal(animal.isExtending(ctx, 'LifeFormCategory').state, 1);
+				assert.equal(animal.isExtending(ctx, 'Animal5Category').state, 0);
+				assert.equal(animal.isExtending(ctx, 'Cat5Category').state, 0);
 
+				assert.equal(lf.isExtending(ctx, 'LifeFormCategory').state, 0);
+				assert.equal(lf.isExtending(ctx, 'Animal5Category').state, 0);
+
+				assert.equal(cat.isExtending(ctx, 'LifeFormCategory').state, 1);
+				assert.equal(cat.isExtending(ctx, 'Animal5Category').state, 1);
+				assert.equal(cat.isExtending(ctx, 'Cat5Category').state, 0);
+				assert.equal(cat.isExtending(ctx, 'Cow').state, 0);
+			});
 			
 		});
 
@@ -180,7 +197,27 @@ tmp.dir(function(err, path) {
 						]);
 					}));
 			});
+			
+			it('supports isA', function() {
+				const lf = new Category('LifeFormCategory');
+				const animal = new Category('Animal5Category', lf);
+				const cat = new Category('Cat5Category', animal);
+				const grumpy = new Thing('GrumpyCat', cat);
+				const rnd = new Thing('RandomAnimal', animal);
+				const al = new Thing('Alien', lf);		
+				
+				assert.equal(al.isA(ctx, 'LifeFormCategory').state, 1);
+				assert.equal(al.isA(ctx, 'Cat5Category').state, 0);
 
+				assert.equal(rnd.isA(ctx, 'LifeFormCategory').state, 1);
+				assert.equal(rnd.isA(ctx, 'Animal5Category').state, 1);
+				assert.equal(rnd.isA(ctx, 'Cat5Category').state, 0);
+
+				assert.equal(grumpy.isA(ctx, 'LifeFormCategory').state, 1);
+				assert.equal(grumpy.isA(ctx, 'Animal5Category').state, 1);
+				assert.equal(grumpy.isA(ctx, 'Cat5Category').state, 1);
+				assert.equal(grumpy.isA(ctx, 'Cow').state, 0);
+			});
 		});
 
 	});

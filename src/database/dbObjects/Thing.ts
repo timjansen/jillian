@@ -4,6 +4,7 @@ import DbRef from '../DbRef';
 import DbIndexDescriptor from '../DbIndexDescriptor';
 import Dictionary from '../../jel/types/Dictionary';
 import List from '../../jel/types/List';
+import FuzzyBoolean from '../../jel/types/FuzzyBoolean';
 import Serializable from '../../jel/Context';
 import Context from '../../jel/Context';
 import Util from '../../util/Util';
@@ -35,6 +36,15 @@ export default class Thing extends DbEntry {
 			return v;
 	}
 	
+	isA_jel_mapping: Object;
+	isA(ctx: Context, category: string | DbRef): FuzzyBoolean | Promise<FuzzyBoolean> {
+		if (category instanceof DbRef)
+			return this.isA(ctx, category.distinctName);
+		if (this.category.distinctName == category)
+			return FuzzyBoolean.TRUE;
+		return this.category.with(ctx, (c: Category) =>c.isExtending(ctx, category)) as FuzzyBoolean | Promise<FuzzyBoolean>;
+	}
+	
   getSerializationProperties(): Object {
     return {distinctName: this.distinctName, reality: this.reality, category: this.category, properties: this.properties};
   }
@@ -46,5 +56,6 @@ export default class Thing extends DbEntry {
 }
 
 Thing.prototype.JEL_PROPERTIES = {category: true};
+Thing.prototype.isA_jel_mapping = {category: 1};
 
 

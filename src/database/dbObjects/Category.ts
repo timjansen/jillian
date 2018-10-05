@@ -5,6 +5,7 @@ import PropertyHelper from '../dbProperties/PropertyHelper';
 import DbIndexDescriptor from '../DbIndexDescriptor';
 import Dictionary from '../../jel/types/Dictionary';
 import List from '../../jel/types/List';
+import FuzzyBoolean from '../../jel/types/FuzzyBoolean';
 import EnumValue from '../../jel/types/EnumValue';
 import Context from '../../jel/Context';
 import Util from '../../util/Util';
@@ -74,7 +75,16 @@ export default class Category extends DbEntry {
 		else
 			return null;
 	}
-  
+
+	isExtending_jel_mapping: Object;
+	isExtending(ctx: Context, otherCategory: string | DbRef): FuzzyBoolean | Promise<FuzzyBoolean> {
+		if (otherCategory instanceof DbRef)
+			return this.isExtending(ctx, otherCategory.distinctName);
+		if (!this.superCategory)
+			return FuzzyBoolean.FALSE;
+		return this.superCategory.distinctName == otherCategory ? FuzzyBoolean.TRUE : (this.superCategory.with(ctx, (s: Category) =>s.isExtending(ctx, otherCategory)) as  FuzzyBoolean | Promise<FuzzyBoolean>);
+	}
+	
   getSerializationProperties(): Object {
 		return [this.distinctName, this.superCategory, this.properties, this.instanceDefaults, this.instanceProperties, this.mixinProperties, this.reality, this.hashCode];
   }
@@ -88,4 +98,6 @@ export default class Category extends DbEntry {
 }
 
 Category.prototype.JEL_PROPERTIES = {superCategory: true};
+Category.prototype.isExtending_jel_mapping = {category: 1}
+
 
