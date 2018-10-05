@@ -105,11 +105,13 @@ export default class JelType {
 				return MyFuzzyBoolean.toFuzzyBoolean(left === right);
 			else if (operator == '!=' || operator == '!==')
 				return MyFuzzyBoolean.toFuzzyBoolean(left !== right);
-			else if (operator in RELATIONAL_OPS)
+			else if (operator == 'instanceof' || operator in RELATIONAL_OPS)
 				return MyFuzzyBoolean.FALSE;
 			else
 				return left == null ? left : right;
 		}
+		else if (operator == 'instanceof') 
+			return JelType.instanceOf(ctx, left, right);
 		else if (left instanceof JelType)
 			return left.op(ctx, operator, right);
 		else if (right instanceof JelType) {
@@ -143,6 +145,22 @@ export default class JelType {
 
 	static singleOpWithPromise(ctx: Context, operator: string, left: any | Promise<any>): any | Promise<any> {
 		return Util.resolveValue(left, (left: any)=>JelType.singleOp(ctx, operator, left));
+	}
+	
+	static instanceOf(ctx: Context, left: any, right: any): any {
+		if (!right || !right.isDBRef)
+			return MyFuzzyBoolean.FALSE;
+		
+		if (left instanceof JelType)
+			return MyFuzzyBoolean.toFuzzyBoolean(left.constructor.name == right.distinctName);
+		
+		switch(typeof left) {
+			case 'number':
+				return MyFuzzyBoolean.toFuzzyBoolean('Number' == right.distinctName);
+			case 'string':
+				return MyFuzzyBoolean.toFuzzyBoolean('String' == right.distinctName);
+		}
+		return MyFuzzyBoolean.FALSE;
 	}
 	
 	static toRealBoolean(obj: any): boolean {

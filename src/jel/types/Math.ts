@@ -38,8 +38,8 @@ export default class JelMath extends JelType {
 	
 	
 
-	static toNumber(x: number | Fraction | UnitValue | ApproximateNumber): number {
-		return JelType.toNumber(x);
+	static toNumber(n: number | Fraction | UnitValue | ApproximateNumber): number {
+		return typeof n == 'number' ? n : (n && n.toNumber) ? n.toNumber() : NaN;
 	}
 	
 	static convertAngle(radians: number, unit: string): UnitValue {

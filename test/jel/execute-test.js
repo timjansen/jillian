@@ -8,6 +8,7 @@ const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const Callable = require('../../build/jel/Callable.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const JelType = require('../../build/jel/JelType.js').default;
+const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
 const JelList = require('../../build/jel/types/List.js').default;
 const JelDictionary = require('../../build/jel/types/Dictionary.js').default;
 const Fraction = require('../../build/jel/types/Fraction.js').default;
@@ -27,7 +28,14 @@ const Call = require('../../build/jel/expressionNodes/Call.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
 
-const ctx = new Context().setAll({JelPromise, JelConsole});
+class MockSession {
+	createDbRef(distinctName, params) {
+		return {distinctName, params, isDBRef: true};
+	}
+}
+
+const ctx = new Context(undefined, new MockSession()).setAll({JelPromise, JelConsole, FuzzyBoolean});
+jelAssert.setCtx(ctx);
 
 describe('JEL', function() {
   describe('execute()', function() {
@@ -67,14 +75,20 @@ describe('JEL', function() {
       assert.equal(new JEL('`a b c`.match("a  c c")').executeImmediately().state, 0);
     });
 
+		it('should support references', function() {
+      assert.equal(new JEL('@Hello').executeImmediately(ctx).distinctName, 'Hello');
+      assert.equal(new JEL('@Fish(age= 10)').executeImmediately(ctx).distinctName, 'Fish');
+      assert.equal(new JEL('@Fish(age= 10)').executeImmediately(ctx).params.get('age'), 10);
+    });
+
     
    it('should execute primitive operations', function() {
-      assert.equal(new JEL('5+5').executeImmediately(), 10);
-      assert.equal(new JEL('5*5').executeImmediately(), 25);
-      assert.equal(new JEL('7-5').executeImmediately(), 2);
-      assert.equal(new JEL('7^2').executeImmediately(), 49);
-      assert.equal(new JEL('0.5^-1').executeImmediately(), 2);
-      assert.equal(new JEL('!true').executeImmediately().state, 0);
+      jelAssert.equal('5+5', 10);
+      jelAssert.equal('5*5', 25);
+      jelAssert.equal('7-5', 2);
+      jelAssert.equal('7^2', 49);
+      jelAssert.equal('0.5^-1', 2);
+      jelAssert.equal('!true', 'false');
       assert.equal(new JEL('-(10/2.0)').executeImmediately(), -5);
       assert.equal(new JEL('"foo"+"bar"').executeImmediately(), "foobar");
       assert.equal(new JEL('5>5').executeImmediately().state, 0);
@@ -119,6 +133,20 @@ describe('JEL', function() {
       assert.equal(new JEL('15 && "test"').executeImmediately(), "test");
       assert.equal(new JEL('"" && "foo"').executeImmediately(), "");
       assert.equal(new JEL('0 && ""').executeImmediately(), 0);
+    });
+		
+		 it('should support instanceof', function() {
+      jelAssert.equal("3 instanceof @Number", "true");
+      jelAssert.equal("null instanceof @Number", "false");
+      jelAssert.equal("'hello' instanceof @Number", "false");
+      jelAssert.equal("true instanceof @Number", "false");
+      jelAssert.equal("3 instanceof @String", "false");
+      jelAssert.equal("null instanceof @String", "false");
+      jelAssert.equal("'hello' instanceof @String", "true");
+      jelAssert.equal("true instanceof @String", "false");
+      jelAssert.equal("3 instanceof @FuzzyBoolean", "false");
+      jelAssert.equal("'hello' instanceof @FuzzyBoolean", "false");
+      jelAssert.equal("true instanceof @FuzzyBoolean", "true");
     });
 
     it('should access member fields of JelTypes', function() {

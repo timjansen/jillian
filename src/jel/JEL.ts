@@ -47,7 +47,6 @@ const binaryOperators: any = { // op->precedence
   '&&': 6,
   '||': 5,
   'instanceof': 15,
-  'derivativeof': 15,
   '+': 13,
   '-': 13,
   '*': 14,
@@ -174,6 +173,7 @@ export default class JEL {
         if (t2.type != TokenType.Identifier)
           JEL.throwParseException(token, "Expected identifier after '@' for reference.");
 				if (tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == '(') {
+					tokens.next();
 					const assignments: Assignment[] = JEL.parseParameters(tokens, PARENS_PRECEDENCE, PARAMETER_STOP, ')', "Expected comma or closing parens", 'parameter');
 	        return JEL.tryBinaryOps(tokens, new Reference(t2.value, assignments), precedence, stopOps);
 				}
