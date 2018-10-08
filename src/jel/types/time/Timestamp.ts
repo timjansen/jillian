@@ -2,6 +2,7 @@ import JelType from '../../JelType';
 import Context from '../../Context';
 import UnitValue from '../UnitValue';
 import FuzzyBoolean from '../FuzzyBoolean';
+import ApproximateNumber from '../ApproximateNumber';
 import TimeSpec from './TimeSpec';
 import ZonedDateTime from './ZonedDateTime';
 import TimeZone from './TimeZone';
@@ -55,7 +56,11 @@ export default class Timestamp extends TimeSpec {
 					return FuzzyBoolean.fourWay(this.msSinceEpoch >= right.msSinceEpoch, !this.couldBeEqual(right));
 				case '<=':
 					return FuzzyBoolean.fourWay(this.msSinceEpoch <= right.msSinceEpoch, !this.couldBeEqual(right));
-
+					
+				case '-':
+					return new UnitValue((this.precisionInMs == 0 && right.precisionInMs == 0) ? 
+															 		this.msSinceEpoch - right.msSinceEpoch : new ApproximateNumber(this.msSinceEpoch - right.msSinceEpoch, this.precisionInMs + right.precisionInMs), 
+															 'Millisecond');
 			}
 		}
 		else if (right instanceof UnitValue) {
@@ -65,11 +70,46 @@ export default class Timestamp extends TimeSpec {
 						return new Timestamp(this.msSinceEpoch + v.value, this.precisionInMs);
 					case '-':
 						return new Timestamp(this.msSinceEpoch - v.value, this.precisionInMs);
+					case '+-':
+						return new Timestamp(this.msSinceEpoch, v.value);
 				}
 				return super.op(ctx, operator, right);
 			});
 		}
+		else if (typeof right == 'number') {
+			switch (operator) {
+				case '+':
+					return new Timestamp(this.msSinceEpoch + right, this.precisionInMs);
+				case '-':
+					return new Timestamp(this.msSinceEpoch - right, this.precisionInMs);
+				case '+-':
+					return new Timestamp(this.msSinceEpoch, right);
+			}
+		}
 		return super.op(ctx, operator, right);
+	}
+	
+	opReversed(ctx: Context, operator: string, left: any): any {
+		if (left instanceof UnitValue) {
+			return Util.resolveValue(left.convertTo(ctx, 'Millisecond'), (v: any)=> {
+				switch (operator) {
+					case '+':
+						return new Timestamp(v.value + this.msSinceEpoch, this.precisionInMs);
+					case '-':
+						return new Timestamp(v.value - this.msSinceEpoch, this.precisionInMs);
+				}
+				return super.opReversed(ctx, operator, left);
+			});
+		}
+		else if (typeof left == 'number') {
+			switch (operator) {
+				case '+':
+					return new Timestamp(left + this.msSinceEpoch, this.precisionInMs);
+				case '-':
+					return new Timestamp(left - this.msSinceEpoch, this.precisionInMs);
+			}
+		}
+		return super.opReversed(ctx, operator, left);
 	}
 	
 	getStartTime(ctx: Context, defaultTimeZone: TimeZone): Timestamp {
@@ -107,12 +147,6 @@ export default class Timestamp extends TimeSpec {
 		return new LocalDate(m.year(), m.month(), m.date());
 	}
 
-	toTimeOfDay_jel_mapping: Object;
-	toTimeOfDay(ctx: Context, tz: TimeZone): TimeOfDay {
-		const m = moment(this.msSinceEpoch).tz(tz.tz);
-		return new TimeOfDay(m.hour(), m.minute(), m.second());
-	}
-	
 	// no JEL support
 	toMoment(): Moment {
 		return moment(this.msSinceEpoch);
@@ -132,10 +166,12 @@ export default class Timestamp extends TimeSpec {
 	}
 }
 
+Timestamp.prototype.JEL_PROPERTIES = {msSinceEpoch:1, precisionInMs:1};
+Timestamp.prototype.reverseOps = {'-':1, '+': 1};
+
 Timestamp.prototype.toNumber_jel_mapping = {};
 Timestamp.prototype.toZonedDateTime_jel_mapping = {tz: 1};
 Timestamp.prototype.toLocalDateTime_jel_mapping = {tz: 1};
 Timestamp.prototype.toLocalDate_jel_mapping = {tz: 1};
-Timestamp.prototype.toTimeOfDay_jel_mapping = {tz: 1};
 
 

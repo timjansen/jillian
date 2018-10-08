@@ -11,9 +11,10 @@ const TimeOfDay = require('../../build/jel/types/time/TimeOfDay.js').default;
 const ZonedDateTime = require('../../build/jel/types/time/ZonedDateTime.js').default;
 const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
 const Range = require('../../build/jel/types/Range.js').default;
+const ApproximateNumber = require('../../build/jel/types/ApproximateNumber.js').default;
 
-const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
-const jelAssert = new JelAssert(new Context().setAll({Timestamp, TimeZone, FuzzyBoolean, Range, Duration}));
+const {JelAssert, JelPromise, JelConsole, MockSession} = require('../jel-assert.js');
+const jelAssert = new JelAssert(new Context(undefined, new MockSession()).setAll({Timestamp, TimeZone, FuzzyBoolean, Range, Duration, ApproximateNumber}));
 
 
 describe('Timestamp', function() {
@@ -36,13 +37,6 @@ describe('Timestamp', function() {
 		jelAssert.equal(new LocalDate(2017, 11, 2), `Timestamp(${d}).toLocalDate(TimeZone.UTC)`);
 		jelAssert.equal(new LocalDate(2017, 11, 1), `Timestamp(${d}).toLocalDate(TimeZone('America/New_York'))`);
 		jelAssert.equal(new LocalDate(2017, 11, 2), `Timestamp(${d}).toLocalDate(TimeZone('Europe/Amsterdam'))`);
-	});
-
-	it('supports toTimeOfDay', function() {
-		const d = Date.UTC(2017, 11, 2, 13, 5, 1);
-		jelAssert.equal(new TimeOfDay(13, 5, 1), `Timestamp(${d}).toTimeOfDay(TimeZone.UTC)`);
-		jelAssert.equal(new TimeOfDay(8, 5, 1), `Timestamp(${d}).toTimeOfDay(TimeZone('America/New_York'))`);
-		jelAssert.equal(new TimeOfDay(14, 5, 1), `Timestamp(${d}).toTimeOfDay(TimeZone('Europe/Amsterdam'))`);
 	});
 
 	it('supports toLocalDateTime', function() {
@@ -108,10 +102,22 @@ describe('Timestamp', function() {
 		jelAssert.equal(FuzzyBoolean.BARELY_FALSE, `Timestamp(1005, 10) <= Timestamp(1000, 10)`);
 		jelAssert.equal(FuzzyBoolean.FALSE, `Timestamp(1000, 10) <= Timestamp(10, 10)`);
 
+		jelAssert.equal(`Timestamp(1000, 10) - Timestamp(10, 10)`, '990 @Millisecond +- 20');
+		jelAssert.equal(`Timestamp(1000) - Timestamp(10, 0)`, '990 @Millisecond');
 	});
 	
 	it('supports operations with UnitValue', function() {
-		// TODO, when UnitValue is ready
+		jelAssert.equal(`Timestamp(3, 10) + 5 @Millisecond`, 'Timestamp(8, 10)');
+		jelAssert.equal(`Timestamp(8, 10) - 3 @Millisecond`, 'Timestamp(5, 10)');
+		jelAssert.equal(`Timestamp(3, 10) +- 1 @Millisecond`, 'Timestamp(3, 1)');
+		jelAssert.equal(`Timestamp(3, 10) +- 0 @Millisecond`, 'Timestamp(3, 0)');
+	});
+
+	it('supports operations with number', function() {
+		jelAssert.equal(`Timestamp(3, 10) + 5`, 'Timestamp(8, 10)');
+		jelAssert.equal(`Timestamp(8, 10) - 3`, 'Timestamp(5, 10)');
+		jelAssert.equal(`Timestamp(3, 10) +- 1`, 'Timestamp(3, 1)');
+		jelAssert.equal(`Timestamp(3, 10) +- 0`, 'Timestamp(3, 0)');
 	});
 
 });

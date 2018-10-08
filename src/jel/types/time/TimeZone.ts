@@ -16,7 +16,6 @@ export default class TimeZone extends JelType {
 	JEL_PROPERTIES: Object;
 	
 	// tz: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones (e.g. "America/Anchorage" or "UTC")
-	// offset: additional fixed offset
 	constructor(public tz = "UTC") {
 		super();
 	}

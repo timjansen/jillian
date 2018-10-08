@@ -142,6 +142,9 @@ export default class UnitValue extends JelType {
 	
 	private convertSimpleTo(ctx: Context, target: string, mustBePrimaryUnit: boolean): Promise<UnitValue> | UnitValue {
 		const simpleUnit: IDbRef = this.unit.toSimpleType(ctx);
+		if (simpleUnit.distinctName == target)
+			return this;
+		
 		return simpleUnit.withMember(ctx, 'convertsTo', (conversionDict: any) => {
 			if (!(conversionDict instanceof Dictionary))
 					return Promise.reject(new Error("Can not convert "+simpleUnit.distinctName+" to any other units. No convertsTo property defined."));
