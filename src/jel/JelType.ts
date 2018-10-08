@@ -171,7 +171,7 @@ export default class JelType {
 	}
 	
 	static toNumber(n: any): number {
-		return typeof n == 'number' ? n : n.toNumber();
+		return typeof n == 'number' ? n : (n && n.toNumber) ? n.toNumber() : NaN;
 	}
 
 	static toNumberWithPromise(n: any | Promise<any>): number | Promise<number> {

@@ -25,14 +25,9 @@ const With = require('../../build/jel/expressionNodes/With.js').default;
 const Lambda = require('../../build/jel/expressionNodes/Lambda.js').default;
 const Call = require('../../build/jel/expressionNodes/Call.js').default;
 
-const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
+const {JelAssert, JelPromise, JelConsole, MockSession} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
 
-class MockSession {
-	createDbRef(distinctName, params) {
-		return {distinctName, params, isDBRef: true};
-	}
-}
 
 const ctx = new Context(undefined, new MockSession()).setAll({JelPromise, JelConsole, FuzzyBoolean});
 jelAssert.setCtx(ctx);

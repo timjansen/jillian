@@ -42,7 +42,14 @@ export default class JelMath extends JelType {
 		return typeof n == 'number' ? n : (n && n.toNumber) ? n.toNumber() : NaN;
 	}
 	
-	static convertAngle(radians: number, unit: string): UnitValue {
+	private static restoreUnit(original: number | Fraction | UnitValue | ApproximateNumber, n: number): number | UnitValue {
+		if (original instanceof UnitValue)
+			return new UnitValue(n, original.unit);
+		else
+			return n;
+	}
+	
+	private static convertAngle(radians: number, unit: string): UnitValue {
 		const o: Unit = JelMath.units[unit];
 		if (!o)
 			throw new Error("Unsupported angle unit: @"+unit);
@@ -77,13 +84,13 @@ export default class JelMath extends JelType {
 	}
 
 	static ceil_jel_mapping = {x: 1};
-	static ceil(ctx: Context, x: number | Fraction | UnitValue | ApproximateNumber): number {
-			return Math.cbrt(JelType.toNumber(x));
+	static ceil(ctx: Context, x: number | Fraction | UnitValue | ApproximateNumber): number | UnitValue {
+			return JelMath.restoreUnit(x, Math.ceil(JelType.toNumber(x)));
 	}
 
 	private static trigo(f: (x: number)=>number, ctx: Context, x: number | Fraction | UnitValue | ApproximateNumber): number {
 		if (x instanceof UnitValue) {
-			if (!x.unit.isSimple())
+			if (!JelType.toRealBoolean(x.unit.isSimple()))
 				throw new Error('Supports only Radians, Degree, Turn and Gradian as unit, but no complex unit types. Given: ' + x.unit.toString());
 			const	st = x.unit.toSimpleType(ctx).distinctName;
 			if (!(st in JelMath.unitFactors))
@@ -116,12 +123,12 @@ export default class JelMath extends JelType {
 	}
 	
 	static floor_jel_mapping = {x: 1};
-	static floor(ctx: Context, x: number | Fraction | UnitValue | ApproximateNumber): number {
-		return Math.floor(JelType.toNumber(x));
+	static floor(ctx: Context, x: number | Fraction | UnitValue | ApproximateNumber): number | UnitValue {
+		return JelMath.restoreUnit(x, Math.floor(JelType.toNumber(x)));
 	}
 
 	static hypot_jel_mapping = {};
-	static hypot_exp(ctx: Context, ...a: any[]): number {
+	static hypot(ctx: Context, ...a: any[]): number {
 		return Math.hypot(...a.map(x=>JelType.toNumber(x)));
 	}
 
@@ -163,12 +170,12 @@ export default class JelMath extends JelType {
 	}
 	
 	static min_jel_mapping = {};
-	static min_exp(ctx: Context, ...a: any[]): number | Fraction | UnitValue | ApproximateNumber | Promise<number|Fraction|UnitValue|ApproximateNumber> {
+	static min(ctx: Context, ...a: any[]): number | Fraction | UnitValue | ApproximateNumber | Promise<number|Fraction|UnitValue|ApproximateNumber> {
 		return JelMath.best('>', ctx, a);
 	}
 	
 	static max_jel_mapping = {};
-	static max_exp(ctx: Context, ...a: any[]): any | Promise<any> {
+	static max(ctx: Context, ...a: any[]): number | Fraction | UnitValue | ApproximateNumber | Promise<number|Fraction|UnitValue|ApproximateNumber> {
 		return JelMath.best('<', ctx, a);
 	}
 	
@@ -177,14 +184,20 @@ export default class JelMath extends JelType {
 		return Math.pow(JelType.toNumber(x), JelType.toNumber(y));
 	}
 
-	static random_jel_mapping = {min: 1, max: 2};
-	static random(ctx: Context, min: number | Fraction | UnitValue | ApproximateNumber = 0, max: number | Fraction | UnitValue | ApproximateNumber = 1): number {
-		return Math.random() *  JelType.toNumber(max) + JelType.toNumber(min);
+	static random_jel_mapping = {min: 1, max: 2, unit: 3};
+	static random(ctx: Context, min: number | Fraction | UnitValue | ApproximateNumber = 0, max: number | Fraction | UnitValue | ApproximateNumber = 1,
+								unit?: Unit | IDbRef | string): number | UnitValue {
+		const min0 = JelType.toNumber(min);
+		const r = Math.random() *  (JelType.toNumber(max)-min0) + min0;
+		if (unit || min instanceof UnitValue || max instanceof UnitValue)
+			return new UnitValue(r, unit || (min instanceof UnitValue ? min.unit : (max as UnitValue).unit));
+		else
+			return r;
 	}
 	
 	static round_jel_mapping = {x: 1};
-	static round(ctx: Context, x: number | Fraction | UnitValue | ApproximateNumber): number {
-		return Math.round(JelType.toNumber(x));
+	static round(ctx: Context, x: number | Fraction | UnitValue | ApproximateNumber): number | UnitValue {
+		return JelMath.restoreUnit(x, Math.round(JelType.toNumber(x)));
 	}
 
 	static sign_jel_mapping = {x: 1};
@@ -198,8 +211,8 @@ export default class JelMath extends JelType {
 	}
 	
 	static trunc_jel_mapping = {x: 1};
-	static trunc(ctx: Context, x: number | Fraction | UnitValue | ApproximateNumber): number {
-		return Math.trunc(JelType.toNumber(x));
+	static trunc(ctx: Context, x: number | Fraction | UnitValue | ApproximateNumber): number | UnitValue {
+		return JelMath.restoreUnit(x, Math.trunc(JelType.toNumber(x)));
 	}
 }
 

@@ -28,7 +28,13 @@ class JelAssert {
 	}
 
 	equal(a, b, c) {
-		assert.equal(Serializer.serialize(this.exec(a)), Serializer.serialize(this.exec(b)), c);
+		const a0 = this.exec(a);
+		const b0 = this.exec(b);
+		if (a0 instanceof Promise)
+			a0.then(e=>console.log('Equal returned promise: ', e), e=>console.log('Equal returned rejected promise: ', e));
+		if (b0 instanceof Promise)
+			b0.then(e=>console.log('Equal returned promise: ', e), e=>console.log('Equal returned rejected promise: ', e));
+		assert.equal(Serializer.serialize(a0), Serializer.serialize(b0), c);
 	}
 
 	notEqual(a, b, c) {
@@ -98,5 +104,11 @@ class JelConsole extends JelType {
 JelConsole.create_jel_mapping = ['value'];
 
 
-module.exports = {JelAssert, JelPromise, JelConsole};
+class MockSession {
+	createDbRef(distinctName, params) {
+		return {distinctName, params, isDBRef: true};
+	}
+}
+
+module.exports = {JelAssert, JelPromise, JelConsole, MockSession};
 
