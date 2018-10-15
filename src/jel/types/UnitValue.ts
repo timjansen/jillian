@@ -344,7 +344,7 @@ export default class UnitValue extends JelType {
 	}
 }
 
-UnitValue.prototype.reverseOps = {'-':1, '/': 1, '+-': 1};
+UnitValue.prototype.reverseOps = {'*':1, '/': 1};
 UnitValue.prototype.toNumber_jel_mapping = {};
 UnitValue.prototype.convertTo_jel_mapping = {type: 1};
 UnitValue.prototype.round_jel_mapping = {};

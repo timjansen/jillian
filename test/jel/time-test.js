@@ -12,20 +12,36 @@ const ZonedDateTime = require('../../build/jel/types/time/ZonedDateTime.js').def
 const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
 const Range = require('../../build/jel/types/Range.js').default;
 const ApproximateNumber = require('../../build/jel/types/ApproximateNumber.js').default;
+const UnitValue = require('../../build/jel/types/UnitValue.js').default;
+const Unit = require('../../build/jel/types/Unit.js').default;
 
-const {JelAssert, JelPromise, JelConsole, MockSession} = require('../jel-assert.js');
-const jelAssert = new JelAssert(new Context(undefined, new MockSession()).setAll({Timestamp, TimeZone, FuzzyBoolean, Range, Duration, ApproximateNumber}));
+const {
+	JelAssert,
+	JelPromise,
+	JelConsole,
+	MockSession
+} = require('../jel-assert.js');
+const jelAssert = new JelAssert(new Context(undefined, new MockSession()).setAll({
+	Timestamp,
+	TimeZone,
+	FuzzyBoolean,
+	Range,
+	Duration,
+	ApproximateNumber,
+	UnitValue,
+	Unit
+}));
 
 
 describe('Timestamp', function() {
 	it('creates and serializes', function() {
 		jelAssert.equal(new Timestamp(25), "Timestamp(25)");
 		jelAssert.equal(new Timestamp(25, 12), "Timestamp(25, 12)");
-		
+
 		jelAssert.notEqual(new Timestamp(25), "Timestamp(25, 12)");
 		jelAssert.notEqual(new Timestamp(25, 4), "Timestamp(25)");
 	});
-	
+
 	it('supports toNumber', function() {
 		const d = Date.UTC(2017, 11, 2, 5, 3, 2);
 		jelAssert.equal(d, `Timestamp(${d}).toNumber()`);
@@ -60,7 +76,7 @@ describe('Timestamp', function() {
 		jelAssert.equal(d, `Timestamp(${d}).getEndTime(TimeZone.UTC).toNumber()`);
 	});
 
-	
+
 	it('supports operations with other timestamps', function() {
 		jelAssert.equal(FuzzyBoolean.TRUE, `Timestamp(1000) === Timestamp(1000)`);
 		jelAssert.equal(FuzzyBoolean.TRUE, `Timestamp(1000, 10) === Timestamp(1000, 10)`);
@@ -89,7 +105,7 @@ describe('Timestamp', function() {
 		jelAssert.equal(FuzzyBoolean.TRUE, `Timestamp(1000) != Timestamp(1001)`);
 		jelAssert.equal(FuzzyBoolean.BARELY_FALSE, `Timestamp(1000, 10) != Timestamp(1009, 10)`);
 		jelAssert.equal(FuzzyBoolean.FALSE, `Timestamp(1000, 10) != Timestamp(1000, 10)`);
-		
+
 		jelAssert.equal(FuzzyBoolean.TRUE, `Timestamp(1, 10) < Timestamp(1001, 10)`);
 		jelAssert.equal(FuzzyBoolean.BARELY_TRUE, `Timestamp(1000, 10) < Timestamp(1001, 10)`);
 		jelAssert.equal(FuzzyBoolean.BARELY_FALSE, `Timestamp(1000, 10) < Timestamp(1000, 10)`);
@@ -105,7 +121,7 @@ describe('Timestamp', function() {
 		jelAssert.equal(`Timestamp(1000, 10) - Timestamp(10, 10)`, '990 @Millisecond +- 20');
 		jelAssert.equal(`Timestamp(1000) - Timestamp(10, 0)`, '990 @Millisecond');
 	});
-	
+
 	it('supports operations with UnitValue', function() {
 		jelAssert.equal(`Timestamp(3, 10) + 5 @Millisecond`, 'Timestamp(8, 10)');
 		jelAssert.equal(`Timestamp(8, 10) - 3 @Millisecond`, 'Timestamp(5, 10)');
@@ -131,7 +147,7 @@ describe('TimeZone', function() {
 		jelAssert.notEqual(new TimeZone("America/New_York"), `TimeZone("America/Los_Angeles")`);
 		jelAssert.notEqual(new TimeZone("etc/UTC"), `TimeZone("UTC")`);
 	});
-	
+
 	it('returns offsets', function() {
 		jelAssert.equal(-60, `TimeZone("Europe/Amsterdam").getOffset(Timestamp(${Date.UTC(2017, 11, 2)}))`);
 		jelAssert.equal(-120, `TimeZone("Europe/Amsterdam").getOffset(Timestamp(${Date.UTC(2017, 6, 2)}))`);
@@ -168,8 +184,103 @@ describe('TimeZone', function() {
 describe('Duration', function() {
 	it('creates and serializes', function() {
 		jelAssert.equal(new Duration(2, 5, 10, 4, 2, 9), "Duration(2, 5, 10, 4, 2, 9)");
+		jelAssert.equal(new Duration(2, 5, 10, 4, 2, 9), "Duration(seconds=9, minutes=2, hours=4/1, days=10, months=5, years=2)");
 	});
 
+	it('supports operations with other Durations', function() {
+		jelAssert.equal(new Duration(2, 5, 10, 4, 2, 9), "Duration(1, 2, 2, 0, 1, 4)+Duration(1, 3, 8, 4, 1, 5)");
+		jelAssert.equal("Duration(years=2, seconds=5)", "Duration(years=2)+Duration(seconds=5)");
+
+		jelAssert.equal("Duration(months=-1, seconds=2)", "Duration(1, 2, 8, 0, 1, 4)-Duration(1, 3, 8, 0, 1, 2)");
+		jelAssert.equal("Duration(years=2, seconds=-5)", "Duration(years=2)-Duration(seconds=5)");
+
+		jelAssert.equal(4, "Duration(hours=2)/Duration(seconds=1800)");
+
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) == Duration(seconds=125)", 1);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) != Duration(seconds=125)", 0);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) == Duration(seconds=124)", 0);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) != Duration(seconds=124)", 1);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) === Duration(seconds=125)", 0);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) === Duration(minutes=2, seconds=5)", 1);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) !== Duration(seconds=125)", 1);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) !== Duration(minutes=2, seconds=5)", 0);
+
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) >= Duration(seconds=125)", 1);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=6) >= Duration(seconds=125)", 1);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=4) >= Duration(seconds=125)", 0);
+
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) > Duration(seconds=125)", 0);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=6) > Duration(seconds=125)", 1);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=4) > Duration(seconds=125)", 0);
+
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) <= Duration(seconds=125)", 1);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=6) <= Duration(seconds=125)", 0);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=4) <= Duration(seconds=125)", 1);
+
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) < Duration(seconds=125)", 0);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=6) < Duration(seconds=125)", 0);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=4) < Duration(seconds=125)", 1);
+
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) >> Duration(seconds=125)", 0);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=6) >> Duration(seconds=125)", 1);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=4) >> Duration(seconds=125)", 0);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) >>= Duration(seconds=125)", 1);
+
+	});
+
+it('supports operations with UnitValues', function() {
+		jelAssert.equal(new Duration(1, 2, 2, 0, 1, 14), "Duration(1, 2, 2, 0, 1, 4)+ 10 @Second");
+		jelAssert.equal("Duration(years=2, seconds=5)", "Duration(years=2)+ 5 @Second");
+
+		jelAssert.equal("Duration(1, 2, 8, 0, 1, 2)", "Duration(1, 2, 8, 0, 1, 4)- 2 @Second");
+
+		jelAssert.equal(4, "Duration(hours=2)/1800 @Second");
+
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) == 125 @Second", 1);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) != 125 @Second", 0);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) == 124 @Second", 0);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) != 124 @Second", 1);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) === 125 @Second", 1);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) !== 125 @Second", 0);
+
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) >= 125 @Second", 1);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=6) >= 125 @Second", 1);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=4) >= 125 @Second", 0);
+
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) > 125 @Second", 0);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=6) > 125 @Second", 1);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=4) > 125 @Second", 0);
+
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) <= 125 @Second", 1);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=6) <= 125 @Second", 0);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=4) <= 125 @Second", 1);
+
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) < 125 @Second", 0);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=6) < 125 @Second", 0);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=4) < 125 @Second", 1);
+
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) >> 125 @Second", 0);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=6) >> 125 @Second", 1);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=4) >> 125 @Second", 0);
+		jelAssert.fuzzy("Duration(minutes=2, seconds=5) >>= 125 @Second", 1);
+
+	});
+
+	it('supports operations with numbers', function() {
+		jelAssert.equal(new Duration(4, 2, 2, 0, 2, 16), "Duration(2, 1, 1, 0, 1, 8)*2");
+		jelAssert.equal(new Duration(1, 4, 2, 0, 5, 3.5), "Duration(2, 8, 4, 0, 10, 7) * 1/2");
+
+		jelAssert.equal(new Duration(1, 4, 2, 0, 5, 3.5), "Duration(2, 8, 4, 0, 10, 7) / 2");
+	});
+
+	it('supports unary ops', function() {
+		jelAssert.equal(new Duration(4, 2, 2, 0, 2, 16), "-Duration(-4, -2, -2, 0, -2, -16)");
+		jelAssert.fuzzy("!Duration(minutes=2, seconds=5)", 0);
+		jelAssert.fuzzy("!Duration(seconds=0)", 1);
+		jelAssert.fuzzy("!Duration(seconds=60, minutes=-1)", 1);
+	});
+
+	
 	it('rounds up to full days wilth fullDays()', function() {
 		jelAssert.equal(new Duration(2, 5, 10), "Duration(2, 5, 10, 1).fullDays()");
 		jelAssert.equal(new Duration(2, 5, 10), "Duration(2, 5, 10, 23, 0, 0).fullDays()");
@@ -179,6 +290,16 @@ describe('Duration', function() {
 		jelAssert.equal(new Duration(2, 5, 9), "Duration(2, 5, 10, -24).fullDays()");
 		jelAssert.equal(new Duration(2, 5, 8), "Duration(2, 5, 10, -24, 0, -1).fullDays()");
 	});
+
+	it('supports toEstimatedSeconds()', function() {
+		jelAssert.equal("10 @Second", "Duration(seconds=10).toEstimatedSeconds()");
+		jelAssert.equal("30 @Second", "Duration(minutes=1/2).toEstimatedSeconds()");
+		jelAssert.equal("7203 @Second", "Duration(hours=2,seconds=3).toEstimatedSeconds()");
+		jelAssert.equal("25*3600 @Second", "Duration(hours=1,days=1).toEstimatedSeconds()");
+		jelAssert.equal("2*365*24*3600 @Second", "Duration(years=2).toEstimatedSeconds()");
+	});
+
+
 
 	it('simplifies with simplify()', function() {
 		jelAssert.equal(new Duration(2, 5, 10, 1, 5, 2), "Duration(2, 5, 10, 1, 5, 2).simplify()");
@@ -190,4 +311,3 @@ describe('Duration', function() {
 	});
 
 });
-
