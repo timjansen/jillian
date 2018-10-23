@@ -118,14 +118,14 @@ export default class FuzzyBoolean extends JelType {
 		return this.state == FuzzyBoolean.FALSE_VALUE;
 	}
 	
-	static fourWay_jel_mapping = {mainValue: 0, clearly: 1};
-	static fourWay(mainValue: boolean, clearly: boolean): FuzzyBoolean {
+	static fourWay_jel_mapping = {mainValue: 1, clearly: 2};
+	static fourWay(ctx: Context, mainValue: boolean, clearly: boolean): FuzzyBoolean {
 		return mainValue ? (clearly ? FuzzyBoolean.TRUE : FuzzyBoolean.BARELY_TRUE) :
 			(clearly ? FuzzyBoolean.FALSE : FuzzyBoolean.BARELY_FALSE);
 	}
 
-	static twoPrecision_jel_mapping = {lowPrecision: 0, highPrecision: 1};
-	static twoPrecision(lowPrecision: boolean, highPrecision: boolean): FuzzyBoolean {
+	static twoPrecision_jel_mapping = {lowPrecision: 1, highPrecision: 2};
+	static twoPrecision(ctx: Context, lowPrecision: boolean, highPrecision: boolean): FuzzyBoolean {
 		return lowPrecision ? (highPrecision ? FuzzyBoolean.TRUE : FuzzyBoolean.BARELY_TRUE) :
 			(highPrecision ? FuzzyBoolean.BARELY_FALSE : FuzzyBoolean.FALSE);
 	}
@@ -159,11 +159,11 @@ export default class FuzzyBoolean extends JelType {
 	}
 	
 	static and_jel_mapping = {};
-	static and(ctx: Context, ...args: FuzzyBoolean[]): FuzzyBoolean {
+	static and(ctx: Context, ...args: any[]): FuzzyBoolean {
 		let pos = 1;
 		let r = args[0];
 		while (pos < args.length)
-			if (r.toRealBoolean())
+			if (JelType.toRealBoolean(r))
 				r = args[pos++];
 			else
 				return r;
@@ -171,11 +171,11 @@ export default class FuzzyBoolean extends JelType {
 	}
 
 	static or_jel_mapping = {};
-	static or(ctx: Context, ...args: FuzzyBoolean[]): FuzzyBoolean {
+	static or(ctx: Context, ...args: any[]): FuzzyBoolean {
 		let pos = 1;
 		let r = args[0];
 		while (pos < args.length)
-			if (r.toRealBoolean())
+			if (JelType.toRealBoolean(r))
 				return r;
 			else
 				r = args[pos++];
@@ -183,13 +183,15 @@ export default class FuzzyBoolean extends JelType {
 	}
 
 	static truest_jel_mapping = {a: 1, b: 2};
-	static truest(ctx: Context, a: FuzzyBoolean, b: FuzzyBoolean): FuzzyBoolean {
-		return a.state > b.state ? a : b;
+	static truest(ctx: Context, a0: any, b0: any): FuzzyBoolean {
+		const a = JelType.toBoolean(a0), b = JelType.toBoolean(b0);
+		return a.state > b.state ? a0 : b0;
 	}
 
 	static falsest_jel_mapping = {a: 1, b: 2};
-	static falsest(ctx: Context, a: FuzzyBoolean, b: FuzzyBoolean): FuzzyBoolean {
-		return a.state < b.state ? a : b;
+	static falsest(ctx: Context, a0: any, b0: any): FuzzyBoolean {
+		const a = JelType.toBoolean(a0), b = JelType.toBoolean(b0);
+		return a.state < b.state ? a0 : b0;
 	}
 
 	static falsestWithPromises(ctx: Context, a: FuzzyBoolean | Promise<FuzzyBoolean>, b: FuzzyBoolean | Promise<FuzzyBoolean>): FuzzyBoolean | Promise<FuzzyBoolean> {

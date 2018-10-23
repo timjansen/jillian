@@ -151,11 +151,18 @@ export default class ApproximateNumber extends JelType {
 		return FuzzyBoolean.toFuzzyBoolean(!!this.toNumber());
 	}
 	
+	// for use in JelType as ctor
 	static fromNumber(a: any, b: any): ApproximateNumber {
 		if (typeof a != 'number' || typeof b != 'number')
 			throw new Error('Failed to create ApproximateNumber. Expected both arguments to be numbers');
 		return new ApproximateNumber(a, b);
 	}
+
+	// for use in JelType as ctor
+	static createIfError(a: number, b: number): ApproximateNumber | number {
+		return b != 0 ?  new ApproximateNumber(a, b) : a;
+	}
+
 	
 	getSerializationProperties(): any[] {
 		return this.maxError != 0 ? [this.value, this.maxError] : [this.value];
@@ -163,7 +170,7 @@ export default class ApproximateNumber extends JelType {
 	
 	static create_jel_mapping = {value: 1, maxError: 2};
 	static create(ctx: Context, ...args: any[]): ApproximateNumber {
-		return new ApproximateNumber(args[0], args[1]);
+		return new ApproximateNumber(args[0], args[1] || 0);
 	}
 }
 

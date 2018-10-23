@@ -105,9 +105,9 @@ export default class DbRef extends JelType implements IDbRef {
 				case '!=':
 					return FuzzyBoolean.toFuzzyBoolean(this.distinctName != right.distinctName);
 				case '===':
-					return FuzzyBoolean.fourWay(this.distinctName == right.distinctName, this.hasSameParameters(right));
+					return FuzzyBoolean.fourWay(ctx, this.distinctName == right.distinctName, this.hasSameParameters(right));
 				case '!==':
-					return FuzzyBoolean.fourWay(this.distinctName == right.distinctName, this.hasSameParameters(right)).negate();
+					return FuzzyBoolean.fourWay(ctx, this.distinctName == right.distinctName, this.hasSameParameters(right)).negate();
 			}
 		}
 		return super.op(ctx, operator, right);

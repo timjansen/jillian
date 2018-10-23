@@ -330,6 +330,12 @@ export default class UnitValue extends JelType {
 		return JelType.toNumber(this.value);
 	}
 	
+	
+	isType_jel_mapping: Object;
+	isType(ctx: Context, unit: IDbRef | string): FuzzyBoolean {
+		return this.unit.isType(ctx, unit);
+	}
+	
 	toBoolean(): FuzzyBoolean {
 		return FuzzyBoolean.toFuzzyBoolean(!!this.toNumber());
 	}
@@ -350,5 +356,6 @@ UnitValue.prototype.convertTo_jel_mapping = {type: 1};
 UnitValue.prototype.round_jel_mapping = {};
 UnitValue.prototype.simplify_jel_mapping = {};
 UnitValue.prototype.toPrimaryUnits_jel_mapping = {};
+UnitValue.prototype.isType_jel_mapping = {unit: 1};
 UnitValue.prototype.JEL_PROPERTIES = {value:1, unit:1};
 

@@ -169,6 +169,13 @@ export default class JelType {
 		else
 			return !!obj;
 	}
+
+	static toBoolean(obj: any): any {
+		if (obj instanceof JelType)
+			return obj.toBoolean();
+		else
+			return MyFuzzyBoolean.toFuzzyBoolean(!!obj);
+	}
 	
 	static toNumber(n: any, defaultValue: number = NaN): number {
 		return typeof n == 'number' ? n : (n && n.toNumber) ? n.toNumber() : defaultValue;
@@ -238,12 +245,12 @@ export default class JelType {
 		if (operator in INVERTIBLE_OPS)
 			return MyFuzzyBoolean.negate(this.op(ctx, INVERTIBLE_OPS[operator], right));
 		if (operator == '<')
-			return MyFuzzyBoolean.truest(this.op(ctx, '>', right), this.op(ctx, '==', right)).negate();
+			return MyFuzzyBoolean.truest(ctx, this.op(ctx, '>', right), this.op(ctx, '==', right)).negate();
 		if (operator == '<<')
-			return MyFuzzyBoolean.truest(this.op(ctx, '>>', right), this.op(ctx, '===', right)).negate();
+			return MyFuzzyBoolean.truest(ctx, this.op(ctx, '>>', right), this.op(ctx, '===', right)).negate();
 		if (right instanceof JelType && right.reverseOps && operator in right.reverseOps)
 			return right.opReversed(ctx, operator, this);
-		throw new Error(`Operator "${operator}" is not supported for type "${this.constructor.name}" as left operand and right operand "${right == null ? 'null' : right.constructor.name}"`);
+		throw new Error(`Operator "${operator}" is not supported for type "${this.constructor.name}" as left operand and right operand "${right == null ? 'null' : right.constructor.name}" ${right instanceof JelType} ${operator in right.reverseOps} ${right instanceof JelType && right.reverseOps && operator in right.reverseOps}`);
 	}
 	
 	// To be used if the right-hand side is this type, and the left-hand side is a primitive.
@@ -252,6 +259,8 @@ export default class JelType {
 	// Usually this is used for the operators '-' and '/', and possibly comparisons as well.
 	opReversed_jel_mapping: Object;
 	opReversed(ctx: Context, operator: string, left: any): any {
+		if (this.reverseOps && operator in this.reverseOps && operator in REVERSIBLE_OPS)
+			return this.op(ctx, REVERSIBLE_OPS[operator], left);
 		throw new Error(`Operator "${operator}" is not supported for type "${this.constructor.name}" (in reversed operation)`);
 	}
 

@@ -132,6 +132,11 @@ export default class JelMath extends JelType {
 		return Math.hypot(...a.map(x=>JelType.toNumber(x)));
 	}
 
+	static delta_jel_mapping = {x: 1, y: 2};
+	static delta(ctx: Context, x: number | Fraction | UnitValue | ApproximateNumber, y: number | Fraction | UnitValue | ApproximateNumber): number | UnitValue {
+		return JelMath.restoreUnit(x, Math.abs(JelType.toNumber(x) - JelType.toNumber(y)));
+	}
+	
 	static log_jel_mapping = {x: 1};
 	static log(ctx: Context, x: number | Fraction | UnitValue | ApproximateNumber): number {
 		return Math.log(JelType.toNumber(x));

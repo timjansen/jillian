@@ -35,27 +35,27 @@ export default class Timestamp extends TimeSpec {
 				case '!==':
 					return FuzzyBoolean.toFuzzyBoolean(this.msSinceEpoch !== right.msSinceEpoch);
 				case '==':
-					return FuzzyBoolean.twoPrecision(this.couldBeEqual(right), this.msSinceEpoch === right.msSinceEpoch);
+					return FuzzyBoolean.twoPrecision(ctx, this.couldBeEqual(right), this.msSinceEpoch === right.msSinceEpoch);
 				case '!=':
-					return FuzzyBoolean.twoPrecision(!this.couldBeEqual(right), this.msSinceEpoch !== right.msSinceEpoch);
+					return FuzzyBoolean.twoPrecision(ctx, !this.couldBeEqual(right), this.msSinceEpoch !== right.msSinceEpoch);
 				
 				case '>>':
 					return FuzzyBoolean.toFuzzyBoolean(this.msSinceEpoch > right.msSinceEpoch);
 				case '<<':
 					return FuzzyBoolean.toFuzzyBoolean(this.msSinceEpoch < right.msSinceEpoch);
 				case '>':
-					return FuzzyBoolean.fourWay(this.msSinceEpoch > right.msSinceEpoch, !this.couldBeEqual(right));
+					return FuzzyBoolean.fourWay(ctx, this.msSinceEpoch > right.msSinceEpoch, !this.couldBeEqual(right));
 				case '<':
-					return FuzzyBoolean.fourWay(this.msSinceEpoch < right.msSinceEpoch, !this.couldBeEqual(right));
+					return FuzzyBoolean.fourWay(ctx, this.msSinceEpoch < right.msSinceEpoch, !this.couldBeEqual(right));
 
 				case '>>=':
 					return FuzzyBoolean.toFuzzyBoolean(this.msSinceEpoch >= right.msSinceEpoch);
 				case '<<=':
 					return FuzzyBoolean.toFuzzyBoolean(this.msSinceEpoch <= right.msSinceEpoch);
 				case '>=':
-					return FuzzyBoolean.fourWay(this.msSinceEpoch >= right.msSinceEpoch, !this.couldBeEqual(right));
+					return FuzzyBoolean.fourWay(ctx, this.msSinceEpoch >= right.msSinceEpoch, !this.couldBeEqual(right));
 				case '<=':
-					return FuzzyBoolean.fourWay(this.msSinceEpoch <= right.msSinceEpoch, !this.couldBeEqual(right));
+					return FuzzyBoolean.fourWay(ctx, this.msSinceEpoch <= right.msSinceEpoch, !this.couldBeEqual(right));
 					
 				case '-':
 					return new UnitValue((this.precisionInMs == 0 && right.precisionInMs == 0) ? 
