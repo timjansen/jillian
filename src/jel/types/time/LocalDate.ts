@@ -1,7 +1,8 @@
 import * as moment from 'moment-timezone';
 import Moment = moment.Moment;
 
-import JelType from '../../JelType';
+import Runtime from '../../Runtime';
+import JelObject from '../../JelObject';
 import Context from '../../Context';
 import FuzzyBoolean from '../FuzzyBoolean';
 import Timestamp from './Timestamp';
@@ -86,16 +87,16 @@ export default class LocalDate extends TimeSpec {
 	}
 	
 	
-	op(ctx: Context, operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (right instanceof LocalDate) {
 			switch (operator) {
 				case '==':
 				case '>':
-					return this.simplify().op(ctx, JelType.STRICT_OPS[operator], right.simplify());
+					return this.simplify().op(ctx, Runtime.STRICT_OPS[operator], right.simplify());
 				case '===':
-					return FuzzyBoolean.toFuzzyBoolean(this.year == right.year && this.month == right.month && this.day == right.day);
+					return FuzzyBoolean.valueOf(this.year == right.year && this.month == right.month && this.day == right.day);
 				case '>>':
-					return FuzzyBoolean.toFuzzyBoolean(this.year > right.year || (this.year == right.year && ((this.month > right.month) || this.month == right.month && this.day > right.day)));
+					return FuzzyBoolean.valueOf(this.year > right.year || (this.year == right.year && ((this.month > right.month) || this.month == right.month && this.day > right.day)));
 			}
 		}
 		else if (right instanceof LocalDateTime) {
@@ -108,13 +109,12 @@ export default class LocalDate extends TimeSpec {
 			return this.toZonedDateTime(right.timeZone).op(ctx, operator, right);
 		}
 		else if (right instanceof Duration) {
-			
 			switch (operator) {
 				case '+':
 					const d = right.fullDays();
 					return new LocalDate(this.year + d.years, this.month + d.months, this.day + d.days);
 				case '-':
-					const dm = right.singleOp(ctx, '-').fullDays();
+					const dm = (right.singleOp(ctx, '-') as Duration).fullDays();
 					return new LocalDate(this.year + dm.years, this.month + dm.months, this.day + dm.days);
 			}
 		}

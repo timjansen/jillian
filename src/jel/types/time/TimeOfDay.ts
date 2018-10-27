@@ -1,6 +1,6 @@
 import * as moment from 'moment';
 
-import JelType from '../../JelType';
+import JelObject from '../../JelObject';
 import Context from '../../Context';
 import FuzzyBoolean from '../FuzzyBoolean';
 import TimeHint from './TimeHint';
@@ -8,7 +8,7 @@ import TimeHint from './TimeHint';
 /**
  * Represents a time of day.
  */
-export default class TimeOfDay extends JelType {
+export default class TimeOfDay extends JelObject {
 	static readonly MIDNIGHT = new TimeOfDay(0);
 	static readonly NOON = new TimeOfDay(12);
 	

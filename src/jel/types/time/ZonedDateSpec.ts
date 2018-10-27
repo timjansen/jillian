@@ -1,4 +1,3 @@
-import JelType from '../../JelType';
 import Context from '../../Context';
 import Timestamp from './Timestamp';
 import TimeZone from './TimeZone';
@@ -7,6 +6,7 @@ import TimeSpec from './TimeSpec';
 import LocalDate from './LocalDate';
 import Range from '../Range';
 import FuzzyBoolean from '../FuzzyBoolean';
+import JelNumber from '../JelNumber';
 import ZonedDate from './ZonedDate';
 
 /**
@@ -27,7 +27,7 @@ export default abstract class ZonedDateSpec extends TimeSpec implements DateHint
 	}
 	
 	getYearRange(): Range|Promise<Range> { // Range of two integers
-		return new Range(); // TODO
+		return new Range(JelNumber.valueOf(0), JelNumber.valueOf(0)); // TODO
 	}
 	
 	getStartDate_jel_mapping: Object;

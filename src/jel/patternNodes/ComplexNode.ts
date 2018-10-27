@@ -4,8 +4,6 @@ import PatternNode from './PatternNode';
 import LambdaResultNode from './LambdaResultNode';
 import TranslatorNode from './TranslatorNode';
 import JelNode from '../expressionNodes/JelNode';
-import List from '../types/List';
-import FuzzyBoolean from '../types/FuzzyBoolean';
 import Context from '../Context';
 import Util from '../../util/Util';
 
@@ -27,7 +25,7 @@ export default abstract class ComplexNode extends MatchNode {
 	protected isResultTrue(result: any): boolean {
 		if (!result)
 			return false;
-		if (!(result instanceof FuzzyBoolean))
+		if (!result.toRealBoolean)
 			return true;
 		return result.toRealBoolean();
 	}

@@ -1,6 +1,7 @@
 import JelNode from './JelNode';
 import Assignment from './Assignment';
-import JelType from '../JelType';
+import JelObject from '../JelObject';
+import Runtime from '../Runtime';
 import Context from '../Context';
 import Util from '../../util/Util';
 import JelDictionary from '../types/Dictionary';
@@ -22,7 +23,7 @@ export default class Dictionary extends JelNode {
   }
 
   // override
-  execute(ctx: Context): any {
+  execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
     const map = new Map();
 		const promises: Promise<any>[] = [];
     this.elements.forEach(a => {

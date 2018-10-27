@@ -1,8 +1,8 @@
-import JelType from '../../jel/JelType';
+import JelObject from '../../jel/JelObject';
 
 
 
-export default abstract class FactList extends JelType {
+export default abstract class FactList extends JelObject {
   
   constructor() {
     super();

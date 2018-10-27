@@ -1,17 +1,19 @@
-import JelType from '../jel/JelType';
+import JelObject from '../jel/JelObject';
 import Serializable from '../jel/Serializable';
 import Context from '../jel/Context';
 import {IDbEntry} from '../jel/IDatabase';
 import Dictionary from '../jel/types/Dictionary';
 import DbIndexDescriptor from './DbIndexDescriptor';
 import DbRef from './DbRef';
+import JelString from '../jel/types/JelString';
+import JelNumber from '../jel/types/JelNumber';
 import List from '../jel/types/List';
 
 const tifu = require('tifuhash');
 
 // Base class for any kind of physical or immaterial instance of a category
 // Note that all references to other DbEntrys must be stored as a DbRef!!
-export default class DbEntry extends JelType implements IDbEntry {
+export default class DbEntry extends JelObject implements IDbEntry {
   isIDBEntry: boolean;
 	
   constructor(public distinctName: string, public reality: any, 
@@ -45,7 +47,7 @@ export default class DbEntry extends JelType implements IDbEntry {
 	}
 		
 	// sets a property
-  set(ctx: Context, name: string, value: JelType|number|string): DbEntry {
+  set(ctx: Context, name: string, value: JelObject|null): DbEntry {
 		this.properties.set(name, value);
 		return this;
 	}
@@ -56,7 +58,7 @@ export default class DbEntry extends JelType implements IDbEntry {
 
   static create_jel_mapping : Object = {distinctName: 1, reality: 2, hashCode: 3, properties: 4};
   static create(ctx: Context, ...args: any[]): any {
-    return new DbEntry(args[0], args[1], args[2], args[3]);
+    return new DbEntry(JelString.toRealString(args[0]), args[1], JelString.toRealString(args[2]), args[3]);
   }
 }
 

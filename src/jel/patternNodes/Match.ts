@@ -1,9 +1,9 @@
-import JelType from '../JelType';
+import JelObject from '../JelObject';
 
 const EMPTY_MAP = new Map();
 
 // A match returned by a LamdaResultNode
-export default class Match extends JelType {
+export default class Match extends JelObject {
 	// value: the return value
 	// index: the position after the match in the string array
 	// meta: a string->value map of additional meta data

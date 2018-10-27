@@ -4,8 +4,10 @@ import Context from '../../jel/Context';
 import List from '../../jel/types/List';
 import Dictionary from '../../jel/types/Dictionary';
 import EnumValue from '../../jel/types/EnumValue';
+import JelString from '../../jel/types/JelString';
 
-function createProperties(distinctName: string, values: List) {
+
+function createProperties(distinctName: string, values: List): Dictionary {
 	const d = new Map<string,any>();
 	const ref = new DbRef(distinctName);
 	values.elements.forEach(v=>d.set(v, new EnumValue(v, ref)));
@@ -31,7 +33,7 @@ export default class Enum extends DbEntry {
 
   static create_jel_mapping = {distinctName: 1, values: 2, reality: 3, hashCode: 4};
   static create(ctx: Context, ...args: any[]) {
-    return new Enum(args[0], args[1], args[2], args[3]);
+    return new Enum(JelString.toRealString(args[0]), args[1], args[2], JelString.toRealString(args[3]));
   }
 }
 

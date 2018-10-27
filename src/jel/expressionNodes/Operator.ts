@@ -1,8 +1,9 @@
 import JelNode from './JelNode';
 import Variable from './Variable';
-import JelType from '../JelType';
+import BaseTypeRegistry from '../BaseTypeRegistry';
+import JelObject from '../JelObject';
+import Runtime from '../Runtime';
 import Context from '../Context';
-import FuzzyBoolean from '../types/FuzzyBoolean';
 import Util from '../../util/Util';
 
 /**
@@ -29,12 +30,13 @@ import Util from '../../util/Util';
  * 
  */ 
 export default class Operator extends JelNode {
+		
   constructor(public operator: string, public left: JelNode, public right?: JelNode) {
     super();
   }
 
   // override
-  execute(ctx: Context): any {
+  execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
     switch (this.operator) {
     case '.':
     case '||':
@@ -45,15 +47,15 @@ export default class Operator extends JelNode {
       if (this.right == null)
         return this.evaluateLeftFirstOp(ctx);
         
-      return Util.resolveValues((l: any,r: any)=>JelType.op(ctx, this.operator, l, r), this.left.execute(ctx), this.right.execute(ctx));
+      return Util.resolveValues((l: any,r: any)=>Runtime.op(ctx, this.operator, l, r), this.left.execute(ctx), this.right.execute(ctx));
       }
   }
 
-  private evaluateLeftFirstOp(ctx: Context): any {
+  private evaluateLeftFirstOp(ctx: Context): JelObject|null|Promise<JelObject|null> {
     return Util.resolveValue(this.left.execute(ctx), left=>this.leftFirstOps(ctx, left));
   }
   
-  private leftFirstOps(ctx: Context, left: JelNode): any {
+  private leftFirstOps(ctx: Context, left: JelNode): JelObject|null|Promise<JelObject|null> {
     switch (this.operator) {
     case '.':
       return this.readMember(ctx, left);
@@ -62,26 +64,26 @@ export default class Operator extends JelNode {
     case '&&':
       return this.and(ctx, left);
     default:
-      return JelType.singleOp(ctx, this.operator, left);
+      return Runtime.singleOp(ctx, this.operator, left);
     }
   }
   
-  private readMember(ctx: Context, left: JelNode): any {
+  private readMember(ctx: Context, left: JelNode): JelObject|null|Promise<JelObject|null> {
     if (!(this.right instanceof Variable))
         throw new Error('Operator "." must be followed by an identifier');
-      return JelType.member(ctx, left, this.right.name);
+      return Runtime.member(ctx, left, this.right.name);
   }
   
-  private binaryOp(ctx: Context, left: JelNode, right: JelNode): any {
-      return JelType.op(ctx, this.operator, left, right);
+  private binaryOp(ctx: Context, left: JelNode, right: JelNode): JelObject|null|Promise<JelObject|null> {
+      return Runtime.op(ctx, this.operator, left, right);
   }
   
-  private and(ctx: Context, left: JelNode): FuzzyBoolean {
-    return JelType.toRealBoolean(left) ? this.right!.execute(ctx) : left;
+  private and(ctx: Context, left: JelNode): any {
+    return BaseTypeRegistry.get('FuzzyBoolean').toRealBoolean(left) ? this.right!.execute(ctx) : left;
   }
   
-  private or(ctx: Context, left: JelNode): FuzzyBoolean {
-    return JelType.toRealBoolean(left) ? left : this.right!.execute(ctx);
+  private or(ctx: Context, left: JelNode): any {
+    return BaseTypeRegistry.get('FuzzyBoolean').toRealBoolean(left) ? left : this.right!.execute(ctx);
   }
   
   

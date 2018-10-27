@@ -6,14 +6,16 @@ import LambdaResultNode from './LambdaResultNode';
 
 import TranslatorNode from './TranslatorNode';
 import JelNode from '../expressionNodes/JelNode';
-import List from '../types/List';
+import BaseTypeRegistry from '../BaseTypeRegistry';
 import Context from '../Context';
 import Util from '../../util/Util';
 
 export default class RegExpNode extends ComplexNode {
-
+	jstring: any;
+	
 	constructor(public regexps: RegExp[], name?: string, expression?: JelNode, next?: MultiNode) {
 		super(name, expression, next);
+		this.jstring = BaseTypeRegistry.get('JelString');
 	}
 	
 	merge(resultNode: LambdaResultNode): RegExpNode {
@@ -25,7 +27,7 @@ export default class RegExpNode extends ComplexNode {
 	
 	// override
 	match(ctx: Context, tokens: string[], idx: number, metaFilter?: Set<string>, incompleteMatch = false): any {
-		let matches: Array<string|List> = [];
+		let matches: Array<any> = []; // JelString or List
 		for (let i = 0; i < this.regexps.length; i++) {
 			const token = tokens[idx+i];
 			if (!token)
@@ -35,9 +37,9 @@ export default class RegExpNode extends ComplexNode {
 				return undefined;
 			
 			if (m.length == 1)
-				matches.push(m[0]);
+				matches.push(this.jstring.valueOf(m[0]));
 			else
-				matches.push(new List(m.slice(1)));
+				matches.push(BaseTypeRegistry.get('List').valueOf(m.slice(1).map(this.jstring.valueOf)));
 		}
 
 		const newCtx = this.name ? new Context(ctx) : ctx;
@@ -46,7 +48,7 @@ export default class RegExpNode extends ComplexNode {
 			if (matches.length < 2)
 				newCtx.set(this.name, matches[0]).freeze();
 			else
-				newCtx.set(this.name, new List(matches)).freeze();
+				newCtx.set(this.name, BaseTypeRegistry.get('List').valueOf(matches)).freeze();
 		}
 		
 		if (this.expression) {

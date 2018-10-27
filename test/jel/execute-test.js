@@ -9,6 +9,8 @@ const Callable = require('../../build/jel/Callable.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const JelType = require('../../build/jel/JelType.js').default;
 const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
+const JelString = require('../../build/jel/types/JelString.js').default;
+const JelNumber = require('../../build/jel/types/JelNumber.js').default;
 const JelList = require('../../build/jel/types/List.js').default;
 const JelDictionary = require('../../build/jel/types/Dictionary.js').default;
 const Fraction = require('../../build/jel/types/Fraction.js').default;
@@ -36,13 +38,13 @@ describe('JEL', function() {
   describe('execute()', function() {
     
     it('should execute a simple literal', function() {
-      assert.equal(new JEL('5').executeImmediately(), 5);
-      assert.equal(new JEL('+5').executeImmediately(), 5);
-      assert.equal(new JEL('-5').executeImmediately(), -5);
-      assert.equal(new JEL('- 5').executeImmediately(), -5);
-      assert.equal(new JEL('1e5').executeImmediately(), 1e5);
-      assert.equal(new JEL('-1e-5').executeImmediately(), -1e-5);
-      assert.equal(new JEL('"foo"').executeImmediately(), 'foo');
+      assert.equal(new JEL('5').executeImmediately(), JelNumber.valueOf(5));
+      assert.equal(new JEL('+5').executeImmediately(), JelNumber.valueOf(5));
+      assert.equal(new JEL('-5').executeImmediately(), JelNumber.valueOf(-5));
+      assert.equal(new JEL('- 5').executeImmediately(), JelNumber.valueOf(-5));
+      assert.equal(new JEL('1e5').executeImmediately(), JelNumber.valueOf(1e5));
+      assert.equal(new JEL('-1e-5').executeImmediately(), JelNumber.valueOf(-1e-5));
+      assert.equal(new JEL('"foo"').executeImmediately(), JelString.valueOf('foo'));
       assert.equal(new JEL('true').executeImmediately().state, 1);
       assert.equal(new JEL('null').executeImmediately(), null);
     });
@@ -54,13 +56,13 @@ describe('JEL', function() {
     });
 
 		it('should execute a UnitValues', function() {
-      jelAssert.equal('1 @Meter', new UnitValue(1, 'Meter'));
-      jelAssert.equal('5.5 @Meter', new UnitValue(5.5, 'Meter'));
-      jelAssert.equal('-2 @Second', new UnitValue(-2, 'Second'));
-      jelAssert.equal('+3 @Second', new UnitValue(3, 'Second'));
+      jelAssert.equal('1 @Meter', new UnitValue(JelNumber.valueOf(1), 'Meter'));
+      jelAssert.equal('5.5 @Meter', new UnitValue(JelNumber.valueOf(5.5), 'Meter'));
+      jelAssert.equal('-2 @Second', new UnitValue(JelNumber.valueOf(-2), 'Second'));
+      jelAssert.equal('+3 @Second', new UnitValue(JelNumber.valueOf(3), 'Second'));
       jelAssert.equal('1/4 @Inch', new UnitValue(new Fraction(1, 4), 'Inch'));
       jelAssert.equal('-3/4 @Mile', new UnitValue(new Fraction(-3, 4), 'Mile'));
-      jelAssert.equal('1 @Meter + 1 @Meter', new UnitValue(2, 'Meter'));
+      jelAssert.equal('1 @Meter + 1 @Meter', new UnitValue(JelNumber.valueOf(2), 'Meter'));
     });
 
 		
@@ -84,7 +86,7 @@ describe('JEL', function() {
       jelAssert.equal('7^2', 49);
       jelAssert.equal('0.5^-1', 2);
       jelAssert.equal('!true', 'false');
-      assert.equal(new JEL('-(10/2.0)').executeImmediately(), -5);
+      assert.equal(new JEL('-(10/2.0)').executeImmediately(), JelNumber.valueOf(-5));
       assert.equal(new JEL('"foo"+"bar"').executeImmediately(), "foobar");
       assert.equal(new JEL('5>5').executeImmediately().state, 0);
       assert.equal(new JEL('5<5').executeImmediately().state, 0);
@@ -113,10 +115,10 @@ describe('JEL', function() {
       assert.equal(new JEL('true||true').executeImmediately().state, 1);
       assert.equal(new JEL('false||true').executeImmediately().state, 1);
       assert.equal(new JEL('false||false').executeImmediately().state, 0);
-      assert.equal(new JEL('17||0').executeImmediately(), 17);
-      assert.equal(new JEL('15||"test"').executeImmediately(), 15);
-      assert.equal(new JEL('""||"foo"').executeImmediately(), "foo");
-      assert.equal(new JEL('0||""').executeImmediately(), 0);
+      assert.equal(new JEL('17||0').executeImmediately(), JelNumber.valueOf(17));
+      assert.equal(new JEL('15||"test"').executeImmediately(), JelNumber.valueOf(15));
+      assert.equal(new JEL('""||"foo"').executeImmediately(), JelString.valueOf("foo"));
+      assert.equal(new JEL('0||""').executeImmediately(), JelNumber.valueOf(0));
     });
 
     it('should support logical AND (&&)', function() {

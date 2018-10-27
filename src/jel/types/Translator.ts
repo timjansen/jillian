@@ -1,9 +1,11 @@
 'use strict';
 
-import JelType from '../JelType';
+import Runtime from '../Runtime';
+import JelObject from '../JelObject';
 import Callable from '../Callable';
 import Context from '../Context';
 
+import JelString from './JelString';
 import List from './List';
 import Pattern from './Pattern';
 
@@ -13,7 +15,7 @@ import TranslatorNode from '../patternNodes/TranslatorNode';
 import LambdaResultNode from '../patternNodes/LambdaResultNode';
 import StaticResultNode from '../patternNodes/LambdaResultNode';
 
-export default class Translator extends JelType {
+export default class Translator extends JelObject {
 	tree: TranslatorNode = new TranslatorNode();
 	
 	constructor() {
@@ -34,7 +36,9 @@ export default class Translator extends JelType {
 	// Returns List of Matches with properties 'value' and 'meta', or a Promise thereof
 	// metaFilter is an optional set of meta values that must be present in the results
 	match_jel_mapping: Object;
-	match(ctx: Context, input: string | string[], metaFilter?: Set<string>): List | Promise<List> {
+	match(ctx: Context, input: JelString | string | string[], metaFilter?: Set<string>): List | Promise<List> { // TODO: make Set<string> JEL compatible
+		if (input instanceof JelString)
+			return this.match(ctx, input.value, metaFilter);
 		if (typeof input == 'string') {
 			const trimmed = input.trim();
 			return this.match(ctx, trimmed ? trimmed.split(/\s+/g) : [], metaFilter);
@@ -55,7 +59,7 @@ export default class Translator extends JelType {
 	}
 }
 
-Translator.prototype.match_jel_mapping = {input: 1, metaFilter: 2};
+Translator.prototype.match_jel_mapping = {input: 1};
 
 
 

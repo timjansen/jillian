@@ -1,10 +1,12 @@
-import JelType from '../JelType';
+import JelObject from '../JelObject';
+import Runtime from '../Runtime';
 import Serializer from '../Serializer';
 import Context from '../Context';
 import Callable from '../Callable';
 import {IDbRef, IDbEntry} from '../IDatabase';
 import Unit from './Unit';
 import FuzzyBoolean from './FuzzyBoolean';
+import JelNumber from './JelNumber';
 import Dictionary from './Dictionary';
 import List from './List';
 import Fraction from './Fraction';
@@ -15,19 +17,18 @@ import Util from '../../util/Util';
 /**
  * Represents a value with unit and accuracy.
  */
-export default class UnitValue extends JelType {
+export default class UnitValue extends JelObject {
 	JEL_PROPERTIES: Object;
 	
-	public value: number | Fraction | ApproximateNumber;
 	public unit: Unit;
 	
-	constructor(value: number | Fraction | ApproximateNumber, unit: IDbRef | Unit | string) {
+	constructor(public value: JelNumber | Fraction | ApproximateNumber, unit: IDbRef | Unit | string) {
 		super();
 		this.value = value;
 		this.unit = unit instanceof Unit ? unit : new Unit(unit);
 	}
 
-	op(ctx: Context, operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (right instanceof UnitValue) {
 			if (this.unit.equals(right.unit)) {
 				switch (operator) {
@@ -43,23 +44,23 @@ export default class UnitValue extends JelType {
 				case '<':
 				case '<=':
 				case '>=':
-						return JelType.op(ctx, operator, this.value, right.value);
+						return Runtime.op(ctx, operator, this.value, right.value);
 				case '+':
 				case '-':
-						return new UnitValue(JelType.op(ctx, operator, this.value, right.value), this.unit);
+						return new UnitValue(Runtime.op(ctx, operator, this.value, right.value) as any, this.unit);
 				case '/':
-						return JelType.op(ctx, operator, this.value, right.value);
+						return Runtime.op(ctx, operator, this.value, right.value);
 				case '*':
-						return new UnitValue(JelType.op(ctx, operator, this.value, right.value), JelType.op(ctx, operator, this.unit, right.unit)).simplify(ctx);
+						return new UnitValue(Runtime.op(ctx, operator, this.value, right.value) as any, Runtime.op(ctx, operator, this.unit, right.unit) as any).simplify(ctx);
 				case '+-':
-					return this.toApproxNumber(right.value instanceof ApproximateNumber ? JelType.op(ctx, '+', right.value.value, right.value.maxError) : right.value);
+					return this.toApproxNumber(right.value instanceof ApproximateNumber ? Runtime.op(ctx, '+', right.value.value, right.value.maxError) as any : right.value);
 				}
 			}
 			else {
 				switch (operator) {
 					case '*':
 					case '/':
-						return new UnitValue(JelType.op(ctx, operator, this.value, right.value), JelType.op(ctx, operator, this.unit, right.unit)).simplify(ctx);
+						return new UnitValue(Runtime.op(ctx, operator, this.value, right.value) as any, Runtime.op(ctx, operator, this.unit, right.unit) as any).simplify(ctx);
 					case '==': 
 					case '===':
 					case '!=': 
@@ -72,24 +73,24 @@ export default class UnitValue extends JelType {
 					case '<':
 					case '<=':
 					case '>=':
-						return Util.resolveValueAndError(this.convertTo(ctx, right.unit), converted => JelType.op(ctx, operator, converted, right), ()=>FuzzyBoolean.toFuzzyBoolean(operator == '!=' || operator == '!=='));
+						return Util.resolveValueAndError(this.convertTo(ctx, right.unit), converted => Runtime.op(ctx, operator, converted, right), ()=>FuzzyBoolean.valueOf(operator == '!=' || operator == '!=='));
 					case '+':
 					case '-':
-						return Util.resolveValueAndError(this.convertTo(ctx, right.unit), converted => JelType.op(ctx, operator, converted, right), ()=>Promise.reject(new Error(`Can not apply`)));
+						return Util.resolveValueAndError(this.convertTo(ctx, right.unit), converted => Runtime.op(ctx, operator, converted, right), ()=>Promise.reject(new Error(`Can not apply`)));
 					case '+-':
 						return Util.resolveValue(right.convertTo(ctx, this.unit), converted=>this.toApproxNumber(converted.value));
 				}
 			}
 		}
-		else if (typeof right == 'number' || right instanceof Fraction || right instanceof ApproximateNumber) {
+		else if (right instanceof JelNumber || right instanceof Fraction || right instanceof ApproximateNumber) {
 				switch (operator) {
 				case '*':
 				case '/':
 				case '^':
-					return new UnitValue(JelType.op(ctx, operator, this.value, right), JelType.op(ctx, operator, this.unit, right)).simplify(ctx);
+					return new UnitValue(Runtime.op(ctx, operator, this.value, right) as any, Runtime.op(ctx, operator, this.unit, right) as any).simplify(ctx);
 				case '+-':
 					if (right instanceof ApproximateNumber)
-						return this.toApproxNumber(JelType.op(ctx, '+', right.value, right.maxError));
+						return this.toApproxNumber(Runtime.op(ctx, '+', right.value, right.maxError) as any);
 					else
 						return this.toApproxNumber(right);
 				}
@@ -97,27 +98,27 @@ export default class UnitValue extends JelType {
 		return super.op(ctx, operator, right);
 	}
 	
-	private toApproxNumber(newError: number | Fraction): UnitValue {
+	private toApproxNumber(newError: JelNumber | Fraction): UnitValue {
 		if (this.value instanceof ApproximateNumber)
 			return new UnitValue(new ApproximateNumber(this.value.value, newError), this.unit);
 		else
 			return new UnitValue(new ApproximateNumber(this.value, newError), this.unit);
 	}
 	
-	singleOp(ctx: Context, operator: string): any {
+	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
 		if (operator == '!') 
-			return JelType.singleOp(ctx, operator, this.value);
+			return Runtime.singleOp(ctx, operator, this.value);
 		if (operator == 'abs')
-			return new UnitValue(JelType.singleOp(ctx, operator, this.value), this.unit);
+			return new UnitValue(Runtime.singleOp(ctx, operator, this.value) as any, this.unit);
 		return super.singleOp(ctx, operator);
 	}
 
-	opReversed(ctx: Context, operator: string, left: any): any {
-		if (typeof left == 'number' || left instanceof Fraction || left instanceof ApproximateNumber) {
+	opReversed(ctx: Context, operator: string, left: JelObject): JelObject|Promise<JelObject> {
+		if (left instanceof JelNumber || left instanceof Fraction || left instanceof ApproximateNumber) {
 			switch (operator) {
 				case '*':
 				case '/':
-					return new UnitValue(JelType.op(ctx, operator, left, this.value), this.unit);
+					return new UnitValue(Runtime.op(ctx, operator, left, this.value) as any, this.unit);
 				}		
 		}
 		return super.opReversed(ctx, operator, left);
@@ -157,15 +158,15 @@ export default class UnitValue extends JelType {
 						return Promise.reject(new Error(`Broken configuration in ${simpleUnit.distinctName}.convertsTo.${target}: should be Callable, but is ${Serializer.serialize(f)}.`));
 					return Util.resolveValue(f.invoke(ctx, this.value), v=>new UnitValue(v, target));
 				}
-				const factor: number | Fraction = conversionObj.elements.get('factor');
+				const factor: JelNumber | Fraction = conversionObj.elements.get('factor');
 				if (factor)
-					return Util.resolveValue(JelType.op(ctx, '*', factor, this.value), v=>new UnitValue(v, target));
+					return Util.resolveValue(Runtime.op(ctx, '*', factor, this.value), v=>new UnitValue(v, target));
 				else
 					return Promise.reject(new Error("Can not convert from "+simpleUnit.distinctName+" to type " + target+": neither factor not function set."));
 			}
 			else 
 				return simpleUnit.withMember(ctx, 'isPrimaryUnit', (isPrimaryUnit: any)=> {
-					if (JelType.toRealBoolean(isPrimaryUnit))
+					if (FuzzyBoolean.toRealBoolean(isPrimaryUnit))
 						return Promise.reject(new Error(`Can not convert from unit ${this.unit.toString()} to unit ${target}. No conversion rule available.`));
 
 					return simpleUnit.withMember(ctx, 'quantityCategory', (qc: any)=> {
@@ -177,7 +178,7 @@ export default class UnitValue extends JelType {
 								return Promise.reject(new Error(`Unit ${simpleUnit.distinctName} is missing required property primaryUnit.`));
 
 							return primaryUnit.withMember(ctx, 'isPrimaryUnit', (isPrimaryUnit: any) => {
-								if (!JelType.toRealBoolean(isPrimaryUnit))
+								if (!FuzzyBoolean.toRealBoolean(isPrimaryUnit))
 									return Promise.reject(new Error(`Unit ${qc.distinctName} defines ${primaryUnit.distinctName} as primary unit, but isPrimaryUnit is not set to true.`));
 								return Util.resolveValue(this.convertSimpleTo(ctx, primaryUnit.distinctName, true), p=>p.convertSimpleTo(ctx, target, false));
 							});
@@ -188,9 +189,9 @@ export default class UnitValue extends JelType {
 	}
 
 	private static tryComplexConversion(uv: UnitValue, target: string, targetUnits: Unit[]): UnitValue | undefined {
-			for (let u of targetUnits)
-				if (uv.unit.equals(u))
-					return new UnitValue(uv.value, new Unit(target));
+		for (let u of targetUnits)
+			if (uv.unit.equals(u))
+				return new UnitValue(uv.value, new Unit(target));
 	}
 	
 	private convertComplexTo(ctx: Context, target: string): Promise<UnitValue> | UnitValue {
@@ -249,7 +250,7 @@ export default class UnitValue extends JelType {
 		const unitRefs: IDbRef[] = Array.from(this.unit.units.keys()).map(r=>session.createDbRef(r));
 		
 		return Util.resolveArray(unitRefs.map(u=>u.member(ctx, 'isPrimaryUnit')), (unitEntryFilter: any[]) => {
-			const nonPrimaryUnits: IDbRef[] = unitRefs.filter((u, i)=>!JelType.toRealBoolean(unitEntryFilter[i]));
+			const nonPrimaryUnits: IDbRef[] = unitRefs.filter((u, i)=>!FuzzyBoolean.toRealBoolean(unitEntryFilter[i]));
 			if (!nonPrimaryUnits.length)
 				return this;
 
@@ -266,14 +267,14 @@ export default class UnitValue extends JelType {
 								const t = convertsTo.elements.get(primaryUnit.distinctName);
 								if (!(t instanceof Dictionary))
 									throw new Error(`@${oldUnit.distinctName}.convertsTo.${primaryUnit.distinctName} must be a Dictionary, but has a different type.`);
-								const newUnitMap = new Dictionary(uv.unit.units);
-								const exp = newUnitMap.elements.get(oldUnit.distinctName);
-								newUnitMap.elements.delete(oldUnit.distinctName);
-								newUnitMap.elements.set(primaryUnit.distinctName, (newUnitMap.elements.get(primaryUnit.distinctName) || 0) + exp);
+								const newUnitMap = new Map<string,number>(uv.unit.units);
+								const exp = newUnitMap.get(oldUnit.distinctName);
+								newUnitMap.delete(oldUnit.distinctName);
+								newUnitMap.set(primaryUnit.distinctName, (newUnitMap.get(primaryUnit.distinctName) || 0) + exp);
 								if (t.elements.has('factor'))
-									uv = new UnitValue(JelType.op(ctx, '*', uv.value, JelType.op(ctx, '^', t.elements.get('factor'), exp)), new Unit(newUnitMap));
+									uv = new UnitValue(Runtime.op(ctx, '*', uv.value, Runtime.op(ctx, '^', t.elements.get('factor'), exp) as any) as any, new Unit(newUnitMap));
 								else if (t.elements.has('f') && exp == 1) {
-									uv = new UnitValue(t.elements.get('f').invoke(ctx, uv.value), new Unit(newUnitMap));
+									uv = new UnitValue(t.elements.get('f').invoke(ctx, uv.value) as any, new Unit(newUnitMap));
 								}
 							}
 						});
@@ -321,13 +322,13 @@ export default class UnitValue extends JelType {
 	}
 	
 	round_jel_mapping: Object;
-	round(ctx: Context, precision: number = 1): UnitValue {
-		return new UnitValue(Math.round(JelType.toNumber(this.value)*precision)/precision, this.unit);
+	round(ctx: Context, precision: JelNumber = JelNumber.valueOf(1)): UnitValue {
+		return new UnitValue(JelNumber.valueOf(Math.round(Runtime.toRealNumber(this.value)*precision.value)/precision.value), this.unit);
 	}
 	
 	toNumber_jel_mapping: Object;
-	toNumber(): number {
-		return JelType.toNumber(this.value);
+	toNumber(): JelNumber {
+		return this.value.toNumber();
 	}
 	
 	
@@ -337,7 +338,7 @@ export default class UnitValue extends JelType {
 	}
 	
 	toBoolean(): FuzzyBoolean {
-		return FuzzyBoolean.toFuzzyBoolean(!!this.toNumber());
+		return FuzzyBoolean.valueOf(!!this.toNumber().value);
 	}
 	
 	getSerializationProperties(): any[] {

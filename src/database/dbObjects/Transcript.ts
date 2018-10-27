@@ -1,8 +1,8 @@
-import JelType from '../../jel/JelType';
+import JelObject from '../../jel/JelObject';
 
 
 
-export default abstract class Transcript extends JelType {
+export default abstract class Transcript extends JelObject {
   
   constructor() {
     super();

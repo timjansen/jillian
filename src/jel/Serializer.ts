@@ -1,11 +1,6 @@
-import Dictionary from './types/Dictionary';
-import FuzzyBoolean from './types/FuzzyBoolean';
-import List from './types/List';
-import Pattern from './types/Pattern';
-import LambdaCallable from './LambdaCallable';
-import {isDbRef} from './IDatabase';
 import Util from '../util/Util';
 import Serializable from './Serializable';
+import SerializablePrimitive from './SerializablePrimitive';
 
 /**
  * Serializes an object tree of serializable nodes into a JSON-like, JEL-readable string representation. Primitives (number, string, boolean, array)
@@ -27,36 +22,13 @@ export default class Serializer {
 
 		const type = typeof obj;
 		if (type == 'object') {
-			if (obj instanceof FuzzyBoolean)
-				return obj.state == 0 ? 'false' : obj.state == 1 ? 'true' : `FuzzyBoolean(${obj.state})`;
-			else if (isDbRef(obj))
-				return '@'+obj.distinctName;
-			else if (obj instanceof Dictionary) {
-				if (!obj.size)
-					return "{}";
-				let r = '{';
-				let i = 0;
-				const last = obj.elements.size-1;
-				obj.elements.forEach((value, key) => {
-					if (pretty)
-						r += '\n'+spaces(2);
-					if (typeof key == 'string' && /^[a-zA-Z_]\w*$/.test(key))
-						r += key;
-					else
-						r += Serializer.serialize(key, pretty, indent);
-					r += (pretty ? ': ' : ':') + Serializer.serialize(value, pretty, indent)
-					if (i++ < last)
-						r += pretty ? ', ' : ',';
-				});
-				if (pretty)
-					r += '\n';
-				return r + '}';
+			if ('serializeToString' in obj) {
+				const s = (obj as SerializablePrimitive).serializeToString(pretty, indent, SPACES, Serializer.serialize);
+				if (s != null)
+					return s;
 			}
-			else if (obj instanceof List) 
-				return Serializer.serializeArray(obj.elements, pretty, indent);
-			else if (obj instanceof Pattern) 
-				return '`' + obj.patternText.replace(/`/g, '\\`') + '`';
-			else if ('getSerializationProperties' in obj) {
+			
+			if ('getSerializationProperties' in obj) {
 				const props = (obj as Serializable).getSerializationProperties();
 				let r = obj.constructor.name + '(';
 				if (Array.isArray(props)) {
@@ -92,8 +64,6 @@ export default class Serializer {
 			}
 			else if (typeof obj.length == 'number') 
 				return Serializer.serializeArray(obj, pretty, indent);
-			else if (obj instanceof LambdaCallable)
-				return obj.toString();
 			else
 				return `"unserializable object. type=${obj?obj.constructor.name:'?'}"`;
 		}

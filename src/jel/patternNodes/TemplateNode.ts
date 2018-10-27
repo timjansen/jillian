@@ -5,8 +5,7 @@ import ComplexNode from './ComplexNode';
 import TranslatorNode from './TranslatorNode';
 import LambdaResultNode from './LambdaResultNode';
 import JelNode from '../expressionNodes/JelNode';
-import Dictionary from '../types/Dictionary';
-import FuzzyBoolean from '../types/FuzzyBoolean';
+import BaseTypeRegistry from '../BaseTypeRegistry';
 import Context from '../Context';
 import Util from '../../util/Util';
 
@@ -38,7 +37,7 @@ export default class TemplateNode extends ComplexNode {
 			const tplCtx = this.name ? new Context(ctx) : ctx;
 			if (this.name)
 				tplCtx.set(this.name, match.value) 
-							.set(this.name + '_meta', new Dictionary(match.meta, true))
+							.set(this.name + '_meta', BaseTypeRegistry.get('Dictionary').valueOf(match.meta, true))
 							.freeze();
 
 			if (this.expression) {

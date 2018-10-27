@@ -1,6 +1,7 @@
 import PropertyType from './PropertyType';
 import PropertyHelper from './PropertyHelper';
 import Dictionary from '../../jel/types/Dictionary';
+import JelObject from '../../jel/JelObject';
 import List from '../../jel/types/List';
 import Context from '../../jel/Context';
 
@@ -20,7 +21,7 @@ export default class ComplexPropertyType extends PropertyType {
     
     const m = new Map();
     fields.elements.forEach((v, n)=>{
-      m.set(n, PropertyHelper.convert(v));
+      m.set(n, PropertyHelper.convert(v as JelObject));
     });
     this.fields = new Dictionary(m);
   }

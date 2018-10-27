@@ -4,6 +4,7 @@ import DbRef from '../DbRef';
 import DbIndexDescriptor from '../DbIndexDescriptor';
 import Dictionary from '../../jel/types/Dictionary';
 import List from '../../jel/types/List';
+import JelString from '../../jel/types/JelString';
 import FuzzyBoolean from '../../jel/types/FuzzyBoolean';
 import Serializable from '../../jel/Context';
 import Context from '../../jel/Context';
@@ -51,7 +52,7 @@ export default class Thing extends DbEntry {
 
   static create_jel_mapping = {distinctName: 1, category: 2, properties: 3, reality: 4, hashCode: 5};
   static create(ctx: Context, ...args: any[]) {
-    return new Thing(args[0], args[1], args[2], args[3], args[4]);
+    return new Thing(JelString.toRealString(args[0]), args[1], args[2], args[3], JelString.toRealString(args[4]));
   }
 }
 

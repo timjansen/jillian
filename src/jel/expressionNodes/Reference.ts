@@ -1,6 +1,7 @@
 import JelNode from './JelNode';
 import Assignment from './Assignment';
 import Context from '../Context';
+import JelObject from '../JelObject';
 import {IDbRef, IDbSession} from '../IDatabase';
 import Util from '../../util/Util';
 
@@ -28,7 +29,7 @@ export default class Reference extends JelNode {
   }
   
   // override
-  execute(ctx: Context): any {
+  execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
 		const dbSession: IDbSession = ctx.getSession();
 		if (!this.ref) {
 			if (!this.parameters.length)
@@ -41,7 +42,7 @@ export default class Reference extends JelNode {
 					this.ref = dbSession.createDbRef(this.name, params);
 			}
 		}
-    return this.ref;
+    return this.ref as any;
   }
   
   // overrride

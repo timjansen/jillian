@@ -1,6 +1,11 @@
 import Util from '../../util/Util';
-import JelType from '../JelType';
+import BaseTypeRegistry from '../BaseTypeRegistry';
+import SerializablePrimitive from '../SerializablePrimitive';
 import Context from '../Context';
+import Runtime from '../Runtime';
+import JelObject from '../JelObject';
+import JelNumber from './JelNumber';
+import JelString from './JelString';
 import FuzzyBoolean from './FuzzyBoolean';
 import Callable from '../Callable';
 import Gettable from '../Gettable';
@@ -8,7 +13,7 @@ import Gettable from '../Gettable';
 /**
  * List is an immutable array-like object that is accessible from JEL.
  */
-export default class List extends JelType implements Gettable {
+export default class List extends JelObject implements Gettable, SerializablePrimitive {
 	elements: any[]; // list elements, guaranteed to be no Promises
 
 	JEL_PROPERTIES: Object;
@@ -22,7 +27,7 @@ export default class List extends JelType implements Gettable {
 		this.elements = elements instanceof List ? elements.elements : Array.isArray(elements) ? elements : Array.from(elements);
 	}
 
-	op(ctx: Context, operator: string, right: any) {
+	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (right == null)
 			return this;
 		if (right instanceof List) {
@@ -33,7 +38,7 @@ export default class List extends JelType implements Gettable {
 						return FuzzyBoolean.FALSE;
 					let result: FuzzyBoolean | Promise<FuzzyBoolean> = FuzzyBoolean.TRUE;
 					for (let i = 0; i < this.elements.length; i++)
-						result = FuzzyBoolean.falsestWithPromises(ctx, result, JelType.op(ctx, operator, this.elements[i], right.elements[i]));
+						result = FuzzyBoolean.falsestWithPromises(ctx, result, Runtime.op(ctx, operator, this.elements[i], right.elements[i]) as any);
 					return result;
 				case '+':
 					return new List(this.elements.concat(right.elements));
@@ -54,7 +59,7 @@ export default class List extends JelType implements Gettable {
 				case '<<=':
 				case '>>=':
 					if (this.elements.length == 1)
-						return JelType.op(ctx, operator, this.elements[0], right);
+						return Runtime.op(ctx, operator, this.elements[0], right);
 					else
 						return FuzzyBoolean.FALSE;
 				case '+':
@@ -66,16 +71,18 @@ export default class List extends JelType implements Gettable {
 		return super.op(ctx, operator, right);
 	}
 	
-	singleOp(ctx: Context, operator: string): any {
+	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
 		if (operator == '!')
-			return FuzzyBoolean.toFuzzyBoolean(!this.elements.length);
+			return FuzzyBoolean.valueOf(!this.elements.length);
 		else
 			return super.singleOp(ctx, operator);
 	}
 
 	
 	get_jel_mapping: Object;
-	get(ctx: Context, index: number): any {
+	get(ctx: Context, index: JelNumber|number): any {
+		if (index instanceof JelNumber)
+			return this.get(ctx, index.value);
 		if (index >= 0)
 			return this.elements[index];
 		else
@@ -92,8 +99,8 @@ export default class List extends JelType implements Gettable {
 		return v === undefined ? null : v;
 	}
 	
-	get length(): number {
-		return this.elements.length;
+	get length(): JelNumber {
+		return JelNumber.valueOf(this.elements.length);
 	}
 	
 	each_jel_mapping: Object;
@@ -124,7 +131,7 @@ export default class List extends JelType implements Gettable {
 		const newList: any[] = [];
 
 		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, i), (v, e)=> {
-			if (JelType.toRealBoolean(v))
+			if (FuzzyBoolean.toRealBoolean(v))
 				newList.push(e);
 		}, ()=>new List(newList));
 	}
@@ -138,12 +145,12 @@ export default class List extends JelType implements Gettable {
 
 	hasAny_jel_mapping: Object;
 	hasAny(ctx: Context, f: Callable): FuzzyBoolean | Promise<FuzzyBoolean> {
-		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, i), (v, e)=>JelType.toRealBoolean(v) ? FuzzyBoolean.TRUE : undefined, r=>r || FuzzyBoolean.FALSE);
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, i), (v, e)=>FuzzyBoolean.toRealBoolean(v) ? FuzzyBoolean.TRUE : undefined, r=>r || FuzzyBoolean.FALSE);
 	}
 
 	hasOnly_jel_mapping: Object;
 	hasOnly(ctx: Context, f: Callable): FuzzyBoolean | Promise<FuzzyBoolean> {
-		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, i), (v, e)=>JelType.toRealBoolean(v) ? undefined : FuzzyBoolean.FALSE, r=>r || FuzzyBoolean.TRUE);
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, i), (v, e)=>FuzzyBoolean.toRealBoolean(v) ? undefined : FuzzyBoolean.FALSE, r=>r || FuzzyBoolean.TRUE);
 	}
 	
 	// isBetter(a,b) checks whether a is better than b (must return false is both are equally good)
@@ -161,8 +168,8 @@ export default class List extends JelType implements Gettable {
 		function check1Passed(e: any): undefined | Promise<any> {
 			const check2 = isBetter.invoke(ctx, e, l[0]);
 			if (check2 instanceof Promise) 
-				return check2.then(v=>JelType.toRealBoolean(v) ? l.splice(0, self.elements.length, e) : l.push(e))
-			else if (JelType.toRealBoolean(check2))
+				return check2.then(v=>FuzzyBoolean.toRealBoolean(v) ? l.splice(0, self.elements.length, e) : l.push(e))
+			else if (FuzzyBoolean.toRealBoolean(check2))
 				l.splice(0, self.elements.length, e);
 			else
 				l.push(e);
@@ -174,7 +181,7 @@ export default class List extends JelType implements Gettable {
 				const check1 = isBetter.invoke(ctx, l[0], e);
 				if (check1 instanceof Promise) 
 					return check1.then((v: any) => {
-						if (!JelType.toRealBoolean(v)) {
+						if (!FuzzyBoolean.toRealBoolean(v)) {
 							const c2 = check1Passed(e);
 							if (c2 instanceof Promise)
 								return c2.then(exec);
@@ -184,7 +191,7 @@ export default class List extends JelType implements Gettable {
 						else
 							return exec();
 					});
-				else if (!JelType.toRealBoolean(check1)) {
+				else if (!FuzzyBoolean.toRealBoolean(check1)) {
 					const check2 = check1Passed(e);
 					if (check2)
 						return check2.then(exec);
@@ -196,9 +203,9 @@ export default class List extends JelType implements Gettable {
 	}
 	
 	sub_jel_mapping: Object;
-	sub(ctx: Context, start?: number, end?: number) {
-		return new List(this.elements.slice(start == null ? 0 : start >= 0 ? start : this.elements.length + start, 
-																				end == null ? this.elements.length : end >= 0 ? end : this.elements.length + end));
+	sub(ctx: Context, start?: JelNumber, end?: JelNumber) {
+		return new List(this.elements.slice(start == null ? 0 : start.value >= 0 ? start.value : this.elements.length + start.value, 
+																				end == null ? this.elements.length : end.value >= 0 ? end.value : this.elements.length + end.value));
 	}
 
 	private partition(ctx: Context, l: any[], start: number, end: number, isLess: (a: any, b: any)=>boolean|Promise<boolean>): number | Promise<number> {
@@ -251,28 +258,28 @@ export default class List extends JelType implements Gettable {
 	
 	private static toPromisedRealBoolean(b: FuzzyBoolean | Promise<FuzzyBoolean>): boolean | Promise<boolean> {
 		if (b instanceof Promise)
-			return b.then(v=>JelType.toRealBoolean(v));
+			return b.then(v=>FuzzyBoolean.toRealBoolean(v));
 		else
-			return JelType.toRealBoolean(b);
+			return FuzzyBoolean.toRealBoolean(b);
 	}
 	
 	// isLess(a, b) checks whether a<b . If a==b or a>b, is must return false. If a==b, then !isLess(a,b)&&!isLess(b,a)
 	// key is either the string of a property name, or a function key(a) that return the key for a.
 	sort_jel_mapping: Object;
-	sort(ctx: Context, isLess?: Callable, key?: string | Callable): List | Promise<List> {
+	sort(ctx: Context, isLess?: Callable, key?: JelString | Callable): List | Promise<List> {
 		if (this.elements.length < 2)
 			return this;
 
 		const l: any[] = Array.prototype.slice.call(this.elements);
 		let r: undefined | Promise<any> = undefined;
-		if (typeof key == 'string') {
+		if (key instanceof JelString) {
 			if (isLess) 
 				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>
-					List.toPromisedRealBoolean(Util.resolveValues((a: any, b: any)=>isLess.invoke(ctx, a, b), JelType.member(ctx, a0, key), JelType.member(ctx, b0, key)))
+					List.toPromisedRealBoolean(Util.resolveValues((a: any, b: any)=>isLess.invoke(ctx, a, b), Runtime.member(ctx, a0, key.value), Runtime.member(ctx, b0, key.value)))
 				);
 			else
 				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>
-					List.toPromisedRealBoolean(Util.resolveValues((a: any, b: any)=>JelType.op(ctx, '<', a, b), JelType.member(ctx, a0, key), JelType.member(ctx, b0, key)))
+					List.toPromisedRealBoolean(Util.resolveValues((a: any, b: any)=>Runtime.op(ctx, '<', a, b), Runtime.member(ctx, a0, key.value), Runtime.member(ctx, b0, key.value)))
 				);
 		}
 		else if (key instanceof Callable) {
@@ -282,13 +289,13 @@ export default class List extends JelType implements Gettable {
 				);
 			else
 				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>
-					List.toPromisedRealBoolean(Util.resolveValues((a: any, b: any)=>JelType.op(ctx, '<', a, b), key.invoke(ctx, a0), key.invoke(ctx, b0)))
+					List.toPromisedRealBoolean(Util.resolveValues((a: any, b: any)=>Runtime.op(ctx, '<', a, b), key.invoke(ctx, a0), key.invoke(ctx, b0)))
 				);
 		}
 		else if (isLess)
 			r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>List.toPromisedRealBoolean(isLess.invoke(ctx, a0, b0)));
 		else
-			r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>List.toPromisedRealBoolean(JelType.op(ctx, '<', a0, b0)));
+			r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>List.toPromisedRealBoolean(Runtime.op(ctx, '<', a0, b0) as FuzzyBoolean));
 
 		return Util.resolveValue(r, ()=>new List(l));
 	}
@@ -308,11 +315,11 @@ export default class List extends JelType implements Gettable {
 				const check1 = isBetter(l, e);
 				if (check1 instanceof Promise) 
 					return check1.then((v: any) => {
-						if (JelType.toRealBoolean(v) != inverse)
+						if (FuzzyBoolean.toRealBoolean(v) != inverse)
 							l = e;
 						return exec();
 					});
-				else if (JelType.toRealBoolean(check1) != inverse)
+				else if (FuzzyBoolean.toRealBoolean(check1) != inverse)
 					l = e;
 			}
 			return l;
@@ -320,32 +327,32 @@ export default class List extends JelType implements Gettable {
 		return exec();
 	}
 	
-	private minMax(ctx: Context, isMax: boolean, isLess?: Callable, key?:string | Callable): any {
-		if (typeof key == 'string') {
+	private minMax(ctx: Context, isMax: boolean, isLess?: Callable, key?:JelString | Callable): any {
+		if (key instanceof JelString) {
 			if (isLess) 
-				return this.findBest((a0: any, b0: any)=>Util.resolveValues((a: any, b: any)=>isLess.invoke(ctx, a, b), JelType.member(ctx, a0, key), JelType.member(ctx, b0, key)), isMax);
+				return this.findBest((a0: any, b0: any)=>Util.resolveValues((a: any, b: any)=>isLess.invoke(ctx, a, b), Runtime.member(ctx, a0, key.value), Runtime.member(ctx, b0, key.value)), isMax);
 			else
-				return this.findBest((a0: any, b0: any)=>Util.resolveValues((a: any, b: any)=>JelType.op(ctx, '<', a, b), JelType.member(ctx, a0, key), JelType.member(ctx, b0, key)), isMax);
+				return this.findBest((a0: any, b0: any)=>Util.resolveValues((a: any, b: any)=>Runtime.op(ctx, '<', a, b), Runtime.member(ctx, a0, key.value), Runtime.member(ctx, b0, key.value)), isMax);
 		}
 		else if (key instanceof Callable) {
 			if (isLess) 
 				return this.findBest((a0: any, b0: any)=>Util.resolveValues((a: any, b: any)=>isLess.invoke(ctx, a, b), key.invoke(ctx, a0), key.invoke(ctx, b0)), isMax);
 			else
-				return this.findBest((a0: any, b0: any)=>Util.resolveValues((a: any, b: any)=>JelType.op(ctx, '<', a, b), key.invoke(ctx, a0), key.invoke(ctx, b0)), isMax);
+				return this.findBest((a0: any, b0: any)=>Util.resolveValues((a: any, b: any)=>Runtime.op(ctx, '<', a, b), key.invoke(ctx, a0), key.invoke(ctx, b0)), isMax);
 		}
 		else if (isLess)
 				return this.findBest((a0: any, b0: any)=>isLess.invoke(ctx, a0, b0), isMax);
 		else
-				return this.findBest((a0: any, b0: any)=>JelType.op(ctx, '<', a0, b0), isMax);
+				return this.findBest((a0: any, b0: any)=>Runtime.op(ctx, '<', a0, b0) as any, isMax);
 	}
 	
 	max_jel_mapping: Object;
-	max(ctx: Context, isLess?: Callable, key?: string | Callable): any {
+	max(ctx: Context, isLess?: Callable, key?: JelString | Callable): any {
 		return this.minMax(ctx, false, isLess, key);
 	}
 
 	min_jel_mapping: Object;
-	min(ctx: Context, isLess?: Callable, key?: string | Callable): any {
+	min(ctx: Context, isLess?: Callable, key?: JelString | Callable): any {
 		return this.minMax(ctx, true, isLess, key);
 	}
 
@@ -354,6 +361,19 @@ export default class List extends JelType implements Gettable {
 		return this.elements.length ? this : null;
 	}
 
+	serializeToString(pretty: boolean, indent: number, spaces: string, serializer: (object: any, pretty: boolean, indent: number, spaces: string)=>string): string | undefined {
+		let r = '[';
+		for (let i = 0; i < this.length-1; i++)
+			r += serializer(this[i], pretty, indent) + (pretty ? ', ' : ',');
+		if (this.length)
+			r += serializer(this[this.length-1], pretty, indent);
+		return r + ']';
+	}
+
+	static valueOf(a: any[]): List {
+		return new List(a);
+	}
+	
 	static create_jel_mapping = {elements: 1};
 	static create(ctx: Context, ...args: any[]): any {
 		return new List(args[0]);
@@ -375,5 +395,5 @@ List.prototype.sort_jel_mapping = {isLess: 1, key: 2};
 List.prototype.max_jel_mapping = {isLess: 1, key: 2};
 List.prototype.min_jel_mapping = {isLess: 1, key: 2};
 
-
+BaseTypeRegistry.register('List', List);
 		

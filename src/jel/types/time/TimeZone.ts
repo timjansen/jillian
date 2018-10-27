@@ -1,4 +1,4 @@
-import JelType from '../../JelType';
+import JelObject from '../../JelObject';
 import Context from '../../Context';
 import Timestamp from './Timestamp';
 import FuzzyBoolean from '../FuzzyBoolean';
@@ -9,7 +9,7 @@ import MomentZone = moment.MomentZone;
 /**
  * Represents a time zone. 
  */
-export default class TimeZone extends JelType {
+export default class TimeZone extends JelObject {
 	static UTC = new TimeZone();
 	static JEL_PROPERTIES: Object = {UTC: 1};
 
@@ -26,7 +26,7 @@ export default class TimeZone extends JelType {
 	
 	isDST_jel_mapping: Object;
 	isDST(ctx: Context, time: Timestamp): FuzzyBoolean {
-		return FuzzyBoolean.toFuzzyBoolean(time.toMoment().tz(this.tz).isDST());
+		return FuzzyBoolean.valueOf(time.toMoment().tz(this.tz).isDST());
 	}
 	
 	// returns offset in minutes
@@ -46,13 +46,13 @@ export default class TimeZone extends JelType {
 		return true;
 	}
 	
-	op(ctx: Context, operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (right instanceof TimeZone) {
 			switch (operator) {
 				case '===':
-					return FuzzyBoolean.toFuzzyBoolean(this.tz === right.tz); // matches if same zone name used
+					return FuzzyBoolean.valueOf(this.tz === right.tz); // matches if same zone name used
 				case '==':
-					return FuzzyBoolean.toFuzzyBoolean(TimeZone.isIdenticalZone(this.getMomentZone(), right.getMomentZone())); // matches if zones are identical, even if names are different
+					return FuzzyBoolean.valueOf(TimeZone.isIdenticalZone(this.getMomentZone(), right.getMomentZone())); // matches if zones are identical, even if names are different
 			}
 		}
 		return super.op(ctx, operator, right);

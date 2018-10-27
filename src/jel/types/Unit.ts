@@ -1,9 +1,12 @@
-import JelType from '../JelType';
+import Runtime from '../Runtime';
+import JelObject from '../JelObject';
 import Context from '../Context';
 import {IDbRef} from '../IDatabase';
 import FuzzyBoolean from './FuzzyBoolean';
 import Fraction from './Fraction';
 import ApproximateNumber from './ApproximateNumber';
+import JelString from './JelString';
+import JelNumber from './JelNumber';
 import List from './List';
 import Dictionary from './Dictionary';
 
@@ -40,24 +43,30 @@ function multiplyUnitMap(factor: number, a: Map<string, number>): Map<string, nu
 /**
  * Represents a unit. Supports complex units, like '1/s' or 'm*m*m/kw'.
  */
-export default class Unit extends JelType {
+export default class Unit extends JelObject {
 	JEL_PROPERTIES: Object;
 	
 	public units = new Map<string,number>();    // distinctName->exponent
 	private simple: boolean;
 
-	constructor(numeratorUnits: List | IDbRef | string | Dictionary, denominatorUnits?: List | IDbRef | string) {
+	constructor(numeratorUnits: List | IDbRef | JelString | string | Dictionary | Map<string,number>, denominatorUnits?: List | IDbRef | string | JelString) {
 		super();
-		if (numeratorUnits instanceof List) {
+		if (numeratorUnits instanceof Map) {
+			this.units = numeratorUnits;
+			this.simple = this.units.size == 1 && this.units.values().next().value == 1  && !denominatorUnits;
+		}
+		else if (numeratorUnits instanceof List) {
 			numeratorUnits.elements.forEach(n=>this.units.set(n.distinctName, (this.units.get(n.distinctName) || 0) + 1));
 			this.simple = numeratorUnits.elements.length == 1 && !denominatorUnits;
 		}
 		else if (numeratorUnits instanceof Dictionary) {
-			this.units = numeratorUnits.elements as Map<string, number>;
-			this.simple = this.units.size == 1 && this.units.values().next().value == 1  && !denominatorUnits;
+			const newMap = new Map<string, number>();
+			numeratorUnits.jsEach((k, v)=>newMap.set(k.value, v.value));
+			this.units = newMap;
+			this.simple = this.units.size == 1 && newMap.values().next().value == 1  && !denominatorUnits;
 		}
-		else if (typeof numeratorUnits == 'string') {
-			this.units.set(numeratorUnits, 1);
+		else if (numeratorUnits instanceof JelString) {
+			this.units.set(numeratorUnits.value, 1);
 			this.simple = !denominatorUnits;
 		}
 		else {
@@ -67,31 +76,31 @@ export default class Unit extends JelType {
 		
 		if (denominatorUnits instanceof List)
 			denominatorUnits.elements.forEach(n=>this.units.set(n.distinctName, (this.units.get(n.distinctName) || 0) - 1));
-		else if (typeof denominatorUnits == 'string')
-			this.units.set(denominatorUnits, -1);
+		else if (denominatorUnits instanceof JelString)
+			this.units.set(denominatorUnits.value, -1);
 		else if (denominatorUnits)
 			this.units.set((denominatorUnits as IDbRef).distinctName, -1);
 	}
 
-	op(ctx: Context, operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (right instanceof Unit) {
 			switch (operator) {
 			case '==': 
 			case '===':
-					return FuzzyBoolean.toFuzzyBoolean(this.equals(right));
+					return FuzzyBoolean.valueOf(this.equals(right));
 			case '!=':
 			case '!==':
-					return FuzzyBoolean.toFuzzyBoolean(!this.equals(right));
+					return FuzzyBoolean.valueOf(!this.equals(right));
 			case '*':
-					return new Unit(new Dictionary(mergeUnitMaps(this.units, right.units), true));
+					return new Unit(mergeUnitMaps(this.units, right.units));
 			case '/':
-					return new Unit(new Dictionary(mergeUnitMaps(this.units, invertUnitMap(right.units)), true));
+					return new Unit(mergeUnitMaps(this.units, invertUnitMap(right.units)));
 			}
 		}
-		else if (typeof right == 'number' || right instanceof Fraction || right instanceof ApproximateNumber) { 
+		else if (right instanceof JelNumber || right instanceof Fraction || right instanceof ApproximateNumber) { 
 			switch (operator) {
 			case '^':
-				return new Unit(new Dictionary(multiplyUnitMap(JelType.toNumber(right), this.units), true));
+				return new Unit(multiplyUnitMap(JelNumber.toRealNumber(right), this.units));
 			case '*':
 			case '/':
 				return this;
@@ -111,7 +120,7 @@ export default class Unit extends JelType {
 	
 	isSimple_jel_mapping: Object;
 	isSimple(): FuzzyBoolean {
-		return FuzzyBoolean.toFuzzyBoolean(this.simple);
+		return FuzzyBoolean.valueOf(this.simple);
 	}
 	
 	toSimpleType_jel_mapping: Object;
@@ -125,7 +134,7 @@ export default class Unit extends JelType {
 	isType(ctx: Context, unit: IDbRef | string): FuzzyBoolean {
 		if (!this.simple)
 			return FuzzyBoolean.FALSE;
-		return FuzzyBoolean.toFuzzyBoolean(this.toSimpleType(ctx).distinctName == (typeof unit == 'string' ? unit : unit.distinctName));
+		return FuzzyBoolean.valueOf(this.toSimpleType(ctx).distinctName == (typeof unit == 'string' ? unit : unit.distinctName));
 	}
 	
 	getSerializationProperties(): any[] {

@@ -1,6 +1,5 @@
 import {distance} from '@turf/turf';
 
-import JelType from '../../JelType';
 import DbRef from '../../../database/DbRef';
 import GeoStructure from './GeoStructure';
 import GeoBoundaries from './GeoBoundaries';

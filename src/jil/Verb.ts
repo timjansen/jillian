@@ -1,10 +1,10 @@
-import JelType from '../jel/JelType';
+import JelObject from '../jel/JelObject';
 import List from '../jel/types/List';
 import FuzzyBoolean from '../jel/types/FuzzyBoolean';
 import {Tense} from './Tense';
 
 // Abstract base class for all verbs
-export default class Verb extends JelType {
+export default class Verb extends JelObject {
  
   constructor(who?: List, 
 							 tense = Tense.Present /*did it happen in the past, is it current or in the future?*/, 

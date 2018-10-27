@@ -1,20 +1,21 @@
 import Util from '../util/Util';
-import Dictionary from './types/Dictionary';
+import BaseTypeRegistry from './BaseTypeRegistry';
 import {IDbSession} from './IDatabase';
+
 
 /**
  * Manages the context containing all variables.
  */
 export default class Context {
 	dbSession: IDbSession | undefined;
-	translationDict: Dictionary;
+	translationDict: any; // Dictionary
 	
 	private frame: Map<string, any>;
 	private frozen: boolean;
 	
-	constructor(public parent?: Context, dbSession?: IDbSession, translationDict?: Dictionary) {
+	constructor(public parent?: Context, dbSession?: IDbSession, translationDict?: any) {
 		this.dbSession = dbSession || (parent && parent.dbSession);
-		this.translationDict = translationDict || (parent && parent.translationDict) || new Dictionary();
+		this.translationDict = translationDict || (parent && parent.translationDict) || BaseTypeRegistry.get('Dictionary').create();
 		this.frame = new Map();
 		this.frozen = false;
 	}

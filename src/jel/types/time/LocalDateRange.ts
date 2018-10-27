@@ -1,6 +1,6 @@
 import * as moment from 'moment';
 
-import JelType from '../../JelType';
+import JelObject from '../../JelObject';
 import Context from '../../Context';
 import FuzzyBoolean from '../FuzzyBoolean';
 import LocalDate from './LocalDate';
@@ -29,7 +29,7 @@ export default class LocalDateRange extends TimeSpec {
 		return FuzzyBoolean.TRUE;
 	}
 	
-	op(ctx: Context, operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		return super.op(ctx, operator, right);
 	}
 

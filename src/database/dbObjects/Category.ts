@@ -4,8 +4,10 @@ import DbSession from '../DbSession';
 import PropertyHelper from '../dbProperties/PropertyHelper';
 import DbIndexDescriptor from '../DbIndexDescriptor';
 import Dictionary from '../../jel/types/Dictionary';
+import JelObject from '../../jel/JelObject';
 import List from '../../jel/types/List';
 import FuzzyBoolean from '../../jel/types/FuzzyBoolean';
+import JelString from '../../jel/types/JelString';
 import EnumValue from '../../jel/types/EnumValue';
 import Context from '../../jel/Context';
 import Util from '../../util/Util';
@@ -37,7 +39,7 @@ export default class Category extends DbEntry {
 			throw Error('By convention, all Category names must end with "Category". Illegal name: ' + distinctName);
 
     this.superCategory = superCategory ? (superCategory instanceof DbRef ? superCategory : new DbRef(superCategory)) : null; 
-		instanceProperties.elements.forEach((value, key)=>this.instanceProperties.elements.set(key, PropertyHelper.convert(value)));
+		instanceProperties.elements.forEach((value, key)=>this.instanceProperties.elements.set(key, PropertyHelper.convert(value as JelObject) as JelObject));
   }
 
   // returns promise with all matching objects
@@ -69,7 +71,7 @@ export default class Category extends DbEntry {
 
 	instanceProperty(ctx: Context, name: string): EnumValue | Promise<EnumValue> | null {
 		if (this.instanceProperties.elements.has(name))
-			return this.instanceProperties.elements.get(name);
+			return this.instanceProperties.elements.get(name) as EnumValue | Promise<EnumValue>;
 		else if (this.superCategory)
 			return Util.resolveValue(this.superCategory.get(ctx), (c: any)=>c.instanceProperty(ctx, name));
 		else
@@ -77,9 +79,11 @@ export default class Category extends DbEntry {
 	}
 
 	isExtending_jel_mapping: Object;
-	isExtending(ctx: Context, otherCategory: string | DbRef): FuzzyBoolean | Promise<FuzzyBoolean> {
+	isExtending(ctx: Context, otherCategory: string | JelString |DbRef): FuzzyBoolean | Promise<FuzzyBoolean> {
 		if (otherCategory instanceof DbRef)
 			return this.isExtending(ctx, otherCategory.distinctName);
+		if (otherCategory instanceof JelString)
+			return this.isExtending(ctx, otherCategory.value);
 		if (!this.superCategory)
 			return FuzzyBoolean.FALSE;
 		return this.superCategory.distinctName == otherCategory ? FuzzyBoolean.TRUE : (this.superCategory.with(ctx, (s: Category) =>s.isExtending(ctx, otherCategory)) as  FuzzyBoolean | Promise<FuzzyBoolean>);
@@ -93,7 +97,7 @@ export default class Category extends DbEntry {
 															 instanceDefaults: 4, instanceProperties: 5, mixinProperties: 6, 
 															 reality: 7, hashCode: 8};
   static create(ctx: Context, ...args: any[]): any {
-    return new Category(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
+    return new Category(JelString.toRealString(args[0]), args[1], args[2], args[3], args[4], args[5], args[6], JelString.toRealString(args[7]));
   }
 }
 

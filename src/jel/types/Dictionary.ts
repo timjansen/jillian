@@ -1,5 +1,10 @@
-import JelType from '../JelType';
+import JelObject from '../JelObject';
+import Runtime from '../Runtime';
+import SerializablePrimitive from '../SerializablePrimitive';
+import BaseTypeRegistry from '../BaseTypeRegistry';
 import Context from '../Context';
+import JelNumber from './JelNumber';
+import JelString from './JelString';
 import List from './List';
 import FuzzyBoolean from './FuzzyBoolean';
 import Callable from '../Callable';
@@ -8,16 +13,16 @@ import Gettable from '../Gettable';
 /**
  * Dictionary is a map-like type for JEL.
  */
-export default class Dictionary extends JelType {
-	elements: Map<any, any>;
+export default class Dictionary extends JelObject implements SerializablePrimitive {
+	elements: Map<string, JelObject|null>;
 	
 	JEL_PROPERTIES: Object;
 	static readonly JEL_PROPERTIES = {empty: true};
 	static readonly empty = new Dictionary();
 	
-	constructor(elements: any = [], useProvidedMap = false) {
+	constructor(elements: any = [], keepMap = false) {
 		super();
-		if (useProvidedMap)
+		if (keepMap)
 			this.elements = elements;
 		else {
 			this.elements = new Map();
@@ -25,7 +30,7 @@ export default class Dictionary extends JelType {
 		}
 	}
 	
-	op(ctx: Context, operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (right == null)
 			return this;
 		if (right instanceof Dictionary) {
@@ -39,32 +44,45 @@ export default class Dictionary extends JelType {
 						if (!right.elements.has(key))
 							return FuzzyBoolean.FALSE;
 						else
-							result = FuzzyBoolean.falsestWithPromises(ctx, result, JelType.op(ctx, operator, this.elements.get(key), right.elements.get(key)));
+							result = FuzzyBoolean.falsestWithPromises(ctx, result, Runtime.op(ctx, operator, this.elements.get(key), right.elements.get(key)));
 					return result;
 			}
 		}
 		return super.op(ctx, operator, right);
 	}
 	
-	singleOp(ctx: Context, operator: string): any {
+	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
 		if (operator == '!')
-			return FuzzyBoolean.toFuzzyBoolean(!this.elements.size);
+			return FuzzyBoolean.valueOf(!this.elements.size);
 		else
 			return super.singleOp(ctx, operator);
 	}
 
 	
 	get_jel_mapping: Object;
-	get(ctx: Context, key: any): any {
+	get(ctx: Context, key: JelString | string): any {
+		if (key instanceof JelString)
+			return this.get(ctx, key.value);
+		else if (typeof key != 'string')
+			throw new Error('Key must be string');
 		return this.elements.get(key);
 	}
 
 	has_jel_mapping: Object;
-	has(ctx: Context, key: any): FuzzyBoolean {
-		return FuzzyBoolean.toFuzzyBoolean(this.elements.has(key));
+	has(ctx: Context, key: JelString | string): FuzzyBoolean {
+		if (key instanceof JelString)
+			return this.has(ctx, key.value);
+		else if (typeof key != 'string')
+			throw new Error('Key must be string');
+		return FuzzyBoolean.valueOf(this.elements.has(key));
 	}
 
-	set(key: any, value: any): Dictionary {
+	set(key: JelString | string, value: JelObject|null): Dictionary {
+		if (key instanceof JelString)
+			return this.set(key.value, value);
+		else if (typeof key != 'string')
+			throw new Error('Key must be string');
+		
 		this.elements.set(key, value);
 		return this;
 	}
@@ -82,7 +100,7 @@ export default class Dictionary extends JelType {
 		}
 		else if (Array.isArray(otherDict)) {
 			for (let i = 0; i < otherDict.length-1; i+=2)
-				this.elements.set(otherDict[i], otherDict[i+1]);
+				this.elements.set(otherDict[i] instanceof JelString ? otherDict[i].value : '', otherDict[i+1]);
 		}
 		else if (otherDict instanceof List) {
 			this.putAll(otherDict.elements);
@@ -94,8 +112,11 @@ export default class Dictionary extends JelType {
 		return this;
 	}
 	
-	get anyKey(): any {
-		return this.elements.keys().next().value;
+	get anyKey(): string | null {
+		if (this.elements.size)
+			return this.elements.keys().next().value;
+		else
+			return null;
 	}
 	
 	get size(): number {
@@ -116,7 +137,7 @@ export default class Dictionary extends JelType {
 				const next = it.next();
 				if (next.done)
 					return self;
-				const r = f.invoke(ctx, next.value, self.elements.get(next.value), i);
+				const r = f.invoke(ctx, JelString.valueOf(next.value), self.elements.get(next.value), JelNumber.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(exec);
@@ -136,7 +157,7 @@ export default class Dictionary extends JelType {
 				const next = it.next();
 				if (next.done)
 					return newDict;
-				const r = f.invoke(ctx, next.value, self.elements.get(next.value), i);
+				const r = f.invoke(ctx, JelString.valueOf(next.value), self.elements.get(next.value), JelNumber.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> {
@@ -150,6 +171,20 @@ export default class Dictionary extends JelType {
 		return exec();
 	}
 
+	jsEach(f: (k: any, v: any, i: number)=>any): Dictionary {
+		const self = this;
+		const newDict = new Dictionary();
+		let i = 0;
+		const it = this.elements.keys();
+		while (true) {
+			const next = it.next();
+			if (next.done)
+				return newDict;
+			 f(next.value, this.elements.get(next.value), i++);
+		}
+	}
+
+	
 	filter_jel_mapping: Object;
 	filter(ctx: Context, f: Callable): Dictionary | Promise<Dictionary> {
 		const self = this;
@@ -161,15 +196,15 @@ export default class Dictionary extends JelType {
 				const next = it.next();
 				if (next.done)
 					return newDict;
-				const r = f.invoke(ctx, next.value, self.elements.get(next.value), i);
+				const r = f.invoke(ctx, JelString.valueOf(next.value), self.elements.get(next.value), JelNumber.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> {
-						if (JelType.toRealBoolean(v))
+						if (FuzzyBoolean.toRealBoolean(v))
 							newDict.set(next.value, self.elements.get(next.value));
 						return exec();
 					});
-				else if (JelType.toRealBoolean(r))
+				else if (FuzzyBoolean.toRealBoolean(r))
 					newDict.set(next.value, self.elements.get(next.value));
 			}
 		}
@@ -187,7 +222,7 @@ export default class Dictionary extends JelType {
 				const next = it.next();
 				if (next.done)
 					return result;
-				const r = f.invoke(ctx, result, next.value, self.elements.get(next.value), i);
+				const r = f.invoke(ctx, result, JelString.valueOf(next.value), self.elements.get(next.value), JelNumber.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> {
@@ -212,7 +247,7 @@ export default class Dictionary extends JelType {
 				const next = it.next();
 				if (next.done)
 					return FuzzyBoolean.FALSE;
-				const r = f.invoke(ctx, next.value, self.elements.get(next.value), i);
+				const r = f.invoke(ctx, JelString.valueOf(next.value), self.elements.get(next.value), JelNumber.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> v.toRealBoolean() ? FuzzyBoolean.TRUE : exec());
@@ -233,7 +268,7 @@ export default class Dictionary extends JelType {
 				const next = it.next();
 				if (next.done)
 					return FuzzyBoolean.TRUE;
-				const r = f.invoke(ctx, next.value, self.elements.get(next.value), i);
+				const r = f.invoke(ctx, JelString.valueOf(next.value), self.elements.get(next.value), JelNumber.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> v.toRealBoolean() ? exec() : FuzzyBoolean.FALSE);
@@ -254,6 +289,32 @@ export default class Dictionary extends JelType {
 		return new Dictionary(new Map(Object.keys(o).map(k => [k, o[k]]) as any), true);
 	}
 
+	serializeToString(pretty: boolean, indent: number, spaces: string, serializer: (object: any, pretty: boolean, indent: number, spaces: string)=>string): string | undefined {
+		if (!this.size)
+			return "{}";
+		let r = '{';
+		let i = 0;
+		const last = this.elements.size-1;
+		this.elements.forEach((value, key) => {
+			if (pretty)
+				r += '\n'+spaces(2);
+			if (typeof key == 'string' && /^[a-zA-Z_]\w*$/.test(key))
+				r += key;
+			else
+				r += serializer(key, pretty, indent,spaces);
+			r += (pretty ? ': ' : ':') + serializer(value, pretty, indent, spaces);
+			if (i++ < last)
+				r += pretty ? ', ' : ',';
+		});
+		if (pretty)
+			r += '\n';
+		return r + '}';
+	}
+
+	static valueOf(data: Map<string, any>, keepMap = false): Dictionary {
+		return new Dictionary(data, keepMap);
+	}
+	
 	static create_jel_mapping = {list: 1}; // 2nd ctor argument intentionally omittted!
 	static create(ctx: Context, ...args: any[]): any {
 		return new Dictionary(args[0]);  // 2nd ctor argument intentionally omittted! They are not intended for JEL.
@@ -271,4 +332,4 @@ Dictionary.prototype.reduce_jel_mapping = {f: 1, init: 2};
 Dictionary.prototype.hasAny_jel_mapping = {f: 1};
 Dictionary.prototype.hasOnly_jel_mapping = {f: 1};
 
-		
+BaseTypeRegistry.register('Dictionary', Dictionary);

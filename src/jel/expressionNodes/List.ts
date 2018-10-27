@@ -1,5 +1,6 @@
 import JelNode from './JelNode';
-import JelType from '../JelType';
+import JelObject from '../JelObject';
+import Runtime from '../Runtime';
 import Context from '../Context';
 import JelList from '../types/List';
 import Util from '../../util/Util';

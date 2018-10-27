@@ -1,5 +1,5 @@
 import JelNode from './JelNode';
-import JelType from '../JelType';
+import JelObject from '../JelObject';
 import Context from '../Context';
 import Serializable from '../Serializable';
 
@@ -12,7 +12,7 @@ export default class Assignment extends JelNode implements Serializable {
   }
 
   // override
-  execute(ctx: Context): any {
+  execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
       return this.expression.execute(ctx);
   }
  

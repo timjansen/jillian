@@ -27,7 +27,7 @@ export default class Pattern extends JelNode {
   }
   
   // override
-  execute(ctx: Context): any {
+  execute(ctx: Context): JelPattern {
     return this.pattern;
   }
   

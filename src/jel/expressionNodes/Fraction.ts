@@ -20,7 +20,7 @@ export default class Fraction extends JelNode {
   }
 
   // override
-  execute(ctx: Context): any {
+  execute(ctx: Context): JelFraction {
     return this.value;
   }
   

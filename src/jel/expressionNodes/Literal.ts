@@ -1,6 +1,9 @@
 import JelNode from './JelNode';
 import Context from '../Context';
-import FuzzyBoolean from '../types/FuzzyBoolean';
+import BaseTypeRegistry from '../BaseTypeRegistry';
+import JelObject from '../JelObject';
+import Runtime from '../Runtime';
+
 
 /**
  * Represents a literal, atomic value (FuzzyBoolean, number, string, null).
@@ -26,13 +29,17 @@ export default class Literal extends JelNode {
 	constructor(value: any) {
     super();
 		if (value === true || value === false)
-			this.value = FuzzyBoolean.toFuzzyBoolean(value);
+			this.value = BaseTypeRegistry.get('FuzzyBoolean').valueOf(value);
+		else if (typeof value == 'number')
+			this.value = BaseTypeRegistry.get('JelNumber').valueOf(value);
+		else if (typeof value == 'string')
+			this.value = BaseTypeRegistry.get('JelString').valueOf(value);
 		else
-			this.value = value;
+			throw new Error('Unsupported literal type: '+value);
   }
 
   // override
-  execute(ctx: Context): any {
+  execute(ctx: Context): JelObject|null {
     return this.value;
   }
   

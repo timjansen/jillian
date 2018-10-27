@@ -1,5 +1,7 @@
 import JelNode from './JelNode';
-import JelType from '../JelType';
+import BaseTypeRegistry from '../BaseTypeRegistry';
+import JelObject from '../JelObject';
+import Runtime from '../Runtime';
 import Context from '../Context';
 import Util from '../../util/Util';
 
@@ -17,7 +19,7 @@ export default class Condition extends JelNode {
   }
   
   // override
-  execute(ctx: Context): any {
+  execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
     return Util.resolveValue(this.condition.execute(ctx), v=>this.runOnValue(ctx, v));
   }
   
@@ -30,8 +32,8 @@ export default class Condition extends JelNode {
 	}
 
 
-  private runOnValue(ctx: Context, cond: any): any {
-    if (JelType.toRealBoolean(cond))
+  private runOnValue(ctx: Context, cond: any): JelObject|null|Promise<JelObject|null> {
+    if (BaseTypeRegistry.get('FuzzyBoolean').toRealBoolean(cond))
       return this.thenExp.execute(ctx);
     else
       return this.elseExp.execute(ctx);

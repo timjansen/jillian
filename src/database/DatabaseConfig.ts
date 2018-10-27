@@ -1,8 +1,9 @@
-import JelType from '../jel/JelType';
+import Runtime from '../jel/Runtime';
+import JelObject from '../jel/JelObject';
 import Context from '../jel/Context';
 import Serializable from '../jel/Serializable';
 
-export default class DatabaseConfig extends JelType implements Serializable {
+export default class DatabaseConfig extends JelObject implements Serializable {
   version: number;
   sizing: number;
   prettyPrint: boolean;
@@ -24,7 +25,7 @@ export default class DatabaseConfig extends JelType implements Serializable {
     return {version: this.version, sizing: this.sizing, prettyPrint: this.prettyPrint};
   }
   
-  static create_jel_mapping = JelType.NAMED_ARGUMENT_METHOD;
+  static create_jel_mapping = Runtime.NAMED_ARGUMENT_METHOD;
   static create(ctx: Context, config: DatabaseConfig): DatabaseConfig {
     return new DatabaseConfig(config);
   }

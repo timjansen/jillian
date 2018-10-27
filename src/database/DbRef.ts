@@ -1,6 +1,8 @@
-import JelType from '../jel/JelType';
+import JelObject from '../jel/JelObject';
 import Context from '../jel/Context';
+import SerializablePrimitive from '../jel/SerializablePrimitive';
 import FuzzyBoolean from '../jel/types/FuzzyBoolean';
+import JelString from '../jel/types/JelString';
 import {IDbRef} from '../jel/IDatabase';
 import DbEntry from './DbEntry';
 import DbSession from './DbSession';
@@ -8,19 +10,19 @@ import Database from './Database';
 import NotFoundError from './NotFoundError';
 
 
-export default class DbRef extends JelType implements IDbRef {
+export default class DbRef extends JelObject implements IDbRef, SerializablePrimitive {
 	distinctName: string;
 	cached: DbEntry | undefined | null;    // stores null for entries that have not been found, undefined if the existance is unknown
 	isIDBRef: boolean = true;
 	
-	constructor(distinctNameOrEntry: string | DbEntry, public parameters?: Map<string, any>) {
+	constructor(distinctNameOrEntry: string | JelString |DbEntry, public parameters?: Map<string, any>) {
 		super();
 		if (distinctNameOrEntry instanceof DbEntry) {
 			this.distinctName = distinctNameOrEntry.distinctName;
 			this.cached = distinctNameOrEntry;
 		}
 		else
-			this.distinctName = distinctNameOrEntry;
+			this.distinctName = JelString.toRealString(distinctNameOrEntry);
 	}
 	
 	// returns either DbEntry or Promise! Rejects promise if not found.
@@ -101,9 +103,9 @@ export default class DbRef extends JelType implements IDbRef {
 		if (right instanceof DbRef) {
 			switch(operator) {
 				case '==':
-					return FuzzyBoolean.toFuzzyBoolean(this.distinctName == right.distinctName);
+					return FuzzyBoolean.valueOf(this.distinctName == right.distinctName);
 				case '!=':
-					return FuzzyBoolean.toFuzzyBoolean(this.distinctName != right.distinctName);
+					return FuzzyBoolean.valueOf(this.distinctName != right.distinctName);
 				case '===':
 					return FuzzyBoolean.fourWay(ctx, this.distinctName == right.distinctName, this.hasSameParameters(right));
 				case '!==':
@@ -138,6 +140,10 @@ export default class DbRef extends JelType implements IDbRef {
   getSerializationProperties(): any[] {		
     return this.parameters ? [this.distinctName, this.parameters] : [this.distinctName];
   }	
+		
+	serializeToString(pretty: boolean, indent: number, spaces: string) : string | undefined {
+		return this.parameters ? '@'+this.distinctName : undefined;
+	}
 	
   static toPromise(ctx: Context, ref: DbRef | DbEntry): Promise<DbEntry | null> {
 		return Promise.resolve(ref instanceof DbRef ? ref.get(ctx) : ref);

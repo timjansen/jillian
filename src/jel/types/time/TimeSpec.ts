@@ -1,4 +1,4 @@
-import JelType from '../../JelType';
+import JelObject from '../../JelObject';
 import Context from '../../Context';
 import Timestamp from './Timestamp';
 import TimeZone from './TimeZone';
@@ -10,7 +10,7 @@ import Util from '../../../util/Util';
 /**
  * Abstract base class that represents a time period.
  */
-export default abstract class TimeSpec extends JelType {
+export default abstract class TimeSpec extends JelObject {
 	
 	constructor() {
 		super();
@@ -30,18 +30,18 @@ export default abstract class TimeSpec extends JelType {
 	isBefore(ctx: Context, time: Timestamp, defaultTimeZone: TimeZone): FuzzyBoolean|Promise<FuzzyBoolean> {
 		const t0 = this.getEndTime(ctx, defaultTimeZone);
 		if (t0 instanceof Promise)
-			return t0.then(tx=>FuzzyBoolean.toFuzzyBoolean((tx != undefined) && (tx.msSinceEpoch < time.msSinceEpoch)));
+			return t0.then(tx=>FuzzyBoolean.valueOf((tx != undefined) && (tx.msSinceEpoch < time.msSinceEpoch)));
 		else
-			return FuzzyBoolean.toFuzzyBoolean((t0 != undefined) && (t0.msSinceEpoch < time.msSinceEpoch));
+			return FuzzyBoolean.valueOf((t0 != undefined) && (t0.msSinceEpoch < time.msSinceEpoch));
 	}
 	
 	isAfter_jel_mapping: Object;
 	isAfter(ctx: Context, time: Timestamp, defaultTimeZone: TimeZone): FuzzyBoolean|Promise<FuzzyBoolean> {
 		const t0 = this.getStartTime(ctx, defaultTimeZone);
 		if (t0 instanceof Promise)
-			return t0.then(tx=>FuzzyBoolean.toFuzzyBoolean((tx != undefined) && (tx.msSinceEpoch > time.msSinceEpoch)));
+			return t0.then(tx=>FuzzyBoolean.valueOf((tx != undefined) && (tx.msSinceEpoch > time.msSinceEpoch)));
 		else
-			return FuzzyBoolean.toFuzzyBoolean((t0 != undefined) && (t0.msSinceEpoch > time.msSinceEpoch));
+			return FuzzyBoolean.valueOf((t0 != undefined) && (t0.msSinceEpoch > time.msSinceEpoch));
 	}
 	
 	// override if TimeSpec is not continous

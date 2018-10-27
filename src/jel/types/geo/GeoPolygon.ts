@@ -3,7 +3,6 @@ import {distance} from '@turf/turf';
 import DbRef from '../../../database/DbRef';
 import GeoBoundaries from './GeoBoundaries';
 import GeoStructure from './GeoStructure';
-import JelType from '../../JelType';
 import List from '../List';
 
 export default class GeoPolygon extends GeoStructure {

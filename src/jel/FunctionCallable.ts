@@ -1,6 +1,7 @@
+import BaseTypeRegistry from './BaseTypeRegistry';
 import Context from './Context';
 import Callable from './Callable';
-import JelType from './JelType';
+import JelObject from './JelObject';
 
 /**
  * A type that can be called.
@@ -13,7 +14,7 @@ export default class FunctionCallable extends Callable {
 		this.argMapper = this.convertArgMapper(argMapper);  // map argName -> index. Null if named-argument-methods
 	}
 	
-	invokeWithObject(ctx: Context, args: any[], argObj?: any, ): any {
+	invokeWithObject(ctx: Context, args: any[], argObj?: any, ): JelObject|null|Promise<JelObject|null> {
 		if (this.argMapper) {
 			const allArgs = [ctx].concat(args);
 			if (argObj)
@@ -24,22 +25,22 @@ export default class FunctionCallable extends Callable {
 					}
 					allArgs[idx] = argObj[name];
 				}
-			return this.f.apply(this.self, allArgs);
+			return BaseTypeRegistry.mapNativeTypes(this.f.apply(this.self, allArgs));
 		}
 		else {
 			if (args.length)
 				throw new Error(`Method only supports named arguments, but got ${args.length} anonymous argument(s).`);
-			return this.f.apply(this.self, [ctx, argObj || {}]);
+			return BaseTypeRegistry.mapNativeTypes(this.f.apply(this.self, [ctx, argObj || {}]));
 		}
 	}
 	
-	invoke(ctx: Context, ...args: any[]): any {
+	invoke(ctx: Context, ...args: any[]): JelObject|null|Promise<JelObject|null> {
 		return this.invokeWithObject(ctx, args, null);
 	}
 	
 	// converts argmapper from array to object, if needed
 	convertArgMapper(argMapper?: Object|Array<string>|string): Object|null {
-		if (argMapper === JelType.NAMED_ARGUMENT_METHOD)
+		if (argMapper === 'named') // same as Runtime.NAMED_ARGUMENT_METHOD.
 			return null;
 		else if (argMapper instanceof Array) {
 			const o: any = {};

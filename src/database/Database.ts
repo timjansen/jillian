@@ -11,7 +11,7 @@ import Category from './dbObjects/Category';
 
 import JEL from '../jel/JEL';
 import Context from '../jel/Context';
-import JelType from '../jel/JelType';
+import Runtime from '../jel/Runtime';
 import serializer from '../jel/Serializer';
 
 import tifu = require('tifuhash');
@@ -126,7 +126,7 @@ export default class Database {
     const indexPromises: Promise<any>[] = [];
     spec.forEach((indexDesc, name)=>{
       if (indexDesc.type == 'category') {
-        const cat: DbRef = JelType.member(ctx, dbEntry, indexDesc.property);
+        const cat: DbRef = Runtime.member(ctx, dbEntry, indexDesc.property) as any;
         if (cat)
           indexPromises.push(Promise.resolve(cat.getFromDb(ctx)).then(catRef=>catRef && this.appendToCategoryIndex(ctx, config, dbEntry, catRef as Category, '_' + name, !!indexDesc.includeParents)));
       }
@@ -141,7 +141,7 @@ export default class Database {
     const indexPromises: Promise<any>[] = [];
     spec.forEach((indexDesc, name)=>{
       if (indexDesc.type == 'category') {
-        const cat: DbRef = JelType.member(ctx, dbEntry, indexDesc.property);
+        const cat: DbRef = Runtime.member(ctx, dbEntry, indexDesc.property) as any;
         if (cat)
           indexPromises.push(Promise.resolve(cat.getFromDb(ctx)).then(catRef=>catRef && this.removeFromCategoryIndex(ctx, config, dbEntry, catRef as Category, '_' + name, !!indexDesc.includeParents)));
       }

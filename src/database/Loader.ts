@@ -10,7 +10,6 @@ import Category from './dbObjects/Category';
 
 import JEL from '../jel/JEL';
 import Context from '../jel/Context';
-import JelType from '../jel/JelType';
 import serializer from '../jel/Serializer';
 
 import * as fs from 'fs-extra';

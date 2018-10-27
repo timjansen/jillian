@@ -2,7 +2,6 @@ import Match from './Match';
 import MatchNode from './MatchNode';
 import Context from '../Context';
 import JelNode from '../expressionNodes/JelNode';
-import FuzzyBoolean from '../types/FuzzyBoolean';
 
 export default class LambdaResultNode extends MatchNode {
 
@@ -39,7 +38,7 @@ export default class LambdaResultNode extends MatchNode {
 	}
 	
 	private translateBool(s: any): any {
-		if (s instanceof FuzzyBoolean)
+		if (s.constructor.name == 'FuzzyBoolean')
 			return `FuzzyBoolean(${s.state})`;
 		else
 			return s;

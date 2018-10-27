@@ -1,6 +1,7 @@
 import * as moment from 'moment';
 
-import JelType from '../../JelType';
+import JelObject from '../../JelObject';
+import Runtime from '../../Runtime';
 import Context from '../../Context';
 import Util from '../../../util/Util';
 import FuzzyBoolean from '../FuzzyBoolean';
@@ -12,7 +13,7 @@ import ApproximateNumber from '../ApproximateNumber';
 /**
  * A complex, calendar-based duration (simple durations, like year or seconds, can use UnitValue with Range)
  */
-export default class DurationRange extends JelType {
+export default class DurationRange extends JelObject {
 	
 	constructor(public min: Duration, public max: Duration) {
 		super();
@@ -21,7 +22,7 @@ export default class DurationRange extends JelType {
 			throw new Error('Min and max parameters are both required for a DurationRange)');
 	}
 	
-	op(ctx: Context, operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (right instanceof UnitValue && !FuzzyBoolean.toRealBoolean(right.unit.isType(ctx, 'Second')))
 			return Util.resolveValue(right.convertTo(ctx, 'Second'), r=>this.op(ctx, operator, r));
 		if ((right instanceof Duration) || (right instanceof UnitValue)) {
@@ -29,56 +30,56 @@ export default class DurationRange extends JelType {
 			switch (operator) {
 				case '+':
 				case '-':
-					return new DurationRange(JelType.op(ctx, operator, this.min, right), JelType.op(ctx, operator, this.max, right));
+					return new DurationRange(Runtime.op(ctx, operator, this.min, right) as Duration, Runtime.op(ctx, operator, this.max, right) as Duration);
 				case '===':
 				case '!==':
 				case '>>':
 				case '<<':
 				case '<<=':
 				case '>>=':
-					return JelType.op(ctx, operator, this.max, right).and(ctx, JelType.op(ctx, operator, this.min, right));
+					return (this.max.op(ctx, operator, right) as FuzzyBoolean).and(ctx, this.min.op(ctx, operator, right) as FuzzyBoolean);
 				case '==':
 					return this.contains(ctx, right);
 				case '>':
-					return JelType.op(ctx, '>', this.max, right);
+					return Runtime.op(ctx, '>', this.max, right);
 				case '<':
-					return JelType.op(ctx, '<', this.min, right);
+					return Runtime.op(ctx, '<', this.min, right);
 				case '>=':
-					return JelType.op(ctx, '>', this.min, right);
+					return Runtime.op(ctx, '>', this.min, right);
 				case '<=':
-					return JelType.op(ctx, '<', this.max, right);
+					return Runtime.op(ctx, '<', this.max, right);
 			}
 		}
 		else if (right instanceof DurationRange) {
 			switch (operator) {
 				case '+':
 				case '-': 
-					return new DurationRange(JelType.op(ctx, operator, this.min, right.min), JelType.op(ctx, operator, this.max, right.max));
+					return new DurationRange(Runtime.op(ctx, operator, this.min, right.min) as Duration, Runtime.op(ctx, operator, this.max, right.max) as Duration);
 				case '===':
 				case '==':
-					return JelType.op(ctx, operator, this.min, right.min).and(ctx, JelType.op(ctx, operator, this.max, right.max));
+					return (this.min.op(ctx, operator, right.min) as FuzzyBoolean).and(ctx, this.max.op(ctx, operator, right.max) as FuzzyBoolean);
 				case '!==':
 				case '!=':
-					return JelType.op(ctx, operator, this.min, right.min).or(ctx, JelType.op(ctx, operator, this.max, right.max));
+					return (this.min.op(ctx, operator, right.min) as FuzzyBoolean).or(ctx, this.max.op(ctx, operator, right.max) as FuzzyBoolean);
 				case '>>':
 				case '>':
-					return JelType.op(ctx, operator, this.min, right.max);
+					return this.min.op(ctx, operator, right.max);
 				case '>>=':
 				case '>=':
-					return JelType.op(ctx, operator, this.max, right.max);
+					return this.max.op(ctx, operator, right.max);
 				case '<<':
 				case '<':
-					return JelType.op(ctx, operator, this.max, right.min);
+					return this.max.op(ctx, operator, right.min);
 				case '<<=':
 				case '<=':
-					return JelType.op(ctx, operator, this.min, right.min);
+					return this.min.op(ctx, operator, right.min);
 			}
 		}
 		else if (typeof right == 'number' || right instanceof Fraction || right instanceof ApproximateNumber) {
 			switch (operator) {
 				case '*':					
 				case '/':					
-					return new DurationRange(JelType.op(ctx, operator, this.min, right), JelType.op(ctx, operator, this.max, right));
+					return new DurationRange(Runtime.op(ctx, operator, this.min, right) as Duration, Runtime.op(ctx, operator, this.max, right) as Duration);
 			}
 		}
 		return super.op(ctx, operator, right);
@@ -88,7 +89,7 @@ export default class DurationRange extends JelType {
 	contains(ctx: Context, value: Duration|UnitValue|DurationRange): FuzzyBoolean {
 		if (value instanceof DurationRange)
 			return this.contains(ctx, value.min).and(ctx, this.contains(ctx, value.max));
-		return JelType.op(ctx, '>=', value, this.min).and(ctx, JelType.op(ctx, '<=', value, this.max));
+		return (Runtime.op(ctx, '>=', value, this.min) as FuzzyBoolean).and(ctx, Runtime.op(ctx, '<=', value, this.max) as FuzzyBoolean);
 	}
 	
 	getSerializationProperties(): any[] {

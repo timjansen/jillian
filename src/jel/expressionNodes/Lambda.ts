@@ -1,5 +1,6 @@
 import JelNode from './JelNode';
-import JelType from '../JelType';
+import JelObject from '../JelObject';
+import Runtime from '../Runtime';
 import Context from '../Context';
 import LambdaCallable from '../LambdaCallable';
 import Util from '../../util/Util';
@@ -20,7 +21,7 @@ export default class Lambda extends JelNode {
   }
   
 	// override
-  execute(ctx: Context): any {
+  execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
     return new LambdaCallable(this.argNames, this.expression, ctx, "(anon lambda)");
 	}
 	

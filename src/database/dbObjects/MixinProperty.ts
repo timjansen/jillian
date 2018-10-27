@@ -7,6 +7,7 @@ import PropertyHelper from '../dbProperties/PropertyHelper';
 import DbIndexDescriptor from '../DbIndexDescriptor';
 import Dictionary from '../../jel/types/Dictionary';
 import List from '../../jel/types/List';
+import JelString from '../../jel/types/JelString';
 
 
 /**
@@ -38,7 +39,7 @@ export default class MixinProperty extends DbEntry {
 
   static create_jel_mapping = {distinctName: 1, type: 2, categoryProperty: 3};
   static create(ctx: Context, ...args: any[]) {
-    return new MixinProperty(args[0], args[1], args[2]);
+    return new MixinProperty(JelString.toRealString(args[0]), args[1], args[2]);
   }
 }
 

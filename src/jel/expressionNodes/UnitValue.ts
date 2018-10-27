@@ -18,10 +18,14 @@ export default class UnitValue extends JelNode {
   }
 
   // override
-  execute(ctx: Context): any {
-		if (!this.cached) 
-			this.cached = new JelUnitValue(this.value.execute(ctx), this.unit);
-    return this.cached;
+  execute(ctx: Context): JelUnitValue | Promise<JelUnitValue> {
+		if (!this.cached) {
+			const left: any = this.value.execute(ctx);
+			if (left instanceof Promise)
+				return left as any;
+			this.cached = new JelUnitValue(left, this.unit);
+		}
+    return this.cached as JelUnitValue;
   }
   
   // override

@@ -1,6 +1,5 @@
 import * as moment from 'moment';
 
-import JelType from '../../JelType';
 import Context from '../../Context';
 import FuzzyBoolean from '../FuzzyBoolean';
 import TimeOfDay from './TimeOfDay';

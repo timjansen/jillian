@@ -1,6 +1,7 @@
 import JelNode from './JelNode';
 import Assignment from './Assignment';
-import JelType from '../JelType';
+import JelObject from '../JelObject';
+import Runtime from '../Runtime';
 import Callable from '../Callable';
 import Context from '../Context';
 import Util from '../../util/Util';
@@ -45,11 +46,11 @@ export default class Call extends JelNode {
     return resolveValueObj(objArgs=>Util.resolveArray(args, (listArgs: any[])=>callable.invokeWithObject(ctx, listArgs, objArgs)), this.namedArgs, argObjValues);
   }
   
-  private callLeft(ctx: Context, left: JelNode): any {
+  private callLeft(ctx: Context, left: JelNode): JelObject|null|Promise<JelObject|null> {
     if (left instanceof Callable) 
       return this.callCallable(ctx, left);
-    else if (JelType.isPrototypeOf(left)) 
-      return Util.resolveValue(JelType.member(ctx, left, 'create'), (callable: any) => {
+    else if (JelObject.isPrototypeOf(left)) 
+      return Util.resolveValue(Runtime.member(ctx, left, 'create'), (callable: any) => {
 				if (!callable)
 					throw new Error(`Call failed. Tried to create '${left.constructor.name}', but it does not support creation. It needs a public create() method.`);
 				return this.callCallable(ctx, callable);
@@ -59,7 +60,7 @@ export default class Call extends JelNode {
   }
   
   // override
-  execute(ctx: Context): any {
+  execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
     return Util.resolveValue(this.left.execute(ctx), v=>this.callLeft(ctx, v));
   }
   

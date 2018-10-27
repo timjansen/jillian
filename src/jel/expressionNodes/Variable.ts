@@ -1,5 +1,7 @@
 import JelNode from './JelNode';
 import Context from '../Context';
+import JelObject from '../JelObject';
+
 
 /**
  * Accesses a variable for reading.
@@ -14,7 +16,7 @@ export default class Variable extends JelNode {
   }
   
   // override
-  execute(ctx: Context): any {
+  execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
     return ctx.get(this.name);
   }
   

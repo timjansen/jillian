@@ -1,5 +1,6 @@
 import JelNode from './JelNode';
-import JelType from '../JelType';
+import JelObject from '../JelObject';
+import Runtime from '../Runtime';
 import Context from '../Context';
 import Gettable from '../Gettable';
 import Util from '../../util/Util';
@@ -16,7 +17,7 @@ export default class Get extends JelNode {
     super();
   }
   
-  getValue(ctx: Context, left: JelNode, name: string): any {
+  getValue(ctx: Context, left: JelNode, name: string): JelObject|null|Promise<JelObject|null> {
     if (left == null)
       return left;
     else if ((left as any).get_jel_mapping)
@@ -24,11 +25,11 @@ export default class Get extends JelNode {
     else if (name == null)
       return null;
     else 
-      return JelType.member(ctx, left, name);
+      return Runtime.member(ctx, left, name);
   }
    
   // override
-  execute(ctx: Context): any {
+  execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
     return Util.resolveValues((l: any, n: any)=>this.getValue(ctx, l, n), this.left.execute(ctx), this.name.execute(ctx));
   }
   

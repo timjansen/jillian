@@ -8,8 +8,7 @@ import {Token, TokenType, TemplateToken, RegExpToken, FractionToken} from './Tok
 import TokenReader from './TokenReader';
 import PatternParser from './PatternParser';
 import Context from './Context';
-import JelType from './JelType';
-import Pattern from './types/Pattern';
+import BaseTypeRegistry from './BaseTypeRegistry';
 import ParseError from './ParseError';
 import JelNode from './expressionNodes/JelNode';
 import Literal from './expressionNodes/Literal';
@@ -461,8 +460,8 @@ export default class JEL {
     return op;
   }
   
-  static createPattern(value: string, jelToken: Token): Pattern {
-    return new Pattern(PatternParser.parsePattern(Tokenizer.tokenizePattern(jelToken ? jelToken.line : 1, jelToken ? jelToken.column : 1, value), jelToken)!, value);
+  static createPattern(value: string, jelToken: Token): any {
+    return BaseTypeRegistry.get('Pattern').valueOf(PatternParser.parsePattern(Tokenizer.tokenizePattern(jelToken ? jelToken.line : 1, jelToken ? jelToken.column : 1, value), jelToken)!, value);
   }
   
 	

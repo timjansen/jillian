@@ -1,18 +1,18 @@
-import JelType from '../JelType';
+import JelObject from '../JelObject';
+import Runtime from '../Runtime';
+import BaseTypeRegistry from '../BaseTypeRegistry';
 import Context from '../Context';
+import JelNumber from './JelNumber';
 import FuzzyBoolean from './FuzzyBoolean';
-import ApproximateNumber from './ApproximateNumber';
-
 /**
  * Represents a fraction.
  */
-export default class Fraction extends JelType {
+export default class Fraction extends JelObject {
 	numerator: number;
 	denominator: number;
 	reverseOps: Object;
-	// mixed: // if true, number should be displayed with integer, like   3 1/2 instead of 7/2
 	
-	constructor(numerator: number, denominator: number, public mixed = true) {
+	constructor(numerator: number, denominator: number) {
 		super();
 		if (denominator < 0) {
 			this.numerator = -numerator;
@@ -30,157 +30,157 @@ export default class Fraction extends JelType {
 		return this.numerator === other.numerator && this.denominator === other.denominator;
 	}
 	
-	op(ctx: Context, operator: string, right: any): any {
-		if (typeof right == 'number') {
-			if (!Number.isInteger(right))
-				return JelType.op(ctx, operator, this.toNumber(), right);
+	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
+		if (right instanceof JelNumber) {
+			if (!Number.isInteger(right.value))
+				return this.toNumber().op(ctx, operator, right);
 
 			const l = this.simplify();
 			if (!(l instanceof Fraction))
-				return JelType.op(ctx, operator, l, right);
+				return Runtime.op(ctx, operator, l, right);
 			
 			switch (operator) {
 				case '==':
 				case '===':
-					return FuzzyBoolean.toFuzzyBoolean(l.numerator === right * l.denominator);
+					return FuzzyBoolean.valueOf(l.numerator === right.value * l.denominator);
 				case '!=':
 				case '!==':
-					return FuzzyBoolean.toFuzzyBoolean(l.numerator !== right * l.denominator);
+					return FuzzyBoolean.valueOf(l.numerator !== right.value * l.denominator);
 					
 				case '<':
 				case '<<':
-					return FuzzyBoolean.toFuzzyBoolean(l.numerator < right * l.denominator);
+					return FuzzyBoolean.valueOf(l.numerator < right.value * l.denominator);
 				case '<=':
 				case '<<=':
-					return FuzzyBoolean.toFuzzyBoolean(l.numerator <= right * l.denominator);
+					return FuzzyBoolean.valueOf(l.numerator <= right.value * l.denominator);
 				case '>':
 				case '>>':
-					return FuzzyBoolean.toFuzzyBoolean(l.numerator > right * l.denominator);
+					return FuzzyBoolean.valueOf(l.numerator > right.value * l.denominator);
 				case '>=':
 				case '>=':
-					return FuzzyBoolean.toFuzzyBoolean(l.numerator >= right * l.denominator);
+					return FuzzyBoolean.valueOf(l.numerator >= right.value * l.denominator);
 					
 				case '+':
-					return new Fraction(l.numerator + right*l.denominator, l.denominator, l.mixed).simplify();
+					return Fraction.valueOf(l.numerator + right.value*l.denominator, l.denominator).simplify();
 				case '-':
-					return new Fraction(l.numerator - right*l.denominator, l.denominator, l.mixed).simplify();
+					return Fraction.valueOf(l.numerator - right.value*l.denominator, l.denominator).simplify();
 				case '*':
-					return new Fraction(l.numerator * right, l.denominator, l.mixed).simplify();
+					return Fraction.valueOf(l.numerator * right.value, l.denominator).simplify();
 				case '/':
-					return new Fraction(l.numerator, l.denominator*right, l.mixed).simplify();
+					return Fraction.valueOf(l.numerator, l.denominator*right.value).simplify();
 					
 				case '^': 
-					if (Number.isInteger(right) && right > 0) 
-						return new Fraction(Math.pow(this.numerator, right), Math.pow(this.denominator, right)).simplify();
-					else if (right == 0)
-						return 1;
-					else if (right == -1)
-						return new Fraction(this.denominator, this.numerator).simplify();
+					if (Number.isInteger(right.value) && right.value > 0) 
+						return Fraction.valueOf(Math.pow(this.numerator, right.value), Math.pow(this.denominator, right.value)).simplify();
+					else if (right.value == 0)
+						return JelNumber.valueOf(1);
+					else if (right.value == -1)
+						return Fraction.valueOf(this.denominator, this.numerator).simplify();
 					else
-						return Math.pow(this.toNumber(), right);
+						return JelNumber.valueOf(JelNumber.toRealNumber(Math.pow(this.toNumber()), JelNumber.toRealNumber(right.value)));
 				case '+-':
-					return new ApproximateNumber(this, right);
+					return BaseTypeRegistry.get('ApproximateNumber').fromNumber(this, right.value);
 					
 				default:
-					return JelType.op(ctx, operator, this.toNumber(), right);
+					return Runtime.op(ctx, operator, this.toNumber(), right);
 			}
 		}
 		else if (right instanceof Fraction) {
 			const l = this.simplify();
 			const r = right.simplify();
 			if (!((l instanceof Fraction) && (r instanceof Fraction))) {
-				if (operator == '/' && typeof l == 'number' && typeof r == 'number')
-					return new Fraction(l, r, this.mixed).simplify();
+				if (operator == '/' && l instanceof JelNumber && typeof r instanceof JelNumber)
+					return Fraction.valueOf(l.value, r.value).simplify();
 				else 
-					return JelType.op(ctx, operator, l, r);
+					return Runtime.op(ctx, operator, l, r);
 			}
 			
 			switch (operator) {
 				case '==':
 				case '===':
-					return FuzzyBoolean.toFuzzyBoolean(l.numerator === r.numerator && l.denominator === r.denominator);
+					return FuzzyBoolean.valueOf(l.numerator === r.numerator && l.denominator === r.denominator);
 				case '!=':
 				case '!==':
-					return FuzzyBoolean.toFuzzyBoolean(l.numerator !== r.numerator || l.denominator !== r.denominator);
+					return FuzzyBoolean.valueOf(l.numerator !== r.numerator || l.denominator !== r.denominator);
 					
 				case '<':
 				case '<<':
-					return FuzzyBoolean.toFuzzyBoolean(l.numerator*r.denominator < r.numerator*l.denominator);
+					return FuzzyBoolean.valueOf(l.numerator*r.denominator < r.numerator*l.denominator);
 				case '<=':
 				case '<<=':
-					return FuzzyBoolean.toFuzzyBoolean(l.numerator*r.denominator <= r.numerator*l.denominator);
+					return FuzzyBoolean.valueOf(l.numerator*r.denominator <= r.numerator*l.denominator);
 				case '>':
 				case '>>':
-					return FuzzyBoolean.toFuzzyBoolean(l.numerator*r.denominator > r.numerator*l.denominator);
+					return FuzzyBoolean.valueOf(l.numerator*r.denominator > r.numerator*l.denominator);
 				case '>=':
 				case '>>=':
-					return FuzzyBoolean.toFuzzyBoolean(l.numerator*r.denominator >= r.numerator*l.denominator);
+					return FuzzyBoolean.valueOf(l.numerator*r.denominator >= r.numerator*l.denominator);
 
 				case '+':
-					return new Fraction((l.numerator*r.denominator)+(r.numerator*l.denominator), l.denominator*r.denominator, l.mixed).simplify();
+					return Fraction.valueOf((l.numerator*r.denominator)+(r.numerator*l.denominator), l.denominator*r.denominator).simplify();
 				case '-':
-					return new Fraction((l.numerator*r.denominator)-(r.numerator*l.denominator), l.denominator*r.denominator, l.mixed).simplify();
+					return Fraction.valueOf((l.numerator*r.denominator)-(r.numerator*l.denominator), l.denominator*r.denominator).simplify();
 				case '*':
-					return new Fraction(l.numerator*r.numerator, l.denominator*r.denominator, l.mixed).simplify();
+					return Fraction.valueOf(l.numerator*r.numerator, l.denominator*r.denominator).simplify();
 				case '/':
-					return new Fraction(l.numerator*r.denominator, l.denominator*r.numerator, l.mixed).simplify();
+					return Fraction.valueOf(l.numerator*r.denominator, l.denominator*r.numerator).simplify();
 				case '+-':
-					return new ApproximateNumber(this, right);
+					return BaseTypeRegistry.get('ApproximateNumber').fromNumber(this, right);
 
 				default:
-					return JelType.op(ctx, operator, this.toNumber(), right.toNumber());
+					return Runtime.op(ctx, operator, this.toNumber(), right.toNumber());
 			}
 		}
 		return super.op(ctx, operator, right);
 	}
 
-	opReversed(ctx: Context, operator: string, left: any): any {	
-		if (typeof left == 'number') {
+	opReversed(ctx: Context, operator: string, left: JelObject): JelObject|Promise<JelObject> {	
+		if (left instanceof Number) {
 			if (!Number.isInteger(left))
-				return JelType.op(ctx, operator, left, this.toNumber());
+				return Runtime.op(ctx, operator, left, this.toNumber());
 			switch (operator) {
 				case '+':
-					return new Fraction(left*this.denominator+this.numerator, this.denominator, this.mixed).simplify();
+					return Fraction.valueOf(left*this.denominator+this.numerator, this.denominator).simplify();
 				case '-':
-					return new Fraction(left*this.denominator-this.numerator, this.denominator, this.mixed).simplify();
+					return Fraction.valueOf(left*this.denominator-this.numerator, this.denominator).simplify();
 				case '*':
-					return new Fraction(left*this.numerator, this.denominator, this.mixed).simplify();
+					return Fraction.valueOf(left*this.numerator, this.denominator).simplify();
 				case '/':
-					return new Fraction(left*this.denominator, this.numerator, this.mixed).simplify();
+					return Fraction.valueOf(left*this.denominator, this.numerator).simplify();
 				case '^':
-					return Math.pow(left, this.toNumber());
-				case '+-':
-					return new ApproximateNumber(left, this);
+					return JelNumber.valueOf(Math.pow(left, this.toNumber()));
+				case '+-': 
+					return BaseTypeRegistry.get('ApproximateNumber').fromNumber(left, this);
 			}
 		}
 		return super.op(ctx, operator, left);
 	}
 
-	singleOp(ctx: Context, operator: string): any {
+	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
 		switch (operator) {
 			case '!':
-				return FuzzyBoolean.toFuzzyBoolean(!this.numerator);
+				return FuzzyBoolean.valueOf(!this.numerator);
 			case '-':
-				return new Fraction(-this.numerator, this.denominator, this.mixed);
+				return new Fraction(this.numerator.negate(), this.denominator);
 			case '+':
 				return this;
 			case 'abs':
-				return this.numerator >= 0 ? this : new Fraction(Math.abs(this.numerator), this.denominator, this.mixed);
+				return this.numerator >= 0 ? this : new Fraction(Runtime.valueOf(Math.abs(this.numerator)), this.denominator);
 		}
 		return super.singleOp(ctx, operator);
 	}
 	
 	toNumber_jel_mapping: Object;
-	toNumber(): number {
-		return this.denominator !== 0 ? (this.numerator / this.denominator) : NaN;
+	toNumber(): JelNumber {
+		return this.denominator !== 0 ? JelNumber.valueOf(this.numerator / this.denominator) : JelNumber.NAN;
 	}
 	
 	toBoolean(): FuzzyBoolean {
-		return FuzzyBoolean.toFuzzyBoolean(!!this.numerator);
+		return FuzzyBoolean.valueOf(!!this.numerator);
 	}
 	
 	simplify_jel_mapping: Object;
-	simplify(): Fraction | number {
+	simplify(): Fraction | JelNumber {
 		if (this.denominator == 1)
 			return this.numerator;
 		
@@ -188,13 +188,17 @@ export default class Fraction extends JelType {
 		if (n == 1)
 			return this;
 		else if (n == this.denominator)
-			return this.numerator / this.denominator;
+			return JelNumber.valueOf(this.numerator / this.denominator);
 		else
-			return new Fraction(this.numerator / n, this.denominator / n, this.mixed); 
+			return Fraction.valueOf(this.numerator / n, this.denominator / n); 
 	}
 	
 	getSerializationProperties(): any[] {
-		return [this.numerator, this.denominator, this.mixed];
+		return [this.numerator, this.denominator];
+	}
+	
+	static valueOf(a: number, b: number): Fraction {
+		return new Fraction(a, b);
 	}
 	
 	static gcd(a: number, b: number): number {
@@ -209,13 +213,15 @@ export default class Fraction extends JelType {
 		return a0; 
  	}
 	
-	static create_jel_mapping = {numerator:1, denominator: 2, mixed: 3};
+	static create_jel_mapping = {numerator:1, denominator: 2};
 	static create(ctx: Context, ...args: any[]): any {
-		return new Fraction(args[0], args[1], args[2]);
+		return new Fraction(args[0], args[1]);
 	}
 }
 
 Fraction.prototype.reverseOps = {'-': true, '/': true, '+-': true};
 Fraction.prototype.toNumber_jel_mapping = {};
 Fraction.prototype.simplify_jel_mapping = {};
+
+BaseTypeRegistry.register('Fraction', Fraction);
 

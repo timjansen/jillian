@@ -1,6 +1,6 @@
 import * as moment from 'moment';
 
-import JelType from '../../JelType';
+import JelObject from '../../JelObject';
 import Context from '../../Context';
 import TimeHint from './TimeHint';
 import TimeOfDay from './TimeOfDay';
@@ -11,7 +11,7 @@ import List from '../List';
 /**
  * Represents a part of the day (morning, night...).
  */
-export default class PartOfDay extends JelType implements TimeHint {
+export default class PartOfDay extends JelObject implements TimeHint {
 	constructor(public type: PartOfDayType) {
 		super();
 	}

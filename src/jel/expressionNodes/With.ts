@@ -1,6 +1,8 @@
 import JelNode from './JelNode';
 import Assignment from './Assignment';
 import Context from '../Context';
+import JelObject from '../JelObject';
+
 
 /**
  * Defines one or more constants in its execution scope.
@@ -15,7 +17,7 @@ export default class With extends JelNode {
   }
   
   // override
-  execute(ctx:Context): any {
+  execute(ctx:Context): JelObject|null|Promise<JelObject|null> {
     const newCtx = new Context(ctx);
     this.assignments.forEach(a => newCtx.set(a.name, a.execute(newCtx)));
 		newCtx.freeze();
