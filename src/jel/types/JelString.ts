@@ -61,7 +61,7 @@ export default class JelString extends JelObject implements SerializablePrimitiv
 			case '!':
 				return FuzzyBoolean.valueOf(!this.value.length);
 		}
-		return super.singleOp(ctx, operator, this);
+		return super.singleOp(ctx, operator);
 	}
 
 	getSerializationProperties(): any[] {

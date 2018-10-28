@@ -58,7 +58,7 @@ export default class FuzzyBoolean extends JelObject implements SerializablePrimi
 			this.state = state.value; // a value 0 - 1
 	}
 	
-	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject|null>|null {
+	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (right instanceof FuzzyBoolean) {
 			switch (operator) {
 				case '==': 
@@ -84,12 +84,12 @@ export default class FuzzyBoolean extends JelObject implements SerializablePrimi
 		return super.op(ctx, operator, right);
 	}
 	
-	singleOp(ctx: Context, operator: string): JelObject|null|Promise<JelObject|null> {
+	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
 		if (operator == '!') {
 			return this.negate();
 		}
 		else
-			return super.singleOp(ctx, operator, this);
+			return super.singleOp(ctx, operator);
 	}
 
 	negate():FuzzyBoolean {

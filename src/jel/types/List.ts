@@ -363,10 +363,10 @@ export default class List extends JelObject implements Gettable, SerializablePri
 
 	serializeToString(pretty: boolean, indent: number, spaces: string, serializer: (object: any, pretty: boolean, indent: number, spaces: string)=>string): string | undefined {
 		let r = '[';
-		for (let i = 0; i < this.length-1; i++)
-			r += serializer(this[i], pretty, indent) + (pretty ? ', ' : ',');
-		if (this.length)
-			r += serializer(this[this.length-1], pretty, indent);
+		for (let i = 0; i < this.elements.length-1; i++)
+			r += serializer(this.elements[i], pretty, indent, spaces) + (pretty ? ', ' : ',');
+		if (this.elements.length)
+			r += serializer(this.elements[this.elements.length-1], pretty, indent, spaces);
 		return r + ']';
 	}
 

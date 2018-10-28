@@ -93,7 +93,7 @@ export default class JelMath extends JelObject {
 
 	private static trigo(f: (x: number)=>number, ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): JelNumber {
 		if (x instanceof UnitValue) {
-			if (!FuzzyBoolean.toRealBoolean(x.unit.isSimple()))
+			if (!x.unit.isSimple())
 				throw new Error('Supports only Radians, Degree, Turn and Gradian as unit, but no complex unit types. Given: ' + x.unit.toString());
 			const	st = x.unit.toSimpleType(ctx).distinctName;
 			if (!(st in JelMath.unitFactors))

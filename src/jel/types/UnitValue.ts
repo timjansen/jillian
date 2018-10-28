@@ -128,14 +128,14 @@ export default class UnitValue extends JelObject {
 	convertTo_jel_mapping: Object;
 	convertTo(ctx: Context, target: Unit|IDbRef|string): Promise<UnitValue> | UnitValue {
 		if (target instanceof Unit) {
-			if (!target.isSimple().toRealBoolean())
+			if (!target.isSimple())
 				return Promise.reject(new Error(`UnitValues can only convert to simple Unit types, but not to complex unit ${target.toString()}.`));
 			return this.convertTo(ctx, target.toSimpleType(ctx).distinctName);
 		}
 		else if (typeof target != 'string')
 			return this.convertTo(ctx, target.distinctName);
 
-		if (this.unit.isSimple().toRealBoolean()) 
+		if (this.unit.isSimple()) 
 			return this.convertSimpleTo(ctx, target as string, false);
 		else
 			return this.convertComplexTo(ctx, target as string);
@@ -150,7 +150,7 @@ export default class UnitValue extends JelObject {
 			if (!(conversionDict instanceof Dictionary))
 					return Promise.reject(new Error("Can not convert "+simpleUnit.distinctName+" to any other units. No convertsTo property defined."));
 
-			const conversionObj: Dictionary = conversionDict.elements.get(target);
+			const conversionObj: Dictionary | null | undefined = conversionDict.elements.get(target) as any;
 			if (conversionObj != null) {
 				const f: any = conversionObj.elements.get('f');
 				if (f) {
@@ -158,8 +158,8 @@ export default class UnitValue extends JelObject {
 						return Promise.reject(new Error(`Broken configuration in ${simpleUnit.distinctName}.convertsTo.${target}: should be Callable, but is ${Serializer.serialize(f)}.`));
 					return Util.resolveValue(f.invoke(ctx, this.value), v=>new UnitValue(v, target));
 				}
-				const factor: JelNumber | Fraction = conversionObj.elements.get('factor');
-				if (factor)
+				const factor: JelObject | null | undefined = conversionObj.elements.get('factor');
+				if (factor != null)
 					return Util.resolveValue(Runtime.op(ctx, '*', factor, this.value), v=>new UnitValue(v, target));
 				else
 					return Promise.reject(new Error("Can not convert from "+simpleUnit.distinctName+" to type " + target+": neither factor not function set."));
@@ -268,13 +268,13 @@ export default class UnitValue extends JelObject {
 								if (!(t instanceof Dictionary))
 									throw new Error(`@${oldUnit.distinctName}.convertsTo.${primaryUnit.distinctName} must be a Dictionary, but has a different type.`);
 								const newUnitMap = new Map<string,number>(uv.unit.units);
-								const exp = newUnitMap.get(oldUnit.distinctName);
+								const exp: number = newUnitMap.get(oldUnit.distinctName) as any;
 								newUnitMap.delete(oldUnit.distinctName);
-								newUnitMap.set(primaryUnit.distinctName, (newUnitMap.get(primaryUnit.distinctName) || 0) + exp);
+								newUnitMap.set(primaryUnit.distinctName, (newUnitMap.get(primaryUnit.distinctName) || 0) as number + exp);
 								if (t.elements.has('factor'))
-									uv = new UnitValue(Runtime.op(ctx, '*', uv.value, Runtime.op(ctx, '^', t.elements.get('factor'), exp) as any) as any, new Unit(newUnitMap));
-								else if (t.elements.has('f') && exp == 1) {
-									uv = new UnitValue(t.elements.get('f').invoke(ctx, uv.value) as any, new Unit(newUnitMap));
+									uv = new UnitValue(Runtime.op(ctx, '*', uv.value, Runtime.op(ctx, '^', t.elements.get('factor') as any, JelNumber.valueOf(exp)) as any) as any, new Unit(newUnitMap));
+								else if (t.elements.has('f') && exp == 1 && t.elements.get('f') instanceof Callable) {
+									uv = new UnitValue((t.elements.get('f') as Callable).invoke(ctx, uv.value) as any, new Unit(newUnitMap));
 								}
 							}
 						});
@@ -316,14 +316,14 @@ export default class UnitValue extends JelObject {
 	// attempts to simplify the UnitValue to the simplest possible type
 	simplify_jel_mapping: Object;
 	simplify(ctx: Context): UnitValue | Promise<UnitValue> {
-		if (this.unit.isSimple().toRealBoolean())
+		if (this.unit.isSimple())
 			return this;
 		return Util.resolveValue(this.trySimplification(ctx, this), t1=>t1 || Util.resolveValue(Util.resolveValue(this.toPrimaryUnits(ctx), t3=>this.trySimplification(ctx, t3)), t2=>t2 || this));
 	}
 	
 	round_jel_mapping: Object;
 	round(ctx: Context, precision: JelNumber = JelNumber.valueOf(1)): UnitValue {
-		return new UnitValue(JelNumber.valueOf(Math.round(Runtime.toRealNumber(this.value)*precision.value)/precision.value), this.unit);
+		return new UnitValue(JelNumber.valueOf(Math.round(JelNumber.toRealNumber(this.value)*precision.value)/precision.value), this.unit);
 	}
 	
 	toNumber_jel_mapping: Object;
@@ -331,9 +331,13 @@ export default class UnitValue extends JelObject {
 		return this.value.toNumber();
 	}
 	
+	toRealNumber(): number {
+		return this.value.toRealNumber();
+	}
+	
 	
 	isType_jel_mapping: Object;
-	isType(ctx: Context, unit: IDbRef | string): FuzzyBoolean {
+	isType(ctx: Context, unit: IDbRef | string): boolean {
 		return this.unit.isType(ctx, unit);
 	}
 	

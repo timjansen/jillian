@@ -27,7 +27,7 @@ export default class ApproximateNumber extends JelObject {
 				case '==': 
 					if ((Runtime.op(ctx, '===', this.value, right.value) as FuzzyBoolean).toRealBoolean())
 						return FuzzyBoolean.TRUE;
-					const deltaEq = JelNumber.toRealNumber(Runtime.singleOp(ctx, 'abs',Runtime.op(ctx, '-', this.value, right.value)) as any) * ACCURACY_FACTOR;
+					const deltaEq = JelNumber.toRealNumber(Runtime.singleOp(ctx, 'abs', Runtime.op(ctx, '-', this.value, right.value) as JelObject) as any) * ACCURACY_FACTOR;
 					if (deltaEq == 0)
 						return FuzzyBoolean.TRUE;
 					const maxErrorDelta = JelNumber.toRealNumber(Runtime.op(ctx, '+', this.maxError, right.maxError));
@@ -41,9 +41,9 @@ export default class ApproximateNumber extends JelObject {
 				case '>>=':
 					return Runtime.op(ctx, operator, this.value, right.value);
 				case '!=':
-					return this.op(ctx, '==', right).negate();
+					return (this.op(ctx, '==', right) as FuzzyBoolean).negate();
 				case '!==':
-					return this.op(ctx, '===', right).negate();
+					return (this.op(ctx, '===', right) as FuzzyBoolean).negate();
 
 				case '>':
 				case '<':
@@ -52,30 +52,30 @@ export default class ApproximateNumber extends JelObject {
 					const maxErrorDeltaCmp = JelNumber.toRealNumber(Runtime.op(ctx, '+', this.maxError, right.maxError));
 					if (maxErrorDeltaCmp == 0)
 						return Runtime.op(ctx, operator, this.value, right.value)
-					const deltaCmp = JelNumber.toRealNumber(Runtime.singleOp(ctx, 'abs', Runtime.op(ctx, '-', this.value, right.value))) * ACCURACY_FACTOR;
-					if (Runtime.op(ctx, operator, this.value, right.value).toRealBoolean())
+					const deltaCmp = JelNumber.toRealNumber(Runtime.singleOp(ctx, 'abs', Runtime.op(ctx, '-', this.value, right.value) as JelObject)) * ACCURACY_FACTOR;
+					if ((Runtime.op(ctx, operator, this.value, right.value) as FuzzyBoolean).toRealBoolean())
 						 return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.TRUE : FuzzyBoolean.create(ctx, Math.min(ACCURACY_FACTOR, 0.5 + 0.5 * deltaCmp / maxErrorDeltaCmp));
 					return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.FALSE : FuzzyBoolean.create(ctx, Math.max(0, ACCURACY_FACTOR*0.5 - 0.5 * deltaCmp / maxErrorDeltaCmp));
 
 				case '+':
 				case '-':
-					return new ApproximateNumber(Runtime.op(ctx, operator, this.value, right.value), Runtime.op(ctx, '+', this.maxError, right.maxError));
+					return new ApproximateNumber(Runtime.op(ctx, operator, this.value, right.value) as any, Runtime.op(ctx, '+', this.maxError, right.maxError) as any);
 				case '*':
 				case '/':
-					return new ApproximateNumber(Runtime.op(ctx, operator, this.value, right.value), 
-																			 Runtime.op(ctx, '+', Runtime.singleOp(ctx, 'abs', Runtime.op(ctx, '*', this.maxError, right.value)), Runtime.singleOp(ctx, 'abs', Runtime.op(ctx, '*', right.maxError, this.value))));
+					return new ApproximateNumber(Runtime.op(ctx, operator, this.value, right.value) as any, 
+																			 Runtime.op(ctx, '+', Runtime.singleOp(ctx, 'abs', Runtime.op(ctx, '*', this.maxError, right.value) as any) as any, Runtime.singleOp(ctx, 'abs', Runtime.op(ctx, '*', right.maxError, this.value) as any) as any) as any);
 				case '^':
 					return new ApproximateNumber(JelNumber.valueOf(Math.pow(JelNumber.toRealNumber(this), JelNumber.toRealNumber(right))), JelNumber.valueOf(Math.pow(JelNumber.toRealNumber(this.maxError), JelNumber.toRealNumber(right))));
 				case '+-':
-					return new ApproximateNumber(this.value, Runtime.op(ctx, '+', right.value, right.maxError));
+					return new ApproximateNumber(this.value, Runtime.op(ctx, '+', right.value, right.maxError) as any);
 			}
 		}
 		else if (right instanceof JelNumber || right instanceof Fraction) {
 			switch (operator) {
 				case '==': 
 					const maxErrorDelta = JelNumber.toNumber(this.maxError);
-					const deltaEq = JelNumber.toNumber(Runtime.singleOp(ctx, 'abs', Runtime.op(ctx, '-', this.value, right))) * ACCURACY_FACTOR;
-					if (Runtime.op(ctx, '===', this.value, right).toRealBoolean())
+					const deltaEq = JelNumber.toNumber(Runtime.singleOp(ctx, 'abs', Runtime.op(ctx, '-', this.value, right) as any) as any) * ACCURACY_FACTOR;
+					if ((Runtime.op(ctx, '===', this.value, right) as FuzzyBoolean).toRealBoolean())
 						return FuzzyBoolean.TRUE;
 					if (deltaEq == 0)
 						return FuzzyBoolean.TRUE;
@@ -99,17 +99,17 @@ export default class ApproximateNumber extends JelObject {
 					const maxErrorDeltaCmp = JelNumber.toRealNumber(this.maxError);
 					if (maxErrorDeltaCmp == 0)
 						return Runtime.op(ctx, operator, this.value, right)
-					const deltaCmp = JelNumber.toRealNumber(Runtime.singleOp(ctx, 'abs',Runtime.op(ctx, '-', this.value, right))) * ACCURACY_FACTOR;
-					if (Runtime.op(ctx, operator, this.value, right).toRealBoolean())
+					const deltaCmp = JelNumber.toRealNumber(Runtime.singleOp(ctx, 'abs', Runtime.op(ctx, '-', this.value, right) as JelObject)) * ACCURACY_FACTOR;
+					if ((Runtime.op(ctx, operator, this.value, right) as FuzzyBoolean).toRealBoolean())
 						 return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.TRUE : FuzzyBoolean.create(ctx, Math.min(ACCURACY_FACTOR, 0.5 + 0.5 * deltaCmp / maxErrorDeltaCmp));
 					return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.FALSE : FuzzyBoolean.create(ctx, Math.max(0, ACCURACY_FACTOR*0.5 - 0.5 * deltaCmp / maxErrorDeltaCmp));
 					
 				case '+':
 				case '-':
-					return new ApproximateNumber(Runtime.op(ctx, operator, this.value, right), this.maxError);
+					return new ApproximateNumber(Runtime.op(ctx, operator, this.value, right) as any, this.maxError);
 				case '*':
 				case '/':
-					return new ApproximateNumber(Runtime.op(ctx, operator, this.value, right), Runtime.singleOp(ctx, 'abs', Runtime.op(ctx, '*', this.maxError, right)));
+					return new ApproximateNumber(Runtime.op(ctx, operator, this.value, right) as any, Runtime.singleOp(ctx, 'abs', Runtime.op(ctx, '*', this.maxError, right) as any) as any);
 				case '^':
 					return new ApproximateNumber(JelNumber.valueOf(Math.pow(JelNumber.toRealNumber(this.value), JelNumber.toRealNumber(right))), 
 																			 JelNumber.valueOf(Math.pow(JelNumber.toRealNumber(this.maxError), JelNumber.toRealNumber(right))));
@@ -124,13 +124,13 @@ export default class ApproximateNumber extends JelObject {
 		if (left instanceof JelNumber) {
 			switch (operator) {
 				case '-': 
-					return new ApproximateNumber(Runtime.op(ctx, operator, left, this.value), this.maxError);
+					return new ApproximateNumber(Runtime.op(ctx, operator, left, this.value) as any, this.maxError);
 				case '/': 
-					return new ApproximateNumber(Runtime.op(ctx, operator, left, this.value), Runtime.singleOp(ctx, 'abs', Runtime.op(ctx, '*', this.maxError, left)));
+					return new ApproximateNumber(Runtime.op(ctx, operator, left, this.value) as any, Runtime.singleOp(ctx, 'abs', Runtime.op(ctx, '*', this.maxError, left) as any) as any);
 				case '^':
-					return Math.pow(left, this.toNumber());
+					return JelNumber.valueOf(Math.pow(left.toRealNumber(), this.toRealNumber()));
 				case '+-':
-					return new ApproximateNumber(left, Runtime.op(ctx, '+', this.value, this.maxError));
+					return new ApproximateNumber(left, Runtime.op(ctx, '+', this.value, this.maxError) as any);
 			}
 		}
 		return super.opReversed(ctx, operator, left);
@@ -142,7 +142,7 @@ export default class ApproximateNumber extends JelObject {
 		else if (operator == 'abs')
 			return Runtime.singleOp(ctx, operator, this.value);
 		else
-			return new ApproximateNumber(Runtime.singleOp(ctx, operator, this.value), this.maxError);
+			return new ApproximateNumber(Runtime.singleOp(ctx, operator, this.value) as any, this.maxError);
 	}
 
 	toNumber_jel_mapping: Object;
@@ -150,8 +150,17 @@ export default class ApproximateNumber extends JelObject {
 		return JelNumber.toNumber(this.value);
 	}
 	
+	toRealNumber(): number {
+		return this.value.toRealNumber();
+	}
+	
 	toBoolean(): FuzzyBoolean {
 		return FuzzyBoolean.valueOf(!!this.toNumber().value);
+	}
+	
+	hasError_jel_mapping: Object;
+	hasError(): boolean {
+		return this.maxError instanceof JelNumber ? this.maxError.value != 0 : this.maxError.numerator != 0;
 	}
 	
 	// for use as ctor
@@ -163,12 +172,12 @@ export default class ApproximateNumber extends JelObject {
 
 	// for use as ctor
 	static createIfError(a: number, b: number): ApproximateNumber | JelNumber {
-		return b != 0 ?  new ApproximateNumber(JelNumber.valueOf(a), b) : JelNumber.valueOf(a);
+		return b != 0 ?  new ApproximateNumber(JelNumber.valueOf(a), JelNumber.valueOf(b)) : JelNumber.valueOf(a);
 	}
 
 	
 	getSerializationProperties(): any[] {
-		return this.maxError != 0 ? [this.value, this.maxError] : [this.value];
+		return this.hasError ? [this.value, this.maxError] : [this.value];
 	}
 	
 	static create_jel_mapping = {value: 1, maxError: 2};
@@ -179,6 +188,7 @@ export default class ApproximateNumber extends JelObject {
 
 ApproximateNumber.prototype.reverseOps = {'-':1, '/': 1, '+-': 1};
 ApproximateNumber.prototype.toNumber_jel_mapping = {};
+ApproximateNumber.prototype.hasError_jel_mapping = {};
 
 BaseTypeRegistry.register('ApproximateNumber', ApproximateNumber);
 

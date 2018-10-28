@@ -44,7 +44,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 						if (!right.elements.has(key))
 							return FuzzyBoolean.FALSE;
 						else
-							result = FuzzyBoolean.falsestWithPromises(ctx, result, Runtime.op(ctx, operator, this.elements.get(key), right.elements.get(key)));
+							result = FuzzyBoolean.falsestWithPromises(ctx, result, Runtime.op(ctx, operator, this.elements.get(key) as JelObject, right.elements.get(key) as JelObject) as any);
 					return result;
 			}
 		}
@@ -196,16 +196,17 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 				const next = it.next();
 				if (next.done)
 					return newDict;
-				const r = f.invoke(ctx, JelString.valueOf(next.value), self.elements.get(next.value), JelNumber.valueOf(i));
+				const thisValue = self.elements.get(next.value) as JelObject;
+				const r = f.invoke(ctx, JelString.valueOf(next.value), thisValue, JelNumber.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> {
 						if (FuzzyBoolean.toRealBoolean(v))
-							newDict.set(next.value, self.elements.get(next.value));
+							newDict.set(next.value, thisValue);
 						return exec();
 					});
 				else if (FuzzyBoolean.toRealBoolean(r))
-					newDict.set(next.value, self.elements.get(next.value));
+					newDict.set(next.value, thisValue);
 			}
 		}
 		return exec();
@@ -297,7 +298,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 		const last = this.elements.size-1;
 		this.elements.forEach((value, key) => {
 			if (pretty)
-				r += '\n'+spaces(2);
+				r += '\n'+spaces.substr(0, 2);
 			if (typeof key == 'string' && /^[a-zA-Z_]\w*$/.test(key))
 				r += key;
 			else

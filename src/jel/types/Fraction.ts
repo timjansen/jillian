@@ -77,7 +77,7 @@ export default class Fraction extends JelObject {
 					else if (right.value == -1)
 						return Fraction.valueOf(this.denominator, this.numerator).simplify();
 					else
-						return JelNumber.valueOf(JelNumber.toRealNumber(Math.pow(this.toNumber()), JelNumber.toRealNumber(right.value)));
+						return JelNumber.valueOf(Math.pow(this.toRealNumber(), right.value));
 				case '+-':
 					return BaseTypeRegistry.get('ApproximateNumber').fromNumber(this, right.value);
 					
@@ -86,11 +86,11 @@ export default class Fraction extends JelObject {
 			}
 		}
 		else if (right instanceof Fraction) {
-			const l = this.simplify();
-			const r = right.simplify();
+			const l: Fraction | JelNumber = this.simplify();
+			const r: Fraction | JelNumber = right.simplify();
 			if (!((l instanceof Fraction) && (r instanceof Fraction))) {
-				if (operator == '/' && l instanceof JelNumber && typeof r instanceof JelNumber)
-					return Fraction.valueOf(l.value, r.value).simplify();
+				if (operator == '/' && l instanceof JelNumber && r instanceof JelNumber)
+					return Fraction.valueOf((l as JelNumber).value, (r as JelNumber).value).simplify();
 				else 
 					return Runtime.op(ctx, operator, l, r);
 			}
@@ -135,20 +135,21 @@ export default class Fraction extends JelObject {
 	}
 
 	opReversed(ctx: Context, operator: string, left: JelObject): JelObject|Promise<JelObject> {	
-		if (left instanceof Number) {
-			if (!Number.isInteger(left))
+		if (left instanceof JelNumber) {
+			const lnum = left.value;
+			if (!Number.isInteger(lnum))
 				return Runtime.op(ctx, operator, left, this.toNumber());
 			switch (operator) {
 				case '+':
-					return Fraction.valueOf(left*this.denominator+this.numerator, this.denominator).simplify();
+					return Fraction.valueOf(lnum*this.denominator+this.numerator, this.denominator).simplify();
 				case '-':
-					return Fraction.valueOf(left*this.denominator-this.numerator, this.denominator).simplify();
+					return Fraction.valueOf(lnum*this.denominator-this.numerator, this.denominator).simplify();
 				case '*':
-					return Fraction.valueOf(left*this.numerator, this.denominator).simplify();
+					return Fraction.valueOf(lnum*this.numerator, this.denominator).simplify();
 				case '/':
-					return Fraction.valueOf(left*this.denominator, this.numerator).simplify();
+					return Fraction.valueOf(lnum*this.denominator, this.numerator).simplify();
 				case '^':
-					return JelNumber.valueOf(Math.pow(left, this.toNumber()));
+					return JelNumber.valueOf(Math.pow(lnum, this.toRealNumber()));
 				case '+-': 
 					return BaseTypeRegistry.get('ApproximateNumber').fromNumber(left, this);
 			}
@@ -161,11 +162,11 @@ export default class Fraction extends JelObject {
 			case '!':
 				return FuzzyBoolean.valueOf(!this.numerator);
 			case '-':
-				return new Fraction(this.numerator.negate(), this.denominator);
+				return new Fraction(-this.numerator, this.denominator);
 			case '+':
 				return this;
 			case 'abs':
-				return this.numerator >= 0 ? this : new Fraction(Runtime.valueOf(Math.abs(this.numerator)), this.denominator);
+				return this.numerator >= 0 ? this : new Fraction(Math.abs(this.numerator), this.denominator);
 		}
 		return super.singleOp(ctx, operator);
 	}
@@ -173,6 +174,10 @@ export default class Fraction extends JelObject {
 	toNumber_jel_mapping: Object;
 	toNumber(): JelNumber {
 		return this.denominator !== 0 ? JelNumber.valueOf(this.numerator / this.denominator) : JelNumber.NAN;
+	}
+
+	toRealNumber(): number {
+		return this.denominator !== 0 ? this.numerator / this.denominator : NaN;
 	}
 	
 	toBoolean(): FuzzyBoolean {
@@ -182,7 +187,7 @@ export default class Fraction extends JelObject {
 	simplify_jel_mapping: Object;
 	simplify(): Fraction | JelNumber {
 		if (this.denominator == 1)
-			return this.numerator;
+			return JelNumber.valueOf(this.numerator);
 		
 		const n = Fraction.gcd(this.numerator, this.denominator);
 		if (n == 1)
@@ -215,7 +220,7 @@ export default class Fraction extends JelObject {
 	
 	static create_jel_mapping = {numerator:1, denominator: 2};
 	static create(ctx: Context, ...args: any[]): any {
-		return new Fraction(args[0], args[1]);
+		return new Fraction(JelNumber.toRealNumber(args[0]), JelNumber.toRealNumber(args[1]));
 	}
 }
 

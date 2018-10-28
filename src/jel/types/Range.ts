@@ -33,7 +33,7 @@ export default class Range extends JelObject {
 			if (operator == '==')
 				return FuzzyBoolean.orWithPromises(this.contains(ctx, right.min), this.contains(ctx, right.max), right.contains(ctx, this.min), right.contains(ctx, this.max));
 			else if (operator == '===')
-				return FuzzyBoolean.andWithPromises(Runtime.op(ctx, '===', this.min, right.min) as FuzzyBoolean, Runtime.op(ctx, '===', this.max, right.max));
+				return FuzzyBoolean.andWithPromises(Runtime.op(ctx, '===', this.min, right.min) as FuzzyBoolean, Runtime.op(ctx, '===', this.max, right.max) as FuzzyBoolean);
 			else if (operator == '>>')
 				return (right.max == null || this.min == null) ? FuzzyBoolean.FALSE : Runtime.op(ctx, '>>', this.min, right.max);
 			else if (operator == '<<')
@@ -55,7 +55,7 @@ export default class Range extends JelObject {
 			if (operator == '==')
 				return this.contains(ctx, right);
 			else if (operator == '===')
-				return FuzzyBoolean.andWithPromises(Runtime.op(ctx, '===', this.min, right) as FuzzyBoolean, Runtime.op(ctx, '===', this.max, right));
+				return FuzzyBoolean.andWithPromises(Runtime.op(ctx, '===', this.min, right) as FuzzyBoolean, Runtime.op(ctx, '===', this.max, right) as FuzzyBoolean);
 			else if (operator == '>>')
 				return this.min != null ? Runtime.op(ctx, '>>', this.min, right) : FuzzyBoolean.FALSE;
 			else if (operator == '<<')
@@ -87,7 +87,7 @@ export default class Range extends JelObject {
 	middle_jel_mapping: Object;
 	middle(ctx: Context): JelNumber | Fraction | UnitValue | ApproximateNumber | null {
 		if (this.min != null && this.max != null)
-			return Runtime.singleOpWithPromise(ctx, 'abs', Runtime.op(ctx, '-', this.min, this.max) as any);
+			return Runtime.singleOpWithPromise(ctx, 'abs', Runtime.op(ctx, '-', this.min, this.max) as any) as any;
 		else
 			return null;
 	}

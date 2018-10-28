@@ -119,8 +119,8 @@ export default class Unit extends JelObject {
 	}
 	
 	isSimple_jel_mapping: Object;
-	isSimple(): FuzzyBoolean {
-		return FuzzyBoolean.valueOf(this.simple);
+	isSimple(): boolean {
+		return this.simple;
 	}
 	
 	toSimpleType_jel_mapping: Object;
@@ -131,10 +131,10 @@ export default class Unit extends JelObject {
 	}
 
 	isType_jel_mapping: Object;
-	isType(ctx: Context, unit: IDbRef | string): FuzzyBoolean {
+	isType(ctx: Context, unit: IDbRef | string): boolean {
 		if (!this.simple)
-			return FuzzyBoolean.FALSE;
-		return FuzzyBoolean.valueOf(this.toSimpleType(ctx).distinctName == (typeof unit == 'string' ? unit : unit.distinctName));
+			return false;
+		return this.toSimpleType(ctx).distinctName == (typeof unit == 'string' ? unit : unit.distinctName);
 	}
 	
 	getSerializationProperties(): any[] {

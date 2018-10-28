@@ -22,7 +22,7 @@ export default class Distribution extends JelObject {
 	JEL_PROPERTIES: Object;
 
 	
-  constructor(distributionPoints?: List, public average?: UnitValue|ApproximateNumber|Fraction|JelNumber,
+  constructor(distributionPoints?: List, public average: UnitValue|ApproximateNumber|Fraction|JelNumber|null = null,
 							 min?: UnitValue|ApproximateNumber|Fraction|JelNumber, max?: UnitValue|ApproximateNumber|Fraction|JelNumber, 
 							 mean?: UnitValue|ApproximateNumber|Fraction|JelNumber) {
     super();
@@ -101,7 +101,8 @@ export default class Distribution extends JelObject {
 		// P.share = x * (rp.share-lp.share) + lp.share
 		// x = (P.share-lp.share) / (rp.share-lp.share) 
 		// P.value = (rp.value-lp.value) * (P.share - lp.share) / (rp.share-lp.share) + lp.value
-		return Runtime.op(ctx, '+', Runtime.op(ctx, '/', Runtime.op(ctx, '*', Runtime.op(ctx, '-', rp.value, lp.value), Runtime.op(ctx, '-', share0, JelNumber.valueOf(lp.share))), Runtime.op(ctx, '-', JelNumber.valueOf(rp.share), JelNumber.valueOf(lp.share))), lp.value);
+		const rpShare = JelNumber.valueOf(rp.share), lpShare = JelNumber.valueOf(lp.share);
+		return Runtime.op(ctx, '+', Runtime.op(ctx, '/', Runtime.op(ctx, '*', Runtime.op(ctx, '-', rp.value, lp.value) as any, Runtime.op(ctx, '-', JelNumber.valueOf(share0), lpShare) as any) as any, Runtime.op(ctx, '-', rpShare, lpShare) as any) as any, lp.value) as any;
 	}
 
 	getShare_jel_mapping: Object;
@@ -143,13 +144,14 @@ export default class Distribution extends JelObject {
 					// x = (P.value-lp.value)/(rp.value-lp.value)
 					// P.share = (P.value-lp.value)*(rp.share-lp.share)/(rp.value-lp.value)  + lp.share
 
-					return JelNumber.toNumberWithPromise(Runtime.opWithPromises(ctx, '+', Runtime.opWithPromises(ctx, '/', Runtime.opWithPromises(ctx, '*', Runtime.opWithPromises(ctx, '-', value, lp.value), Runtime.op(ctx, '-', rp.share, lp.share)), Runtime.opWithPromises(ctx, '-', rp.value, lp.value)),  lp.share));
+					const lpShare = JelNumber.valueOf(lp.share), rpShare = JelNumber.valueOf(rp.share);
+					return JelNumber.toNumberWithPromise(Runtime.opWithPromises(ctx, '+', Runtime.opWithPromises(ctx, '/', Runtime.opWithPromises(ctx, '*', Runtime.opWithPromises(ctx, '-', value, lp.value), Runtime.op(ctx, '-', rpShare, lpShare)), Runtime.opWithPromises(ctx, '-', rp.value, lp.value)),  lpShare));
 				});
 			});
 		}, Runtime.op(ctx, '<', value, this.min(ctx)), Runtime.op(ctx, '>', value, this.max(ctx)));
 	}
 	
-	op(ctx: Context, operator: string, right: JelObject|null): JelObject|null|Promise<JelObject|null> {
+	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (right instanceof Distribution) {
 			switch (operator) {
 				case '==': 
@@ -195,10 +197,10 @@ export default class Distribution extends JelObject {
 		else if (right instanceof JelNumber || right instanceof Fraction || right instanceof ApproximateNumber || right instanceof UnitValue) {
 			switch (operator) {
 				case '==': 
-					return Runtime.op(ctx, '>=', right, this.min(ctx)).falsestWithPromises(Runtime.op(ctx, '<=', right, this.max(ctx)));
+					return FuzzyBoolean.falsestWithPromises(ctx, Runtime.op(ctx, '>=', right, this.min(ctx)) as FuzzyBoolean, Runtime.op(ctx, '<=', right, this.max(ctx)) as FuzzyBoolean);
 
 				case '===':
-					return Runtime.op(ctx, '===', right, this.min(ctx)).falsestWithPromises(Runtime.op(ctx, '===', right, this.max(ctx)));
+					return FuzzyBoolean.falsestWithPromises(ctx, Runtime.op(ctx, '===', right, this.min(ctx)) as FuzzyBoolean, Runtime.op(ctx, '===', right, this.max(ctx)) as FuzzyBoolean);
 
 				case '>>':
 				case '>':
