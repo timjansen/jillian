@@ -5,7 +5,10 @@ const assert = require('assert');
 const s = require('../../build/jel/Serializer.js').default;
 const Dictionary = require('../../build/jel/types/Dictionary.js').default;
 const Pattern = require('../../build/jel/types/Pattern.js').default;
+const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
+
+DefaultContext.get(); // force init
 
 describe('jelSerializer', function() {
   describe('serialize()', function() {

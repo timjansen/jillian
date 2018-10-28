@@ -2,11 +2,12 @@
 
 require('source-map-support').install();
 const Context = require('../../build/jel/Context.js').default;
+const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const Fraction = require('../../build/jel/types/Fraction.js').default;
 const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
 const Range = require('../../build/jel/types/Range.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
-const jelAssert = new JelAssert(new Context().setAll({Fraction, FuzzyBoolean, Range}));
+const jelAssert = new JelAssert(DefaultContext.get());
 
 describe('Range', function() {
 		it('creates and serializes', function() {

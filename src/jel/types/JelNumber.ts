@@ -90,7 +90,7 @@ export default class JelNumber extends JelObject implements SerializablePrimitiv
 	toBoolean(): FuzzyBoolean {
 		return FuzzyBoolean.valueOf(!!this.value);
 	}
-	
+
 	static toNumber(n: number|JelObject|null, defaultValue: any = JelNumber.NAN): any {
 		return typeof n == 'number' ? JelNumber.valueOf(n) :(n && (n as any).toNumber) ? (n as any).toNumber() : defaultValue;
 	}

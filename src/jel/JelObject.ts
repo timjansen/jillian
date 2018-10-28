@@ -83,11 +83,14 @@ export default class JelObject {
 		throw new Error(`Operator "${operator}" is not supported for type "${this.constructor.name}"`);
 	}
 
+	/**
+	 * Returns the value of the member, or undefined if there is no member of this name in the object.
+	 */ 
 	member_jel_mapping: Object;
-	member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null> {
+	member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null>|undefined {
 		if (this.JEL_PROPERTIES && name in this.JEL_PROPERTIES)
 			return BaseTypeRegistry.mapNativeTypes((this as any)[name]);
-		throw new Error(`There is no member "${name}" in "${this.constructor.name}".`);
+		return undefined;
 	}
 	
 	toBoolean_jel_mapping: Object;

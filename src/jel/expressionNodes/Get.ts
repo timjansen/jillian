@@ -2,7 +2,6 @@ import JelNode from './JelNode';
 import JelObject from '../JelObject';
 import Runtime from '../Runtime';
 import Context from '../Context';
-import Gettable from '../Gettable';
 import Util from '../../util/Util';
 
 /**
@@ -17,20 +16,40 @@ export default class Get extends JelNode {
     super();
   }
   
-  getValue(ctx: Context, left: JelNode, name: string): JelObject|null|Promise<JelObject|null> {
+  getValue(ctx: Context, left: JelNode, name: JelNode): JelObject|null|Promise<JelObject|null> {
     if (left == null)
       return left;
-    else if ((left as any).get_jel_mapping)
-      return (left as any).get(ctx, name);
-    else if (name == null)
-      return null;
-    else 
-      return Runtime.member(ctx, left, name);
+
+		const leftCtor = left.constructor.name;
+		const nameCtor = name.constructor.name;
+    if (leftCtor == 'List') {
+			if (nameCtor == 'JelNumber')
+      	return (left as any).get(ctx, (name as any).value);
+			else
+				throw new Error('Index operator [] on List supports only numbers.');
+		}
+    else if (leftCtor == 'Dictionary') {
+			if (nameCtor == 'JelString')
+      	return (left as any).get(ctx, (name as any).value);
+			else
+				throw new Error('Index operator [] on Dictionary supports only strings.');
+		}
+    else {
+			if (nameCtor == 'JelString')
+	      return Runtime.member(ctx, left, (name as any).value);
+			else
+				throw new Error('Index operator [] on objects supports only strings.');
+		}
   }
    
   // override
   execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
-    return Util.resolveValues((l: any, n: any)=>this.getValue(ctx, l, n), this.left.execute(ctx), this.name.execute(ctx));
+    return Util.resolveValues((l: any, n: any)=>{
+			if (n != null)
+				return this.getValue(ctx, l, n);
+			else
+				throw new Error('Index operator [ ] supports no nulls.');
+		}, this.left.execute(ctx), this.name.execute(ctx));
   }
   
   // override

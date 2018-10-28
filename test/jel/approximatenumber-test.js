@@ -1,12 +1,12 @@
 'use strict';
 
 require('source-map-support').install();
-const Context = require('../../build/jel/Context.js').default;
+const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const ApproximateNumber = require('../../build/jel/types/ApproximateNumber.js').default;
 const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
 const Fraction = require('../../build/jel/types/Fraction.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
-const jelAssert = new JelAssert(new Context().setAll({ApproximateNumber}));
+const jelAssert = new JelAssert(DefaultContext.get());
 
 describe('ApproximateNumber', function() {
 	it('creates and serializes', function() {

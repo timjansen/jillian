@@ -10,10 +10,12 @@ const TERMINATOR = new PatternNode();
 
 export default class PatternParser {
 	static parsePattern(tok: TokenReader, jelToken: Token, expectStopper = false, targetNode = new PatternNode()): PatternNode | undefined {
+		
 		if (!tok.hasNext()) 
 			return TERMINATOR;
 
 		const t = tok.next();
+
 		if (t.type == TokenType.Word) 
 			return targetNode.addTokenMatch(t.value, PatternParser.parsePattern(tok, jelToken, expectStopper));
 		else if (t.type == TokenType.Template) {

@@ -2,19 +2,20 @@
 
 require('source-map-support').install();
 const assert = require('assert');
+const Context = require('../../build/jel/Context.js').default;
+const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
 const Pattern = require('../../build/jel/types/Pattern.js').default;
 const Translator = require('../../build/jel/types/Translator.js').default;
 const Dictionary = require('../../build/jel/types/Dictionary.js').default;
-const Context = require('../../build/jel/Context.js').default;
 const PatternNode = require('../../build/jel/patternNodes/PatternNode.js').default;
 const TranslatorNode = require('../../build/jel/patternNodes/TranslatorNode.js').default;
 const {JelPromise, JelConsole} = require('../jel-assert.js');
 
-const promiseCtx = new Context().setAll({JelPromise, JelConsole});
+const promiseCtx = DefaultContext.plus({JelPromise, JelConsole});
 
 function exec(s) {
-  return JEL.parseTree(s).execute(new Context());
+  return JEL.parseTree(s).execute(DefaultContext.get());
 }
 
 function createMap(obj) {
@@ -61,7 +62,7 @@ describe('jelTranslators', function() {
 
   describe('match()', function() {
     it('should match simple sentences', function() {
-      const ctx = new Context();
+      const ctx = DefaultContext.get();
       const t1 = new Translator().addPattern(JEL.createPattern(`abc def`), JEL.parseTree('7'));
       assert.equal(t1.match(ctx, "abc def").length, 1);
       assert.equal(t1.match(ctx, " abc  def ").get(ctx, 0).value, 7);
@@ -84,7 +85,7 @@ describe('jelTranslators', function() {
     });
 
     it('should match options', function() {
-      const ctx = new Context();
+      const ctx = DefaultContext.get();
       const t0 = new Translator().addPattern(JEL.createPattern(`a [a]?`), JEL.parseTree('7'));
       assert.deepEqual(t0.match(ctx, "a").elements.map(e=>e.value), [7]);
       assert.deepEqual(t0.match(ctx, "a a").elements.map(e=>e.value), [7]);
@@ -111,7 +112,7 @@ describe('jelTranslators', function() {
     });
 
     it('should support meta', function() {
-      const ctx = new Context();
+      const ctx = DefaultContext.get();
       const t1 = new Translator().addPattern(JEL.createPattern(`abc`), JEL.parseTree('2'), createMap({x: true}));
       assert.equal(t1.match(ctx, "abc").length, 1);
       assert.equal(t1.match(ctx, "abc", new Set()).length, 1);
@@ -146,7 +147,7 @@ describe('jelTranslators', function() {
         const tpl1 = exec('${`a` => 1, x: `b` => 2, y: `b` => 12, x, y: `b` => 22}');
         const tpl2 = exec('${`a [b [c]?]?` => 3, `a b c` => 4, `d e` => 5, `f {{tpl1}}` => 6, `a [{{tpl0}}]? h` => 7}');
         const dict = new Dictionary({tpl0, tpl1, tpl2});
-        const ctx = new Context(null, null, dict);
+        const ctx = new Context(DefaultContext.get(), null, dict);
 
         assert.deepEqual(translator(JEL.createPattern('{{tpl0}}'), JEL.parseTree('5')).match(ctx, 'a').elements.map(e=>e.value), [5]);
         assert.deepEqual(translator(JEL.createPattern('{{tpl0}} {{tpl0}}'), JEL.parseTree('7')).match(ctx, 'a a').elements.map(e=>e.value), [7]);
@@ -185,7 +186,7 @@ describe('jelTranslators', function() {
     });
     
     it('should support regexp templates', function() {
-        const ctx = new Context();
+        const ctx = DefaultContext.get();
 
         assert.deepEqual(translator(JEL.createPattern('{{/a+bc/}}'), JEL.parseTree('5')).match(ctx, 'aaabc').elements.map(e=>e.value), [5]);
         assert.deepEqual(translator(JEL.createPattern('{{m: /abc/}}'), JEL.parseTree('m')).match(ctx, 'abc').elements.map(e=>e.value), ['abc']);
@@ -200,7 +201,7 @@ describe('jelTranslators', function() {
         const animalSounds = exec('${`woof` => "dog", `meow` => "cat", `moo` => "cow"}');
         const verbs = exec('${`walks` => "walks", `sleeps` => "sleeps", `says` => "says"}');
         const dict = new Dictionary({animals, animalSounds, verbs});
-        const ctx = new Context(null, null, dict);
+        const ctx = new Context(DefaultContext.get(), null, dict);
 
         const sounds = translator(JEL.createPattern('the {{animals}} says {{animalSounds}}'), JEL.parseTree('true'));
         assert.deepEqual(sounds.match(ctx, "the dog says woof").elements.map(e=>e.value.state), [1]);

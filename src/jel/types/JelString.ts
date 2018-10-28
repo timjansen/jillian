@@ -45,6 +45,11 @@ export default class JelString extends JelObject implements SerializablePrimitiv
 		return JelNumber.valueOf(this.value.length);
 	}
 	
+	trim_jel_mapping: Object;
+	trim(): string {
+		return this.value.trim();
+	}
+	
 	static valueOf(n: string): JelString {
 		return n ? new JelString(n) : JelString.EMPTY;
 	}
@@ -79,9 +84,16 @@ export default class JelString extends JelObject implements SerializablePrimitiv
 	toNumber(): JelNumber {
 		return JelNumber.valueOf(this.value.length);
 	}
+	
+	toString(): string {
+		return this.serializeToString(true, 0, '');
+	}
 }
 
 JelString.prototype.JEL_PROPERTIES = {length:1};
+JelString.prototype.trim_jel_mapping = {};
+
+
 BaseTypeRegistry.register('JelString', JelString);
 
 

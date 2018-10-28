@@ -48,10 +48,10 @@ export default class Pattern extends JelObject implements SerializablePrimitive 
 	}
 	
 	toString(): string {
-		return `Pattern(text=\`${this.patternText}\`)`;
+		return `\`${this.patternText}\``;
 	}
 	
-	valueOf(tree: PatternNode, patternText: string): Pattern {
+	static valueOf(tree: PatternNode, patternText: string): Pattern {
 		return new Pattern(tree, patternText);
 	}
 	

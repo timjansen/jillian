@@ -30,9 +30,9 @@ export default class Runtime {
 	static op(ctx: Context, operator: string, left: JelObject|null, right: JelObject|null): JelObject|Promise<JelObject> {
 		if (left == null || right == null) {
 			if (operator == '==' || operator == '===')
-				return BaseTypeRegistry.get('FuzzyBoolean').toFuzzyBoolean(left === right);
+				return BaseTypeRegistry.get('FuzzyBoolean').valueOf(left === right);
 			else if (operator == '!=' || operator == '!==')
-				return BaseTypeRegistry.get('FuzzyBoolean').toFuzzyBoolean(left !== right);
+				return BaseTypeRegistry.get('FuzzyBoolean').valueOf(left !== right);
 			else if (operator == 'instanceof' || operator in RELATIONAL_OPS)
 				return BaseTypeRegistry.get('FuzzyBoolean').FALSE;
 			else
@@ -64,12 +64,14 @@ export default class Runtime {
 	
 	static instanceOf(ctx: Context, left: JelObject|null, right: JelObject|null): boolean {
 		if (!right || !(right as any).isDBRef)
-			return BaseTypeRegistry.get('FuzzyBoolean').FALSE;
+			return false;
 		
-		if (left)
-			return BaseTypeRegistry.get('FuzzyBoolean').toFuzzyBoolean(left.constructor.name == (right as any).distinctName);
+		if (left) {
+			const ctor = left.constructor.name.replace(/^Jel/, '');			
+			return ctor == (right as any).distinctName;
+		}
 		else
-			return BaseTypeRegistry.get('FuzzyBoolean').FALSE;
+			return false;
 	}
 
 	static member(ctx: Context, obj: any, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null> {

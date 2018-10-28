@@ -27,7 +27,7 @@ export default class BaseTypeRegistry {
 		if (typeof v == 'string')
 			return BaseTypeRegistry.get('JelString').valueOf(v);
 		if (typeof v == 'boolean')
-			return BaseTypeRegistry.get('FuzzyBoolean').toFuzzyBoolean(v);
+			return BaseTypeRegistry.get('FuzzyBoolean').valueOf(v);
 		
 		throw new Error('Function returned unsupported type');
 	}

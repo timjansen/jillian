@@ -30,6 +30,8 @@ export default class Literal extends JelNode {
     super();
 		if (value === true || value === false)
 			this.value = BaseTypeRegistry.get('FuzzyBoolean').valueOf(value);
+		else if (value == null)
+			this.value = null;
 		else if (typeof value == 'number')
 			this.value = BaseTypeRegistry.get('JelNumber').valueOf(value);
 		else if (typeof value == 'string')
@@ -50,7 +52,10 @@ export default class Literal extends JelNode {
 	}
   
 	toString(): string {
-		return JSON.stringify(this.value);
+		if (this.value == null)
+			return 'null';
+		else 
+			return this.value.toString();
 	}  
 	
   getSerializationProperties(): any[] {

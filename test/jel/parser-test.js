@@ -3,9 +3,9 @@
 require('source-map-support').install();
 const assert = require('assert');
 
+const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
 
-const JelType = require('../../build/jel/JelType.js').default;
 const JelNode = require('../../build/jel/expressionNodes/JelNode.js').default;
 const Literal = require('../../build/jel/expressionNodes/Literal.js').default;
 const Variable = require('../../build/jel/expressionNodes/Variable.js').default;
@@ -20,6 +20,8 @@ const Call = require('../../build/jel/expressionNodes/Call.js').default;
 
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
+
+DefaultContext.get(); // to force init
 
 describe('JEL', function() {
   describe('parseTree', function() {

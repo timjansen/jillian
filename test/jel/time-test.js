@@ -2,6 +2,7 @@
 
 require('source-map-support').install();
 const Context = require('../../build/jel/Context.js').default;
+const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const Duration = require('../../build/jel/types/time/Duration.js').default;
 const DurationRange = require('../../build/jel/types/time/DurationRange.js').default;
 const Timestamp = require('../../build/jel/types/time/Timestamp.js').default;
@@ -22,17 +23,7 @@ const {
 	JelConsole,
 	MockSession
 } = require('../jel-assert.js');
-const jelAssert = new JelAssert(new Context(undefined, new MockSession()).setAll({
-	Timestamp,
-	TimeZone,
-	FuzzyBoolean,
-	Range,
-	Duration,
-	DurationRange,
-	ApproximateNumber,
-	UnitValue,
-	Unit
-}));
+const jelAssert = new JelAssert(new Context(DefaultContext.get(), new MockSession()));
 
 
 describe('Timestamp', function() {

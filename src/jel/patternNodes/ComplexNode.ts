@@ -25,9 +25,9 @@ export default abstract class ComplexNode extends MatchNode {
 	protected isResultTrue(result: any): boolean {
 		if (!result)
 			return false;
-		if (!result.toRealBoolean)
+		if (!result.toBoolean)
 			return true;
-		return result.toRealBoolean();
+		return result.toBoolean().toRealBoolean();
 	}
 	
 	abstract equals(other: ComplexNode): boolean;

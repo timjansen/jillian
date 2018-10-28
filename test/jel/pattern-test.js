@@ -1,12 +1,13 @@
 'use strict';
 
 const assert = require('assert');
+const DefaultContext = require('../../build/jel/DefaultContext.js').default;
+const Context = require('../../build/jel/Context.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
 const Pattern = require('../../build/jel/types/Pattern.js').default;
 const Dictionary = require('../../build/jel/types/Dictionary.js').default;
 const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
 const Translator = require('../../build/jel/types/Translator.js').default;
-const Context = require('../../build/jel/Context.js').default;
 const PatternNode = require('../../build/jel/patternNodes/PatternNode.js').default;
 const TemplateNode = require('../../build/jel/patternNodes/TemplateNode.js').default;
 const RegExpNode = require('../../build/jel/patternNodes/RegExpNode.js').default;
@@ -80,7 +81,7 @@ describe('jelPatterns', function() {
   });
   
   describe('match()', function() {
-    const ctx = new Context();
+    const ctx = DefaultContext.get();
     
      it('match artificial patterns', function() {
       assert.equal(FuzzyBoolean.FALSE, new Pattern(mnt('x'), "x").match(ctx, []));
@@ -162,7 +163,7 @@ describe('jelPatterns', function() {
         const tpl1 = exec('${`a` => 1, x: `b` => 2, y: `b` => 12, x, y: `b` => 22}');
         const tpl2 = exec('${`a [b [c]?]?` => 3, `a b c` => 4, `d e` => 5, `f {{tpl1}}` => 6}');
         const dict = new Dictionary({tpl0, tpl1, tpl2});
-        const ctx = new Context(null, null, dict);
+        const ctx = new Context(DefaultContext.get(), null, dict);
 
         assert.equal(FuzzyBoolean.TRUE, JEL.createPattern('{{tpl0}}').match(ctx, 'a'));
         assert.equal(FuzzyBoolean.TRUE, JEL.createPattern('j {{tpl0}}').match(ctx, 'j a '));
@@ -191,7 +192,7 @@ describe('jelPatterns', function() {
     });
 
     it('should match regexp templates', function() {
-        const ctx = new Context();
+        const ctx = new DefaultContext.get();
 
         assert.equal(FuzzyBoolean.TRUE, JEL.createPattern('{{/a+/}}').match(ctx, 'aa'));
         assert.equal(FuzzyBoolean.TRUE, JEL.createPattern('j {{/a+/}}').match(ctx, 'j aaa '));

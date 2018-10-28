@@ -27,7 +27,7 @@ export default class RegExpNode extends ComplexNode {
 	
 	// override
 	match(ctx: Context, tokens: string[], idx: number, metaFilter?: Set<string>, incompleteMatch = false): any {
-		let matches: Array<any> = []; // JelString or List
+		let matches: Array<any> = []; // JelString or List<JelString> for multiple matches
 		for (let i = 0; i < this.regexps.length; i++) {
 			const token = tokens[idx+i];
 			if (!token)

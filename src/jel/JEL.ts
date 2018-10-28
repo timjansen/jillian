@@ -461,7 +461,7 @@ export default class JEL {
   }
   
   static createPattern(value: string, jelToken: Token): any {
-    return BaseTypeRegistry.get('Pattern').valueOf(PatternParser.parsePattern(Tokenizer.tokenizePattern(jelToken ? jelToken.line : 1, jelToken ? jelToken.column : 1, value), jelToken)!, value);
+    return BaseTypeRegistry.get('Pattern').valueOf(PatternParser.parsePattern(Tokenizer.tokenizePattern(jelToken.line, jelToken.column, value), jelToken)!, value);
   }
   
 	

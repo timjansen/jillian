@@ -116,7 +116,7 @@ export default class FuzzyBoolean extends JelObject implements SerializablePrimi
 	static toRealBoolean(obj: boolean|JelObject|null): boolean {
 		if (typeof obj == 'boolean')
 			return obj;
-		else if (obj)
+		else if (obj != null)
 			return (obj as JelObject).toBoolean().toRealBoolean();
 		else
 			return false;
@@ -225,6 +225,9 @@ export default class FuzzyBoolean extends JelObject implements SerializablePrimi
 		return this.state == 0 ? 'false' : this.state == 1 ? 'true' : `FuzzyBoolean(${this.state})`;
 	}
 
+	toString(): string {
+		return this.serializeToString(true, 0, '');
+	}
 	
 	static create_jel_mapping = {state: 1};
 	static create(ctx: Context, ...args: any[]): FuzzyBoolean {

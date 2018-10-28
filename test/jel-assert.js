@@ -3,7 +3,7 @@
 const assert = require('assert');
 const Serializer = require('../build/jel/Serializer.js').default;
 const JEL = require('../build/jel/JEL.js').default; 
-const JelType = require('../build/jel/JelType.js').default; 
+const JelObject = require('../build/jel/JelObject.js').default; 
 const FuzzyBoolean = require('../build/jel/types/FuzzyBoolean.js').default; 
 
 class JelAssert {
@@ -75,7 +75,7 @@ class JelAssert {
 
 let next = 0;
 
-class JelPromise extends JelType {
+class JelPromise extends JelObject {
 	static resetRnd() {
 		next = 0;
 	}
@@ -99,7 +99,7 @@ JelPromise.create_jel_mapping = ['value'];
 JelPromise.resolve_jel_mapping = ['value'];
 JelPromise.rnd_jel_mapping = ['value'];
 
-class JelConsole extends JelType {
+class JelConsole extends JelObject {
 	static create(ctx, firstValue, ...values) {
 		console.log('JelConsole: ', firstValue, ...values);
 		return firstValue;

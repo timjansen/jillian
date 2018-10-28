@@ -50,6 +50,10 @@ export default class Context {
 		return this.freeze();
 	}
 	
+	plus(obj: any): Context {
+		return new Context(this).setAll(obj);
+	}
+
 	getSession(): IDbSession {
 		if (!this.dbSession)
 			throw new Error("No session available in this Context");

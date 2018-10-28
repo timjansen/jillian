@@ -48,7 +48,7 @@ export default class Operator extends JelNode {
         return this.evaluateLeftFirstOp(ctx);
         
       return Util.resolveValues((l: any,r: any)=>Runtime.op(ctx, this.operator, l, r), this.left.execute(ctx), this.right.execute(ctx));
-      }
+		}
   }
 
   private evaluateLeftFirstOp(ctx: Context): JelObject|null|Promise<JelObject|null> {
@@ -60,9 +60,9 @@ export default class Operator extends JelNode {
     case '.':
       return this.readMember(ctx, left);
     case '||':
-      return this.or(ctx, left);
+    	return BaseTypeRegistry.get('FuzzyBoolean').toRealBoolean(left) ? left : this.right!.execute(ctx);
     case '&&':
-      return this.and(ctx, left);
+    	return BaseTypeRegistry.get('FuzzyBoolean').toRealBoolean(left) ? this.right!.execute(ctx) : left;
     default:
       return Runtime.singleOp(ctx, this.operator, left);
     }
@@ -77,15 +77,7 @@ export default class Operator extends JelNode {
   private binaryOp(ctx: Context, left: JelNode, right: JelNode): JelObject|null|Promise<JelObject|null> {
       return Runtime.op(ctx, this.operator, left, right);
   }
-  
-  private and(ctx: Context, left: JelNode): any {
-    return BaseTypeRegistry.get('FuzzyBoolean').toRealBoolean(left) ? this.right!.execute(ctx) : left;
-  }
-  
-  private or(ctx: Context, left: JelNode): any {
-    return BaseTypeRegistry.get('FuzzyBoolean').toRealBoolean(left) ? left : this.right!.execute(ctx);
-  }
-  
+    
   
   // overrride
   equals(other?: JelNode): boolean {

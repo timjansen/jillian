@@ -14,6 +14,10 @@ export const enum TokenType {
 export class Token {
 	constructor(public line: number, public column: number, public type: TokenType, public value: any) {
 	}
+	
+	toString(): string {
+		return `Token(line=${this.line} column=${this.column} type=${this.type} value=${this.value})`;
+	}
 }
 
 export class TemplateToken extends Token {
@@ -23,6 +27,10 @@ export class TemplateToken extends Token {
 	
 	get name() {
 		return this.value;
+	}
+
+	toString(): string {
+		return `TemplateToken(line=${this.line} column=${this.column} type=${this.type} value=${this.value} template=${this.template} expression=${this.expression})`;
 	}
 }
 
@@ -34,6 +42,10 @@ export class RegExpToken extends Token {
 	
 	get name() {
 		return this.value;
+	}
+
+	toString(): string {
+		return `RegExpToken(line=${this.line} column=${this.column} type=${this.type} value=${this.value} regexps=${this.regexps.join(', ')} expression=${this.expression})`;
 	}
 }
 

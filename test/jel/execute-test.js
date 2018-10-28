@@ -3,12 +3,13 @@
 require('source-map-support').install();
 const assert = require('assert');
 
+const Context = require('../../build/jel/Context.js').default;
+const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
 const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const Callable = require('../../build/jel/Callable.js').default;
-const Context = require('../../build/jel/Context.js').default;
-const JelType = require('../../build/jel/JelType.js').default;
 const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
+const JelObject = require('../../build/jel/JelObject.js').default;
 const JelString = require('../../build/jel/types/JelString.js').default;
 const JelNumber = require('../../build/jel/types/JelNumber.js').default;
 const JelList = require('../../build/jel/types/List.js').default;
@@ -31,20 +32,20 @@ const {JelAssert, JelPromise, JelConsole, MockSession} = require('../jel-assert.
 const jelAssert = new JelAssert();
 
 
-const ctx = new Context(undefined, new MockSession()).setAll({JelPromise, JelConsole, FuzzyBoolean});
+const ctx = new Context(DefaultContext.get(), new MockSession()).setAll({JelPromise, JelConsole});
 jelAssert.setCtx(ctx);
 
 describe('JEL', function() {
   describe('execute()', function() {
     
     it('should execute a simple literal', function() {
-      assert.equal(new JEL('5').executeImmediately(), JelNumber.valueOf(5));
-      assert.equal(new JEL('+5').executeImmediately(), JelNumber.valueOf(5));
-      assert.equal(new JEL('-5').executeImmediately(), JelNumber.valueOf(-5));
-      assert.equal(new JEL('- 5').executeImmediately(), JelNumber.valueOf(-5));
-      assert.equal(new JEL('1e5').executeImmediately(), JelNumber.valueOf(1e5));
-      assert.equal(new JEL('-1e-5').executeImmediately(), JelNumber.valueOf(-1e-5));
-      assert.equal(new JEL('"foo"').executeImmediately(), JelString.valueOf('foo'));
+      jelAssert.equal(new JEL('5').executeImmediately(), JelNumber.valueOf(5));
+      jelAssert.equal(new JEL('+5').executeImmediately(), JelNumber.valueOf(5));
+      jelAssert.equal(new JEL('-5').executeImmediately(), JelNumber.valueOf(-5));
+      jelAssert.equal(new JEL('- 5').executeImmediately(), JelNumber.valueOf(-5));
+      jelAssert.equal(new JEL('1e5').executeImmediately(), JelNumber.valueOf(1e5));
+      jelAssert.equal(new JEL('-1e-5').executeImmediately(), JelNumber.valueOf(-1e-5));
+      jelAssert.equal(new JEL('"foo"').executeImmediately(), JelString.valueOf('foo'));
       assert.equal(new JEL('true').executeImmediately().state, 1);
       assert.equal(new JEL('null').executeImmediately(), null);
     });
@@ -67,7 +68,8 @@ describe('JEL', function() {
 
 		
    it('should execute patterns', function() {
-      assert.equal(new JEL('`a b c`').executeImmediately().toString(), 'Pattern(text=`a b c`)');
+      assert.equal(new JEL('`a b c`').executeImmediately().constructor.name, 'Pattern');
+      assert.equal(new JEL('`a b c`').executeImmediately().toString(), '`a b c`');
       assert.equal(new JEL('`a b c`.match("a  b c")').executeImmediately().state, 1);
       assert.equal(new JEL('`a b c`.match("a  c c")').executeImmediately().state, 0);
     });
@@ -86,8 +88,8 @@ describe('JEL', function() {
       jelAssert.equal('7^2', 49);
       jelAssert.equal('0.5^-1', 2);
       jelAssert.equal('!true', 'false');
-      assert.equal(new JEL('-(10/2.0)').executeImmediately(), JelNumber.valueOf(-5));
-      assert.equal(new JEL('"foo"+"bar"').executeImmediately(), "foobar");
+      jelAssert.equal(new JEL('-(10/2.0)').executeImmediately(), -5);
+      jelAssert.equal(new JEL('"foo"+"bar"').executeImmediately(), "'foobar'");
       assert.equal(new JEL('5>5').executeImmediately().state, 0);
       assert.equal(new JEL('5<5').executeImmediately().state, 0);
       assert.equal(new JEL('5>=5').executeImmediately().state, 1);
@@ -106,7 +108,7 @@ describe('JEL', function() {
       assert.equal(new JEL('5<=0').executeImmediately().state, 0);
       assert.equal(new JEL('5==5').executeImmediately().state, 1);
       assert.equal(new JEL('6==5').executeImmediately().state, 0);
-      assert.equal(new JEL('((-7))+3').executeImmediately(), -4);
+      jelAssert.equal(new JEL('((-7))+3').executeImmediately(), -4);
     });
 
     
@@ -115,10 +117,11 @@ describe('JEL', function() {
       assert.equal(new JEL('true||true').executeImmediately().state, 1);
       assert.equal(new JEL('false||true').executeImmediately().state, 1);
       assert.equal(new JEL('false||false').executeImmediately().state, 0);
-      assert.equal(new JEL('17||0').executeImmediately(), JelNumber.valueOf(17));
-      assert.equal(new JEL('15||"test"').executeImmediately(), JelNumber.valueOf(15));
-      assert.equal(new JEL('""||"foo"').executeImmediately(), JelString.valueOf("foo"));
-      assert.equal(new JEL('0||""').executeImmediately(), JelNumber.valueOf(0));
+      jelAssert.equal(new JEL('17||0').executeImmediately(), 17);
+      jelAssert.equal(new JEL('15||"test"').executeImmediately(), 15);
+      jelAssert.equal(new JEL('""||"foo"').executeImmediately(), "'foo'");
+      jelAssert.equal(new JEL('0||1').executeImmediately(), 1);
+      jelAssert.equal(new JEL('0||""').executeImmediately(), "''");
     });
 
     it('should support logical AND (&&)', function() {
@@ -126,10 +129,12 @@ describe('JEL', function() {
       assert.equal(new JEL('true && true').executeImmediately().state, 1);
       assert.equal(new JEL('false && true').executeImmediately().state, 0);
       assert.equal(new JEL('false && false').executeImmediately().state, 0);
-      assert.equal(new JEL('17 && 0').executeImmediately(), 0);
-      assert.equal(new JEL('15 && "test"').executeImmediately(), "test");
-      assert.equal(new JEL('"" && "foo"').executeImmediately(), "");
-      assert.equal(new JEL('0 && ""').executeImmediately(), 0);
+      jelAssert.equal(new JEL('17 && 0').executeImmediately(), 0);
+      jelAssert.equal(new JEL('15 && "test"').executeImmediately(), "'test'");
+      jelAssert.equal(new JEL('"" && "foo"').executeImmediately(), "''");
+      jelAssert.equal(new JEL('0 && ""').executeImmediately(), 0);
+      jelAssert.equal(new JEL('1 && ""').executeImmediately(), "''");
+      jelAssert.equal(new JEL('1 && 2').executeImmediately(), 2);
     });
 		
 		 it('should support instanceof', function() {
@@ -146,8 +151,8 @@ describe('JEL', function() {
       jelAssert.equal("true instanceof @FuzzyBoolean", "true");
     });
 
-    it('should access member fields of JelTypes', function() {
-      class A extends JelType {
+    it('should access member fields of JelObjects', function() {
+      class A extends JelObject {
         constructor() {
           super();
           this.x = 3;
@@ -156,14 +161,14 @@ describe('JEL', function() {
       }
       A.prototype.JEL_PROPERTIES = {x:1,y:1};
       
-      assert.equal(new JEL('a.x').executeImmediately(new Context().setAll({a:new A()})), 3);
-      assert.equal(new JEL('(a).y').executeImmediately(new Context().setAll({a:new A()})), "foo");
-      assert.equal(new JEL('(a)["y"]').executeImmediately(new Context().setAll({a:new A()})), "foo");
+      jelAssert.equal(new JEL('a.x').executeImmediately(new Context().setAll({a:new A()})), 3);
+      jelAssert.equal(new JEL('(a).y').executeImmediately(new Context().setAll({a:new A()})), "'foo'");
+      jelAssert.equal(new JEL('(a)["y"]').executeImmediately(new Context().setAll({a:new A()})), "'foo'");
       assert.throws(()=>new JEL('(a).z').executeImmediately(new Context().setAll({a:new A()})));
       assert.throws(()=>new JEL('(a) . 5').executeImmediately(new Context().setAll({a:new A()})));
       assert.throws(()=>new JEL('(a)."x"').executeImmediately(new Context().setAll({a:new A()})));
       
-      class B extends JelType {
+      class B extends JelObject {
         constructor(ref) {
           super();
           this.ref = ref;
@@ -171,25 +176,25 @@ describe('JEL', function() {
       }
       B.prototype.JEL_PROPERTIES = {ref:1};
       
-      assert.equal(new JEL('b.ref').executeImmediately(new Context().setAll({b: new B(5)})), 5);
-      assert.equal(new JEL('b.ref.ref.ref').executeImmediately(new Context().setAll({b: new B(new B(new B(7)))})), 7);
+      jelAssert.equal(new JEL('b.ref').executeImmediately(new Context().setAll({b: new B(JelNumber.valueOf(5))})), 5);
+      jelAssert.equal(new JEL('b.ref.ref.ref').executeImmediately(new Context().setAll({b: new B(new B(new B(JelNumber.valueOf(7))))})), 7);
    });
 
-   it('should access methods of JelTypes', function() {
-      class A extends JelType {
-        constructor(a = 2, b = 5) {
+   it('should access methods of JelObjects', function() {
+      class A extends JelObject {
+        constructor(a = JelNumber.valueOf(2), b = JelNumber.valueOf(5)) {
           super();
           this.x = a;
           this.y = b;
         }
-        static create(ctx, a, b) {
+        static create(ctx, a = JelNumber.valueOf(2), b = JelNumber.valueOf(5)) {
           return new A(a, b);
         }
         getX() {
           return this.x;
         }
         calc(ctx, a, b, c, d, e) {
-          return a + 2*b + 3*c + 4*d + 5*e;
+          return a.value + 2*b.value + 3*c.value + 4*d.value + 5*e.value;
         }
       }
       A.create_jel_mapping = {a:1, b:2};
@@ -197,70 +202,70 @@ describe('JEL', function() {
       A.prototype.calc_jel_mapping = {a:1,b:2,c:3,d:4,e:5};
      
       const create = new Callable(A.create, A.create_jel_mapping);
-      assert(new JEL('a.getX').executeImmediately(new Context().setAll({a:new A()})) instanceof Callable);
-      assert.equal(new JEL('a.getX()').executeImmediately(new Context().setAll({a:new A()})), 2);
-      assert(new JEL('A()').executeImmediately(new Context().setAll({A})) instanceof A);
-      assert.equal(new JEL('A().getX()').executeImmediately(new Context().setAll({A})), 2);
-      assert.equal(new JEL('A()["getX"]()').executeImmediately(new Context().setAll({A})), 2);
-      assert.equal(new JEL('A(a=55).getX()').executeImmediately(new Context().setAll({A})), 55);
-      assert.equal(new JEL('A(55).getX()').executeImmediately(new Context().setAll({A})), 55);
-      assert.equal(new JEL('A(b=77,a=55).getX()').executeImmediately(new Context().setAll({A})), 55);
-      assert.equal(new JEL('A().calc(3, 2, 1, 100, 1000)').executeImmediately(new Context().setAll({A})), 3+4+3+400+5000);
-      assert.equal(new JEL('A().calc(b= 2, c= 1, e= 1000, d= 100, a=3)').executeImmediately(new Context().setAll({A})), 3+4+3+400+5000);
-      assert.equal(new JEL('A().calc(3, 2, c=1, e=1000, d=100)').executeImmediately(new Context().setAll({A})), 3+4+3+400+5000);
+      assert(new JEL('a.getX').executeImmediately(DefaultContext.plus({a:new A()})) instanceof Callable);
+      jelAssert.equal(new JEL('a.getX()').executeImmediately(DefaultContext.plus({a:new A()})), 2);
+      assert(new JEL('A()').executeImmediately(DefaultContext.plus({A})) instanceof A);
+      jelAssert.equal(new JEL('A().getX()').executeImmediately(DefaultContext.plus({A})), 2);
+      jelAssert.equal(new JEL('A()["getX"]()').executeImmediately(DefaultContext.plus({A})), 2);
+      jelAssert.equal(new JEL('A(a=55).getX()').executeImmediately(DefaultContext.plus({A})), 55);
+      jelAssert.equal(new JEL('A(55).getX()').executeImmediately(DefaultContext.plus({A})), 55);
+      jelAssert.equal(new JEL('A(b=77,a=55).getX()').executeImmediately(DefaultContext.plus({A})), 55);
+      jelAssert.equal(new JEL('A().calc(3, 2, 1, 100, 1000)').executeImmediately(DefaultContext.plus({A})), 3+4+3+400+5000);
+      jelAssert.equal(new JEL('A().calc(b= 2, c= 1, e= 1000, d= 100, a=3)').executeImmediately(DefaultContext.plus({A})), 3+4+3+400+5000);
+      jelAssert.equal(new JEL('A().calc(3, 2, c=1, e=1000, d=100)').executeImmediately(DefaultContext.plus({A})), 3+4+3+400+5000);
     });
 
    it('should access properties of built-ins', function() {
-     assert.equal(new JEL('"foobar".length').executeImmediately(), 6);
+     jelAssert.equal(new JEL('"foobar".length').executeImmediately(), 6);
    });
 
    it('should access methods of built-ins', function() {
-     assert.equal(new JEL('" foobar   ".trim()').executeImmediately(), "foobar");
+     jelAssert.equal(new JEL('" foobar   ".trim()').executeImmediately(), "'foobar'");
    });
 
     
    it('should access variables', function() {
-     assert.equal(new JEL('a').executeImmediately(new Context().setAll({a: 10})), 10);
-     assert.equal(new JEL('a+b').executeImmediately(new Context().setAll({a: 1, b: 3})), 4);
+     jelAssert.equal(new JEL('a').executeImmediately(new Context().setAll({a: JelNumber.valueOf(10)})), 10);
+     jelAssert.equal(new JEL('a+b').executeImmediately(new Context().setAll({a: JelNumber.valueOf(1), b: JelNumber.valueOf(3)})), 4);
     });
     
     
    it('supports conditions', function() {
-      assert.equal(new JEL('if true then 1 else 2').executeImmediately(), 1);
-      assert.equal(new JEL('if false then 1 else 2').executeImmediately(), 2);
-      assert.equal(new JEL('if 8 then 1 else 2').executeImmediately(), 1);
-      assert.equal(new JEL('if 0 then 1 else 2').executeImmediately(), 2);
-      assert.equal(new JEL('if "j" then 1 else 2').executeImmediately(), 1);
-      assert.equal(new JEL('if "" then 1 else 2').executeImmediately(), 2);
-      assert.equal(new JEL("if 2>1 then 'foo' else 'bar'").executeImmediately(), "foo");
-      assert.equal(new JEL("if 2<1 then 'foo' else 'bar'").executeImmediately(), "bar");
-      assert.equal(new JEL("if 2<1 then 'foo' else if 3>2 then 2 else 1").executeImmediately(), 2);
-      assert.equal(new JEL("if 2>1 then (if 3<2 then 2 else 1) else 6").executeImmediately(), 1);
+      jelAssert.equal(new JEL('if true then 1 else 2').executeImmediately(), 1);
+      jelAssert.equal(new JEL('if false then 1 else 2').executeImmediately(), 2);
+      jelAssert.equal(new JEL('if 8 then 1 else 2').executeImmediately(), 1);
+      jelAssert.equal(new JEL('if 0 then 1 else 2').executeImmediately(), 2);
+      jelAssert.equal(new JEL('if "j" then 1 else 2').executeImmediately(), 1);
+      jelAssert.equal(new JEL('if "" then 1 else 2').executeImmediately(), 2);
+      jelAssert.equal(new JEL("if 2>1 then 'foo' else 'bar'").executeImmediately(), "'foo'");
+      jelAssert.equal(new JEL("if 2<1 then 'foo' else 'bar'").executeImmediately(), "'bar'");
+      jelAssert.equal(new JEL("if 2<1 then 'foo' else if 3>2 then 2 else 1").executeImmediately(), 2);
+      jelAssert.equal(new JEL("if 2>1 then (if 3<2 then 2 else 1) else 6").executeImmediately(), 1);
 
-      assert.equal(new JEL('if true then 7').executeImmediately(), 7);
+      jelAssert.equal(new JEL('if true then 7').executeImmediately(), 7);
       assert.equal(new JEL('if false then 7').executeImmediately().state, 1);
     });
 
     it('supports lists', function() {
       assert(new JEL('[]').executeImmediately() instanceof JelList);
       assert.deepEqual(new JEL('[]').executeImmediately().elements, []);
-      assert.deepEqual(new JEL('[1]').executeImmediately().elements, [1]);
-      assert.deepEqual(new JEL('[7, 9-4, 7*3]').executeImmediately().elements, [7, 5, 21]);
+      assert.deepEqual(new JEL('[1]').executeImmediately().elements, [JelNumber.valueOf(1)]);
+      assert.deepEqual(new JEL('[7, 9-4, 7*3]').executeImmediately().elements, [7, 5, 21].map(JelNumber.valueOf));
       
-			return new JEL('[JelPromise(2), 0, JelPromise.resolve(8), JelPromise(9), JelPromise.resolve(7), 5]').execute(ctx).then(r=> assert.deepEqual(r.elements, [2, 0, 8, 9, 7, 5]));
+			return new JEL('[JelPromise(2), 0, JelPromise.resolve(8), JelPromise(9), JelPromise.resolve(7), 5]').execute(ctx).then(r=> assert.deepEqual(r.elements, [2, 0, 8, 9, 7, 5].map(JelNumber.valueOf)));
     });
 
     it('supports dictionaries', function() {
       assert.deepEqual(new JEL('{}').executeImmediately().toObjectDebug(), {});
-      assert.deepEqual(new JEL('{a: 3, b: 1}').executeImmediately().toObjectDebug(), {a: 3, b: 1});
-      assert.deepEqual(new JEL('{"a": 3, "b": 1}').executeImmediately().toObjectDebug(), {a: 3, b: 1});
-      assert.deepEqual(new JEL("{'a': 3, 'b': 1}").executeImmediately().toObjectDebug(), {a: 3, b: 1});
-      assert.deepEqual(new JEL('{a, b: 1, c}').executeImmediately(new Context().setAll({a:7,b:2,c:10})).toObjectDebug(), {a:7,b:1,c:10});
-      assert.deepEqual(new JEL('{a: {b: 2}}').executeImmediately().toObjectDebug().a.toObjectDebug().b, 2);
+      assert.deepEqual(new JEL('{a: 3, b: 1}').executeImmediately().toObjectDebug(), {a: JelNumber.valueOf(3), b: JelNumber.valueOf(1)});
+      assert.deepEqual(new JEL('{"a": 3, "b": 1}').executeImmediately().toObjectDebug(), {a: JelNumber.valueOf(3), b: JelNumber.valueOf(1)});
+      assert.deepEqual(new JEL("{'a': 3, 'b': 1}").executeImmediately().toObjectDebug(), {a: JelNumber.valueOf(3), b: JelNumber.valueOf(1)});
+      assert.deepEqual(new JEL('{a, b: 1, c}').executeImmediately(new Context().setAll({a:JelNumber.valueOf(7),b:JelNumber.valueOf(2),c:JelNumber.valueOf(10)})).toObjectDebug(), {a:JelNumber.valueOf(7),b:JelNumber.valueOf(1),c:JelNumber.valueOf(10)});
+      assert.deepEqual(new JEL('{a: {b: 2}}').executeImmediately().toObjectDebug().a.toObjectDebug().b.value, 2);
       
       assert.throws(()=>new JEL('{a: 1, a: 2}').executeImmediately());
 
-      return new JEL("{a: JelPromise(1), b: 2, c: JelPromise(3), d: JelPromise.resolve(6)}").execute(ctx).then(r=>assert.deepEqual(r.toObjectDebug(), {a: 1, b: 2, c: 3, d: 6}));
+      return new JEL("{a: JelPromise(1), b: 2, c: JelPromise(3), d: JelPromise.resolve(6)}").execute(ctx).then(r=>assert.deepEqual(r.toObjectDebug(), {a: JelNumber.valueOf(1), b: JelNumber.valueOf(2), c: JelNumber.valueOf(3), d: JelNumber.valueOf(6)}));
 		});
 
 
@@ -275,7 +280,7 @@ describe('JEL', function() {
     
       assert.equal(new JEL('${x: `abc` => 2}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=FuzzyBoolean(1)})])}))");
       assert.equal(new JEL('${x,y,z: `abc` => 2}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=FuzzyBoolean(1), y=FuzzyBoolean(1), z=FuzzyBoolean(1)})])}))");
-      assert.equal(new JEL('${x,y=1,zzz="bla": `abc` => 2}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=FuzzyBoolean(1), y=1, zzz=bla})])}))");
+      assert.equal(new JEL('${x,y=1,zzz="bla": `abc` => 2}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=FuzzyBoolean(1), y=1, zzz=\"bla\"})])}))");
 
       assert.equal(new JEL('${}.match("").length').executeImmediately(), 0);
       assert.equal(new JEL('${}.match("a").length').executeImmediately(), 0);
@@ -285,44 +290,44 @@ describe('JEL', function() {
     });
     
     it('supports the get operator for dictionaries', function() {
-      assert.strictEqual(new JEL('{}["a"]').executeImmediately(), undefined);
-      assert.strictEqual(new JEL('{a:3}["a"]').executeImmediately(), 3);
+      assert.strictEqual(new JEL('{}["a"]').executeImmediately(), null);
+      jelAssert.equal(new JEL('{a:3}["a"]').executeImmediately(), 3);
     });
 
     it('supports the get operator for lists', function() {
-      assert.strictEqual(new JEL('[][0]').executeImmediately(), undefined);
-      assert.strictEqual(new JEL('[1, 2, 3][10]').executeImmediately(), undefined);
-      assert.strictEqual(new JEL('[1, 2, 3][-1]').executeImmediately(), undefined);
-      assert.strictEqual(new JEL('[1, 2, 3, 4][2]').executeImmediately(), 3);
+      assert.strictEqual(new JEL('[][0]').executeImmediately(), null);
+      assert.strictEqual(new JEL('[1, 2, 3][10]').executeImmediately(), null);
+      assert.strictEqual(new JEL('[1, 2, 3][-1]').executeImmediately(), null);
+      jelAssert.equal(new JEL('[1, 2, 3, 4][2]').executeImmediately(), 3);
     });
 
     it('supports with', function() {
-      assert.equal(new JEL('with a=1: a').executeImmediately(), 1);
-      assert.equal(new JEL('with a=1, b=2: a+b').executeImmediately(), 3);
-      assert.deepEqual(new JEL('with a=1, b=a+1, c=b*3, d=c*4, e=d/6: [a,b,c,d,e]').executeImmediately().elements, [1,2,6,24,4]);
+      jelAssert.equal(new JEL('with a=1: a').executeImmediately(), 1);
+      jelAssert.equal(new JEL('with a=1, b=2: a+b').executeImmediately(), 3);
+      jelAssert.equal(new JEL('with a=1, b=a+1, c=b*3, d=c*4, e=d/6: [a,b,c,d,e]').executeImmediately().elements, "[1,2,6,24,4]");
     });
 
     
    it('supports calls', function() {
-      function f(ctx, a=1, b=2) { 
-        return a + b + (this && this.c || 5);
+      function f(ctx, a=JelNumber.valueOf(1), b=JelNumber.valueOf(2)) { 
+        return a.value + b.value + (this && this.c.value || 5);
       }
-      const fc1 = new FunctionCallable(f, {a:1, b:2}, {c:7});
-      const fc2 = new FunctionCallable(f, {a:1, b:2});
-      assert.equal(new JEL('f()').executeImmediately(new Context().setAll({f:fc1})), 10);
-      assert.equal(new JEL('f()').executeImmediately(new Context().setAll({f:fc2})), 8);
-      assert.equal(new JEL('f(10)').executeImmediately(new Context().setAll({f:fc1})), 19);
-      assert.equal(new JEL('f(10, 100)').executeImmediately(new Context().setAll({f:fc1})), 117);
-      assert.equal(new JEL('f(10, 100, 1000)').executeImmediately(new Context().setAll({f:fc1})), 117);
-      assert.equal(new JEL('f(b=100, a=10)').executeImmediately(new Context().setAll({f:fc1})), 117);
-      assert.equal(new JEL('f(b=100)').executeImmediately(new Context().setAll({f:fc1})), 108);
-      assert.equal(new JEL('f(10, b=100)').executeImmediately(new Context().setAll({f:fc1})), 117);
-      assert.equal(new JEL('f(10, b=100)').executeImmediately(new Context().setAll({f:fc2})), 115);
+      const fc1 = new FunctionCallable(f, {a:JelNumber.valueOf(1), b:JelNumber.valueOf(2)}, {c:JelNumber.valueOf(7)});
+      const fc2 = new FunctionCallable(f, {a:JelNumber.valueOf(1), b:JelNumber.valueOf(2)});
+      jelAssert.equal(new JEL('f()').executeImmediately(new Context().setAll({f:fc1})), 10);
+      jelAssert.equal(new JEL('f()').executeImmediately(new Context().setAll({f:fc2})), 8);
+      jelAssert.equal(new JEL('f(10)').executeImmediately(new Context().setAll({f:fc1})), 19);
+      jelAssert.equal(new JEL('f(10, 100)').executeImmediately(new Context().setAll({f:fc1})), 117);
+      jelAssert.equal(new JEL('f(10, 100, 1000)').executeImmediately(new Context().setAll({f:fc1})), 117);
+      jelAssert.equal(new JEL('f(b=100, a=10)').executeImmediately(new Context().setAll({f:fc1})), 117);
+      jelAssert.equal(new JEL('f(b=100)').executeImmediately(new Context().setAll({f:fc1})), 108);
+      jelAssert.equal(new JEL('f(10, b=100)').executeImmediately(new Context().setAll({f:fc1})), 117);
+      jelAssert.equal(new JEL('f(10, b=100)').executeImmediately(new Context().setAll({f:fc2})), 115);
    });
     
    it('supports constructors and static methods', function() {
-      class A extends JelType {
-        constructor(a = 2, b = 5) {
+      class A extends JelObject {
+        constructor(a = JelNumber.valueOf(2), b = JelNumber.valueOf(5)) {
           super();
           this.x = a;
           this.y = b;
@@ -333,8 +338,8 @@ describe('JEL', function() {
         static pic() {
           return 3;
         }
-        static add2(ctx, a = 3, b = 7) {
-          return a + 2*b;
+        static add2(ctx, a = JelNumber.valueOf(3), b = JelNumber.valueOf(7)) {
+          return a.value + 2*b.value;
         }
       }
       A.create_jel_mapping = {a:1, b:2};
@@ -362,43 +367,43 @@ describe('JEL', function() {
    });
 
    it('supports named-argument only calls', function() {
-      class A extends JelType {
+      class A extends JelObject {
         constructor() {
           super();
         }
-        static add2(ctx, {a = 3, b = 7, c = 5} = {}) {
-          return a + 10*b + 100*c;
+        static add2(ctx, {a = JelNumber.valueOf(3), b = JelNumber.valueOf(7), c = JelNumber.valueOf(5)} = {}) {
+          return a.value + 10*b.value + 100*c.value;
         }
       }
       A.add2_jel_mapping = 'named';
      
-      assert.equal(new JEL('A.add2()').executeImmediately(new Context().setAll({A})), 573);
-      assert.equal(new JEL('A.add2(a=1, b=2, c=3)').executeImmediately(new Context().setAll({A})), 321);
-      assert.equal(new JEL('A.add2(c=7)').executeImmediately(new Context().setAll({A})), 773);
-      assert.equal(new JEL('A.add2(c=7, a=5)').executeImmediately(new Context().setAll({A})), 775);
+      jelAssert.equal(new JEL('A.add2()').executeImmediately(new Context().setAll({A})), 573);
+      jelAssert.equal(new JEL('A.add2(a=1, b=2, c=3)').executeImmediately(new Context().setAll({A})), 321);
+      jelAssert.equal(new JEL('A.add2(c=7)').executeImmediately(new Context().setAll({A})), 773);
+      jelAssert.equal(new JEL('A.add2(c=7, a=5)').executeImmediately(new Context().setAll({A})), 775);
       return new JEL('A.add2(1, 2, 3)').execute(new Context().setAll({A})).then(()=>assert.fail('Should get error'), ()=>1);
    });
 
     
    it('supports lambda', function() {
       assert(new JEL('a=>1').executeImmediately(new Context()) instanceof Callable);
-      assert.equal(new JEL('a=>55').executeImmediately(new Context()).invokeWithObject(new Context(), []), 55);
-      assert.equal(new JEL('x=>x').executeImmediately(new Context()).invokeWithObject(new Context(), [66]), 66);
-      assert.equal(new JEL('x=>x').executeImmediately(new Context()).invokeWithObject(new Context(), [66]), 66);
-      assert.equal(new JEL('x=>x').executeImmediately(new Context()).invoke(new Context(), 66), 66);
-      assert.equal(new JEL('x=>x').executeImmediately(new Context()).invokeWithObject(new Context(), [], {x:66}), 66);
-      assert.equal(new JEL('(a,b)=>a+b').executeImmediately(new Context()).invokeWithObject(new Context(), [], {a:40,b:2}), 42);
-      assert.equal(new JEL('(a,b)=>a+b').executeImmediately(new Context()).invokeWithObject(new Context(), [40], {b:2}), 42);
-      assert.equal(new JEL('(a,b)=>b').executeImmediately(new Context()).invokeWithObject(new Context(), []), null);
+      jelAssert.equal(new JEL('a=>55').executeImmediately(new Context()).invokeWithObject(new Context(), []), 55);
+      jelAssert.equal(new JEL('x=>x').executeImmediately(new Context()).invokeWithObject(new Context(), [JelNumber.valueOf(66)]), 66);
+      jelAssert.equal(new JEL('x=>x').executeImmediately(new Context()).invokeWithObject(new Context(), [JelNumber.valueOf(66)]), 66);
+      jelAssert.equal(new JEL('x=>x').executeImmediately(new Context()).invoke(new Context(), JelNumber.valueOf(66)), 66);
+      jelAssert.equal(new JEL('x=>x').executeImmediately(new Context()).invokeWithObject(new Context(), [], {x:JelNumber.valueOf(66)}), 66);
+      jelAssert.equal(new JEL('(a,b)=>a+b').executeImmediately(new Context()).invokeWithObject(new Context(), [], {a:JelNumber.valueOf(40),b:JelNumber.valueOf(2)}), 42);
+      jelAssert.equal(new JEL('(a,b)=>a+b').executeImmediately(new Context()).invokeWithObject(new Context(), [JelNumber.valueOf(40)], {b:JelNumber.valueOf(2)}), 42);
+      jelAssert.equal(new JEL('(a,b)=>b').executeImmediately(new Context()).invokeWithObject(new Context(), []), null);
 
-      assert.equal(new JEL('(x=>x)(66)').executeImmediately(new Context()), 66);
-      assert.equal(new JEL('(x=>x)(x=66)').executeImmediately(new Context()), 66);
-      assert.equal(new JEL('((a,b)=>a+b)(20, 22)').executeImmediately(new Context()), 42);
-      assert.equal(new JEL('((a,b)=>a+b)(b=20, a=22)').executeImmediately(new Context()), 42);
+      jelAssert.equal(new JEL('(x=>x)(66)').executeImmediately(new Context()), 66);
+      jelAssert.equal(new JEL('(x=>x)(x=66)').executeImmediately(new Context()), 66);
+      jelAssert.equal(new JEL('((a,b)=>a+b)(20, 22)').executeImmediately(new Context()), 42);
+      jelAssert.equal(new JEL('((a,b)=>a+b)(b=20, a=22)').executeImmediately(new Context()), 42);
    });
     
    it('supports promises', function() {
-     class A extends JelType {
+     class A extends JelObject {
        static promise(ctx, value) {
          return new Promise((resolve)=>setTimeout(()=>resolve(value), 1));
        }

@@ -8,12 +8,11 @@ import JelNumber from './JelNumber';
 import JelString from './JelString';
 import FuzzyBoolean from './FuzzyBoolean';
 import Callable from '../Callable';
-import Gettable from '../Gettable';
 
 /**
  * List is an immutable array-like object that is accessible from JEL.
  */
-export default class List extends JelObject implements Gettable, SerializablePrimitive {
+export default class List extends JelObject implements SerializablePrimitive {
 	elements: any[]; // list elements, guaranteed to be no Promises
 
 	JEL_PROPERTIES: Object;
@@ -83,10 +82,13 @@ export default class List extends JelObject implements Gettable, SerializablePri
 	get(ctx: Context, index: JelNumber|number): any {
 		if (index instanceof JelNumber)
 			return this.get(ctx, index.value);
+
+		let v;
 		if (index >= 0)
-			return this.elements[index];
+			v = this.elements[index];
 		else
-			return this.elements[this.elements.length - index];
+			v = this.elements[this.elements.length - index];
+		return v == undefined ? null : v;
 	}
 	
 	get first(): any {

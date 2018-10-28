@@ -2,15 +2,16 @@
 
 require('source-map-support').install();
 const assert = require('assert');
-const Dictionary = require('../../build/jel/types/Dictionary.js').default;
+const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
 const List = require('../../build/jel/types/List.js').default;
 const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
+const Dictionary = require('../../build/jel/types/Dictionary.js').default;
 const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 
-const dictContext = new Context().setAll({Dictionary, FuzzyBoolean, JelPromise});
+const dictContext = new Context(DefaultContext.plus({JelPromise}));
 const jelAssert = new JelAssert(dictContext);
 
 

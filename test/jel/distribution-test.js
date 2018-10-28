@@ -1,7 +1,7 @@
 'use strict';
 
 require('source-map-support').install();
-const Context = require('../../build/jel/Context.js').default;
+const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const List = require('../../build/jel/types/List.js').default;
 const Distribution = require('../../build/jel/types/Distribution.js').default;
 const DistributionPoint = require('../../build/jel/types/DistributionPoint.js').default;
@@ -10,7 +10,7 @@ const Fraction = require('../../build/jel/types/Fraction.js').default;
 const UnitValue = require('../../build/jel/types/UnitValue.js').default;
 const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
-const jelAssert = new JelAssert(new Context().setAll({Distribution, DistributionPoint, ApproximateNumber, Fraction, UnitValue}));
+const jelAssert = new JelAssert(DefaultContext.get());
 
 describe('Distribution', function() {
 	it('creates and serializes', function() {

@@ -3,7 +3,6 @@
 require('source-map-support').install();
 const assert = require('assert');
 const JEL = require('../../build/jel/JEL.js').default;
-const JelType = require('../../build/jel/JelType.js').default;
 const JelMath = require('../../build/jel/types/Math.js').default;
 const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
 const Fraction = require('../../build/jel/types/Fraction.js').default;

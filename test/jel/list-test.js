@@ -2,17 +2,17 @@
 
 require('source-map-support').install();
 const assert = require('assert');
+const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
-const JelType = require('../../build/jel/JelType.js').default;
+const JelObject = require('../../build/jel/JelObject.js').default;
 const List = require('../../build/jel/types/List.js').default;
 const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
 const ApproximateNumber = require('../../build/jel/types/ApproximateNumber.js').default;
-const Context = require('../../build/jel/Context.js').default;
 const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
 
-const ctx = new Context().setAll({List, ApproximateNumber, FuzzyBoolean, JelPromise, JelConsole});
+const ctx = DefaultContext.plus({JelPromise, JelConsole});
 jelAssert.setCtx(ctx);
 
 describe('jelList', function() {
@@ -222,7 +222,7 @@ describe('jelList', function() {
       jelAssert.equal("['foo', 'blabla', 'bar', 'blablabla'].sort((a,b)=>a.length>b.length)", new List(['blablabla', 'blabla', 'foo', 'bar'])); 
     });
     it('sorts by string key', function() {
-      class X extends JelType {
+      class X extends JelObject {
      	  constructor(x) {
 					super();
 				  this.a = x;
@@ -245,7 +245,7 @@ describe('jelList', function() {
       jelAssert.equal('[{a: "xxxx"}, {a: "xx"}, {a: "x"}, {a: "xxxxxx"}].sort(isLess=(a,b)=>a.length<b.length, key=o=>o.get("a")).map(o=>o.get("a"))', new List(["x", "xx", "xxxx", "xxxxxx"])); 
     });
     it('handles Promises in the comparator', function() {
-      class X extends JelType {
+      class X extends JelObject {
      	  constructor(x) {
 					super();
 				  this.a = x;
@@ -301,7 +301,7 @@ describe('jelList', function() {
       jelAssert.equal("['foo', 'blabla', 'bar', 'blablabla'].max((a,b)=>a.length<b.length)", '"blablabla"');
     });
     it('finds by string key', function() {
-      class X extends JelType {
+      class X extends JelObject {
      	  constructor(x) {
 					super();
 				  this.a = x;

@@ -1,7 +1,7 @@
 'use strict';
 
 require('source-map-support').install();
-const Context = require('../../build/jel/Context.js').default;
+const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
 const EnumValue = require('../../build/jel/types/EnumValue.js').default;
 const DbRef = require('../../build/database/DbRef.js').default;
@@ -18,7 +18,7 @@ tmp.dir(function(err, path) {
 	
 	const db = Database.create(path+'/dbenum1');
 	const ds = new DbSession(db);
-	const jelAssert = new JelAssert(new Context(undefined, ds).setAll({DbRef, EnumValue, FuzzyBoolean}));
+	const jelAssert = new JelAssert(DefaultContext.plus({DbRef}));
 
 	describe('EnumValue', function() {
 		it('creates and serializes', function() {

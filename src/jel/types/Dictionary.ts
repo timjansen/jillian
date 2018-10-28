@@ -8,7 +8,6 @@ import JelString from './JelString';
 import List from './List';
 import FuzzyBoolean from './FuzzyBoolean';
 import Callable from '../Callable';
-import Gettable from '../Gettable';
 
 /**
  * Dictionary is a map-like type for JEL.
@@ -65,7 +64,8 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 			return this.get(ctx, key.value);
 		else if (typeof key != 'string')
 			throw new Error('Key must be string');
-		return this.elements.get(key);
+		const v = this.elements.get(key);
+		return v == undefined ? null : v;
 	}
 
 	has_jel_mapping: Object;
