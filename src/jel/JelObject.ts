@@ -1,34 +1,6 @@
 import BaseTypeRegistry from './BaseTypeRegistry';
 import Context from './Context';
 
-// ops that can swap the left and right operands
-const REVERSIBLE_OPS: any = {
-	'+': '+',
-	'*': '*',
-	'==': '==',
-	'!=': '!=',
-	'===': '===',
-	'!==': '!==',
-	'>': '<',
-	'>>': '<<',
-	'<': '>',
-	'<<': '>>',
-	'>=': '<=',
-	'>>=': '<<=',
-	'<=': '>=',
-	'<<=': '>>='
-};
-
-// ops that can be inverted and thus do not need to be implemented
-const INVERTIBLE_OPS: any = {
-	'!=': '==',
-	'!==': '===',
-	'>=': '<',
-	'<=': '>',
-	'>>=': '<<',
-	'<<=': '>>'
-};
-
 
 /**
  * This is the base class for all objects that can be accessed by JEL. It implements operators and other functions required in JEL.
@@ -37,6 +9,35 @@ export default class JelObject {
 	reverseOps: Object;
 	JEL_PROPERTIES: Object;
 
+	// ops that can swap the left and right operands
+	static readonly SWAP_OPS: any = {
+		'+': '+',
+		'*': '*',
+		'==': '==',
+		'!=': '!=',
+		'===': '===',
+		'!==': '!==',
+		'>': '<',
+		'>>': '<<',
+		'<': '>',
+		'<<': '>>',
+		'>=': '<=',
+		'>>=': '<<=',
+		'<=': '>=',
+		'<<=': '>>='
+	};
+	
+	// ops that can be inverted and thus do not need to be implemented
+	static readonly INVERTIBLE_OPS: any = {
+		'!=': '==',
+		'!==': '===',
+		'>=': '<',
+		'<=': '>',
+		'>>=': '<<',
+		'<<=': '>>'
+	};
+
+	
 	constructor() {
 	}
 	
@@ -51,26 +52,26 @@ export default class JelObject {
 	op_jel_mapping: Object;
 	op(ctx: Context, operator: string, right: JelObject|null): JelObject|Promise<JelObject> {
 		if (right != null) {
-			if (operator in INVERTIBLE_OPS)
-				return BaseTypeRegistry.get('FuzzyBoolean').negate(this.op(ctx, INVERTIBLE_OPS[operator], right));
+			if (right.reverseOps && operator in right.reverseOps && right.constructor.name != this.constructor.name)
+				return right.opReversed(ctx, operator, this);
+			if (operator in JelObject.INVERTIBLE_OPS)
+				return BaseTypeRegistry.get('FuzzyBoolean').negate(this.op(ctx, JelObject.INVERTIBLE_OPS[operator], right));
 			if (operator == '<')
 				return BaseTypeRegistry.get('FuzzyBoolean').truest(ctx, this.op(ctx, '>', right), this.op(ctx, '==', right)).negate();
 			if (operator == '<<')
 				return BaseTypeRegistry.get('FuzzyBoolean').truest(ctx, this.op(ctx, '>>', right), this.op(ctx, '===', right)).negate();
-			if (right.reverseOps && operator in right.reverseOps)
-				return right.opReversed(ctx, operator, this);
 		}
 		throw new Error(`Operator "${operator}" is not supported for type "${this.constructor.name}" as left operand and right operand "${right == null ? 'null' : right.constructor.name}"`);
 	}
 	
-	// To be used if the right-hand side is this type, and the left-hand side is a primitive.
-	// Left is guaranteed to be a non-null primitive.
+	// To be used if the right-hand side is this type, and the left-hand side is a type unaware of this type.
 	// You must also define the supported operators in the field reverseOps!
 	// Usually this is used for the operators '-' and '/', and possibly comparisons as well.
+	// For all others, the default is to loop the operator up in SWAP_OPS to find out whether it can swap operands.
 	opReversed_jel_mapping: Object;
 	opReversed(ctx: Context, operator: string, left: JelObject): JelObject|Promise<JelObject> {
-		if (this.reverseOps && operator in this.reverseOps && operator in REVERSIBLE_OPS)
-			return this.op(ctx, REVERSIBLE_OPS[operator], left);
+		if (this.reverseOps && operator in this.reverseOps && operator in JelObject.SWAP_OPS)
+			return this.op(ctx, JelObject.SWAP_OPS[operator], left);
 		throw new Error(`Operator "${operator}" is not supported for type "${this.constructor.name}" (in reversed operation)`);
 	}
 

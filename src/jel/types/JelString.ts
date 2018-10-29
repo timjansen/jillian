@@ -5,7 +5,6 @@ import SerializablePrimitive from '../SerializablePrimitive';
 import Context from '../Context';
 import Util from '../../util/Util';
 import FuzzyBoolean from './FuzzyBoolean';
-import JelNumber from './JelNumber';
 
 /**
  * Represents a string.
@@ -41,8 +40,8 @@ export default class JelString extends JelObject implements SerializablePrimitiv
 		return super.op(ctx, operator, right);
 	}
 	
-	get length(): JelNumber {
-		return JelNumber.valueOf(this.value.length);
+	get length(): number {
+		return this.value.length;
 	}
 	
 	trim_jel_mapping: Object;
@@ -81,8 +80,8 @@ export default class JelString extends JelObject implements SerializablePrimitiv
 		return FuzzyBoolean.valueOf(!!this.value.length);
 	}
 
-	toNumber(): JelNumber {
-		return JelNumber.valueOf(this.value.length);
+	toNumber(): number {
+		return this.value.length;
 	}
 	
 	toString(): string {

@@ -51,7 +51,12 @@ export default class Context {
 	}
 	
 	plus(obj: any): Context {
-		return new Context(this).setAll(obj);
+		if (obj.isIDBSession)
+			return new Context(this, obj as IDbSession);
+		else if (obj.constructor.name == 'Dictionary')
+			return new Context(this, undefined, obj);
+		else
+			return new Context(this).setAll(obj as any);
 	}
 
 	getSession(): IDbSession {

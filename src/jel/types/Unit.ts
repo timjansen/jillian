@@ -69,6 +69,10 @@ export default class Unit extends JelObject {
 			this.units.set(numeratorUnits.value, 1);
 			this.simple = !denominatorUnits;
 		}
+		else if (typeof numeratorUnits == 'string') {
+			this.units.set(numeratorUnits, 1);
+			this.simple = !denominatorUnits;
+		}
 		else {
 			this.units.set((numeratorUnits as IDbRef).distinctName, 1);
 			this.simple = !denominatorUnits;
@@ -78,6 +82,8 @@ export default class Unit extends JelObject {
 			denominatorUnits.elements.forEach(n=>this.units.set(n.distinctName, (this.units.get(n.distinctName) || 0) - 1));
 		else if (denominatorUnits instanceof JelString)
 			this.units.set(denominatorUnits.value, -1);
+		else if (typeof denominatorUnits == 'string')
+			this.units.set(denominatorUnits, -1);
 		else if (denominatorUnits)
 			this.units.set((denominatorUnits as IDbRef).distinctName, -1);
 	}

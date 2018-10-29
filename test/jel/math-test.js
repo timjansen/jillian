@@ -2,6 +2,8 @@
 
 require('source-map-support').install();
 const assert = require('assert');
+const Context = require('../../build/jel/Context.js').default;
+const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
 const JelMath = require('../../build/jel/types/Math.js').default;
 const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
@@ -9,12 +11,11 @@ const Fraction = require('../../build/jel/types/Fraction.js').default;
 const UnitValue = require('../../build/jel/types/UnitValue.js').default;
 const Unit = require('../../build/jel/types/Unit.js').default;
 const ApproximateNumber = require('../../build/jel/types/ApproximateNumber.js').default;
-const Context = require('../../build/jel/Context.js').default;
 const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const {JelAssert, JelPromise, JelConsole, MockSession} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
 
-const ctx = new Context(undefined, new MockSession()).setAll({Math: JelMath, Fraction, ApproximateNumber, FuzzyBoolean, UnitValue, Unit, JelPromise, JelConsole});
+const ctx = DefaultContext.plus({JelPromise, JelConsole}).plus(new MockSession());
 jelAssert.setCtx(ctx);
 
 describe('jelMath', function() {

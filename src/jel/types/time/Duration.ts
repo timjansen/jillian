@@ -254,22 +254,7 @@ export default class Duration extends JelObject {
 
 }
 
-Duration.prototype.reverseOps = {
-	'+': 1,
-	'*': 1,
-	'==': 1,
-	'!=': 1,
-	'===': 1,
-	'!==': 1,
-	'>': 1,
-	'>>': 1,
-	'<': 1,
-	'<<': 1,
-	'>=': 1,
-	'>>=': 1,
-	'<=': 1,
-	'<<=': 1,
-};
+Duration.prototype.reverseOps = JelObject.SWAP_OPS;
 Duration.prototype.fullDays_jel_mapping = {};
 Duration.prototype.simplify_jel_mapping = {};
 Duration.prototype.toEstimatedSeconds_jel_mapping = {};

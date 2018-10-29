@@ -10,13 +10,16 @@ const NotFoundError = require('../../build/database/NotFoundError.js').default;
 const Thing = require('../../build/database/dbObjects/Thing.js').default;
 const Category = require('../../build/database/dbObjects/Category.js').default;
 const Context = require('../../build/jel/Context.js').default;
+const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const tmp = require('tmp');
 const fs = require('fs');
 const assert = require('assert');
+const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 
 function getCtx(db) {
 	return DatabaseContext.forDatabase(db);
 }
+const jelAssert = new JelAssert(DefaultContext.get());
 
 tmp.dir(function(err, path) {
   if (err) 
@@ -149,9 +152,9 @@ tmp.dir(function(err, path) {
 					assert.equal(5, n);
 					return db.get(ctx, 'AThing2');
 				})
-				.then(at2=>assert.equal('at2', at2.member(ctx, 'who')) || at2.category.get(ctx))
-				.then(cat=>assert.equal('MySubSubCategory', cat.distinctName) || cat)
-				.then(cat=>assert.equal('SubSub', cat.member(ctx, 'cat')) );
+				.then(at2=>jelAssert.equal("'at2'", at2.member(ctx, 'who')) || at2.category.get(ctx))
+				.then(cat=>assert.equal("MySubSubCategory", cat.distinctName) || cat)
+				.then(cat=>jelAssert.equal("'SubSub'", cat.member(ctx, 'cat')) );
 			
 			});
 		});

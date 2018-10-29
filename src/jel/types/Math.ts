@@ -2,6 +2,7 @@ import Runtime from '../Runtime';
 import JelObject from '../JelObject';
 import Context from '../Context';
 import {IDbRef} from '../IDatabase';
+import JelString from './JelString';
 import JelNumber from './JelNumber';
 import FuzzyBoolean from './FuzzyBoolean';
 import Fraction from './Fraction';
@@ -61,29 +62,29 @@ export default class JelMath extends JelObject {
 	
 	// Returns either number in radians, or converts to the given unit. Must be @Degree, @Radian, @Gradian or @Turn. Defaults to @Radian as plain number.
 	static acos_jel_mapping = {x: 1, unit: 2};
-	static acos(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber, unit?: IDbRef | string): JelNumber | UnitValue {
+	static acos(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber, unit?: IDbRef | JelString): JelNumber | UnitValue {
 		const r = Math.acos(JelNumber.toRealNumber(x));
-		return unit ? JelMath.convertAngle(r, typeof unit == 'string' ? unit : unit.distinctName) : JelNumber.valueOf(r);
+		return unit ? JelMath.convertAngle(r, unit instanceof JelString ? unit.value : unit.distinctName) : JelNumber.valueOf(r);
 	}
 	static asin_jel_mapping = {x: 1, unit: 2};
-	static asin(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber, unit?: IDbRef | string): JelNumber | UnitValue {
+	static asin(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber, unit?: IDbRef | JelString): JelNumber | UnitValue {
 		const r = Math.asin(JelNumber.toRealNumber(x));
-		return unit ? JelMath.convertAngle(r, typeof unit == 'string' ? unit : unit.distinctName) : JelNumber.valueOf(r);
+		return unit ? JelMath.convertAngle(r, unit instanceof JelString ? unit.value : unit.distinctName) : JelNumber.valueOf(r);
 	}
 	static atan_jel_mapping = {x: 1, unit: 2};
-	static atan(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber, unit?: IDbRef | string): JelNumber | UnitValue {
+	static atan(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber, unit?: IDbRef | JelString): JelNumber | UnitValue {
 		const r = Math.atan(JelNumber.toRealNumber(x));
-		return unit ? JelMath.convertAngle(r, typeof unit == 'string' ? unit : unit.distinctName) : JelNumber.valueOf(r);
+		return unit ? JelMath.convertAngle(r, unit instanceof JelString ? unit.value : unit.distinctName) : JelNumber.valueOf(r);
 	}
 	static atan2_jel_mapping = {x: 1, y: 2, unit: 3};
-	static atan2(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber, y: JelNumber | Fraction | UnitValue | ApproximateNumber, unit?: IDbRef | string): JelNumber | UnitValue {
+	static atan2(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber, y: JelNumber | Fraction | UnitValue | ApproximateNumber, unit?: IDbRef | JelString): JelNumber | UnitValue {
 		const r = Math.atan2(JelNumber.toRealNumber(x), JelNumber.toRealNumber(y));
-		return unit ? JelMath.convertAngle(r, typeof unit == 'string' ? unit : unit.distinctName) : JelNumber.valueOf(r);
+		return unit ? JelMath.convertAngle(r, unit instanceof JelString ? unit.value : unit.distinctName) : JelNumber.valueOf(r);
 	}
 
 	static cbrt_jel_mapping = {x: 1};
-	static cbrt(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): JelNumber {
-		return JelNumber.valueOf(Math.cbrt(JelNumber.toRealNumber(x)));
+	static cbrt(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): number {
+		return Math.cbrt(JelNumber.toRealNumber(x));
 	}
 
 	static ceil_jel_mapping = {x: 1};
@@ -91,38 +92,38 @@ export default class JelMath extends JelObject {
 			return JelMath.restoreUnit(x, Math.ceil(JelNumber.toRealNumber(x)));
 	}
 
-	private static trigo(f: (x: number)=>number, ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): JelNumber {
+	private static trigo(f: (x: number)=>number, ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): number {
 		if (x instanceof UnitValue) {
 			if (!x.unit.isSimple())
 				throw new Error('Supports only Radians, Degree, Turn and Gradian as unit, but no complex unit types. Given: ' + x.unit.toString());
 			const	st = x.unit.toSimpleType(ctx).distinctName;
 			if (!(st in JelMath.unitFactors))
 				throw new Error('Supports only Radians, Degree, Turn and Gradian as unit, but not ' + st);
-			return JelNumber.valueOf(f(JelNumber.toRealNumber(x.value) / JelMath.unitFactors[st]));
+			return f(JelNumber.toRealNumber(x.value) / JelMath.unitFactors[st]);
 		}
-		return JelNumber.valueOf(f(JelNumber.toRealNumber(x)));
+		return f(JelNumber.toRealNumber(x));
 	}
 
 	static cos_jel_mapping = {x: 1};
-	static cos(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): JelNumber {
+	static cos(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): number {
 		return JelMath.trigo(Math.cos, ctx, x);
 	}
 	static sin_jel_mapping = {x: 1};
-	static sin(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): JelNumber {
+	static sin(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): number {
 		return JelMath.trigo(Math.sin, ctx, x);
 	}
 	static tan_jel_mapping = {x: 1};
-	static tan(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): JelNumber {
+	static tan(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): number {
 		return JelMath.trigo(Math.tan, ctx, x);
 	}
 
 	static exp_jel_mapping = {x: 1};
-	static exp(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): JelNumber {
-		return JelNumber.valueOf(Math.exp(JelNumber.toRealNumber(x)));
+	static exp(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): number {
+		return Math.exp(JelNumber.toRealNumber(x));
 	}
 	static expm1_jel_mapping = {x: 1};
-	static expm1(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): JelNumber {
-		return JelNumber.valueOf(Math.expm1(JelNumber.toRealNumber(x)));
+	static expm1(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): number {
+		return Math.expm1(JelNumber.toRealNumber(x));
 	}
 	
 	static floor_jel_mapping = {x: 1};
@@ -131,8 +132,8 @@ export default class JelMath extends JelObject {
 	}
 
 	static hypot_jel_mapping = {};
-	static hypot(ctx: Context, ...a: any[]): JelNumber {
-		return JelNumber.valueOf(Math.hypot(...a.map(x=>JelNumber.toRealNumber(x))));
+	static hypot(ctx: Context, ...a: any[]): number {
+		return Math.hypot(...a.map(x=>JelNumber.toRealNumber(x)));
 	}
 
 	static delta_jel_mapping = {x: 1, y: 2};
@@ -141,20 +142,20 @@ export default class JelMath extends JelObject {
 	}
 	
 	static log_jel_mapping = {x: 1};
-	static log(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): JelNumber {
-		return JelNumber.valueOf(Math.log(JelNumber.toRealNumber(x)));
+	static log(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): number {
+		return Math.log(JelNumber.toRealNumber(x));
 	}
 	static log1p_jel_mapping = {x: 1};
-	static log1p(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): JelNumber {
-		return JelNumber.valueOf(Math.log1p(JelNumber.toRealNumber(x)));
+	static log1p(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): number {
+		return Math.log1p(JelNumber.toRealNumber(x));
 	}
 	static log10_jel_mapping = {x: 1};
-	static log10(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): JelNumber {
-		return JelNumber.valueOf(Math.log10(JelNumber.toRealNumber(x)));
+	static log10(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): number {
+		return Math.log10(JelNumber.toRealNumber(x));
 	}
 	static log2_jel_mapping = {x: 1};
-	static log2(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): JelNumber {
-		return JelNumber.valueOf(Math.log2(JelNumber.toRealNumber(x)));
+	static log2(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): number {
+		return Math.log2(JelNumber.toRealNumber(x));
 	}
 
 	private static best(op: string, ctx: Context, a: any[]): JelNumber | Fraction | UnitValue | ApproximateNumber | Promise<JelNumber|Fraction|UnitValue|ApproximateNumber> {
@@ -209,13 +210,13 @@ export default class JelMath extends JelObject {
 	}
 
 	static sign_jel_mapping = {x: 1};
-	static sign(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): JelNumber {
-		return JelNumber.valueOf(Math.sign(JelNumber.toRealNumber(x)));
+	static sign(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): number {
+		return Math.sign(JelNumber.toRealNumber(x));
 	}
 	
 	static sqrt_jel_mapping = {x: 1};
-	static sqrt(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): JelNumber {
-		return JelNumber.valueOf(Math.sqrt(JelNumber.toRealNumber(x)));
+	static sqrt(ctx: Context, x: JelNumber | Fraction | UnitValue | ApproximateNumber): number {
+		return Math.sqrt(JelNumber.toRealNumber(x));
 	}
 	
 	static trunc_jel_mapping = {x: 1};

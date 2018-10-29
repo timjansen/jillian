@@ -79,7 +79,7 @@ export default class Fraction extends JelObject {
 					else
 						return JelNumber.valueOf(Math.pow(this.toRealNumber(), right.value));
 				case '+-':
-					return BaseTypeRegistry.get('ApproximateNumber').fromNumber(this, right.value);
+					return BaseTypeRegistry.get('ApproximateNumber').fromNumber(this, right);
 					
 				default:
 					return Runtime.op(ctx, operator, this.toNumber(), right);
@@ -154,7 +154,7 @@ export default class Fraction extends JelObject {
 					return BaseTypeRegistry.get('ApproximateNumber').fromNumber(left, this);
 			}
 		}
-		return super.op(ctx, operator, left);
+		return super.opReversed(ctx, operator, left);
 	}
 
 	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
@@ -224,7 +224,7 @@ export default class Fraction extends JelObject {
 	}
 }
 
-Fraction.prototype.reverseOps = {'-': true, '/': true, '+-': true};
+Fraction.prototype.reverseOps = Object.assign({'-': true, '/': true, '+-': true, '^': true}, JelObject.SWAP_OPS);
 Fraction.prototype.toNumber_jel_mapping = {};
 Fraction.prototype.simplify_jel_mapping = {};
 

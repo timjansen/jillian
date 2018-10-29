@@ -131,8 +131,8 @@ describe('ApproximateNumber', function() {
 		jelAssert.fuzzy("1 < ApproximateNumber(1, 0)", 0);
 		jelAssert.fuzzy("ApproximateNumber(1, 3) < 1", 0.4, 0.49999999);
 		jelAssert.fuzzy("ApproximateNumber(1, 2) < 1", 0.4, 0.49999999);
+		jelAssert.fuzzy("ApproximateNumber(1, 5) <= 1", 0.5, 0.51);
 		jelAssert.fuzzy("1 >= ApproximateNumber(1, 5)", 0.5, 0.51);
-		jelAssert.fuzzy("ApproximateNumber(1, 5) >= 1", 0.5, 0.51);
 		jelAssert.fuzzy("-1 >= ApproximateNumber(-1, 2)", 0.5, 0.51);
 		jelAssert.fuzzy("1 <= ApproximateNumber(1, 5)", 0.5, 0.51);
 		jelAssert.fuzzy("2 <= ApproximateNumber(1, 5)", 0.37, 0.42);

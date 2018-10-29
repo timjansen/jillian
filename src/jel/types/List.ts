@@ -112,7 +112,7 @@ export default class List extends JelObject implements SerializablePrimitive {
 		const len = this.elements.length;
 		function exec(): Promise<List> | List {
 			while (i < len) {
-				const r = f.invoke(ctx, self.elements[i], i);
+				const r = f.invoke(ctx, self.elements[i], JelNumber.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(exec);
@@ -125,14 +125,14 @@ export default class List extends JelObject implements SerializablePrimitive {
 	map_jel_mapping: Object;
 	map(ctx: Context, f: Callable): List | Promise<List> {
 		const newList: any[] = [];
-		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, i), v=>{newList.push(v);}, ()=>new List(newList));
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, JelNumber.valueOf(i)), v=>{newList.push(v);}, ()=>new List(newList));
 	}
 
 	filter_jel_mapping: Object;
 	filter(ctx: Context, f: Callable): Promise<List> | List {
 		const newList: any[] = [];
 
-		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, i), (v, e)=> {
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, JelNumber.valueOf(i)), (v, e)=> {
 			if (FuzzyBoolean.toRealBoolean(v))
 				newList.push(e);
 		}, ()=>new List(newList));
@@ -142,17 +142,17 @@ export default class List extends JelObject implements SerializablePrimitive {
 	reduce(ctx: Context, f: Callable, init: any): Promise<any> | any {
 		let result: any = init;
 		
-		return Util.processPromiseList(this.elements, (v,i)=>f.invoke(ctx, v, result, i), v=>{result=v;}, ()=>result);
+		return Util.processPromiseList(this.elements, (v,i)=>f.invoke(ctx, v, result, JelNumber.valueOf(i)), v=>{result=v;}, ()=>result);
 	}
 
 	hasAny_jel_mapping: Object;
 	hasAny(ctx: Context, f: Callable): FuzzyBoolean | Promise<FuzzyBoolean> {
-		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, i), (v, e)=>FuzzyBoolean.toRealBoolean(v) ? FuzzyBoolean.TRUE : undefined, r=>r || FuzzyBoolean.FALSE);
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, JelNumber.valueOf(i)), (v, e)=>FuzzyBoolean.toRealBoolean(v) ? FuzzyBoolean.TRUE : undefined, r=>r || FuzzyBoolean.FALSE);
 	}
 
 	hasOnly_jel_mapping: Object;
 	hasOnly(ctx: Context, f: Callable): FuzzyBoolean | Promise<FuzzyBoolean> {
-		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, i), (v, e)=>FuzzyBoolean.toRealBoolean(v) ? undefined : FuzzyBoolean.FALSE, r=>r || FuzzyBoolean.TRUE);
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, JelNumber.valueOf(i)), (v, e)=>FuzzyBoolean.toRealBoolean(v) ? undefined : FuzzyBoolean.FALSE, r=>r || FuzzyBoolean.TRUE);
 	}
 	
 	// isBetter(a,b) checks whether a is better than b (must return false is both are equally good)

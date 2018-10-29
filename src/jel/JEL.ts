@@ -460,8 +460,9 @@ export default class JEL {
     return op;
   }
   
-  static createPattern(value: string, jelToken: Token): any {
-    return BaseTypeRegistry.get('Pattern').valueOf(PatternParser.parsePattern(Tokenizer.tokenizePattern(jelToken.line, jelToken.column, value), jelToken)!, value);
+  static createPattern(value: string, jelToken?: Token): any {
+		const t = jelToken || new Token(1, 1, TokenType.Pattern, value);
+    return BaseTypeRegistry.get('Pattern').valueOf(PatternParser.parsePattern(Tokenizer.tokenizePattern(t.line, t.column, value), t)!, value);
   }
   
 	

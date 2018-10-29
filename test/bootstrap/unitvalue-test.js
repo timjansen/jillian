@@ -11,6 +11,7 @@ const DbSession = require('../../build/database/DbSession.js').default;
 const DbRef = require('../../build/database/DbRef.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
 const Context = require('../../build/jel/Context.js').default;
+const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const List = require('../../build/jel/types/List.js').default;
 const Dictionary = require('../../build/jel/types/Dictionary.js').default;
 const Unit = require('../../build/jel/types/Unit.js').default;
@@ -32,7 +33,7 @@ tmp.dir(function(err, path) {
 	return Database.create(path+'/unitvalue-test')
 		.then(db=>Loader.bootstrapDatabaseObjects(db, 'bootstrap-data/objects').then(()=>db))
 		.then(db=>{
-			const session = new DbSession(db, new Context().setAll({JelPromise, JelConsole}));
+			const session = new DbSession(db, DefaultContext.plus({JelPromise, JelConsole}));
 
 			jelAssert.setCtx(session.ctx);
 

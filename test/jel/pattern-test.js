@@ -1,5 +1,6 @@
 'use strict';
 
+require('source-map-support').install();
 const assert = require('assert');
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const Context = require('../../build/jel/Context.js').default;
@@ -192,7 +193,7 @@ describe('jelPatterns', function() {
     });
 
     it('should match regexp templates', function() {
-        const ctx = new DefaultContext.get();
+        const ctx = DefaultContext.get();
 
         assert.equal(FuzzyBoolean.TRUE, JEL.createPattern('{{/a+/}}').match(ctx, 'aa'));
         assert.equal(FuzzyBoolean.TRUE, JEL.createPattern('j {{/a+/}}').match(ctx, 'j aaa '));

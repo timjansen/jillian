@@ -13,7 +13,7 @@ import NotFoundError from './NotFoundError';
 export default class DbRef extends JelObject implements IDbRef, SerializablePrimitive {
 	distinctName: string;
 	cached: DbEntry | undefined | null;    // stores null for entries that have not been found, undefined if the existance is unknown
-	isIDBRef: boolean = true;
+	readonly isIDBRef: boolean = true;
 	
 	constructor(distinctNameOrEntry: string | JelString |DbEntry, public parameters?: Map<string, any>) {
 		super();

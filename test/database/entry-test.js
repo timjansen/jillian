@@ -8,11 +8,16 @@ const Category = require('../../build/database/dbObjects/Category.js').default;
 const Thing = require('../../build/database/dbObjects/Thing.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
 const Context = require('../../build/jel/Context.js').default;
+const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const Util = require('../../build/util/Util.js').default;
+const JelNumber = require('../../build/jel/types/JelNumber.js').default;
+const JelString = require('../../build/jel/types/JelString.js').default;
 const Dictionary = require('../../build/jel/types/Dictionary.js').default;
 const EnumValue = require('../../build/jel/types/EnumValue.js').default;
 const tmp = require('tmp');
 const assert = require('assert');
+const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
+const jelAssert = new JelAssert(DefaultContext.get());
 
 tmp.dir(function(err, path) {
   if (err) 
@@ -51,34 +56,34 @@ tmp.dir(function(err, path) {
 			});
 			
 			it('supports category-level properties', function() {
-				const animal = new Category('Animal1Category', undefined, Dictionary.fromObject({a: 1, b: 2, x: "foo", y: "bar"}));
-				const cat = new Category('Cat1Category', animal, Dictionary.fromObject({a: 5, c: 3, x: "bla", z: "nope"}));
+				const animal = new Category('Animal1Category', undefined, Dictionary.fromObject({a: JelNumber.valueOf(1), b: JelNumber.valueOf(2), x: JelString.valueOf("foo"), y: JelString.valueOf("bar")}));
+				const cat = new Category('Cat1Category', animal, Dictionary.fromObject({a: JelNumber.valueOf(5), c: JelNumber.valueOf(3), x: JelString.valueOf("bla"), z: JelString.valueOf("nope")}));
 				return db.put(ctx, animal, cat)
 				.then(()=>session.getFromDatabase('Cat1Category') 
 					.then(cc=>{
 						assert.ok(!!cc);
-						assert.equal(cc.member(ctx, 'a'), 5);
-						assert.equal(cc.member(ctx, 'c'), 3);
-						assert.equal(cc.member(ctx, 'x'), 'bla');
-						assert.equal(cc.member(ctx, 'z'), 'nope');
+						jelAssert.equal(cc.member(ctx, 'a'), 5);
+						jelAssert.equal(cc.member(ctx, 'c'), 3);
+						jelAssert.equal(cc.member(ctx, 'x'), "'bla'");
+						jelAssert.equal(cc.member(ctx, 'z'), "'nope'");
 
 						return Promise.all([
-							Promise.resolve(cc.member(ctx, 'b')).then(value=>assert.equal(value, 2)),
-							Promise.resolve(cc.member(ctx, 'y')).then(value=>assert.equal(value, 'bar')),
-							JEL.execute('@Cat1Category.a', ctx).then(r=>assert.equal(r, 5)),
-							JEL.execute('@Cat1Category.y', ctx).then(r=>assert.equal(r, 'bar'))
+							Promise.resolve(cc.member(ctx, 'b')).then(value=>jelAssert.equal(value, 2)),
+							Promise.resolve(cc.member(ctx, 'y')).then(value=>jelAssert.equal(value, "'bar'")),
+							JEL.execute('@Cat1Category.a', ctx).then(r=>jelAssert.equal(r, 5)),
+							JEL.execute('@Cat1Category.y', ctx).then(r=>jelAssert.equal(r, "'bar'"))
 							])
 						.then(()=>session.getFromDatabase('Animal1Category'));
 					})
 					.then(aa=> {
 						assert.ok(!!aa);
-						assert.equal(aa.member(ctx, 'a'), 1);
-						assert.equal(aa.member(ctx, 'b'), 2);
-						assert.equal(aa.member(ctx, 'x'), 'foo');
-						assert.equal(aa.member(ctx, 'y'), 'bar');
+						jelAssert.equal(aa.member(ctx, 'a'), 1);
+						jelAssert.equal(aa.member(ctx, 'b'), 2);
+						jelAssert.equal(aa.member(ctx, 'x'), "'foo'");
+						jelAssert.equal(aa.member(ctx, 'y'), "'bar'");
 						return Promise.all([
-							JEL.execute('@Animal1Category.a', ctx).then(r=>assert.equal(r, 1)),
-							JEL.execute('@Animal1Category.b', ctx).then(r=>assert.equal(r, '2'))
+							JEL.execute('@Animal1Category.a', ctx).then(r=>jelAssert.equal(r, 1)),
+							JEL.execute('@Animal1Category.b', ctx).then(r=>jelAssert.equal(r, '2'))
 							])
 					}));
 			});
@@ -87,36 +92,36 @@ tmp.dir(function(err, path) {
 				const e1 = new EnumValue('required', DbRef.create('PropertyTypeEnum'));
 				const e2 = new EnumValue('optional', DbRef.create('PropertyTypeEnum'));
 				const animal = new Category('Animal2Category', undefined, undefined,
-																	Dictionary.fromObject({a: 1, b: 2}),
+																	Dictionary.fromObject({a: JelNumber.valueOf(1), b: JelNumber.valueOf(2)}),
 																	Dictionary.fromObject({x: e1, y: e2}));
 				const cat = new Category('Cat2Category', animal, undefined, 
-																Dictionary.fromObject({a: 7, c: 3}),
+																Dictionary.fromObject({a: JelNumber.valueOf(7), c: JelNumber.valueOf(3)}),
 																Dictionary.fromObject({x: e2, z: e1}));
 
 				return db.put(ctx, animal, cat)
 				.then(()=>session.getFromDatabase('Cat2Category') 
 					.then(cc=>{
 						assert.ok(!!cc);
-						assert.equal(cc.instanceDefault(ctx, 'a'), 7);
-						assert.equal(cc.instanceDefault(ctx, 'c'), 3);
+						assert.equal(cc.instanceDefault(ctx, 'a'), JelNumber.valueOf(7));
+						assert.equal(cc.instanceDefault(ctx, 'c'), JelNumber.valueOf(3));
 						assert.equal(cc.instanceProperty(ctx, 'x').value, 'optional');
 						assert.equal(cc.instanceProperty(ctx, 'z').value, 'required');
 						assert.equal(cc.superCategory.distinctName, 'Animal2Category');
 
 						return Promise.all([
-							Promise.resolve(cc.instanceDefault(ctx, 'b')).then(value=>assert.equal(value, 2)),
+							Promise.resolve(cc.instanceDefault(ctx, 'b')).then(value=>jelAssert.equal(value, 2)),
 							Promise.resolve(cc.instanceProperty(ctx, 'y')).then(value=>assert.equal(value.value, 'optional'))
 							])
 						.then(()=>session.getFromDatabase('Animal2Category'));
 					})
 					.then(aa=> {
 						assert.ok(!!aa);
-						assert.equal(aa.instanceDefault(ctx, 'a'), 1);
-						assert.equal(aa.instanceDefault(ctx, 'b'), 2);
+						assert.equal(aa.instanceDefault(ctx, 'a'), JelNumber.valueOf(1));
+						assert.equal(aa.instanceDefault(ctx, 'b'), JelNumber.valueOf(2));
 						assert.equal(aa.instanceProperty(ctx, 'x').value, 'required');
 						assert.equal(aa.instanceProperty(ctx, 'y').value, 'optional');
 						return Promise.all([
-							Promise.resolve(aa.instanceDefault(ctx, 'b')).then(value=>assert.equal(value, 2)),
+							Promise.resolve(aa.instanceDefault(ctx, 'b')).then(value=>jelAssert.equal(value, 2)),
 							Promise.resolve(aa.instanceProperty(ctx, 'y')).then(value=>assert.equal(value.value, 'optional'))
 							])
 					}));
@@ -145,55 +150,55 @@ tmp.dir(function(err, path) {
 		
 		describe('Thing', function() {
 			it('supports thing-level properties', function() {
-				const animal = new Category('Animal5Category', undefined, undefined, Dictionary.fromObject({a: 1, b: 2, x: "foo", y: "bar"}));
-				assert.equal(animal.instanceDefault(ctx, 'a'), 1);
-				const cat = new Category('Cat5Category', animal, undefined, Dictionary.fromObject({a: 5, c: 3, x: "bla", z: "nope"}));
-				assert.equal(cat.instanceDefault(ctx, 'a'), 5);
+				const animal = new Category('Animal5Category', undefined, undefined, Dictionary.fromObject({a: JelNumber.valueOf(1), b: JelNumber.valueOf(2), x: JelString.valueOf("foo"), y: JelString.valueOf("bar")}));
+				jelAssert.equal(animal.instanceDefault(ctx, 'a'), 1);
+				const cat = new Category('Cat5Category', animal, undefined, Dictionary.fromObject({a: JelNumber.valueOf(5), c: JelNumber.valueOf(3), x: JelString.valueOf("bla"), z: JelString.valueOf("nope")}));
+				jelAssert.equal(cat.instanceDefault(ctx, 'a'), 5);
 
-				const grumpy = new Thing('GrumpyCat', cat, Dictionary.fromObject({b: 3, d: 5, x: "bar", w: "www"}));
-				assert.equal(grumpy.properties.get(ctx, 'b'), 3);
-				assert.equal(grumpy.member(ctx, 'b'), 3);
+				const grumpy = new Thing('GrumpyCat', cat, Dictionary.fromObject({b: JelNumber.valueOf(3), d: JelNumber.valueOf(5), x: JelString.valueOf("bar"), w: JelString.valueOf("www")}));
+				jelAssert.equal(grumpy.properties.get(ctx, 'b'), 3);
+				jelAssert.equal(grumpy.member(ctx, 'b'), 3);
 
 				const howard = new Thing('HowardTheDuck', animal);
-				const mred = new Thing('MrEd', animal, Dictionary.fromObject({a: 3, d: 5, x: "bar", w: "www"}));
+				const mred = new Thing('MrEd', animal, Dictionary.fromObject({a: 3, d: 5, x: JelString.valueOf("bar"), w: JelString.valueOf("www")}));
 				return db.put(ctx, animal, cat, grumpy, howard, mred)
 				.then(()=>session.getFromDatabase('GrumpyCat') 
 					.then(cc=>{
 						assert.ok(!!cc);
-						assert.equal(cc.properties.get(ctx, 'b'), 3);
-						assert.equal(cc.member(ctx, 'b'), 3);
-						assert.equal(cc.member(ctx, 'd'), 5);
-						assert.equal(cc.member(ctx, 'x'), 'bar');
-						assert.equal(cc.member(ctx, 'w'), 'www');
+						jelAssert.equal(cc.properties.get(ctx, 'b'), 3);
+						jelAssert.equal(cc.member(ctx, 'b'), 3);
+						jelAssert.equal(cc.member(ctx, 'd'), 5);
+						jelAssert.equal(cc.member(ctx, 'x'), "'bar'");
+						jelAssert.equal(cc.member(ctx, 'w'), "'www'");
 
 						return Promise.all([
-							Promise.resolve(cc.member(ctx, 'a')).then(value=>assert.equal(value, 5)),
-							Promise.resolve(cc.member(ctx, 'c')).then(value=>assert.equal(value, 3)),
-							Promise.resolve(cc.member(ctx, 'y')).then(value=>assert.equal(value, 'bar')),
-							Promise.resolve(cc.member(ctx, 'z')).then(value=>assert.equal(value, 'nope'))
+							Promise.resolve(cc.member(ctx, 'a')).then(value=>jelAssert.equal(value, 5)),
+							Promise.resolve(cc.member(ctx, 'c')).then(value=>jelAssert.equal(value, 3)),
+							Promise.resolve(cc.member(ctx, 'y')).then(value=>jelAssert.equal(value, "'bar'")),
+							Promise.resolve(cc.member(ctx, 'z')).then(value=>jelAssert.equal(value, "'nope'"))
 						])
 						.then(()=>session.getFromDatabase('HowardTheDuck'));
 					})
 					.then(cc=>{
 						assert.ok(!!cc);
 						return Promise.all([
-							Promise.resolve(cc.member(ctx, 'a')).then(value=>assert.equal(value, 1)),
-							JEL.execute('@HowardTheDuck.a', ctx).then(r=>assert.equal(r, 1)),
-							Promise.resolve(cc.member(ctx, 'b')).then(value=>assert.equal(value, 2)),
-							Promise.resolve(cc.member(ctx, 'x')).then(value=>assert.equal(value, 'foo')),
-							Promise.resolve(cc.member(ctx, 'y')).then(value=>assert.equal(value, 'bar'))
+							Promise.resolve(cc.member(ctx, 'a')).then(value=>jelAssert.equal(value, 1)),
+							JEL.execute('@HowardTheDuck.a', ctx).then(r=>jelAssert.equal(r, 1)),
+							Promise.resolve(cc.member(ctx, 'b')).then(value=>jelAssert.equal(value, 2)),
+							Promise.resolve(cc.member(ctx, 'x')).then(value=>jelAssert.equal(value, "'foo'")),
+							Promise.resolve(cc.member(ctx, 'y')).then(value=>jelAssert.equal(value, "'bar'"))
 						])
 						.then(()=>session.getFromDatabase('MrEd'));
 					})
 					.then(cc=> {
 						assert.ok(!!cc);
-						assert.equal(cc.member(ctx, 'a'), 3);
-						assert.equal(cc.member(ctx, 'd'), 5);
-						assert.equal(cc.member(ctx, 'x'), 'bar');
-						assert.equal(cc.member(ctx, 'w'), 'www');
+						jelAssert.equal(cc.member(ctx, 'a'), 3);
+						jelAssert.equal(cc.member(ctx, 'd'), 5);
+						jelAssert.equal(cc.member(ctx, 'x'), "'bar'");
+						jelAssert.equal(cc.member(ctx, 'w'), "'www'");
 						return Promise.all([
-							Promise.resolve(cc.member(ctx, 'b')).then(value=>assert.equal(value, 2)),
-							Promise.resolve(cc.member(ctx, 'y')).then(value=>assert.equal(value, 'bar'))
+							Promise.resolve(cc.member(ctx, 'b')).then(value=>jelAssert.equal(value, 2)),
+							Promise.resolve(cc.member(ctx, 'y')).then(value=>jelAssert.equal(value, "'bar'"))
 						]);
 					}));
 			});

@@ -18,7 +18,7 @@ tmp.dir(function(err, path) {
 	
 	const db = Database.create(path+'/dbenum1');
 	const ds = new DbSession(db);
-	const jelAssert = new JelAssert(DefaultContext.plus({DbRef}));
+	const jelAssert = new JelAssert(ds.ctx.plus({DbRef}));
 
 	describe('EnumValue', function() {
 		it('creates and serializes', function() {

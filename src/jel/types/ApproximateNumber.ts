@@ -101,8 +101,9 @@ export default class ApproximateNumber extends JelObject {
 						return Runtime.op(ctx, operator, this.value, right)
 					const deltaCmp = JelNumber.toRealNumber(Runtime.singleOp(ctx, 'abs', Runtime.op(ctx, '-', this.value, right) as JelObject)) * ACCURACY_FACTOR;
 					if ((Runtime.op(ctx, operator, this.value, right) as FuzzyBoolean).toRealBoolean())
-						 return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.TRUE : FuzzyBoolean.create(ctx, Math.min(ACCURACY_FACTOR, 0.5 + 0.5 * deltaCmp / maxErrorDeltaCmp));
-					return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.FALSE : FuzzyBoolean.create(ctx, Math.max(0, ACCURACY_FACTOR*0.5 - 0.5 * deltaCmp / maxErrorDeltaCmp));
+						return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.TRUE : FuzzyBoolean.create(ctx, Math.min(ACCURACY_FACTOR, 0.5 + 0.5 * deltaCmp / maxErrorDeltaCmp));
+					else
+						return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.FALSE : FuzzyBoolean.create(ctx, Math.max(0, ACCURACY_FACTOR*0.5 - 0.5 * deltaCmp / maxErrorDeltaCmp));
 					
 				case '+':
 				case '-':
@@ -165,7 +166,7 @@ export default class ApproximateNumber extends JelObject {
 	
 	// for use as ctor
 	static fromNumber(a: any, b: any): ApproximateNumber {
-		if (!(a instanceof JelNumber && b instanceof JelNumber))
+		if (!((a instanceof JelNumber || a instanceof Fraction) && (b instanceof JelNumber || b instanceof Fraction)))
 			throw new Error('Failed to create ApproximateNumber. Expected both arguments to be numbers');
 		return new ApproximateNumber(a, b);
 	}
@@ -186,7 +187,7 @@ export default class ApproximateNumber extends JelObject {
 	}
 }
 
-ApproximateNumber.prototype.reverseOps = {'-':1, '/': 1, '+-': 1};
+ApproximateNumber.prototype.reverseOps = Object.assign({'-':1, '/': 1, '+-': 1, '^': 1}, JelObject.SWAP_OPS);
 ApproximateNumber.prototype.toNumber_jel_mapping = {};
 ApproximateNumber.prototype.hasError_jel_mapping = {};
 

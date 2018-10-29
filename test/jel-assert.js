@@ -113,6 +113,7 @@ class MockSession {
 		return {distinctName, params, isDBRef: true};
 	}
 }
+MockSession.prototype.isIDBSession = true;
 
 module.exports = {JelAssert, JelPromise, JelConsole, MockSession};
 

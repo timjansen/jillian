@@ -115,5 +115,6 @@ Range.prototype.JEL_PROPERTIES = {min: 1, max: 1};
 Range.prototype.contains_jel_mapping = {right: 1};
 Range.prototype.middle_jel_mapping = {};
 Range.prototype.isFinite_jel_mapping = {};
+Range.prototype.reverseOps = JelObject.SWAP_OPS;
 
 	

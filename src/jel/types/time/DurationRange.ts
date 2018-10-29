@@ -4,6 +4,7 @@ import JelObject from '../../JelObject';
 import Runtime from '../../Runtime';
 import Context from '../../Context';
 import Util from '../../../util/Util';
+import JelNumber from '../JelNumber';
 import FuzzyBoolean from '../FuzzyBoolean';
 import UnitValue from '../UnitValue';
 import Duration from './Duration';
@@ -75,7 +76,7 @@ export default class DurationRange extends JelObject {
 					return this.min.op(ctx, operator, right.min);
 			}
 		}
-		else if (typeof right == 'number' || right instanceof Fraction || right instanceof ApproximateNumber) {
+		else if (right instanceof JelNumber || right instanceof Fraction || right instanceof ApproximateNumber) {
 			switch (operator) {
 				case '*':					
 				case '/':					
@@ -104,4 +105,5 @@ export default class DurationRange extends JelObject {
 }
 
 DurationRange.prototype.contains_jel_mapping = {value: 1};
+DurationRange.prototype.reverseOps = JelObject.SWAP_OPS;
 

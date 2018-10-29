@@ -51,34 +51,13 @@ const jelAssert = new JelAssert(DefaultContext.get());
 			jelAssert.equal(FuzzyBoolean.TRUE, "FuzzyBoolean(0) <<= FuzzyBoolean(0.1)");
 		});
 
-		it('supports FuzzyBoolean<->number comparisons', function() {
-			jelAssert.equal(FuzzyBoolean.TRUE, "FuzzyBoolean(1) == 1");
-			jelAssert.equal(FuzzyBoolean.TRUE, "1 == FuzzyBoolean(1)");
-			jelAssert.equal(FuzzyBoolean.TRUE, "FuzzyBoolean(0) == 0");
-			jelAssert.equal(FuzzyBoolean.TRUE, "FuzzyBoolean(0.6) == 0.6");
-			jelAssert.equal(FuzzyBoolean.TRUE, "FuzzyBoolean(0) != 0.2");
-			jelAssert.equal(FuzzyBoolean.FALSE, "1 == FuzzyBoolean(0)");
-			jelAssert.equal(FuzzyBoolean.FALSE, "FuzzyBoolean(1) != 1");
-			jelAssert.equal(FuzzyBoolean.FALSE, "FuzzyBoolean(0) != 0");
-			jelAssert.equal(FuzzyBoolean.FALSE, "FuzzyBoolean(0.6) != 0.6");
-
-			jelAssert.equal(FuzzyBoolean.TRUE, "FuzzyBoolean(1) === 1");
-			jelAssert.equal(FuzzyBoolean.TRUE, "FuzzyBoolean(0.5) === 0.5");
-			jelAssert.equal(FuzzyBoolean.TRUE, "FuzzyBoolean(0.75) !== 0.25");
-			
-			jelAssert.equal(FuzzyBoolean.TRUE, "FuzzyBoolean(1) > 0.2");
-			jelAssert.equal(FuzzyBoolean.TRUE, "0.7 > FuzzyBoolean(0.3)");
-			jelAssert.equal(FuzzyBoolean.FALSE, "FuzzyBoolean(1) > 1");
-			jelAssert.equal(FuzzyBoolean.FALSE, "FuzzyBoolean(1) > 5");
-			jelAssert.equal(FuzzyBoolean.FALSE, "FuzzyBoolean(0.5) > 1");
-			jelAssert.equal(FuzzyBoolean.FALSE, "FuzzyBoolean(1) < 0");
-			jelAssert.equal(FuzzyBoolean.TRUE, "FuzzyBoolean(0) >= 0");
-			jelAssert.equal(FuzzyBoolean.TRUE, "FuzzyBoolean(0) <= 0.1");
-			jelAssert.equal(FuzzyBoolean.TRUE, "FuzzyBoolean(1) >> 0");
-			jelAssert.equal(FuzzyBoolean.FALSE, "FuzzyBoolean(0.5) >> 1");
-			jelAssert.equal(FuzzyBoolean.FALSE, "FuzzyBoolean(1) << 0");
-			jelAssert.equal(FuzzyBoolean.TRUE, "FuzzyBoolean(0) >>= 0");
-			jelAssert.equal(FuzzyBoolean.TRUE, "FuzzyBoolean(0) <<= 0.1");
+		it('supports state property', function() {
+			jelAssert.equal(FuzzyBoolean.TRUE, "FuzzyBoolean(1).state == 1");
+			jelAssert.equal(FuzzyBoolean.TRUE, "1 == FuzzyBoolean(1).state");
+			jelAssert.equal(FuzzyBoolean.TRUE, "FuzzyBoolean(0).state == 0");
+			jelAssert.equal(FuzzyBoolean.TRUE, "FuzzyBoolean(0.6).state == 0.6");
+			jelAssert.equal(FuzzyBoolean.TRUE, "FuzzyBoolean(0).state != 0.2");
+			jelAssert.equal(FuzzyBoolean.FALSE, "1 == FuzzyBoolean(0).state");
 		});
 		
 		it('supports and and or', function() {

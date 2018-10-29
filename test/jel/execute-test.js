@@ -32,7 +32,7 @@ const {JelAssert, JelPromise, JelConsole, MockSession} = require('../jel-assert.
 const jelAssert = new JelAssert();
 
 
-const ctx = new Context(DefaultContext.get(), new MockSession()).setAll({JelPromise, JelConsole});
+const ctx = DefaultContext.plus(new MockSession()).plus({JelPromise, JelConsole});
 jelAssert.setCtx(ctx);
 
 describe('JEL', function() {

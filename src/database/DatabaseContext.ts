@@ -20,13 +20,13 @@ import SimplePropertyType from './dbProperties/SimplePropertyType';
 
 
 
-const CTX_IDENTIFIERS = {DbEntry, DbRef, Category, Thing, Enum, 
+const DB_IDENTIFIERS = {DbEntry, DbRef, Category, Thing, Enum, 
 												 CategoryPropertyType, ComplexPropertyType, DictionaryPropertyType, FunctionPropertyType, ListPropertyType, OptionPropertyType, SimplePropertyType,
 												 ___IS_DATABASE_CONTEXT: 'magic123'};
 
 
 export default class DatabaseContext {
-	static readonly DB_CONTEXT = new Context(DefaultContext.get()).setAll(CTX_IDENTIFIERS);
+	static readonly DB_CONTEXT = DefaultContext.plus(DB_IDENTIFIERS);
 
 	static get(): Context {
 		return DatabaseContext.DB_CONTEXT;
@@ -43,7 +43,7 @@ export default class DatabaseContext {
 		else if (ctx.getOrNull('___IS_DATABASE_CONTEXT') == 'magic123')
 			return ctx;
 		else
-	    return new Context(ctx).setAll(CTX_IDENTIFIERS);
+	    return ctx.plus(DB_IDENTIFIERS);
 	}
 }
 

@@ -10,7 +10,7 @@ import JelString from '../../jel/types/JelString';
 function createProperties(distinctName: string, values: List): Dictionary {
 	const d = new Map<string,any>();
 	const ref = new DbRef(distinctName);
-	values.elements.forEach(v=>d.set(v, new EnumValue(v, ref)));
+	values.elements.map(JelString.toRealString).forEach(v=>d.set(v, new EnumValue(v, ref)));
 	return new Dictionary(d, true);
 }
 

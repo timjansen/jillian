@@ -11,6 +11,7 @@ import {IDbRef, IDbSession} from '../jel/IDatabase';
 const wp = new WorkerPool();
 
 export default class DbSession implements IDbSession {
+	readonly isIDBSession: boolean = true;
   cacheByName: Map<string, DbEntry|null> = new Map();   // distinct name -> entry; stores null for entries that have not been found. 
   cacheByHash: Map<string, DbEntry> = new Map();        // hash code -> entry
   

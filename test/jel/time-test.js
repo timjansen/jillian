@@ -23,7 +23,9 @@ const {
 	JelConsole,
 	MockSession
 } = require('../jel-assert.js');
-const jelAssert = new JelAssert(new Context(DefaultContext.get(), new MockSession()));
+
+const jelAssert = new JelAssert();
+jelAssert.setCtx(DefaultContext.plus(new MockSession()));
 
 
 describe('Timestamp', function() {

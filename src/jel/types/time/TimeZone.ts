@@ -1,5 +1,6 @@
 import JelObject from '../../JelObject';
 import Context from '../../Context';
+import JelString from '../JelString';
 import Timestamp from './Timestamp';
 import FuzzyBoolean from '../FuzzyBoolean';
 
@@ -64,7 +65,7 @@ export default class TimeZone extends JelObject {
 	
 	static create_jel_mapping: any = {tz: 1};
 	static create(ctx: Context, ...args: any[]): any {
-		return new TimeZone(args[0]);
+		return new TimeZone(JelString.toRealString(args[0]));
 	}
 }
 

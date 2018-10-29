@@ -6,6 +6,7 @@ import Callable from '../Callable';
 import {IDbRef, IDbEntry} from '../IDatabase';
 import Unit from './Unit';
 import FuzzyBoolean from './FuzzyBoolean';
+import JelString from './JelString';
 import JelNumber from './JelNumber';
 import Dictionary from './Dictionary';
 import List from './List';
@@ -22,7 +23,7 @@ export default class UnitValue extends JelObject {
 	
 	public unit: Unit;
 	
-	constructor(public value: JelNumber | Fraction | ApproximateNumber, unit: IDbRef | Unit | string) {
+	constructor(public value: JelNumber | Fraction | ApproximateNumber, unit: IDbRef | Unit | string | JelString) {
 		super();
 		this.value = value;
 		this.unit = unit instanceof Unit ? unit : new Unit(unit);
@@ -355,7 +356,7 @@ export default class UnitValue extends JelObject {
 	}
 }
 
-UnitValue.prototype.reverseOps = {'*':1, '/': 1};
+UnitValue.prototype.reverseOps = Object.assign({'*':1, '/': 1}, JelObject.SWAP_OPS);
 UnitValue.prototype.toNumber_jel_mapping = {};
 UnitValue.prototype.convertTo_jel_mapping = {type: 1};
 UnitValue.prototype.round_jel_mapping = {};
