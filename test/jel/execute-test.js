@@ -8,7 +8,7 @@ const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
 const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const Callable = require('../../build/jel/Callable.js').default;
-const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
+const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
 const JelObject = require('../../build/jel/JelObject.js').default;
 const JelString = require('../../build/jel/types/JelString.js').default;
 const JelNumber = require('../../build/jel/types/JelNumber.js').default;
@@ -146,9 +146,9 @@ describe('JEL', function() {
       jelAssert.equal("null instanceof @String", "false");
       jelAssert.equal("'hello' instanceof @String", "true");
       jelAssert.equal("true instanceof @String", "false");
-      jelAssert.equal("3 instanceof @FuzzyBoolean", "false");
-      jelAssert.equal("'hello' instanceof @FuzzyBoolean", "false");
-      jelAssert.equal("true instanceof @FuzzyBoolean", "true");
+      jelAssert.equal("3 instanceof @Boolean", "false");
+      jelAssert.equal("'hello' instanceof @Boolean", "false");
+      jelAssert.equal("true instanceof @Boolean", "true");
     });
 
     it('should access member fields of JelObjects', function() {
@@ -278,9 +278,9 @@ describe('JEL', function() {
       assert.equal(new JEL('${`abc def` => 2, `foo` => 6}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={def: TranslatorNode(tokens={} results=[LambdaResultNode(2)])}),\nfoo: TranslatorNode(tokens={} results=[LambdaResultNode(6)])}))");
       assert.equal(new JEL('${`abc def` => 2, `foo` => 6, `abc foo bar` => 4}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={def: TranslatorNode(tokens={} results=[LambdaResultNode(2)]),\nfoo: TranslatorNode(tokens={bar: TranslatorNode(tokens={} results=[LambdaResultNode(4)])})}),\nfoo: TranslatorNode(tokens={} results=[LambdaResultNode(6)])}))");
     
-      assert.equal(new JEL('${x: `abc` => 2}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=FuzzyBoolean(1)})])}))");
-      assert.equal(new JEL('${x,y,z: `abc` => 2}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=FuzzyBoolean(1), y=FuzzyBoolean(1), z=FuzzyBoolean(1)})])}))");
-      assert.equal(new JEL('${x,y=1,zzz="bla": `abc` => 2}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=FuzzyBoolean(1), y=1, zzz=\"bla\"})])}))");
+      assert.equal(new JEL('${x: `abc` => 2}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=JelBoolean(1)})])}))");
+      assert.equal(new JEL('${x,y,z: `abc` => 2}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=JelBoolean(1), y=JelBoolean(1), z=JelBoolean(1)})])}))");
+      assert.equal(new JEL('${x,y=1,zzz="bla": `abc` => 2}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=JelBoolean(1), y=1, zzz=\"bla\"})])}))");
 
       assert.equal(new JEL('${}.match("").length').executeImmediately(), 0);
       assert.equal(new JEL('${}.match("a").length').executeImmediately(), 0);

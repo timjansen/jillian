@@ -38,8 +38,8 @@ export default class LambdaResultNode extends MatchNode {
 	}
 	
 	private translateBool(s: any): any {
-		if (s.constructor.name == 'FuzzyBoolean')
-			return `FuzzyBoolean(${s.state})`;
+		if (s.constructor.name == 'JelBoolean')
+			return `JelBoolean(${s.state})`;
 		else
 			return s;
 	}

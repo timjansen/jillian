@@ -4,7 +4,7 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
 import SerializablePrimitive from '../SerializablePrimitive';
 import Context from '../Context';
 import Util from '../../util/Util';
-import FuzzyBoolean from './FuzzyBoolean';
+import JelBoolean from './JelBoolean';
 
 /**
  * Represents a string.
@@ -25,10 +25,10 @@ export default class JelString extends JelObject implements SerializablePrimitiv
 					return JelString.valueOf(this.value + right.value);
 				case '==': 
 				case '===': 
-					return FuzzyBoolean.valueOf(this.value === right.value);
+					return JelBoolean.valueOf(this.value === right.value);
 				case '!=': 
 				case '!==': 
-					return FuzzyBoolean.valueOf(this.value !== right.value);
+					return JelBoolean.valueOf(this.value !== right.value);
 			};
 		}
 		else {
@@ -63,7 +63,7 @@ export default class JelString extends JelObject implements SerializablePrimitiv
 	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
 		switch(operator) {
 			case '!':
-				return FuzzyBoolean.valueOf(!this.value.length);
+				return JelBoolean.valueOf(!this.value.length);
 		}
 		return super.singleOp(ctx, operator);
 	}
@@ -76,8 +76,8 @@ export default class JelString extends JelObject implements SerializablePrimitiv
 		return JSON.stringify(this.value);
 	}
 	
-	toBoolean(): FuzzyBoolean {
-		return FuzzyBoolean.valueOf(!!this.value.length);
+	toBoolean(): JelBoolean {
+		return JelBoolean.valueOf(!!this.value.length);
 	}
 
 	toNumber(): number {

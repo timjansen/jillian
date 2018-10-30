@@ -2,7 +2,7 @@ import * as moment from 'moment';
 
 import JelObject from '../../JelObject';
 import Context from '../../Context';
-import FuzzyBoolean from '../FuzzyBoolean';
+import JelBoolean from '../JelBoolean';
 import LocalDate from './LocalDate';
 import Timestamp from './Timestamp';
 import TimeSpec from './TimeSpec';
@@ -25,8 +25,8 @@ export default class LocalDateRange extends TimeSpec {
 		return null as any; // TODO
 	}
 	
-	isContinous(): FuzzyBoolean {
-		return FuzzyBoolean.TRUE;
+	isContinous(): JelBoolean {
+		return JelBoolean.TRUE;
 	}
 	
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {

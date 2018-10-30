@@ -4,7 +4,7 @@ import Context from '../Context';
 import {IDbRef} from '../IDatabase';
 import JelString from './JelString';
 import JelNumber from './JelNumber';
-import FuzzyBoolean from './FuzzyBoolean';
+import JelBoolean from './JelBoolean';
 import Fraction from './Fraction';
 import ApproximateNumber from './ApproximateNumber';
 import Unit from './Unit';
@@ -166,13 +166,13 @@ export default class JelMath extends JelObject {
 			const cf = f;
 			const n = a[i];
 			const r = Runtime.op(ctx, op, cf, n);
-			if (r instanceof FuzzyBoolean)
+			if (r instanceof JelBoolean)
 				f = r.toRealBoolean() ? n : cf;
 			else if (r instanceof Promise) {
 				if (i == a.length -1)
-					return r.then(pr=>(pr as FuzzyBoolean).toRealBoolean() ? n : cf);
+					return r.then(pr=>(pr as JelBoolean).toRealBoolean() ? n : cf);
 				else
-					return r.then(pr=>JelMath.best(op, ctx, [(pr as FuzzyBoolean).toRealBoolean() ? n : cf].concat(a.slice(i+1))));
+					return r.then(pr=>JelMath.best(op, ctx, [(pr as JelBoolean).toRealBoolean() ? n : cf].concat(a.slice(i+1))));
 			}
 		}
 		return f;

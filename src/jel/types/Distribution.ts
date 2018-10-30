@@ -5,7 +5,7 @@ import Context from '../Context';
 import List from './List';
 import DistributionPoint from './DistributionPoint';
 import ApproximateNumber from './ApproximateNumber';
-import FuzzyBoolean from './FuzzyBoolean';
+import JelBoolean from './JelBoolean';
 import UnitValue from './UnitValue';
 import JelNumber from './JelNumber';
 import Fraction from './Fraction';
@@ -108,9 +108,9 @@ export default class Distribution extends JelObject {
 	getShare_jel_mapping: Object;
 	getShare(ctx: Context, value: UnitValue|ApproximateNumber|Fraction|JelNumber): Promise<JelNumber>|JelNumber|null {
 		if (this.points.length == 1) 
-			return Util.resolveValues((avg: FuzzyBoolean, p0: FuzzyBoolean)=>avg.toRealBoolean() ? 0.5 : p0.toRealBoolean() ? 1 : null, Runtime.op(ctx, '==', this.average, value), Runtime.op(ctx, '==', this.points[0].value, value)); 
+			return Util.resolveValues((avg: JelBoolean, p0: JelBoolean)=>avg.toRealBoolean() ? 0.5 : p0.toRealBoolean() ? 1 : null, Runtime.op(ctx, '==', this.average, value), Runtime.op(ctx, '==', this.points[0].value, value)); 
 		
-		return Util.resolveValues((lt: FuzzyBoolean, gt: FuzzyBoolean)=>{
+		return Util.resolveValues((lt: JelBoolean, gt: JelBoolean)=>{
 			if (lt.toRealBoolean() || gt.toRealBoolean())
 				return null;
 			
@@ -156,15 +156,15 @@ export default class Distribution extends JelObject {
 			switch (operator) {
 				case '==': 
 				case '===':
-					return Util.resolveValues((eq: FuzzyBoolean)=>{
+					return Util.resolveValues((eq: JelBoolean)=>{
 						if (!eq.toRealBoolean())
-							return FuzzyBoolean.FALSE;
+							return JelBoolean.FALSE;
 						if (this.points.length != right.points.length)
-							return FuzzyBoolean.FALSE;
+							return JelBoolean.FALSE;
 						for (let i = 0; i < this.points.length; i++)
 							if (JelNumber.toNumber(this.points[i].value) != JelNumber.toNumber(right.points[i].value) || this.points[i].share !=right.points[i].share)
-								return FuzzyBoolean.FALSE;
-						return FuzzyBoolean.TRUE;
+								return JelBoolean.FALSE;
+						return JelBoolean.TRUE;
 					}, Runtime.op(ctx, '===', this.average, right.average));
 				case '>>':
 				case '>>=':
@@ -175,32 +175,32 @@ export default class Distribution extends JelObject {
 
 				case '>':
 				case '>=':
-					return Util.resolveValues((op: FuzzyBoolean, inOp: FuzzyBoolean)=> {
+					return Util.resolveValues((op: JelBoolean, inOp: JelBoolean)=> {
 						if (op.toRealBoolean())
-							return FuzzyBoolean.TRUE;
+							return JelBoolean.TRUE;
 						if (inOp.toRealBoolean())
-							return FuzzyBoolean.FALSE;
-						return Util.resolveValue(Runtime.op(ctx, operator, this.mean(ctx), right.mean(ctx)), (meanCmp: FuzzyBoolean)=>FuzzyBoolean.create(ctx, (meanCmp.state-0.5)/2+0.5));
+							return JelBoolean.FALSE;
+						return Util.resolveValue(Runtime.op(ctx, operator, this.mean(ctx), right.mean(ctx)), (meanCmp: JelBoolean)=>JelBoolean.create(ctx, (meanCmp.state-0.5)/2+0.5));
 					}, Runtime.op(ctx, operator, this.min(ctx), right.max(ctx)), Runtime.op(ctx, INVERSE_OP[operator], this.min(ctx), right.max(ctx)));
 					
 				case '<':
 				case '<=':
-					return Util.resolveValues((op: FuzzyBoolean, inOp: FuzzyBoolean)=> {
+					return Util.resolveValues((op: JelBoolean, inOp: JelBoolean)=> {
 						if (op.toRealBoolean())
-							return FuzzyBoolean.TRUE;
+							return JelBoolean.TRUE;
 						if (inOp.toRealBoolean())
-							return FuzzyBoolean.FALSE;
-						return Util.resolveValue(Runtime.op(ctx, operator, this.mean(ctx), right.mean(ctx)), (meanCmp: FuzzyBoolean)=>FuzzyBoolean.create(ctx, (meanCmp.state-0.5)/2+0.5));
+							return JelBoolean.FALSE;
+						return Util.resolveValue(Runtime.op(ctx, operator, this.mean(ctx), right.mean(ctx)), (meanCmp: JelBoolean)=>JelBoolean.create(ctx, (meanCmp.state-0.5)/2+0.5));
 					}, Runtime.op(ctx, operator, this.max(ctx), right.min(ctx)), Runtime.op(ctx, INVERSE_OP[operator], this.max(ctx), right.min(ctx)));
 			}
 		}
 		else if (right instanceof JelNumber || right instanceof Fraction || right instanceof ApproximateNumber || right instanceof UnitValue) {
 			switch (operator) {
 				case '==': 
-					return FuzzyBoolean.falsestWithPromises(ctx, Runtime.op(ctx, '>=', right, this.min(ctx)) as FuzzyBoolean, Runtime.op(ctx, '<=', right, this.max(ctx)) as FuzzyBoolean);
+					return JelBoolean.falsestWithPromises(ctx, Runtime.op(ctx, '>=', right, this.min(ctx)) as JelBoolean, Runtime.op(ctx, '<=', right, this.max(ctx)) as JelBoolean);
 
 				case '===':
-					return FuzzyBoolean.falsestWithPromises(ctx, Runtime.op(ctx, '===', right, this.min(ctx)) as FuzzyBoolean, Runtime.op(ctx, '===', right, this.max(ctx)) as FuzzyBoolean);
+					return JelBoolean.falsestWithPromises(ctx, Runtime.op(ctx, '===', right, this.min(ctx)) as JelBoolean, Runtime.op(ctx, '===', right, this.max(ctx)) as JelBoolean);
 
 				case '>>':
 				case '>':

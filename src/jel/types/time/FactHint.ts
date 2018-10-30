@@ -9,7 +9,7 @@ import Timestamp from './Timestamp';
 import UnitValue from '../UnitValue';
 import Range from '../Range';
 import FactRelationshipType from './FactRelationshipType';
-import FuzzyBoolean from '../FuzzyBoolean';
+import JelBoolean from '../JelBoolean';
 
 /**
  * Returns the time relative to the given Fact.
@@ -29,8 +29,8 @@ export default class FactHint extends TimeSpec {
 		return null as any; // TODO
 	}
 	
-	isContinous(): FuzzyBoolean {
-		return FuzzyBoolean.TRUE;
+	isContinous(): JelBoolean {
+		return JelBoolean.TRUE;
 	}
 	
 	op(ctx: Context, operator: string, right: any): any {

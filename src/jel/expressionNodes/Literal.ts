@@ -6,7 +6,7 @@ import Runtime from '../Runtime';
 
 
 /**
- * Represents a literal, atomic value (FuzzyBoolean, number, string, null).
+ * Represents a literal, atomic value (JelBoolean, number, string, null).
  *
  * Examples:
  *   null
@@ -29,7 +29,7 @@ export default class Literal extends JelNode {
 	constructor(value: any) {
     super();
 		if (value === true || value === false)
-			this.value = BaseTypeRegistry.get('FuzzyBoolean').valueOf(value);
+			this.value = BaseTypeRegistry.get('JelBoolean').valueOf(value);
 		else if (value == null)
 			this.value = null;
 		else if (typeof value == 'number')

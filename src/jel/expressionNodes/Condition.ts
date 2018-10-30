@@ -33,7 +33,7 @@ export default class Condition extends JelNode {
 
 
   private runOnValue(ctx: Context, cond: any): JelObject|null|Promise<JelObject|null> {
-    if (BaseTypeRegistry.get('FuzzyBoolean').toRealBoolean(cond))
+    if (BaseTypeRegistry.get('JelBoolean').toRealBoolean(cond))
       return this.thenExp.execute(ctx);
     else
       return this.elseExp.execute(ctx);

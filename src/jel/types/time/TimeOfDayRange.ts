@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 
 import Context from '../../Context';
-import FuzzyBoolean from '../FuzzyBoolean';
+import JelBoolean from '../JelBoolean';
 import TimeOfDay from './TimeOfDay';
 import Timestamp from './Timestamp';
 import TimeSpec from './TimeSpec';
@@ -25,8 +25,8 @@ export default class TimeOfDayRange extends TimeSpec {
 		return null as any; // TODO
 	}
 	
-	isContinous(): FuzzyBoolean {
-		return FuzzyBoolean.TRUE;
+	isContinous(): JelBoolean {
+		return JelBoolean.TRUE;
 	}
 	
 	op(ctx: Context, operator: string, right: any): any {

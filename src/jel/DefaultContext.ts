@@ -1,6 +1,6 @@
 import Context from './Context';
 
-import FuzzyBoolean from './types/FuzzyBoolean';
+import JelBoolean from './types/JelBoolean';
 import JelNumber from './types/JelNumber';
 import JelString from './types/JelString';
 import Fraction from './types/Fraction';
@@ -22,7 +22,7 @@ import DurationRange from './types/time/DurationRange';
 import Timestamp from './types/time/Timestamp';
 import TimeZone from './types/time/TimeZone';
 
-const CTX_IDENTIFIERS = {FuzzyBoolean, Number: JelNumber, String: JelString, ApproximateNumber, Range, Fraction, Unit, UnitValue,
+const CTX_IDENTIFIERS = {JelBoolean, Number: JelNumber, String: JelString, ApproximateNumber, Range, Fraction, Unit, UnitValue,
 												 Math: JelMath, Dictionary, List, Distribution, DistributionPoint, Pattern, Translator, EnumValue, 
 												 Duration, DurationRange, Timestamp, TimeZone,
 												 ___IS_DEFAULT_CONTEXT: 'magic123'};

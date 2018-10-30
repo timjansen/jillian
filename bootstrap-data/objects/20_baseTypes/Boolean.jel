@@ -1,4 +1,4 @@
-Thing('FuzzyBoolean', @BaseTypeCategory, 
+Thing('Boolean', @BaseTypeCategory, 
 properties={
 	baseTypeDescriptor: {
 		isNumeric: false,

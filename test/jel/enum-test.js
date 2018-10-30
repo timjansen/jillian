@@ -2,7 +2,7 @@
 
 require('source-map-support').install();
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
-const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
+const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
 const EnumValue = require('../../build/jel/types/EnumValue.js').default;
 const DbRef = require('../../build/database/DbRef.js').default;
 const Database = require('../../build/database/Database.js').default;
@@ -26,19 +26,19 @@ tmp.dir(function(err, path) {
 		});
 
 		it('supports EnumValue<->EnumValue comparisons', function() {
-			jelAssert.equal(FuzzyBoolean.TRUE, "EnumValue('Foo', @Bar) == EnumValue('Foo', @Bar)");
-			jelAssert.equal(FuzzyBoolean.FALSE, "EnumValue('Foo', @Bar) != EnumValue('Foo', @Bar)");
-			jelAssert.equal(FuzzyBoolean.FALSE, "EnumValue('Foo', @Bar) == EnumValue('Nope', @Bar)");
-			jelAssert.equal(FuzzyBoolean.FALSE, "EnumValue('Foo', @Bar) == EnumValue('Foo', @Nope)");
-			jelAssert.equal(FuzzyBoolean.TRUE, "EnumValue('Foo', @Bar) != EnumValue('Nope', @Bar)");
-			jelAssert.equal(FuzzyBoolean.TRUE, "EnumValue('Foo', @Bar) != EnumValue('Foo', @Nope)");
+			jelAssert.equal(JelBoolean.TRUE, "EnumValue('Foo', @Bar) == EnumValue('Foo', @Bar)");
+			jelAssert.equal(JelBoolean.FALSE, "EnumValue('Foo', @Bar) != EnumValue('Foo', @Bar)");
+			jelAssert.equal(JelBoolean.FALSE, "EnumValue('Foo', @Bar) == EnumValue('Nope', @Bar)");
+			jelAssert.equal(JelBoolean.FALSE, "EnumValue('Foo', @Bar) == EnumValue('Foo', @Nope)");
+			jelAssert.equal(JelBoolean.TRUE, "EnumValue('Foo', @Bar) != EnumValue('Nope', @Bar)");
+			jelAssert.equal(JelBoolean.TRUE, "EnumValue('Foo', @Bar) != EnumValue('Foo', @Nope)");
 		});
 
 		it('supports EnumValue<->string comparisons', function() {
-			jelAssert.equal(FuzzyBoolean.TRUE, "EnumValue('Foo', @Bar) == 'Foo'");
-			jelAssert.equal(FuzzyBoolean.FALSE, "EnumValue('Foo', @Bar) != 'Foo'");
-			jelAssert.equal(FuzzyBoolean.FALSE, "EnumValue('Foo', @Bar) == 'Nope'");
-			jelAssert.equal(FuzzyBoolean.TRUE, "EnumValue('Foo', @Bar) != 'Nope'");
+			jelAssert.equal(JelBoolean.TRUE, "EnumValue('Foo', @Bar) == 'Foo'");
+			jelAssert.equal(JelBoolean.FALSE, "EnumValue('Foo', @Bar) != 'Foo'");
+			jelAssert.equal(JelBoolean.FALSE, "EnumValue('Foo', @Bar) == 'Nope'");
+			jelAssert.equal(JelBoolean.TRUE, "EnumValue('Foo', @Bar) != 'Nope'");
 		});
 	});
 });

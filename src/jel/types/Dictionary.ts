@@ -6,7 +6,7 @@ import Context from '../Context';
 import JelNumber from './JelNumber';
 import JelString from './JelString';
 import List from './List';
-import FuzzyBoolean from './FuzzyBoolean';
+import JelBoolean from './JelBoolean';
 import Callable from '../Callable';
 
 /**
@@ -37,13 +37,13 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 				case '==':
 				case '===':
 					if (this.elements.size != right.elements.size)
-						return FuzzyBoolean.FALSE;
-					let result: FuzzyBoolean | Promise<FuzzyBoolean> = FuzzyBoolean.TRUE;
+						return JelBoolean.FALSE;
+					let result: JelBoolean | Promise<JelBoolean> = JelBoolean.TRUE;
 					for (let key of this.elements.keys())
 						if (!right.elements.has(key))
-							return FuzzyBoolean.FALSE;
+							return JelBoolean.FALSE;
 						else
-							result = FuzzyBoolean.falsestWithPromises(ctx, result, Runtime.op(ctx, operator, this.elements.get(key) as JelObject, right.elements.get(key) as JelObject) as any);
+							result = JelBoolean.falsestWithPromises(ctx, result, Runtime.op(ctx, operator, this.elements.get(key) as JelObject, right.elements.get(key) as JelObject) as any);
 					return result;
 			}
 		}
@@ -52,7 +52,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 	
 	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
 		if (operator == '!')
-			return FuzzyBoolean.valueOf(!this.elements.size);
+			return JelBoolean.valueOf(!this.elements.size);
 		else
 			return super.singleOp(ctx, operator);
 	}
@@ -69,12 +69,12 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 	}
 
 	has_jel_mapping: Object;
-	has(ctx: Context, key: JelString | string): FuzzyBoolean {
+	has(ctx: Context, key: JelString | string): JelBoolean {
 		if (key instanceof JelString)
 			return this.has(ctx, key.value);
 		else if (typeof key != 'string')
 			throw new Error('Key must be string');
-		return FuzzyBoolean.valueOf(this.elements.has(key));
+		return JelBoolean.valueOf(this.elements.has(key));
 	}
 
 	set(key: JelString | string, value: JelObject|null): Dictionary {
@@ -201,11 +201,11 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> {
-						if (FuzzyBoolean.toRealBoolean(v))
+						if (JelBoolean.toRealBoolean(v))
 							newDict.set(next.value, thisValue);
 						return exec();
 					});
-				else if (FuzzyBoolean.toRealBoolean(r))
+				else if (JelBoolean.toRealBoolean(r))
 					newDict.set(next.value, thisValue);
 			}
 		}
@@ -239,42 +239,42 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 	}
 
 	hasAny_jel_mapping: Object;
-	hasAny(ctx: Context, f: Callable): FuzzyBoolean | Promise<FuzzyBoolean> {
+	hasAny(ctx: Context, f: Callable): JelBoolean | Promise<JelBoolean> {
 		const self = this;
 		let i = 0;
 		const it = this.elements.keys();
-		function exec(): Promise<FuzzyBoolean> | FuzzyBoolean {
+		function exec(): Promise<JelBoolean> | JelBoolean {
 			while (true) {
 				const next = it.next();
 				if (next.done)
-					return FuzzyBoolean.FALSE;
+					return JelBoolean.FALSE;
 				const r = f.invoke(ctx, JelString.valueOf(next.value), self.elements.get(next.value), JelNumber.valueOf(i));
 				i++;
 				if (r instanceof Promise)
-					return r.then(v=> v.toRealBoolean() ? FuzzyBoolean.TRUE : exec());
+					return r.then(v=> v.toRealBoolean() ? JelBoolean.TRUE : exec());
 				else if (r.toRealBoolean())
-					return FuzzyBoolean.TRUE;
+					return JelBoolean.TRUE;
 			}
 		}
 		return exec();
 	}
 
 	hasOnly_jel_mapping: Object;
-	hasOnly(ctx: Context, f: Callable): FuzzyBoolean | Promise<FuzzyBoolean> {
+	hasOnly(ctx: Context, f: Callable): JelBoolean | Promise<JelBoolean> {
 		const self = this;
 		let i = 0;
 		const it = this.elements.keys();
-		function exec(): Promise<FuzzyBoolean> | FuzzyBoolean {
+		function exec(): Promise<JelBoolean> | JelBoolean {
 			while (true) {
 				const next = it.next();
 				if (next.done)
-					return FuzzyBoolean.TRUE;
+					return JelBoolean.TRUE;
 				const r = f.invoke(ctx, JelString.valueOf(next.value), self.elements.get(next.value), JelNumber.valueOf(i));
 				i++;
 				if (r instanceof Promise)
-					return r.then(v=> v.toRealBoolean() ? exec() : FuzzyBoolean.FALSE);
+					return r.then(v=> v.toRealBoolean() ? exec() : JelBoolean.FALSE);
 				else if (!r.toRealBoolean())
-					return FuzzyBoolean.FALSE;
+					return JelBoolean.FALSE;
 			}
 		}
 		return exec();

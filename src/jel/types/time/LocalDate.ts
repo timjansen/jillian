@@ -4,7 +4,7 @@ import Moment = moment.Moment;
 import Runtime from '../../Runtime';
 import JelObject from '../../JelObject';
 import Context from '../../Context';
-import FuzzyBoolean from '../FuzzyBoolean';
+import JelBoolean from '../JelBoolean';
 import Timestamp from './Timestamp';
 import LocalDateTime from './LocalDateTime';
 import ZonedDateTime from './ZonedDateTime';
@@ -34,8 +34,8 @@ export default class LocalDate extends TimeSpec {
 		return Timestamp.fromMoment(moment({year: this.year, month: this.month, day: this.day}).tz(zone.tz).add(1, 'd'));
 	}
 	
-	isContinous(): FuzzyBoolean {
-		return FuzzyBoolean.TRUE;
+	isContinous(): JelBoolean {
+		return JelBoolean.TRUE;
 	}
 
 		// m0: 0-11
@@ -94,9 +94,9 @@ export default class LocalDate extends TimeSpec {
 				case '>':
 					return this.simplify().op(ctx, Runtime.STRICT_OPS[operator], right.simplify());
 				case '===':
-					return FuzzyBoolean.valueOf(this.year == right.year && this.month == right.month && this.day == right.day);
+					return JelBoolean.valueOf(this.year == right.year && this.month == right.month && this.day == right.day);
 				case '>>':
-					return FuzzyBoolean.valueOf(this.year > right.year || (this.year == right.year && ((this.month > right.month) || this.month == right.month && this.day > right.day)));
+					return JelBoolean.valueOf(this.year > right.year || (this.year == right.year && ((this.month > right.month) || this.month == right.month && this.day > right.day)));
 			}
 		}
 		else if (right instanceof LocalDateTime) {

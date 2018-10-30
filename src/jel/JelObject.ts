@@ -55,11 +55,11 @@ export default class JelObject {
 			if (right.reverseOps && operator in right.reverseOps && right.constructor.name != this.constructor.name)
 				return right.opReversed(ctx, operator, this);
 			if (operator in JelObject.INVERTIBLE_OPS)
-				return BaseTypeRegistry.get('FuzzyBoolean').negate(this.op(ctx, JelObject.INVERTIBLE_OPS[operator], right));
+				return BaseTypeRegistry.get('JelBoolean').negate(this.op(ctx, JelObject.INVERTIBLE_OPS[operator], right));
 			if (operator == '<')
-				return BaseTypeRegistry.get('FuzzyBoolean').truest(ctx, this.op(ctx, '>', right), this.op(ctx, '==', right)).negate();
+				return BaseTypeRegistry.get('JelBoolean').truest(ctx, this.op(ctx, '>', right), this.op(ctx, '==', right)).negate();
 			if (operator == '<<')
-				return BaseTypeRegistry.get('FuzzyBoolean').truest(ctx, this.op(ctx, '>>', right), this.op(ctx, '===', right)).negate();
+				return BaseTypeRegistry.get('JelBoolean').truest(ctx, this.op(ctx, '>>', right), this.op(ctx, '===', right)).negate();
 		}
 		throw new Error(`Operator "${operator}" is not supported for type "${this.constructor.name}" as left operand and right operand "${right == null ? 'null' : right.constructor.name}"`);
 	}

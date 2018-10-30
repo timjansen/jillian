@@ -5,7 +5,7 @@ import Runtime from '../../Runtime';
 import Context from '../../Context';
 import Util from '../../../util/Util';
 import JelNumber from '../JelNumber';
-import FuzzyBoolean from '../FuzzyBoolean';
+import JelBoolean from '../JelBoolean';
 import UnitValue from '../UnitValue';
 import Duration from './Duration';
 import Fraction from '../Fraction';
@@ -24,7 +24,7 @@ export default class DurationRange extends JelObject {
 	}
 	
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
-		if (right instanceof UnitValue && !FuzzyBoolean.toRealBoolean(right.unit.isType(ctx, 'Second')))
+		if (right instanceof UnitValue && !JelBoolean.toRealBoolean(right.unit.isType(ctx, 'Second')))
 			return Util.resolveValue(right.convertTo(ctx, 'Second'), r=>this.op(ctx, operator, r));
 		if ((right instanceof Duration) || (right instanceof UnitValue)) {
 
@@ -38,7 +38,7 @@ export default class DurationRange extends JelObject {
 				case '<<':
 				case '<<=':
 				case '>>=':
-					return (this.max.op(ctx, operator, right) as FuzzyBoolean).and(ctx, this.min.op(ctx, operator, right) as FuzzyBoolean);
+					return (this.max.op(ctx, operator, right) as JelBoolean).and(ctx, this.min.op(ctx, operator, right) as JelBoolean);
 				case '==':
 					return this.contains(ctx, right);
 				case '>':
@@ -58,10 +58,10 @@ export default class DurationRange extends JelObject {
 					return new DurationRange(Runtime.op(ctx, operator, this.min, right.min) as Duration, Runtime.op(ctx, operator, this.max, right.max) as Duration);
 				case '===':
 				case '==':
-					return (this.min.op(ctx, operator, right.min) as FuzzyBoolean).and(ctx, this.max.op(ctx, operator, right.max) as FuzzyBoolean);
+					return (this.min.op(ctx, operator, right.min) as JelBoolean).and(ctx, this.max.op(ctx, operator, right.max) as JelBoolean);
 				case '!==':
 				case '!=':
-					return (this.min.op(ctx, operator, right.min) as FuzzyBoolean).or(ctx, this.max.op(ctx, operator, right.max) as FuzzyBoolean);
+					return (this.min.op(ctx, operator, right.min) as JelBoolean).or(ctx, this.max.op(ctx, operator, right.max) as JelBoolean);
 				case '>>':
 				case '>':
 					return this.min.op(ctx, operator, right.max);
@@ -87,10 +87,10 @@ export default class DurationRange extends JelObject {
 	}
 
 	contains_jel_mapping: Object;
-	contains(ctx: Context, value: Duration|UnitValue|DurationRange): FuzzyBoolean {
+	contains(ctx: Context, value: Duration|UnitValue|DurationRange): JelBoolean {
 		if (value instanceof DurationRange)
 			return this.contains(ctx, value.min).and(ctx, this.contains(ctx, value.max));
-		return (Runtime.op(ctx, '>=', value, this.min) as FuzzyBoolean).and(ctx, Runtime.op(ctx, '<=', value, this.max) as FuzzyBoolean);
+		return (Runtime.op(ctx, '>=', value, this.min) as JelBoolean).and(ctx, Runtime.op(ctx, '<=', value, this.max) as JelBoolean);
 	}
 	
 	getSerializationProperties(): any[] {

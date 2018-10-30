@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 
 import Context from '../../Context';
-import FuzzyBoolean from '../FuzzyBoolean';
+import JelBoolean from '../JelBoolean';
 import TimeSpec from './TimeSpec';
 import LocalDate from './LocalDate';
 import TimeOfDay from './TimeOfDay';
@@ -26,8 +26,8 @@ export default class LocalDateTime extends TimeSpec {
 		return null as any; // TODO
 	}
 	
-	isContinous(): FuzzyBoolean {
-		return FuzzyBoolean.TRUE;
+	isContinous(): JelBoolean {
+		return JelBoolean.TRUE;
 	}
 	
 	op(ctx: Context, operator: string, right: any): any {

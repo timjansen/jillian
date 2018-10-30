@@ -2,8 +2,8 @@ Category('BaseTypeCategory',
 	properties={}, 
 	instanceDefaults={}, 
 	instanceProperties={
-		isNumeric: @FuzzyBoolean,
-		canBeRange: @FuzzyBoolean,
-		canHaveMultipleValues: @FuzzyBoolean
+		isNumeric: @Boolean,
+		canBeRange: @Boolean,
+		canHaveMultipleValues: @Boolean
 	}
 )

@@ -5,7 +5,7 @@ import DateHint from './DateHint';
 import TimeSpec from './TimeSpec';
 import LocalDate from './LocalDate';
 import Range from '../Range';
-import FuzzyBoolean from '../FuzzyBoolean';
+import JelBoolean from '../JelBoolean';
 import JelNumber from '../JelNumber';
 import ZonedDate from './ZonedDate';
 
@@ -41,7 +41,7 @@ export default abstract class ZonedDateSpec extends TimeSpec implements DateHint
 	}
 
 	isBefore_jel_mapping: Object;
-	isBefore(ctx: Context, date: Timestamp|ZonedDate, defaultTimeZone: TimeZone): FuzzyBoolean|Promise<FuzzyBoolean> {
+	isBefore(ctx: Context, date: Timestamp|ZonedDate, defaultTimeZone: TimeZone): JelBoolean|Promise<JelBoolean> {
 /*		const t0 = this.getEndTime(defaultTimeZone);
 		if (t0 instanceof Promise)
 			return t0.then(tx=>(tx != undefined) && (tx.msSinceEpoch < time.msSinceEpoch));
@@ -52,7 +52,7 @@ export default abstract class ZonedDateSpec extends TimeSpec implements DateHint
 	}
 	
 	isAfter_jel_mapping: Object;
-	isAfter(ctx: Context, date: Timestamp|ZonedDate, defaultTimeZone: TimeZone): FuzzyBoolean|Promise<FuzzyBoolean> {
+	isAfter(ctx: Context, date: Timestamp|ZonedDate, defaultTimeZone: TimeZone): JelBoolean|Promise<JelBoolean> {
 /*		const t0 = this.getStartTime(defaultTimeZone);
 		if (t0 instanceof Promise)
 			return t0.then(tx=>(tx != undefined) && (tx.msSinceEpoch > time.msSinceEpoch));
@@ -63,7 +63,7 @@ export default abstract class ZonedDateSpec extends TimeSpec implements DateHint
 	}
 	
 	// override if TimeSpec is not continous
-	contains(ctx: Context, time: Timestamp|ZonedDate, defaultTimeZone: TimeZone): FuzzyBoolean|Promise<FuzzyBoolean> {
+	contains(ctx: Context, time: Timestamp|ZonedDate, defaultTimeZone: TimeZone): JelBoolean|Promise<JelBoolean> {
 /*		const b0 = this.isAfter(time, defaultTimeZone);
 		if (b0 === true)
 			return false;

@@ -4,7 +4,7 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
 import Context from '../Context';
 import Fraction from './Fraction';
 import JelNumber from './JelNumber';
-import FuzzyBoolean from './FuzzyBoolean';
+import JelBoolean from './JelBoolean';
 
 
 const ACCURACY_FACTOR = 0.999999;  // to avoid rounding issues with fuzzy comparisons
@@ -25,15 +25,15 @@ export default class ApproximateNumber extends JelObject {
 		if (right instanceof ApproximateNumber) {
 			switch (operator) {
 				case '==': 
-					if ((Runtime.op(ctx, '===', this.value, right.value) as FuzzyBoolean).toRealBoolean())
-						return FuzzyBoolean.TRUE;
+					if ((Runtime.op(ctx, '===', this.value, right.value) as JelBoolean).toRealBoolean())
+						return JelBoolean.TRUE;
 					const deltaEq = JelNumber.toRealNumber(Runtime.singleOp(ctx, 'abs', Runtime.op(ctx, '-', this.value, right.value) as JelObject) as any) * ACCURACY_FACTOR;
 					if (deltaEq == 0)
-						return FuzzyBoolean.TRUE;
+						return JelBoolean.TRUE;
 					const maxErrorDelta = JelNumber.toRealNumber(Runtime.op(ctx, '+', this.maxError, right.maxError));
 					if (maxErrorDelta == 0)
-						return FuzzyBoolean.FALSE;
-					return FuzzyBoolean.create(ctx, Math.max(0, ACCURACY_FACTOR - (0.5*deltaEq / maxErrorDelta)));
+						return JelBoolean.FALSE;
+					return JelBoolean.create(ctx, Math.max(0, ACCURACY_FACTOR - (0.5*deltaEq / maxErrorDelta)));
 				case '===':
 				case '>>':
 				case '<<':
@@ -41,9 +41,9 @@ export default class ApproximateNumber extends JelObject {
 				case '>>=':
 					return Runtime.op(ctx, operator, this.value, right.value);
 				case '!=':
-					return (this.op(ctx, '==', right) as FuzzyBoolean).negate();
+					return (this.op(ctx, '==', right) as JelBoolean).negate();
 				case '!==':
-					return (this.op(ctx, '===', right) as FuzzyBoolean).negate();
+					return (this.op(ctx, '===', right) as JelBoolean).negate();
 
 				case '>':
 				case '<':
@@ -53,9 +53,9 @@ export default class ApproximateNumber extends JelObject {
 					if (maxErrorDeltaCmp == 0)
 						return Runtime.op(ctx, operator, this.value, right.value)
 					const deltaCmp = JelNumber.toRealNumber(Runtime.singleOp(ctx, 'abs', Runtime.op(ctx, '-', this.value, right.value) as JelObject)) * ACCURACY_FACTOR;
-					if ((Runtime.op(ctx, operator, this.value, right.value) as FuzzyBoolean).toRealBoolean())
-						 return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.TRUE : FuzzyBoolean.create(ctx, Math.min(ACCURACY_FACTOR, 0.5 + 0.5 * deltaCmp / maxErrorDeltaCmp));
-					return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.FALSE : FuzzyBoolean.create(ctx, Math.max(0, ACCURACY_FACTOR*0.5 - 0.5 * deltaCmp / maxErrorDeltaCmp));
+					if ((Runtime.op(ctx, operator, this.value, right.value) as JelBoolean).toRealBoolean())
+						 return (deltaCmp >= maxErrorDeltaCmp) ? JelBoolean.TRUE : JelBoolean.create(ctx, Math.min(ACCURACY_FACTOR, 0.5 + 0.5 * deltaCmp / maxErrorDeltaCmp));
+					return (deltaCmp >= maxErrorDeltaCmp) ? JelBoolean.FALSE : JelBoolean.create(ctx, Math.max(0, ACCURACY_FACTOR*0.5 - 0.5 * deltaCmp / maxErrorDeltaCmp));
 
 				case '+':
 				case '-':
@@ -75,13 +75,13 @@ export default class ApproximateNumber extends JelObject {
 				case '==': 
 					const maxErrorDelta = JelNumber.toNumber(this.maxError);
 					const deltaEq = JelNumber.toNumber(Runtime.singleOp(ctx, 'abs', Runtime.op(ctx, '-', this.value, right) as any) as any) * ACCURACY_FACTOR;
-					if ((Runtime.op(ctx, '===', this.value, right) as FuzzyBoolean).toRealBoolean())
-						return FuzzyBoolean.TRUE;
+					if ((Runtime.op(ctx, '===', this.value, right) as JelBoolean).toRealBoolean())
+						return JelBoolean.TRUE;
 					if (deltaEq == 0)
-						return FuzzyBoolean.TRUE;
+						return JelBoolean.TRUE;
 					else if (maxErrorDelta == 0)
-						return FuzzyBoolean.FALSE;
-					return FuzzyBoolean.create(ctx, Math.max(0, 1 - (0.5*deltaEq / maxErrorDelta)));
+						return JelBoolean.FALSE;
+					return JelBoolean.create(ctx, Math.max(0, 1 - (0.5*deltaEq / maxErrorDelta)));
 				case '===':
 				case '>>':
 				case '<<':
@@ -89,9 +89,9 @@ export default class ApproximateNumber extends JelObject {
 				case '>>=':
 					return Runtime.op(ctx, operator, this.value, right);
 				case '!=':
-					return (this.op(ctx, '==', right) as FuzzyBoolean).negate();
+					return (this.op(ctx, '==', right) as JelBoolean).negate();
 				case '!==':
-					return (Runtime.op(ctx, '===', this.value, right) as FuzzyBoolean).negate();
+					return (Runtime.op(ctx, '===', this.value, right) as JelBoolean).negate();
 				case '>':
 				case '<':
 				case '<=':
@@ -100,10 +100,10 @@ export default class ApproximateNumber extends JelObject {
 					if (maxErrorDeltaCmp == 0)
 						return Runtime.op(ctx, operator, this.value, right)
 					const deltaCmp = JelNumber.toRealNumber(Runtime.singleOp(ctx, 'abs', Runtime.op(ctx, '-', this.value, right) as JelObject)) * ACCURACY_FACTOR;
-					if ((Runtime.op(ctx, operator, this.value, right) as FuzzyBoolean).toRealBoolean())
-						return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.TRUE : FuzzyBoolean.create(ctx, Math.min(ACCURACY_FACTOR, 0.5 + 0.5 * deltaCmp / maxErrorDeltaCmp));
+					if ((Runtime.op(ctx, operator, this.value, right) as JelBoolean).toRealBoolean())
+						return (deltaCmp >= maxErrorDeltaCmp) ? JelBoolean.TRUE : JelBoolean.create(ctx, Math.min(ACCURACY_FACTOR, 0.5 + 0.5 * deltaCmp / maxErrorDeltaCmp));
 					else
-						return (deltaCmp >= maxErrorDeltaCmp) ? FuzzyBoolean.FALSE : FuzzyBoolean.create(ctx, Math.max(0, ACCURACY_FACTOR*0.5 - 0.5 * deltaCmp / maxErrorDeltaCmp));
+						return (deltaCmp >= maxErrorDeltaCmp) ? JelBoolean.FALSE : JelBoolean.create(ctx, Math.max(0, ACCURACY_FACTOR*0.5 - 0.5 * deltaCmp / maxErrorDeltaCmp));
 					
 				case '+':
 				case '-':
@@ -155,8 +155,8 @@ export default class ApproximateNumber extends JelObject {
 		return this.value.toRealNumber();
 	}
 	
-	toBoolean(): FuzzyBoolean {
-		return FuzzyBoolean.valueOf(!!this.toNumber().value);
+	toBoolean(): JelBoolean {
+		return JelBoolean.valueOf(!!this.toNumber().value);
 	}
 	
 	hasError_jel_mapping: Object;

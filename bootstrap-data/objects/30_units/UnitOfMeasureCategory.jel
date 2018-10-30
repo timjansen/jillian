@@ -8,7 +8,7 @@ Category('UnitOfMeasureCategory',
 	instanceDefaults={}, 
 	instanceProperties={
 		quantityCategory: @QuantityCategory,
-		isPrimaryUnit: @FuzzyBoolean,
+		isPrimaryUnit: @Boolean,
 		type: @UnitTypeEnum, 
 		idealMin: [@Number, null],  // should be converted if lower (>= 0, absolute value)
 		idealMax: [@Number, null],  // should be converted if higher

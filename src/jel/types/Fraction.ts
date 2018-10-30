@@ -3,7 +3,7 @@ import Runtime from '../Runtime';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import Context from '../Context';
 import JelNumber from './JelNumber';
-import FuzzyBoolean from './FuzzyBoolean';
+import JelBoolean from './JelBoolean';
 /**
  * Represents a fraction.
  */
@@ -42,23 +42,23 @@ export default class Fraction extends JelObject {
 			switch (operator) {
 				case '==':
 				case '===':
-					return FuzzyBoolean.valueOf(l.numerator === right.value * l.denominator);
+					return JelBoolean.valueOf(l.numerator === right.value * l.denominator);
 				case '!=':
 				case '!==':
-					return FuzzyBoolean.valueOf(l.numerator !== right.value * l.denominator);
+					return JelBoolean.valueOf(l.numerator !== right.value * l.denominator);
 					
 				case '<':
 				case '<<':
-					return FuzzyBoolean.valueOf(l.numerator < right.value * l.denominator);
+					return JelBoolean.valueOf(l.numerator < right.value * l.denominator);
 				case '<=':
 				case '<<=':
-					return FuzzyBoolean.valueOf(l.numerator <= right.value * l.denominator);
+					return JelBoolean.valueOf(l.numerator <= right.value * l.denominator);
 				case '>':
 				case '>>':
-					return FuzzyBoolean.valueOf(l.numerator > right.value * l.denominator);
+					return JelBoolean.valueOf(l.numerator > right.value * l.denominator);
 				case '>=':
 				case '>=':
-					return FuzzyBoolean.valueOf(l.numerator >= right.value * l.denominator);
+					return JelBoolean.valueOf(l.numerator >= right.value * l.denominator);
 					
 				case '+':
 					return Fraction.valueOf(l.numerator + right.value*l.denominator, l.denominator).simplify();
@@ -98,23 +98,23 @@ export default class Fraction extends JelObject {
 			switch (operator) {
 				case '==':
 				case '===':
-					return FuzzyBoolean.valueOf(l.numerator === r.numerator && l.denominator === r.denominator);
+					return JelBoolean.valueOf(l.numerator === r.numerator && l.denominator === r.denominator);
 				case '!=':
 				case '!==':
-					return FuzzyBoolean.valueOf(l.numerator !== r.numerator || l.denominator !== r.denominator);
+					return JelBoolean.valueOf(l.numerator !== r.numerator || l.denominator !== r.denominator);
 					
 				case '<':
 				case '<<':
-					return FuzzyBoolean.valueOf(l.numerator*r.denominator < r.numerator*l.denominator);
+					return JelBoolean.valueOf(l.numerator*r.denominator < r.numerator*l.denominator);
 				case '<=':
 				case '<<=':
-					return FuzzyBoolean.valueOf(l.numerator*r.denominator <= r.numerator*l.denominator);
+					return JelBoolean.valueOf(l.numerator*r.denominator <= r.numerator*l.denominator);
 				case '>':
 				case '>>':
-					return FuzzyBoolean.valueOf(l.numerator*r.denominator > r.numerator*l.denominator);
+					return JelBoolean.valueOf(l.numerator*r.denominator > r.numerator*l.denominator);
 				case '>=':
 				case '>>=':
-					return FuzzyBoolean.valueOf(l.numerator*r.denominator >= r.numerator*l.denominator);
+					return JelBoolean.valueOf(l.numerator*r.denominator >= r.numerator*l.denominator);
 
 				case '+':
 					return Fraction.valueOf((l.numerator*r.denominator)+(r.numerator*l.denominator), l.denominator*r.denominator).simplify();
@@ -160,7 +160,7 @@ export default class Fraction extends JelObject {
 	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
 		switch (operator) {
 			case '!':
-				return FuzzyBoolean.valueOf(!this.numerator);
+				return JelBoolean.valueOf(!this.numerator);
 			case '-':
 				return new Fraction(-this.numerator, this.denominator);
 			case '+':
@@ -180,8 +180,8 @@ export default class Fraction extends JelObject {
 		return this.denominator !== 0 ? this.numerator / this.denominator : NaN;
 	}
 	
-	toBoolean(): FuzzyBoolean {
-		return FuzzyBoolean.valueOf(!!this.numerator);
+	toBoolean(): JelBoolean {
+		return JelBoolean.valueOf(!!this.numerator);
 	}
 	
 	simplify_jel_mapping: Object;

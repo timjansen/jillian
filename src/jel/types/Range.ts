@@ -7,7 +7,7 @@ import Fraction from './Fraction';
 import Callable from '../Callable';
 import UnitValue from './UnitValue';
 import ApproximateNumber from './ApproximateNumber';
-import FuzzyBoolean from './FuzzyBoolean';
+import JelBoolean from './JelBoolean';
 
 const RANGE_NUM_OPS: any = {'+': true, '-': true, '*': true, '/': true};
 
@@ -26,52 +26,52 @@ export default class Range extends JelObject {
 	
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (operator == '!==')
-			return (this.op(ctx, '===', right) as FuzzyBoolean).negate();
+			return (this.op(ctx, '===', right) as JelBoolean).negate();
 		else if (operator == '!=')
-			return (this.op(ctx, '==', right) as FuzzyBoolean).negate();
+			return (this.op(ctx, '==', right) as JelBoolean).negate();
 		else if (right instanceof Range) {
 			if (operator == '==')
-				return FuzzyBoolean.orWithPromises(this.contains(ctx, right.min), this.contains(ctx, right.max), right.contains(ctx, this.min), right.contains(ctx, this.max));
+				return JelBoolean.orWithPromises(this.contains(ctx, right.min), this.contains(ctx, right.max), right.contains(ctx, this.min), right.contains(ctx, this.max));
 			else if (operator == '===')
-				return FuzzyBoolean.andWithPromises(Runtime.op(ctx, '===', this.min, right.min) as FuzzyBoolean, Runtime.op(ctx, '===', this.max, right.max) as FuzzyBoolean);
+				return JelBoolean.andWithPromises(Runtime.op(ctx, '===', this.min, right.min) as JelBoolean, Runtime.op(ctx, '===', this.max, right.max) as JelBoolean);
 			else if (operator == '>>')
-				return (right.max == null || this.min == null) ? FuzzyBoolean.FALSE : Runtime.op(ctx, '>>', this.min, right.max);
+				return (right.max == null || this.min == null) ? JelBoolean.FALSE : Runtime.op(ctx, '>>', this.min, right.max);
 			else if (operator == '<<')
-				return (right.min == null || this.max == null) ? FuzzyBoolean.FALSE : Runtime.op(ctx, '<<', this.max, right.min);
+				return (right.min == null || this.max == null) ? JelBoolean.FALSE : Runtime.op(ctx, '<<', this.max, right.min);
 			else if (operator == '>')
-				return (this.max == null || right.max == null) ? FuzzyBoolean.valueOf(this.max == null && right.max != null) : Runtime.op(ctx, '>', this.max, right.max);
+				return (this.max == null || right.max == null) ? JelBoolean.valueOf(this.max == null && right.max != null) : Runtime.op(ctx, '>', this.max, right.max);
 			else if (operator == '<')
-				return (this.min == null || right.min == null) ? FuzzyBoolean.valueOf(this.min == null && right.min != null) : Runtime.op(ctx, '<', this.min, right.min);
+				return (this.min == null || right.min == null) ? JelBoolean.valueOf(this.min == null && right.min != null) : Runtime.op(ctx, '<', this.min, right.min);
 			else if (operator == '>>=')
-				return (this.min == null || right.max == null) ? FuzzyBoolean.valueOf(this.min == right.max) : Runtime.op(ctx, '>>=', this.min, right.max); // TODO!
+				return (this.min == null || right.max == null) ? JelBoolean.valueOf(this.min == right.max) : Runtime.op(ctx, '>>=', this.min, right.max); // TODO!
 			else if (operator == '<<=')
-				return (this.max == null || right.min == null) ? FuzzyBoolean.valueOf(this.max == right.min) : Runtime.op(ctx, '<<=', this.max, right.min);
+				return (this.max == null || right.min == null) ? JelBoolean.valueOf(this.max == right.min) : Runtime.op(ctx, '<<=', this.max, right.min);
 			else if (operator == '>=')
-				return (this.max == null || right.max == null) ? FuzzyBoolean.valueOf(this.max == null) : Runtime.op(ctx, '>=', this.max, right.max);
+				return (this.max == null || right.max == null) ? JelBoolean.valueOf(this.max == null) : Runtime.op(ctx, '>=', this.max, right.max);
 			else if (operator == '<=')
-				return (this.min == null || right.min == null) ? FuzzyBoolean.valueOf(this.min == null) : Runtime.op(ctx, '<=', this.min, right.min);
+				return (this.min == null || right.min == null) ? JelBoolean.valueOf(this.min == null) : Runtime.op(ctx, '<=', this.min, right.min);
 		}
 		else if (right instanceof JelNumber || right instanceof Fraction || right instanceof UnitValue || right instanceof ApproximateNumber) {
 			if (operator == '==')
 				return this.contains(ctx, right);
 			else if (operator == '===')
-				return FuzzyBoolean.andWithPromises(Runtime.op(ctx, '===', this.min, right) as FuzzyBoolean, Runtime.op(ctx, '===', this.max, right) as FuzzyBoolean);
+				return JelBoolean.andWithPromises(Runtime.op(ctx, '===', this.min, right) as JelBoolean, Runtime.op(ctx, '===', this.max, right) as JelBoolean);
 			else if (operator == '>>')
-				return this.min != null ? Runtime.op(ctx, '>>', this.min, right) : FuzzyBoolean.FALSE;
+				return this.min != null ? Runtime.op(ctx, '>>', this.min, right) : JelBoolean.FALSE;
 			else if (operator == '<<')
-				return this.max != null ? Runtime.op(ctx, '<<', this.max, right) : FuzzyBoolean.FALSE;
+				return this.max != null ? Runtime.op(ctx, '<<', this.max, right) : JelBoolean.FALSE;
 			else if (operator == '>')
-				return this.min != null ? Runtime.op(ctx, '>', this.min, right) : FuzzyBoolean.FALSE;
+				return this.min != null ? Runtime.op(ctx, '>', this.min, right) : JelBoolean.FALSE;
 			else if (operator == '<')
-				return this.max != null ? Runtime.op(ctx, '<', this.max, right) : FuzzyBoolean.FALSE;
+				return this.max != null ? Runtime.op(ctx, '<', this.max, right) : JelBoolean.FALSE;
 			else if (operator == '>>=')
-				return FuzzyBoolean.orWithPromises(this.op(ctx, '>>', right) as FuzzyBoolean, this.contains(ctx, right));
+				return JelBoolean.orWithPromises(this.op(ctx, '>>', right) as JelBoolean, this.contains(ctx, right));
 			else if (operator == '<<=')
-				return FuzzyBoolean.orWithPromises(this.op(ctx, '<<', right) as FuzzyBoolean, this.contains(ctx, right));
+				return JelBoolean.orWithPromises(this.op(ctx, '<<', right) as JelBoolean, this.contains(ctx, right));
 			else if (operator == '>=')
-				return FuzzyBoolean.orWithPromises(this.op(ctx, '>', right) as FuzzyBoolean, this.contains(ctx, right));
+				return JelBoolean.orWithPromises(this.op(ctx, '>', right) as JelBoolean, this.contains(ctx, right));
 			else if (operator == '<=')
-				return FuzzyBoolean.orWithPromises(this.op(ctx, '<', right) as FuzzyBoolean, this.contains(ctx, right));
+				return JelBoolean.orWithPromises(this.op(ctx, '<', right) as JelBoolean, this.contains(ctx, right));
 			else if (operator in RANGE_NUM_OPS)
 				return new Range(this.min != null ? Runtime.op(ctx, operator, this.min, right) as any: this.min, 
 												 this.max != null ? Runtime.op(ctx, operator, this.max, right) as any: this.max);
@@ -80,8 +80,8 @@ export default class Range extends JelObject {
 	}
 	
 	contains_jel_mapping: Object;
-	contains(ctx: Context, right: JelNumber | Fraction | UnitValue | ApproximateNumber | null): FuzzyBoolean | Promise<FuzzyBoolean> {
-		return FuzzyBoolean.andWithPromises(this.min == null ? FuzzyBoolean.TRUE : Runtime.op(ctx, '<=', this.min, right) as FuzzyBoolean, this.max == null ? FuzzyBoolean.TRUE : Runtime.op(ctx, '>=', this.max, right) as FuzzyBoolean);
+	contains(ctx: Context, right: JelNumber | Fraction | UnitValue | ApproximateNumber | null): JelBoolean | Promise<JelBoolean> {
+		return JelBoolean.andWithPromises(this.min == null ? JelBoolean.TRUE : Runtime.op(ctx, '<=', this.min, right) as JelBoolean, this.max == null ? JelBoolean.TRUE : Runtime.op(ctx, '>=', this.max, right) as JelBoolean);
 	}
 
 	middle_jel_mapping: Object;
@@ -93,8 +93,8 @@ export default class Range extends JelObject {
 	}
 
 	isFinite_jel_mapping: Object;
-	isFinite(): FuzzyBoolean {
-		return FuzzyBoolean.valueOf(this.min != null && this.max != null);
+	isFinite(): JelBoolean {
+		return JelBoolean.valueOf(this.min != null && this.max != null);
 	}
 	
 	getSerializationProperties(): any[] {

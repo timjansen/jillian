@@ -5,7 +5,7 @@ import Context from '../Context';
 import Callable from '../Callable';
 import {IDbRef, IDbEntry} from '../IDatabase';
 import Unit from './Unit';
-import FuzzyBoolean from './FuzzyBoolean';
+import JelBoolean from './JelBoolean';
 import JelString from './JelString';
 import JelNumber from './JelNumber';
 import Dictionary from './Dictionary';
@@ -74,7 +74,7 @@ export default class UnitValue extends JelObject {
 					case '<':
 					case '<=':
 					case '>=':
-						return Util.resolveValueAndError(this.convertTo(ctx, right.unit), converted => Runtime.op(ctx, operator, converted, right), ()=>FuzzyBoolean.valueOf(operator == '!=' || operator == '!=='));
+						return Util.resolveValueAndError(this.convertTo(ctx, right.unit), converted => Runtime.op(ctx, operator, converted, right), ()=>JelBoolean.valueOf(operator == '!=' || operator == '!=='));
 					case '+':
 					case '-':
 						return Util.resolveValueAndError(this.convertTo(ctx, right.unit), converted => Runtime.op(ctx, operator, converted, right), ()=>Promise.reject(new Error(`Can not apply`)));
@@ -167,7 +167,7 @@ export default class UnitValue extends JelObject {
 			}
 			else 
 				return simpleUnit.withMember(ctx, 'isPrimaryUnit', (isPrimaryUnit: any)=> {
-					if (FuzzyBoolean.toRealBoolean(isPrimaryUnit))
+					if (JelBoolean.toRealBoolean(isPrimaryUnit))
 						return Promise.reject(new Error(`Can not convert from unit ${this.unit.toString()} to unit ${target}. No conversion rule available.`));
 
 					return simpleUnit.withMember(ctx, 'quantityCategory', (qc: any)=> {
@@ -179,7 +179,7 @@ export default class UnitValue extends JelObject {
 								return Promise.reject(new Error(`Unit ${simpleUnit.distinctName} is missing required property primaryUnit.`));
 
 							return primaryUnit.withMember(ctx, 'isPrimaryUnit', (isPrimaryUnit: any) => {
-								if (!FuzzyBoolean.toRealBoolean(isPrimaryUnit))
+								if (!JelBoolean.toRealBoolean(isPrimaryUnit))
 									return Promise.reject(new Error(`Unit ${qc.distinctName} defines ${primaryUnit.distinctName} as primary unit, but isPrimaryUnit is not set to true.`));
 								return Util.resolveValue(this.convertSimpleTo(ctx, primaryUnit.distinctName, true), p=>p.convertSimpleTo(ctx, target, false));
 							});
@@ -251,7 +251,7 @@ export default class UnitValue extends JelObject {
 		const unitRefs: IDbRef[] = Array.from(this.unit.units.keys()).map(r=>session.createDbRef(r));
 		
 		return Util.resolveArray(unitRefs.map(u=>u.member(ctx, 'isPrimaryUnit')), (unitEntryFilter: any[]) => {
-			const nonPrimaryUnits: IDbRef[] = unitRefs.filter((u, i)=>!FuzzyBoolean.toRealBoolean(unitEntryFilter[i]));
+			const nonPrimaryUnits: IDbRef[] = unitRefs.filter((u, i)=>!JelBoolean.toRealBoolean(unitEntryFilter[i]));
 			if (!nonPrimaryUnits.length)
 				return this;
 
@@ -342,8 +342,8 @@ export default class UnitValue extends JelObject {
 		return this.unit.isType(ctx, unit);
 	}
 	
-	toBoolean(): FuzzyBoolean {
-		return FuzzyBoolean.valueOf(!!this.toNumber().value);
+	toBoolean(): JelBoolean {
+		return JelBoolean.valueOf(!!this.toNumber().value);
 	}
 	
 	getSerializationProperties(): any[] {

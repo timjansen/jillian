@@ -30,16 +30,16 @@ export default class Runtime {
 	static op(ctx: Context, operator: string, left: JelObject|null, right: JelObject|null): JelObject|Promise<JelObject> {
 		if (left == null || right == null) {
 			if (operator == '==' || operator == '===')
-				return BaseTypeRegistry.get('FuzzyBoolean').valueOf(left === right);
+				return BaseTypeRegistry.get('JelBoolean').valueOf(left === right);
 			else if (operator == '!=' || operator == '!==')
-				return BaseTypeRegistry.get('FuzzyBoolean').valueOf(left !== right);
+				return BaseTypeRegistry.get('JelBoolean').valueOf(left !== right);
 			else if (operator == 'instanceof' || operator in RELATIONAL_OPS)
-				return BaseTypeRegistry.get('FuzzyBoolean').FALSE;
+				return BaseTypeRegistry.get('JelBoolean').FALSE;
 			else
 				throw new Error(`Operator ${operator} does not support null values.`);
 		}
 		else if (operator == 'instanceof') 
-			return BaseTypeRegistry.get('FuzzyBoolean').valueOf(Runtime.instanceOf(ctx, left, right));
+			return BaseTypeRegistry.get('JelBoolean').valueOf(Runtime.instanceOf(ctx, left, right));
 		else 
 			return left.op(ctx, operator, right);
 	}
@@ -66,10 +66,8 @@ export default class Runtime {
 		if (!right || !(right as any).isDBRef)
 			return false;
 		
-		if (left) {
-			const ctor = left.constructor.name.replace(/^Jel/, '');			
-			return ctor == (right as any).distinctName;
-		}
+		if (left)
+			return left.constructor.name.replace(/^Jel/, '') == (right as any).distinctName;
 		else
 			return false;
 	}

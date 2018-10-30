@@ -6,7 +6,7 @@ import DbIndexDescriptor from '../DbIndexDescriptor';
 import Dictionary from '../../jel/types/Dictionary';
 import JelObject from '../../jel/JelObject';
 import List from '../../jel/types/List';
-import FuzzyBoolean from '../../jel/types/FuzzyBoolean';
+import JelBoolean from '../../jel/types/JelBoolean';
 import JelString from '../../jel/types/JelString';
 import EnumValue from '../../jel/types/EnumValue';
 import Context from '../../jel/Context';
@@ -79,14 +79,14 @@ export default class Category extends DbEntry {
 	}
 
 	isExtending_jel_mapping: Object;
-	isExtending(ctx: Context, otherCategory: string | JelString |DbRef): FuzzyBoolean | Promise<FuzzyBoolean> {
+	isExtending(ctx: Context, otherCategory: string | JelString |DbRef): JelBoolean | Promise<JelBoolean> {
 		if (otherCategory instanceof DbRef)
 			return this.isExtending(ctx, otherCategory.distinctName);
 		if (otherCategory instanceof JelString)
 			return this.isExtending(ctx, otherCategory.value);
 		if (!this.superCategory)
-			return FuzzyBoolean.FALSE;
-		return this.superCategory.distinctName == otherCategory ? FuzzyBoolean.TRUE : (this.superCategory.with(ctx, (s: Category) =>s.isExtending(ctx, otherCategory)) as  FuzzyBoolean | Promise<FuzzyBoolean>);
+			return JelBoolean.FALSE;
+		return this.superCategory.distinctName == otherCategory ? JelBoolean.TRUE : (this.superCategory.with(ctx, (s: Category) =>s.isExtending(ctx, otherCategory)) as  JelBoolean | Promise<JelBoolean>);
 	}
 	
   getSerializationProperties(): Object {

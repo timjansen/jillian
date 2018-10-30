@@ -7,7 +7,7 @@ const JEL = require('../../build/jel/JEL.js').default;
 const JelString = require('../../build/jel/types/JelString.js').default;
 const JelNumber = require('../../build/jel/types/JelNumber.js').default;
 const List = require('../../build/jel/types/List.js').default;
-const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
+const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
 const Dictionary = require('../../build/jel/types/Dictionary.js').default;
 const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const Context = require('../../build/jel/Context.js').default;
@@ -109,22 +109,22 @@ describe('jelDictionary', function() {
   describe('hasAny()', function() {
     it('finds something', function() {
 			JelPromise.resetRnd();
-      jelAssert.equal('{a:3, b:2, c:9}.hasAny((k,x)=>x>2 && k!="a")', FuzzyBoolean.TRUE); 
-      jelAssert.equal('{a:3, b:8, c:17, d:39, e:2, f:9}.hasAny((k,x)=>x>2 && k!="k")', FuzzyBoolean.TRUE); 
-      return jelAssert.equalPromise('{a:3, b:8, c:17, d:39, e:2, f:9}.hasAny((k,x)=>JelPromise.rnd(x>2 && k!="k"))', FuzzyBoolean.TRUE); 
+      jelAssert.equal('{a:3, b:2, c:9}.hasAny((k,x)=>x>2 && k!="a")', JelBoolean.TRUE); 
+      jelAssert.equal('{a:3, b:8, c:17, d:39, e:2, f:9}.hasAny((k,x)=>x>2 && k!="k")', JelBoolean.TRUE); 
+      return jelAssert.equalPromise('{a:3, b:8, c:17, d:39, e:2, f:9}.hasAny((k,x)=>JelPromise.rnd(x>2 && k!="k"))', JelBoolean.TRUE); 
     });
     it('finds nothing', function() {
-      jelAssert.equal('{a:3, b:2, c:9}.hasAny((k,x)=>x>5 && k=="a")', FuzzyBoolean.FALSE); 
-      return jelAssert.equalPromise('{a:3, b:2, c:9}.hasAny((k,x)=>JelPromise(x>5 && k=="a"))', FuzzyBoolean.FALSE); 
+      jelAssert.equal('{a:3, b:2, c:9}.hasAny((k,x)=>x>5 && k=="a")', JelBoolean.FALSE); 
+      return jelAssert.equalPromise('{a:3, b:2, c:9}.hasAny((k,x)=>JelPromise(x>5 && k=="a"))', JelBoolean.FALSE); 
     });
   });
 
   describe('hasOnly()', function() {
     it('finds all', function() {
-      jelAssert.equal('{a:3, b:2, c:9}.hasOnly((k,x)=>x>1 && k!="a")', FuzzyBoolean.FALSE); 
-      jelAssert.equal('{a:3, b:8, c:17, d:39, e:2, f:9}.hasOnly((k,x)=>x>1)', FuzzyBoolean.TRUE); 
-      jelAssert.equal('{a:3, b:2, c:9}.hasOnly((k,x)=>x>5)', FuzzyBoolean.FALSE); 
-      return jelAssert.equalPromise('{a:3, b:2, c:9}.hasOnly((k,x)=>JelPromise(x>5))', FuzzyBoolean.FALSE); 
+      jelAssert.equal('{a:3, b:2, c:9}.hasOnly((k,x)=>x>1 && k!="a")', JelBoolean.FALSE); 
+      jelAssert.equal('{a:3, b:8, c:17, d:39, e:2, f:9}.hasOnly((k,x)=>x>1)', JelBoolean.TRUE); 
+      jelAssert.equal('{a:3, b:2, c:9}.hasOnly((k,x)=>x>5)', JelBoolean.FALSE); 
+      return jelAssert.equalPromise('{a:3, b:2, c:9}.hasOnly((k,x)=>JelPromise(x>5))', JelBoolean.FALSE); 
     });
   });
 

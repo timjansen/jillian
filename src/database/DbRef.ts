@@ -1,7 +1,7 @@
 import JelObject from '../jel/JelObject';
 import Context from '../jel/Context';
 import SerializablePrimitive from '../jel/SerializablePrimitive';
-import FuzzyBoolean from '../jel/types/FuzzyBoolean';
+import JelBoolean from '../jel/types/JelBoolean';
 import JelString from '../jel/types/JelString';
 import {IDbRef} from '../jel/IDatabase';
 import DbEntry from './DbEntry';
@@ -103,13 +103,13 @@ export default class DbRef extends JelObject implements IDbRef, SerializablePrim
 		if (right instanceof DbRef) {
 			switch(operator) {
 				case '==':
-					return FuzzyBoolean.valueOf(this.distinctName == right.distinctName);
+					return JelBoolean.valueOf(this.distinctName == right.distinctName);
 				case '!=':
-					return FuzzyBoolean.valueOf(this.distinctName != right.distinctName);
+					return JelBoolean.valueOf(this.distinctName != right.distinctName);
 				case '===':
-					return FuzzyBoolean.fourWay(ctx, this.distinctName == right.distinctName, this.hasSameParameters(right));
+					return JelBoolean.fourWay(ctx, this.distinctName == right.distinctName, this.hasSameParameters(right));
 				case '!==':
-					return FuzzyBoolean.fourWay(ctx, this.distinctName == right.distinctName, this.hasSameParameters(right)).negate();
+					return JelBoolean.fourWay(ctx, this.distinctName == right.distinctName, this.hasSameParameters(right)).negate();
 			}
 		}
 		return super.op(ctx, operator, right);

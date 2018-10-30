@@ -6,7 +6,7 @@ import Runtime from '../Runtime';
 import JelObject from '../JelObject';
 import JelNumber from './JelNumber';
 import JelString from './JelString';
-import FuzzyBoolean from './FuzzyBoolean';
+import JelBoolean from './JelBoolean';
 import Callable from '../Callable';
 
 /**
@@ -34,10 +34,10 @@ export default class List extends JelObject implements SerializablePrimitive {
 				case '==':
 				case '===':
 					if (this.elements.length != right.elements.length)
-						return FuzzyBoolean.FALSE;
-					let result: FuzzyBoolean | Promise<FuzzyBoolean> = FuzzyBoolean.TRUE;
+						return JelBoolean.FALSE;
+					let result: JelBoolean | Promise<JelBoolean> = JelBoolean.TRUE;
 					for (let i = 0; i < this.elements.length; i++)
-						result = FuzzyBoolean.falsestWithPromises(ctx, result, Runtime.op(ctx, operator, this.elements[i], right.elements[i]) as any);
+						result = JelBoolean.falsestWithPromises(ctx, result, Runtime.op(ctx, operator, this.elements[i], right.elements[i]) as any);
 					return result;
 				case '+':
 					return new List(this.elements.concat(right.elements));
@@ -60,7 +60,7 @@ export default class List extends JelObject implements SerializablePrimitive {
 					if (this.elements.length == 1)
 						return Runtime.op(ctx, operator, this.elements[0], right);
 					else
-						return FuzzyBoolean.FALSE;
+						return JelBoolean.FALSE;
 				case '+':
 					const l = this.elements.slice();
 					l.push(right);
@@ -72,7 +72,7 @@ export default class List extends JelObject implements SerializablePrimitive {
 	
 	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
 		if (operator == '!')
-			return FuzzyBoolean.valueOf(!this.elements.length);
+			return JelBoolean.valueOf(!this.elements.length);
 		else
 			return super.singleOp(ctx, operator);
 	}
@@ -133,7 +133,7 @@ export default class List extends JelObject implements SerializablePrimitive {
 		const newList: any[] = [];
 
 		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, JelNumber.valueOf(i)), (v, e)=> {
-			if (FuzzyBoolean.toRealBoolean(v))
+			if (JelBoolean.toRealBoolean(v))
 				newList.push(e);
 		}, ()=>new List(newList));
 	}
@@ -146,13 +146,13 @@ export default class List extends JelObject implements SerializablePrimitive {
 	}
 
 	hasAny_jel_mapping: Object;
-	hasAny(ctx: Context, f: Callable): FuzzyBoolean | Promise<FuzzyBoolean> {
-		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, JelNumber.valueOf(i)), (v, e)=>FuzzyBoolean.toRealBoolean(v) ? FuzzyBoolean.TRUE : undefined, r=>r || FuzzyBoolean.FALSE);
+	hasAny(ctx: Context, f: Callable): JelBoolean | Promise<JelBoolean> {
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, JelNumber.valueOf(i)), (v, e)=>JelBoolean.toRealBoolean(v) ? JelBoolean.TRUE : undefined, r=>r || JelBoolean.FALSE);
 	}
 
 	hasOnly_jel_mapping: Object;
-	hasOnly(ctx: Context, f: Callable): FuzzyBoolean | Promise<FuzzyBoolean> {
-		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, JelNumber.valueOf(i)), (v, e)=>FuzzyBoolean.toRealBoolean(v) ? undefined : FuzzyBoolean.FALSE, r=>r || FuzzyBoolean.TRUE);
+	hasOnly(ctx: Context, f: Callable): JelBoolean | Promise<JelBoolean> {
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, JelNumber.valueOf(i)), (v, e)=>JelBoolean.toRealBoolean(v) ? undefined : JelBoolean.FALSE, r=>r || JelBoolean.TRUE);
 	}
 	
 	// isBetter(a,b) checks whether a is better than b (must return false is both are equally good)
@@ -170,8 +170,8 @@ export default class List extends JelObject implements SerializablePrimitive {
 		function check1Passed(e: any): undefined | Promise<any> {
 			const check2 = isBetter.invoke(ctx, e, l[0]);
 			if (check2 instanceof Promise) 
-				return check2.then(v=>FuzzyBoolean.toRealBoolean(v) ? l.splice(0, self.elements.length, e) : l.push(e))
-			else if (FuzzyBoolean.toRealBoolean(check2))
+				return check2.then(v=>JelBoolean.toRealBoolean(v) ? l.splice(0, self.elements.length, e) : l.push(e))
+			else if (JelBoolean.toRealBoolean(check2))
 				l.splice(0, self.elements.length, e);
 			else
 				l.push(e);
@@ -183,7 +183,7 @@ export default class List extends JelObject implements SerializablePrimitive {
 				const check1 = isBetter.invoke(ctx, l[0], e);
 				if (check1 instanceof Promise) 
 					return check1.then((v: any) => {
-						if (!FuzzyBoolean.toRealBoolean(v)) {
+						if (!JelBoolean.toRealBoolean(v)) {
 							const c2 = check1Passed(e);
 							if (c2 instanceof Promise)
 								return c2.then(exec);
@@ -193,7 +193,7 @@ export default class List extends JelObject implements SerializablePrimitive {
 						else
 							return exec();
 					});
-				else if (!FuzzyBoolean.toRealBoolean(check1)) {
+				else if (!JelBoolean.toRealBoolean(check1)) {
 					const check2 = check1Passed(e);
 					if (check2)
 						return check2.then(exec);
@@ -258,11 +258,11 @@ export default class List extends JelObject implements SerializablePrimitive {
 		}
 	}
 	
-	private static toPromisedRealBoolean(b: FuzzyBoolean | Promise<FuzzyBoolean>): boolean | Promise<boolean> {
+	private static toPromisedRealBoolean(b: JelBoolean | Promise<JelBoolean>): boolean | Promise<boolean> {
 		if (b instanceof Promise)
-			return b.then(v=>FuzzyBoolean.toRealBoolean(v));
+			return b.then(v=>JelBoolean.toRealBoolean(v));
 		else
-			return FuzzyBoolean.toRealBoolean(b);
+			return JelBoolean.toRealBoolean(b);
 	}
 	
 	// isLess(a, b) checks whether a<b . If a==b or a>b, is must return false. If a==b, then !isLess(a,b)&&!isLess(b,a)
@@ -297,12 +297,12 @@ export default class List extends JelObject implements SerializablePrimitive {
 		else if (isLess)
 			r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>List.toPromisedRealBoolean(isLess.invoke(ctx, a0, b0)));
 		else
-			r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>List.toPromisedRealBoolean(Runtime.op(ctx, '<', a0, b0) as FuzzyBoolean));
+			r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>List.toPromisedRealBoolean(Runtime.op(ctx, '<', a0, b0) as JelBoolean));
 
 		return Util.resolveValue(r, ()=>new List(l));
 	}
 
-	private findBest(isBetter: (a: any, b: any)=>FuzzyBoolean|Promise<FuzzyBoolean>, inverse: boolean): any {
+	private findBest(isBetter: (a: any, b: any)=>JelBoolean|Promise<JelBoolean>, inverse: boolean): any {
 		if (!this.elements.length)
 			return null;
 		
@@ -317,11 +317,11 @@ export default class List extends JelObject implements SerializablePrimitive {
 				const check1 = isBetter(l, e);
 				if (check1 instanceof Promise) 
 					return check1.then((v: any) => {
-						if (FuzzyBoolean.toRealBoolean(v) != inverse)
+						if (JelBoolean.toRealBoolean(v) != inverse)
 							l = e;
 						return exec();
 					});
-				else if (FuzzyBoolean.toRealBoolean(check1) != inverse)
+				else if (JelBoolean.toRealBoolean(check1) != inverse)
 					l = e;
 			}
 			return l;

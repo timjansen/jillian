@@ -2,7 +2,7 @@ import Runtime from '../Runtime';
 import JelObject from '../JelObject';
 import Context from '../Context';
 import {IDbRef} from '../IDatabase';
-import FuzzyBoolean from './FuzzyBoolean';
+import JelBoolean from './JelBoolean';
 import Fraction from './Fraction';
 import ApproximateNumber from './ApproximateNumber';
 import JelString from './JelString';
@@ -93,10 +93,10 @@ export default class Unit extends JelObject {
 			switch (operator) {
 			case '==': 
 			case '===':
-					return FuzzyBoolean.valueOf(this.equals(right));
+					return JelBoolean.valueOf(this.equals(right));
 			case '!=':
 			case '!==':
-					return FuzzyBoolean.valueOf(!this.equals(right));
+					return JelBoolean.valueOf(!this.equals(right));
 			case '*':
 					return new Unit(mergeUnitMaps(this.units, right.units));
 			case '/':

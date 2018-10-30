@@ -11,7 +11,7 @@ const LocalDate = require('../../build/jel/types/time/LocalDate.js').default;
 const LocalDateTime = require('../../build/jel/types/time/LocalDateTime.js').default;
 const TimeOfDay = require('../../build/jel/types/time/TimeOfDay.js').default;
 const ZonedDateTime = require('../../build/jel/types/time/ZonedDateTime.js').default;
-const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
+const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
 const Range = require('../../build/jel/types/Range.js').default;
 const ApproximateNumber = require('../../build/jel/types/ApproximateNumber.js').default;
 const UnitValue = require('../../build/jel/types/UnitValue.js').default;
@@ -66,52 +66,52 @@ describe('Timestamp', function() {
 
 	it('supports timespec features', function() {
 		const d = Date.UTC(2017, 11, 2, 0, 0, 1);
-		jelAssert.equal(FuzzyBoolean.TRUE, `Timestamp(${d}).isContinous()`);
+		jelAssert.equal(JelBoolean.TRUE, `Timestamp(${d}).isContinous()`);
 		jelAssert.equal(d, `Timestamp(${d}).getStartTime(TimeZone.UTC).toNumber()`);
 		jelAssert.equal(d, `Timestamp(${d}).getEndTime(TimeZone.UTC).toNumber()`);
 	});
 
 
 	it('supports operations with other timestamps', function() {
-		jelAssert.equal(FuzzyBoolean.TRUE, `Timestamp(1000) === Timestamp(1000)`);
-		jelAssert.equal(FuzzyBoolean.TRUE, `Timestamp(1000, 10) === Timestamp(1000, 10)`);
-		jelAssert.equal(FuzzyBoolean.FALSE, `Timestamp(1000, 10) === Timestamp(1001, 10)`);
-		jelAssert.equal(FuzzyBoolean.TRUE, `Timestamp(1000) !== Timestamp(1001)`);
-		jelAssert.equal(FuzzyBoolean.TRUE, `Timestamp(1000, 10) !== Timestamp(1001, 10)`);
-		jelAssert.equal(FuzzyBoolean.FALSE, `Timestamp(1000, 10) !== Timestamp(1000, 10)`);
-		jelAssert.equal(FuzzyBoolean.TRUE, `Timestamp(1000, 10) << Timestamp(1001, 10)`);
-		jelAssert.equal(FuzzyBoolean.FALSE, `Timestamp(1000, 10) << Timestamp(1000, 10)`);
-		jelAssert.equal(FuzzyBoolean.TRUE, `Timestamp(1000, 10) <<= Timestamp(1000, 10)`);
-		jelAssert.equal(FuzzyBoolean.TRUE, `Timestamp(1000, 10) <<= Timestamp(1001, 10)`);
-		jelAssert.equal(FuzzyBoolean.FALSE, `Timestamp(1001, 10) <<= Timestamp(1000, 10)`);
-		jelAssert.equal(FuzzyBoolean.TRUE, `Timestamp(1001, 10) >> Timestamp(1000, 10)`);
-		jelAssert.equal(FuzzyBoolean.FALSE, `Timestamp(1001, 10) >> Timestamp(1001, 10)`);
-		jelAssert.equal(FuzzyBoolean.TRUE, `Timestamp(1001, 10) >>= Timestamp(1001, 10)`);
-		jelAssert.equal(FuzzyBoolean.TRUE, `Timestamp(1001, 10) >>= Timestamp(1000, 10)`);
-		jelAssert.equal(FuzzyBoolean.FALSE, `Timestamp(1000, 10) >>= Timestamp(1001, 10)`);
+		jelAssert.equal(JelBoolean.TRUE, `Timestamp(1000) === Timestamp(1000)`);
+		jelAssert.equal(JelBoolean.TRUE, `Timestamp(1000, 10) === Timestamp(1000, 10)`);
+		jelAssert.equal(JelBoolean.FALSE, `Timestamp(1000, 10) === Timestamp(1001, 10)`);
+		jelAssert.equal(JelBoolean.TRUE, `Timestamp(1000) !== Timestamp(1001)`);
+		jelAssert.equal(JelBoolean.TRUE, `Timestamp(1000, 10) !== Timestamp(1001, 10)`);
+		jelAssert.equal(JelBoolean.FALSE, `Timestamp(1000, 10) !== Timestamp(1000, 10)`);
+		jelAssert.equal(JelBoolean.TRUE, `Timestamp(1000, 10) << Timestamp(1001, 10)`);
+		jelAssert.equal(JelBoolean.FALSE, `Timestamp(1000, 10) << Timestamp(1000, 10)`);
+		jelAssert.equal(JelBoolean.TRUE, `Timestamp(1000, 10) <<= Timestamp(1000, 10)`);
+		jelAssert.equal(JelBoolean.TRUE, `Timestamp(1000, 10) <<= Timestamp(1001, 10)`);
+		jelAssert.equal(JelBoolean.FALSE, `Timestamp(1001, 10) <<= Timestamp(1000, 10)`);
+		jelAssert.equal(JelBoolean.TRUE, `Timestamp(1001, 10) >> Timestamp(1000, 10)`);
+		jelAssert.equal(JelBoolean.FALSE, `Timestamp(1001, 10) >> Timestamp(1001, 10)`);
+		jelAssert.equal(JelBoolean.TRUE, `Timestamp(1001, 10) >>= Timestamp(1001, 10)`);
+		jelAssert.equal(JelBoolean.TRUE, `Timestamp(1001, 10) >>= Timestamp(1000, 10)`);
+		jelAssert.equal(JelBoolean.FALSE, `Timestamp(1000, 10) >>= Timestamp(1001, 10)`);
 
-		jelAssert.equal(FuzzyBoolean.TRUE, `Timestamp(1000) == Timestamp(1000)`);
-		jelAssert.equal(FuzzyBoolean.FALSE, `Timestamp(1001) == Timestamp(1000)`);
-		jelAssert.equal(FuzzyBoolean.TRUE, `Timestamp(1000, 10) == Timestamp(1000, 10)`);
-		jelAssert.equal(FuzzyBoolean.BARELY_TRUE, `Timestamp(1005, 10) == Timestamp(1000, 10)`);
-		jelAssert.equal(FuzzyBoolean.BARELY_TRUE, `Timestamp(1000, 10) == Timestamp(1010, 10)`);
-		jelAssert.equal(FuzzyBoolean.BARELY_TRUE, `Timestamp(1000, 10) == Timestamp(1015, 10)`);
-		jelAssert.equal(FuzzyBoolean.FALSE, `Timestamp(1000, 10) == Timestamp(1021, 10)`);
-		jelAssert.equal(FuzzyBoolean.TRUE, `Timestamp(1000) != Timestamp(1001)`);
-		jelAssert.equal(FuzzyBoolean.BARELY_FALSE, `Timestamp(1000, 10) != Timestamp(1009, 10)`);
-		jelAssert.equal(FuzzyBoolean.FALSE, `Timestamp(1000, 10) != Timestamp(1000, 10)`);
+		jelAssert.equal(JelBoolean.TRUE, `Timestamp(1000) == Timestamp(1000)`);
+		jelAssert.equal(JelBoolean.FALSE, `Timestamp(1001) == Timestamp(1000)`);
+		jelAssert.equal(JelBoolean.TRUE, `Timestamp(1000, 10) == Timestamp(1000, 10)`);
+		jelAssert.equal(JelBoolean.BARELY_TRUE, `Timestamp(1005, 10) == Timestamp(1000, 10)`);
+		jelAssert.equal(JelBoolean.BARELY_TRUE, `Timestamp(1000, 10) == Timestamp(1010, 10)`);
+		jelAssert.equal(JelBoolean.BARELY_TRUE, `Timestamp(1000, 10) == Timestamp(1015, 10)`);
+		jelAssert.equal(JelBoolean.FALSE, `Timestamp(1000, 10) == Timestamp(1021, 10)`);
+		jelAssert.equal(JelBoolean.TRUE, `Timestamp(1000) != Timestamp(1001)`);
+		jelAssert.equal(JelBoolean.BARELY_FALSE, `Timestamp(1000, 10) != Timestamp(1009, 10)`);
+		jelAssert.equal(JelBoolean.FALSE, `Timestamp(1000, 10) != Timestamp(1000, 10)`);
 
-		jelAssert.equal(FuzzyBoolean.TRUE, `Timestamp(1, 10) < Timestamp(1001, 10)`);
-		jelAssert.equal(FuzzyBoolean.BARELY_TRUE, `Timestamp(1000, 10) < Timestamp(1001, 10)`);
-		jelAssert.equal(FuzzyBoolean.BARELY_FALSE, `Timestamp(1000, 10) < Timestamp(1000, 10)`);
-		jelAssert.equal(FuzzyBoolean.BARELY_FALSE, `Timestamp(1005, 10) < Timestamp(1000, 10)`);
-		jelAssert.equal(FuzzyBoolean.FALSE, `Timestamp(1000, 10) < Timestamp(1, 10)`);
+		jelAssert.equal(JelBoolean.TRUE, `Timestamp(1, 10) < Timestamp(1001, 10)`);
+		jelAssert.equal(JelBoolean.BARELY_TRUE, `Timestamp(1000, 10) < Timestamp(1001, 10)`);
+		jelAssert.equal(JelBoolean.BARELY_FALSE, `Timestamp(1000, 10) < Timestamp(1000, 10)`);
+		jelAssert.equal(JelBoolean.BARELY_FALSE, `Timestamp(1005, 10) < Timestamp(1000, 10)`);
+		jelAssert.equal(JelBoolean.FALSE, `Timestamp(1000, 10) < Timestamp(1, 10)`);
 
-		jelAssert.equal(FuzzyBoolean.TRUE, `Timestamp(1, 10) <= Timestamp(1001, 10)`);
-		jelAssert.equal(FuzzyBoolean.BARELY_TRUE, `Timestamp(1000, 10) <= Timestamp(1001, 10)`);
-		jelAssert.equal(FuzzyBoolean.BARELY_TRUE, `Timestamp(1000, 10) <= Timestamp(1000, 10)`);
-		jelAssert.equal(FuzzyBoolean.BARELY_FALSE, `Timestamp(1005, 10) <= Timestamp(1000, 10)`);
-		jelAssert.equal(FuzzyBoolean.FALSE, `Timestamp(1000, 10) <= Timestamp(10, 10)`);
+		jelAssert.equal(JelBoolean.TRUE, `Timestamp(1, 10) <= Timestamp(1001, 10)`);
+		jelAssert.equal(JelBoolean.BARELY_TRUE, `Timestamp(1000, 10) <= Timestamp(1001, 10)`);
+		jelAssert.equal(JelBoolean.BARELY_TRUE, `Timestamp(1000, 10) <= Timestamp(1000, 10)`);
+		jelAssert.equal(JelBoolean.BARELY_FALSE, `Timestamp(1005, 10) <= Timestamp(1000, 10)`);
+		jelAssert.equal(JelBoolean.FALSE, `Timestamp(1000, 10) <= Timestamp(10, 10)`);
 
 		jelAssert.equal(`Timestamp(1000, 10) - Timestamp(10, 10)`, '990 @Millisecond +- 20');
 		jelAssert.equal(`Timestamp(1000) - Timestamp(10, 0)`, '990 @Millisecond');
@@ -152,26 +152,26 @@ describe('TimeZone', function() {
 	});
 
 	it('returns DST', function() {
-		jelAssert.equal(FuzzyBoolean.FALSE, `TimeZone("Europe/Amsterdam").isDST(Timestamp(${Date.UTC(2017, 11, 2)}))`);
-		jelAssert.equal(FuzzyBoolean.TRUE, `TimeZone("Europe/Amsterdam").isDST(Timestamp(${Date.UTC(2017, 6, 2)}))`);
+		jelAssert.equal(JelBoolean.FALSE, `TimeZone("Europe/Amsterdam").isDST(Timestamp(${Date.UTC(2017, 11, 2)}))`);
+		jelAssert.equal(JelBoolean.TRUE, `TimeZone("Europe/Amsterdam").isDST(Timestamp(${Date.UTC(2017, 6, 2)}))`);
 	});
 
 	it('supports operations', function() {
-		jelAssert.equal(FuzzyBoolean.TRUE, `TimeZone.UTC == TimeZone.UTC`);
-		jelAssert.equal(FuzzyBoolean.TRUE, `TimeZone("Europe/Amsterdam") == TimeZone("Europe/Amsterdam")`);
-		jelAssert.equal(FuzzyBoolean.FALSE, `TimeZone("Europe/Amsterdam") == TimeZone("Europe/Berlin")`);
-		jelAssert.equal(FuzzyBoolean.TRUE, `TimeZone("etc/UTC") == TimeZone.UTC`);
-		jelAssert.equal(FuzzyBoolean.FALSE, `TimeZone("Europe/Amsterdam") == TimeZone.UTC`);
-		jelAssert.equal(FuzzyBoolean.FALSE, `TimeZone("Europe/Amsterdam") != TimeZone("Europe/Amsterdam")`);
-		jelAssert.equal(FuzzyBoolean.TRUE, `TimeZone("Europe/Amsterdam") != TimeZone.UTC`);
+		jelAssert.equal(JelBoolean.TRUE, `TimeZone.UTC == TimeZone.UTC`);
+		jelAssert.equal(JelBoolean.TRUE, `TimeZone("Europe/Amsterdam") == TimeZone("Europe/Amsterdam")`);
+		jelAssert.equal(JelBoolean.FALSE, `TimeZone("Europe/Amsterdam") == TimeZone("Europe/Berlin")`);
+		jelAssert.equal(JelBoolean.TRUE, `TimeZone("etc/UTC") == TimeZone.UTC`);
+		jelAssert.equal(JelBoolean.FALSE, `TimeZone("Europe/Amsterdam") == TimeZone.UTC`);
+		jelAssert.equal(JelBoolean.FALSE, `TimeZone("Europe/Amsterdam") != TimeZone("Europe/Amsterdam")`);
+		jelAssert.equal(JelBoolean.TRUE, `TimeZone("Europe/Amsterdam") != TimeZone.UTC`);
 
-		jelAssert.equal(FuzzyBoolean.TRUE, `TimeZone.UTC === TimeZone.UTC`);
-		jelAssert.equal(FuzzyBoolean.TRUE, `TimeZone("Europe/Amsterdam") === TimeZone("Europe/Amsterdam")`);
-		jelAssert.equal(FuzzyBoolean.FALSE, `TimeZone("Europe/Amsterdam") === TimeZone("Europe/Berlin")`);
-		jelAssert.equal(FuzzyBoolean.FALSE, `TimeZone("etc/UTC") === TimeZone.UTC`);
-		jelAssert.equal(FuzzyBoolean.FALSE, `TimeZone("Europe/Amsterdam") === TimeZone.UTC`);
-		jelAssert.equal(FuzzyBoolean.FALSE, `TimeZone("Europe/Amsterdam") !== TimeZone("Europe/Amsterdam")`);
-		jelAssert.equal(FuzzyBoolean.TRUE, `TimeZone("Europe/Amsterdam") !== TimeZone.UTC`);
+		jelAssert.equal(JelBoolean.TRUE, `TimeZone.UTC === TimeZone.UTC`);
+		jelAssert.equal(JelBoolean.TRUE, `TimeZone("Europe/Amsterdam") === TimeZone("Europe/Amsterdam")`);
+		jelAssert.equal(JelBoolean.FALSE, `TimeZone("Europe/Amsterdam") === TimeZone("Europe/Berlin")`);
+		jelAssert.equal(JelBoolean.FALSE, `TimeZone("etc/UTC") === TimeZone.UTC`);
+		jelAssert.equal(JelBoolean.FALSE, `TimeZone("Europe/Amsterdam") === TimeZone.UTC`);
+		jelAssert.equal(JelBoolean.FALSE, `TimeZone("Europe/Amsterdam") !== TimeZone("Europe/Amsterdam")`);
+		jelAssert.equal(JelBoolean.TRUE, `TimeZone("Europe/Amsterdam") !== TimeZone.UTC`);
 
 	});
 });

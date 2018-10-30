@@ -4,7 +4,7 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
 import SerializablePrimitive from '../SerializablePrimitive';
 import Context from '../Context';
 import Util from '../../util/Util';
-import FuzzyBoolean from './FuzzyBoolean';
+import JelBoolean from './JelBoolean';
 
 /**
  * Represents a number.
@@ -42,21 +42,21 @@ export default class JelNumber extends JelObject implements SerializablePrimitiv
 					return JelNumber.valueOf(Math.pow(this.value, right.value));
 				case '==': 
 				case '===': 
-					return FuzzyBoolean.valueOf(this.value === right.value);
+					return JelBoolean.valueOf(this.value === right.value);
 				case '!=': 
 				case '!==': 
-					return FuzzyBoolean.valueOf(this.value !== right.value);
+					return JelBoolean.valueOf(this.value !== right.value);
 				case '<': 
-					return FuzzyBoolean.valueOf(this.value < right.value);
+					return JelBoolean.valueOf(this.value < right.value);
 				case '<=': 
 				case '<<=': 
-					return FuzzyBoolean.valueOf(this.value <= right.value);
+					return JelBoolean.valueOf(this.value <= right.value);
 				case '>': 
 				case '>>': 
-					return FuzzyBoolean.valueOf(this.value > right.value);
+					return JelBoolean.valueOf(this.value > right.value);
 				case '>=': 
 				case '>>=': 
-					return FuzzyBoolean.valueOf(this.value >= right.value);
+					return JelBoolean.valueOf(this.value >= right.value);
 				case '+-': 
 					return BaseTypeRegistry.get('ApproximateNumber').fromNumber(this, right);
 			};
@@ -71,7 +71,7 @@ export default class JelNumber extends JelObject implements SerializablePrimitiv
 	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
 		switch(operator) {
 			case '!':
-				return FuzzyBoolean.valueOf(!this.value);
+				return JelBoolean.valueOf(!this.value);
 			case '-':
 				return this.negate();
 			case '+':
@@ -87,8 +87,8 @@ export default class JelNumber extends JelObject implements SerializablePrimitiv
 	}
 
 
-	toBoolean(): FuzzyBoolean {
-		return FuzzyBoolean.valueOf(!!this.value);
+	toBoolean(): JelBoolean {
+		return JelBoolean.valueOf(!!this.value);
 	}
 
 	static toNumber(n: number|JelObject|null, defaultValue: any = JelNumber.NAN): any {

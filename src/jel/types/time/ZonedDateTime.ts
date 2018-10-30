@@ -6,7 +6,7 @@ import LocalDate from './LocalDate';
 import TimeOfDay from './TimeOfDay';
 import Timestamp from './Timestamp';
 import TimeZone from './TimeZone';
-import FuzzyBoolean from '../FuzzyBoolean';
+import JelBoolean from '../JelBoolean';
 
 /**
  * Represents a date.

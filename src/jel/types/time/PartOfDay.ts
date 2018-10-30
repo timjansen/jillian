@@ -5,7 +5,7 @@ import Context from '../../Context';
 import TimeHint from './TimeHint';
 import TimeOfDay from './TimeOfDay';
 import PartOfDayType from './PartOfDayType';
-import FuzzyBoolean from '../FuzzyBoolean';
+import JelBoolean from '../JelBoolean';
 import List from '../List';
 
 /**

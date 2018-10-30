@@ -1,7 +1,7 @@
 import JelObject from '../../JelObject';
 import Context from '../../Context';
 import UnitValue from '../UnitValue';
-import FuzzyBoolean from '../FuzzyBoolean';
+import JelBoolean from '../JelBoolean';
 import JelNumber from '../JelNumber';
 import ApproximateNumber from '../ApproximateNumber';
 import TimeSpec from './TimeSpec';
@@ -32,31 +32,31 @@ export default class Timestamp extends TimeSpec {
 		if (right instanceof Timestamp) {
 			switch (operator) {
 				case '===':
-					return FuzzyBoolean.valueOf(this.msSinceEpoch === right.msSinceEpoch);
+					return JelBoolean.valueOf(this.msSinceEpoch === right.msSinceEpoch);
 				case '!==':
-					return FuzzyBoolean.valueOf(this.msSinceEpoch !== right.msSinceEpoch);
+					return JelBoolean.valueOf(this.msSinceEpoch !== right.msSinceEpoch);
 				case '==':
-					return FuzzyBoolean.twoPrecision(ctx, this.couldBeEqual(right), this.msSinceEpoch === right.msSinceEpoch);
+					return JelBoolean.twoPrecision(ctx, this.couldBeEqual(right), this.msSinceEpoch === right.msSinceEpoch);
 				case '!=':
-					return FuzzyBoolean.twoPrecision(ctx, !this.couldBeEqual(right), this.msSinceEpoch !== right.msSinceEpoch);
+					return JelBoolean.twoPrecision(ctx, !this.couldBeEqual(right), this.msSinceEpoch !== right.msSinceEpoch);
 				
 				case '>>':
-					return FuzzyBoolean.valueOf(this.msSinceEpoch > right.msSinceEpoch);
+					return JelBoolean.valueOf(this.msSinceEpoch > right.msSinceEpoch);
 				case '<<':
-					return FuzzyBoolean.valueOf(this.msSinceEpoch < right.msSinceEpoch);
+					return JelBoolean.valueOf(this.msSinceEpoch < right.msSinceEpoch);
 				case '>':
-					return FuzzyBoolean.fourWay(ctx, this.msSinceEpoch > right.msSinceEpoch, !this.couldBeEqual(right));
+					return JelBoolean.fourWay(ctx, this.msSinceEpoch > right.msSinceEpoch, !this.couldBeEqual(right));
 				case '<':
-					return FuzzyBoolean.fourWay(ctx, this.msSinceEpoch < right.msSinceEpoch, !this.couldBeEqual(right));
+					return JelBoolean.fourWay(ctx, this.msSinceEpoch < right.msSinceEpoch, !this.couldBeEqual(right));
 
 				case '>>=':
-					return FuzzyBoolean.valueOf(this.msSinceEpoch >= right.msSinceEpoch);
+					return JelBoolean.valueOf(this.msSinceEpoch >= right.msSinceEpoch);
 				case '<<=':
-					return FuzzyBoolean.valueOf(this.msSinceEpoch <= right.msSinceEpoch);
+					return JelBoolean.valueOf(this.msSinceEpoch <= right.msSinceEpoch);
 				case '>=':
-					return FuzzyBoolean.fourWay(ctx, this.msSinceEpoch >= right.msSinceEpoch, !this.couldBeEqual(right));
+					return JelBoolean.fourWay(ctx, this.msSinceEpoch >= right.msSinceEpoch, !this.couldBeEqual(right));
 				case '<=':
-					return FuzzyBoolean.fourWay(ctx, this.msSinceEpoch <= right.msSinceEpoch, !this.couldBeEqual(right));
+					return JelBoolean.fourWay(ctx, this.msSinceEpoch <= right.msSinceEpoch, !this.couldBeEqual(right));
 
 				case '-':
 					return new UnitValue((this.precisionInMs == 0 && right.precisionInMs == 0) ? 
@@ -121,8 +121,8 @@ export default class Timestamp extends TimeSpec {
 		return this;
 	}
 
-	isContinous(): FuzzyBoolean {
-		return FuzzyBoolean.TRUE;
+	isContinous(): JelBoolean {
+		return JelBoolean.TRUE;
 	}
 
 	toNumber_jel_mapping: Object;

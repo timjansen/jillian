@@ -1,7 +1,7 @@
 import JelObject from '../JelObject';
 import Context from '../Context';
 import {IDbRef} from '../IDatabase';
-import FuzzyBoolean from './FuzzyBoolean';
+import JelBoolean from './JelBoolean';
 import JelString from './JelString';
 
 /**
@@ -19,11 +19,11 @@ export default class EnumValue extends JelObject {
 			switch (operator) {
 				case '==': 
 				case '===':
-					return FuzzyBoolean.valueOf(this.value == right.value && this.parent.distinctName == right.parent.distinctName);
+					return JelBoolean.valueOf(this.value == right.value && this.parent.distinctName == right.parent.distinctName);
 					
 				case '!=':
 				case '!==':
-					return FuzzyBoolean.valueOf(this.value != right.value || this.parent.distinctName != right.parent.distinctName);
+					return JelBoolean.valueOf(this.value != right.value || this.parent.distinctName != right.parent.distinctName);
 			}
 		}
 		else if (right instanceof JelString)

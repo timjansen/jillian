@@ -8,7 +8,7 @@ import Dictionary from '../Dictionary';
 import JelNumber from '../JelNumber';
 import Unit from '../Unit';
 import UnitValue from '../UnitValue';
-import FuzzyBoolean from '../FuzzyBoolean';
+import JelBoolean from '../JelBoolean';
 import Fraction from '../Fraction';
 import ApproximateNumber from '../ApproximateNumber';
 
@@ -89,7 +89,7 @@ export default class Duration extends JelObject {
 					return Runtime.op(ctx, operator, JelNumber.valueOf(this.typicalSecs), JelNumber.valueOf(right.typicalSecs));
 					
 				case '===':
-					return FuzzyBoolean.valueOf(this.years == right.years && this.months == right.months && this.days == right.days && this.hours == right.hours && this.minutes == right.minutes &&
+					return JelBoolean.valueOf(this.years == right.years && this.months == right.months && this.days == right.days && this.hours == right.hours && this.minutes == right.minutes &&
 						this.seconds == right.seconds);
 			}
 		}
@@ -111,29 +111,29 @@ export default class Duration extends JelObject {
 					return Runtime.op(ctx, operator, this.toEstimatedSeconds(ctx), right);
 					
 				case '==': // simple eq: true if seconds COULD be the same, all worst cases considered (e.g. february, leap years, daylight saving...)
-					return FuzzyBoolean.valueOf(value >= this.minSecs && value <= this.maxSecs);
+					return JelBoolean.valueOf(value >= this.minSecs && value <= this.maxSecs);
 				case '!=': 
-					return FuzzyBoolean.valueOf(value < this.minSecs || value > this.maxSecs);
+					return JelBoolean.valueOf(value < this.minSecs || value > this.maxSecs);
 				case '===': // complex eq: only when sure that seconds match
-					return FuzzyBoolean.valueOf(fixedSecs == this.minSecs && value == fixedSecs);
+					return JelBoolean.valueOf(fixedSecs == this.minSecs && value == fixedSecs);
 				case '!==': 
-					return FuzzyBoolean.valueOf(fixedSecs != this.minSecs || value != fixedSecs);
+					return JelBoolean.valueOf(fixedSecs != this.minSecs || value != fixedSecs);
 				case '>':
-					return FuzzyBoolean.twoPrecision(ctx, this.typicalSecs > value, this.maxSecs > value);
+					return JelBoolean.twoPrecision(ctx, this.typicalSecs > value, this.maxSecs > value);
 				case '>>':
-					return FuzzyBoolean.valueOf(this.maxSecs > value);
+					return JelBoolean.valueOf(this.maxSecs > value);
 				case '<':
-					return FuzzyBoolean.twoPrecision(ctx, this.typicalSecs < value, this.minSecs < value);
+					return JelBoolean.twoPrecision(ctx, this.typicalSecs < value, this.minSecs < value);
 				case '<<':
-					return FuzzyBoolean.valueOf(this.minSecs < value);
+					return JelBoolean.valueOf(this.minSecs < value);
 				case '>=':
-					return FuzzyBoolean.twoPrecision(ctx, this.typicalSecs >= value, this.maxSecs >= value);
+					return JelBoolean.twoPrecision(ctx, this.typicalSecs >= value, this.maxSecs >= value);
 				case '>>=':
-					return FuzzyBoolean.valueOf(this.maxSecs >= value);
+					return JelBoolean.valueOf(this.maxSecs >= value);
 				case '<=':
-					return FuzzyBoolean.twoPrecision(ctx, this.typicalSecs <= value, this.minSecs <= value);
+					return JelBoolean.twoPrecision(ctx, this.typicalSecs <= value, this.minSecs <= value);
 				case '<<=':
-					return FuzzyBoolean.valueOf(this.minSecs <= value);
+					return JelBoolean.valueOf(this.minSecs <= value);
 			}
 		}
 		else if (right instanceof JelNumber || right instanceof Fraction || right instanceof ApproximateNumber) {
@@ -151,7 +151,7 @@ export default class Duration extends JelObject {
 	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
 		if (operator == '!') {
 			const s = this.simplify();
-			return FuzzyBoolean.valueOf(!(s.years || s.months || s.days || s.hours || s.minutes || s.seconds));
+			return JelBoolean.valueOf(!(s.years || s.months || s.days || s.hours || s.minutes || s.seconds));
 		}
 		else if (operator == '-') 
 			return new Duration(-this.years, -this.months, -this.days, -this.hours, -this.minutes, -this.seconds).simplify();
@@ -205,7 +205,7 @@ export default class Duration extends JelObject {
 		let l = Duration.toDuration(ctx, args[0]);
 		for (let d of args) {
 			const dur = Duration.toDuration(ctx, d);
-			if ((Runtime.op(ctx, operator, l, dur) as FuzzyBoolean).toRealBoolean())
+			if ((Runtime.op(ctx, operator, l, dur) as JelBoolean).toRealBoolean())
 				l = dur;
 		}
 	 return l;

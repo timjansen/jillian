@@ -2,7 +2,7 @@ import * as moment from 'moment';
 
 import JelObject from '../../JelObject';
 import Context from '../../Context';
-import FuzzyBoolean from '../FuzzyBoolean';
+import JelBoolean from '../JelBoolean';
 import JelNumber from '../JelNumber';
 import PartOfYearType from './PartOfYearType';
 import DateHint from './DateHint';

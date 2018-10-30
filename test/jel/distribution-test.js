@@ -8,7 +8,7 @@ const DistributionPoint = require('../../build/jel/types/DistributionPoint.js').
 const ApproximateNumber = require('../../build/jel/types/ApproximateNumber.js').default;
 const Fraction = require('../../build/jel/types/Fraction.js').default;
 const UnitValue = require('../../build/jel/types/UnitValue.js').default;
-const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
+const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 const jelAssert = new JelAssert(DefaultContext.get());
 

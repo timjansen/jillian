@@ -4,7 +4,7 @@ const assert = require('assert');
 const Serializer = require('../build/jel/Serializer.js').default;
 const JEL = require('../build/jel/JEL.js').default; 
 const JelObject = require('../build/jel/JelObject.js').default; 
-const FuzzyBoolean = require('../build/jel/types/FuzzyBoolean.js').default; 
+const JelBoolean = require('../build/jel/types/JelBoolean.js').default; 
 
 class JelAssert {
 	constructor(c) {
@@ -48,10 +48,10 @@ class JelAssert {
 	
 	fuzzy(a, min, max) {
 		const r = this.exec(a);
-		if (!(r instanceof FuzzyBoolean)) {
+		if (!(r instanceof JelBoolean)) {
 			if (r instanceof Promise)
 				r.then(m=>console.log('Promise from failed assertion resolved to ', m));
-			throw new Error("Failed to return FuzzyBoolean. Got a " + (r && r.constructor.name)+": "+r);
+			throw new Error("Failed to return JelBoolean. Got a " + (r && r.constructor.name)+": "+r);
 		}
 		if (max != null) {
 			assert.ok(r.state >= min, `Expected fuzzy boolean min=${min} max=${max}, but got state=${r.state}`);

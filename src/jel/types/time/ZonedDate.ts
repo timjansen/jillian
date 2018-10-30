@@ -4,7 +4,7 @@ import Context from '../../Context';
 import Timestamp from './Timestamp';
 import TimeZone from './TimeZone';
 import TimeSpec from './TimeSpec';
-import FuzzyBoolean from '../FuzzyBoolean';
+import JelBoolean from '../JelBoolean';
 
 /**
  * Represents a date.
@@ -23,8 +23,8 @@ export default class ZonedDate extends TimeSpec {
 		return Timestamp.fromMoment(moment({year: this.year, month: this.month, day: this.day}).tz(this.timeZone.tz).add(1, 'd'));
 	}
 	
-	isContinous(): FuzzyBoolean {
-		return FuzzyBoolean.TRUE;
+	isContinous(): JelBoolean {
+		return JelBoolean.TRUE;
 	}
 	
 	op(ctx: Context, operator: string, right: any): any {

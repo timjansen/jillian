@@ -9,7 +9,7 @@ const JelObject = require('../../build/jel/JelObject.js').default;
 const List = require('../../build/jel/types/List.js').default;
 const JelString = require('../../build/jel/types/JelString.js').default;
 const JelNumber = require('../../build/jel/types/JelNumber.js').default;
-const FuzzyBoolean = require('../../build/jel/types/FuzzyBoolean.js').default;
+const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
 const ApproximateNumber = require('../../build/jel/types/ApproximateNumber.js').default;
 const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
@@ -143,28 +143,28 @@ describe('jelList', function() {
 
   describe('hasAny()', function() {
     it('finds something', function() {
-      jelAssert.equal('[3, 2, 9].hasAny((x,i)=>x>2 && i>0)', FuzzyBoolean.TRUE); 
-      jelAssert.equal('[3, 8, 17, 39, 2, 9].hasAny((x,i)=>x>2 && i>0)', FuzzyBoolean.TRUE); 
-      return jelAssert.equalPromise('[3, 8, 17, 39, 2, 9].hasAny((x,i)=>JelPromise(x>2 && i>0))', FuzzyBoolean.TRUE); 
+      jelAssert.equal('[3, 2, 9].hasAny((x,i)=>x>2 && i>0)', JelBoolean.TRUE); 
+      jelAssert.equal('[3, 8, 17, 39, 2, 9].hasAny((x,i)=>x>2 && i>0)', JelBoolean.TRUE); 
+      return jelAssert.equalPromise('[3, 8, 17, 39, 2, 9].hasAny((x,i)=>JelPromise(x>2 && i>0))', JelBoolean.TRUE); 
     });
     it('finds nothing', function() {
-      jelAssert.equal('[3, 2, 9].hasAny((x,i)=>x>5 && i<1)', FuzzyBoolean.FALSE); 
-      return jelAssert.equalPromise('[3, 2, 9].hasAny((x,i)=>JelPromise(x>5 && i<1))', FuzzyBoolean.FALSE); 
+      jelAssert.equal('[3, 2, 9].hasAny((x,i)=>x>5 && i<1)', JelBoolean.FALSE); 
+      return jelAssert.equalPromise('[3, 2, 9].hasAny((x,i)=>JelPromise(x>5 && i<1))', JelBoolean.FALSE); 
     });
   });
 
   describe('hasOnly()', function() {
     it('finds all', function() {
-      jelAssert.equal('[3, 2, 9].hasOnly(x=>x>1)', FuzzyBoolean.TRUE); 
-      jelAssert.equal('[3, 2, 9].hasOnly((x,i)=>i<10)', FuzzyBoolean.TRUE); 
-      return jelAssert.equalPromise('[3, 2, 9].hasOnly((x,i)=>JelPromise(i<10))', FuzzyBoolean.TRUE); 
+      jelAssert.equal('[3, 2, 9].hasOnly(x=>x>1)', JelBoolean.TRUE); 
+      jelAssert.equal('[3, 2, 9].hasOnly((x,i)=>i<10)', JelBoolean.TRUE); 
+      return jelAssert.equalPromise('[3, 2, 9].hasOnly((x,i)=>JelPromise(i<10))', JelBoolean.TRUE); 
     });
     it('finds nothing', function() {
-      jelAssert.equal('[3, 8, 17, 39, 2, 9].hasOnly(x=>x>2)', FuzzyBoolean.FALSE); 
-      jelAssert.equal('[3, 2, 9].hasOnly(x=>x<9)', FuzzyBoolean.FALSE); 
-      jelAssert.equal('[3, 2, 9].hasOnly(x=>x<0)', FuzzyBoolean.FALSE);
-      jelAssert.equal('[3, 2, 9, 4, 2, 2, 5, 6].hasOnly((x,i)=>i<7)', FuzzyBoolean.FALSE); 
-      return jelAssert.equalPromise('[3, 2, 9, 4, 2, 2, 5, 6].hasOnly((x,i)=>JelPromise(i<7))', FuzzyBoolean.FALSE); 
+      jelAssert.equal('[3, 8, 17, 39, 2, 9].hasOnly(x=>x>2)', JelBoolean.FALSE); 
+      jelAssert.equal('[3, 2, 9].hasOnly(x=>x<9)', JelBoolean.FALSE); 
+      jelAssert.equal('[3, 2, 9].hasOnly(x=>x<0)', JelBoolean.FALSE);
+      jelAssert.equal('[3, 2, 9, 4, 2, 2, 5, 6].hasOnly((x,i)=>i<7)', JelBoolean.FALSE); 
+      return jelAssert.equalPromise('[3, 2, 9, 4, 2, 2, 5, 6].hasOnly((x,i)=>JelPromise(i<7))', JelBoolean.FALSE); 
     });
   });
 
