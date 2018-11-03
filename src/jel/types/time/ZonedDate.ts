@@ -3,6 +3,7 @@ import * as moment from 'moment';
 import Context from '../../Context';
 import Timestamp from './Timestamp';
 import TimeZone from './TimeZone';
+import LocalDate from './LocalDate';
 import TimeSpec from './TimeSpec';
 import JelBoolean from '../JelBoolean';
 
@@ -11,16 +12,16 @@ import JelBoolean from '../JelBoolean';
  */
 export default class ZonedDate extends TimeSpec {
 	
-	constructor(public timeZone: TimeZone, public year: number, public month: number, public day: number) {
+	constructor(public timeZone: TimeZone, public date: LocalDate) {
 		super();
 	}
 	
-  getStartTime(): Timestamp {
-		return Timestamp.fromMoment(moment({year: this.year, month: this.month, day: this.day}).tz(this.timeZone.tz));
+  getStartTime(ctx: Context): Timestamp {
+		return this.date.getStartTime(ctx, this.timeZone);
 	}
 	
-	getEndTime(): Timestamp {
-		return Timestamp.fromMoment(moment({year: this.year, month: this.month, day: this.day}).tz(this.timeZone.tz).add(1, 'd'));
+	getEndTime(ctx: Context): Timestamp {
+		return this.date.getEndTime(ctx, this.timeZone);
 	}
 	
 	isContinous(): JelBoolean {
@@ -32,12 +33,15 @@ export default class ZonedDate extends TimeSpec {
 	}
 
 	getSerializationProperties(): any[] {
-		return [this.timeZone, this.year, this.month, this.day];
+		return [this.timeZone, this.date];
 	}
 	
-	static create_jel_mapping = {timeZone: 1, year: 2, month: 3, day: 4};
+	static create_jel_mapping = {timeZone: 1, date: 2, year: 2, month: 3, day: 4};
 	static create(ctx: Context, ...args: any[]): any {
-		return new ZonedDate(args[0], args[1], args[2], args[3]);
+		if (args[1] instanceof LocalDate)
+			return new ZonedDate(args[0], args[1]);
+		else
+			return new ZonedDate(args[0], LocalDate.create(ctx, args[1], args[2], args[3]));
 	}
 }
 

@@ -13,14 +13,13 @@ const RANGE_NUM_OPS: any = {'+': true, '-': true, '*': true, '/': true};
 
 
 /**
- * Represents a range of numeric values. Numbers can be primitive numbers of UnitValues. 
- * Ranges can be open-ended by passing a null for the min and/or max.
+ * Represents a range of numeric values or time/dates. Ranges can be open-ended by passing a null for the min and/or max.
  */
 export default class Range extends JelObject {
 	
 	JEL_PROPERTIES: Object;
 
-	constructor(public min: JelNumber | Fraction | UnitValue | ApproximateNumber | null, public max: JelNumber | Fraction | UnitValue | ApproximateNumber | null) {
+	constructor(public min: JelObject | null, public max: JelObject | null) {
 		super();
 	}
 	
@@ -51,7 +50,7 @@ export default class Range extends JelObject {
 			else if (operator == '<=')
 				return (this.min == null || right.min == null) ? JelBoolean.valueOf(this.min == null) : Runtime.op(ctx, '<=', this.min, right.min);
 		}
-		else if (right instanceof JelNumber || right instanceof Fraction || right instanceof UnitValue || right instanceof ApproximateNumber) {
+		else if (right instanceof JelObject) {
 			if (operator == '==')
 				return this.contains(ctx, right);
 			else if (operator == '===')
@@ -80,12 +79,14 @@ export default class Range extends JelObject {
 	}
 	
 	contains_jel_mapping: Object;
-	contains(ctx: Context, right: JelNumber | Fraction | UnitValue | ApproximateNumber | null): JelBoolean | Promise<JelBoolean> {
+	contains(ctx: Context, right: JelObject | null): JelBoolean | Promise<JelBoolean> {
+		if (right == null)
+			return JelBoolean.valueOf(!this.isFinite());
 		return JelBoolean.andWithPromises(this.min == null ? JelBoolean.TRUE : Runtime.op(ctx, '<=', this.min, right) as JelBoolean, this.max == null ? JelBoolean.TRUE : Runtime.op(ctx, '>=', this.max, right) as JelBoolean);
 	}
 
 	middle_jel_mapping: Object;
-	middle(ctx: Context): JelNumber | Fraction | UnitValue | ApproximateNumber | null {
+	middle(ctx: Context): JelObject | null {
 		if (this.min != null && this.max != null)
 			return Runtime.singleOpWithPromise(ctx, 'abs', Runtime.op(ctx, '-', this.min, this.max) as any) as any;
 		else
@@ -93,8 +94,8 @@ export default class Range extends JelObject {
 	}
 
 	isFinite_jel_mapping: Object;
-	isFinite(): JelBoolean {
-		return JelBoolean.valueOf(this.min != null && this.max != null);
+	isFinite(): boolean {
+		return this.min != null && this.max != null;
 	}
 	
 	getSerializationProperties(): any[] {
@@ -106,7 +107,7 @@ export default class Range extends JelObject {
 	}
 	
 	static create_jel_mapping = {min:1, max:2};
-	static create(ctx: Context, min?: JelNumber | Fraction | UnitValue | null, max?: JelNumber | Fraction | UnitValue | null): Range {
+	static create(ctx: Context, min?: JelObject | null, max?: JelObject | null): Range {
 		return new Range(min != null ? min : null, max != null ? max : null);
 	}
 }

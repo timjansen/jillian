@@ -21,10 +21,13 @@ import Duration from './types/time/Duration';
 import DurationRange from './types/time/DurationRange';
 import Timestamp from './types/time/Timestamp';
 import TimeZone from './types/time/TimeZone';
+import TimeOfDay from './types/time/TimeOfDay';
+import LocalDate from './types/time/LocalDate';
+import LocalDateTime from './types/time/LocalDateTime';
 
 const CTX_IDENTIFIERS = {JelBoolean, Number: JelNumber, String: JelString, ApproximateNumber, Range, Fraction, Unit, UnitValue,
 												 Math: JelMath, Dictionary, List, Distribution, DistributionPoint, Pattern, Translator, EnumValue, 
-												 Duration, DurationRange, Timestamp, TimeZone,
+												 Duration, DurationRange, Timestamp, TimeZone, TimeOfDay, LocalDate, LocalDateTime,
 												 ___IS_DEFAULT_CONTEXT: 'magic123'};
 
 export default class DefaultContext {

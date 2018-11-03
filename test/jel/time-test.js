@@ -375,5 +375,57 @@ describe('DurationRange', function() {
 	
 });
 
+describe('TimeOfDay', function() {
+	it('creates and serializes', function() {
+		jelAssert.equal('TimeOfDay(hour=13, minute=33, seconds=59)', new TimeOfDay(13, 33, 59));
+		jelAssert.equal('TimeOfDay(13, 33, 59)', new TimeOfDay(13, 33, 59));
+	});
+	
+	it('supports operators', function() {
+		jelAssert.fuzzy('TimeOfDay(12, 33, 59) == TimeOfDay(12, 33, 59)', 1);
+		jelAssert.fuzzy('TimeOfDay(12, 33, 59) == TimeOfDay(12, 33, 58)', 0);
+		jelAssert.fuzzy('TimeOfDay(12, 33, 59) == TimeOfDay(15, 33, 59)', 0);
+		jelAssert.fuzzy('TimeOfDay(12, 33, 59) == TimeOfDay(15, 33, null)', 0);
+		jelAssert.fuzzy('TimeOfDay(15, 33, 59) == TimeOfDay(15, 33, null)', 1);
+		jelAssert.fuzzy('TimeOfDay(15, 33, 59) == TimeOfDay(15, null, null)', 1);
+		jelAssert.fuzzy('TimeOfDay( 9, 33, 59) == TimeOfDay(15, null, null)', 0);
+		jelAssert.fuzzy('TimeOfDay( 9, 33, 59) != TimeOfDay(15, null, null)', 1);
+		jelAssert.fuzzy('TimeOfDay( 9, 33, 59) != TimeOfDay( 9, null, null)', 0);
+
+		jelAssert.fuzzy('TimeOfDay(15, 33, 59) === TimeOfDay(15, null, null)', 0);
+		jelAssert.fuzzy('TimeOfDay(15, 33, 59) === TimeOfDay(15, 33, 59)', 1);
+		jelAssert.fuzzy('TimeOfDay(15, 33, 59) === TimeOfDay(9, 33, 59)', 0);
+		jelAssert.fuzzy('TimeOfDay(11, 33, 59) !== TimeOfDay(9, 33, null)', 1);
+		
+		jelAssert.fuzzy('TimeOfDay(13, 33, 59) > TimeOfDay(12, 33, 59)', 1);
+		jelAssert.fuzzy('TimeOfDay(12, 33, 58) > TimeOfDay(12, 33, 59)', 0);
+		jelAssert.fuzzy('TimeOfDay(12, 33, 58) < TimeOfDay(12, 33, 59)', 1);
+		jelAssert.fuzzy('TimeOfDay(12, 33, 58) >= TimeOfDay(12, 33, 59)', 0);
+		jelAssert.fuzzy('TimeOfDay(12, 34, 58) >= TimeOfDay(12, 33, 59)', 1);
+		jelAssert.fuzzy('TimeOfDay(12, 34, 58) >= TimeOfDay(12, 34, 58)', 1);
+		jelAssert.fuzzy('TimeOfDay(12, 34, 58) <= TimeOfDay(12, 34, 58)', 1);
+		
+		jelAssert.equal('TimeOfDay(3, 1, 10) - TimeOfDay(2, 0, 3)', 'Duration(hours=1, minutes=1, seconds=7)');
+		jelAssert.equal('TimeOfDay(15, 1, 10) - TimeOfDay(12, 5, 1)', 'Duration(hours=2, minutes=56, seconds=9)');
+		jelAssert.equal('TimeOfDay(10, 1, 10) - TimeOfDay(12, 5, 1)', 'Duration(hours=-2, minutes=-3, seconds=-51)');
+		jelAssert.equal('TimeOfDay(10, 1, 10) + Duration(hours=3, seconds=2.5)', 'TimeOfDay(13, 1, 13)');
+		jelAssert.equal('TimeOfDay(10, 1, 10) - Duration(hours=3, seconds=2.5)', 'TimeOfDay(7, 1, 8)');
+		jelAssert.equal('TimeOfDay(10, 1, 10) - Duration(hours=24, seconds=65)', 'TimeOfDay(10, 0, 5)');
+
+		jelAssert.equal('TimeOfDay(12, 33, 59)+Duration(0)', 'TimeOfDay(12, 33, 59)');
+		jelAssert.equal('TimeOfDay(10, 33, 59)+Duration(hours=40)', 'TimeOfDay(2, 33, 59)');
+		jelAssert.equal('TimeOfDay(0, 33, 59)+Duration(hours=-2)', 'TimeOfDay(22, 33, 59)');
+		jelAssert.equal('TimeOfDay(2, 59, 9)+Duration(seconds=120)', 'TimeOfDay(3, 1, 9)');
+		jelAssert.equal('TimeOfDay(2, 50, null)+Duration(minutes=40)', 'TimeOfDay(3, 30, null)');
+		jelAssert.equal('TimeOfDay(20, null, null)+Duration(hours=5)', 'TimeOfDay(1, null, null)');
+	});
+});
+
+describe('LocalDate', function() {
+	it('creates and serializes', function() {
+		jelAssert.equal('LocalDate(year=2013, month=5, day=2)', new LocalDate(2013, 5, 2));
+		jelAssert.equal('LocalDate(1999, 1, 20)', new LocalDate(1999, 1, 20));	
+	});
+});
 
 
