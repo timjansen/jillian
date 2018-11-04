@@ -171,7 +171,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 		return exec();
 	}
 
-	jsEach(f: (k: any, v: any, i: number)=>any): Dictionary {
+	jsEach(f: (k: string, v: JelObject|null, i: number)=>any): Dictionary {
 		const self = this;
 		const newDict = new Dictionary();
 		let i = 0;
@@ -180,7 +180,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 			const next = it.next();
 			if (next.done)
 				return newDict;
-			 f(next.value, this.elements.get(next.value), i++);
+			 f(next.value, this.elements.get(next.value) as JelObject|null, i++);
 		}
 	}
 

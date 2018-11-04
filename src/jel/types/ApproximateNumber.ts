@@ -159,6 +159,10 @@ export default class ApproximateNumber extends JelObject {
 		return JelBoolean.valueOf(!!this.toNumber().value);
 	}
 	
+	toString(): string {
+		return this.value.toString() + '+-' + this.maxError.toString();
+	}
+	
 	hasError_jel_mapping: Object;
 	hasError(): boolean {
 		return this.maxError instanceof JelNumber ? this.maxError.value != 0 : this.maxError.numerator != 0;

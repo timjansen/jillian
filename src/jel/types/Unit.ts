@@ -12,7 +12,7 @@ import Dictionary from './Dictionary';
 
 function mergeUnitMaps(a: Map<string, number>, b?: Map<string, number>): Map<string, number> {
 	const r = new Map<string, number>();
-	a.forEach((v, k)=>r.set(k, (r.get(k) || 0) + v));
+	a.forEach((v, k)=>r.set(k, v));
 	if (b)
 		b.forEach((v, k)=> {
 			const e = r.get(k);
@@ -61,7 +61,7 @@ export default class Unit extends JelObject {
 		}
 		else if (numeratorUnits instanceof Dictionary) {
 			const newMap = new Map<string, number>();
-			numeratorUnits.jsEach((k, v)=>newMap.set(k.value, v.value));
+			numeratorUnits.jsEach((k, v)=>newMap.set(k, (v as JelNumber).value));
 			this.units = newMap;
 			this.simple = this.units.size == 1 && newMap.values().next().value == 1  && !denominatorUnits;
 		}
@@ -137,9 +137,11 @@ export default class Unit extends JelObject {
 	}
 
 	isType_jel_mapping: Object;
-	isType(ctx: Context, unit: IDbRef | string): boolean {
+	isType(ctx: Context, unit: IDbRef | string | JelString): boolean {
 		if (!this.simple)
 			return false;
+		if (unit instanceof JelString)
+			return this.isType(ctx, unit.value);
 		return this.toSimpleType(ctx).distinctName == (typeof unit == 'string' ? unit : unit.distinctName);
 	}
 	

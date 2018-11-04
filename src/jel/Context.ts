@@ -32,7 +32,7 @@ export default class Context {
 		if (this.frame.has(name))
 				return this.frame.get(name);
 		if (this.parent)
-			return this.parent.get(name);
+			return this.parent.getOrNull(name);
 		return null;
 	}
 	

@@ -184,6 +184,10 @@ export default class Fraction extends JelObject {
 		return JelBoolean.valueOf(!!this.numerator);
 	}
 	
+	toString(): string {
+		return this.numerator+'/'+this.denominator;
+	}
+	
 	simplify_jel_mapping: Object;
 	simplify(): Fraction | JelNumber {
 		if (this.denominator == 1)

@@ -14,6 +14,7 @@ const Context = require('../../build/jel/Context.js').default;
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const List = require('../../build/jel/types/List.js').default;
 const Dictionary = require('../../build/jel/types/Dictionary.js').default;
+const JelNumber = require('../../build/jel/types/JelNumber.js').default;
 const Unit = require('../../build/jel/types/Unit.js').default;
 const UnitValue = require('../../build/jel/types/UnitValue.js').default;
 const ApproximateNumber = require('../../build/jel/types/ApproximateNumber.js').default;
@@ -47,7 +48,8 @@ tmp.dir(function(err, path) {
 					assert.deepEqual(new Unit('Meter').units, Util.toMap({Meter: 1}));
 					assert.deepEqual(new Unit('Meter', new List([new DbRef('Second'), new DbRef('Second')])).units, Util.toMap({Meter: 1, Second: -2}));
 					assert.deepEqual(new Unit('Second', new List([new DbRef('Second'), new DbRef('Second')])).units, Util.toMap({Second: -1}));
-					assert.deepEqual(new Unit(new Dictionary(Util.toMap({Meter: 1, Second: 4, Watt: -1}))).units, Util.toMap({Meter: 1, Second: 4, Watt: -1}));
+					assert.deepEqual(new Unit(Util.toMap({Meter: 1, Second: 4, Watt: -1})).units, Util.toMap({Meter: 1, Second: 4, Watt: -1}));
+					assert.deepEqual(new Unit(new Dictionary(Util.toMap({Meter: JelNumber.valueOf(1), Second: JelNumber.valueOf(4), Watt: JelNumber.valueOf(-1)}), true)).units, Util.toMap({Meter: 1, Second: 4, Watt: -1}));
 
 					assert.ok(new JEL("Unit(@Meter)").executeImmediately(session.ctx) instanceof Unit);
 					jelAssert.equal("Unit(@Second)", "Unit(@Second)");
@@ -188,7 +190,7 @@ tmp.dir(function(err, path) {
 						jelAssert.equalPromise("UnitValue(1, Unit({Kilometer: 3})).toPrimaryUnits()", "UnitValue(1e9, Unit({Meter: 3}))"),
 						jelAssert.equalPromise("UnitValue(5000, @Litre).toPrimaryUnits()", "UnitValue(5, @CubicMeter)"),
 						jelAssert.equalPromise("UnitValue(5555, Unit(@SquareFeet, @Knot)).toPrimaryUnits().round()", "UnitValue(1003, Unit(@SquareMeter, @MeterPerSecond))"),
-						jelAssert.equalPromise("UnitValue(777, Unit({Day: -3, Radian: -2, Horsepower: 2, Kilometer: 4})).toPrimaryUnits().round()", "UnitValue(204, Unit({Second: -3, Degree: -2, Watt: 2, Meter: 4}))"),
+						jelAssert.equalPromise("UnitValue(777, Unit({Year: -1, Radian: -2, Horsepower: 2, Kilometer: 3})).toPrimaryUnits().round()", "UnitValue(4173470, Unit({Second: -1, Degree: -2, Watt: 2, Meter: 3}))"),
 						jelAssert.equalPromise("UnitValue(1, Unit({Meter: 1, Foot: 2, Mile: 1})).toPrimaryUnits().round()", "UnitValue(150, Unit({Meter: 4}))")
 					]);
 				});

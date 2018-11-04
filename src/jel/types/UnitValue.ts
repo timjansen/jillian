@@ -272,11 +272,11 @@ export default class UnitValue extends JelObject {
 								const exp: number = newUnitMap.get(oldUnit.distinctName) as any;
 								newUnitMap.delete(oldUnit.distinctName);
 								newUnitMap.set(primaryUnit.distinctName, (newUnitMap.get(primaryUnit.distinctName) || 0) as number + exp);
-								if (t.elements.has('factor'))
+								if (t.elements.has('factor')) {
 									uv = new UnitValue(Runtime.op(ctx, '*', uv.value, Runtime.op(ctx, '^', t.elements.get('factor') as any, JelNumber.valueOf(exp)) as any) as any, new Unit(newUnitMap));
-								else if (t.elements.has('f') && exp == 1 && t.elements.get('f') instanceof Callable) {
-									uv = new UnitValue((t.elements.get('f') as Callable).invoke(ctx, uv.value) as any, new Unit(newUnitMap));
 								}
+								else if (t.elements.has('f') && exp == 1 && t.elements.get('f') instanceof Callable)
+									uv = new UnitValue((t.elements.get('f') as Callable).invoke(ctx, uv.value) as any, new Unit(newUnitMap));
 							}
 						});
 					});
@@ -336,6 +336,9 @@ export default class UnitValue extends JelObject {
 		return this.value.toRealNumber();
 	}
 	
+	toString(): string {
+		return this.value.toString() +' '+this.unit.toString();
+	}
 	
 	isType_jel_mapping: Object;
 	isType(ctx: Context, unit: IDbRef | string): boolean {
