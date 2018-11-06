@@ -8,6 +8,7 @@ import Unit from './Unit';
 import JelBoolean from './JelBoolean';
 import JelString from './JelString';
 import JelNumber from './JelNumber';
+import Numeric from './Numeric';
 import Dictionary from './Dictionary';
 import List from './List';
 import Fraction from './Fraction';
@@ -18,7 +19,7 @@ import Util from '../../util/Util';
 /**
  * Represents a value with unit and accuracy.
  */
-export default class UnitValue extends JelObject {
+export default class UnitValue extends JelObject implements Numeric {
 	JEL_PROPERTIES: Object;
 	
 	public unit: Unit;
@@ -109,8 +110,6 @@ export default class UnitValue extends JelObject {
 	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
 		if (operator == '!') 
 			return Runtime.singleOp(ctx, operator, this.value);
-		if (operator == 'abs')
-			return new UnitValue(Runtime.singleOp(ctx, operator, this.value) as any, this.unit);
 		return super.singleOp(ctx, operator);
 	}
 
@@ -327,6 +326,16 @@ export default class UnitValue extends JelObject {
 		return new UnitValue(JelNumber.valueOf(Math.round(JelNumber.toRealNumber(this.value)*precision.value)/precision.value), this.unit);
 	}
 	
+	abs_jel_mapping: Object;
+	abs(): UnitValue {
+		return new UnitValue(this.value.abs(), this.unit);
+	}
+	
+	negate_jel_mapping: Object;
+	negate(): UnitValue {
+		return new UnitValue(this.value.negate(), this.unit);
+	}
+	
 	toNumber_jel_mapping: Object;
 	toNumber(): JelNumber {
 		return this.value.toNumber();
@@ -345,8 +354,8 @@ export default class UnitValue extends JelObject {
 		return this.unit.isType(ctx, unit);
 	}
 	
-	toBoolean(): JelBoolean {
-		return JelBoolean.valueOf(!!this.toNumber().value);
+	toBoolean(): boolean {
+		return this.value.toBoolean();
 	}
 	
 	getSerializationProperties(): any[] {
@@ -361,6 +370,8 @@ export default class UnitValue extends JelObject {
 
 UnitValue.prototype.reverseOps = Object.assign({'*':1, '/': 1}, JelObject.SWAP_OPS);
 UnitValue.prototype.toNumber_jel_mapping = {};
+UnitValue.prototype.abs_jel_mapping = {};
+UnitValue.prototype.negate_jel_mapping = {};
 UnitValue.prototype.convertTo_jel_mapping = {type: 1};
 UnitValue.prototype.round_jel_mapping = {};
 UnitValue.prototype.simplify_jel_mapping = {};

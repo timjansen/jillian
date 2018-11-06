@@ -1,8 +1,13 @@
 'use strict';
 
 require('source-map-support').install();
+const assert = require('assert');
+
+const Serializer = require('../../build/jel/Serializer.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
+const JEL = require('../../build/jel/JEL.js').default;
+const JelNumber = require('../../build/jel/types/JelNumber.js').default;
 const Duration = require('../../build/jel/types/time/Duration.js').default;
 const DurationRange = require('../../build/jel/types/time/DurationRange.js').default;
 const Timestamp = require('../../build/jel/types/time/Timestamp.js').default;
@@ -315,6 +320,9 @@ it('supports operations with UnitValues', function() {
 
 describe('DurationRange', function() {
 	it('creates and serializes', function() {
+		jelAssert.equal(new Range(JelNumber.valueOf(2), JelNumber.valueOf(3)), "Range(2, 3)"); // just to check that inheritance is working
+		assert.equal(Serializer.serialize(new DurationRange(new Duration(0,0,0, 0, 2, 11), new Duration(0,0,0, 0, 5, 7))), "DurationRange(Duration(0,0,0,0,2,11),Duration(0,0,0,0,5,7))");
+		assert.equal(new JEL('DurationRange(Duration(0,0,0, 0, 2, 12), Duration(0,0,0, 0, 5, 7))').executeImmediately(DefaultContext.get()).constructor.name, "DurationRange");
 		jelAssert.equal(new DurationRange(new Duration(0,0,0, 0, 2, 3), new Duration(0,0,0, 0, 5, 7)), "DurationRange(Duration(minutes=2, seconds=3), Duration(minutes=5, seconds=7))");
 	});
 
@@ -335,7 +343,7 @@ describe('DurationRange', function() {
 	it('supports operators with Duration', function() {
 		jelAssert.fuzzy("DurationRange(Duration(years=2), Duration(years=4)) > Duration(years=1)", 1);
 		jelAssert.fuzzy("DurationRange(Duration(years=2), Duration(years=4)) < Duration(years=1)", 0);
-		jelAssert.fuzzy("DurationRange(Duration(years=2), Duration(years=4)) < Duration(years=3)", 1);
+		jelAssert.fuzzy("DurationRange(Duration(years=2), Duration(years=4)) < Duration(years=3)", 0);
 		jelAssert.fuzzy("DurationRange(Duration(years=2), Duration(years=4)) << Duration(years=3)", 0);
 		jelAssert.fuzzy("DurationRange(Duration(years=2), Duration(years=4)) == Duration(years=3)", 1);
 		jelAssert.fuzzy("DurationRange(Duration(years=2), Duration(years=4)) === Duration(years=3)", 0);
@@ -364,9 +372,9 @@ describe('DurationRange', function() {
 
 		jelAssert.fuzzy("DurationRange(Duration(years=8), Duration(years=9)) > DurationRange(Duration(years=2), Duration(years=3))", 1);
 		jelAssert.fuzzy("DurationRange(Duration(years=8), Duration(years=9)) < DurationRange(Duration(years=2), Duration(years=3))", 0);
-		jelAssert.fuzzy("DurationRange(Duration(years=2), Duration(years=4)) > DurationRange(Duration(years=2), Duration(years=3))", 0);
-		jelAssert.fuzzy("DurationRange(Duration(years=2), Duration(years=4)) < DurationRange(Duration(years=3), Duration(years=8))", 0);
-		jelAssert.fuzzy("DurationRange(Duration(years=2), Duration(years=4)) > DurationRange(Duration(years=2), Duration(years=3))", 0);
+		jelAssert.fuzzy("DurationRange(Duration(years=2), Duration(years=4)) > DurationRange(Duration(years=2), Duration(years=3))", 1);
+		jelAssert.fuzzy("DurationRange(Duration(years=2), Duration(years=4)) < DurationRange(Duration(years=3), Duration(years=8))", 1);
+		jelAssert.fuzzy("DurationRange(Duration(years=2), Duration(years=4)) > DurationRange(Duration(years=2), Duration(years=3))", 1);
 		jelAssert.fuzzy("DurationRange(Duration(years=2), Duration(years=4)) > DurationRange(Duration(years=3), Duration(years=8))", 0);
 
 		jelAssert.equal("DurationRange(Duration(years=1), Duration(years=36))", "DurationRange(Duration(years=2), Duration(years=40)) - DurationRange(Duration(years=1), Duration(years=4))");
@@ -426,6 +434,154 @@ describe('LocalDate', function() {
 		jelAssert.equal('LocalDate(year=2013, month=5, day=2)', new LocalDate(2013, 5, 2));
 		jelAssert.equal('LocalDate(1999, 1, 20)', new LocalDate(1999, 1, 20));	
 	});
+	
+	it('supports dayOfYear', function() {
+		jelAssert.equal('LocalDate(1999, 1, 20).dayOfYear', 20);	
+		jelAssert.equal('LocalDate(1999, 2, 20).dayOfYear', 51);	
+		jelAssert.equal('LocalDate(2018, 11, 5).dayOfYear', 309);	
+	});
+	
+	it('supports operators', function() {
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) == LocalDate(2018, 12, 24)', 1);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) == LocalDate(2018, 12, 25)', 0);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) != LocalDate(2018, 12, 25)', 1);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) == LocalDate(2018, 12, null)', 1);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) != LocalDate(2018, 12, null)', 0);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) == LocalDate(2018, null, null)', 1);
+		jelAssert.fuzzy('LocalDate(2019, 12, 24) == LocalDate(2018, null, null)', 0);
+
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) === LocalDate(2018, 12, 24)', 1);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) === LocalDate(2018, 12, 25)', 0);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) !== LocalDate(2018, 12, 25)', 1);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) === LocalDate(2018, 12, null)', 0);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) !== LocalDate(2018, 12, null)', 1);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) === LocalDate(2018, null, null)', 0);
+		jelAssert.fuzzy('LocalDate(2019, 12, 24) === LocalDate(2018, null, null)', 0);
+		
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) >= LocalDate(2018, 12, 24)', 1);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) >= LocalDate(2018,  5, 30)', 1);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) <= LocalDate(2019,  5, 30)', 1);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) <= LocalDate(2019,  5, null)', 1);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) <= LocalDate(2019,  null, null)', 1);
+		jelAssert.fuzzy('LocalDate(2019, 12, 24) <= LocalDate(2019,  null, null)', 1);
+		jelAssert.fuzzy('LocalDate(2019, 12, 24) <= LocalDate(2019,  12, null)', 1);
+		jelAssert.fuzzy('LocalDate(2019, 11, 24) <= LocalDate(2019,  12, null)', 1);
+
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) <= LocalDate(2018, 12, 24)', 1);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) <= LocalDate(2018,  5, 30)', 0);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) >= LocalDate(2019,  5, 30)', 0);
+
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) > LocalDate(2018, 12, 24)', 0);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) > LocalDate(2018,  5, 30)', 1);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) < LocalDate(2019,  5, 30)', 1);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) < LocalDate(2019,  5, null)', 1);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) < LocalDate(2019,  null, null)', 1);
+		jelAssert.fuzzy('LocalDate(2019, 12, 24) < LocalDate(2019,  null, null)', 0);
+		jelAssert.fuzzy('LocalDate(2019, 12, 24) < LocalDate(2019,  12, null)', 0);
+		jelAssert.fuzzy('LocalDate(2019, 11, 24) < LocalDate(2019,  12, null)', 1);
+
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) < LocalDate(2018, 12, 24)', 0);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) < LocalDate(2018,  5, 30)', 0);
+		jelAssert.fuzzy('LocalDate(2018, 12, 24) > LocalDate(2019,  5, 30)', 0);
+
+		jelAssert.equal('LocalDate(2018, 10, 4) - LocalDate(2018, 10, 1)', 'Duration(days=3)');
+		jelAssert.equal('LocalDate(2018, 10, 4) - LocalDate(2018, 10, null)', 'Duration(days=3)');
+		jelAssert.equal('LocalDate(2018, 10, 4) - LocalDate(2018, 8, 4)', 'Duration(months=2)');
+		jelAssert.equal('LocalDate(2018, 10, 4) - LocalDate(2017, 10, 4)', 'Duration(years=1)');
+		jelAssert.equal('LocalDate(2018, 10, 4) - LocalDate(2016, 11, 8)', 'Duration(years=1, months=10, days=26)');
+		jelAssert.equal('LocalDate(2018,  1, 1) - LocalDate(2017, 12, 31)', 'Duration(days=1)');
+		jelAssert.equal('LocalDate(2018,  1, 1) - LocalDate(2017, 12, 25)', 'Duration(days=7)');
+		jelAssert.equal('LocalDate(2018, 12, 31) - LocalDate(2018, 12, 24)', 'Duration(days=7)');
+		jelAssert.equal('LocalDate(2018, 11, 30) - LocalDate(2018, 11, 24)', 'Duration(days=6)');
+		jelAssert.equal('LocalDate(2018,  1, 31) - LocalDate(2018,  1, 24)', 'Duration(days=7)');
+		jelAssert.equal('LocalDate(2018,  6, 9) - LocalDate(2017, 12, 9)', 'Duration(months=6)');
+		jelAssert.equal('LocalDate(2018,  1, 1) - LocalDate(2016, 12, 31)', 'Duration(years=1, days=1)');
+		jelAssert.equal('LocalDate(2018,  2, 1) - LocalDate(2016, 11, 30)', 'Duration(years=1, months=2, days=1)');
+		jelAssert.equal('LocalDate(2018,  1, 1) - LocalDate(2017, 12, 31)', 'Duration(days=1)');
+		jelAssert.equal('LocalDate(2000,  1, 1) - LocalDate(2016, 12, 31)', 'Duration(years=-16, months=-11, days=-30)');
+		jelAssert.equal('LocalDate(2000,  1, 1) - LocalDate(2001,  2,  1)', 'Duration(years=-1, months=-1)');
+		jelAssert.equal('LocalDate(2000,  1, 2) - LocalDate(2001,  2,  1)', 'Duration(years=-1, months=0, days=-30)');
+		jelAssert.equal('LocalDate(2000,  1, 2) - LocalDate(2001,  2,  3)', 'Duration(years=-1, months=-1, days=-1)');
+		jelAssert.equal('LocalDate(2001,  1, 2) - LocalDate(2001,  2,  3)', 'Duration(months=-1, days=-1)');
+		jelAssert.equal('LocalDate(2002,  1, 2) - LocalDate(2001,  2,  3)', 'Duration(months=10, days=27)');
+		jelAssert.equal('LocalDate(2001,  2, 3) - LocalDate(2001,  1,  2)', 'Duration(months=1, days=1)');
+
+		
+		jelAssert.equal('LocalDate(2018, 10, 4) - Duration(seconds=1)', 'LocalDate(2018, 10, 3)');
+		jelAssert.equal('LocalDate(2018, 10, 4) + Duration(hours=10)', 'LocalDate(2018, 10, 4)');
+		jelAssert.equal('LocalDate(2018, 10, 4) - Duration(days=12)', 'LocalDate(2018, 9, 22)');
+		jelAssert.equal('LocalDate(2018, 10, 4) + Duration(days=12)', 'LocalDate(2018, 10, 16)');
+		jelAssert.equal('LocalDate(2018, 10, 4) + Duration(days=12, hours=2)', 'LocalDate(2018, 10, 16)');
+		jelAssert.equal('LocalDate(2018, 10, null) + Duration(days=12)', 'LocalDate(2018, 10, 13)');
+		jelAssert.equal('LocalDate(2018, 10, 4) + Duration(years=2, months=2, days=12)', 'LocalDate(2020, 12, 16)');
+		jelAssert.equal('LocalDate(2018, 10, 4) - Duration(years=2, months=2, days=2)', 'LocalDate(2016, 8, 2)');
+
+		jelAssert.equal('LocalDate(2018, 10, 4) + 2 @Year', 'LocalDate(2020, 10, 4)');
+		jelAssert.equal('LocalDate(2018, 10, 4) + 2 @Month', 'LocalDate(2018, 12, 4)');
+		jelAssert.equal('LocalDate(2018, 10, 4) + 2 @Day', 'LocalDate(2018, 10, 6)');
+		jelAssert.equal('LocalDate(2018, 10, 4) - 2 @Year', 'LocalDate(2016, 10, 4)');
+		jelAssert.equal('LocalDate(2018, 10, 4) - 2 @Month', 'LocalDate(2018, 8, 4)');
+		jelAssert.equal('LocalDate(2018, 10, 4) - 2 @Day', 'LocalDate(2018, 10, 2)');
+
+		jelAssert.equal('Duration(days=1) + LocalDate(2018, 10, 4)', 'LocalDate(2018, 10, 5)');
+		jelAssert.equal('2 @Year + LocalDate(2018, 10, 4)', 'LocalDate(2020, 10, 4)');
+		
+	});
 });
 
+
+describe('LocalDate', function() {
+	it('creates and serializes', function() {
+		jelAssert.equal('LocalDate(year=2013, month=5, day=2)', new LocalDate(2013, 5, 2));
+		jelAssert.equal('LocalDate(1999, 1, 20)', new LocalDate(1999, 1, 20));	
+	});
+
+	it('supports operators', function() {
+		jelAssert.fuzzy('LocalDateTime(2018, 12, 24, 11, 23, 11) == LocalDateTime(2018, 12, 24, 11, 23, 11)', 1);
+		jelAssert.fuzzy('LocalDateTime(2018, 12, 24, 11, 23, 11) === LocalDateTime(2018, 12, 24, 11, 23, 11)', 1);
+		jelAssert.fuzzy('LocalDateTime(2018, 12, 24, 11, 23, 12) == LocalDateTime(2018, 12, 24, 11, 23, 11)', 0);
+		jelAssert.fuzzy('LocalDateTime(2000, 12, 24, 11, 23, 11) == LocalDateTime(2018, 12, 24, 11, 23, 11)', 0);
+		jelAssert.fuzzy('LocalDateTime(2018, 12, 24, 11, 23, 11) == LocalDateTime(2018, 12, 24, 11, null, null)', 1);
+		jelAssert.fuzzy('LocalDateTime(2018, 12, 24, 11, 23, 11) === LocalDateTime(2018, 12, 24, 11, null, null)', 0);
+		jelAssert.fuzzy('LocalDateTime(2018, 12, 24, 11, 23, 11) != LocalDateTime(2018, 12, 24, 11, 23, 11)', 0);
+		jelAssert.fuzzy('LocalDateTime(2018, 12, 24, 11, 23, 12) != LocalDateTime(2018, 12, 24, 11, 23, 11)', 1);
+		jelAssert.fuzzy('LocalDateTime(2000, 12, 24, 11, 23, 11) != LocalDateTime(2018, 12, 24, 11, 23, 11)', 1);
+
+		jelAssert.fuzzy('LocalDateTime(2017, 12, 1, 11, 23, 11) < LocalDateTime(2018, 12, 24, 11, 23, 12)', 1);
+		jelAssert.fuzzy('LocalDateTime(2017, 12, 1, 11, 23, 11) > LocalDateTime(2018, 12, 24, 11, 23, 12)', 0);
+		jelAssert.fuzzy('LocalDateTime(2017, 12, 1, 11, 23, 11) < LocalDateTime(2018, 12, 24, 11, null, null)', 1);
+		jelAssert.fuzzy('LocalDateTime(2018, 12, 24, 11, 23, 11) >= LocalDateTime(2018, 12, 24, 11, 23, 11)', 1);
+		jelAssert.fuzzy('LocalDateTime(2018, 12, 24, 11, 23, 11) <= LocalDateTime(2018, 12, 24, 11, 23, 11)', 1);
+
+		jelAssert.equal('LocalDateTime(2018, 12, 24, 11, 23, 11) - LocalDateTime(2017, 12, 24, 11, 23, 11)', 'Duration(years=1)');
+		jelAssert.equal('LocalDateTime(2018, 12, 24, 11, 23, 11) - LocalDateTime(2018, 12, 24, 11, 23, 6)', 'Duration(seconds=5)');
+		jelAssert.equal('LocalDateTime(2018, 12, 28, 11, 23, 11) - LocalDateTime(2018, 12, 24, 10, 23, 6)', 'Duration(days=4, hours=1, seconds=5)');
+
+		jelAssert.equal('LocalDateTime(2019, 12, 24, 11, 23, 10) - LocalDateTime(2018, 12, 24, 10, 23, 11)', 'Duration(years=1, minutes=59, seconds=59)');
+		jelAssert.equal('LocalDateTime(2019, 12, 24, 11, 23, 10) - LocalDateTime(2018, 12, 24, 11, 23, 11)', 'Duration(years=1, seconds=-1)');
+
+		jelAssert.equal('LocalDateTime(2019, 12, 24, 11, 23, 10) - LocalDate(2019, 12, 24)', 'Duration(hours=11, minutes=23, seconds=10)');
+		jelAssert.fuzzy('LocalDateTime(2019, 12, 24, 11, 23, 10) == LocalDate(2019, 12, 24)', 0);
+		jelAssert.fuzzy('LocalDateTime(2019, 12, 24, 0, 0, 0) == LocalDate(2019, 12, 24)', 1);
+
+		
+		jelAssert.equal('LocalDateTime(2018, 10, 4, 8, 12, 20) + 2 @Year', 'LocalDateTime(2020, 10, 4, 8, 12, 20)');
+		jelAssert.equal('LocalDateTime(2018, 10, 4, 8, 12, 20) + 2 @Month', 'LocalDateTime(2018, 12, 4, 8, 12, 20)');
+		jelAssert.equal('LocalDateTime(2018, 10, 4, 8, 12, 20) + 2 @Day', 'LocalDateTime(2018, 10, 6, 8, 12, 20)');
+		jelAssert.equal('LocalDateTime(2018, 10, 6, 8, 12, 20) - 2 @Hour', 'LocalDateTime(2018, 10, 6, 6, 12, 20)');
+		jelAssert.equal('LocalDateTime(2018, 10, 6, 8, 12, 20) + 2 @Minute', 'LocalDateTime(2018, 10, 6, 8, 14, 20)');
+		jelAssert.equal('LocalDateTime(2018, 10, 6, 8, 12, 20) - 2 @Second', 'LocalDateTime(2018, 10, 6, 8, 12, 18)');
+
+		jelAssert.equal('LocalDateTime(2018, 10, 4, 8, 12, 20) + Duration(2)', 'LocalDateTime(2020, 10, 4, 8, 12, 20)');
+		jelAssert.equal('LocalDateTime(2018, 10, 4, 8, 12, 20) + Duration(0, 2)', 'LocalDateTime(2018, 12, 4, 8, 12, 20)');
+		jelAssert.equal('LocalDateTime(2018, 10, 4, 8, 12, 20) + Duration(0, 0, 2)', 'LocalDateTime(2018, 10, 6, 8, 12, 20)');
+		jelAssert.equal('LocalDateTime(2018, 10, 6, 8, 12, 20) - Duration(0,0,0, 2)', 'LocalDateTime(2018, 10, 6, 6, 12, 20)');
+		jelAssert.equal('LocalDateTime(2018, 10, 6, 8, 12, 20) + Duration(0,0,0, 0, 2)', 'LocalDateTime(2018, 10, 6, 8, 14, 20)');
+		jelAssert.equal('LocalDateTime(2018, 10, 6, 8, 12, 20) - Duration(0,0,0, 0,0,2)', 'LocalDateTime(2018, 10, 6, 8, 12, 18)');
+		jelAssert.equal('LocalDateTime(2018, 10, 6, 8, 12, 20) + Duration(2,2,10, 2, 4, 6)', 'LocalDateTime(2020, 12, 16, 10, 16, 26)');
+
+		
+	});
+	
+});
 

@@ -159,8 +159,12 @@ describe('Fraction', function() {
 		jelAssert.equal(new Fraction(-1, 2), "-Fraction(1, 2)");
 		jelAssert.equal(new Fraction(1, 2), "+Fraction(1, 2)");
 		jelAssert.equal(new Fraction(-1, 2), "- + - + -Fraction(1, 2)");
-		jelAssert.equal(new Fraction(1, 2), "abs Fraction(-1, 2)");
 	});
+
+	it('supports abs', function() {
+		jelAssert.equal(new Fraction(1, 2), "Fraction(-1, 2).abs()");
+	});
+
 	
 	it('supports simplify()', function() {
 		jelAssert.equal(new Fraction(1, 2), "Fraction(1, 2).simplify()");

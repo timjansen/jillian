@@ -154,9 +154,13 @@ export default class Duration extends JelObject {
 			return JelBoolean.valueOf(!(s.years || s.months || s.days || s.hours || s.minutes || s.seconds));
 		}
 		else if (operator == '-') 
-			return new Duration(-this.years, -this.months, -this.days, -this.hours, -this.minutes, -this.seconds).simplify();
+			return this.negate();
 		else
 			return Runtime.singleOp(ctx, operator, this);
+	}
+	
+	negate(): Duration {
+		return new Duration(-this.years, -this.months, -this.days, -this.hours, -this.minutes, -this.seconds).simplify();
 	}
 	
 	toEstimatedSeconds_jel_mapping: any;
@@ -220,8 +224,16 @@ export default class Duration extends JelObject {
 			return Duration.minMax(ctx, '<', a);
 	}
 	
+	abs_jel_mapping: Object;
+	abs(): Duration {
+		return new Duration(Math.abs(this.years), Math.abs(this.months), Math.abs(this.days), Math.abs(this.hours), Math.abs(this.minutes), Math.abs(this.seconds));
+	}
+	
 	getSerializationProperties(): any[] {
-		return [this.years, this.months, this.days, this.hours, this.minutes, this.seconds];
+		if (this.hours || this.minutes || this.seconds)
+			return [this.years, this.months, this.days, this.hours, this.minutes, this.seconds];
+		else 
+			return [this.years, this.months, this.days];
 	}
 	
 	toString(): string {
@@ -255,6 +267,7 @@ export default class Duration extends JelObject {
 }
 
 Duration.prototype.reverseOps = JelObject.SWAP_OPS;
+Duration.prototype.abs_jel_mapping = {};
 Duration.prototype.fullDays_jel_mapping = {};
 Duration.prototype.simplify_jel_mapping = {};
 Duration.prototype.toEstimatedSeconds_jel_mapping = {};

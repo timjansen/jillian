@@ -41,12 +41,20 @@ export default class LocalDate extends TimeSpec {
 		return JelBoolean.TRUE;
 	}
 
-		// m0: 0-11
+	// m0: 0-11
 	private getMonth0Duration(year: number, m0: number) {
 		if (m0 != 1)
 			return LocalDate.MONTHS_MAX_DURATION[m0];
 		else 
 			return moment([year]).isLeapYear() ? 29 : 28;
+	}
+
+	get dayOfYear(): number {
+		let md = 0;
+		const m = this.month || 1;
+		for (let i = 1; i < m; i++)
+			md += this.getMonth0Duration(this.year, i-1);
+		return md + (this.day || 1);
 	}
 	
 	isValid(): boolean {
@@ -99,6 +107,14 @@ export default class LocalDate extends TimeSpec {
 			return new LocalDate(y, m0+1, day0+1);
 	}
 	
+	private simplifyNoNull(): LocalDate {
+		const d = this.simplify();
+		if (d.month == null || d.day == null)
+			return new LocalDate(d.year, d.month || 1, d.day || 1);
+		else
+			return d;
+	}
+	
 	
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (right instanceof LocalDate) {
@@ -110,9 +126,17 @@ export default class LocalDate extends TimeSpec {
 				case '===':
 					return JelBoolean.valueOf(this.year === right.year && this.month === right.month && this.day === right.day);
 				case '>>':
-				case '>':
+				case '>': {
 					const l = this.simplify(), r = right.simplify();
 					return JelBoolean.valueOf(l.year * 1000 + (l.month||1) * 50 + (l.day||1) > r.year * 1000 + (r.month||1) * 50 + (r.day||1));
+				}
+				case '>=':
+					return JelBoolean.truest(ctx, this.op(ctx, '==', right) as JelBoolean, this.op(ctx, '>', right) as JelBoolean);
+				case '<=':
+					return JelBoolean.truest(ctx, this.op(ctx, '==', right) as JelBoolean, (this.op(ctx, '>', right) as JelBoolean).negate());
+				case '-': {
+					return this.diff(ctx, right);
+				}
 			}
 		}
 		else if (right instanceof LocalDateTime) {
@@ -138,12 +162,12 @@ export default class LocalDate extends TimeSpec {
 			switch (operator) {
 				case '+':
 				case '-':
-					if (right.isType(ctx, 'Year') && JelNumber.isInteger(ctx, right.value))
-						return this.op(ctx, operator, new Duration(JelNumber.toRealNumber(right.value)));
-					else if (right.isType(ctx, 'Month') && JelNumber.isInteger(ctx, right.value))
-						return this.op(ctx, operator, new Duration(0, JelNumber.toRealNumber(right.value)));
+					if (right.isType(ctx, 'Year') && JelNumber.isInteger(ctx, right))
+						return this.op(ctx, operator, new Duration(JelNumber.toRealNumber(right)));
+					else if (right.isType(ctx, 'Month') && JelNumber.isInteger(ctx, right))
+						return this.op(ctx, operator, new Duration(0, JelNumber.toRealNumber(right)));
 					else
-						return Util.resolveValue(right.convertTo(ctx, 'Day'), days=>this.op(ctx, operator, new Duration(0,0,days)));
+						return Util.resolveValue(right.convertTo(ctx, 'Day'), days=>this.op(ctx, operator, new Duration(0,0,JelNumber.toRealNumber(days))));
 			}
 		}
 		
@@ -161,17 +185,31 @@ export default class LocalDate extends TimeSpec {
 	toLocalDateTime(time = TimeOfDay.MIDNIGHT): LocalDateTime {
 		return new LocalDateTime(this, time);
 	}
+	
 
+	diff(ctx: Context, right: LocalDate): Duration {
+		const l = this.simplifyNoNull(), r = right.simplifyNoNull();
+		if (l.year * 1000 + l.month! * 50 + l.day! < r.year * 1000 + r.month! * 50 + r.day!)
+			return r.diff(ctx, l).negate();
+
+		const mDiff = (l.year! * 12 + l.month!)-(r.year! * 12 + r.month!);
+		if (l.day! >= r.day!)
+			return new Duration(Math.trunc((mDiff)/12), (mDiff)%12, l.day!-r.day!);
+		else
+			return new Duration(Math.trunc((mDiff-1)/12), (mDiff-1)%12, l.day!+this.getMonth0Duration(r.year!, r.month!-1)-r.day!);
+	}
 	
 	getSerializationProperties(): any[] {
 		return [this.year, this.month, this.day];
 	}
 	
-	static create_jel_mapping: any = {year: 1, month: 2, day: 3};
+	static create_jel_mapping: any = {date: 1, time: 2, year: 1, month: 2, day: 3, hour: 4, minute: 5, seconds: 6};
 	static create(ctx: Context, ...args: any[]): any {
-		return new LocalDate(args[0], args[1], args[2]).simplify();
+		return new LocalDate(JelNumber.toRealNumber(args[0], 0), JelNumber.toOptionalRealNumber(args[1], null), JelNumber.toOptionalRealNumber(args[2], null)).simplify();
 	}
 }
 
+LocalDate.prototype.JEL_PROPERTIES = {year:1, month:1, day: 1, dayOfYear: 1};
 LocalDate.prototype.simplify_jel_mapping = {};
+LocalDate.prototype.reverseOps = {'+': 1};
 

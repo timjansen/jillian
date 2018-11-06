@@ -2,12 +2,13 @@ import JelObject from '../JelObject';
 import Runtime from '../Runtime';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import Context from '../Context';
+import Numeric from './Numeric';
 import JelNumber from './JelNumber';
 import JelBoolean from './JelBoolean';
 /**
  * Represents a fraction.
  */
-export default class Fraction extends JelObject {
+export default class Fraction extends JelObject implements Numeric {
 	numerator: number;
 	denominator: number;
 	reverseOps: Object;
@@ -165,12 +166,20 @@ export default class Fraction extends JelObject {
 				return new Fraction(-this.numerator, this.denominator);
 			case '+':
 				return this;
-			case 'abs':
-				return this.numerator >= 0 ? this : new Fraction(Math.abs(this.numerator), this.denominator);
 		}
 		return super.singleOp(ctx, operator);
 	}
 	
+	abs_jel_mapping: Object;
+	abs(): Fraction {
+		return this.numerator >= 0 ? this : new Fraction(Math.abs(this.numerator), this.denominator);
+	}
+
+	negate_jel_mapping: Object;
+	negate(): Fraction {
+		return new Fraction(-this.numerator, this.denominator);
+	}
+
 	toNumber_jel_mapping: Object;
 	toNumber(): JelNumber {
 		return this.denominator !== 0 ? JelNumber.valueOf(this.numerator / this.denominator) : JelNumber.NAN;
@@ -180,8 +189,8 @@ export default class Fraction extends JelObject {
 		return this.denominator !== 0 ? this.numerator / this.denominator : NaN;
 	}
 	
-	toBoolean(): JelBoolean {
-		return JelBoolean.valueOf(!!this.numerator);
+	toBoolean(): boolean {
+		return !!this.numerator;
 	}
 	
 	toString(): string {
@@ -229,6 +238,8 @@ export default class Fraction extends JelObject {
 }
 
 Fraction.prototype.reverseOps = Object.assign({'-': true, '/': true, '+-': true, '^': true}, JelObject.SWAP_OPS);
+Fraction.prototype.abs_jel_mapping = {};
+Fraction.prototype.negate_jel_mapping = {};
 Fraction.prototype.toNumber_jel_mapping = {};
 Fraction.prototype.simplify_jel_mapping = {};
 

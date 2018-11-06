@@ -4,12 +4,13 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
 import SerializablePrimitive from '../SerializablePrimitive';
 import Context from '../Context';
 import Util from '../../util/Util';
+import Numeric from './Numeric';
 import JelBoolean from './JelBoolean';
 
 /**
  * Represents a number.
  */
-export default class JelNumber extends JelObject implements SerializablePrimitive {
+export default class JelNumber extends JelObject implements SerializablePrimitive, Numeric {
 	
 	static readonly NAN = new JelNumber(NaN);
 	static readonly DEFAULT_NUMBERS_RANGE = 100;
@@ -76,19 +77,22 @@ export default class JelNumber extends JelObject implements SerializablePrimitiv
 				return this.negate();
 			case '+':
 				return JelNumber.valueOf(+this.value);
-			case 'abs':
-				return JelNumber.valueOf(Math.abs(this.value));
 		}
 		return super.singleOp(ctx, operator);
 	}
 	
+	negate_jel_mapping: Object;
 	negate(): JelNumber {
 		return JelNumber.valueOf(-this.value);
 	}
 
+	abs_jel_mapping: Object;
+	abs(): JelNumber {
+		return this.value >= 0 ? this : JelNumber.valueOf(Math.abs(this.value));
+	}
 
-	toBoolean(): JelBoolean {
-		return JelBoolean.valueOf(!!this.value);
+	toBoolean(): boolean {
+		return !!this.value;
 	}
 
 	static toNumber(n: number|JelObject|null, defaultValue: any = JelNumber.NAN): any {
@@ -151,6 +155,8 @@ JelNumber.prototype.reverseOps = {
 	'<=': 1,
 	'<<=': 1,
 };
+JelNumber.prototype.abs_jel_mapping = {};
+JelNumber.prototype.negate_jel_mapping = {};
 
 BaseTypeRegistry.register('JelNumber', JelNumber);
 

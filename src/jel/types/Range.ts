@@ -29,51 +29,56 @@ export default class Range extends JelObject {
 		else if (operator == '!=')
 			return (this.op(ctx, '==', right) as JelBoolean).negate();
 		else if (right instanceof Range) {
-			if (operator == '==')
-				return JelBoolean.orWithPromises(this.contains(ctx, right.min), this.contains(ctx, right.max), right.contains(ctx, this.min), right.contains(ctx, this.max));
-			else if (operator == '===')
-				return JelBoolean.andWithPromises(Runtime.op(ctx, '===', this.min, right.min) as JelBoolean, Runtime.op(ctx, '===', this.max, right.max) as JelBoolean);
-			else if (operator == '>>')
-				return (right.max == null || this.min == null) ? JelBoolean.FALSE : Runtime.op(ctx, '>>', this.min, right.max);
-			else if (operator == '<<')
-				return (right.min == null || this.max == null) ? JelBoolean.FALSE : Runtime.op(ctx, '<<', this.max, right.min);
-			else if (operator == '>')
-				return (this.max == null || right.max == null) ? JelBoolean.valueOf(this.max == null && right.max != null) : Runtime.op(ctx, '>', this.max, right.max);
-			else if (operator == '<')
-				return (this.min == null || right.min == null) ? JelBoolean.valueOf(this.min == null && right.min != null) : Runtime.op(ctx, '<', this.min, right.min);
-			else if (operator == '>>=')
-				return (this.min == null || right.max == null) ? JelBoolean.valueOf(this.min == right.max) : Runtime.op(ctx, '>>=', this.min, right.max); // TODO!
-			else if (operator == '<<=')
-				return (this.max == null || right.min == null) ? JelBoolean.valueOf(this.max == right.min) : Runtime.op(ctx, '<<=', this.max, right.min);
-			else if (operator == '>=')
-				return (this.max == null || right.max == null) ? JelBoolean.valueOf(this.max == null) : Runtime.op(ctx, '>=', this.max, right.max);
-			else if (operator == '<=')
-				return (this.min == null || right.min == null) ? JelBoolean.valueOf(this.min == null) : Runtime.op(ctx, '<=', this.min, right.min);
+			switch (operator) {
+				case '==':
+					return JelBoolean.orWithPromises(this.contains(ctx, right.min), this.contains(ctx, right.max), right.contains(ctx, this.min), right.contains(ctx, this.max));
+				case '===':
+					return JelBoolean.andWithPromises(Runtime.op(ctx, '===', this.min, right.min) as JelBoolean, Runtime.op(ctx, '===', this.max, right.max) as JelBoolean);
+				case '>>':
+					return (right.max == null || this.min == null) ? JelBoolean.FALSE : Runtime.op(ctx, '>>', this.min, right.max);
+				case '<<':
+					return (right.min == null || this.max == null) ? JelBoolean.FALSE : Runtime.op(ctx, '<<', this.max, right.min);
+				case '>':
+					return (this.max == null || right.max == null) ? JelBoolean.valueOf(this.max == null && right.max != null) : Runtime.op(ctx, '>', this.max, right.max);
+				case '<':
+					return (this.min == null || right.min == null) ? JelBoolean.valueOf(this.min == null && right.min != null) : Runtime.op(ctx, '<', this.min, right.min);
+				case '>>=':
+					return (this.min == null || right.max == null) ? JelBoolean.valueOf(this.min == right.max) : Runtime.op(ctx, '>>=', this.min, right.max); // TODO!
+				case '<<=':
+					return (this.max == null || right.min == null) ? JelBoolean.valueOf(this.max == right.min) : Runtime.op(ctx, '<<=', this.max, right.min);
+				case '>=':
+					return (this.max == null || right.max == null) ? JelBoolean.valueOf(this.max == null) : Runtime.op(ctx, '>=', this.max, right.max);
+				case '<=':
+					return (this.min == null || right.min == null) ? JelBoolean.valueOf(this.min == null) : Runtime.op(ctx, '<=', this.min, right.min);
+			}
 		}
 		else if (right instanceof JelObject) {
-			if (operator == '==')
-				return this.contains(ctx, right);
-			else if (operator == '===')
-				return JelBoolean.andWithPromises(Runtime.op(ctx, '===', this.min, right) as JelBoolean, Runtime.op(ctx, '===', this.max, right) as JelBoolean);
-			else if (operator == '>>')
-				return this.min != null ? Runtime.op(ctx, '>>', this.min, right) : JelBoolean.FALSE;
-			else if (operator == '<<')
-				return this.max != null ? Runtime.op(ctx, '<<', this.max, right) : JelBoolean.FALSE;
-			else if (operator == '>')
-				return this.min != null ? Runtime.op(ctx, '>', this.min, right) : JelBoolean.FALSE;
-			else if (operator == '<')
-				return this.max != null ? Runtime.op(ctx, '<', this.max, right) : JelBoolean.FALSE;
-			else if (operator == '>>=')
-				return JelBoolean.orWithPromises(this.op(ctx, '>>', right) as JelBoolean, this.contains(ctx, right));
-			else if (operator == '<<=')
-				return JelBoolean.orWithPromises(this.op(ctx, '<<', right) as JelBoolean, this.contains(ctx, right));
-			else if (operator == '>=')
-				return JelBoolean.orWithPromises(this.op(ctx, '>', right) as JelBoolean, this.contains(ctx, right));
-			else if (operator == '<=')
-				return JelBoolean.orWithPromises(this.op(ctx, '<', right) as JelBoolean, this.contains(ctx, right));
-			else if (operator in RANGE_NUM_OPS)
-				return new Range(this.min != null ? Runtime.op(ctx, operator, this.min, right) as any: this.min, 
-												 this.max != null ? Runtime.op(ctx, operator, this.max, right) as any: this.max);
+			switch (operator) {
+				case '==':
+					return this.contains(ctx, right);
+				case '===':
+					return JelBoolean.andWithPromises(Runtime.op(ctx, '===', this.min, right) as JelBoolean, Runtime.op(ctx, '===', this.max, right) as JelBoolean);
+				case '>>':
+					return this.min != null ? Runtime.op(ctx, '>>', this.min, right) : JelBoolean.FALSE;
+				case '<<':
+					return this.max != null ? Runtime.op(ctx, '<<', this.max, right) : JelBoolean.FALSE;
+				case '>':
+					return this.min != null ? Runtime.op(ctx, '>', this.min, right) : JelBoolean.FALSE;
+				case '<':
+					return this.max != null ? Runtime.op(ctx, '<', this.max, right) : JelBoolean.FALSE;
+				case '>>=':
+					return JelBoolean.orWithPromises(this.op(ctx, '>>', right) as JelBoolean, this.contains(ctx, right));
+				case '<<=':
+					return JelBoolean.orWithPromises(this.op(ctx, '<<', right) as JelBoolean, this.contains(ctx, right));
+				case '>=':
+					return JelBoolean.orWithPromises(this.op(ctx, '>', right) as JelBoolean, this.contains(ctx, right));
+				case '<=':
+					return JelBoolean.orWithPromises(this.op(ctx, '<', right) as JelBoolean, this.contains(ctx, right));
+				default:
+					if (operator in RANGE_NUM_OPS)
+						return new Range(this.min != null ? Runtime.op(ctx, operator, this.min, right) as any: this.min, 
+														 this.max != null ? Runtime.op(ctx, operator, this.max, right) as any: this.max);
+			}
 		}
 		return super.op(ctx, operator, right);
 	}
@@ -88,7 +93,7 @@ export default class Range extends JelObject {
 	middle_jel_mapping: Object;
 	middle(ctx: Context): JelObject | null {
 		if (this.min != null && this.max != null)
-			return Runtime.singleOpWithPromise(ctx, 'abs', Runtime.op(ctx, '-', this.min, this.max) as any) as any;
+			return Util.resolveValue(Runtime.op(ctx, '-', this.min, this.max), (x: any)=>x.abs());
 		else
 			return null;
 	}
@@ -107,8 +112,8 @@ export default class Range extends JelObject {
 	}
 	
 	static create_jel_mapping = {min:1, max:2};
-	static create(ctx: Context, min?: JelObject | null, max?: JelObject | null): Range {
-		return new Range(min != null ? min : null, max != null ? max : null);
+	static create(ctx: Context, ...args: any[]): Range {
+		return new Range(args[0] != null ? args[0] : null, args[1] != null ? args[1] : null);
 	}
 }
 

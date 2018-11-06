@@ -25,7 +25,7 @@ import TimeOfDay from './types/time/TimeOfDay';
 import LocalDate from './types/time/LocalDate';
 import LocalDateTime from './types/time/LocalDateTime';
 
-const CTX_IDENTIFIERS = {JelBoolean, Number: JelNumber, String: JelString, ApproximateNumber, Range, Fraction, Unit, UnitValue,
+const CTX_IDENTIFIERS = {Boolean: JelBoolean, Number: JelNumber, String: JelString, ApproximateNumber, Range, Fraction, Unit, UnitValue,
 												 Math: JelMath, Dictionary, List, Distribution, DistributionPoint, Pattern, Translator, EnumValue, 
 												 Duration, DurationRange, Timestamp, TimeZone, TimeOfDay, LocalDate, LocalDateTime,
 												 ___IS_DEFAULT_CONTEXT: 'magic123'};

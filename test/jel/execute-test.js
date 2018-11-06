@@ -87,6 +87,7 @@ describe('JEL', function() {
       jelAssert.equal('7-5', 2);
       jelAssert.equal('7^2', 49);
       jelAssert.equal('0.5^-1', 2);
+      jelAssert.equal('(-0.5).abs()', 0.5);
       jelAssert.equal('!true', 'false');
       jelAssert.equal(new JEL('-(10/2.0)').executeImmediately(), -5);
       jelAssert.equal(new JEL('"foo"+"bar"').executeImmediately(), "'foobar'");

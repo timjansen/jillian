@@ -4,7 +4,7 @@ require('source-map-support').install();
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
-const jelAssert = new JelAssert(DefaultContext.get());
+const jelAssert = new JelAssert(DefaultContext.get().plus({JelBoolean}));
 
 
 	describe('JelBoolean', function() {

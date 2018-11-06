@@ -159,4 +159,10 @@ describe('ApproximateNumber', function() {
 		jelAssert.fuzzy("!ApproximateNumber(-1, 6)", 0);
 		jelAssert.fuzzy("!ApproximateNumber(0, 8)", 1);
 	});
+
+	it('support abs', function() {
+		jelAssert.equal("ApproximateNumber(1, 4).abs()", "ApproximateNumber(1, 4)");
+		jelAssert.equal("ApproximateNumber(-1, 4).abs()", "ApproximateNumber(1, 4)");
+	});
+
 });

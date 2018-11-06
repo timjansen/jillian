@@ -236,6 +236,13 @@ tmp.dir(function(err, path) {
 						jelAssert.equalPromise("UnitValue(5, Unit({Foot: 1, Millimeter: 1, Mile: 1})).simplify().round()", "2 @CubicMeter")
 					]);
 				});			
+
+				it('supports abs()', function() {
+					jelAssert.equalPromise("(5 @Meter).abs()", "(5 @Meter)");
+					jelAssert.equalPromise("(-5 @Meter).abs()", "(5 @Meter)");
+					jelAssert.equalPromise("(-1/5 @Meter).abs()", "(1/5 @Meter)");
+				});			
+
 			});
 		
 		

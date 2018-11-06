@@ -77,7 +77,7 @@ export default class JelObject {
 
 	
 	/*
-	 * Ops that may be implemented: '+', '-', '!', 'abs'
+	 * Ops that may be implemented: '+', '-', '!'
 	 */
 	singleOp_jel_mapping: Object;
 	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
@@ -98,7 +98,7 @@ export default class JelObject {
 	toBoolean(): any { // this is any to avoid the circular dep in TypeScript, but would be FuzzyB
 		throw new Error(`Boolean conversion not supported for type "${this.constructor.name}"`);
 	}
-	
+
 	getSerializationProperties(): Object|any[] {
 		throw new Error(`getSerializationProperties() not implemented in ${this.constructor.name}`);
 	}

@@ -84,7 +84,7 @@ export default class Runtime {
 				return value;
 		}
 
-		const callableCacheKey = isClass ? `${name}_${obj.constructor.name}_jel_callable` : `${name}_jel_callable`;
+		const callableCacheKey = isClass ? `${name}_${obj.name}_jel_callable` : `${name}_jel_callable`;
 		const callable = obj[callableCacheKey];
 		if (callable)
 				return callable;

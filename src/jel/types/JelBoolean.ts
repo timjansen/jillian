@@ -116,9 +116,13 @@ export default class JelBoolean extends JelObject implements SerializablePrimiti
 	static toRealBoolean(obj: boolean|JelObject|null): boolean {
 		if (typeof obj == 'boolean')
 			return obj;
-		else if (obj != null)
-			return (obj as JelObject).toBoolean().toRealBoolean();
-		else
+		else if (obj != null) {
+			const x = (obj as JelObject).toBoolean();
+			if (x instanceof JelBoolean)
+				return x.toRealBoolean();
+			else
+				return x;
+		}
 			return false;
 	}
 
