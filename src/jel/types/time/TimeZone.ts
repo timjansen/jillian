@@ -66,7 +66,7 @@ export default class TimeZone extends JelObject {
 	
 	static create_jel_mapping: any = {tz: 1};
 	static create(ctx: Context, ...args: any[]): any {
-		return new TimeZone(JelString.toRealString(args[0]));
+		return new TimeZone(TypeChecker.realString(args[0], 'tz', 'UTC'));
 	}
 }
 

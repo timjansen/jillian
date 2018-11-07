@@ -94,7 +94,7 @@ export default class TimeOfDay extends JelObject {
 	
 	static create_jel_mapping = {hour: 1, minute: 2, seconds: 3};
 	static create(ctx: Context, ...args: any[]): any {
-		const td = new TimeOfDay(JelNumber.toRealNumber(args[0], 0), JelNumber.toOptionalRealNumber(args[1], null), JelNumber.toOptionalRealNumber(args[2], null));
+		const td = new TimeOfDay(TypeChecker.realNumber(args[0], 'hour', 0), TypeChecker.optionalRealNumber(args[1], 'minute'), TypeChecker.optionalRealNumber(args[2], 'seconds'));
 		if (!td.isValid())
 			throw new Error('Invalid time of day: '+td.toString());
 		return td;

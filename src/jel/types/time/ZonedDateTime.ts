@@ -1,5 +1,6 @@
 import * as moment from 'moment';
 
+import JelObject from '../../JelObject';
 import Context from '../../Context';
 import LocalDateTime from './LocalDateTime';
 import LocalDate from './LocalDate';
@@ -12,10 +13,10 @@ import TypeChecker from '../TypeChecker';
 /**
  * Represents a date.
  */
-export default class ZonedDateTime extends LocalDateTime {
+export default class ZonedDateTime extends JelObject {
 	
 	constructor(public timeZone: TimeZone, date: LocalDate, time: TimeOfDay, public milliseconds = 0) {
-		super(date, time);
+		super();
 	}
 	
 	getStartTime(): Timestamp {
@@ -31,7 +32,8 @@ export default class ZonedDateTime extends LocalDateTime {
 	}
 
 	getSerializationProperties(): any[] {
-		return [this.timeZone, this.date, this.time, this.milliseconds];
+//		return [this.timeZone, this.date, this.time, this.milliseconds];
+		return [];
 	}
 	
 	static create_jel_mapping = {timeZone: 1, date: 2, time: 3, milliseconds: 4};

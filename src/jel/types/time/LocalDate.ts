@@ -204,9 +204,9 @@ export default class LocalDate extends TimeSpec {
 		return [this.year, this.month, this.day];
 	}
 	
-	static create_jel_mapping: any = {date: 1, time: 2, year: 1, month: 2, day: 3, hour: 4, minute: 5, seconds: 6};
+	static create_jel_mapping: any = {year: 1, month: 2, day: 3};
 	static create(ctx: Context, ...args: any[]): any {
-		return new LocalDate(JelNumber.toRealNumber(args[0], 0), JelNumber.toOptionalRealNumber(args[1], null), JelNumber.toOptionalRealNumber(args[2], null)).simplify();
+		return new LocalDate(TypeChecker.realNumber(args[0], 'year', 0), TypeChecker.optionalRealNumber(args[1], 'month'), TypeChecker.optionalRealNumber(args[2], 'day')).simplify();
 	}
 }
 

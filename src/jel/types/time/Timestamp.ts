@@ -164,7 +164,7 @@ export default class Timestamp extends TimeSpec {
 	
 	static create_jel_mapping = {msSinceEpoch: 1, precisionInMs: 2};
 	static create(ctx: Context, ...args: any[]): any {
-		return new Timestamp(JelNumber.toRealNumber(args[0]), JelNumber.toRealNumber(args[1], 0));
+		return new Timestamp(TypeChecker.realNumber(args[0], 'msSinceEpoch'), TypeChecker.realNumber(args[1], 'precisionInMs', 0));
 	}
 }
 

@@ -5,13 +5,13 @@ import Context from '../../Context';
 import JelBoolean from '../JelBoolean';
 import JelNumber from '../JelNumber';
 import UnitValue from '../UnitValue';
+import TypeChecker from '../TypeChecker';
 import TimeSpec from './TimeSpec';
 import LocalDate from './LocalDate';
 import TimeOfDay from './TimeOfDay';
 import TimeZone from './TimeZone';
 import Timestamp from './Timestamp';
 import Duration from './Duration';
-import TypeChecker from '../TypeChecker';
 
 
 /**
@@ -131,13 +131,13 @@ export default class LocalDateTime extends TimeSpec {
 		return [this.date, this.time];
 	}
 	
-	static create_jel_mapping = {date: 1, time: 2};
+	static create_jel_mapping = {date: 1, time: 2, year: 1, month: 2, day: 3, hour: 4, minute: 5, seconds: 6};
 	static create(ctx: Context, ...args: any[]): any {
 		if (args[0] instanceof LocalDate)
-			return new LocalDateTime(args[0], args[1]);
+			return new LocalDateTime(args[0], TypeChecker.instance(TimeOfDay, args[1], 'time'));
 		else 
-			return new LocalDateTime(new LocalDate(JelNumber.toRealNumber(args[0]), JelNumber.toOptionalRealNumber(args[1], null), JelNumber.toOptionalRealNumber(args[2], null)), 
-															new TimeOfDay(JelNumber.toRealNumber(args[3]), JelNumber.toOptionalRealNumber(args[4], null), JelNumber.toOptionalRealNumber(args[5], null)));
+			return new LocalDateTime(new LocalDate(TypeChecker.realNumber(args[0], 'year'), TypeChecker.realNumber(args[1], 'month'), TypeChecker.realNumber(args[2], 'day')), 
+															new TimeOfDay(TypeChecker.realNumber(args[3], 'hour'), TypeChecker.optionalRealNumber(args[4], 'minute'), TypeChecker.optionalRealNumber(args[5], 'seconds')));
 	}
 }
 

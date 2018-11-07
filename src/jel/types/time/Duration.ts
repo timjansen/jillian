@@ -262,7 +262,8 @@ export default class Duration extends JelObject {
 				return Util.resolveValue(uv.convertTo(ctx, 'Second'), r=>new Duration(0, 0, 0, 0, 0, JelNumber.toRealNumber(r)).simplify());
 		}
 
-		return new Duration(JelNumber.toRealNumber(args[0], 0), JelNumber.toRealNumber(args[1], 0), JelNumber.toRealNumber(args[2], 0), JelNumber.toRealNumber(args[3], 0), JelNumber.toRealNumber(args[4], 0), JelNumber.toRealNumber(args[5], 0));
+		return new Duration(TypeChecker.realNumber(args[0], 'years', 0), TypeChecker.realNumber(args[1], 'months', 0), TypeChecker.realNumber(args[2], 'days', 0), 
+												TypeChecker.realNumber(args[3], 'hours', 0), TypeChecker.realNumber(args[4], 'minutes', 0), TypeChecker.realNumber(args[5], 'seconds', 0));
 	}
 
 }

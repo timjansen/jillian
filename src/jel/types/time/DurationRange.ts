@@ -52,7 +52,7 @@ export default class DurationRange extends Range {
 	}
 
 	contains_jel_mapping: Object;
-	contains(ctx: Context, value: JelObject|null): JelBoolean {
+	contains(ctx: Context, value: any): JelBoolean {
 		if (value == null)
 			return JelBoolean.valueOf(!this.isFinite());
 		if (value instanceof DurationRange)
@@ -66,7 +66,7 @@ export default class DurationRange extends Range {
 	
 	static create_jel_mapping = {min: 1, max: 2};
 	static create(ctx: Context, ...args: any[]): DurationRange {
-		return new DurationRange(args[0], args[1]);
+		return new DurationRange(TypeChecker.instance(Duration, args[0], 'min'), TypeChecker.instance(Duration, args[1], 'max'));
 	}
 
 }
