@@ -27,7 +27,7 @@ export default class Runtime {
 	/**
 	 * Executes the given operator on any non-promise type.
 	 */
-	static op(ctx: Context, operator: string, left: JelObject|null, right: JelObject|null): JelObject|Promise<JelObject> {
+	static op(ctx: Context, operator: string, left: any, right: any): JelObject|Promise<JelObject> {
 		if (left == null || right == null) {
 			if (operator == '==' || operator == '===')
 				return BaseTypeRegistry.get('JelBoolean').valueOf(left === right);
@@ -50,7 +50,7 @@ export default class Runtime {
 	}
 
 	
-	static singleOp(ctx: Context, operator: string, left: JelObject): JelObject|Promise<JelObject> {
+	static singleOp(ctx: Context, operator: string, left: any): JelObject|Promise<JelObject> {
 		if (left instanceof JelObject)
 			return left.singleOp(ctx, operator);
 		else if (left == null)
@@ -67,7 +67,7 @@ export default class Runtime {
 			return false;
 		
 		if (left)
-			return left.constructor.name.replace(/^Jel/, '') == (right as any).distinctName;
+			return left.getJelType().replace(/^Jel/, '') == (right as any).distinctName;
 		else
 			return false;
 	}
@@ -105,6 +105,7 @@ export default class Runtime {
 		else
 			throw new Error(`Unknown property ${name}.`);
 	}
+
 	
 }
 

@@ -3,6 +3,7 @@ import Context from '../Context';
 import {IDbRef} from '../IDatabase';
 import JelBoolean from './JelBoolean';
 import JelString from './JelString';
+import TypeChecker from './TypeChecker';
 
 /**
  * Represents the value of an Enumeration.
@@ -38,7 +39,7 @@ export default class EnumValue extends JelObject {
 	
 	static create_jel_mapping = {value: 1, parent: 2 };
 	static create(ctx: Context, ...args: any[]): EnumValue {
-		return new EnumValue(JelString.toRealString(args[0]), args[1]);
+		return new EnumValue(TypeChecker.realString(args[0], 'value'), TypeChecker.dbRef(args[1], 'parent'));
 	}
 }
 

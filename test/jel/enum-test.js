@@ -22,7 +22,7 @@ tmp.dir(function(err, path) {
 
 	describe('EnumValue', function() {
 		it('creates and serializes', function() {
-			jelAssert.equal(new EnumValue("T1", "T"), 'EnumValue("T1", "T")');
+			jelAssert.equal(new EnumValue("T1", new DbRef('T')), 'EnumValue("T1", @T)');
 		});
 
 		it('supports EnumValue<->EnumValue comparisons', function() {

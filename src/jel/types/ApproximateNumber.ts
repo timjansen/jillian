@@ -6,10 +6,11 @@ import Fraction from './Fraction';
 import JelNumber from './JelNumber';
 import Numeric from './Numeric';
 import JelBoolean from './JelBoolean';
+import TypeChecker from './TypeChecker';
 
 
 const ACCURACY_FACTOR = 0.999999;  // to avoid rounding issues with fuzzy comparisons
-
+const NUMBER_OR_FRACTION = ['JelNumber', 'Fraction'];
 
 const DEQUAL: any = {'<=': '<', '>=': '>'};
 
@@ -197,7 +198,7 @@ export default class ApproximateNumber extends JelObject implements Numeric {
 	
 	static create_jel_mapping = {value: 1, maxError: 2};
 	static create(ctx: Context, ...args: any[]): ApproximateNumber {
-		return new ApproximateNumber(args[0], args[1] || 0);
+		return new ApproximateNumber(TypeChecker.types(NUMBER_OR_FRACTION, args[0], 'value'), TypeChecker.optionalTypes(NUMBER_OR_FRACTION, args[1], 'maxError', 0));
 	}
 }
 

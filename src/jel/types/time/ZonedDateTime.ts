@@ -7,6 +7,7 @@ import TimeOfDay from './TimeOfDay';
 import Timestamp from './Timestamp';
 import TimeZone from './TimeZone';
 import JelBoolean from '../JelBoolean';
+import TypeChecker from '../TypeChecker';
 
 /**
  * Represents a date.

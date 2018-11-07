@@ -8,6 +8,7 @@ import Context from './Context';
 export default class JelObject {
 	reverseOps: Object;
 	JEL_PROPERTIES: Object;
+	jelTypeName: string;
 
 	// ops that can swap the left and right operands
 	static readonly SWAP_OPS: any = {
@@ -39,6 +40,7 @@ export default class JelObject {
 
 	
 	constructor() {
+		this.jelTypeName = this.constructor.name;
 	}
 	
 	/*
@@ -98,6 +100,11 @@ export default class JelObject {
 	toBoolean(): any { // this is any to avoid the circular dep in TypeScript, but would be FuzzyB
 		throw new Error(`Boolean conversion not supported for type "${this.constructor.name}"`);
 	}
+	
+	getJelType_jel_mapping: Object;
+	getJelType(): string {
+		return this.jelTypeName;
+	}
 
 	getSerializationProperties(): Object|any[] {
 		throw new Error(`getSerializationProperties() not implemented in ${this.constructor.name}`);
@@ -111,3 +118,4 @@ JelObject.prototype.op_jel_mapping = {operator:1, right:2};
 JelObject.prototype.opReversed_jel_mapping = {operator:1, left:2};
 JelObject.prototype.singleOp_jel_mapping = {operator: 1};
 JelObject.prototype.toBoolean_jel_mapping = {};
+JelObject.prototype.getJelType_jel_mapping = {};

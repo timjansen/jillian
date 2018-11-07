@@ -8,6 +8,7 @@ import Range from '../Range';
 import JelBoolean from '../JelBoolean';
 import JelNumber from '../JelNumber';
 import ZonedDate from './ZonedDate';
+import TypeChecker from '../TypeChecker';
 
 /**
  * Abstract base class that represents a date period.

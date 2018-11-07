@@ -11,6 +11,7 @@ import TimeOfDay from './TimeOfDay';
 import TimeZone from './TimeZone';
 import Timestamp from './Timestamp';
 import Duration from './Duration';
+import TypeChecker from '../TypeChecker';
 
 
 /**

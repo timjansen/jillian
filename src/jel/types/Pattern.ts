@@ -9,6 +9,7 @@ import JelBoolean from './JelBoolean';
 import JelString from './JelString';
 import PatternNode from '../patternNodes/PatternNode';
 import Util from '../../util/Util';
+import TypeChecker from './TypeChecker';
 
 export default class Pattern extends JelObject implements SerializablePrimitive {
 	
@@ -22,13 +23,17 @@ export default class Pattern extends JelObject implements SerializablePrimitive 
 	}
 
 	match_jel_mapping: Object;
-	match(ctx: Context, inputOrTokens: JelString|string | string[]): JelBoolean | Promise<JelBoolean> {
-		if (inputOrTokens instanceof JelString)
-			return this.match(ctx, inputOrTokens.value);
-		if (typeof inputOrTokens == 'string') {
-			const trimmed = inputOrTokens.trim();
+	match(ctx: Context, inputOrTokens0: any): JelBoolean | Promise<JelBoolean> {
+		if (inputOrTokens0 instanceof JelString)
+			return this.match(ctx, inputOrTokens0.value);
+		if (typeof inputOrTokens0 == 'string') {
+			const trimmed = inputOrTokens0.trim();
 			return this.match(ctx, trimmed ? trimmed.split(/\s+/g) : []);
 		}
+		if (!Array.isArray(inputOrTokens0) && ((inputOrTokens0 instanceof JelObject) || inputOrTokens0 == null))
+			return TypeChecker.throwArgumentError(inputOrTokens0, 'inputOrTokens', 'string');	
+		
+		const inputOrTokens: string[] = inputOrTokens0;
 		const p = this.tree.match(ctx, inputOrTokens, 0);
 
 		if (!p)

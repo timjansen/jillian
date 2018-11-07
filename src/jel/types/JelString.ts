@@ -5,6 +5,7 @@ import SerializablePrimitive from '../SerializablePrimitive';
 import Context from '../Context';
 import Util from '../../util/Util';
 import JelBoolean from './JelBoolean';
+import TypeChecker from './TypeChecker';
 
 /**
  * Represents a string.

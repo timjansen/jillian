@@ -6,6 +6,7 @@ import Context from '../Context';
 import Util from '../../util/Util';
 import Numeric from './Numeric';
 import JelBoolean from './JelBoolean';
+import TypeChecker from './TypeChecker';
 
 /**
  * Represents a number.
@@ -95,7 +96,7 @@ export default class JelNumber extends JelObject implements SerializablePrimitiv
 		return !!this.value;
 	}
 
-	static toNumber(n: number|JelObject|null, defaultValue: any = JelNumber.NAN): any {
+	static toNumber(n: any, defaultValue: any = JelNumber.NAN): any {
 		return typeof n == 'number' ? JelNumber.valueOf(n) :(n && (n as any).toNumber) ? (n as any).toNumber() : defaultValue;
 	}
 

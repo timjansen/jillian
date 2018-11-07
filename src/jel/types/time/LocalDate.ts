@@ -16,6 +16,7 @@ import TimeOfDay from './TimeOfDay';
 import TimeSpec from './TimeSpec';
 import TimeZone from './TimeZone';
 import Duration from './Duration';
+import TypeChecker from '../TypeChecker';
 
 /**
  * Represents a year, month or day

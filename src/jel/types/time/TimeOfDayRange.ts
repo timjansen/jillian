@@ -6,6 +6,7 @@ import TimeOfDay from './TimeOfDay';
 import Timestamp from './Timestamp';
 import TimeSpec from './TimeSpec';
 import TimeZone from './TimeZone';
+import TypeChecker from '../TypeChecker';
 
 /**
  * Represents a date.

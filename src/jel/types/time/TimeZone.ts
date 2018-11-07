@@ -3,6 +3,7 @@ import Context from '../../Context';
 import JelString from '../JelString';
 import Timestamp from './Timestamp';
 import JelBoolean from '../JelBoolean';
+import TypeChecker from '../TypeChecker';
 
 import * as moment from 'moment-timezone';
 import MomentZone = moment.MomentZone;

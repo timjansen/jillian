@@ -8,6 +8,7 @@ import JelNumber from './JelNumber';
 import JelString from './JelString';
 import JelBoolean from './JelBoolean';
 import Callable from '../Callable';
+import TypeChecker from './TypeChecker';
 
 /**
  * List is an immutable array-like object that is accessible from JEL.
@@ -79,9 +80,8 @@ export default class List extends JelObject implements SerializablePrimitive {
 
 	
 	get_jel_mapping: Object;
-	get(ctx: Context, index: JelNumber|number): any {
-		if (index instanceof JelNumber)
-			return this.get(ctx, index.value);
+	get(ctx: Context, index0: any): any {
+		const index = TypeChecker.realNumber(index0, 'index');
 
 		let v;
 		if (index >= 0)
@@ -106,7 +106,8 @@ export default class List extends JelObject implements SerializablePrimitive {
 	}
 	
 	each_jel_mapping: Object;
-	each(ctx: Context, f: Callable): List | Promise<List> {
+	each(ctx: Context, f0: any): List | Promise<List> {
+		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		const self = this;
 		let i = 0;
 		const len = this.elements.length;
@@ -123,13 +124,15 @@ export default class List extends JelObject implements SerializablePrimitive {
 	}
 
 	map_jel_mapping: Object;
-	map(ctx: Context, f: Callable): List | Promise<List> {
+	map(ctx: Context, f0: any): List | Promise<List> {
+		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		const newList: any[] = [];
 		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, JelNumber.valueOf(i)), v=>{newList.push(v);}, ()=>new List(newList));
 	}
 
 	filter_jel_mapping: Object;
-	filter(ctx: Context, f: Callable): Promise<List> | List {
+	filter(ctx: Context, f0: any): Promise<List> | List {
+		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		const newList: any[] = [];
 
 		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, JelNumber.valueOf(i)), (v, e)=> {
@@ -139,26 +142,30 @@ export default class List extends JelObject implements SerializablePrimitive {
 	}
 	
 	reduce_jel_mapping: Object;
-	reduce(ctx: Context, f: Callable, init: any): Promise<any> | any {
+	reduce(ctx: Context, f0: any, init: any): Promise<any> | any {
+		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		let result: any = init;
 		
 		return Util.processPromiseList(this.elements, (v,i)=>f.invoke(ctx, v, result, JelNumber.valueOf(i)), v=>{result=v;}, ()=>result);
 	}
 
 	hasAny_jel_mapping: Object;
-	hasAny(ctx: Context, f: Callable): JelBoolean | Promise<JelBoolean> {
+	hasAny(ctx: Context, f0: any): JelBoolean | Promise<JelBoolean> {
+		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, JelNumber.valueOf(i)), (v, e)=>JelBoolean.toRealBoolean(v) ? JelBoolean.TRUE : undefined, r=>r || JelBoolean.FALSE);
 	}
 
 	hasOnly_jel_mapping: Object;
-	hasOnly(ctx: Context, f: Callable): JelBoolean | Promise<JelBoolean> {
+	hasOnly(ctx: Context, f0: any): JelBoolean | Promise<JelBoolean> {
+		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, JelNumber.valueOf(i)), (v, e)=>JelBoolean.toRealBoolean(v) ? undefined : JelBoolean.FALSE, r=>r || JelBoolean.TRUE);
 	}
 	
 	// isBetter(a,b) checks whether a is better than b (must return false is both are equally good)
 	// returns one or more that items that were better than everything else.
 	bestMatches_jel_mapping: Object;
-	bestMatches(ctx: Context, isBetter: Callable): List | Promise<List> {
+	bestMatches(ctx: Context, isBetter0: any): List | Promise<List> {
+		const isBetter: Callable = TypeChecker.instance(Callable, isBetter0, 'isBetter');
 		if (!this.elements.length)
 			return List.empty;
 		
@@ -205,9 +212,11 @@ export default class List extends JelObject implements SerializablePrimitive {
 	}
 	
 	sub_jel_mapping: Object;
-	sub(ctx: Context, start?: JelNumber, end?: JelNumber) {
-		return new List(this.elements.slice(start == null ? 0 : start.value >= 0 ? start.value : this.elements.length + start.value, 
-																				end == null ? this.elements.length : end.value >= 0 ? end.value : this.elements.length + end.value));
+	sub(ctx: Context, start0?: any, end0?: any) {
+		const start = TypeChecker.optionalRealNumber(start0, 'start');
+		const end = TypeChecker.optionalRealNumber(end0, 'end');
+		return new List(this.elements.slice(start == null ? 0 : start >= 0 ? start : this.elements.length + start, 
+																				end == null ? this.elements.length : end >= 0 ? end : this.elements.length + end));
 	}
 
 	private partition(ctx: Context, l: any[], start: number, end: number, isLess: (a: any, b: any)=>boolean|Promise<boolean>): number | Promise<number> {
@@ -268,7 +277,10 @@ export default class List extends JelObject implements SerializablePrimitive {
 	// isLess(a, b) checks whether a<b . If a==b or a>b, is must return false. If a==b, then !isLess(a,b)&&!isLess(b,a)
 	// key is either the string of a property name, or a function key(a) that return the key for a.
 	sort_jel_mapping: Object;
-	sort(ctx: Context, isLess?: Callable, key?: JelString | Callable): List | Promise<List> {
+	sort(ctx: Context, isLess0?: any, key0?: any): List | Promise<List> {
+		const isLess: Callable | null = TypeChecker.optionalInstance(Callable, isLess0, 'isLess');
+		const key: JelString | Callable = key0 instanceof JelString ? key0 : TypeChecker.optionalInstance(Callable, key0, 'key');
+
 		if (this.elements.length < 2)
 			return this;
 
@@ -329,7 +341,7 @@ export default class List extends JelObject implements SerializablePrimitive {
 		return exec();
 	}
 	
-	private minMax(ctx: Context, isMax: boolean, isLess?: Callable, key?:JelString | Callable): any {
+	private minMax(ctx: Context, isMax: boolean, isLess: Callable|null, key:JelString | Callable | null): any {
 		if (key instanceof JelString) {
 			if (isLess) 
 				return this.findBest((a0: any, b0: any)=>Util.resolveValues((a: any, b: any)=>isLess.invoke(ctx, a, b), Runtime.member(ctx, a0, key.value), Runtime.member(ctx, b0, key.value)), isMax);
@@ -349,12 +361,16 @@ export default class List extends JelObject implements SerializablePrimitive {
 	}
 	
 	max_jel_mapping: Object;
-	max(ctx: Context, isLess?: Callable, key?: JelString | Callable): any {
+	max(ctx: Context, isLess0?: any, key0?: any): any {
+		const isLess: Callable | null = TypeChecker.optionalInstance(Callable, isLess0, 'isLess');
+		const key: JelString | Callable = key0 instanceof JelString ? key0 : TypeChecker.optionalInstance(Callable, key0, 'key');
 		return this.minMax(ctx, false, isLess, key);
 	}
 
 	min_jel_mapping: Object;
-	min(ctx: Context, isLess?: Callable, key?: JelString | Callable): any {
+	min(ctx: Context, isLess0?: any, key0?: any): any {
+		const isLess: Callable | null = TypeChecker.optionalInstance(Callable, isLess0, 'isLess');
+		const key: JelString | Callable = key0 instanceof JelString ? key0 : TypeChecker.optionalInstance(Callable, key0, 'key');
 		return this.minMax(ctx, true, isLess, key);
 	}
 
@@ -378,7 +394,7 @@ export default class List extends JelObject implements SerializablePrimitive {
 	
 	static create_jel_mapping = {elements: 1};
 	static create(ctx: Context, ...args: any[]): any {
-		return new List(args[0]);
+		return new List(TypeChecker.optionalType('List', args[0], 'elements', []));
 	}
 }
 

@@ -11,6 +11,7 @@ import UnitValue from '../UnitValue';
 import Duration from './Duration';
 import Fraction from '../Fraction';
 import ApproximateNumber from '../ApproximateNumber';
+import TypeChecker from '../TypeChecker';
 
 /**
  * A complex, calendar-based duration (simple durations, like year or seconds, can use UnitValue with Range)
@@ -42,8 +43,8 @@ export default class DurationRange extends Range {
 		}
 		else if (right instanceof JelNumber || right instanceof Fraction || right instanceof ApproximateNumber) {
 			switch (operator) {
-				case '*':					
-				case '/':					
+				case '*':
+				case '/':
 					return new DurationRange(Runtime.op(ctx, operator, this.min, right) as Duration, Runtime.op(ctx, operator, this.max, right) as Duration);
 			}
 		}

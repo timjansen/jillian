@@ -14,6 +14,7 @@ import List from './List';
 import Fraction from './Fraction';
 import ApproximateNumber from './ApproximateNumber';
 import Util from '../../util/Util';
+import TypeChecker from './TypeChecker';
 
 
 /**

@@ -1,4 +1,5 @@
 import JelObject from '../JelObject';
+import TypeChecker from './TypeChecker';
 import Runtime from '../Runtime';
 import Context from '../Context';
 import BaseTypeRegistry from '../BaseTypeRegistry';
@@ -142,13 +143,17 @@ export default class JelBoolean extends JelObject implements SerializablePrimiti
 	}
 	
 	static fourWay_jel_mapping = {mainValue: 1, clearly: 2};
-	static fourWay(ctx: Context, mainValue: boolean, clearly: boolean): JelBoolean {
+	static fourWay(ctx: Context, mainValue0: any, clearly0: any): JelBoolean {
+		const mainValue = TypeChecker.realBoolean(mainValue0, 'mainValue');
+		const clearly = TypeChecker.realBoolean(clearly0, 'clearly');
 		return mainValue ? (clearly ? JelBoolean.TRUE : JelBoolean.BARELY_TRUE) :
 			(clearly ? JelBoolean.FALSE : JelBoolean.BARELY_FALSE);
 	}
 
 	static twoPrecision_jel_mapping = {lowPrecision: 1, highPrecision: 2};
-	static twoPrecision(ctx: Context, lowPrecision: boolean, highPrecision: boolean): JelBoolean {
+	static twoPrecision(ctx: Context, lowPrecision0: boolean, highPrecision0: boolean): JelBoolean {
+		const lowPrecision = TypeChecker.realBoolean(lowPrecision0, 'lowPrecision');
+		const highPrecision = TypeChecker.realBoolean(highPrecision0, 'highPrecision');
 		return lowPrecision ? (highPrecision ? JelBoolean.TRUE : JelBoolean.BARELY_TRUE) :
 			(highPrecision ? JelBoolean.BARELY_FALSE : JelBoolean.FALSE);
 	}
@@ -166,12 +171,12 @@ export default class JelBoolean extends JelObject implements SerializablePrimiti
 
 	and_jel_mapping: Object;
 	and(ctx: Context, a: JelBoolean): JelBoolean {
-		return JelBoolean.and(ctx, this, a);
+		return JelBoolean.and(ctx, this, TypeChecker.boolean(a, 'a'));
 	}
 
 	or_jel_mapping: Object;
 	or(ctx: Context, a: JelBoolean): JelBoolean {
-		return JelBoolean.or(ctx, this, a);
+		return JelBoolean.or(ctx, this, TypeChecker.boolean(a, 'a'));
 	}
 	
 	static and_jel_mapping = {};
@@ -179,7 +184,7 @@ export default class JelBoolean extends JelObject implements SerializablePrimiti
 		let pos = 1;
 		let r = args[0];
 		while (pos < args.length)
-			if (JelBoolean.toRealBoolean(r))
+			if (TypeChecker.realBoolean(r, 'args'))
 				r = args[pos++];
 			else
 				return r;
@@ -191,7 +196,7 @@ export default class JelBoolean extends JelObject implements SerializablePrimiti
 		let pos = 1;
 		let r = args[0];
 		while (pos < args.length)
-			if (JelBoolean.toRealBoolean(r))
+			if (TypeChecker.realBoolean(r, 'args'))
 				return r;
 			else
 				r = args[pos++];
@@ -200,14 +205,14 @@ export default class JelBoolean extends JelObject implements SerializablePrimiti
 
 	static truest_jel_mapping = {a: 1, b: 2};
 	static truest(ctx: Context, a0: any, b0: any): JelBoolean {
-		const a = JelBoolean.toBoolean(a0), b = JelBoolean.toBoolean(b0);
-		return a.state > b.state ? a0 : b0;
+		const a = TypeChecker.boolean(a0, 'a'), b = TypeChecker.boolean(b0, 'b');
+		return a.state > b.state ? a : b;
 	}
 
 	static falsest_jel_mapping = {a: 1, b: 2};
 	static falsest(ctx: Context, a0: any, b0: any): JelBoolean {
-		const a = JelBoolean.toBoolean(a0), b = JelBoolean.toBoolean(b0);
-		return a.state < b.state ? a0 : b0;
+		const a = TypeChecker.boolean(a0, 'a'), b = TypeChecker.boolean(b0, 'b');
+		return a.state < b.state ? a : b;
 	}
 
 	static falsestWithPromises(ctx: Context, a: JelBoolean | Promise<JelBoolean>, b: JelBoolean | Promise<JelBoolean>): JelBoolean | Promise<JelBoolean> {
@@ -235,7 +240,7 @@ export default class JelBoolean extends JelObject implements SerializablePrimiti
 	
 	static create_jel_mapping = {state: 1};
 	static create(ctx: Context, ...args: any[]): JelBoolean {
-		const state = BaseTypeRegistry.get('JelNumber').toRealNumber(args[0]);
+		const state = TypeChecker.realNumber(args[0], 'state');
 		return JelBoolean.PREDEFINED.get(state) || new JelBoolean(state);
 	}
 }

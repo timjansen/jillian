@@ -8,6 +8,7 @@ import JelNumber from '../JelNumber';
 import UnitValue from '../UnitValue';
 import TimeHint from './TimeHint';
 import Duration from './Duration';
+import TypeChecker from '../TypeChecker';
 
 /**
  * Represents a time of day.

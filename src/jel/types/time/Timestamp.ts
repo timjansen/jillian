@@ -10,6 +10,7 @@ import TimeZone from './TimeZone';
 import LocalDateTime from './LocalDateTime';
 import LocalDate from './LocalDate';
 import TimeOfDay from './TimeOfDay';
+import TypeChecker from '../TypeChecker';
 import Util from '../../../util/Util';
 import * as moment from 'moment-timezone';
 import Moment = moment.Moment;

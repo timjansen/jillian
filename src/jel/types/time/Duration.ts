@@ -11,6 +11,7 @@ import UnitValue from '../UnitValue';
 import JelBoolean from '../JelBoolean';
 import Fraction from '../Fraction';
 import ApproximateNumber from '../ApproximateNumber';
+import TypeChecker from '../TypeChecker';
 
 // minimum/maximum length of x months
 const minDaysForMonths = [0, 28, 28+31, 28+31+30, 28+31+30+31, 28+31+30+31+30, 28+31+30+31+30+31, 28+31+30+31+30+31+31, 28+31+30+31+30+31+31+30, 28+31+30+31+30+31+31+30+31, 28+31+30+31+30+31+31+30+31+30, 28+31+30+31+30+31+31+30+31+30+31, 365]; 

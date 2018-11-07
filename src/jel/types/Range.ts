@@ -8,6 +8,7 @@ import Callable from '../Callable';
 import UnitValue from './UnitValue';
 import ApproximateNumber from './ApproximateNumber';
 import JelBoolean from './JelBoolean';
+import TypeChecker from './TypeChecker';
 
 const RANGE_NUM_OPS: any = {'+': true, '-': true, '*': true, '/': true};
 
@@ -43,7 +44,7 @@ export default class Range extends JelObject {
 				case '<':
 					return (this.min == null || right.min == null) ? JelBoolean.valueOf(this.min == null && right.min != null) : Runtime.op(ctx, '<', this.min, right.min);
 				case '>>=':
-					return (this.min == null || right.max == null) ? JelBoolean.valueOf(this.min == right.max) : Runtime.op(ctx, '>>=', this.min, right.max); // TODO!
+					return (this.min == null || right.max == null) ? JelBoolean.valueOf(this.min == right.max) : Runtime.op(ctx, '>>=', this.min, right.max); 
 				case '<<=':
 					return (this.max == null || right.min == null) ? JelBoolean.valueOf(this.max == right.min) : Runtime.op(ctx, '<<=', this.max, right.min);
 				case '>=':

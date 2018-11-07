@@ -6,6 +6,7 @@ import TimeZone from './TimeZone';
 import LocalDate from './LocalDate';
 import TimeSpec from './TimeSpec';
 import JelBoolean from '../JelBoolean';
+import TypeChecker from '../TypeChecker';
 
 /**
  * Represents a date.

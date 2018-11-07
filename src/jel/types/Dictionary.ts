@@ -7,7 +7,11 @@ import JelNumber from './JelNumber';
 import JelString from './JelString';
 import List from './List';
 import JelBoolean from './JelBoolean';
+import TypeChecker from './TypeChecker';
 import Callable from '../Callable';
+
+
+const LIST_OR_DICTIONARY = ['List', 'Dictionary'];
 
 /**
  * Dictionary is a map-like type for JEL.
@@ -59,29 +63,20 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 
 	
 	get_jel_mapping: Object;
-	get(ctx: Context, key: JelString | string): any {
-		if (key instanceof JelString)
-			return this.get(ctx, key.value);
-		else if (typeof key != 'string')
-			throw new Error('Key must be string');
+	get(ctx: Context, key0: JelString | string): any {
+		const key = TypeChecker.realString(key0, 'key');
 		const v = this.elements.get(key);
 		return v == undefined ? null : v;
 	}
 
 	has_jel_mapping: Object;
-	has(ctx: Context, key: JelString | string): JelBoolean {
-		if (key instanceof JelString)
-			return this.has(ctx, key.value);
-		else if (typeof key != 'string')
-			throw new Error('Key must be string');
+	has(ctx: Context, key0: JelString | string): JelBoolean {
+		const key = TypeChecker.realString(key0, 'key');
 		return JelBoolean.valueOf(this.elements.has(key));
 	}
 
-	set(key: JelString | string, value: JelObject|null): Dictionary {
-		if (key instanceof JelString)
-			return this.set(key.value, value);
-		else if (typeof key != 'string')
-			throw new Error('Key must be string');
+	set(key0: JelString | string, value: JelObject|null): Dictionary {
+		const key = TypeChecker.realString(key0, 'key');
 		
 		this.elements.set(key, value);
 		return this;
@@ -128,7 +123,8 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 	}
 
 	each_jel_mapping: Object;
-	each(ctx: Context, f: Callable): Dictionary | Promise<Dictionary> {
+	each(ctx: Context, f0: any): Dictionary | Promise<Dictionary> {
+		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		const self = this;
 		let i = 0;
 		const it = this.elements.keys();
@@ -147,7 +143,8 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 	}
 
 	map_jel_mapping: Object;
-	map(ctx: Context, f: Callable): Dictionary | Promise<Dictionary> {
+	map(ctx: Context, f0: any): Dictionary | Promise<Dictionary> {
+		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		const self = this;
 		const newDict = new Dictionary();
 		let i = 0;
@@ -186,7 +183,8 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 
 	
 	filter_jel_mapping: Object;
-	filter(ctx: Context, f: Callable): Dictionary | Promise<Dictionary> {
+	filter(ctx: Context, f0: any): Dictionary | Promise<Dictionary> {
+		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		const self = this;
 		const newDict = new Dictionary();
 		let i = 0;
@@ -213,7 +211,9 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 	}
 	
 	reduce_jel_mapping: Object;
-	reduce(ctx: Context, f: Callable, init: any = 0): any {
+	reduce(ctx: Context, f0: any, init: any = 0): any {
+		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
+
 		const self = this;
 		let result: any = init;
 		let i = 0;
@@ -239,7 +239,8 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 	}
 
 	hasAny_jel_mapping: Object;
-	hasAny(ctx: Context, f: Callable): JelBoolean | Promise<JelBoolean> {
+	hasAny(ctx: Context, f0: any): JelBoolean | Promise<JelBoolean> {
+		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		const self = this;
 		let i = 0;
 		const it = this.elements.keys();
@@ -260,7 +261,9 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 	}
 
 	hasOnly_jel_mapping: Object;
-	hasOnly(ctx: Context, f: Callable): JelBoolean | Promise<JelBoolean> {
+	hasOnly(ctx: Context, f0: any): JelBoolean | Promise<JelBoolean> {
+		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
+
 		const self = this;
 		let i = 0;
 		const it = this.elements.keys();

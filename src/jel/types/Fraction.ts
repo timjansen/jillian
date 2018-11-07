@@ -5,6 +5,8 @@ import Context from '../Context';
 import Numeric from './Numeric';
 import JelNumber from './JelNumber';
 import JelBoolean from './JelBoolean';
+import TypeChecker from './TypeChecker';
+
 /**
  * Represents a fraction.
  */
@@ -233,7 +235,7 @@ export default class Fraction extends JelObject implements Numeric {
 	
 	static create_jel_mapping = {numerator:1, denominator: 2};
 	static create(ctx: Context, ...args: any[]): any {
-		return new Fraction(JelNumber.toRealNumber(args[0]), JelNumber.toRealNumber(args[1]));
+		return new Fraction(TypeChecker.realNumber(args[0], 'numerator'), TypeChecker.realNumber(args[1], 'denominator'));
 	}
 }
 

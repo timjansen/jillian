@@ -110,7 +110,7 @@ JelConsole.create_jel_mapping = ['value'];
 
 class MockSession {
 	createDbRef(distinctName, params) {
-		return {distinctName, params, isDBRef: true};
+		return {distinctName, params, isDBRef: true, getJelType: function() { return 'DbRef';}};
 	}
 }
 MockSession.prototype.isIDBSession = true;

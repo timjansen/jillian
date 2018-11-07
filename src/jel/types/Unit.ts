@@ -9,6 +9,7 @@ import JelString from './JelString';
 import JelNumber from './JelNumber';
 import List from './List';
 import Dictionary from './Dictionary';
+import TypeChecker from './TypeChecker';
 
 function mergeUnitMaps(a: Map<string, number>, b?: Map<string, number>): Map<string, number> {
 	const r = new Map<string, number>();

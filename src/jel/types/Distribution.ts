@@ -5,10 +5,12 @@ import Context from '../Context';
 import List from './List';
 import DistributionPoint from './DistributionPoint';
 import ApproximateNumber from './ApproximateNumber';
+import Numeric from './Numeric';
 import JelBoolean from './JelBoolean';
 import UnitValue from './UnitValue';
 import JelNumber from './JelNumber';
 import Fraction from './Fraction';
+import TypeChecker from './TypeChecker';
 
 const INVERSE_OP = {'<': '>', '<=': '>=', '>': '<', '>=': '<='};
 
@@ -22,9 +24,7 @@ export default class Distribution extends JelObject {
 	JEL_PROPERTIES: Object;
 
 	
-  constructor(distributionPoints?: List, public average: UnitValue|ApproximateNumber|Fraction|JelNumber|null = null,
-							 min?: UnitValue|ApproximateNumber|Fraction|JelNumber, max?: UnitValue|ApproximateNumber|Fraction|JelNumber, 
-							 mean?: UnitValue|ApproximateNumber|Fraction|JelNumber) {
+  constructor(distributionPoints: List|null, public average: Numeric|null, min: Numeric|null, max: Numeric|null, mean: Numeric|null) {
     super();
 		
 		this.points = distributionPoints != null ? distributionPoints.elements.slice() : [];
@@ -43,9 +43,7 @@ export default class Distribution extends JelObject {
   }
 	
 	add_jel_mapping: Object;
-	add(ctx: Context, distributionPoints?: List, average?: UnitValue|ApproximateNumber|Fraction|JelNumber,
-							 min?: UnitValue|ApproximateNumber|Fraction|JelNumber, max?: UnitValue|ApproximateNumber|Fraction|JelNumber, 
-							 mean?: UnitValue|ApproximateNumber|Fraction|JelNumber): Distribution {
+	add(ctx: Context, distributionPoints?: List, average?: Numeric, min?: Numeric, max?: Numeric, mean?: Numeric): Distribution {
 		
 		const np = new Map<number, DistributionPoint>(this.points.map(p=>[p.share, p] as any));
 		if (distributionPoints)
@@ -57,27 +55,27 @@ export default class Distribution extends JelObject {
 		if (mean != null)
 			np.set(0.5, new DistributionPoint(mean, 0.5));
 		
-		return new Distribution(new List(np.values()), average != null ? average : this.average);
+		return new Distribution(new List(np.values()), average != null ? average : this.average, null, null, null);
 	}
 	
 	mean_jel_mapping: Object;
-	mean(ctx: Context): UnitValue|ApproximateNumber|Fraction|JelNumber {
+	mean(ctx: Context): Numeric {
 		return this.getValue(ctx, 0.5);
 	}
 
 	max_jel_mapping: Object;
-	max(ctx: Context): UnitValue|ApproximateNumber|Fraction|JelNumber {
+	max(ctx: Context): Numeric {
 		return this.getValue(ctx, 1);
 	}
 
 	min_jel_mapping: Object;
-	min(ctx: Context): UnitValue|ApproximateNumber|Fraction|JelNumber {
+	min(ctx: Context): Numeric {
 		return this.getValue(ctx, 0);
 	}
 
 	getValue_jel_mapping: Object;
-	getValue(ctx: Context, share: JelNumber|Fraction|number): UnitValue|ApproximateNumber|Fraction|JelNumber {
-		const share0 = Math.max(0, Math.min(1, JelNumber.toRealNumber(share)));
+	getValue(ctx: Context, share: any): Numeric {
+		const share0 = Math.max(0, Math.min(1, TypeChecker.realNumber(share, 'share')));
 		let ri = 0;
 		for (let r of this.points) {
 			if (r.share == share0)
@@ -106,7 +104,8 @@ export default class Distribution extends JelObject {
 	}
 
 	getShare_jel_mapping: Object;
-	getShare(ctx: Context, value: UnitValue|ApproximateNumber|Fraction|JelNumber): Promise<JelNumber>|JelNumber|null {
+	getShare(ctx: Context, value0: any): Promise<JelNumber>|JelNumber|null {
+		const value = TypeChecker.numeric(value0, 'value');
 		if (this.points.length == 1) 
 			return Util.resolveValues((avg: JelBoolean, p0: JelBoolean)=>avg.toRealBoolean() ? 0.5 : p0.toRealBoolean() ? 1 : null, Runtime.op(ctx, '==', this.average, value), Runtime.op(ctx, '==', this.points[0].value, value)); 
 		
@@ -145,7 +144,7 @@ export default class Distribution extends JelObject {
 					// P.share = (P.value-lp.value)*(rp.share-lp.share)/(rp.value-lp.value)  + lp.share
 
 					const lpShare = JelNumber.valueOf(lp.share), rpShare = JelNumber.valueOf(rp.share);
-					return JelNumber.toNumberWithPromise(Runtime.opWithPromises(ctx, '+', Runtime.opWithPromises(ctx, '/', Runtime.opWithPromises(ctx, '*', Runtime.opWithPromises(ctx, '-', value, lp.value), Runtime.op(ctx, '-', rpShare, lpShare)), Runtime.opWithPromises(ctx, '-', rp.value, lp.value)),  lpShare));
+					return JelNumber.toNumberWithPromise(Runtime.opWithPromises(ctx, '+', Runtime.opWithPromises(ctx, '/', Runtime.opWithPromises(ctx, '*', Runtime.opWithPromises(ctx, '-', value as any, lp.value as any), Runtime.op(ctx, '-', rpShare, lpShare)), Runtime.opWithPromises(ctx, '-', rp.value as any, lp.value as any)),  lpShare));
 				});
 			});
 		}, Runtime.op(ctx, '<', value, this.min(ctx)), Runtime.op(ctx, '>', value, this.max(ctx)));
@@ -224,7 +223,9 @@ export default class Distribution extends JelObject {
 
 	static create_jel_mapping = {distributionPoints: 1, average: 2, min: 3, max: 4, mean: 5};
 	static create(ctx: Context, ...args: any[]): Distribution {
-		return new Distribution(args[0], args[1], args[2], args[3], args[4]);
+		return new Distribution(TypeChecker.optionalType('List', args[0], 'distributionPoints'), 
+														TypeChecker.optionalNumeric(args[1], 'average'), TypeChecker.optionalNumeric(args[2], 'min'), 
+														TypeChecker.optionalNumeric(args[3], 'max'), TypeChecker.optionalNumeric(args[4], 'mean'));
 	}  
 }
 
