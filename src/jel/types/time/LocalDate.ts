@@ -13,7 +13,7 @@ import LocalDateTime from './LocalDateTime';
 import ZonedDateTime from './ZonedDateTime';
 import ZonedDate from './ZonedDate';
 import TimeOfDay from './TimeOfDay';
-import TimeSpec from './TimeSpec';
+import TimeDescriptor from './TimeDescriptor';
 import TimeZone from './TimeZone';
 import Duration from './Duration';
 import TypeChecker from '../TypeChecker';
@@ -21,7 +21,7 @@ import TypeChecker from '../TypeChecker';
 /**
  * Represents a year, month or day
  */
-export default class LocalDate extends TimeSpec {
+export default class LocalDate extends TimeDescriptor {
 	static readonly MONTHS_MAX_DURATION = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 	
 	// month: 1-12
@@ -30,13 +30,14 @@ export default class LocalDate extends TimeSpec {
 		super();
 	}
 	
-  getStartTime(ctx: Context, zone: TimeZone): Timestamp {
-		return Timestamp.fromMoment(moment({year: this.year, month: this.month||1, day: this.day||1}).tz(zone.tz));
+  getStartTime(ctx: Context, timeZone: any): Timestamp {
+		return Timestamp.fromMoment(moment({year: this.year, month: this.month||1, day: this.day||1}).tz(TypeChecker.instance(TimeZone, timeZone, 'timeZone').tz));
 	}
 	
-	getEndTime(ctx: Context, zone: TimeZone): Timestamp {
-		return Timestamp.fromMoment(moment({year: this.year, month: this.month||12, day: this.day||this.getMonth0Duration(this.year, this.month||12)}).tz(zone.tz).add(1, 'd'));
-	}
+	getEndTime(ctx: Context, timeZone: any): Timestamp {
+		const m = moment({year: this.year, month: this.month||1, day: this.day||1}).tz(TypeChecker.instance(TimeZone, timeZone, 'timeZone').tz);
+		const m2 = this.month == null ? m.add(1, 'year') : (this.day == null ? m.add(1, 'month') : m.add(1, 'day'));
+		return Timestamp.fromMoment(m2); 	}
 	
 	isContinous(): JelBoolean {
 		return JelBoolean.TRUE;
@@ -143,12 +144,6 @@ export default class LocalDate extends TimeSpec {
 		else if (right instanceof LocalDateTime) {
 			return new LocalDateTime(this, TimeOfDay.MIDNIGHT).op(ctx, operator, right);
 		}
-//		else if (right instanceof ZonedDate) {
-//			return this.toZonedDate(right.timeZone).op(ctx, operator, right);
-//		}
-//		else if (right instanceof ZonedDateTime) {
-//			return this.toZonedDateTime(right.timeZone).op(ctx, operator, right);
-//		}
 		else if (right instanceof Duration) {
 			switch (operator) {
 				case '+':
@@ -175,16 +170,24 @@ export default class LocalDate extends TimeSpec {
 		return super.op(ctx, operator, right);
 	}
 
-//	toZonedDate(timeZone: TimeZone): ZonedDate {
-//		return new ZonedDate(timeZone, this.year, this.month, this.day);
-//	}
+	toZonedDate_jel_mapping: Object;
+	toZonedDate(ctx: Context, timeZone: any): ZonedDate {
+		return new ZonedDate(TypeChecker.instance(TimeZone, timeZone, 'timeZone'), this);
+	}
 
-//	toZonedDateTime(timeZone: TimeZone, time = TimeOfDay.MIDNIGHT): ZonedDateTime {
-//		return new ZonedDateTime(timeZone, this, time);
-//	}
+	toZonedDateTime_jel_mapping: Object;
+	toZonedDateTime(ctx: Context, timeZone: any, time = TimeOfDay.MIDNIGHT): ZonedDateTime {
+		return new ZonedDateTime(TypeChecker.instance(TimeZone, timeZone, 'timeZone'), this, time);
+	}
+
+	toTimestamp_jel_mapping: Object;
+	toTimestamp(ctx: Context, timeZone: any, time = TimeOfDay.MIDNIGHT): Timestamp {
+		return this.toZonedDateTime(TypeChecker.instance(TimeZone, timeZone, 'timeZone'), time).toTimestamp(ctx);
+	}
 	
-	toLocalDateTime(time = TimeOfDay.MIDNIGHT): LocalDateTime {
-		return new LocalDateTime(this, time);
+	toLocalDateTime_jel_mapping: Object;
+	toLocalDateTime(ctx: Context, time: any = TimeOfDay.MIDNIGHT): LocalDateTime {
+		return new LocalDateTime(this, TypeChecker.instance(TimeOfDay, time, 'time'));
 	}
 	
 
@@ -213,4 +216,9 @@ export default class LocalDate extends TimeSpec {
 LocalDate.prototype.JEL_PROPERTIES = {year:1, month:1, day: 1, dayOfYear: 1};
 LocalDate.prototype.simplify_jel_mapping = {};
 LocalDate.prototype.reverseOps = {'+': 1};
+LocalDate.prototype.toZonedDate_jel_mapping = {timeZone: 1, time: 2};
+LocalDate.prototype.toZonedDateTime_jel_mapping = {timeZone: 1, time: 2};
+LocalDate.prototype.toTimestamp_jel_mapping = {timeZone: 1, time: 2};
+LocalDate.prototype.toLocalDateTime_jel_mapping = {time: 1};
+
 
