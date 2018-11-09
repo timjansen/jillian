@@ -10,7 +10,7 @@ import ZonedDate from './ZonedDate';
 import TimeOfDay from './TimeOfDay';
 import Timestamp from './Timestamp';
 import TimeZone from './TimeZone';
-import TimeDescriptor from './TimeDescriptor';
+import AbstractDate from './AbstractDate';
 import Duration from './Duration';
 import UnitValue from '../UnitValue';
 import JelBoolean from '../JelBoolean';
@@ -19,7 +19,7 @@ import TypeChecker from '../TypeChecker';
 /**
  * Represents a date.
  */
-export default class ZonedDateTime extends TimeDescriptor {
+export default class ZonedDateTime extends AbstractDate {
 	
 	constructor(public timeZone: TimeZone, public date: LocalDate, public time: TimeOfDay, public milliseconds = 0) {
 		super();
@@ -48,7 +48,11 @@ export default class ZonedDateTime extends TimeDescriptor {
 	}
 
 	toMoment(): Moment {
-		return moment.tz({year: this.year, month: this.month?this.month-1:0, day: this.day||1, hour: this.hour, minute: this.minute || 0, seconds: this.seconds || 0, ms: this.milliseconds}, this.timeZone.tz);
+		return this.toMomentTz(this.timeZone.tz);
+	}
+	
+	toMomentTz(tz: string): Moment {
+		return moment.tz({year: this.year, month: this.month?this.month-1:0, day: this.day||1, hour: this.hour, minute: this.minute || 0, seconds: this.seconds || 0, ms: this.milliseconds}, tz);
 	}
 	
 	static fromMoment(m: Moment, timeZone: TimeZone): ZonedDateTime {
@@ -56,12 +60,11 @@ export default class ZonedDateTime extends TimeDescriptor {
 	}
 	
 	getStartTime(ctx: Context, timeZone: any): Timestamp {
-		return Timestamp.fromMoment(moment({year: this.year, month: this.month||1, day: this.day||1, hour: this.hour, minute: this.minute || 0, seconds: this.seconds || 0, ms: this.milliseconds})
-																.tz((TypeChecker.optionalInstance(TimeZone, timeZone, 'timeZone') || this.timeZone).tz));
+		return Timestamp.fromMoment(this.toMomentTz((TypeChecker.optionalInstance(TimeZone, timeZone, 'timeZone') || this.timeZone).tz));
 	}
 	
 	getEndTime(ctx: Context, timeZone: any): Timestamp {
-		const m = moment({year: this.year, month: this.month, day: this.day, hour: this.hour}).tz((TypeChecker.optionalInstance(TimeZone, timeZone, 'timeZone') || this.timeZone).tz);
+		const m = this.toMomentTz((TypeChecker.optionalInstance(TimeZone, timeZone, 'timeZone') || this.timeZone).tz);
 		const m2 = this.minute == null ? m.add(1, 'hour') : (this.seconds == null ? m.add(1, 'minute') : m.add(1, 'second'));
 		return Timestamp.fromMoment(m2);
 	}
@@ -141,7 +144,7 @@ export default class ZonedDateTime extends TimeDescriptor {
 
 	toTimestamp_jel_mapping: Object;
 	toTimestamp(ctx: Context): Timestamp {
-		return this.getStartTime(ctx, this.timeZone);
+		return Timestamp.fromMoment(this.toMomentTz(this.timeZone.tz));
 	}
 
 	
@@ -161,7 +164,7 @@ export default class ZonedDateTime extends TimeDescriptor {
 }
 
 ZonedDateTime.prototype.reverseOps = JelObject.SWAP_OPS;
-ZonedDateTime.prototype.JEL_PROPERTIES = {year:1, month:1, day: 1, hour: 1, minute: 1, seconds: 1, milliseconds: 1, dayOfYear: 1, timeZone: 1, date: 1};
+ZonedDateTime.prototype.JEL_PROPERTIES = Object.assign({time: 1, date: 1, timeZone: 1, hour:1, minute: 1, seconds:1}, AbstractDate.prototype.JEL_PROPERTIES);
 ZonedDateTime.prototype.toZonedDate_jel_mapping = {};
 ZonedDateTime.prototype.toLocalDateTime_jel_mapping = {};
 ZonedDateTime.prototype.toTimestamp_jel_mapping = {};

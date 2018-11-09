@@ -134,19 +134,19 @@ export default class Timestamp extends TimeDescriptor {
 	toZonedDateTime_jel_mapping: Object;
 	toZonedDateTime(ctx: Context, timeZone: any): ZonedDateTime {
 		const m = moment(this.msSinceEpoch).tz(TypeChecker.instance(TimeZone, timeZone, 'timeZone').tz);
-		return new ZonedDateTime(timeZone, new LocalDate(m.year(), m.month(), m.date()), new TimeOfDay(m.hour(), m.minute(), m.second()), m.milliseconds());
+		return new ZonedDateTime(timeZone, new LocalDate(m.year(), m.month()+1, m.date()), new TimeOfDay(m.hour(), m.minute(), m.second()), m.milliseconds());
 	}
 
 	toLocalDateTime_jel_mapping: Object;
 	toLocalDateTime(ctx: Context, timeZone: any): LocalDateTime {
 		const m = moment(this.msSinceEpoch).tz(TypeChecker.instance(TimeZone, timeZone, 'timeZone').tz);
-		return new LocalDateTime(new LocalDate(m.year(), m.month(), m.date()), new TimeOfDay(m.hour(), m.minute(), m.second()));
+		return new LocalDateTime(new LocalDate(m.year(), m.month()+1, m.date()), new TimeOfDay(m.hour(), m.minute(), m.second()));
 	}
 	
 	toLocalDate_jel_mapping: Object;
 	toLocalDate(ctx: Context, timeZone: any): LocalDate {
 		const m = moment(this.msSinceEpoch).tz(TypeChecker.instance(TimeZone, timeZone, 'tz').tz);
-		return new LocalDate(m.year(), m.month(), m.date());
+		return new LocalDate(m.year(), m.month()+1, m.date());
 	}
 
 	toMoment(): Moment {

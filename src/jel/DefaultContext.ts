@@ -24,10 +24,12 @@ import TimeZone from './types/time/TimeZone';
 import TimeOfDay from './types/time/TimeOfDay';
 import LocalDate from './types/time/LocalDate';
 import LocalDateTime from './types/time/LocalDateTime';
+import ZonedDate from './types/time/ZonedDate';
+import ZonedDateTime from './types/time/ZonedDateTime';
 
 const CTX_IDENTIFIERS = {Boolean: JelBoolean, Number: JelNumber, String: JelString, ApproximateNumber, Range, Fraction, Unit, UnitValue,
 												 Math: JelMath, Dictionary, List, Distribution, DistributionPoint, Pattern, Translator, EnumValue, 
-												 Duration, DurationRange, Timestamp, TimeZone, TimeOfDay, LocalDate, LocalDateTime,
+												 Duration, DurationRange, Timestamp, TimeZone, TimeOfDay, LocalDate, LocalDateTime, ZonedDate, ZonedDateTime,
 												 ___IS_DEFAULT_CONTEXT: 'magic123'};
 
 export default class DefaultContext {

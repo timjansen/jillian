@@ -1,4 +1,5 @@
-import * as moment from 'moment';
+import * as moment from 'moment-timezone';
+import Moment = moment.Moment;
 
 import Util from '../../../util/Util';
 import Context from '../../Context';
@@ -6,7 +7,7 @@ import JelBoolean from '../JelBoolean';
 import JelNumber from '../JelNumber';
 import UnitValue from '../UnitValue';
 import TypeChecker from '../TypeChecker';
-import TimeDescriptor from './TimeDescriptor';
+import AbstractDate from './AbstractDate';
 import LocalDate from './LocalDate';
 import TimeOfDay from './TimeOfDay';
 import TimeZone from './TimeZone';
@@ -19,7 +20,7 @@ import Duration from './Duration';
 /**
  * Represents a date.
  */
-export default class LocalDateTime extends TimeDescriptor {
+export default class LocalDateTime extends AbstractDate {
 	
 	constructor(public date: LocalDate, public time: TimeOfDay) {
 		super();
@@ -49,17 +50,21 @@ export default class LocalDateTime extends TimeDescriptor {
 	}
 
   getStartTime(ctx: Context, timeZone: any): Timestamp {
-		return Timestamp.fromMoment(moment({year: this.year, month: this.month, day: this.day, hour: this.hour, minute: this.minute||0, second: this.seconds||0}).tz(TypeChecker.instance(TimeZone, timeZone, 'timeZone').tz));
+		return Timestamp.fromMoment(this.toMoment());
 	}
 	
 	getEndTime(ctx: Context, timeZone: any): Timestamp {
-		const m = moment({year: this.year, month: this.month, day: this.day, hour: this.hour}).tz(TypeChecker.instance(TimeZone, timeZone, 'timeZone').tz);
+		const m = this.toMomentTz(TypeChecker.instance(TimeZone, timeZone, 'timeZone').tz);
 		const m2 = this.minute == null ? m.add(1, 'hour') : (this.seconds == null ? m.add(1, 'minute') : m.add(1, 'second'));
 		return Timestamp.fromMoment(m2); 
 	}
 	
-	isContinous(): JelBoolean {
-		return JelBoolean.TRUE;
+	toMoment(): Moment {
+		return moment({year: this.year, month: this.month-1, day: this.day, hour: this.hour, minute: this.minute||0, second: this.seconds||0});
+	}
+	
+	toMomentTz(tz: string): Moment {
+		return moment.tz({year: this.year, month: this.month-1, day: this.day, hour: this.hour, minute: this.minute||0, second: this.seconds||0}, tz);
 	}
 	
 	op(ctx: Context, operator: string, right: any): any {
@@ -154,7 +159,7 @@ export default class LocalDateTime extends TimeDescriptor {
 	}
 }
 
-LocalDateTime.prototype.JEL_PROPERTIES = {time: 1, date: 1, year:1, month:1, day: 1, hour:1, minute: 1, seconds:1};
+LocalDateTime.prototype.JEL_PROPERTIES = Object.assign({time: 1, date: 1, hour:1, minute: 1, seconds:1}, AbstractDate.prototype.JEL_PROPERTIES);
 LocalDateTime.prototype.reverseOps = {'+': 1};
 LocalDateTime.prototype.toZonedDate_jel_mapping = {timeZone: 1};
 LocalDateTime.prototype.toZonedDateTime_jel_mapping = {timeZone: 1};

@@ -7,7 +7,7 @@ import JelObject from '../../JelObject';
 import Timestamp from './Timestamp';
 import TimeOfDay from './TimeOfDay';
 import TimeZone from './TimeZone';
-import TimeDescriptor from './TimeDescriptor';
+import AbstractDate from './AbstractDate';
 import Duration from './Duration';
 import UnitValue from '../UnitValue';
 import LocalDate from './LocalDate';
@@ -19,7 +19,7 @@ import TypeChecker from '../TypeChecker';
 /**
  * Represents a date.
  */
-export default class ZonedDate extends TimeDescriptor {
+export default class ZonedDate extends AbstractDate {
 	
 	constructor(public timeZone: TimeZone, public date: LocalDate) {
 		super();
@@ -34,16 +34,21 @@ export default class ZonedDate extends TimeDescriptor {
 	get day(): number {
 		return this.date.day!;
 	}
-	get dayOfYear(): number {
-		return this.date.dayOfYear;
-	}
-	
-  getStartTime(ctx: Context): Timestamp {
+
+	getStartTime(ctx: Context): Timestamp {
 		return this.date.getStartTime(ctx, this.timeZone);
 	}
 	
 	getEndTime(ctx: Context): Timestamp {
 		return this.date.getEndTime(ctx, this.timeZone);
+	}
+	
+	toMoment(): Moment {
+		return moment.tz({year: this.year, month: this.month?this.month-1:0, day: this.day||1}, this.timeZone.tz);
+	}
+	
+	toMomentTz(tz: string): Moment {
+		return moment.tz({year: this.year, month: this.month?this.month-1:0, day: this.day||1}, tz);
 	}
 	
 	toZonedDateTime_jel_mapping: Object;
@@ -59,10 +64,6 @@ export default class ZonedDate extends TimeDescriptor {
 	withTimeZone_jel_mapping: Object;
 	withTimeZone(ctx: Context, timeZone: TimeZone): ZonedDate {
 		return new ZonedDate(timeZone, this.date);
-	}
-	
-	isContinous(): JelBoolean {
-		return JelBoolean.TRUE;
 	}
 	
 	op(ctx: Context, operator: string, right: any): any {
@@ -123,7 +124,7 @@ export default class ZonedDate extends TimeDescriptor {
 }
 
 ZonedDate.prototype.reverseOps = JelObject.SWAP_OPS;
-ZonedDate.prototype.JEL_PROPERTIES = {year:1, month:1, day: 1, dayOfYear: 1, timeZone: 1, date: 1};
+ZonedDate.prototype.JEL_PROPERTIES = Object.assign({timeZone: 1}, AbstractDate.prototype.JEL_PROPERTIES);
 ZonedDate.prototype.toZonedDateTime_jel_mapping = {time: 1};
 ZonedDate.prototype.toUTC_jel_mapping = {};
 ZonedDate.prototype.withTimeZone_jel_mapping = {timeZone: 1};

@@ -1,5 +1,6 @@
 import BaseTypeRegistry from './BaseTypeRegistry';
 import Context from './Context';
+import Serializer from './Serializer';
 
 
 /**
@@ -91,7 +92,7 @@ export default class JelObject {
 	 */ 
 	member_jel_mapping: Object;
 	member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null>|undefined {
-		if (this.JEL_PROPERTIES && name in this.JEL_PROPERTIES)
+		if (name in this.JEL_PROPERTIES)
 			return BaseTypeRegistry.mapNativeTypes((this as any)[name]);
 		return undefined;
 	}
@@ -106,12 +107,17 @@ export default class JelObject {
 		return this.jelTypeName;
 	}
 
+	toString(): string {
+		return Serializer.serialize(this, true);
+	}
+	
 	getSerializationProperties(): Object|any[] {
 		throw new Error(`getSerializationProperties() not implemented in ${this.constructor.name}`);
 	}
 	
 }
 
+JelObject.prototype.JEL_PROPERTIES = {};
 JelObject.prototype.reverseOps = {};
 
 JelObject.prototype.op_jel_mapping = {operator:1, right:2};
@@ -119,3 +125,4 @@ JelObject.prototype.opReversed_jel_mapping = {operator:1, left:2};
 JelObject.prototype.singleOp_jel_mapping = {operator: 1};
 JelObject.prototype.toBoolean_jel_mapping = {};
 JelObject.prototype.getJelType_jel_mapping = {};
+

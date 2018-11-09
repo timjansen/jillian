@@ -12,18 +12,16 @@ import Timestamp from './Timestamp';
 import LocalDateTime from './LocalDateTime';
 import ZonedDateTime from './ZonedDateTime';
 import ZonedDate from './ZonedDate';
-import TimeOfDay from './TimeOfDay';
-import TimeDescriptor from './TimeDescriptor';
 import TimeZone from './TimeZone';
 import Duration from './Duration';
+import TimeOfDay from './TimeOfDay';
+import AbstractDate from './AbstractDate';
 import TypeChecker from '../TypeChecker';
 
 /**
  * Represents a year, month or day
  */
-export default class LocalDate extends TimeDescriptor {
-	static readonly MONTHS_MAX_DURATION = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-	
+export default class LocalDate extends AbstractDate {
 	// month: 1-12
 	// day: 1-31
 	constructor(public year: number, public month: number | null = null, public day: number | null = null) {
@@ -31,38 +29,22 @@ export default class LocalDate extends TimeDescriptor {
 	}
 	
   getStartTime(ctx: Context, timeZone: any): Timestamp {
-		return Timestamp.fromMoment(moment({year: this.year, month: this.month||1, day: this.day||1}).tz(TypeChecker.instance(TimeZone, timeZone, 'timeZone').tz));
+		return Timestamp.fromMoment(this.toMomentTz(TypeChecker.instance(TimeZone, timeZone, 'timeZone').tz));
 	}
 	
 	getEndTime(ctx: Context, timeZone: any): Timestamp {
-		const m = moment({year: this.year, month: this.month||1, day: this.day||1}).tz(TypeChecker.instance(TimeZone, timeZone, 'timeZone').tz);
+		const m = this.toMomentTz(TypeChecker.instance(TimeZone, timeZone, 'timeZone').tz);
 		const m2 = this.month == null ? m.add(1, 'year') : (this.day == null ? m.add(1, 'month') : m.add(1, 'day'));
-		return Timestamp.fromMoment(m2); 	}
-	
-	isContinous(): JelBoolean {
-		return JelBoolean.TRUE;
-	}
-
-	// m0: 0-11
-	private getMonth0Duration(year: number, m0: number) {
-		if (m0 != 1)
-			return LocalDate.MONTHS_MAX_DURATION[m0];
-		else 
-			return moment([year]).isLeapYear() ? 29 : 28;
-	}
-
-	get dayOfYear(): number {
-		let md = 0;
-		const m = this.month || 1;
-		for (let i = 1; i < m; i++)
-			md += this.getMonth0Duration(this.year, i-1);
-		return md + (this.day || 1);
+		return Timestamp.fromMoment(m2); 	
 	}
 	
-	isValid(): boolean {
-		return (this.month != null ? (this.month >= 1 && this.month <= 12) : this.day == null) && 
-						(this.day == null || (this.day >= 1 && this.day <= this.getMonth0Duration(this.year, this.month!-1)));
+	toMoment(): Moment {
+		return moment({year: this.year, month: this.month==null?0:this.month-1, day: this.day||1});
 	}
+	toMomentTz(tz: string): Moment {
+		return moment.tz({year: this.year, month: this.month==null?0:this.month-1, day: this.day||1}, tz);
+	}
+
 	
 	simplify_jel_mapping: Object;
 	simplify(): LocalDate {
@@ -213,7 +195,7 @@ export default class LocalDate extends TimeDescriptor {
 	}
 }
 
-LocalDate.prototype.JEL_PROPERTIES = {year:1, month:1, day: 1, dayOfYear: 1};
+LocalDate.prototype.JEL_PROPERTIES = AbstractDate.prototype.JEL_PROPERTIES;
 LocalDate.prototype.simplify_jel_mapping = {};
 LocalDate.prototype.reverseOps = {'+': 1};
 LocalDate.prototype.toZonedDate_jel_mapping = {timeZone: 1, time: 2};
