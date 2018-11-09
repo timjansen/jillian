@@ -60,11 +60,11 @@ export default class LocalDateTime extends AbstractDate {
 	}
 	
 	toMoment(): Moment {
-		return moment({year: this.year, month: this.month-1, day: this.day, hour: this.hour, minute: this.minute||0, second: this.seconds||0});
+		return moment([this.year, this.month-1, this.day, this.hour, this.minute||0, this.seconds||0]);
 	}
 	
 	toMomentTz(tz: string): Moment {
-		return moment.tz({year: this.year, month: this.month-1, day: this.day, hour: this.hour, minute: this.minute||0, second: this.seconds||0}, tz);
+		return moment.tz([this.year, this.month-1, this.day, this.hour, this.minute||0, this.seconds||0], tz);
 	}
 	
 	op(ctx: Context, operator: string, right: any): any {

@@ -4,6 +4,7 @@ import Moment = moment.Moment;
 import Util from '../../../util/Util';
 import Runtime from '../../Runtime';
 import JelObject from '../../JelObject';
+import {IDbRef} from '../../IDatabase';
 import Context from '../../Context';
 import JelNumber from '../JelNumber';
 import UnitValue from '../UnitValue';
@@ -19,6 +20,7 @@ import TypeChecker from '../TypeChecker';
  */
 export default abstract class AbstractDate extends TimeDescriptor {
 	private static readonly MONTHS_MAX_DURATION = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+	private static readonly JEL_TO_MOMENT_TYPES: any = {Year: 'years', Month: 'months', Day: 'days', Hour: 'hours', Minute: 'minutes', Second: 'seconds'};
 	year: number;
 	month: number | null;
 	day: number | null;
@@ -47,6 +49,45 @@ export default abstract class AbstractDate extends TimeDescriptor {
 		return md + (this.day || 1);
 	}
 	
+	// Sunday==0, Saturday==6
+	get dayOfWeek(): number {
+		return this.toMoment().day();
+	}
+
+	// iso number of the week
+	get isoWeek(): number {
+		return this.toMoment().isoWeek();
+	}
+
+	// iso number of the year
+	get isoWeeksInYear(): number {
+		return this.toMoment().isoWeeksInYear();
+	}
+
+	get quarter(): number {
+		return this.toMoment().quarter();
+	}
+
+	// number of century, e.g. 20 for 1900-1999, 21 for 2000-2100
+	get century(): number {
+		return Math.floor(this.year/100)+1;
+	}
+
+	// number of millenium, e.g. 2 for 1000-1999, 3 for 2000-2199
+	get millenium(): number {
+		return Math.floor(this.year/1000)+1;
+	}
+
+	diff_jel_mapping: Object;
+	diff(ctx: Context, otherDate0: any, type0: any): UnitValue | Promise<UnitValue> {
+		const otherDate: AbstractDate = TypeChecker.instance(AbstractDate, otherDate0, "otherDate");
+		const type: string = (typeof type0 == 'string') ? type0 : TypeChecker.dbRef(type0, "type").distinctName;
+		if (!(type in AbstractDate.JEL_TO_MOMENT_TYPES))
+			return (this.diff(ctx, otherDate0, 'Second') as UnitValue).convertTo(ctx, type);
+		else
+			return new UnitValue(JelNumber.valueOf(this.toMoment().diff(otherDate.toMoment(), AbstractDate.JEL_TO_MOMENT_TYPES[type])), type);
+	}
+	
 	isValid(): boolean {
 		return (this.month != null ? (this.month >= 1 && this.month <= 12) : this.day == null) && 
 						(this.day == null || (this.day >= 1 && this.day <= this.getMonth0Duration(this.year, this.month!-1)));
@@ -58,6 +99,6 @@ export default abstract class AbstractDate extends TimeDescriptor {
 
 }
 
-AbstractDate.prototype.JEL_PROPERTIES = {year:1, month:1, day: 1, dayOfYear: 1};
-
+AbstractDate.prototype.JEL_PROPERTIES = {year:1, month:1, day: 1, dayOfYear: 1, dayOfWeek: 1, isoWeek: 1, isoWeeksInYear: 1, quarter: 1, century: 1, millenium: 1};
+AbstractDate.prototype.diff_jel_mapping = {otherDate: 1, type: 2};
 

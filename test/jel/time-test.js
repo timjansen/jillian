@@ -443,6 +443,10 @@ describe('LocalDate', function() {
 		jelAssert.equal('LocalDate(1999, 2, 20).year', 1999);
 		jelAssert.equal('LocalDate(1999, 2, 20).month', 2);
 		jelAssert.equal('LocalDate(1999, 2, 20).day', 20);
+		jelAssert.equal('LocalDate(2018, 11, 12).dayOfWeek', 1);
+		jelAssert.equal('LocalDate(2018, 11, 12).isoWeek', 46);
+		jelAssert.equal('LocalDate(2018, 11, 12).century', 21);
+		jelAssert.equal('LocalDate(2018, 11, 12).millenium', 3);
 	});
 	
 	it('supports operators', function() {

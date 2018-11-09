@@ -44,11 +44,11 @@ export default class ZonedDate extends AbstractDate {
 	}
 	
 	toMoment(): Moment {
-		return moment.tz({year: this.year, month: this.month?this.month-1:0, day: this.day||1}, this.timeZone.tz);
+		return moment.tz([this.year, this.month?this.month-1:0, this.day||1], this.timeZone.tz);
 	}
 	
 	toMomentTz(tz: string): Moment {
-		return moment.tz({year: this.year, month: this.month?this.month-1:0, day: this.day||1}, tz);
+		return moment.tz([this.year, this.month?this.month-1:0, this.day||1], tz);
 	}
 	
 	toZonedDateTime_jel_mapping: Object;

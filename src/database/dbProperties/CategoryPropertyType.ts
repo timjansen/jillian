@@ -1,6 +1,7 @@
 import PropertyType from './PropertyType';
-import DbRef from '../DbRef';
+import {IDbRef, IDbEntry} from '../../jel/IDatabase';
 import Dictionary from '../../jel/types/Dictionary';
+import TypeChecker from '../../jel/types/TypeChecker';
 import Context from '../../jel/Context';
 
 
@@ -9,7 +10,7 @@ import Context from '../../jel/Context';
  */
 export default class CategoryPropertyType extends PropertyType {
 
-  constructor(public superCategory?: DbRef, public directChild = false) {
+  constructor(public superCategory: IDbRef | null, public directChild = false) {
     super();
   }
   
@@ -19,7 +20,7 @@ export default class CategoryPropertyType extends PropertyType {
 
   static create_jel_mapping = {superCategory: 1, directChild: 2};
   static create(ctx: Context, ...args: any[]) {
-    return new CategoryPropertyType(args[0], args[1]);
+    return new CategoryPropertyType(TypeChecker.optionalDbRef(args[0], 'superCategory'), TypeChecker.realBoolean(args[1], 'directChild', false));
   }
 }
 

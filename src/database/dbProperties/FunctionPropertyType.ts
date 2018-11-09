@@ -1,6 +1,6 @@
 import PropertyType from './PropertyType';
-import DbRef from '../DbRef';
 import List from '../../jel/types/List';
+import TypeChecker from '../../jel/types/TypeChecker';
 import Context from '../../jel/Context';
 
 
@@ -24,7 +24,7 @@ export default class FunctionPropertyType extends PropertyType {
 
   static create_jel_mapping = {types: 1};
   static create(ctx: Context, ...args: any[]) {
-    return new FunctionPropertyType(args[0]);
+    return new FunctionPropertyType(TypeChecker.listOfStrings(args[0], 'types'));
   }
 }
 

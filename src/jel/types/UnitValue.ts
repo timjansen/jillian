@@ -127,14 +127,14 @@ export default class UnitValue extends JelObject implements Numeric {
 	
 	// returns the UnitValue converted to the given value, or returns rejected Promise if conversion not possible
 	convertTo_jel_mapping: Object;
-	convertTo(ctx: Context, target: Unit|IDbRef|string): Promise<UnitValue> | UnitValue {
+	convertTo(ctx: Context, target: any): Promise<UnitValue> | UnitValue {
 		if (target instanceof Unit) {
 			if (!target.isSimple())
 				return Promise.reject(new Error(`UnitValues can only convert to simple Unit types, but not to complex unit ${target.toString()}.`));
 			return this.convertTo(ctx, target.toSimpleType(ctx).distinctName);
 		}
 		else if (typeof target != 'string')
-			return this.convertTo(ctx, target.distinctName);
+			return this.convertTo(ctx, TypeChecker.dbRef(target, 'target').distinctName);
 
 		if (this.unit.isSimple()) 
 			return this.convertSimpleTo(ctx, target as string, false);
@@ -355,6 +355,16 @@ export default class UnitValue extends JelObject implements Numeric {
 		return this.unit.isType(ctx, unit);
 	}
 	
+	isSimple_jel_mapping: Object;
+	isSimple(): boolean {
+		return this.unit.isSimple();
+	}
+	
+	toSimpleType_jel_mapping: Object;
+	toSimpleType(ctx: Context): IDbRef {
+		return this.unit.toSimpleType(ctx);
+	}
+
 	toBoolean(): boolean {
 		return this.value.toBoolean();
 	}
@@ -376,6 +386,8 @@ UnitValue.prototype.negate_jel_mapping = {};
 UnitValue.prototype.convertTo_jel_mapping = {type: 1};
 UnitValue.prototype.round_jel_mapping = {};
 UnitValue.prototype.simplify_jel_mapping = {};
+UnitValue.prototype.isSimple_jel_mapping = {};
+UnitValue.prototype.toSimpleType_jel_mapping = {};
 UnitValue.prototype.toPrimaryUnits_jel_mapping = {};
 UnitValue.prototype.isType_jel_mapping = {unit: 1};
 UnitValue.prototype.JEL_PROPERTIES = {value:1, unit:1};

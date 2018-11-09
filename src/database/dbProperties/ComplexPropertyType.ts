@@ -1,6 +1,7 @@
 import PropertyType from './PropertyType';
 import PropertyHelper from './PropertyHelper';
 import Dictionary from '../../jel/types/Dictionary';
+import TypeChecker from '../../jel/types/TypeChecker';
 import JelObject from '../../jel/JelObject';
 import List from '../../jel/types/List';
 import Context from '../../jel/Context';
@@ -32,7 +33,7 @@ export default class ComplexPropertyType extends PropertyType {
 
   static create_jel_mapping = {fields: 1};
   static create(ctx: Context, ...args: any[]) {
-    return new ComplexPropertyType(args[0]);
+    return new ComplexPropertyType(TypeChecker.instance(Dictionary, args[0], 'fields'));
   }
 }
 

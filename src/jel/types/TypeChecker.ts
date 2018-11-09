@@ -189,6 +189,20 @@ export default class TypeChecker {
 		return TypeChecker.notNull(TypeChecker.optionalInstance(ctor, value, name, defaultValue), name);
 	}
 
+ 	static listOfStrings(value: any, name: string): any {
+		if (value == null)
+			return BaseTypeRegistry.get('List').empty;
+		
+		if ((value.getJelType ? value.getJelType() : '') == 'List') {
+      for (let s of value.elements)
+        TypeChecker.string(s, name);
+      return value;
+    }
+    
+    return BaseTypeRegistry.get('List').valueOf([TypeChecker.string(value, name)]);
+	}
+
+  
 }
 
 

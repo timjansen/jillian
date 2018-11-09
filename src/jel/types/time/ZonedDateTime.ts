@@ -52,7 +52,7 @@ export default class ZonedDateTime extends AbstractDate {
 	}
 	
 	toMomentTz(tz: string): Moment {
-		return moment.tz({year: this.year, month: this.month?this.month-1:0, day: this.day||1, hour: this.hour, minute: this.minute || 0, seconds: this.seconds || 0, ms: this.milliseconds}, tz);
+		return moment.tz([this.year, this.month?this.month-1:0, this.day||1, this.hour, this.minute || 0, this.seconds || 0, this.milliseconds], tz);
 	}
 	
 	static fromMoment(m: Moment, timeZone: TimeZone): ZonedDateTime {

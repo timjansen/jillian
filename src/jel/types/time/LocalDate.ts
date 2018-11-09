@@ -39,10 +39,10 @@ export default class LocalDate extends AbstractDate {
 	}
 	
 	toMoment(): Moment {
-		return moment({year: this.year, month: this.month==null?0:this.month-1, day: this.day||1});
+		return moment([this.year, this.month==null?0:this.month-1, this.day||1]);
 	}
 	toMomentTz(tz: string): Moment {
-		return moment.tz({year: this.year, month: this.month==null?0:this.month-1, day: this.day||1}, tz);
+		return moment.tz([this.year, this.month==null?0:this.month-1, this.day||1], tz);
 	}
 
 	
@@ -119,7 +119,7 @@ export default class LocalDate extends AbstractDate {
 				case '<=':
 					return JelBoolean.truest(ctx, this.op(ctx, '==', right) as JelBoolean, (this.op(ctx, '>', right) as JelBoolean).negate());
 				case '-': {
-					return this.diff(ctx, right);
+					return this.duration(ctx, right);
 				}
 			}
 		}
@@ -173,10 +173,10 @@ export default class LocalDate extends AbstractDate {
 	}
 	
 
-	diff(ctx: Context, right: LocalDate): Duration {
+	duration(ctx: Context, right: LocalDate): Duration {
 		const l = this.simplifyNoNull(), r = right.simplifyNoNull();
 		if (l.year * 1000 + l.month! * 50 + l.day! < r.year * 1000 + r.month! * 50 + r.day!)
-			return r.diff(ctx, l).negate();
+			return r.duration(ctx, l).negate();
 
 		const mDiff = (l.year! * 12 + l.month!)-(r.year! * 12 + r.month!);
 		if (l.day! >= r.day!)
