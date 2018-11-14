@@ -1,0 +1,1 @@
+Enum('CalendarFrequencyEnum', ['BIYEARLY', 'YEARLY', 'MONTHLY', 'BIWEEKLY', 'WEEKLY', 'DAILY'])

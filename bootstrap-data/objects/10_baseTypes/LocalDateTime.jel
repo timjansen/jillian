@@ -1,0 +1,8 @@
+Thing('LocalDateTime', @BaseTypeCategory, 
+properties={
+	baseTypeDescriptor: {
+		isNumeric: false,
+		canBeRange: false,
+		canHaveMultipleValues: false
+	}
+})

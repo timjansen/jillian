@@ -9,6 +9,8 @@ import DbRef from './DbRef';
 import Category from './dbObjects/Category';
 import Thing from './dbObjects/Thing';
 import Enum from './dbObjects/Enum';
+import MixinProperty from './dbObjects/MixinProperty';
+
 
 import CategoryPropertyType from './dbProperties/CategoryPropertyType';
 import ComplexPropertyType from './dbProperties/ComplexPropertyType';
@@ -20,8 +22,8 @@ import SimplePropertyType from './dbProperties/SimplePropertyType';
 
 
 
-const DB_IDENTIFIERS = {DbEntry, DbRef, Category, Thing, Enum, 
-												 CategoryPropertyType, ComplexPropertyType, DictionaryPropertyType, FunctionPropertyType, ListPropertyType, OptionPropertyType, SimplePropertyType,
+const DB_IDENTIFIERS = {DbEntry, DbRef, Category, Thing, Enum, MixinProperty, 
+                        CategoryPropertyType, ComplexPropertyType, DictionaryPropertyType, FunctionPropertyType, ListPropertyType, OptionPropertyType, SimplePropertyType,
 												 ___IS_DATABASE_CONTEXT: 'magic123'};
 
 

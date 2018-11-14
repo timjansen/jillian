@@ -7,6 +7,7 @@ import JelObject from '../../JelObject';
 import {IDbRef} from '../../IDatabase';
 import Context from '../../Context';
 import JelNumber from '../JelNumber';
+import List from '../List';
 import UnitValue from '../UnitValue';
 import JelBoolean from '../JelBoolean';
 import Timestamp from './Timestamp';
@@ -40,6 +41,14 @@ export default abstract class AbstractDate extends TimeDescriptor {
 		else 
 			return moment([year]).isLeapYear() ? 29 : 28;
 	}
+  
+  get leapYear(): boolean {
+    return (this.year % 4 == 0) && moment([this.year]).isLeapYear();
+  }
+
+  get numberOfDays(): UnitValue {
+    return new UnitValue(JelNumber.valueOf(this.day != null ? 1 : (this.month != null ? this.getMonth0Duration(this.year, this.month-1) : (this.leapYear ? 366 : 355))), 'Day');
+  }
 
 	get dayOfYear(): number {
 		let md = 0;
@@ -78,6 +87,27 @@ export default abstract class AbstractDate extends TimeDescriptor {
 		return Math.floor(this.year/1000)+1;
 	}
 
+  // returns a list of all days as LocalDate in the given year. Makes more sense if day and possibly month are null.
+  get allDays(): List {
+    if (this.day != null)
+      return new List([this.year, this.month, this.day]);
+
+    const dl = [];
+    if (this.month == null) {
+      for (let j = 1; j <= 12; j++) {
+        const dayCount = this.getMonth0Duration(this.year, j-1);
+        for (let i = 1; i <= dayCount; i++)
+          dl.push(this.toDate(this.year, j, i));
+      }
+    }
+    else {
+      const dayCount = this.getMonth0Duration(this.year, this.month-1);
+      for (let i = 1; i <= dayCount; i++)
+        dl.push(this.toDate(this.year, this.month, i));
+    }
+    return new List(dl);
+  }
+  
 	diff_jel_mapping: Object;
 	diff(ctx: Context, otherDate0: any, type0: any): UnitValue | Promise<UnitValue> {
 		const otherDate: AbstractDate = TypeChecker.instance(AbstractDate, otherDate0, "otherDate");
@@ -95,10 +125,10 @@ export default abstract class AbstractDate extends TimeDescriptor {
 	
 	abstract toMoment(): Moment;
 	abstract toMomentTz(tz: string): Moment;
-
+  abstract toDate(year: number, month: number, day: number): AbstractDate;
 
 }
 
-AbstractDate.prototype.JEL_PROPERTIES = {year:1, month:1, day: 1, dayOfYear: 1, dayOfWeek: 1, isoWeek: 1, isoWeeksInYear: 1, quarter: 1, century: 1, millenium: 1};
+AbstractDate.prototype.JEL_PROPERTIES = {year:1, month:1, day: 1, dayOfYear: 1, dayOfWeek: 1, isoWeek: 1, isoWeeksInYear: 1, quarter: 1, century: 1, millenium: 1, allDays: 1, leapYear: 1, numberOfDays: 1};
 AbstractDate.prototype.diff_jel_mapping = {otherDate: 1, type: 2};
 

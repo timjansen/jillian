@@ -236,7 +236,7 @@ export default class Database {
 									return db.put(ctx, ...readyCats.concat(checkedCats))
 										.then(()=> !futureCats.length ? Promise.resolve() : 
 													iterationsLeft>0 ? loadCategories(futureCats, iterationsLeft-1) : 
-													Promise.reject(new DatabaseError(`Can not load categories after ${MAX_ITERATIONS}. There appears to be a loop in superCategory relations.`)));
+													Promise.reject(new DatabaseError(`Can not load categories after ${MAX_ITERATIONS} iterations. There appears to be a loop in superCategory relations.`)));
 								});
 						}
 

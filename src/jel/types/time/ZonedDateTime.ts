@@ -50,11 +50,13 @@ export default class ZonedDateTime extends AbstractDate {
 	toMoment(): Moment {
 		return this.toMomentTz(this.timeZone.tz);
 	}
-	
 	toMomentTz(tz: string): Moment {
 		return moment.tz([this.year, this.month?this.month-1:0, this.day||1, this.hour, this.minute || 0, this.seconds || 0, this.milliseconds], tz);
 	}
-	
+  toDate(year: number, month: number, day: number): AbstractDate {
+    return new LocalDate(year, month, day);
+  }
+  
 	static fromMoment(m: Moment, timeZone: TimeZone): ZonedDateTime {
 		return new ZonedDateTime(timeZone, new LocalDate(m.year(), m.month()+1, m.date()), new TimeOfDay(m.hour(), m.minute(), m.seconds()), m.milliseconds());
 	}

@@ -1,0 +1,7 @@
+MixinProperty('order', 
+  {
+    predecessor: [@Thing, null],
+    successor: [@Thing, null]
+  }
+ )
+ 

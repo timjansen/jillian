@@ -1,0 +1,18 @@
+Thing('Month', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Time,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.METRIC,
+		idealMin: 1,
+		idealMax: 365,
+		convertsTo: {
+			Second: {factor: 28*24*3600},
+			Hour: {factor: 28*24},
+			Minute: {factor: 28*24*60},
+			Day: {factor: 28},
+			Week: {factor: 4},
+			Year: {factor: Fraction(1, 12)}
+		}
+})
+
+

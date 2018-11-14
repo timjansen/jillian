@@ -1,0 +1,11 @@
+Thing('February', @MonthCategory,
+	properties={
+    monthNumber: 2,
+    duration: Range(28 @Day, 29 @Day),
+    durationInYear: (this, year)=>LocalDate(year).leapYear ? 29 : 28;
+    order: {
+      predecessor: @January,
+      successor: @March
+    }
+  }
+)

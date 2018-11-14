@@ -1,0 +1,8 @@
+Thing('Thanksgiving', @HolidayCategory,
+	properties={
+    month: 11,
+    firstDate: LocalDate(1942, 11, 26),
+ 		isMatch: (this, date)=>with thanksgiving=this.matchesInYear(this, date.year).first: date == thanksgiving,
+		matchesInYear: (this, year)=>year >= this.firstDate.year ? LocalDate(year, this.month).allDays.nthMatch(4, d=>d.dayOfWeek == 4) : []
+  }
+)

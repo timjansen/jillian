@@ -16,7 +16,7 @@ export default class SimplePropertyType extends PropertyType {
   // constants: a dictionary string->any containing fixed values for base type parameters. E.g. for @Fraction, 
 	//            it could set denominator=2 .
   // types: restrictions for base type parameter in the form string->SimplePropertyType. 
-	//            E.g. for @UnitValue, it could set value = @Fraction to allow only fracions as values
+	//            E.g. for @UnitValue, it could set value = @Fraction to allow only fractions as values
   // Example: SimplePropertyType(@UnitValue, {unit: @Meter}) defines a @UnitValue measuring in meters
   // Example: SimplePropertyType(@UnitValue, {unit: @Inch}, {value: SimplePropertyType(@Fraction, {denominator: 16)}) defines
   //          a unit value using 1/16th inch

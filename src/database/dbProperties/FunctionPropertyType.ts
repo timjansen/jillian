@@ -6,7 +6,7 @@ import Context from '../../jel/Context';
 
 
 /**
- * Declares a property type that is a JEL function.
+ * Declares a property type that is either a JEL function or .
  */
 export default class FunctionPropertyType extends PropertyType {
 	public types: List;

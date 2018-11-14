@@ -9,6 +9,8 @@ Thing('Day', @UnitOfMeasureCategory,
 			Second: {factor: 24*3600},
 			Hour: {factor: 24},
 			Minute: {factor: 24*60},
+			Month: {factor: Fraction(1, 28)},
+			Week: {factor: Fraction(1, 7)},
 			Year: {factor: Fraction(1, 365)}
 		}
 })

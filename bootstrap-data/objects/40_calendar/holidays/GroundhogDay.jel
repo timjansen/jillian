@@ -1,0 +1,7 @@
+Thing('GroundhogDay', @HolidayCategory,
+	properties={
+    month: 2,
+    day: 2,
+    firstDate: LocalDate(1840, 2, 2)
+  }
+)

@@ -62,10 +62,13 @@ export default class LocalDateTime extends AbstractDate {
 	toMoment(): Moment {
 		return moment([this.year, this.month-1, this.day, this.hour, this.minute||0, this.seconds||0]);
 	}
-	
 	toMomentTz(tz: string): Moment {
 		return moment.tz([this.year, this.month-1, this.day, this.hour, this.minute||0, this.seconds||0], tz);
 	}
+  toDate(year: number, month: number, day: number): AbstractDate {
+    return new LocalDate(year, month, day);
+  }
+
 	
 	op(ctx: Context, operator: string, right: any): any {
 		if (right instanceof LocalDateTime) {
@@ -113,6 +116,8 @@ export default class LocalDateTime extends AbstractDate {
 							return this.op(ctx, operator, new Duration(JelNumber.toRealNumber(right)));
 						else if (right.isType(ctx, 'Month'))
 							return this.op(ctx, operator, new Duration(0, JelNumber.toRealNumber(right)));
+						else if (right.isType(ctx, 'Week'))
+							return this.op(ctx, operator, new Duration(0, 0, JelNumber.toRealNumber(right)*7));
 						else if (right.isType(ctx, 'Day'))
 							return this.op(ctx, operator, new Duration(0, 0, JelNumber.toRealNumber(right)));
 						else if (right.isType(ctx, 'Hour'))

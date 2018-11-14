@@ -1,0 +1,19 @@
+Category('MonthCategory',
+  superCategory=@CalendarElementCategory,
+	properties = {},
+	instanceDefaults = {
+    duration: Range(28 @Day, 31 @Day),
+    durationInYear: (this, year)=>this.duration,
+    calendarFrequency: @CalendarFrequencyEnum.YEARLY,
+    first: null,
+    last: null,
+		isMatch: (this, date)=>date.month==this.monthNumber,
+		matchesInYear: (this, year)=>[LocalDate(year, this.monthNumber)]
+  },
+	instanceProperties = {
+    monthNumber: @Number
+	},
+  mixinProperties = {
+    order: @PropertyTypeEnum.REQUIRED
+  }
+)

@@ -1,0 +1,7 @@
+Thing('NewYearsDay', @HolidayCategory,
+	properties={
+    month: 12,
+    day: 31,
+    firstDate: LocalDate(1, 12, 31)
+  }
+)

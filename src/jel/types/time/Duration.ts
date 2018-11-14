@@ -95,7 +95,17 @@ export default class Duration extends JelObject {
 			}
 		}
 		else if (right instanceof UnitValue) {
-			if (!right.isType(ctx, 'Second')) {
+      if (JelNumber.isInteger(ctx, right)) {
+        if (right.isType(ctx, 'Year'))
+          return this.op(ctx, operator, new Duration(JelNumber.toRealNumber(right)));
+        else if (right.isType(ctx, 'Month'))
+          return this.op(ctx, operator, new Duration(0, JelNumber.toRealNumber(right)));
+        else if (right.isType(ctx, 'Week'))
+          return this.op(ctx, operator, new Duration(0, 0, JelNumber.toRealNumber(right)*7));
+        else if (right.isType(ctx, 'Day'))
+          return this.op(ctx, operator, new Duration(0, 0, JelNumber.toRealNumber(right)));
+      }
+      if (!right.isType(ctx, 'Second')) {
 				return Util.resolveValue(right.convertTo(ctx, 'Second'), r=>this.op(ctx, operator, r));
 			}
 			const value = JelNumber.toRealNumber(right);
@@ -246,20 +256,24 @@ export default class Duration extends JelObject {
 	static create(ctx: Context, ...args: any[]): any {
 		if (args[0] instanceof UnitValue) {
 			const uv = args[0];
-			if (uv.isType(ctx, 'Year'))
-				return new Duration(JelNumber.toRealNumber(uv));
-			else if (uv.isType(ctx, 'Month'))
-				return new Duration(0, JelNumber.toRealNumber(uv));
-			else if (uv.isType(ctx, 'Day'))
-				return new Duration(0, 0, JelNumber.toRealNumber(uv));
-			else if (uv.isType(ctx, 'Hour'))
-				return new Duration(0, 0, 0, JelNumber.toRealNumber(uv));
-			else if (uv.isType(ctx, 'Minute'))
-				return new Duration(0, 0, 0, 0, JelNumber.toRealNumber(uv));
-			else if (uv.isType(ctx, 'Second'))
-				return new Duration(0, 0, 0, 0, 0, JelNumber.toRealNumber(uv));
-			else
-				return Util.resolveValue(uv.convertTo(ctx, 'Second'), r=>new Duration(0, 0, 0, 0, 0, JelNumber.toRealNumber(r)).simplify());
+      if (JelNumber.isInteger(ctx, uv)) {
+        if (uv.isType(ctx, 'Year'))
+          return new Duration(JelNumber.toRealNumber(uv));
+        else if (uv.isType(ctx, 'Month'))
+          return new Duration(0, JelNumber.toRealNumber(uv));
+        else if (uv.isType(ctx, 'Week'))
+          return new Duration(0, 0, JelNumber.toRealNumber(uv)*7);
+        else if (uv.isType(ctx, 'Day'))
+          return new Duration(0, 0, JelNumber.toRealNumber(uv));
+        else if (uv.isType(ctx, 'Hour'))
+          return new Duration(0, 0, 0, JelNumber.toRealNumber(uv));
+        else if (uv.isType(ctx, 'Minute'))
+          return new Duration(0, 0, 0, 0, JelNumber.toRealNumber(uv));
+      }
+      if (uv.isType(ctx, 'Second'))
+          return new Duration(0, 0, 0, 0, 0, JelNumber.toRealNumber(uv));
+      else 
+  			return Util.resolveValue(uv.convertTo(ctx, 'Second'), r=>new Duration(0, 0, 0, 0, 0, JelNumber.toRealNumber(r)).simplify());
 		}
 
 		return new Duration(TypeChecker.realNumber(args[0], 'years', 0), TypeChecker.realNumber(args[1], 'months', 0), TypeChecker.realNumber(args[2], 'days', 0), 

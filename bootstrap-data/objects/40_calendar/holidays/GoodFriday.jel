@@ -1,0 +1,9 @@
+Thing('GoodFriday', @HolidayCategory,
+	properties={
+    month: Range(3, 4),
+    weekDay: @Friday,
+    firstDate: LocalDate(1583, 3, 20),
+  	isMatch: (this, date)=>@Easter.isMatch(@Easter, date + 2 @Day),
+		matchesInYear: (this, year)=>@Easter.matchesInYear(@Easter, year).map(d=>d-2 @Day)
+  }
+)

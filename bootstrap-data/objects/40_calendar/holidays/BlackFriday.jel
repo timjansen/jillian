@@ -1,0 +1,9 @@
+Thing('BlackFriday', @HolidayCategory,
+	properties={
+    month: 11,
+    weekDay: @Friday,
+    firstDate: LocalDate(2000, 11, 27),
+  	isMatch: (this, date)=>@Thanksgiving.isMatch(@Thanksgiving, date - 1 @Day),
+		matchesInYear: (this, year)=>@Thanksgiving.matchesInYear(@Thanksgiving, year).map(d=>d+1 @Day)
+  }
+)

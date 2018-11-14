@@ -44,6 +44,9 @@ export default class LocalDate extends AbstractDate {
 	toMomentTz(tz: string): Moment {
 		return moment.tz([this.year, this.month==null?0:this.month-1, this.day||1], tz);
 	}
+  toDate(year: number, month: number, day: number): AbstractDate {
+    return new LocalDate(year, month, day);
+  }
 
 	
 	simplify_jel_mapping: Object;
@@ -144,6 +147,8 @@ export default class LocalDate extends AbstractDate {
 						return this.op(ctx, operator, new Duration(JelNumber.toRealNumber(right)));
 					else if (right.isType(ctx, 'Month') && JelNumber.isInteger(ctx, right))
 						return this.op(ctx, operator, new Duration(0, JelNumber.toRealNumber(right)));
+					else if (right.isType(ctx, 'Week') && JelNumber.isInteger(ctx, right))
+						return this.op(ctx, operator, new Duration(0, 0, JelNumber.toRealNumber(right)*7));
 					else
 						return Util.resolveValue(right.convertTo(ctx, 'Day'), days=>this.op(ctx, operator, new Duration(0,0,JelNumber.toRealNumber(days))));
 			}

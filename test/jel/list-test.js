@@ -168,6 +168,26 @@ describe('jelList', function() {
     });
   });
 
+
+  describe('firstMatch/lastMatch/nthMatch()', function() {
+    it('finds something', function() {
+      jelAssert.equal('[3, 2, 9, 5, 6, 8, 2, 4, 0, -2, 55, 22, 4, 1, 5, 2, 3].firstMatch((x,i)=>x>2)', 3);
+      jelAssert.equal('[3, 2, 9, 5, 6, 8, 2, 4, 0, -2, 55, 22, 4, 1, 5, 2, 3].firstMatch((x,i)=>x>2 && i>1)', 9); 
+      jelAssert.equal('[3, 2, 9, 5, 6, 8, 2, 4, 0, -2, 55, 22, 4, 1, 5, 2, 3].firstMatch((x,i)=>x>9)', 55);
+      jelAssert.equal('[3, 2, 9, 5, 6, 8, 2, 4, 0, -2, 55, 22, 4, 1, 5, 2, 3].lastMatch((x,i)=>x>9)', 22);
+      jelAssert.equal('[3, 2, 9, 5, 6, 8, 2, 4, 0, -2, 55, 22, 4, 1, 5, 2, 3].nthMatch(3, (x, i)=>x>2)', 5);
+      jelAssert.equal('[3, 2, 9, 5, 6, 8, 2, 4, 0, -2, 55, 22, 4, 1, 5, 2, 3].nthMatch(-3, (x, i)=>x>2)', 4);
+      jelAssert.equal('[3, 2, 9].nthMatch(3, (x,i)=>x>1)', 9); 
+      return jelAssert.equalPromise('[3, 8, 17, 39, 2, 9].firstMatch((x,i)=>JelPromise(x>10))', 17); 
+    });
+    it('finds nothing', function() {
+      jelAssert.equal('[3, 2, 9].firstMatch((x,i)=>x>10)', null); 
+      jelAssert.equal('[3, 2, 9].lastMatch((x,i)=>x>10)', null); 
+      jelAssert.equal('[3, 2, 9].nthMatch(4, (x,i)=>x>1)', null); 
+      return jelAssert.equalPromise('[3, 2, 9].firstMatch((x,i)=>JelPromise(x>5 && i<1))', null); 
+    });
+  });
+
   
   describe('bestMatch()', function() {
     it('handles small lists', function() {

@@ -1,0 +1,8 @@
+Thing('Thursday', @WeekdayCategory,
+	properties={
+    dayOfWeekNumber: 4,order: {
+      predecessor: @Wednesday,
+      successor: @Friday
+    }
+  }
+)

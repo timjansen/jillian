@@ -160,7 +160,35 @@ export default class List extends JelObject implements SerializablePrimitive {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, JelNumber.valueOf(i)), (v, e)=>JelBoolean.toRealBoolean(v) ? undefined : JelBoolean.FALSE, r=>r || JelBoolean.TRUE);
 	}
-	
+
+ 	firstMatch_jel_mapping: Object;
+	firstMatch(ctx: Context, f0: any): JelObject | null | Promise<JelObject | null> {
+		return this.nthMatch(ctx, 1, f0);
+	}
+
+ 	lastMatch_jel_mapping: Object;
+	lastMatch(ctx: Context, f0: any): JelObject | null | Promise<JelObject | null> {
+		return this.nthMatch(ctx, -1, f0);
+	}
+
+ 	nthMatch_jel_mapping: Object;
+	nthMatch(ctx: Context, index0: any, f0: any): JelObject | null | Promise<JelObject | null> {
+		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
+    const index: number = TypeChecker.realNumber(index0, 'index');
+    if (index == 0)
+      throw new Error('Index must not be 0. nthMatch is not 0-based.');
+    const absIndex = Math.abs(index);
+    let matchCount = 0;
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, JelNumber.valueOf(i)), (v, e)=>{
+      if (JelBoolean.toRealBoolean(v)) {
+        if (++matchCount == absIndex)
+          return e;
+      }
+    }, r=>r || null, index>0);
+	}
+
+  
+  
 	// isBetter(a,b) checks whether a is better than b (must return false is both are equally good)
 	// returns one or more that items that were better than everything else.
 	bestMatches_jel_mapping: Object;
@@ -407,6 +435,9 @@ List.prototype.filter_jel_mapping = {f: 1};
 List.prototype.reduce_jel_mapping = {f: 1, init: 2};
 List.prototype.hasAny_jel_mapping = {f: 1};
 List.prototype.hasOnly_jel_mapping = {f: 1};
+List.prototype.firstMatch_jel_mapping = {f: 1};
+List.prototype.lastMatch_jel_mapping = {f: 1};
+List.prototype.nthMatch_jel_mapping = {index: 1, f: 2};
 List.prototype.bestMatches_jel_mapping = {isBetter: 1};
 List.prototype.sub_jel_mapping = {start: 1, end: 2};
 List.prototype.sort_jel_mapping = {isLess: 1, key: 2};

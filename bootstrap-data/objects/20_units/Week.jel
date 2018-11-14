@@ -1,0 +1,16 @@
+Thing('Week', @UnitOfMeasureCategory,
+	properties={
+		quantityCategory: @Time,
+		isPrimaryUnit: false,
+		type: @UnitTypeEnum.METRIC,
+		idealMin: 1,
+		idealMax: 52,
+		convertsTo: {
+			Second: {factor: 7*24*3600},
+			Hour: {factor: 7*24},
+			Minute: {factor: 7*24*60},
+			Year: {factor: Fraction(1, 52)}
+		}
+})
+
+

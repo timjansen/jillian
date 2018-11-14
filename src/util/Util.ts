@@ -135,20 +135,23 @@ export default class Util {
 	 * be called. Its parameter is either the value returned by promiseProcessor, or undefined if list processing has not been aborted.
 	 * The processPromiseList returns the return value of resultGenerator, if given, or the value returned by promiseProcessor if it returned something,
 	 * or undefined. If any promiseGenerator invokation returned a Promise, the return value is wrapped in a Promise.
+   * If you set forward to false, it will go backwards through the list.
 	 */
 	static processPromiseList(list: any[], promiseGenerator: (listValue: any, step: number)=>any|Promise<any>, 
 														promiseProcessor: (generatedValue: any, listValue: any, step: number)=>void,
-														resultGenerator?: (processorResult: any)=>any): any| Promise<any> {
-		let i = 0;
+														resultGenerator?: (processorResult: any)=>any,
+                            forward = true): any| Promise<any> {
 		const len = list.length;
+    const dir = forward ? 1 : -1;
+		let i = forward ? 0 : len-1;
 		function exec(): Promise<any> | any {
-			while (i < len) {
+			while (i < len && i >= 0) {
 				const e = list[i];
 				const r = promiseGenerator(e, i);
 				if (r instanceof Promise)
 					return r.then(v=>{
 						const p = promiseProcessor(v, e, i);
-						i++;
+						i += dir;
 						if (p === undefined)
 							return exec();
 						else
@@ -156,7 +159,7 @@ export default class Util {
 					});
 				else {
 					const p = promiseProcessor(r, e, i);
-					i++;
+					i += dir;
 					if (p !== undefined)
 						return p;
 				}
