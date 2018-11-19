@@ -186,7 +186,7 @@ export default class JEL {
 					tokens.next();
 					return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, JEL.parseExpression(tokens, IF_PRECEDENCE, stopOps)), precedence, stopOps);
 				}
-				return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, Literal.TRUE), precedence, stopOps);
+				return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, new Literal(true)), precedence, stopOps);
       }
       else if (token.value == 'with') {
         const assignments: Assignment[] = JEL.parseParameters(tokens, WITH_PRECEDENCE, WITH_STOP, ':', "Expected colon or equal sign after expression in 'with' statement,", 'constant');
@@ -263,7 +263,7 @@ export default class JEL {
 							break;
 					}
 					else {
-						metaAssignments.push(new Assignment(name.value, Literal.TRUE));
+						metaAssignments.push(new Assignment(name.value, new Literal(true)));
 						if (eq.value == ':')
 							break;
 					}

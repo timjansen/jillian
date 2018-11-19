@@ -70,7 +70,7 @@ export default class Database {
   
   private readEntry(ctx: Context, distinctName: string, path: string): Promise<DbEntry | null> {
     return fs.readFile(path, {encoding: 'utf8'})
-    .then(entryTxt=>JEL.execute(entryTxt, DatabaseContext.add(ctx)))
+    .then(entryTxt=>JEL.execute(entryTxt, ctx))
     .catch(e=> {
       if (e.code == 'ENOENT')
         return null;
@@ -191,9 +191,8 @@ export default class Database {
 	 * @param recursive if true, loadDir() will load data from subdirectories
 	 * @return a Promise with the number of loaded objects, or a DatabaseError
 	 */
-	loadDir(dirPath: string, recursive = true): Promise<number> {
+	loadDir(ctx: Context, dirPath: string, recursive = true): Promise<number> {
 		const pool = new WorkerPool();
-		const ctx = DatabaseContext.forDatabase(this);
 		const db = this;
 		return db.init(config=>{
 

@@ -49,7 +49,7 @@ export default class Call extends JelNode {
   private callLeft(ctx: Context, left: JelNode): JelObject|null|Promise<JelObject|null> {
     if (left instanceof Callable) 
       return this.callCallable(ctx, left);
-    else if (JelObject.isPrototypeOf(left)) 
+    else if (JelObject.isPrototypeOf(left) || left instanceof JelObject) 
       return Util.resolveValue(Runtime.member(ctx, left, 'create'), (callable: any) => {
 				if (!callable)
 					throw new Error(`Call failed. Tried to create '${left.constructor.name}', but it does not support creation. It needs a public create() method.`);

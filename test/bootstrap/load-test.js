@@ -18,32 +18,22 @@ const UnitValue = require('../../build/jel/types/UnitValue.js').default;
 const ApproximateNumber = require('../../build/jel/types/ApproximateNumber.js').default;
 const Fraction = require('../../build/jel/types/Fraction.js').default;
 const Util = require('../../build/util/Util.js').default;
-const tmp = require('tmp');
 const assert = require('assert');
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
 
 
-tmp.dir(function(err, path) {
-  if (err) 
-		throw err;
-	console.log(`unitvalue-test.js: Using tmp dir ${path}`);
+const path = 'build/tmp/bootstrap-load';
+const db = new Database(path);
+const session = new DbSession(db, DefaultContext.plus({JelPromise, JelConsole}));
 
-	return Database.create(path+'/load-test')
-		.then(db=>{
-			const session = new DbSession(db, DefaultContext.plus({JelPromise, JelConsole}));
-	
-			jelAssert.setCtx(session.ctx);
-		
-			describe('Loader', function() {
-				it('loads DB objects', function() {
-					return Loader.bootstrapDatabaseObjects(db, 'bootstrap-data/objects', console.log)
-					.then(c=>Promise.resolve(session.get('Meter')))
-					.then(m=>Promise.resolve(m.member(session.ctx, 'isPrimaryUnit')))
-					.then(m=>assert.ok(m));
-				});
-				
-			});
-	});
-	
+jelAssert.setCtx(session.ctx);
+
+describe('Loader', function() {
+  it('loads DB objects', function() {
+    return Promise.resolve(session.get('Meter'))
+    .then(m=>Promise.resolve(m.member(session.ctx, 'isPrimaryUnit')))
+    .then(m=>assert.ok(m));
+  });
+
 });

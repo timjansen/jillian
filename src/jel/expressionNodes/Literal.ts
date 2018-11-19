@@ -23,8 +23,6 @@ import Runtime from '../Runtime';
  *	 "Here are some indented lines:\n\tLine1\n\tLine2\n"
  */
 export default class Literal extends JelNode {
-	static TRUE = new Literal(true);
-
 	public value: any;
 	constructor(value: any) {
     super();

@@ -5,6 +5,7 @@ import DatabaseError from './DatabaseError';
 import NotFoundError from './NotFoundError';
 import DatabaseContext from './DatabaseContext';
 import Database from './Database';
+import DbSession from './DbSession';
 import WorkerPool from './WorkerPool';
 import Category from './dbObjects/Category';
 
@@ -27,19 +28,20 @@ export default class Loader {
 	 * @return a Promise that returns the number of loaded objects
 	 */ 
 	static bootstrapDatabaseObjects(database: Database, dirPath: string, logFunction?: (...args: any[])=>void): Promise<number> {
+    const session = new DbSession(database);
 		let objectCount = 0, dirCount = 0;
 		if (logFunction)
 			logFunction(`Start bootstrapping database at ${database.dbPath} from ${dirPath}`);
 		
 		return (fs as any).readdir(dirPath, {withFileTypes: true}) // TODO: remove any when new readdir() signature is in fs-extra
-			.then((files: any[]) => {  // TODO: use fs.Dirent here when available
+			.then((files: any[]) => {  // TODO: use fs.Dirent as type here when available for TypeScript
 				const dirs: string[] = files.filter(s=>s.isDirectory()).map(s=>s.name).sort();
 				dirCount = dirs.length;
 				return WorkerPool.run(dirs, (dir: string)=>{
 					const fullDir = path.join(dirPath, dir);
 					if (logFunction)
 						logFunction("Loading database directory " + fullDir); 
-					return database.loadDir(fullDir).then(c=>objectCount+=c);
+					return database.loadDir(session.ctx, fullDir).then(c=>objectCount+=c);
 				}, 1);
 			})
 			.then(()=>{

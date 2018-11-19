@@ -11,8 +11,6 @@ const Context = require('../../build/jel/Context.js').default;
 const tmp = require('tmp');
 const assert = require('assert');
 
-const baseCtx = new Context().setAll({DbRef, Category, Thing});
-
 tmp.dir(function(err, path) {
   if (err) 
 		throw err;

@@ -17,7 +17,7 @@ const assert = require('assert');
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 
 function getCtx(db) {
-	return DatabaseContext.forDatabase(db);
+	return new DbSession(db).ctx;
 }
 const jelAssert = new JelAssert(DefaultContext.get());
 
@@ -147,7 +147,7 @@ tmp.dir(function(err, path) {
 			return Database.create(path+'/db9', new DatabaseConfig({sizing: 99}))
 			.then(db=> {
 				const ctx = getCtx(db);
-				return db.loadDir('test/database/data/loadTest')
+				return db.loadDir(ctx, 'test/database/data/loadTest')
 				.then(n=>{
 					assert.equal(5, n);
 					return db.get(ctx, 'AThing2');

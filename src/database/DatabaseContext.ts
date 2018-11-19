@@ -1,3 +1,5 @@
+import Util from '../util/Util';
+
 import Context from '../jel/Context';
 import DefaultContext from '../jel/DefaultContext';
 
@@ -10,6 +12,7 @@ import Category from './dbObjects/Category';
 import Thing from './dbObjects/Thing';
 import Enum from './dbObjects/Enum';
 import MixinProperty from './dbObjects/MixinProperty';
+import TypeDefinition from './dbObjects/TypeDefinition';
 
 
 import CategoryPropertyType from './dbProperties/CategoryPropertyType';
@@ -22,30 +25,42 @@ import SimplePropertyType from './dbProperties/SimplePropertyType';
 
 
 
-const DB_IDENTIFIERS = {DbEntry, DbRef, Category, Thing, Enum, MixinProperty, 
+const DB_IDENTIFIERS = {DbEntry, DbRef, Category, Thing, Enum, MixinProperty, TypeDefinition,
                         CategoryPropertyType, ComplexPropertyType, DictionaryPropertyType, FunctionPropertyType, ListPropertyType, OptionPropertyType, SimplePropertyType, 
 												 ___IS_DATABASE_CONTEXT: 'magic123'};
 
 
-export default class DatabaseContext {
-	static readonly DB_CONTEXT = DefaultContext.plus(DB_IDENTIFIERS);
+export default class DatabaseContext extends Context {
 
-	static get(): Context {
-		return DatabaseContext.DB_CONTEXT;
-	}
-	
-	static forDatabase(database: Database): Context {
-		const session = new DbSession(database, DatabaseContext.DB_CONTEXT);
-		return session.ctx;
+  constructor(parent: Context|null, session: DbSession) {
+    super(parent||DefaultContext.get(), session);
+    this.setAll(DB_IDENTIFIERS);
   }
-	
-	static add(ctx?: Context): Context {
-		if (!ctx)
-			return DatabaseContext.DB_CONTEXT;
-		else if (ctx.getOrNull('___IS_DATABASE_CONTEXT') == 'magic123')
-			return ctx;
-		else
-	    return ctx.plus(DB_IDENTIFIERS);
+
+  private genericGet(name: string): any {
+		try {
+  		return super.get(name);
+    }
+    catch (e) {
+      return Util.resolveValue(this.dbSession!.get(name), dbe=>((dbe instanceof TypeDefinition) || (dbe instanceof Enum)) ? dbe : undefined);
+    }   
+  }
+  
+	get(name: string): any {
+    if (/^[a-z]/.test(name))
+      return super.get(name);
+        
+    const r = this.genericGet(name);
+    if (r === undefined)
+   		throw new Error(`Can not read unknown variable ${name}.`);
+    return r;
 	}
+
+	getOrNull(name: string): any {
+    if (/^[a-z]/.test(name))
+      return super.getOrNull(name);
+    
+    return this.genericGet(name) || null;
+	}  
 }
 
