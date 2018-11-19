@@ -40,8 +40,8 @@ export default class JelObject {
 	};
 
 	
-	constructor() {
-		this.jelTypeName = this.constructor.name;
+	constructor(typeName?: string) {
+		this.jelTypeName = typeName || this.constructor.name;
 	}
 	
 	/*

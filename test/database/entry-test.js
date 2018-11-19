@@ -92,11 +92,9 @@ tmp.dir(function(err, path) {
 				const e1 = new EnumValue('required', DbRef.create('PropertyTypeEnum'));
 				const e2 = new EnumValue('optional', DbRef.create('PropertyTypeEnum'));
 				const animal = new Category('Animal2Category', undefined, undefined,
-																	Dictionary.fromObject({a: JelNumber.valueOf(1), b: JelNumber.valueOf(2)}),
-																	Dictionary.fromObject({x: e1, y: e2}));
+																	Dictionary.fromObject({a: JelNumber.valueOf(1), b: JelNumber.valueOf(2)}));
 				const cat = new Category('Cat2Category', animal, undefined, 
-																Dictionary.fromObject({a: JelNumber.valueOf(7), c: JelNumber.valueOf(3)}),
-																Dictionary.fromObject({x: e2, z: e1}));
+																Dictionary.fromObject({a: JelNumber.valueOf(7), c: JelNumber.valueOf(3)}));
 
 				return db.put(ctx, animal, cat)
 				.then(()=>session.getFromDatabase('Cat2Category') 
@@ -104,13 +102,10 @@ tmp.dir(function(err, path) {
 						assert.ok(!!cc);
 						assert.equal(cc.instanceDefault(ctx, 'a'), JelNumber.valueOf(7));
 						assert.equal(cc.instanceDefault(ctx, 'c'), JelNumber.valueOf(3));
-						assert.equal(cc.instanceProperty(ctx, 'x').value, 'optional');
-						assert.equal(cc.instanceProperty(ctx, 'z').value, 'required');
 						assert.equal(cc.superCategory.distinctName, 'Animal2Category');
 
 						return Promise.all([
-							Promise.resolve(cc.instanceDefault(ctx, 'b')).then(value=>jelAssert.equal(value, 2)),
-							Promise.resolve(cc.instanceProperty(ctx, 'y')).then(value=>assert.equal(value.value, 'optional'))
+							Promise.resolve(cc.instanceDefault(ctx, 'b')).then(value=>jelAssert.equal(value, 2))
 							])
 						.then(()=>session.getFromDatabase('Animal2Category'));
 					})
@@ -118,11 +113,8 @@ tmp.dir(function(err, path) {
 						assert.ok(!!aa);
 						assert.equal(aa.instanceDefault(ctx, 'a'), JelNumber.valueOf(1));
 						assert.equal(aa.instanceDefault(ctx, 'b'), JelNumber.valueOf(2));
-						assert.equal(aa.instanceProperty(ctx, 'x').value, 'required');
-						assert.equal(aa.instanceProperty(ctx, 'y').value, 'optional');
 						return Promise.all([
-							Promise.resolve(aa.instanceDefault(ctx, 'b')).then(value=>jelAssert.equal(value, 2)),
-							Promise.resolve(aa.instanceProperty(ctx, 'y')).then(value=>assert.equal(value.value, 'optional'))
+							Promise.resolve(aa.instanceDefault(ctx, 'b')).then(value=>jelAssert.equal(value, 2))
 							])
 					}));
 			});

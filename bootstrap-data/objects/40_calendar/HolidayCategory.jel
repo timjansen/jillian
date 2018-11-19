@@ -11,7 +11,7 @@ Category('HolidayCategory',
 		matchesInYear: (this, year)=>if (this.firstDate == null || year >= this.firstDate.year) then [LocalDate(year, this.month, this.day)] else []
   },
 	instanceProperties = {
-   month: [@Number, Range(@Number)],   // range if it can be in more than one month
+   month: [@Number, SimplePropertyType(@Range, types={min: @Number, max: @Number})],   // range if it can be in more than one month
    day: [@Number, null],               // null if not always on the same day
    weekDay: [@WeekdayCategory, null]   // null if it is not a fixed weekday
    

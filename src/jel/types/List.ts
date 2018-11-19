@@ -155,10 +155,24 @@ export default class List extends JelObject implements SerializablePrimitive {
 		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, JelNumber.valueOf(i)), (v, e)=>JelBoolean.toRealBoolean(v) ? JelBoolean.TRUE : undefined, r=>r || JelBoolean.FALSE);
 	}
 
+ 	hasAnyJs(f: (a: JelObject|null, i: number)=>boolean): boolean {
+		for (let i = 0; i < this.elements.length; i++)
+      if (f(this.elements[i], i))
+        return true;
+    return false;
+	}
+  
 	hasOnly_jel_mapping: Object;
 	hasOnly(ctx: Context, f0: any): JelBoolean | Promise<JelBoolean> {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, e, JelNumber.valueOf(i)), (v, e)=>JelBoolean.toRealBoolean(v) ? undefined : JelBoolean.FALSE, r=>r || JelBoolean.TRUE);
+	}
+
+	hasOnlyJs(f: (a: JelObject|null, i: number)=>boolean): boolean {
+		for (let i = 0; i < this.elements.length; i++)
+      if (!f(this.elements[i], i))
+        return false;
+    return true;
 	}
 
  	firstMatch_jel_mapping: Object;
@@ -415,8 +429,8 @@ export default class List extends JelObject implements SerializablePrimitive {
 			r += serializer(this.elements[this.elements.length-1], pretty, indent, spaces);
 		return r + ']';
 	}
-
-	static valueOf(a: any[]): List {
+  
+ 	static valueOf(a: any[]): List {
 		return new List(a);
 	}
 	

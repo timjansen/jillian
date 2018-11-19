@@ -23,7 +23,7 @@ import SimplePropertyType from './dbProperties/SimplePropertyType';
 
 
 const DB_IDENTIFIERS = {DbEntry, DbRef, Category, Thing, Enum, MixinProperty, 
-                        CategoryPropertyType, ComplexPropertyType, DictionaryPropertyType, FunctionPropertyType, ListPropertyType, OptionPropertyType, SimplePropertyType,
+                        CategoryPropertyType, ComplexPropertyType, DictionaryPropertyType, FunctionPropertyType, ListPropertyType, OptionPropertyType, SimplePropertyType, 
 												 ___IS_DATABASE_CONTEXT: 'magic123'};
 
 

@@ -2,7 +2,8 @@ Thing('LabourDay', @HolidayCategory,
 	properties={
     month: 9,
     firstDate: LocalDate(1887, 9, 5),
+    weekDay: @Monday,
  		isMatch: (this, date)=>with d=this.matchesInYear(this, date.year).first: date == d,
-		matchesInYear: (this, year)=>year >= this.firstDate.year ? LocalDate(year, this.month).allDays.nthMatch(1, d=>d.dayOfWeek == 1) : []
+		matchesInYear: (this, year)=>if year >= this.firstDate.year then LocalDate(year, this.month).allDays.nthMatch(1, d=>d.dayOfWeek == 1) else []
   }
 )

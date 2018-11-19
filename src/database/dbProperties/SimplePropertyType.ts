@@ -2,7 +2,9 @@ import PropertyType from './PropertyType';
 import {IDbRef} from '../../jel/IDatabase';
 import Dictionary from '../../jel/types/Dictionary';
 import TypeChecker from '../../jel/types/TypeChecker';
+import Runtime from '../../jel/Runtime';
 import Context from '../../jel/Context';
+import JelObject from '../../jel/JelObject';
 
 
 /**
@@ -22,6 +24,11 @@ export default class SimplePropertyType extends PropertyType {
   //          a unit value using 1/16th inch
   constructor(public type: IDbRef, public constants: Dictionary = Dictionary.empty, public types: Dictionary = Dictionary.empty) {
     super();
+  }
+  
+  // note: constants and types are not checked yet. That would become async.
+  checkProperty(ctx: Context, value: JelObject|null): boolean {
+    return Runtime.instanceOf(ctx, value, this.type as any);
   }
   
   getSerializationProperties(): Object {

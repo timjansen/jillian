@@ -56,7 +56,7 @@ export default class Call extends JelNode {
 				return this.callCallable(ctx, callable);
 			});
     else 
-        throw new Error(`Can not call function on null`);
+        throw new Error(`Can not call, not a callable object.`);
   }
   
   // override

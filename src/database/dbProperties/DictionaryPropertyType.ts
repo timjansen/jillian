@@ -6,6 +6,7 @@ import {IDbRef, IDbEntry} from '../../jel/IDatabase';
 import Dictionary from '../../jel/types/Dictionary';
 import List from '../../jel/types/List';
 import TypeChecker from '../../jel/types/TypeChecker';
+import JelObject from '../../jel/JelObject';
 import Context from '../../jel/Context';
 
 
@@ -14,29 +15,35 @@ import Context from '../../jel/Context';
  * Declares a property type that is a Dictionary.
  */
 export default class DictionaryPropertyType extends PropertyType {
-	public keyType: SimplePropertyType;
-	public valueTypes: PropertyType;
+	public valueTypes: PropertyType|null;
 	
 	/**
 	 * @param valueTypes one or more PropertyTypes or DbRefs to define the acceptable member types for the values. 
 	 *              DbRefs will be converted to SimplePropertyTypes. Dictionary into DictionaryPropertyType.
 	 *              The List may also contain 'null' as element, if values can be null.
 	 */
-  constructor(keyType: IDbRef|SimplePropertyType, valueTypes: List|PropertyType|IDbRef|Dictionary) {
+  constructor(valueTypes: List|PropertyType|IDbRef|Dictionary|null) {
     super();
-		this.keyType = PropertyHelper.convert(keyType) as SimplePropertyType;
-		this.valueTypes = PropertyHelper.convert(valueTypes);
+		this.valueTypes = valueTypes && PropertyHelper.convert(valueTypes);
+  }
+  
+   checkProperty(ctx: Context, value: JelObject|null): boolean {
+    if (!(value instanceof Dictionary))
+      return false;
+    if (!this.valueTypes)
+      return true;
+     
+    return value.hasOnlyJs((k,v)=>this.valueTypes!.checkProperty(ctx, v));
   }
   
   getSerializationProperties(): Object {
-    return [this.keyType, this.valueTypes];
+    return [this.valueTypes];
   }
 
-  static create_jel_mapping = {keyType: 1, valueTypes: 2};
+  static create_jel_mapping = {valueTypes: 1};
   static create(ctx: Context, ...args: any[]) {
-    const keyType  = args[0] instanceof SimplePropertyType ? args[0] : TypeChecker.dbRef(args[0], 'keyType');
-    const vt = args[1] instanceof List || args[1] instanceof PropertyType || args[1] instanceof Dictionary ? args[1] : TypeChecker.dbRef(args[1], 'valueTypes');
-    return new DictionaryPropertyType(keyType, vt);
+    const vt = args[1] instanceof List || args[1] instanceof PropertyType || args[1] instanceof Dictionary ? args[1] : TypeChecker.optionalDbRef(args[1], 'valueTypes');
+    return new DictionaryPropertyType(vt);
   }
 }
 

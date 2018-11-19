@@ -3,6 +3,6 @@ Thing('MartinLutherKindJrDay', @HolidayCategory,
     month: 1,
     firstDate: LocalDate(1986, 1, 18),
  		isMatch: (this, date)=>with mlkday=this.matchesInYear(this, date.year).first: date == mlkday,
-		matchesInYear: (this, year)=>year >= this.firstDate.year ? LocalDate(year, this.month).allDays.nthMatch(3, d=>d.dayOfWeek == 1) : []
+		matchesInYear: (this, year)=>if year >= this.firstDate.year then LocalDate(year, this.month).allDays.nthMatch(3, d=>d.dayOfWeek == 1) else []
   }
 )

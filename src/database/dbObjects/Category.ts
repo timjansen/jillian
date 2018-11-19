@@ -9,6 +9,7 @@ import List from '../../jel/types/List';
 import JelBoolean from '../../jel/types/JelBoolean';
 import JelString from '../../jel/types/JelString';
 import EnumValue from '../../jel/types/EnumValue';
+import TypeChecker from '../../jel/types/TypeChecker';
 import Context from '../../jel/Context';
 import Util from '../../util/Util';
 
@@ -39,7 +40,7 @@ export default class Category extends DbEntry {
 			throw Error('By convention, all Category names must end with "Category". Illegal name: ' + distinctName);
 
     this.superCategory = superCategory ? (superCategory instanceof DbRef ? superCategory : new DbRef(superCategory)) : null; 
-		instanceProperties.elements.forEach((value, key)=>this.instanceProperties.elements.set(key, PropertyHelper.convert(value as JelObject) as JelObject));
+		instanceProperties.elements.forEach((value, key)=>this.instanceProperties.elements.set(key, PropertyHelper.convertFromAny(value, key)));
   }
 
   // returns promise with all matching objects
@@ -79,7 +80,7 @@ export default class Category extends DbEntry {
 	}
 
 	isExtending_jel_mapping: Object;
-	isExtending(ctx: Context, otherCategory: string | JelString |DbRef): JelBoolean | Promise<JelBoolean> {
+	isExtending(ctx: Context, otherCategory: string | JelString | DbRef): JelBoolean | Promise<JelBoolean> {
 		if (otherCategory instanceof DbRef)
 			return this.isExtending(ctx, otherCategory.distinctName);
 		if (otherCategory instanceof JelString)
@@ -97,7 +98,13 @@ export default class Category extends DbEntry {
 															 instanceDefaults: 4, instanceProperties: 5, mixinProperties: 6, 
 															 reality: 7, hashCode: 8};
   static create(ctx: Context, ...args: any[]): any {
-    return new Category(JelString.toRealString(args[0]), args[1], args[2], args[3], args[4], args[5], args[6], JelString.toRealString(args[7]));
+    return new Category(TypeChecker.realString(args[0], 'distinctName'), args[1] instanceof DbRef ? args[1] : TypeChecker.optionalInstance(Category, args[1], 'superCategory') || undefined, 
+                        TypeChecker.optionalInstance(Dictionary, args[2], 'properties')||undefined, 
+                        TypeChecker.optionalInstance(Dictionary, args[3], 'instanceDefaults')||undefined, 
+                        TypeChecker.optionalInstance(Dictionary, args[4], 'instanceProperties')||undefined, 
+                        TypeChecker.optionalInstance(Dictionary, args[5], 'mixinProperties')||undefined, 
+                        TypeChecker.optionalDbRef(args[6], 'reality') as any||undefined, 
+                        TypeChecker.optionalRealString(args[7], 'hashCode')||undefined);
   }
 }
 

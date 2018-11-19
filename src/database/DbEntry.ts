@@ -16,7 +16,7 @@ const tifu = require('tifuhash');
 export default class DbEntry extends JelObject implements IDbEntry {
   isIDBEntry: boolean;
 	
-  constructor(public distinctName: string, public reality: any, 
+  constructor(public distinctName: string, public reality: any = undefined, 
 							 public hashCode: string = tifu.hash(distinctName), 
 							 public properties = new Dictionary()) {
     super();

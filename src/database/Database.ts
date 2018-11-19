@@ -234,9 +234,12 @@ export default class Database {
 								.then((checkedCats: Category[])=> {
 									checkedCats.forEach(c=>availableCats.add(c.distinctName));
 									return db.put(ctx, ...readyCats.concat(checkedCats))
-										.then(()=> !futureCats.length ? Promise.resolve() : 
+										.then(()=>{
+					            readyCats.forEach(c=>availableCats.add(c.distinctName));
+                      return !futureCats.length ? Promise.resolve() : 
 													iterationsLeft>0 ? loadCategories(futureCats, iterationsLeft-1) : 
-													Promise.reject(new DatabaseError(`Can not load categories after ${MAX_ITERATIONS} iterations. There appears to be a loop in superCategory relations.`)));
+													Promise.reject(new DatabaseError(`Can not load categories after ${MAX_ITERATIONS} iterations. There appears to be a loop in superCategory relations.\nMissing categories: ${futureCats.slice(0,100).map(a=>a.distinctName).join(' ,')}`))
+                  });
 								});
 						}
 

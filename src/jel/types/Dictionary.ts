@@ -118,6 +118,10 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 		return this.elements.size;
 	}
 
+	get empty(): boolean {
+		return this.elements.size == 0;
+	}
+
 	get keys(): List {
 		return new List(this.elements.keys());
 	}
@@ -181,7 +185,6 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 		}
 	}
 
-	
 	filter_jel_mapping: Object;
 	filter(ctx: Context, f0: any): Dictionary | Promise<Dictionary> {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
@@ -209,7 +212,16 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 		}
 		return exec();
 	}
-	
+
+ 	filterJs(f: (key: string, value: JelObject|null)=>JelObject|null): Dictionary {
+		const newDict = new Dictionary();
+		for (let key of this.elements.keys()) {
+      const value = (this.elements.get(key)||null) as JelObject|null;
+      newDict.set(key, f(key, value));
+    }
+    return newDict;
+	}
+  
 	reduce_jel_mapping: Object;
 	reduce(ctx: Context, f0: any, init: any = 0): any {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
@@ -260,6 +272,14 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 		return exec();
 	}
 
+	hasAnyJs(f: (k: string, v: JelObject|null)=>boolean): boolean {
+    for (let key of this.elements.keys())
+      if (f(key, this.elements.get(key) || null))
+        return true;
+    return false;
+	}
+
+  
 	hasOnly_jel_mapping: Object;
 	hasOnly(ctx: Context, f0: any): JelBoolean | Promise<JelBoolean> {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
@@ -283,6 +303,14 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 		return exec();
 	}
 
+ 	hasOnlyJs(f: (k: string, v: JelObject|null)=>boolean): boolean {
+    for (let key of this.elements.keys())
+      if (!f(key, this.elements.get(key) || null))
+        return false;
+    return true;
+	}
+
+  
 	toObjectDebug(): any {
 		const o: any = {};
 		this.elements.forEach((value, key) => o[key] = value);
@@ -315,6 +343,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 		return r + '}';
 	}
 
+
 	static valueOf(data: Map<string, any>, keepMap = false): Dictionary {
 		return new Dictionary(data, keepMap);
 	}
@@ -326,7 +355,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 }
 
 
-Dictionary.prototype.JEL_PROPERTIES = {size: true, anyKey: true, keys: true};
+Dictionary.prototype.JEL_PROPERTIES = {size: true, anyKey: true, keys: true, empty: true};
 Dictionary.prototype.get_jel_mapping = {key: 1};
 Dictionary.prototype.has_jel_mapping = {key: 1};
 Dictionary.prototype.each_jel_mapping = {f: 1};

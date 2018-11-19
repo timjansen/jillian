@@ -22,9 +22,16 @@ export default class ComplexPropertyType extends PropertyType {
     
     const m = new Map();
     fields.elements.forEach((v, n)=>{
-      m.set(n, PropertyHelper.convert(v as JelObject));
+      m.set(n, PropertyHelper.convertFromAny(v, 'dictionary value'));
     });
     this.fields = new Dictionary(m);
+  }
+  
+  checkProperty(ctx: Context, value: JelObject|null): boolean {
+    if (!(value instanceof Dictionary))
+      return false;
+    
+    return this.fields.hasOnlyJs((k,v)=>v&&(v as any).checkProperty(ctx, value.elements.get(k)||null));
   }
   
   getSerializationProperties(): Object {

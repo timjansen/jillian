@@ -5,6 +5,7 @@ import TypeChecker from '../../jel/types/TypeChecker';
 import {IDbRef, IDbEntry} from '../../jel/IDatabase';
 import Dictionary from '../../jel/types/Dictionary';
 import Context from '../../jel/Context';
+import JelObject from '../../jel/JelObject';
 
 
 
@@ -21,6 +22,13 @@ export default class ListPropertyType extends PropertyType {
   constructor(types: List|PropertyType|IDbRef|Dictionary) {
     super();
 		this.types = PropertyHelper.convert(types);
+  }
+  
+  checkProperty(ctx: Context, value: JelObject|null): boolean {
+    if (!(value instanceof List))
+      return false;
+    
+    return value.hasOnlyJs(v=>this.types.checkProperty(ctx, v as any));
   }
   
   getSerializationProperties(): Object {

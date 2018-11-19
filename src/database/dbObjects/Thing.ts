@@ -6,7 +6,7 @@ import Dictionary from '../../jel/types/Dictionary';
 import List from '../../jel/types/List';
 import JelString from '../../jel/types/JelString';
 import JelBoolean from '../../jel/types/JelBoolean';
-import Serializable from '../../jel/Context';
+import TypeChecker from '../../jel/types/TypeChecker';
 import Context from '../../jel/Context';
 import Util from '../../util/Util';
 
@@ -20,8 +20,8 @@ export default class Thing extends DbEntry {
   category: DbRef;
   JEL_PROPERTIES: Object;
   
-  constructor(distinctName: string, category: Category|DbRef, properties: Dictionary, reality: DbRef, hashCode: string) {
-    super(distinctName, reality, hashCode, properties);
+  constructor(distinctName: string, category: Category|DbRef, properties?: Dictionary, reality?: DbRef, hashCode?: string) {
+    super(distinctName, reality || undefined, hashCode || undefined, properties || undefined);
     this.category = category instanceof DbRef ? category : new DbRef(category);
   }
   
@@ -52,7 +52,9 @@ export default class Thing extends DbEntry {
 
   static create_jel_mapping = {distinctName: 1, category: 2, properties: 3, reality: 4, hashCode: 5};
   static create(ctx: Context, ...args: any[]) {
-    return new Thing(JelString.toRealString(args[0]), args[1], args[2], args[3], JelString.toRealString(args[4]));
+    return new Thing(TypeChecker.realString(args[0], 'distinctName'), args[1] instanceof DbRef ? args[1] : TypeChecker.instance(Category, args[1], 'category'), 
+                     TypeChecker.optionalInstance(Dictionary, args[2], 'properties')||undefined, (TypeChecker.optionalDbRef(args[3], 'reality')||undefined) as any, 
+                     TypeChecker.optionalRealString(args[4], 'hashCode')||undefined);
   }
 }
 

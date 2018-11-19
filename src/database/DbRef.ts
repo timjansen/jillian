@@ -142,7 +142,7 @@ export default class DbRef extends JelObject implements IDbRef, SerializablePrim
   }	
 		
 	serializeToString(pretty: boolean, indent: number, spaces: string) : string | undefined {
-		return this.parameters ? '@'+this.distinctName : undefined;
+		return this.parameters ? undefined : '@'+this.distinctName;
 	}
 	
   static toPromise(ctx: Context, ref: DbRef | DbEntry): Promise<DbEntry | null> {
