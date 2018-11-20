@@ -2,7 +2,7 @@ Thing('Degree', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Angle,
 		isPrimaryUnit: true,
-		type: @UnitTypeEnum.OTHER,
+		type: UnitTypeEnum.OTHER,
 		idealMin: 0,
 		idealMax: 3*360,
 		convertsTo: {

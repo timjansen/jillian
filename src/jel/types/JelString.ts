@@ -16,7 +16,7 @@ export default class JelString extends JelObject implements SerializablePrimitiv
 	static readonly EMPTY = new JelString("");
 	
 	constructor(public value: string) {
-		super();
+		super('String');
 	}
 	
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
@@ -94,6 +94,6 @@ JelString.prototype.JEL_PROPERTIES = {length:1};
 JelString.prototype.trim_jel_mapping = {};
 
 
-BaseTypeRegistry.register('JelString', JelString);
+BaseTypeRegistry.register('String', JelString);
 
 

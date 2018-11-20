@@ -2,7 +2,7 @@ Thing('Joule', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Energy,
 		isPrimaryUnit: true,
-		type: @UnitTypeEnum.SI,
+		type: UnitTypeEnum.SI,
 		convertsTo: {
 			Kilocalorie: {factor: 0.0002388458966275}
 		},

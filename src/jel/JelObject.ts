@@ -55,16 +55,16 @@ export default class JelObject {
 	op_jel_mapping: Object;
 	op(ctx: Context, operator: string, right: JelObject|null): JelObject|Promise<JelObject> {
 		if (right != null) {
-			if (right.reverseOps && operator in right.reverseOps && right.constructor.name != this.constructor.name)
+			if (right.reverseOps && operator in right.reverseOps && right.jelTypeName != this.jelTypeName)
 				return right.opReversed(ctx, operator, this);
 			if (operator in JelObject.INVERTIBLE_OPS)
-				return BaseTypeRegistry.get('JelBoolean').negate(this.op(ctx, JelObject.INVERTIBLE_OPS[operator], right));
+				return BaseTypeRegistry.get('Boolean').negate(this.op(ctx, JelObject.INVERTIBLE_OPS[operator], right));
 			if (operator == '<')
-				return BaseTypeRegistry.get('JelBoolean').truest(ctx, this.op(ctx, '>', right), this.op(ctx, '==', right)).negate();
+				return BaseTypeRegistry.get('Boolean').truest(ctx, this.op(ctx, '>', right), this.op(ctx, '==', right)).negate();
 			if (operator == '<<')
-				return BaseTypeRegistry.get('JelBoolean').truest(ctx, this.op(ctx, '>>', right), this.op(ctx, '===', right)).negate();
+				return BaseTypeRegistry.get('Boolean').truest(ctx, this.op(ctx, '>>', right), this.op(ctx, '===', right)).negate();
 		}
-		throw new Error(`Operator "${operator}" is not supported for type "${this.constructor.name}" as left operand and right operand "${right == null ? 'null' : right.constructor.name}"`);
+		throw new Error(`Operator "${operator}" is not supported for type "${this.jelTypeName}" as left operand and right operand "${right == null ? 'null' : right.jelTypeName}"`);
 	}
 	
 	// To be used if the right-hand side is this type, and the left-hand side is a type unaware of this type.
@@ -75,7 +75,7 @@ export default class JelObject {
 	opReversed(ctx: Context, operator: string, left: JelObject): JelObject|Promise<JelObject> {
 		if (this.reverseOps && operator in this.reverseOps && operator in JelObject.SWAP_OPS)
 			return this.op(ctx, JelObject.SWAP_OPS[operator], left);
-		throw new Error(`Operator "${operator}" is not supported for type "${this.constructor.name}" (in reversed operation)`);
+		throw new Error(`Operator "${operator}" is not supported for type "${this.jelTypeName}" (in reversed operation)`);
 	}
 
 	
@@ -84,7 +84,7 @@ export default class JelObject {
 	 */
 	singleOp_jel_mapping: Object;
 	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
-		throw new Error(`Operator "${operator}" is not supported for type "${this.constructor.name}"`);
+		throw new Error(`Operator "${operator}" is not supported for type "${this.jelTypeName}"`);
 	}
 
 	/**
@@ -99,7 +99,7 @@ export default class JelObject {
 	
 	toBoolean_jel_mapping: Object;
 	toBoolean(): any { // this is any to avoid the circular dep in TypeScript, but would be FuzzyB
-		throw new Error(`Boolean conversion not supported for type "${this.constructor.name}"`);
+		throw new Error(`Boolean conversion not supported for type "${this.jelTypeName}"`);
 	}
 	
 	getJelType_jel_mapping: Object;
@@ -112,7 +112,7 @@ export default class JelObject {
 	}
 	
 	getSerializationProperties(): Object|any[] {
-		throw new Error(`getSerializationProperties() not implemented in ${this.constructor.name}`);
+		throw new Error(`getSerializationProperties() not implemented in ${this.jelTypeName}`);
 	}
 	
 }

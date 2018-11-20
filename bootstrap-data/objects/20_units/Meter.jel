@@ -2,7 +2,7 @@ Thing('Meter', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Length,
 		isPrimaryUnit: true,
-		type: @UnitTypeEnum.SI,
+		type: UnitTypeEnum.SI,
 		idealMin: 1,
 		idealMax: 2000,
 		convertsTo: {

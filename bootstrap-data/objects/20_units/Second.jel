@@ -2,7 +2,7 @@ Thing('Second', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Time,
 		isPrimaryUnit: true,
-		type: @UnitTypeEnum.SI,
+		type: UnitTypeEnum.SI,
 		idealMin: 1,
 		idealMax: 120,
 		convertsTo: {

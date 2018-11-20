@@ -2,7 +2,7 @@ Thing('USGallon', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Volume,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.US,
+		type: UnitTypeEnum.US,
 		idealMin: 1,
 		convertsTo: {
 			CubicMeter: {factor: 128/33814.022558919},

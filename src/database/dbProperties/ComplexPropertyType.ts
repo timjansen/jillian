@@ -7,7 +7,7 @@ import List from '../../jel/types/List';
 import Context from '../../jel/Context';
 
 /**
- * Defines a complex type that has named, types fields. It is represented as a dictionary in the DbEntry, but always has the same fields.
+ * Defines a complex type that has named, typed fields. It is represented as a dictionary in the DbEntry, but always has the same fields.
  */
 export default class ComplexPropertyType extends PropertyType {
   fields: Dictionary; // string->PropertyType

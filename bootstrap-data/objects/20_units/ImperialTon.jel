@@ -2,7 +2,7 @@ Thing('ImperialTon', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Mass,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.IMPERIAL,
+		type: UnitTypeEnum.IMPERIAL,
 		idealMin: 1,
 		convertsTo: {
 			Kilogram: {factor: 907.185},

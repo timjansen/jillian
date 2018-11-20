@@ -2,7 +2,7 @@ Thing('Radian', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Angle,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.SI,
+		type: UnitTypeEnum.SI,
 		convertsTo: {
 			Degree: {f: v=>v/(2*Math.PI)*360, factor: 360/(2*Math.PI)},
 			Turn: {f: v=>v/(2*Math.PI), factor: 1/(2*Math.PI)},

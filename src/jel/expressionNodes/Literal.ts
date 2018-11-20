@@ -27,13 +27,13 @@ export default class Literal extends JelNode {
 	constructor(value: any) {
     super();
 		if (value === true || value === false)
-			this.value = BaseTypeRegistry.get('JelBoolean').valueOf(value);
+			this.value = BaseTypeRegistry.get('Boolean').valueOf(value);
 		else if (value == null)
 			this.value = null;
 		else if (typeof value == 'number')
-			this.value = BaseTypeRegistry.get('JelNumber').valueOf(value);
+			this.value = BaseTypeRegistry.get('Number').valueOf(value);
 		else if (typeof value == 'string')
-			this.value = BaseTypeRegistry.get('JelString').valueOf(value);
+			this.value = BaseTypeRegistry.get('String').valueOf(value);
 		else
 			throw new Error('Unsupported literal type: '+value);
   }

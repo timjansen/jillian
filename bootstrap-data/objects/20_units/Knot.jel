@@ -2,7 +2,7 @@ Thing('Knot', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Velocity,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.OTHER,
+		type: UnitTypeEnum.OTHER,
 		convertsTo: {
 			MeterPerSecond: {factor: 0.514444}
 		}

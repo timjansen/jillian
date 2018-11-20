@@ -2,7 +2,7 @@ Thing('Watt', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Power,
 		isPrimaryUnit: true,
-		type: @UnitTypeEnum.SI,
+		type: UnitTypeEnum.SI,
 		idealMin: 1,
 		idealMax: 1000,
 		convertsTo: {

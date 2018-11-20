@@ -2,7 +2,7 @@ Thing('SquareFeet', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Area,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.IMPERIAL,
+		type: UnitTypeEnum.IMPERIAL,
 		idealMin: 1,
 		idealMax: 20000,
 		convertsTo: {

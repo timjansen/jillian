@@ -2,7 +2,7 @@ Thing('Micrometer', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Length,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.SI,
+		type: UnitTypeEnum.SI,
 		idealMin: 1,
 		idealMax: 1000,
 		convertsTo: {

@@ -2,7 +2,7 @@ Thing('Inch', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Length,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.IMPERIAL,
+		type: UnitTypeEnum.IMPERIAL,
 		idealMax: 18,
 		convertsTo: {
 			Meter: {factor: 0.0254},

@@ -2,7 +2,7 @@ Thing('Kilopond', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Force,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.OTHER,
+		type: UnitTypeEnum.OTHER,
 		convertsTo: {
 			Newton: {factor: 1/9.806650}
 		}

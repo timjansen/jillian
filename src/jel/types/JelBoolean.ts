@@ -50,7 +50,7 @@ export default class JelBoolean extends JelObject implements SerializablePrimiti
 
 	
 	constructor(state: any) { // state can be number | boolean | JelNumber. Any to avoid circular deps
-		super();
+		super('Boolean');
 		if (typeof state == 'boolean')
 			this.state = state ? JelBoolean.TRUE_VALUE : JelBoolean.FALSE_VALUE;
 		else if (typeof state == 'number')
@@ -78,7 +78,7 @@ export default class JelBoolean extends JelObject implements SerializablePrimiti
 				case '<<':
 				case '<<=':
 				case '>>=':
-					const jn = BaseTypeRegistry.get('JelNumber');
+					const jn = BaseTypeRegistry.get('Number');
 					return jn.valueOf(this.state).op(ctx, operator, jn.valueOf(right.state));
 			}
 		}
@@ -250,5 +250,5 @@ JelBoolean.prototype.toAbsoluteBoolean_jel_mapping = {};
 JelBoolean.prototype.or_jel_mapping = {a: 1};
 JelBoolean.prototype.and_jel_mapping = {a: 1};
 
-BaseTypeRegistry.register('JelBoolean', JelBoolean);
+BaseTypeRegistry.register('Boolean', JelBoolean);
 

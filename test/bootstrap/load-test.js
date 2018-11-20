@@ -36,4 +36,17 @@ describe('Loader', function() {
     .then(m=>assert.ok(m));
   });
 
+  it('loads holidays', function() {
+    return jelAssert.equalPromise('@Easter.matchesInYear(@Easter, 2005)', '[LocalDate(2005, 3, 27)]');
+  });
+
+  it('loads months', function() {
+    return jelAssert.equalPromise('@December.order["successor"]', '@January');
+  });
+
+  it('loads weekdays', function() {
+    return jelAssert.equalPromise('@Sunday.order["successor"]', '@Monday');
+  });
+
+  
 });

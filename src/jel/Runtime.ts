@@ -30,16 +30,16 @@ export default class Runtime {
 	static op(ctx: Context, operator: string, left: any, right: any): JelObject|Promise<JelObject> {
 		if (left == null || right == null) {
 			if (operator == '==' || operator == '===')
-				return BaseTypeRegistry.get('JelBoolean').valueOf(left === right);
+				return BaseTypeRegistry.get('Boolean').valueOf(left === right);
 			else if (operator == '!=' || operator == '!==')
-				return BaseTypeRegistry.get('JelBoolean').valueOf(left !== right);
+				return BaseTypeRegistry.get('Boolean').valueOf(left !== right);
 			else if (operator == 'instanceof' || operator in RELATIONAL_OPS)
-				return BaseTypeRegistry.get('JelBoolean').FALSE;
+				return BaseTypeRegistry.get('Boolean').FALSE;
 			else
 				throw new Error(`Operator ${operator} does not support null values.`);
 		}
 		else if (operator == 'instanceof') 
-			return BaseTypeRegistry.get('JelBoolean').valueOf(Runtime.instanceOf(ctx, left, right));
+			return BaseTypeRegistry.get('Boolean').valueOf(Runtime.instanceOf(ctx, left, right));
 		else 
 			return left.op(ctx, operator, right);
 	}
@@ -63,28 +63,31 @@ export default class Runtime {
 	}
 	
 	static instanceOf(ctx: Context, left: JelObject|null, right: JelObject|null): boolean {
-		if (!right || !(right as any).isDBRef)
+		if (!right || !left)
 			return false;
-		
-		if (left)
-			return left.getJelType().replace(/^Jel/, '') == (right as any).distinctName;
-		else
-			return false;
+    
+		if ((right as any).isIDBRef)
+      return left.getJelType() == (right as any).distinctName; 
+    else
+      return false;
 	}
 
 	static member(ctx: Context, obj: any, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null> {
-		const isClass = JelObject.isPrototypeOf(obj);
-		if (isClass) {
-			if (obj.JEL_PROPERTIES && name in obj.JEL_PROPERTIES)
-				return BaseTypeRegistry.mapNativeTypes(obj[name] as any);
-		}
-		else {
+    let callableCacheKey: string;
+		if (obj instanceof JelObject) {
 			const value = obj.member(ctx, name, parameters);
 			if (value !== undefined)
 				return value;
+  		callableCacheKey = `${name}_jel_callable`;
 		}
+		else if (JelObject.isPrototypeOf(obj)) {
+			if (obj.JEL_PROPERTIES && name in obj.JEL_PROPERTIES)
+				return BaseTypeRegistry.mapNativeTypes(obj[name] as any);
+	  	callableCacheKey = `${name}_${obj.name}_jel_callable`;
+		}
+    else
+      throw new Error("Can't get member. Neither JelObject instance nor JelObject class.");
 
-		const callableCacheKey = isClass ? `${name}_${obj.name}_jel_callable` : `${name}_jel_callable`;
 		const callable = obj[callableCacheKey];
 		if (callable)
 				return callable;
@@ -103,7 +106,7 @@ export default class Runtime {
 				throw new Error(`Property ${name} is not accessible. It would need to be defined in JEL_PROPERTIES.`);
 		}
 		else
-			throw new Error(`Unknown property ${name}.`);
+			throw new Error(`Unknown property ${name} in ${obj instanceof JelObject ? obj.getJelType() : obj && obj.constructor.name}.`);
 	}
 
 	

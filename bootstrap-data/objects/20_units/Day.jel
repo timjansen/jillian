@@ -2,7 +2,7 @@ Thing('Day', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Time,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.METRIC,
+		type: UnitTypeEnum.METRIC,
 		idealMin: 1,
 		idealMax: 365,
 		convertsTo: {

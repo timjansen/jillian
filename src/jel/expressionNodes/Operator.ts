@@ -60,9 +60,9 @@ export default class Operator extends JelNode {
     case '.':
       return this.readMember(ctx, left);
     case '||':
-    	return BaseTypeRegistry.get('JelBoolean').toRealBoolean(left) ? left : this.right!.execute(ctx);
+    	return BaseTypeRegistry.get('Boolean').toRealBoolean(left) ? left : this.right!.execute(ctx);
     case '&&':
-    	return BaseTypeRegistry.get('JelBoolean').toRealBoolean(left) ? this.right!.execute(ctx) : left;
+    	return BaseTypeRegistry.get('Boolean').toRealBoolean(left) ? this.right!.execute(ctx) : left;
     default:
       return Runtime.singleOp(ctx, this.operator, left);
     }

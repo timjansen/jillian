@@ -2,7 +2,7 @@ Thing('Milliwatt', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Power,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.METRIC,
+		type: UnitTypeEnum.METRIC,
 		idealMin: 1,
 		idealMax: 1000,
 		convertsTo: {

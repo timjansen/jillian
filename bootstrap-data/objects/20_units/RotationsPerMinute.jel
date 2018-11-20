@@ -2,7 +2,7 @@ Thing('RotationsPerMinute', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @RotationalSpeed,
 		isPrimaryUnit: true,
-		type: @UnitTypeEnum.METRIC,
+		type: UnitTypeEnum.METRIC,
 		convertsTo: {
 		},
 		createFrom: [Unit({Turn: 1, Minute: -1})]

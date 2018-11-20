@@ -2,7 +2,7 @@ Thing('CubicInch', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Volume,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.IMPERIAL,
+		type: UnitTypeEnum.IMPERIAL,
 		idealMin: 1,
 		idealMax: 12^3,
 		convertsTo: {

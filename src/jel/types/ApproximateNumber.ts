@@ -10,7 +10,7 @@ import TypeChecker from './TypeChecker';
 
 
 const ACCURACY_FACTOR = 0.999999;  // to avoid rounding issues with fuzzy comparisons
-const NUMBER_OR_FRACTION = ['JelNumber', 'Fraction'];
+const NUMBER_OR_FRACTION = ['Number', 'Fraction'];
 
 const DEQUAL: any = {'<=': '<', '>=': '>'};
 

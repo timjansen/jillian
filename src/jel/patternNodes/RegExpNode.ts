@@ -15,7 +15,7 @@ export default class RegExpNode extends ComplexNode {
 	
 	constructor(public regexps: RegExp[], name?: string, expression?: JelNode, next?: MultiNode) {
 		super(name, expression, next);
-		this.jstring = BaseTypeRegistry.get('JelString');
+		this.jstring = BaseTypeRegistry.get('String');
 	}
 	
 	merge(resultNode: LambdaResultNode): RegExpNode {

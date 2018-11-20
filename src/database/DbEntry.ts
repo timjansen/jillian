@@ -16,7 +16,7 @@ const tifu = require('tifuhash');
 export default class DbEntry extends JelObject implements IDbEntry {
   isIDBEntry: boolean;
 	
-  constructor(public distinctName: string, public reality: any = undefined, 
+  constructor(public distinctName: string, public reality?: any, 
 							 public hashCode: string = tifu.hash(distinctName), 
 							 public properties = new Dictionary()) {
     super();
@@ -26,7 +26,7 @@ export default class DbEntry extends JelObject implements IDbEntry {
   get databaseIndices(): Map<string, DbIndexDescriptor> {
     return new Map();
   }
-	
+  
 	member(ctx: Context, name: string, parameters?: Map<string, any>): any {
 		const v = super.member(ctx, name, parameters);
 		if (v === undefined && this.properties.elements.has(name))

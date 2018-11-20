@@ -62,7 +62,7 @@ export default class Unit extends JelObject {
 		}
 		else if (numeratorUnits instanceof Dictionary) {
 			const newMap = new Map<string, number>();
-			numeratorUnits.jsEach((k, v)=>newMap.set(k, (v as JelNumber).value));
+			numeratorUnits.eachJs((k, v)=>newMap.set(k, (v as JelNumber).value));
 			this.units = newMap;
 			this.simple = this.units.size == 1 && newMap.values().next().value == 1  && !denominatorUnits;
 		}

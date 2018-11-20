@@ -32,7 +32,7 @@ export default class SimplePropertyType extends PropertyType {
   }
   
   getSerializationProperties(): Object {
-    return [this.type, this.constants, this.types];
+    return this.constants.empty && this.types.empty ? [this.type] : [this.type, this.constants, this.types];
   }
 	
   static create_jel_mapping = {type: 1, constants: 2, types: 3};

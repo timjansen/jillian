@@ -2,7 +2,7 @@ Thing('SquareMile', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Area,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.IMPERIAL,
+		type: UnitTypeEnum.IMPERIAL,
 		idealMin: 1,
 		convertsTo: {
 			SquareMeter: {factor: 1609.344^2}

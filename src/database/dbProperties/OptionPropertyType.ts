@@ -24,7 +24,7 @@ export default class OptionPropertyType extends PropertyType {
   }
 	
   checkProperty(ctx: Context, value: JelObject|null): boolean {
-    return this.options.hasAnyJs(option=>option&&(option as any).checkProperty(ctx, value));
+    return this.options.hasAnyJs(option=>option ? (option as any).checkProperty(ctx, value) : value == null);
   }
   
   static create_jel_mapping = {options: 1};

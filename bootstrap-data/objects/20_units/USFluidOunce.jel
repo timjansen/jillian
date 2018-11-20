@@ -2,7 +2,7 @@ Thing('USFluidOunce', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Volume,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.US,
+		type: UnitTypeEnum.US,
 		idealMin: 1,
 		idealMax: 1e4,
 		convertsTo: {

@@ -2,7 +2,7 @@ Thing('CubicFeet', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Volume,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.IMPERIAL,
+		type: UnitTypeEnum.IMPERIAL,
 		idealMin: 1,
 		convertsTo: {
 			CubicMeter: {factor: 0.0254^3 * 12^3},

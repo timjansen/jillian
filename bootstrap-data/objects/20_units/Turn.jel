@@ -2,7 +2,7 @@ Thing('Turn', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Angle,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.OTHER,
+		type: UnitTypeEnum.OTHER,
 		idealMin: 0.25,
 		convertsTo: {
 			Degree: {f: v=>v*360, factor: 360},

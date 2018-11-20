@@ -2,7 +2,7 @@ Thing('CubicKilometer', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Volume,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.METRIC,
+		type: UnitTypeEnum.METRIC,
 		idealMin: 1,
 		convertsTo: {
 			CubicMeter: {factor: 1e6}

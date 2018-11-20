@@ -2,7 +2,7 @@ Thing('MilesPerHour', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Velocity,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.IMPERIAL,
+		type: UnitTypeEnum.IMPERIAL,
 		convertsTo: {
 			MeterPerSecond: {factor: 0.44704},
 			KilometerPerHour: {factor: 1.609344}

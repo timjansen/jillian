@@ -2,7 +2,7 @@ Thing('SquareMeter', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Area,
 		isPrimaryUnit: true,
-		type: @UnitTypeEnum.SI,
+		type: UnitTypeEnum.SI,
 		idealMin: 1,
 		idealMax: 1e4,
 		convertsTo: {

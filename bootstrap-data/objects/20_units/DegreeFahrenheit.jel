@@ -2,7 +2,7 @@ Thing('DegreeFahrenheit', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Temperature,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.OTHER,
+		type: UnitTypeEnum.OTHER,
 		convertsTo: {
 			DegreeCelsius: {f: x=>(x-32)*Fraction(5, 9)},
 			Kelvin: {f: x=>(x+459.67)*Fraction(5, 9)}

@@ -2,7 +2,7 @@ Thing('Lightyear', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Length,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.METRIC,
+		type: UnitTypeEnum.METRIC,
 		idealMin: 1,
 		convertsTo: {
 			Meter: {factor: 9.461e15}

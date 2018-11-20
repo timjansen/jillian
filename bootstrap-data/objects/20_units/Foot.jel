@@ -2,7 +2,7 @@ Thing('Foot', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Length,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.IMPERIAL,
+		type: UnitTypeEnum.IMPERIAL,
 		idealMax: 5000,
 		convertsTo: {
 			Meter: {factor: 0.3048},

@@ -45,7 +45,13 @@ class JelAssert {
 		const a0 = this.execPromise(a), b0 = this.execPromise(b);
 		return Promise.all([a0, b0]).then(x=>this.equal(Serializer.serialize(x[0]), Serializer.serialize(x[1]), c));
 	}
-	
+
+ 	errorPromise(a, c) {
+		const a0 = this.execPromise(a);
+		return a0.then(()=>false).catch(()=>true).then(v=>assert.ok(v, c||"expected error / rejected promise"));
+	}
+
+  
 	fuzzy(a, min, max) {
 		const r = this.exec(a);
 		if (!(r instanceof JelBoolean)) {
@@ -110,7 +116,7 @@ JelConsole.create_jel_mapping = ['value'];
 
 class MockSession {
 	createDbRef(distinctName, params) {
-		return {distinctName, params, isDBRef: true, getJelType: function() { return 'DbRef';}};
+		return {distinctName, params, isIDBRef: true, getJelType: function() { return 'DbRef';}};
 	}
 }
 MockSession.prototype.isIDBSession = true;

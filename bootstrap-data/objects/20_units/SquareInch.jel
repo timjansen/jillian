@@ -2,7 +2,7 @@ Thing('SquareInch', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Area,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.IMPERIAL,
+		type: UnitTypeEnum.IMPERIAL,
 		idealMax: 2*144,
 		convertsTo: {
 			SquareMeter: {factor: 0.0254^2},

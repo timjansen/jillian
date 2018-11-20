@@ -2,7 +2,7 @@ Thing('Kilocalorie', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Energy,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.METRIC,
+		type: UnitTypeEnum.METRIC,
 		convertsTo: {
 			Joule: {f: v=>v/0.0002388458966275, factor: 1/0.0002388458966275}
 		}

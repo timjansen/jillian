@@ -23,11 +23,11 @@ export default class BaseTypeRegistry {
 		if (tv == 'object')
 			return v;
 		if (typeof v == 'number')
-			return BaseTypeRegistry.get('JelNumber').valueOf(v);
+			return BaseTypeRegistry.get('Number').valueOf(v);
 		if (typeof v == 'string')
-			return BaseTypeRegistry.get('JelString').valueOf(v);
+			return BaseTypeRegistry.get('String').valueOf(v);
 		if (typeof v == 'boolean')
-			return BaseTypeRegistry.get('JelBoolean').valueOf(v);
+			return BaseTypeRegistry.get('Boolean').valueOf(v);
 		
 		throw new Error('Function returned unsupported type');
 	}

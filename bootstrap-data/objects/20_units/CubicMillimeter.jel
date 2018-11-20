@@ -2,7 +2,7 @@ Thing('CubicMillimeter', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Volume,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.METRIC,
+		type: UnitTypeEnum.METRIC,
 		idealMax: 1e5,
 		convertsTo: {
 			CubicCentimeter: {factor: 1e-3}, 

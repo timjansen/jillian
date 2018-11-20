@@ -2,7 +2,7 @@ Thing('Horsepower', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Power,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.IMPERIAL,
+		type: UnitTypeEnum.IMPERIAL,
 		idealMin: 1,
 		convertsTo: {
 			Watt: {factor: 745.69987158227022},

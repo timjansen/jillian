@@ -2,7 +2,7 @@ Thing('Mile', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Length,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.IMPERIAL,
+		type: UnitTypeEnum.IMPERIAL,
 		idealMin: 1,
 		convertsTo: {
 			Meter: {factor: 1609.344}

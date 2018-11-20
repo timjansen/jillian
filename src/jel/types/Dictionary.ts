@@ -172,7 +172,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 		return exec();
 	}
 
-	jsEach(f: (k: string, v: JelObject|null, i: number)=>any): Dictionary {
+	mapJs(f: (k: string, v: JelObject|null, i: number)=>JelObject|null): Dictionary {
 		const self = this;
 		const newDict = new Dictionary();
 		let i = 0;
@@ -181,10 +181,24 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 			const next = it.next();
 			if (next.done)
 				return newDict;
+      const k = next.value;
+	    newDict.elements.set(k, f(k, this.elements.get(next.value) as JelObject|null, i++));
+		}
+	}
+
+ 	eachJs(f: (k: string, v: JelObject|null, i: number)=>any): Dictionary {
+		const self = this;
+		let i = 0;
+		const it = this.elements.keys();
+		while (true) {
+			const next = it.next();
+			if (next.done)
+				return this;
 			 f(next.value, this.elements.get(next.value) as JelObject|null, i++);
 		}
 	}
 
+  
 	filter_jel_mapping: Object;
 	filter(ctx: Context, f0: any): Dictionary | Promise<Dictionary> {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');

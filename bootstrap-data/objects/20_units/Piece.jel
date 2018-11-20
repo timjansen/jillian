@@ -2,7 +2,7 @@ Thing('Piece', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Piece,
 		isPrimaryUnit: true,
-		type: @UnitTypeEnum.OTHER,
+		type: UnitTypeEnum.OTHER,
 		convertsTo: {
 			Dozen: {factor: Fraction(1, 12)}
 		}

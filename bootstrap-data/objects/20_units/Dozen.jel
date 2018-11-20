@@ -2,7 +2,7 @@ Thing('Dozen', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Pieces,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.OTHER,
+		type: UnitTypeEnum.OTHER,
 		idealMin: 12,
 		idealMax: 36,
 		granularity: 0.5,	

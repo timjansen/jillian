@@ -2,7 +2,7 @@ Thing('Hectare', @UnitOfMeasureCategory,
 	properties={
 		quantityCategory: @Length,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.OTHER,
+		type: UnitTypeEnum.OTHER,
 		idealMin: 1,
 		idealMax: 1000,
 		convertsTo: {

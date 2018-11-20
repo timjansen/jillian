@@ -43,10 +43,10 @@ export default class TypeChecker {
 			return defaultValue;
 		
 		const typeName: string = value.getJelType ? value.getJelType() : '';
-		if (typeName == 'JelNumber' || typeName == 'Fraction' || typeName == 'ApproximateNumber' || typeName == 'UnitValue')
+		if (typeName == 'Number' || typeName == 'Fraction' || typeName == 'ApproximateNumber' || typeName == 'UnitValue')
 			return value;
 		if (typeof value == 'number')
-			return BaseTypeRegistry.get('JelNumber').valueOf(value);
+			return BaseTypeRegistry.get('Number').valueOf(value);
 		return TypeChecker.throwArgumentError(value, name, 'numeric');
 	}
 
@@ -59,7 +59,7 @@ export default class TypeChecker {
 			return defaultValue;
 		
 		const typeName: string = value.getJelType ? value.getJelType() : '';
-		if (typeName == 'JelNumber' || typeName == 'Fraction' || typeName == 'ApproximateNumber' || typeName == 'UnitValue')
+		if (typeName == 'Number' || typeName == 'Fraction' || typeName == 'ApproximateNumber' || typeName == 'UnitValue')
 			return value.toRealNumber();
 		if (typeof value == 'number')
 			return value;
@@ -75,10 +75,10 @@ export default class TypeChecker {
 			return defaultValue;
 		
 		const typeName: string = value.getJelType ? value.getJelType() : '';
-		if (typeName == 'JelBoolean')
+		if (typeName == 'Boolean')
 			return value;
 		if (typeof value == 'boolean')
-			return BaseTypeRegistry.get('JelBoolean').valueOf(value);
+			return BaseTypeRegistry.get('Boolean').valueOf(value);
 		return TypeChecker.throwArgumentError(value, name, 'boolean');
 	}
 
@@ -91,7 +91,7 @@ export default class TypeChecker {
 			return defaultValue;
 		
 		const typeName: string = value.getJelType ? value.getJelType() : '';
-		if (typeName == 'JelBoolean')
+		if (typeName == 'Boolean')
 			return value.toRealBoolean();
 		if (typeof value == 'boolean')
 			return value;
@@ -108,10 +108,10 @@ export default class TypeChecker {
 			return defaultValue;
 		
 		const typeName: string = value.getJelType ? value.getJelType() : '';
-		if (typeName == 'JelString')
+		if (typeName == 'String')
 			return value;
 		if (typeof value == 'string')
-			return BaseTypeRegistry.get('JelString').valueOf(value);
+			return BaseTypeRegistry.get('String').valueOf(value);
 		return TypeChecker.throwArgumentError(value, name, 'string');
 	}
 
@@ -124,7 +124,7 @@ export default class TypeChecker {
 			return defaultValue;
 		
 		const typeName: string = value.getJelType ? value.getJelType() : '';
-		if (typeName == 'JelString')
+		if (typeName == 'String')
 			return value.value;
 		if (typeof value == 'string')
 			return value;

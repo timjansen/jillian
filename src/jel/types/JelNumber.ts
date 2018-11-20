@@ -24,7 +24,7 @@ export default class JelNumber extends JelObject implements SerializablePrimitiv
 	}
 	
 	constructor(public value: number) {
-		super();
+		super('Number');
 	}
 	
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
@@ -159,6 +159,6 @@ JelNumber.prototype.reverseOps = {
 JelNumber.prototype.abs_jel_mapping = {};
 JelNumber.prototype.negate_jel_mapping = {};
 
-BaseTypeRegistry.register('JelNumber', JelNumber);
+BaseTypeRegistry.register('Number', JelNumber);
 
 

@@ -104,6 +104,9 @@ export default class List extends JelObject implements SerializablePrimitive {
 	get length(): JelNumber {
 		return JelNumber.valueOf(this.elements.length);
 	}
+	get size(): JelNumber {
+		return JelNumber.valueOf(this.elements.length);
+	}
 	
 	each_jel_mapping: Object;
 	each(ctx: Context, f0: any): List | Promise<List> {
@@ -440,7 +443,7 @@ export default class List extends JelObject implements SerializablePrimitive {
 	}
 }
 
-List.prototype.JEL_PROPERTIES = {first:1, last: 1, length: 1};
+List.prototype.JEL_PROPERTIES = {first:1, last: 1, length: 1, size: 1};
 
 List.prototype.get_jel_mapping = {index: 1};
 List.prototype.each_jel_mapping = {f: 1};
