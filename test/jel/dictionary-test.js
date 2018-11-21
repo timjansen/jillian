@@ -59,6 +59,14 @@ describe('jelDictionary', function() {
       jelAssert.equal(new JEL('Dictionary(["t", 8]).anyKey').executeImmediately(ctx), "'t'"); 
     });
   });
+  
+  
+  describe('access', function() {
+    it('allows access by string or as member', function() {
+      jelAssert.equal(new JEL('Dictionary(["t", 8])["t"]').executeImmediately(ctx), "8"); 
+      jelAssert.equal(new JEL('Dictionary(["t", 8]).t').executeImmediately(ctx), "8"); 
+    });
+  });
 
   describe('size', function() {
     it('returns the size', function() {

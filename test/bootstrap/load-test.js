@@ -41,11 +41,11 @@ describe('Loader', function() {
   });
 
   it('loads months', function() {
-    return jelAssert.equalPromise('@December.order["successor"]', '@January');
+    return jelAssert.equalPromise('@December.order.successor', '@January');
   });
 
   it('loads weekdays', function() {
-    return jelAssert.equalPromise('@Sunday.order["successor"]', '@Monday');
+    return jelAssert.equalPromise('@Sunday.order.successor', '@Monday');
   });
 
   

@@ -7,7 +7,8 @@ import List from '../../jel/types/List';
 import Context from '../../jel/Context';
 
 /**
- * Defines a complex type that has named, typed fields. It is represented as a dictionary in the DbEntry, but always has the same fields.
+ * Defines a complex type that has named, typed fields. It is represented as a Dictionary in the DbEntry, but always has the same fields.
+ * 
  */
 export default class ComplexPropertyType extends PropertyType {
   fields: Dictionary; // string->PropertyType
@@ -22,6 +23,8 @@ export default class ComplexPropertyType extends PropertyType {
     
     const m = new Map();
     fields.elements.forEach((v, n)=>{
+      if ((Dictionary.empty as any)[n+'_jel_mapping'] || (Dictionary.empty.JEL_PROPERTIES as any)[n])
+        throw new Error(`Illegal field name ${n}, you must not use any name that's defined in Dictionary.`);
       m.set(n, PropertyHelper.convertFromAny(v, 'dictionary value'));
     });
     this.fields = new Dictionary(m);

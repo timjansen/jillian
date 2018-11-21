@@ -68,6 +68,15 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 		const v = this.elements.get(key);
 		return v == undefined ? null : v;
 	}
+  
+  member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|undefined {
+		if (name in this.JEL_PROPERTIES)
+			return BaseTypeRegistry.mapNativeTypes((this as any)[name]);
+    if ((name+'_jel_mapping') in this)
+      return undefined;
+    
+		return this.elements.get(name);
+	}
 
 	has_jel_mapping: Object;
 	has(ctx: Context, key0: JelString | string): JelBoolean {
