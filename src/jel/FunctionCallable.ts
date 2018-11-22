@@ -14,24 +14,28 @@ export default class FunctionCallable extends Callable {
 		this.argMapper = this.convertArgMapper(argMapper);  // map argName -> index. Null if named-argument-methods
 	}
 	
-	invokeWithObject(ctx: Context, args: any[], argObj?: any, ): JelObject|null|Promise<JelObject|null> {
-		if (this.argMapper) {
+  static invoke(ctx: Context, name: string|undefined, self: any, f: Function, args: any[], argObj?: any, argMapper?: any):  JelObject|null|Promise<JelObject|null> {
+		if (argMapper) {
 			const allArgs = [ctx].concat(args);
 			if (argObj)
-				for (const name in argObj) {
-					const idx = this.argMapper[name];
-					if (idx == null){
-						throw new Error(`Unknown argument name '${name}' can not be mapped for function '${this.name || 'anonymous'}'.`);
+				for (const argName in argObj) {
+					const idx = argMapper[argName];
+					if (idx == null) {
+						throw new Error(`Unknown argument name '${argName}' can not be mapped for function '${name || 'anonymous'}'.`);
 					}
-					allArgs[idx] = argObj[name];
+					allArgs[idx] = argObj[argName];
 				}
-			return BaseTypeRegistry.mapNativeTypes(this.f.apply(this.self, allArgs));
+			return BaseTypeRegistry.mapNativeTypes(f.apply(self, allArgs));
 		}
 		else {
 			if (args.length)
 				throw new Error(`Method only supports named arguments, but got ${args.length} anonymous argument(s).`);
-			return BaseTypeRegistry.mapNativeTypes(this.f.apply(this.self, [ctx, argObj || {}]));
+			return BaseTypeRegistry.mapNativeTypes(f.apply(self, [ctx, argObj || {}]));
 		}
+  }
+  
+	invokeWithObject(ctx: Context, args: any[], argObj?: any): JelObject|null|Promise<JelObject|null> {
+    return FunctionCallable.invoke(ctx, this.name, this.self, this.f, args, argObj, this.argMapper);
 	}
 	
 	invoke(ctx: Context, ...args: any[]): JelObject|null|Promise<JelObject|null> {
@@ -39,9 +43,9 @@ export default class FunctionCallable extends Callable {
 	}
 	
 	// converts argmapper from array to object, if needed
-	convertArgMapper(argMapper?: Object|Array<string>|string): Object|null {
+	convertArgMapper(argMapper?: Object|Array<string>|string): Object|undefined {
 		if (argMapper === 'named') // same as Runtime.NAMED_ARGUMENT_METHOD.
-			return null;
+			return undefined;
 		else if (argMapper instanceof Array) {
 			const o: any = {};
 			argMapper.forEach((name,idx)=>o[name] = idx + 1);
