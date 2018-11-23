@@ -2,6 +2,7 @@ import BaseTypeRegistry from './BaseTypeRegistry';
 import FunctionCallable from './FunctionCallable';
 import JelObject from './JelObject';
 import Context from './Context';
+import Callable from './Callable';
 import Util from '../util/Util';
 
 
@@ -77,7 +78,7 @@ export default class Runtime {
 		if (obj instanceof JelObject) {
 			const value = obj.member(ctx, name, parameters);
 			if (value !== undefined)
-				return value;
+				return value instanceof Callable ? value.rebind(obj) : value;
   		callableCacheKey = `${name}_jel_callable`;
 		}
 		else if (JelObject.isPrototypeOf(obj)) {
@@ -88,7 +89,7 @@ export default class Runtime {
     else
       throw new Error("Can't get member. Neither JelObject instance nor JelObject class.");
 
-		const callable = obj[callableCacheKey];
+    const callable = obj[callableCacheKey];
 		if (callable)
 				return callable;
 

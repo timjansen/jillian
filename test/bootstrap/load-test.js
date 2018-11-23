@@ -37,7 +37,7 @@ describe('Loader', function() {
   });
 
   it('loads holidays', function() {
-    return jelAssert.equalPromise('@Easter.matchesInYear(@Easter, 2005)', '[LocalDate(2005, 3, 27)]');
+    return jelAssert.equalPromise('@Easter.matchesInYear(2005)', '[LocalDate(2005, 3, 27)]');
   });
 
   it('loads months', function() {

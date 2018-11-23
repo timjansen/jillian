@@ -13,23 +13,9 @@ import Callable from '../../jel/Callable';
 import Context from '../../jel/Context';
 import Util from '../../util/Util';
 
-class BindingCallable extends Callable {
-  constructor(public callable: Callable, public instance: GenericJelObject) {
-		super();
-  }
- 
-	invokeWithObject(ctx: Context, args: any[], argObj?: any): any {
-    return this.callable.invokeWithObject(ctx, [this.instance].concat(args), argObj);
-	}
-	
-	invoke(ctx: Context, ...args: any[]): any {
-		return this.invokeWithObject(ctx, args);
-	}
-}
-
 class GenericJelObject extends JelObject {
   props: Map<string, JelObject|null>;
-  methods: Map<string, BindingCallable>;
+  methodCache: Map<string, Callable> = new Map<string, Callable>();
   
   constructor(public type: TypeDefinition, ctx: Context, args: any[]) {
     super(type.typeName);
@@ -44,9 +30,6 @@ class GenericJelObject extends JelObject {
         this.props.set(type.ctorToProps[i]!, val);
       }
     
-    this.methods = new Map<string, BindingCallable>();
-    this.type.methods.eachJs((k,v)=>this.methods.set(k, new BindingCallable(v as any, this)));
-    
     if (type.methods.elements.has('constructor')) {
       const ctor = type.methods.elements.get('constructor') as Callable;
       const ctorReturn: any = ctor.invoke(ctx, this, ...args);
@@ -55,24 +38,32 @@ class GenericJelObject extends JelObject {
     }
   }
   
+  static forbidNull(value: any): JelObject|Promise<JelObject> {
+    return Util.resolveValue(value, v=>{
+      if (v == null)
+        throw new Error("Operator implementations must not return null");
+      return v;
+    });
+  }
+  
   op(ctx: Context, operator: string, right: JelObject|null): JelObject|Promise<JelObject> {
     const callable: Callable|undefined = this.type.methods.elements.get('op'+operator) as any;
     if (callable)
-      return callable.invoke(ctx, this, right);
+      return GenericJelObject.forbidNull(callable.invoke(ctx, this, right));
     return super.op(ctx, operator, right);
   }
 	
 	opReversed(ctx: Context, operator: string, left: JelObject): JelObject|Promise<JelObject> {
     const callable: Callable|undefined = this.type.methods.elements.get('opReversed'+operator) as any;
     if (callable)
-      return callable.invoke(ctx, this, left);
+      return GenericJelObject.forbidNull(callable.invoke(ctx, this, left));
     return super.opReversed(ctx, operator, left);
 	}
   
 	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
     const callable: Callable|undefined = this.type.methods.elements.get('singleOp'+operator) as any;
     if (callable)
-      return callable.invoke(ctx, this);
+      return GenericJelObject.forbidNull(callable.invoke(ctx, this));
     return super.singleOp(ctx, operator);
 	}
 
@@ -83,9 +74,15 @@ class GenericJelObject extends JelObject {
     const propsValue = this.props.get(name);
     if (propsValue)
       return propsValue;
-    const methodsValue = this.methods.get(name);
-    if (methodsValue)
-      return methodsValue;
+    const cachedMethodValue = this.methodCache.get(name);
+    if (cachedMethodValue)
+      return cachedMethodValue;
+    const methodValue = this.type.methods.elements.get(name);
+    if (methodValue) {
+      const m = (methodValue as Callable).rebind(this);
+      this.methodCache.set(name, m);
+      return m;
+    }
     return undefined;    
 	}
 }

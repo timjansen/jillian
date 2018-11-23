@@ -44,6 +44,10 @@ tmp.dir(function(err, path) {
                             jelAssert.errorPromise('with myTestType=TypeDefinition("MyTestType", ["x", "y"], {x: @Number, y: @String}), m=myTestType(): [m.x, m.y]', "[2, 'foo']")]);
       });
 
+      it('supports constructors', function() {
+        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", ["x", "y"], {x: @Number, y: @String, z: @Number}, {"constructor": (this, x, y)=>{y: "bar", z: x+1} }), m=myTestType(5, "foo"): [m.x, m.y, m.z]', "[5, 'bar', 6]");
+      });
+    
       it('supports methods', function() {
         jelAssert.equal('with myTestType=TypeDefinition("MyTestType", ["x", "y"], {x: @Number, y: @Number}, methods={add: this=>this.x+this.y}), m=myTestType(5, 12): m.add()', "17");
         jelAssert.equal('with myTestType=TypeDefinition("MyTestType", ["x", "y"], {x: @Number, y: @Number}, methods={add: (this, a, b)=>this.x+this.y+a/b}), m=myTestType(5, 12): m.add(20, 4)', "22");

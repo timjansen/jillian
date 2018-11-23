@@ -14,6 +14,10 @@ export default class FunctionCallable extends Callable {
 		this.argMapper = this.convertArgMapper(argMapper);  // map argName -> index. Null if named-argument-methods
 	}
 	
+  rebind(self: any): FunctionCallable {
+    return Object.is(this.self, self) ? this : new FunctionCallable(this.f, this.argMapper, self, this.name);
+  }
+ 
   static invoke(ctx: Context, name: string|undefined, self: any, f: Function, args: any[], argObj?: any, argMapper?: any):  JelObject|null|Promise<JelObject|null> {
 		if (argMapper) {
 			const allArgs = [ctx].concat(args);
@@ -34,12 +38,12 @@ export default class FunctionCallable extends Callable {
 		}
   }
   
-	invokeWithObject(ctx: Context, args: any[], argObj?: any): JelObject|null|Promise<JelObject|null> {
-    return FunctionCallable.invoke(ctx, this.name, this.self, this.f, args, argObj, this.argMapper);
+	invokeWithObject(ctx: Context, self: any, args: any[], argObj?: any): JelObject|null|Promise<JelObject|null> {
+    return FunctionCallable.invoke(ctx, this.name, self || this.self, this.f, args, argObj, this.argMapper);
 	}
 	
-	invoke(ctx: Context, ...args: any[]): JelObject|null|Promise<JelObject|null> {
-		return this.invokeWithObject(ctx, args, null);
+	invoke(ctx: Context, self: any, ...args: any[]): JelObject|null|Promise<JelObject|null> {
+    return FunctionCallable.invoke(ctx, this.name, self || this.self, this.f, args, null, this.argMapper);
 	}
 	
 	// converts argmapper from array to object, if needed

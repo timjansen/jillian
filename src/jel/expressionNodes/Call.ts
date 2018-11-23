@@ -43,7 +43,7 @@ export default class Call extends JelNode {
     const args = this.argList.map(a=>a.execute(ctx));
     const argObjValues = this.namedArgs.map(a=>a.execute(ctx));
 
-    return resolveValueObj(objArgs=>Util.resolveArray(args, (listArgs: any[])=>callable.invokeWithObject(ctx, listArgs, objArgs)), this.namedArgs, argObjValues);
+    return resolveValueObj(objArgs=>Util.resolveArray(args, (listArgs: any[])=>callable.invokeWithObject(ctx, null, listArgs, objArgs)), this.namedArgs, argObjValues);
   }
   
   private callLeft(ctx: Context, left: JelNode): JelObject|null|Promise<JelObject|null> {

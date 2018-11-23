@@ -204,14 +204,14 @@ export default class JEL {
 		}
 
 		const assignments: Assignment[] = [];
-		const usedNames: any = {};
+		const usedNames: any = new Set();
 		while (true) {
 			const name = JEL.nextOrThrow(tokens, "Unexpected end of dictionary");
 			if (name.type != TokenType.Identifier && name.type != TokenType.Literal)
 				JEL.throwParseException(name, "Expected identifier or literal as dictionary key");
-			if (name.value in usedNames)
+			if (usedNames.has(name.value))
 				JEL.throwParseException(name, `Duplicate key in dictionary: ${name.value}`);
-			usedNames[name.value] = true;
+			usedNames.add(name.value);
 
 			const separator = JEL.expectOp(tokens, DICT_KEY_STOP, "Expected ':', ',' or '}' in Dictionary.");
 			if (separator.value == ':') {
