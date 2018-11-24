@@ -52,6 +52,8 @@ tmp.dir(function(err, path) {
         jelAssert.equal('with myTestType=TypeDefinition("MyTestType", ["x", "y"], {x: @Number, y: @Number}, methods={add: this=>this.x+this.y}), m=myTestType(5, 12): m.add()', "17");
         jelAssert.equal('with myTestType=TypeDefinition("MyTestType", ["x", "y"], {x: @Number, y: @Number}, methods={add: (this, a, b)=>this.x+this.y+a/b}), m=myTestType(5, 12): m.add(20, 4)', "22");
         jelAssert.equal('with myTestType=TypeDefinition("MyTestType", ["x", "y"], {x: @Number, y: @Number}, methods={add: (this, a, b)=>this.x+this.y+a/b}), m=myTestType(5, 12): m.add(b=4, a=20)', "22");
+        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", ["x", "y"], {x: @Number, y: @Number}, methods={add: (this, a, b)=>this.x+this.y+a/b}), m=myTestType(15, 12), add=m.add: add(b=4, a=20)', "32");
+        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", methods={div: (a, b)=>a/b}), m=myTestType(), div=m.div: m.div(60, 10) + div(40, 10)', "10");
       });
 
       it('supports static properties', function() {

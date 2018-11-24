@@ -214,6 +214,7 @@ describe('JEL', function() {
       jelAssert.equal(new JEL('A().calc(3, 2, 1, 100, 1000)').executeImmediately(DefaultContext.plus({A})), 3+4+3+400+5000);
       jelAssert.equal(new JEL('A().calc(b= 2, c= 1, e= 1000, d= 100, a=3)').executeImmediately(DefaultContext.plus({A})), 3+4+3+400+5000);
       jelAssert.equal(new JEL('A().calc(3, 2, c=1, e=1000, d=100)').executeImmediately(DefaultContext.plus({A})), 3+4+3+400+5000);
+      jelAssert.equal(new JEL('A(A(50).getX).getX()()').executeImmediately(DefaultContext.plus({A})), 50);
     });
 
    it('should access properties of built-ins', function() {
