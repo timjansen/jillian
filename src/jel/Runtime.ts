@@ -73,6 +73,40 @@ export default class Runtime {
       return false;
 	}
 
+ 	static callMethod(ctx: Context, obj: any, name: string, args: any[], argObj?: any): JelObject|null|Promise<JelObject|null> {
+    let callableCacheKey: string;
+		if (obj instanceof JelObject) {
+			const value = obj.member(ctx, name);
+      if (value) {
+			  if (!(value instanceof Callable))
+				  throw new Error(`Can not call method ${name}, not a Callable member.`);
+        return value.invokeWithObject(ctx, obj, args, argObj);
+      }     
+		  callableCacheKey = `${name}_jel_callable`;
+		}
+		else if (JelObject.isPrototypeOf(obj)) 
+	  	callableCacheKey = `${name}_${obj.name}_jel_callable`;
+    else
+      throw new Error("Can't call method. Neither JelObject instance nor JelObject class.");
+
+    const callable = obj[callableCacheKey];
+		if (callable)
+				return callable.invokeWithObject(ctx, obj, args, argObj);
+    
+		const argMapper = obj[`${name}_jel_mapping`];
+		if (argMapper) {
+      const newCallable = new FunctionCallable(obj[name], argMapper, obj, name);
+			obj[callableCacheKey] = newCallable;
+			return newCallable.invokeWithObject(ctx, obj, args, argObj);
+		}
+
+		if (name in obj) 
+			throw new Error(`Method ${name} is not callable in JEL. It would need a _jel_mapping.`);
+    else
+  		throw new Error(`Unknown method ${name} in ${obj instanceof JelObject ? obj.getJelType() : obj && obj.constructor.name}.`);
+	}
+
+  
 	static member(ctx: Context, obj: any, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null> {
     let callableCacheKey: string;
 		if (obj instanceof JelObject) {

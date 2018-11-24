@@ -23,15 +23,13 @@ function resolveValueObj(f: (e: any)=>any, assignments: Assignment[], values: an
 }
 
 /**
- * Represents a method call. 
+ * Represents a function or constructor call. 
  *
  * Examples: 
+ *     LocalDate(2002, 2, 5)
  *     f()
  *     f(2)
  *     f(x = 2)
- *     a.myMethod()
- *     a.add(1, 2)
- *     list.sort(key = a=>a.name)
  *     (()=>4)()                     // calling lambda, returns 4
  */
 export default class Call extends JelNode {

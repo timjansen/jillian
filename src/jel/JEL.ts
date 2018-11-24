@@ -26,6 +26,7 @@ import PatternAssignment from './expressionNodes/PatternAssignment';
 import With from './expressionNodes/With';
 import Lambda from './expressionNodes/Lambda';
 import Call from './expressionNodes/Call';
+import MethodCall from './expressionNodes/MethodCall';
 import Get from './expressionNodes/Get';
 import UnitValue from './expressionNodes/UnitValue';
 
@@ -353,10 +354,17 @@ export default class JEL {
     if (opPrecedence <= precedence)
       return left;
     
-    tokens.next();
+    tokens.next();    
     
-    if (binOpToken.value == '(') 
-      return JEL.tryBinaryOps(tokens, JEL.parseCall(tokens, left), precedence, stopOps);
+    if (binOpToken.value == '.' && tokens.hasNext(2) && 
+        tokens.peek().type == TokenType.Identifier && 
+        tokens.peek(1).type == TokenType.Operator && tokens.peek(1).value == '()') {
+      const methodName = tokens.next();
+      tokens.next(); 
+      return JEL.tryBinaryOps(tokens, JEL.parseMethodCall(tokens, left, methodName.value), precedence, stopOps);
+    }
+    else if (binOpToken.value == '(') 
+      return JEL.tryBinaryOps(tokens, JEL.parseSimpleCall(tokens, left), precedence, stopOps);
     else if (binOpToken.value == '[') 
       return JEL.tryBinaryOps(tokens, JEL.parseGet(tokens, left), precedence, stopOps);
     else
@@ -404,7 +412,7 @@ export default class JEL {
     return new Lambda(args, JEL.parseExpression(tokens, precedence, stopOps));
   }
   
-  static parseCall(tokens: TokenReader, left: JelNode): Call {
+  static parseSimpleCall(tokens: TokenReader, left: JelNode): Call {
     const argList: JelNode[] = [];
 
     if (tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == ')') {
@@ -446,6 +454,49 @@ export default class JEL {
     return new Call(left, argList, namedArgs);
   }
 
+  static parseMethodCall(tokens: TokenReader, left: JelNode, methodName: string): MethodCall {
+    const argList: JelNode[] = [];
+
+    if (tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == ')') {
+        tokens.next();
+        return new MethodCall(left, methodName, argList);
+    }
+    
+    while (true) {
+      const tok = tokens.copy();
+      const namePreview = JEL.nextOrThrow(tok, 'Unexpected end of expression in the middle of function call');
+      if (namePreview.type == TokenType.Identifier) {
+          if (tok.hasNext() && tok.peek().type == TokenType.Operator && tok.peek().value == '=')
+            break;
+      }
+      argList.push(JEL.parseExpression(tokens, PARENS_PRECEDENCE, PARAMETER_STOP));
+      
+      const separator = JEL.expectOp(tokens, PARAMETER_STOP, "Expected ')' or '='");
+      if (separator.value == ')')
+        return new MethodCall(left, name, argList);
+    }
+ 
+    const argNames: any = {};           // for tracking dupes
+    const namedArgs: Assignment[] = []; // for the actual values
+
+    while (true) {
+      const name = JEL.nextOrThrow(tokens, "Expected identifier for named argument");
+      if (name.type != TokenType.Identifier)
+        JEL.throwParseException(name, "Expected identifier for named argument");
+      if (name.value in argNames)
+        JEL.throwParseException(name, "Duplicate name in named arguments");
+      JEL.expectOp(tokens, EQUAL, "Expected equal sign after identifier for named argument");
+      argNames[name.value] = true;
+      namedArgs.push(new Assignment(name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, PARAMETER_STOP)));
+
+      const next = JEL.expectOp(tokens, PARAMETER_STOP, "Expected ')' or '='");
+      if (next.value == ')')
+        break;
+    }
+    return new MethodCall(left, name, argList, namedArgs);
+  }
+
+  
   static parseGet(tokens: TokenReader, left: JelNode): Get {
     const nameExp = JEL.parseExpression(tokens, PARENS_PRECEDENCE, SQUARE_BRACE_STOP);
     JEL.expectOp(tokens, SQUARE_BRACE_STOP, "Closing square bracket");
