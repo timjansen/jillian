@@ -11,6 +11,7 @@ const DictionaryType = require('../../build/jel/types/typeDescriptors/Dictionary
 const FunctionType = require('../../build/jel/types/typeDescriptors/FunctionType.js').default;
 const ListType = require('../../build/jel/types/typeDescriptors/ListType.js').default;
 const OptionType = require('../../build/jel/types/typeDescriptors/OptionType.js').default;
+const OptionalType = require('../../build/jel/types/typeDescriptors/OptionalType.js').default;
 const CategoryType = require('../../build/database/dbProperties/CategoryType.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
 const Context = require('../../build/jel/Context.js').default;
@@ -40,6 +41,7 @@ tmp.dir(function(err, path) {
         jelAssert.equal('FunctionType(["c", "v"])', new FunctionType(new List([JelString.valueOf("c"), JelString.valueOf("v")])));
         jelAssert.equal('ListType(@Number)', new ListType(new DbRef('Number')));
         jelAssert.equal('OptionType([@Number, null])', new OptionType(new List([new DbRef('Number'), null])));
+        jelAssert.equal('OptionalType(@Number)', new OptionalType(new DbRef('Number')));
       })
 
       it('checks types', function() {
@@ -63,10 +65,20 @@ tmp.dir(function(err, path) {
         jelAssert.fuzzy('ListType(@Number).checkType([1, "a"])', 0);
         jelAssert.fuzzy('ListType(@Number).checkType("a")', 0);
 
-        jelAssert.fuzzy('OptionType([@Number, null]).checkType(1)', 1);
+        jelAssert.fuzzy('OptionType([@Number, @String, null]).checkType(1)', 1);
+        jelAssert.fuzzy('OptionType([@Number, @String, null]).checkType("foo")', 1);
         jelAssert.fuzzy('OptionType([@Number, null]).checkType(null)', 1);
         jelAssert.fuzzy('OptionType([@Number, null]).checkType("a")', 0);
-      })
+        jelAssert.fuzzy('OptionType([@Number, @String]).checkType(null)', 0);
+
+        jelAssert.fuzzy('OptionalType(@Number).checkType(1)', 1);
+        jelAssert.fuzzy('OptionalType(@Number).checkType(null)', 1);
+        jelAssert.fuzzy('OptionalType(@Number).checkType("a")', 0);
+
+        jelAssert.fuzzy('@Number?.checkType(1)', 1);
+        jelAssert.fuzzy('@Number?.checkType(null)', 1);
+        jelAssert.fuzzy('@Number?.checkType("a")', 0);
+})
 
     });
 

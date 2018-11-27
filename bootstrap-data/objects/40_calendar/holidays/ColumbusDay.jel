@@ -2,7 +2,7 @@ Thing('MartinLutherKindJrDay', @HolidayCategory,
 	properties={
     month: 10,
     firstDate: LocalDate(1492, 10, 12),
- 		isMatch: (this, date)=>with cday=this.matchesInYear(this, date.year).first: date == cday,
-		matchesInYear: (this, year)=>if year >= this.firstDate.year then LocalDate(year, this.month).allDays.nthMatch(2, d=>d.dayOfWeek == 1) else []
+ 		isMatch: (this, date)=>with cday=this.matchesInYear(date.year).first: date == cday,
+		matchesInYear: (this, year)=>if year >= this.firstDate.year then [LocalDate(year, this.month).allDays.nthMatch(2, d=>d.dayOfWeek == 1)] else []
   }
 )

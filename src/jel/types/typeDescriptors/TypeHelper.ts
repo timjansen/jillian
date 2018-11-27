@@ -18,8 +18,12 @@ export default class TypeHelper {
 	static convert(l: List | TypeDescriptor | IDbRef | Dictionary): TypeDescriptor {
 		if (l instanceof List)
 			return new OptionType(l);
-		else 
-			return (l && (l as any).isIDBRef)? new SimpleType(l as any) : l instanceof Dictionary ? new ComplexType(l) : (l as TypeDescriptor);
+		else if (l && (l as any).isIDBRef)
+			return new SimpleType(l as any);
+    else if (l instanceof Dictionary)
+      return new ComplexType(l)
+    else
+      return l as TypeDescriptor;
 	}
 
  	/**
@@ -31,8 +35,12 @@ export default class TypeHelper {
 	static convertNullable(l: List | TypeDescriptor | IDbRef | Dictionary | null): TypeDescriptor | null {
 		if (l instanceof List)
 			return new OptionType(l);
-		else 
-			return (l && (l as any).isIDBRef)? new SimpleType(l as any) : l instanceof Dictionary ? new ComplexType(l) : (l as TypeDescriptor | null);
+		else if (l && (l as any).isIDBRef)
+			return new SimpleType(l as any);
+    else if (l instanceof Dictionary)
+      return new ComplexType(l)
+    else
+      return l as TypeDescriptor | null;
 	}
   
   static convertFromAny(l: any, name: string): TypeDescriptor {

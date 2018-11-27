@@ -17,6 +17,8 @@ const Assignment = require('../../build/jel/expressionNodes/Assignment.js').defa
 const With = require('../../build/jel/expressionNodes/With.js').default;
 const Lambda = require('../../build/jel/expressionNodes/Lambda.js').default;
 const Call = require('../../build/jel/expressionNodes/Call.js').default;
+const MethodCall = require('../../build/jel/expressionNodes/MethodCall.js').default;
+const Optional = require('../../build/jel/expressionNodes/Optional.js').default;
 
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
@@ -75,7 +77,17 @@ describe('JEL', function() {
       jelAssert.equal(new JEL('g(a=>2)').parseTree, new Call(new Variable('g'), [new Lambda(['a'], new Literal(2))]));
       jelAssert.equal(new JEL('g((a,b,c)=>2)').parseTree, new Call(new Variable('g'), [new Lambda(['a', 'b', 'c'], new Literal(2))]));
     });
-  
+
+    it('should support method calls', function() {
+      jelAssert.equal(new JEL('a.f()').parseTree, new MethodCall(new Variable('a'), 'f', []));
+      jelAssert.equal(new JEL('a.f(2)').parseTree, new MethodCall(new Variable('a'), 'f', [new Literal(2)]));
+      jelAssert.equal(new JEL('a.f("foo", 2)').parseTree, new MethodCall(new Variable('a'), 'f', [new Literal('foo'), new Literal(2)]));
+
+      jelAssert.equal(new JEL('a.f(a=5)').parseTree, new MethodCall(new Variable('a'), 'f', [], [new Assignment('a', new Literal(5))]));
+      jelAssert.equal(new JEL('a.f("foo", 4, a = 5, b = "bar")').parseTree, new MethodCall(new Variable('a'), 'f', [new Literal('foo'), new Literal(4)], [new Assignment('a', new Literal(5)), new Assignment('b', new Literal('bar'))]));
+    });
+
+    
     it('should support lambdas', function() {
       jelAssert.equal(new JEL('x=>1').parseTree, new Lambda(['x'], new Literal(1)));
       jelAssert.equal(new JEL('()=>1').parseTree, new Lambda([], new Literal(1)));
@@ -109,6 +121,12 @@ describe('JEL', function() {
       jelAssert.equal(new JEL('[]').parseTree, new List([]));
       jelAssert.equal(new JEL('[a]').parseTree, new List([new Variable('a')]));
       jelAssert.equal(new JEL('[a+2,a]').parseTree, new List([new Operator('+', new Variable('a'), new Literal(2)), new Variable('a')]));
+    });
+
+    it('should support optionals', function() {
+      jelAssert.equal(new JEL('LocalDate?').parseTree, new Optional(new Variable('LocalDate')));
+      jelAssert.equal(new JEL('@LocalDate?').parseTree, new Optional(new Reference('LocalDate')));
+      jelAssert.equal(new JEL('(LocalDate)?').parseTree, new Optional(new Variable('LocalDate')));
     });
 
   });

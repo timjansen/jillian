@@ -16,6 +16,7 @@ const JelList = require('../../build/jel/types/List.js').default;
 const JelDictionary = require('../../build/jel/types/Dictionary.js').default;
 const Fraction = require('../../build/jel/types/Fraction.js').default;
 const UnitValue = require('../../build/jel/types/UnitValue.js').default;
+const OptionalType = require('../../build/jel/types/typeDescriptors/OptionalType.js').default;
 const JelNode = require('../../build/jel/expressionNodes/JelNode.js').default;
 const Literal = require('../../build/jel/expressionNodes/Literal.js').default;
 const Variable = require('../../build/jel/expressionNodes/Variable.js').default;
@@ -78,6 +79,12 @@ describe('JEL', function() {
       assert.equal(new JEL('@Hello').executeImmediately(ctx).distinctName, 'Hello');
       assert.equal(new JEL('@Fish(age= 10)').executeImmediately(ctx).distinctName, 'Fish');
       assert.equal(new JEL('@Fish(age= 10)').executeImmediately(ctx).params.get('age'), 10);
+    });
+
+ 		it('should support optional types', function() {
+      assert.ok(new JEL('@Hello?').executeImmediately(ctx) instanceof OptionalType);
+      assert.equal(new JEL('@Hello?').executeImmediately(ctx).type.type.distinctName, 'Hello');
+      assert.equal(new JEL('(@Hello)?').executeImmediately(ctx).type.type.distinctName, 'Hello');
     });
 
     

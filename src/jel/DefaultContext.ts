@@ -32,13 +32,14 @@ import DictionaryType from './types/typeDescriptors/DictionaryType';
 import FunctionType from './types/typeDescriptors/FunctionType';
 import ListType from './types/typeDescriptors/ListType';
 import OptionType from './types/typeDescriptors/OptionType';
+import OptionalType from './types/typeDescriptors/OptionalType';
 import SimpleType from './types/typeDescriptors/SimpleType';
 
 
 const CTX_IDENTIFIERS = {Boolean: JelBoolean, Number: JelNumber, String: JelString, ApproximateNumber, Range, Fraction, Unit, UnitValue,
 												 Math: JelMath, Dictionary, List, Distribution, DistributionPoint, Pattern, Translator, EnumValue, 
 												 Duration, DurationRange, Timestamp, TimeZone, TimeOfDay, LocalDate, LocalDateTime, ZonedDate, ZonedDateTime,
-                         ComplexType, DictionaryType, FunctionType, ListType, OptionType, SimpleType,
+                         ComplexType, DictionaryType, FunctionType, ListType, OptionType, OptionalType, SimpleType,
 												 ___IS_DEFAULT_CONTEXT: 'magic123'};
 
 export default class DefaultContext {

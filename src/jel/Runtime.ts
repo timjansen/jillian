@@ -112,9 +112,11 @@ export default class Runtime {
 		if (obj instanceof JelObject) {
 			const value = obj.member(ctx, name);
       if (value) {
-			  if (!(value instanceof Callable))
-				  throw new Error(`Can not call method ${name}, not a Callable member.`);
-        return value.invokeWithObject(ctx, obj, args, argObj);
+        return Util.resolveValue(value, resolvedValue=>{
+          if (!(resolvedValue instanceof Callable))
+            throw new Error(`Can not call method ${name}, not a Callable member. Value: ${resolvedValue}`);
+          return resolvedValue.invokeWithObject(ctx, obj, args, argObj);
+        });
       }     
 		  else
         return Runtime.getNativeMethod(true, false, obj, name).invokeWithObject(ctx, obj, args, argObj);

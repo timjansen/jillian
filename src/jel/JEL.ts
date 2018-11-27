@@ -27,10 +27,12 @@ import With from './expressionNodes/With';
 import Lambda from './expressionNodes/Lambda';
 import Call from './expressionNodes/Call';
 import MethodCall from './expressionNodes/MethodCall';
+import Optional from './expressionNodes/Optional';
 import Get from './expressionNodes/Get';
 import UnitValue from './expressionNodes/UnitValue';
 
 const binaryOperators: any = { // op->precedence
+  '?': 20,
   '.': 19,
   '==': 10,
   '<': 11,
@@ -168,7 +170,7 @@ export default class JEL {
       else if (token.value == '${') 
         return JEL.parseTranslator(tokens, token, precedence, stopOps);
       else if (token.value == '@') {
-        let t2 = JEL.nextOrThrow(tokens, "Expected identifier after '@' for reference.");
+        const t2 = JEL.nextOrThrow(tokens, "Expected identifier after '@' for reference.");
         if (t2.type != TokenType.Identifier)
           JEL.throwParseException(token, "Expected identifier after '@' for reference.");
 				if (tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == '(') {
@@ -290,7 +292,7 @@ export default class JEL {
 	static parseUnitValue(tokens: TokenReader, content: JelNode, precedence: number, stopOps: any) {
 		tokens.next();
 		
-		let t2 = JEL.nextOrThrow(tokens, "Expected identifier after '@' for reference / unit value.");
+		const t2 = JEL.nextOrThrow(tokens, "Expected identifier after '@' for reference / unit value.");
     if (t2.type != TokenType.Identifier)
 			JEL.throwParseException(t2, "Expected identifier after '@' for reference / unit value.");
 
@@ -335,7 +337,7 @@ export default class JEL {
 		}
 	}
    
-  // called after an potential left operand for a binary op (or function call)
+  // called after an potential left operand for a binary op (or function call, or '?')
   static tryBinaryOps(tokens: TokenReader, left: JelNode, precedence: number, stopOps: any): JelNode {
     if (!tokens.hasNext())
       return left;
@@ -358,7 +360,7 @@ export default class JEL {
     
     if (binOpToken.value == '.' && tokens.hasNext(2) && 
         tokens.peek().type == TokenType.Identifier && 
-        tokens.peek(1).type == TokenType.Operator && tokens.peek(1).value == '()') {
+        tokens.peek(1).type == TokenType.Operator && tokens.peek(1).value == '(') {
       const methodName = tokens.next();
       tokens.next(); 
       return JEL.tryBinaryOps(tokens, JEL.parseCall(tokens, left, methodName.value), precedence, stopOps);
@@ -367,6 +369,8 @@ export default class JEL {
       return JEL.tryBinaryOps(tokens, JEL.parseCall(tokens, left), precedence, stopOps);
     else if (binOpToken.value == '[') 
       return JEL.tryBinaryOps(tokens, JEL.parseGet(tokens, left), precedence, stopOps);
+    else if (binOpToken.value == '?')
+      return JEL.tryBinaryOps(tokens, new Optional(left), precedence, stopOps);
     else
       return JEL.tryBinaryOps(tokens, new Operator(binOpToken.value, left, JEL.parseExpression(tokens, binaryOperators[binOpToken.value] as number, stopOps)), precedence, stopOps);
   }
@@ -431,7 +435,7 @@ export default class JEL {
       
       const separator = JEL.expectOp(tokens, PARAMETER_STOP, "Expected ')' or '='");
       if (separator.value == ')')
-        return methodName ? new MethodCall(left, name, argList) : new Call(left, argList);
+        return methodName ? new MethodCall(left, methodName, argList) : new Call(left, argList);
     }
  
     const argNames: any = {};           // for tracking dupes
@@ -451,7 +455,7 @@ export default class JEL {
       if (next.value == ')')
         break;
     }
-    return methodName ? new MethodCall(left, name, argList, namedArgs) : new Call(left, argList, namedArgs);
+    return methodName ? new MethodCall(left, methodName, argList, namedArgs) : new Call(left, argList, namedArgs);
   }
   
   static parseGet(tokens: TokenReader, left: JelNode): Get {
