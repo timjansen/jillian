@@ -1,9 +1,9 @@
 import PropertyType from './PropertyType';
-import List from '../../jel/types/List';
-import TypeChecker from '../../jel/types/TypeChecker';
-import Callable from '../../jel/Callable';
-import Context from '../../jel/Context';
-import JelObject from '../../jel/JelObject';
+import List from '../List';
+import TypeChecker from '../TypeChecker';
+import Callable from '../../Callable';
+import Context from '../../Context';
+import JelObject from '../../JelObject';
 
 
 

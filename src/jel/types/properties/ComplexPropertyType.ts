@@ -1,10 +1,10 @@
 import PropertyType from './PropertyType';
 import PropertyHelper from './PropertyHelper';
-import Dictionary from '../../jel/types/Dictionary';
-import TypeChecker from '../../jel/types/TypeChecker';
-import JelObject from '../../jel/JelObject';
-import List from '../../jel/types/List';
-import Context from '../../jel/Context';
+import Dictionary from '../Dictionary';
+import TypeChecker from '../TypeChecker';
+import JelObject from '../../JelObject';
+import List from '../List';
+import Context from '../../Context';
 
 /**
  * Defines a complex type that has named, typed fields. It is represented as a Dictionary in the DbEntry, but always has the same fields.

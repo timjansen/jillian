@@ -1,5 +1,4 @@
-import PropertyType from './PropertyType';
-import Category from '../dbObjects/Category';
+import PropertyType from '../../jel/types/properties/PropertyType';
 import {IDbRef, IDbEntry} from '../../jel/IDatabase';
 import Dictionary from '../../jel/types/Dictionary';
 import TypeChecker from '../../jel/types/TypeChecker';
@@ -23,7 +22,7 @@ export default class CategoryPropertyType extends PropertyType {
     if ((value as any).isIDBRef)
       return (value as any).distinctName.match(/.*Category$/);
     else
-      return value instanceof Category; 
+      return value.getJelType() == 'Category';
   }
   
   getSerializationProperties(): Object {

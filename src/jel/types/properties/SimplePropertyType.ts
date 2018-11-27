@@ -1,10 +1,10 @@
 import PropertyType from './PropertyType';
-import {IDbRef} from '../../jel/IDatabase';
-import Dictionary from '../../jel/types/Dictionary';
-import TypeChecker from '../../jel/types/TypeChecker';
-import Runtime from '../../jel/Runtime';
-import Context from '../../jel/Context';
-import JelObject from '../../jel/JelObject';
+import {IDbRef} from '../../IDatabase';
+import Dictionary from '../../types/Dictionary';
+import TypeChecker from '../../types/TypeChecker';
+import Runtime from '../../Runtime';
+import Context from '../../Context';
+import JelObject from '../../JelObject';
 
 
 /**

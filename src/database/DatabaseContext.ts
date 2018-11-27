@@ -13,20 +13,13 @@ import Thing from './dbObjects/Thing';
 import Enum from './dbObjects/Enum';
 import MixinProperty from './dbObjects/MixinProperty';
 import TypeDefinition from './dbObjects/TypeDefinition';
-
-
 import CategoryPropertyType from './dbProperties/CategoryPropertyType';
-import ComplexPropertyType from './dbProperties/ComplexPropertyType';
-import DictionaryPropertyType from './dbProperties/DictionaryPropertyType';
-import FunctionPropertyType from './dbProperties/FunctionPropertyType';
-import ListPropertyType from './dbProperties/ListPropertyType';
-import OptionPropertyType from './dbProperties/OptionPropertyType';
-import SimplePropertyType from './dbProperties/SimplePropertyType';
 
 
 
-const DB_IDENTIFIERS = {DbEntry, DbRef, Category, Thing, Enum, MixinProperty, TypeDefinition,
-                        CategoryPropertyType, ComplexPropertyType, DictionaryPropertyType, FunctionPropertyType, ListPropertyType, OptionPropertyType, SimplePropertyType, 
+
+
+const DB_IDENTIFIERS = {DbEntry, DbRef, Category, Thing, Enum, MixinProperty, TypeDefinition, CategoryPropertyType,
 												 ___IS_DATABASE_CONTEXT: 'magic123'};
 
 

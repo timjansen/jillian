@@ -2,10 +2,10 @@ import PropertyType from './PropertyType';
 import SimplePropertyType from './SimplePropertyType';
 import OptionPropertyType from './OptionPropertyType';
 import ComplexPropertyType from './ComplexPropertyType';
-import {IDbRef} from '../../jel/IDatabase';
-import Dictionary from '../../jel/types/Dictionary';
-import TypeChecker from '../../jel/types/TypeChecker';
-import List from '../../jel/types/List';
+import {IDbRef} from '../../IDatabase';
+import Dictionary from '../../types/Dictionary';
+import TypeChecker from '../../types/TypeChecker';
+import List from '../../types/List';
 
 
 export default class PropertyHelper {

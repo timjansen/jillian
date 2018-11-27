@@ -1,6 +1,6 @@
-import JelObject from '../../jel/JelObject';
-import Context from '../../jel/Context';
-import JelBoolean from '../../jel/types/JelBoolean';
+import JelObject from '../../JelObject';
+import Context from '../../Context';
+import JelBoolean from '../JelBoolean';
 
 /**
  * Abstract prototype to define the type of a property.
@@ -16,6 +16,6 @@ export default abstract class PropertyType extends JelObject {
 
 }
 
-PropertyType.prototype.checkProperty_jel_mapping = {value: 1};
+PropertyType.prototype.checkProperty_jel_mapping = ['value'];
 
 

@@ -27,9 +27,18 @@ import LocalDateTime from './types/time/LocalDateTime';
 import ZonedDate from './types/time/ZonedDate';
 import ZonedDateTime from './types/time/ZonedDateTime';
 
+import ComplexPropertyType from './types/properties/ComplexPropertyType';
+import DictionaryPropertyType from './types/properties/DictionaryPropertyType';
+import FunctionPropertyType from './types/properties/FunctionPropertyType';
+import ListPropertyType from './types/properties/ListPropertyType';
+import OptionPropertyType from './types/properties/OptionPropertyType';
+import SimplePropertyType from './types/properties/SimplePropertyType';
+
+
 const CTX_IDENTIFIERS = {Boolean: JelBoolean, Number: JelNumber, String: JelString, ApproximateNumber, Range, Fraction, Unit, UnitValue,
 												 Math: JelMath, Dictionary, List, Distribution, DistributionPoint, Pattern, Translator, EnumValue, 
 												 Duration, DurationRange, Timestamp, TimeZone, TimeOfDay, LocalDate, LocalDateTime, ZonedDate, ZonedDateTime,
+                         ComplexPropertyType, DictionaryPropertyType, FunctionPropertyType, ListPropertyType, OptionPropertyType, SimplePropertyType,
 												 ___IS_DEFAULT_CONTEXT: 'magic123'};
 
 export default class DefaultContext {

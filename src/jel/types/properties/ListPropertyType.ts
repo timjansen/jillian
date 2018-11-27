@@ -1,11 +1,11 @@
 import PropertyType from './PropertyType';
 import PropertyHelper from './PropertyHelper';
-import List from '../../jel/types/List';
-import TypeChecker from '../../jel/types/TypeChecker';
-import {IDbRef, IDbEntry} from '../../jel/IDatabase';
-import Dictionary from '../../jel/types/Dictionary';
-import Context from '../../jel/Context';
-import JelObject from '../../jel/JelObject';
+import List from '../List';
+import TypeChecker from '../TypeChecker';
+import {IDbRef, IDbEntry} from '../../IDatabase';
+import Dictionary from '../../types/Dictionary';
+import Context from '../../Context';
+import JelObject from '../../JelObject';
 
 
 
