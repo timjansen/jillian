@@ -29,7 +29,7 @@ const path = 'build/tmp/bootstrap-load';
 
 
 const db = new Database(path);
-const session = new DbSession(db, DefaultContext.plus({JelPromise, JelConsole}));
+const session = new DbSession(db, DefaultContext.get());
 
 jelAssert.setCtx(session.ctx);
 

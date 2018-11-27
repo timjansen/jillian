@@ -2,6 +2,7 @@ import Util from '../util/Util';
 
 import Context from '../jel/Context';
 import DefaultContext from '../jel/DefaultContext';
+import NativeTypeDefinition from '../jel/NativeTypeDefinition';
 
 import Database from './Database';
 import DbEntry from './DbEntry';
@@ -16,10 +17,11 @@ import TypeDefinition from './dbObjects/TypeDefinition';
 import CategoryType from './dbProperties/CategoryType';
 
 
+function c(ctor: any): NativeTypeDefinition {
+  return new NativeTypeDefinition(ctor);
+}
 
-
-
-const DB_IDENTIFIERS = {DbEntry, DbRef, Category, Thing, Enum, MixinProperty, TypeDefinition, CategoryType,
+const DB_IDENTIFIERS = {DbEntry: c(DbEntry), DbRef: c(DbRef), Category: c(Category), Thing: c(Thing), Enum: c(Enum), MixinProperty: c(MixinProperty), TypeDefinition: c(TypeDefinition), CategoryType: c(CategoryType),
 												 ___IS_DATABASE_CONTEXT: 'magic123'};
 
 

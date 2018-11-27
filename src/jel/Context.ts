@@ -39,7 +39,7 @@ export default class Context {
 	set(name: string, value: any): Context {
 		if (this.frozen)
 			throw new Error('Can not modify context, already frozen');
-		this.frame.set(name, value);
+ 		this.frame.set(name, value);
 		return this;
 	}
 	

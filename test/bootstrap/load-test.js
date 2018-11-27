@@ -9,6 +9,7 @@ const Loader = require('../../build/database/Loader.js').default;
 const DbSession = require('../../build/database/DbSession.js').default;
 const DbRef = require('../../build/database/DbRef.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
+const NativeTypeDefinition = require('../../build/jel/NativeTypeDefinition.js').default;
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const List = require('../../build/jel/types/List.js').default;
@@ -25,7 +26,7 @@ const jelAssert = new JelAssert();
 
 const path = 'build/tmp/bootstrap-load';
 const db = new Database(path);
-const session = new DbSession(db, DefaultContext.plus({JelPromise, JelConsole}));
+const session = new DbSession(db, DefaultContext.plus({JelPromise: new NativeTypeDefinition(JelPromise), JelConsole: new NativeTypeDefinition(JelConsole)}));
 
 jelAssert.setCtx(session.ctx);
 

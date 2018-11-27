@@ -6,6 +6,7 @@ const assert = require('assert');
 const Context = require('../../build/jel/Context.js').default;
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
+const NativeTypeDefinition = require('../../build/jel/NativeTypeDefinition.js').default;
 const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const Callable = require('../../build/jel/Callable.js').default;
 const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
@@ -33,7 +34,7 @@ const {JelAssert, JelPromise, JelConsole, MockSession} = require('../jel-assert.
 const jelAssert = new JelAssert();
 
 
-const ctx = DefaultContext.plus(new MockSession()).plus({JelPromise, JelConsole});
+const ctx = DefaultContext.plus(new MockSession()).plus({JelPromise: new NativeTypeDefinition(JelPromise), JelConsole: new NativeTypeDefinition(JelConsole)});
 jelAssert.setCtx(ctx);
 
 describe('JEL', function() {
@@ -212,16 +213,17 @@ describe('JEL', function() {
       const create = new Callable(A.create, A.create_jel_mapping);
       assert(new JEL('a.getX').executeImmediately(DefaultContext.plus({a:new A()})) instanceof Callable);
       jelAssert.equal(new JEL('a.getX()').executeImmediately(DefaultContext.plus({a:new A()})), 2);
-      assert(new JEL('A()').executeImmediately(DefaultContext.plus({A})) instanceof A);
-      jelAssert.equal(new JEL('A().getX()').executeImmediately(DefaultContext.plus({A})), 2);
-      jelAssert.equal(new JEL('A()["getX"]()').executeImmediately(DefaultContext.plus({A})), 2);
-      jelAssert.equal(new JEL('A(a=55).getX()').executeImmediately(DefaultContext.plus({A})), 55);
-      jelAssert.equal(new JEL('A(55).getX()').executeImmediately(DefaultContext.plus({A})), 55);
-      jelAssert.equal(new JEL('A(b=77,a=55).getX()').executeImmediately(DefaultContext.plus({A})), 55);
-      jelAssert.equal(new JEL('A().calc(3, 2, 1, 100, 1000)').executeImmediately(DefaultContext.plus({A})), 3+4+3+400+5000);
-      jelAssert.equal(new JEL('A().calc(b= 2, c= 1, e= 1000, d= 100, a=3)').executeImmediately(DefaultContext.plus({A})), 3+4+3+400+5000);
-      jelAssert.equal(new JEL('A().calc(3, 2, c=1, e=1000, d=100)').executeImmediately(DefaultContext.plus({A})), 3+4+3+400+5000);
-      jelAssert.equal(new JEL('A(A(50).getX).getX()()').executeImmediately(DefaultContext.plus({A})), 50);
+      const ctx = DefaultContext.plus({A: new NativeTypeDefinition(A)});
+      assert(new JEL('A()').executeImmediately(ctx) instanceof A);
+      jelAssert.equal(new JEL('A().getX()').executeImmediately(ctx), 2);
+      jelAssert.equal(new JEL('A()["getX"]()').executeImmediately(ctx), 2);
+      jelAssert.equal(new JEL('A(a=55).getX()').executeImmediately(ctx), 55);
+      jelAssert.equal(new JEL('A(55).getX()').executeImmediately(ctx), 55);
+      jelAssert.equal(new JEL('A(b=77,a=55).getX()').executeImmediately(ctx), 55);
+      jelAssert.equal(new JEL('A().calc(3, 2, 1, 100, 1000)').executeImmediately(ctx), 3+4+3+400+5000);
+      jelAssert.equal(new JEL('A().calc(b= 2, c= 1, e= 1000, d= 100, a=3)').executeImmediately(ctx), 3+4+3+400+5000);
+      jelAssert.equal(new JEL('A().calc(3, 2, c=1, e=1000, d=100)').executeImmediately(ctx), 3+4+3+400+5000);
+      jelAssert.equal(new JEL('A(A(50).getX).getX()()').executeImmediately(ctx), 50);
     });
 
    it('should access properties of built-ins', function() {
@@ -355,24 +357,25 @@ describe('JEL', function() {
       A.pic_jel_mapping = [];
       A.add2_jel_mapping = ['a','b'];
      
-      assert.equal(new JEL('A()').executeImmediately(new Context().setAll({A})).x, 2);
-      assert.equal(new JEL('A()').executeImmediately(new Context().setAll({A})).y, 5);
-      assert.equal(new JEL('A(7,8)').executeImmediately(new Context().setAll({A})).x, 7);
-      assert.equal(new JEL('A(7,8)').executeImmediately(new Context().setAll({A})).y, 8);
-      assert.equal(new JEL('A(b=9,a=3)').executeImmediately(new Context().setAll({A})).x, 3);
-      assert.equal(new JEL('A(b=9,a=3)').executeImmediately(new Context().setAll({A})).y, 9);
-      assert.equal(new JEL('A(3, b=1)').executeImmediately(new Context().setAll({A})).x, 3);
-      assert.equal(new JEL('A(3, b=1)').executeImmediately(new Context().setAll({A})).y, 1);
-      assert.equal(new JEL('A(b=1)').executeImmediately(new Context().setAll({A})).x, 2);
-      assert.equal(new JEL('A(b=1)').executeImmediately(new Context().setAll({A})).y, 1);
+      const ctx = new Context().setAll({A: new NativeTypeDefinition(A)});
+      assert.equal(new JEL('A()').executeImmediately(ctx).x, 2);
+      assert.equal(new JEL('A()').executeImmediately(ctx).y, 5);
+      assert.equal(new JEL('A(7,8)').executeImmediately(ctx).x, 7);
+      assert.equal(new JEL('A(7,8)').executeImmediately(ctx).y, 8);
+      assert.equal(new JEL('A(b=9,a=3)').executeImmediately(ctx).x, 3);
+      assert.equal(new JEL('A(b=9,a=3)').executeImmediately(ctx).y, 9);
+      assert.equal(new JEL('A(3, b=1)').executeImmediately(ctx).x, 3);
+      assert.equal(new JEL('A(3, b=1)').executeImmediately(ctx).y, 1);
+      assert.equal(new JEL('A(b=1)').executeImmediately(ctx).x, 2);
+      assert.equal(new JEL('A(b=1)').executeImmediately(ctx).y, 1);
 
-      assert.equal(new JEL('A.pic()').executeImmediately(new Context().setAll({A})), 3);
+      assert.equal(new JEL('A.pic()').executeImmediately(ctx), 3);
 
-      assert.equal(new JEL('A.add2()').executeImmediately(new Context().setAll({A})), 17);
-      assert.equal(new JEL('A.add2(1)').executeImmediately(new Context().setAll({A})), 15);
-      assert.equal(new JEL('A.add2(5, 2)').executeImmediately(new Context().setAll({A})), 9);
-      assert.equal(new JEL('A.add2(b=1)').executeImmediately(new Context().setAll({A})), 5);
-      assert.equal(new JEL('A.add2(6)').executeImmediately(new Context().setAll({A})), 20);
+      assert.equal(new JEL('A.add2()').executeImmediately(ctx), 17);
+      assert.equal(new JEL('A.add2(1)').executeImmediately(ctx), 15);
+      assert.equal(new JEL('A.add2(5, 2)').executeImmediately(ctx), 9);
+      assert.equal(new JEL('A.add2(b=1)').executeImmediately(ctx), 5);
+      assert.equal(new JEL('A.add2(6)').executeImmediately(ctx), 20);
    });
   
    it('supports lambda', function() {
@@ -409,14 +412,15 @@ describe('JEL', function() {
      A.JEL_PROPERTIES = {x:1};
 
      const l = [];
-     l.push(JEL.execute('A.promise(3)+4', new Context().setAll({A})).then(v=>assert.equal(v, 7)));
-     l.push(JEL.execute('3+A.promise(4)', new Context().setAll({A})).then(v=>assert.equal(v, 7)));
-     l.push(JEL.execute('A.promise(3)+A.promise(4)', new Context().setAll({A})).then(v=>assert.equal(v, 7)));
-     l.push(JEL.execute('A.promise(A.x)+A.promise(A.x)', new Context().setAll({A})).then(v=>assert.equal(v, 84)));
-     l.push(JEL.execute('A.promise(A)[A.promise("x")]', new Context().setAll({A})).then(v=>assert.equal(v, 42)));
-     l.push(JEL.execute('A.promise(A).promise(A.promise(3))', new Context().setAll({A})).then(v=>assert.equal(v, 3)));
-     l.push(JEL.execute('if (!A.promise(0)) then A.promise(4) else 5', new Context().setAll({A})).then(v=>assert.equal(v, 4)));
-     l.push(JEL.execute('((a,b,c,d,e)=>a+4*b+5*c+30*d+100*e)(A.promise(2), 5, A.promise(1), d=A.promise(10), e=1)', new Context().setAll({A})).then(v=>assert.equal(v, 427)));
+     const ctx = new Context().setAll({A: new NativeTypeDefinition(A)});
+     l.push(JEL.execute('A.promise(3)+4', ctx).then(v=>assert.equal(v, 7)));
+     l.push(JEL.execute('3+A.promise(4)', ctx).then(v=>assert.equal(v, 7)));
+     l.push(JEL.execute('A.promise(3)+A.promise(4)', ctx).then(v=>assert.equal(v, 7)));
+     l.push(JEL.execute('A.promise(A.x)+A.promise(A.x)', ctx).then(v=>assert.equal(v, 84)));
+     l.push(JEL.execute('A.promise(A)[A.promise("x")]', ctx).then(v=>assert.equal(v, 42)));
+     l.push(JEL.execute('A.promise(A).promise(A.promise(3))', ctx).then(v=>assert.equal(v, 3)));
+     l.push(JEL.execute('if (!A.promise(0)) then A.promise(4) else 5', ctx).then(v=>assert.equal(v, 4)));
+     l.push(JEL.execute('((a,b,c,d,e)=>a+4*b+5*c+30*d+100*e)(A.promise(2), 5, A.promise(1), d=A.promise(10), e=1)', ctx).then(v=>assert.equal(v, 427)));
 
      return Promise.all(l);
    });

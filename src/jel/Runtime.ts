@@ -18,7 +18,6 @@ const RELATIONAL_OPS: any = {
 };
 
 const instanceFunctionCache = new Map<string, Map<string, Callable>>(); // type name -> function name -> Callable
-const staticFunctionCache = new Map<string, Map<string, Callable>>(); // type name -> function name -> Callable
 
 /**
  * Implements operators and other functions required in JEL at runtime.
@@ -75,8 +74,8 @@ export default class Runtime {
       return false;
 	}
   
-  static getNativeMethod(isJelObject: boolean, rebind: boolean, obj: any, name: string) {
-    let functionMap = isJelObject ? instanceFunctionCache.get(obj.getJelType()) :  staticFunctionCache.get(obj.name);
+  static getNativeMethod(rebind: boolean, obj: JelObject, name: string) {
+    let functionMap = instanceFunctionCache.get(obj.getJelType());
     if (functionMap) {
       const cachedImpl = functionMap.get(name);
       if (cachedImpl)
@@ -84,66 +83,53 @@ export default class Runtime {
     }
     else {
       functionMap = new Map<string,Callable>();
-      if (isJelObject)
-        instanceFunctionCache.set(obj.getJelType(), functionMap);
-      else
-        staticFunctionCache.set(obj.name, functionMap);
+      instanceFunctionCache.set(obj.getJelType(), functionMap);
     }
     
-		const argMapper = obj[`${name}_jel_mapping`];
+		const argMapper = (obj as any)[`${name}_jel_mapping`];
 		if (argMapper) {
-			const newCallable = new FunctionCallable(obj[name], argMapper, obj, name);
+			const newCallable = new FunctionCallable((obj as any)[name], argMapper, obj, name);
       functionMap.set(name, newCallable);
 			return newCallable;
 		}
 
 		if (name in obj) { 
-			if (typeof obj[name] == 'function')
+			if (typeof (obj as any)[name] == 'function')
 				throw new Error(`Method ${name} is not callable in JEL. It would need a _jel_mapping.`);
 			else
 				throw new Error(`Property ${name} is not accessible. It would need to be defined in JEL_PROPERTIES.`);
 		}
 		else
-			throw new Error(`Unknown property ${name} in ${obj instanceof JelObject ? obj.getJelType() : obj && obj.constructor.name}.`);
+			throw new Error(`Unknown property ${name} in ${obj.getJelType()}.`);
   } 
 
 
- 	static callMethod(ctx: Context, obj: any, name: string, args: any[], argObj?: any): JelObject|null|Promise<JelObject|null> {
-		if (obj instanceof JelObject) {
-			const value = obj.member(ctx, name);
-      if (value) {
-        return Util.resolveValue(value, resolvedValue=>{
-          if (!(resolvedValue instanceof Callable))
-            throw new Error(`Can not call method ${name}, not a Callable member. Value: ${resolvedValue}`);
-          return resolvedValue.invokeWithObject(ctx, obj, args, argObj);
-        });
-      }     
-		  else
-        return Runtime.getNativeMethod(true, false, obj, name).invokeWithObject(ctx, obj, args, argObj);
-		}
-		else if (JelObject.isPrototypeOf(obj)) 
-	  	return Runtime.getNativeMethod(false, false, obj, name).invokeWithObject(ctx, obj, args, argObj);
+ 	static callMethod(ctx: Context, obj: JelObject|null, name: string, args: any[], argObj?: any): JelObject|null|Promise<JelObject|null> {
+    if (!obj)
+      throw new Error("Can't call method on null."); 
+const x: any = obj; if (!x.member) throw new Error('Error calling '+x.toString());
+    const value = obj.member(ctx, name);
+    if (value) {
+     return Util.resolveValue(value, resolvedValue=>{
+        if (!(resolvedValue instanceof Callable))
+          throw new Error(`Can not call method ${name}, not a Callable member. Value: ${resolvedValue}`);
+        return resolvedValue.invokeWithObject(ctx, obj, args, argObj);
+      });
+    }     
     else
-      throw new Error("Can't call method. Neither JelObject instance nor JelObject class.");
+      return Runtime.getNativeMethod(false, obj, name).invokeWithObject(ctx, obj, args, argObj);
 	}
 
   
-	static member(ctx: Context, obj: any, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null> {
-		if (obj instanceof JelObject) {
-			const value = obj.member(ctx, name, parameters);
-			if (value !== undefined)
-				return value instanceof Callable ? value.rebind(obj) : value;
-      else
-        return Runtime.getNativeMethod(true, true, obj, name);
-    }
-		else if (JelObject.isPrototypeOf(obj)) {
-			if (obj.JEL_PROPERTIES && name in obj.JEL_PROPERTIES)
-				return BaseTypeRegistry.mapNativeTypes(obj[name] as any);
-      else
-        return Runtime.getNativeMethod(false, true, obj, name);
-    }
+	static member(ctx: Context, obj: JelObject|null, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null> {
+    if (!obj)
+      throw new Error("Can't get member of null."); 
+    
+    const value = obj.member(ctx, name, parameters);
+    if (value !== undefined)
+      return value instanceof Callable ? value.rebind(obj) : value;
     else
-      throw new Error("Can't get member. Neither JelObject instance nor JelObject class.");
+      return Runtime.getNativeMethod(true, obj, name);
 	}
 
 	

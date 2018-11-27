@@ -1,4 +1,5 @@
 import Context from './Context';
+import NativeTypeDefinition from './NativeTypeDefinition';
 
 import JelBoolean from './types/JelBoolean';
 import JelNumber from './types/JelNumber';
@@ -35,11 +36,16 @@ import OptionType from './types/typeDescriptors/OptionType';
 import OptionalType from './types/typeDescriptors/OptionalType';
 import SimpleType from './types/typeDescriptors/SimpleType';
 
+function c(ctor: any): NativeTypeDefinition {
+  return new NativeTypeDefinition(ctor);
+}
 
-const CTX_IDENTIFIERS = {Boolean: JelBoolean, Number: JelNumber, String: JelString, ApproximateNumber, Range, Fraction, Unit, UnitValue,
-												 Math: JelMath, Dictionary, List, Distribution, DistributionPoint, Pattern, Translator, EnumValue, 
-												 Duration, DurationRange, Timestamp, TimeZone, TimeOfDay, LocalDate, LocalDateTime, ZonedDate, ZonedDateTime,
-                         ComplexType, DictionaryType, FunctionType, ListType, OptionType, OptionalType, SimpleType,
+const CTX_IDENTIFIERS = {Boolean: c(JelBoolean), Number: c(JelNumber), String: c(JelString), ApproximateNumber: c(ApproximateNumber), Math: c(JelMath), 
+                         Range: c(Range), Fraction: c(Fraction), Unit: c(Unit), UnitValue: c(UnitValue),
+												 Dictionary: c(Dictionary), List: c(List), Distribution: c(Distribution), DistributionPoint: c(DistributionPoint), Pattern: c(Pattern), Translator: c(Translator), EnumValue: c(EnumValue), 
+												 Duration: c(Duration), DurationRange: c(DurationRange), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 
+                         ZonedDate: c(ZonedDate), ZonedDateTime: c(ZonedDateTime),
+                         ComplexType: c(ComplexType), DictionaryType: c(DictionaryType), FunctionType: c(FunctionType), ListType: c(ListType), OptionType: c(OptionType), OptionalType: c(OptionalType), SimpleType: c(SimpleType),
 												 ___IS_DEFAULT_CONTEXT: 'magic123'};
 
 export default class DefaultContext {

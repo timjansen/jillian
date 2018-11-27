@@ -4,6 +4,7 @@ require('source-map-support').install();
 const assert = require('assert');
 const Context = require('../../build/jel/Context.js').default;
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
+const NativeTypeDefinition = require('../../build/jel/NativeTypeDefinition.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
 const JelString = require('../../build/jel/types/JelString.js').default;
 const JelNumber = require('../../build/jel/types/JelNumber.js').default;
@@ -14,7 +15,7 @@ const PatternNode = require('../../build/jel/patternNodes/PatternNode.js').defau
 const TranslatorNode = require('../../build/jel/patternNodes/TranslatorNode.js').default;
 const {JelPromise, JelConsole} = require('../jel-assert.js');
 
-const promiseCtx = DefaultContext.plus({JelPromise, JelConsole});
+const promiseCtx = DefaultContext.plus({JelPromise: new NativeTypeDefinition(JelPromise), JelConsole: new NativeTypeDefinition(JelConsole)});
 
 function exec(s) {
   return JEL.parseTree(s).execute(DefaultContext.get());

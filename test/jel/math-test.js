@@ -5,6 +5,7 @@ const assert = require('assert');
 const Context = require('../../build/jel/Context.js').default;
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
+const NativeTypeDefinition = require('../../build/jel/NativeTypeDefinition.js').default;
 const JelMath = require('../../build/jel/types/Math.js').default;
 const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
 const Fraction = require('../../build/jel/types/Fraction.js').default;
@@ -15,7 +16,7 @@ const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const {JelAssert, JelPromise, JelConsole, MockSession} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
 
-const ctx = DefaultContext.plus({JelPromise, JelConsole}).plus(new MockSession());
+const ctx = DefaultContext.plus(new MockSession()).plus({JelPromise: new NativeTypeDefinition(JelPromise), JelConsole: new NativeTypeDefinition(JelConsole)});
 jelAssert.setCtx(ctx);
 
 describe('jelMath', function() {
