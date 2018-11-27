@@ -62,7 +62,7 @@ export default class Pattern extends JelObject implements SerializablePrimitive 
 	
 }
 
-Pattern.prototype.match_jel_mapping = {input: 1};
+Pattern.prototype.match_jel_mapping = ['input'];
 
 BaseTypeRegistry.register('Pattern', Pattern);
 

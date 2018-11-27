@@ -146,7 +146,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 				const next = it.next();
 				if (next.done)
 					return self;
-				const r = f.invoke(ctx, null, JelString.valueOf(next.value), self.elements.get(next.value), JelNumber.valueOf(i));
+				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, JelNumber.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(exec);
@@ -167,7 +167,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 				const next = it.next();
 				if (next.done)
 					return newDict;
-				const r = f.invoke(ctx, null, JelString.valueOf(next.value), self.elements.get(next.value), JelNumber.valueOf(i));
+				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, JelNumber.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> {
@@ -221,7 +221,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 				if (next.done)
 					return newDict;
 				const thisValue = self.elements.get(next.value) as JelObject;
-				const r = f.invoke(ctx, null, JelString.valueOf(next.value), thisValue, JelNumber.valueOf(i));
+				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), thisValue, JelNumber.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> {
@@ -258,7 +258,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 				const next = it.next();
 				if (next.done)
 					return result;
-				const r = f.invoke(ctx, null, result, JelString.valueOf(next.value), self.elements.get(next.value), JelNumber.valueOf(i));
+				const r = f.invoke(ctx, undefined, result, JelString.valueOf(next.value), self.elements.get(next.value) || null, JelNumber.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> {
@@ -284,7 +284,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 				const next = it.next();
 				if (next.done)
 					return JelBoolean.FALSE;
-				const r = f.invoke(ctx, null, JelString.valueOf(next.value), self.elements.get(next.value), JelNumber.valueOf(i));
+				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, JelNumber.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> JelBoolean.toRealBoolean(v) ? JelBoolean.TRUE : exec());
@@ -315,7 +315,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 				const next = it.next();
 				if (next.done)
 					return JelBoolean.TRUE;
-				const r = f.invoke(ctx, null, JelString.valueOf(next.value), self.elements.get(next.value), JelNumber.valueOf(i));
+				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, JelNumber.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> JelBoolean.toRealBoolean(v) ? exec() : JelBoolean.FALSE);
@@ -379,13 +379,13 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 
 
 Dictionary.prototype.JEL_PROPERTIES = {size: true, anyKey: true, keys: true, empty: true};
-Dictionary.prototype.get_jel_mapping = {key: 1};
-Dictionary.prototype.has_jel_mapping = {key: 1};
-Dictionary.prototype.each_jel_mapping = {f: 1};
-Dictionary.prototype.map_jel_mapping = {f: 1};
-Dictionary.prototype.filter_jel_mapping = {f: 1};
-Dictionary.prototype.reduce_jel_mapping = {f: 1, init: 2};
-Dictionary.prototype.hasAny_jel_mapping = {f: 1};
-Dictionary.prototype.hasOnly_jel_mapping = {f: 1};
+Dictionary.prototype.get_jel_mapping = ['key'];
+Dictionary.prototype.has_jel_mapping = ['key'];
+Dictionary.prototype.each_jel_mapping = ['f'];
+Dictionary.prototype.map_jel_mapping = ['f'];
+Dictionary.prototype.filter_jel_mapping = ['f'];
+Dictionary.prototype.reduce_jel_mapping = ['f', 'init'];
+Dictionary.prototype.hasAny_jel_mapping = ['f'];
+Dictionary.prototype.hasOnly_jel_mapping = ['f'];
 
 BaseTypeRegistry.register('Dictionary', Dictionary);

@@ -59,7 +59,7 @@ export default class Translator extends JelObject {
 	}
 }
 
-Translator.prototype.match_jel_mapping = {input: 1};
+Translator.prototype.match_jel_mapping = ['input'];
 
 
 

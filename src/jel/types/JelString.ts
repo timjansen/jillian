@@ -91,7 +91,7 @@ export default class JelString extends JelObject implements SerializablePrimitiv
 }
 
 JelString.prototype.JEL_PROPERTIES = {length:1};
-JelString.prototype.trim_jel_mapping = {};
+JelString.prototype.trim_jel_mapping = [];
 
 
 BaseTypeRegistry.register('String', JelString);

@@ -6,20 +6,20 @@ import Callable from '../Callable';
 import Context from '../Context';
 import Util from '../../util/Util';
 
-function resolveValueObj(f: (e: any)=>any, assignments: Assignment[], values: any[]): any {
+function resolveValueObj(f: (e: Map<string,JelObject|null>|undefined)=>JelObject|null|Promise<JelObject|null>, assignments: Assignment[], values: (JelObject|null|Promise<JelObject|null>)[]): JelObject|null|Promise<JelObject|null> {
 	if (!assignments.length)
-		return f(null);
+		return f(undefined);
 
-	function createObj(l: any[]): Object {
-		const o: any = {};
-		l.forEach((v, i)=>o[assignments[i].name] = v);
+	function createObj(l: (JelObject|null)[]): Map<string,JelObject|null> {
+		const o: Map<string,JelObject|null> = new Map();
+		l.forEach((v, i)=>o.set(assignments[i].name, v));
 		return o;
 	}
 
 	if (values.find(v=>v instanceof Promise))
 		return Promise.all(values).then(v=>f(createObj(v)));
 	else 
-		return f(createObj(values));
+		return f(createObj(values as (JelObject|null)[]));
 }
 
 /**
@@ -40,7 +40,7 @@ export default class MethodCall extends JelNode {
     const args = this.argList.map(a=>a.execute(ctx));
     const argObjValues = this.namedArgs.map(a=>a.execute(ctx));
     
-    return resolveValueObj(objArgs=>Util.resolveArray(args, (listArgs: any[])=>Runtime.callMethod(ctx, left, this.name, listArgs, objArgs)), this.namedArgs, argObjValues);
+    return resolveValueObj(objArgs=>Util.resolveArray(args, (listArgs: (JelObject|null)[])=>Runtime.callMethod(ctx, left, this.name, listArgs, objArgs)), this.namedArgs, argObjValues);
   }
   
   // override

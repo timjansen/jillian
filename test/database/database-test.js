@@ -10,6 +10,7 @@ const NotFoundError = require('../../build/database/NotFoundError.js').default;
 const Thing = require('../../build/database/dbObjects/Thing.js').default;
 const Category = require('../../build/database/dbObjects/Category.js').default;
 const Context = require('../../build/jel/Context.js').default;
+const Dictionary = require('../../build/jel/types/Dictionary.js').default;
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const tmp = require('tmp');
 const fs = require('fs');
@@ -28,7 +29,7 @@ tmp.dir(function(err, path) {
 
 	describe('database', function() {
 		it('creates a database', function() {
-			return Database.create(path+'/db1', new DatabaseConfig({sizing: 99}))
+			return Database.create(path+'/db1', new DatabaseConfig(Dictionary.fromObject({sizing: 99}).elements))
 			.then(db=>{
 				assert(fs.existsSync(path+'/db1'));
 				assert(fs.existsSync(path+'/db1/dbconfig.jel'));
@@ -38,7 +39,7 @@ tmp.dir(function(err, path) {
 		});
 
 		it('re-opens a database', function() {
-			return Database.create(path+'/db2', new DatabaseConfig({sizing: 999}))
+			return Database.create(path+'/db2', new DatabaseConfig(Dictionary.fromObject({sizing: 999}).elements))
 			.then(()=>{
 				const db = new Database(path+'/db2');
 				return db.init(config=>{
@@ -144,7 +145,7 @@ tmp.dir(function(err, path) {
 		});
 
 		it('does a batch loadDir()', function() {
-			return Database.create(path+'/db9', new DatabaseConfig({sizing: 99}))
+			return Database.create(path+'/db9', new DatabaseConfig(Dictionary.fromObject({sizing: 99}).elements))
 			.then(db=> {
 				const ctx = getCtx(db);
 				return db.loadDir(ctx, 'test/database/data/loadTest')

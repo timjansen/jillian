@@ -120,9 +120,9 @@ export default class JelObject {
 JelObject.prototype.JEL_PROPERTIES = {};
 JelObject.prototype.reverseOps = {};
 
-JelObject.prototype.op_jel_mapping = {operator:1, right:2};
-JelObject.prototype.opReversed_jel_mapping = {operator:1, left:2};
-JelObject.prototype.singleOp_jel_mapping = {operator: 1};
-JelObject.prototype.toBoolean_jel_mapping = {};
-JelObject.prototype.getJelType_jel_mapping = {};
+JelObject.prototype.op_jel_mapping = ['operator', 'right'];
+JelObject.prototype.opReversed_jel_mapping = ['operator', 'left'];
+JelObject.prototype.singleOp_jel_mapping = ['operator'];
+JelObject.prototype.toBoolean_jel_mapping = [];
+JelObject.prototype.getJelType_jel_mapping = [];
 

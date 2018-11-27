@@ -157,7 +157,7 @@ export default class UnitValue extends JelObject implements Numeric {
 				if (f) {
 					if (!(f instanceof Callable))
 						return Promise.reject(new Error(`Broken configuration in ${simpleUnit.distinctName}.convertsTo.${target}: should be Callable, but is ${Serializer.serialize(f)}.`));
-					return Util.resolveValue(f.invoke(ctx, null, this.value), v=>new UnitValue(v, target));
+					return Util.resolveValue(f.invoke(ctx, undefined, this.value), v=>new UnitValue(v, target));
 				}
 				const factor: JelObject | null | undefined = conversionObj.elements.get('factor');
 				if (factor != null)
@@ -276,7 +276,7 @@ export default class UnitValue extends JelObject implements Numeric {
 									uv = new UnitValue(Runtime.op(ctx, '*', uv.value, Runtime.op(ctx, '^', t.elements.get('factor') as any, JelNumber.valueOf(exp)) as any) as any, new Unit(newUnitMap));
 								}
 								else if (t.elements.has('f') && exp == 1 && t.elements.get('f') instanceof Callable)
-									uv = new UnitValue((t.elements.get('f') as Callable).invoke(ctx, null, uv.value) as any, new Unit(newUnitMap));
+									uv = new UnitValue((t.elements.get('f') as Callable).invoke(ctx, undefined, uv.value) as any, new Unit(newUnitMap));
 							}
 						});
 					});

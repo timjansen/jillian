@@ -160,8 +160,8 @@ export default class Unit extends JelObject {
 	}
 }
 
-Unit.prototype.isSimple_jel_mapping = {};
-Unit.prototype.toSimpleType_jel_mapping = {};
-Unit.prototype.isType_jel_mapping = {unit: 1};
+Unit.prototype.isSimple_jel_mapping = [];
+Unit.prototype.toSimpleType_jel_mapping = [];
+Unit.prototype.isType_jel_mapping = ['unit'];
 
 

@@ -11,6 +11,7 @@ import Category from './dbObjects/Category';
 
 import JEL from '../jel/JEL';
 import Context from '../jel/Context';
+import DefaultContext from '../jel/DefaultContext';
 import Runtime from '../jel/Runtime';
 import serializer from '../jel/Serializer';
 
@@ -49,7 +50,7 @@ export default class Database {
         return fs.readFile(path.join(this.dbPath, CONFIG_FILE), {encoding: 'utf8'})
           .catch(e=>DatabaseError.rethrow(`Can not parse configuration "${CONFIG_FILE}" in "${this.dbPath}": ${e.toString()}`, e));
     })
-    .then(configTxt=>JEL.execute(configTxt, new Context().setAll({DatabaseConfig}))
+    .then(configTxt=>JEL.execute(configTxt, DefaultContext.plus({DatabaseConfig}))
             .catch(e=>DatabaseError.rethrow(`Can not open database. Failed to load configuration "${CONFIG_FILE}" in "${this.dbPath}".`, e)))
     .then(config=>{
           this.config = config;

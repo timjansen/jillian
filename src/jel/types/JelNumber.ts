@@ -104,7 +104,7 @@ export default class JelNumber extends JelObject implements SerializablePrimitiv
 		return typeof n == 'number' ? n : (n && (n as any).toRealNumber) ? (n as any).toRealNumber() : defaultValue;
 	}
 
-	static isInteger_jel_mapping: {n: 1};
+	static isInteger_jel_mapping: ['n'];
 	static isInteger(ctx: Context, n: any): boolean {
 		return Number.isInteger(JelNumber.toRealNumber(n));
 	}
@@ -156,8 +156,8 @@ JelNumber.prototype.reverseOps = {
 	'<=': 1,
 	'<<=': 1,
 };
-JelNumber.prototype.abs_jel_mapping = {};
-JelNumber.prototype.negate_jel_mapping = {};
+JelNumber.prototype.abs_jel_mapping = [];
+JelNumber.prototype.negate_jel_mapping = [];
 
 BaseTypeRegistry.register('Number', JelNumber);
 

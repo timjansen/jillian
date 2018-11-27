@@ -2,6 +2,10 @@ import Runtime from '../jel/Runtime';
 import JelObject from '../jel/JelObject';
 import Context from '../jel/Context';
 import Serializable from '../jel/Serializable';
+import TypeChecker from '../jel/types/TypeChecker';
+import JelNumber from '../jel/types/JelNumber';
+import JelBoolean from '../jel/types/JelBoolean';
+import Dictionary from '../jel/types/Dictionary';
 
 export default class DatabaseConfig extends JelObject implements Serializable {
   version: number;
@@ -10,11 +14,12 @@ export default class DatabaseConfig extends JelObject implements Serializable {
 
   JEL_PROPERTIES: Object;
   
-  constructor({version=1, sizing=10000, prettyPrint=true} = {}) {
+  constructor(config = new Map<string, JelObject|null>()) {
     super();
-    this.version = version;
-    this.sizing = sizing;
-    this.prettyPrint = prettyPrint;
+    
+    this.version = JelNumber.toRealNumber(config.get('version')) || 1;
+    this.sizing = JelNumber.toRealNumber(config.get('sizing')) || 10000;
+    this.prettyPrint = config.get('prettyPrint') == null ?  true : JelBoolean.toRealBoolean(config.get('prettyPrint'));
   }
 
   get directoryDepth() {
@@ -22,12 +27,12 @@ export default class DatabaseConfig extends JelObject implements Serializable {
   }
   
   getSerializationProperties(): Object {
-    return {version: this.version, sizing: this.sizing, prettyPrint: this.prettyPrint};
+    return [Dictionary.fromObject({version: this.version, sizing: this.sizing, prettyPrint: this.prettyPrint})];
   }
   
-  static create_jel_mapping = Runtime.NAMED_ARGUMENT_METHOD;
-  static create(ctx: Context, config: DatabaseConfig): DatabaseConfig {
-    return new DatabaseConfig(config);
+  static create_jel_mapping = ['config'];
+  static create(ctx: Context, config: any): DatabaseConfig { 
+    return new DatabaseConfig(TypeChecker.optionalInstance(Dictionary, config, 'config') ? config.elements : undefined);
   }
 }
 

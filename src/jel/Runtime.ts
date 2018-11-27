@@ -21,7 +21,6 @@ const RELATIONAL_OPS: any = {
  * Implements operators and other functions required in JEL at runtime.
  */
 export default class Runtime {
-	static readonly NAMED_ARGUMENT_METHOD = 'named';
 	static readonly STRICT_OPS: any = {'==': '===', '!=': '!==', '<': '<<', '>': '>>', '<=': '<<=', '>=': '>>='};
 	static readonly LENIENT_OPS: any = {'===': '==', '!==': '!=', '<<': '<', '>>': '>', '<<=': '<=', '>>=': '>='};
 	
