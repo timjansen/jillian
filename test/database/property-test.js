@@ -5,13 +5,13 @@ const Database = require('../../build/database/Database.js').default;
 const DbSession = require('../../build/database/DbSession.js').default;
 const DatabaseContext = require('../../build/database/DatabaseContext.js').default;
 const DbRef = require('../../build/database/DbRef.js').default;
-const SimplePropertyType = require('../../build/jel/types/properties/SimplePropertyType.js').default;
-const ComplexPropertyType = require('../../build/jel/types/properties/ComplexPropertyType.js').default;
-const DictionaryPropertyType = require('../../build/jel/types/properties/DictionaryPropertyType.js').default;
-const FunctionPropertyType = require('../../build/jel/types/properties/FunctionPropertyType.js').default;
-const ListPropertyType = require('../../build/jel/types/properties/ListPropertyType.js').default;
-const OptionPropertyType = require('../../build/jel/types/properties/OptionPropertyType.js').default;
-const CategoryPropertyType = require('../../build/database/dbProperties/CategoryPropertyType.js').default;
+const SimpleType = require('../../build/jel/types/typeDescriptors/SimpleType.js').default;
+const ComplexType = require('../../build/jel/types/typeDescriptors/ComplexType.js').default;
+const DictionaryType = require('../../build/jel/types/typeDescriptors/DictionaryType.js').default;
+const FunctionType = require('../../build/jel/types/typeDescriptors/FunctionType.js').default;
+const ListType = require('../../build/jel/types/typeDescriptors/ListType.js').default;
+const OptionType = require('../../build/jel/types/typeDescriptors/OptionType.js').default;
+const CategoryType = require('../../build/database/dbProperties/CategoryType.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const JelNumber = require('../../build/jel/types/JelNumber.js').default;
@@ -32,40 +32,40 @@ tmp.dir(function(err, path) {
 		const ctx = session.ctx;
     jelAssert.setCtx(ctx);
 		
-		describe('PropertyTypes', function() {
+		describe('Types', function() {
       it('can be created and serialized', function() {
-        jelAssert.equal('SimplePropertyType(@Number, {a: 2}, {x: @Number})', new SimplePropertyType(new DbRef('Number'), Dictionary.fromObject({a: JelNumber.valueOf(2)}), Dictionary.fromObject({x: new DbRef('Number')})));
-        jelAssert.equal('ComplexPropertyType({b: @Number})', new ComplexPropertyType(Dictionary.fromObject({b: new DbRef('Number')})));
-        jelAssert.equal('CategoryPropertyType(@Number, true)', new CategoryPropertyType(new DbRef('Number'), true));
-        jelAssert.equal('FunctionPropertyType(["c", "v"])', new FunctionPropertyType(new List([JelString.valueOf("c"), JelString.valueOf("v")])));
-        jelAssert.equal('ListPropertyType(@Number)', new ListPropertyType(new DbRef('Number')));
-        jelAssert.equal('OptionPropertyType([@Number, null])', new OptionPropertyType(new List([new DbRef('Number'), null])));
+        jelAssert.equal('SimpleType(@Number, {a: 2}, {x: @Number})', new SimpleType(new DbRef('Number'), Dictionary.fromObject({a: JelNumber.valueOf(2)}), Dictionary.fromObject({x: new DbRef('Number')})));
+        jelAssert.equal('ComplexType({b: @Number})', new ComplexType(Dictionary.fromObject({b: new DbRef('Number')})));
+        jelAssert.equal('CategoryType(@Number, true)', new CategoryType(new DbRef('Number'), true));
+        jelAssert.equal('FunctionType(["c", "v"])', new FunctionType(new List([JelString.valueOf("c"), JelString.valueOf("v")])));
+        jelAssert.equal('ListType(@Number)', new ListType(new DbRef('Number')));
+        jelAssert.equal('OptionType([@Number, null])', new OptionType(new List([new DbRef('Number'), null])));
       })
 
       it('checks types', function() {
-        jelAssert.fuzzy('SimplePropertyType(@Number).checkProperty(2)', 1);
-        jelAssert.fuzzy('SimplePropertyType(@Number).checkProperty(null)', 0);
-        jelAssert.fuzzy('SimplePropertyType(@Number).checkProperty("x")', 0);
+        jelAssert.fuzzy('SimpleType(@Number).checkType(2)', 1);
+        jelAssert.fuzzy('SimpleType(@Number).checkType(null)', 0);
+        jelAssert.fuzzy('SimpleType(@Number).checkType("x")', 0);
         
-        jelAssert.fuzzy('ComplexPropertyType({b: @Number}).checkProperty({b: 2})', 1);
-        jelAssert.fuzzy('ComplexPropertyType({b: @Number}).checkProperty({b: 2, x: 1})', 1);
-        jelAssert.fuzzy('ComplexPropertyType({b: @Number}).checkProperty({b: "d"})', 0);
-        jelAssert.fuzzy('ComplexPropertyType({b: @Number}).checkProperty({a: 2})', 0);
-        jelAssert.fuzzy('ComplexPropertyType({b: @Number}).checkProperty(2)', 0);
+        jelAssert.fuzzy('ComplexType({b: @Number}).checkType({b: 2})', 1);
+        jelAssert.fuzzy('ComplexType({b: @Number}).checkType({b: 2, x: 1})', 1);
+        jelAssert.fuzzy('ComplexType({b: @Number}).checkType({b: "d"})', 0);
+        jelAssert.fuzzy('ComplexType({b: @Number}).checkType({a: 2})', 0);
+        jelAssert.fuzzy('ComplexType({b: @Number}).checkType(2)', 0);
         
-        jelAssert.fuzzy('FunctionPropertyType(["c", "v"]).checkProperty((c,v)=>c+v)', 1);
-        jelAssert.fuzzy('FunctionPropertyType(["c", "v"]).checkProperty((c,o)=>c+v)', 1);
-        jelAssert.fuzzy('FunctionPropertyType(["c", "v"]).checkProperty((c)=>c+v)', 1);
-        jelAssert.fuzzy('FunctionPropertyType(["c", "v"]).checkProperty("eek")', 0);
+        jelAssert.fuzzy('FunctionType(["c", "v"]).checkType((c,v)=>c+v)', 1);
+        jelAssert.fuzzy('FunctionType(["c", "v"]).checkType((c,o)=>c+v)', 1);
+        jelAssert.fuzzy('FunctionType(["c", "v"]).checkType((c)=>c+v)', 1);
+        jelAssert.fuzzy('FunctionType(["c", "v"]).checkType("eek")', 0);
         
-        jelAssert.fuzzy('ListPropertyType(@Number).checkProperty([1,2,3])', 1);
-        jelAssert.fuzzy('ListPropertyType(@Number).checkProperty([])', 1);
-        jelAssert.fuzzy('ListPropertyType(@Number).checkProperty([1, "a"])', 0);
-        jelAssert.fuzzy('ListPropertyType(@Number).checkProperty("a")', 0);
+        jelAssert.fuzzy('ListType(@Number).checkType([1,2,3])', 1);
+        jelAssert.fuzzy('ListType(@Number).checkType([])', 1);
+        jelAssert.fuzzy('ListType(@Number).checkType([1, "a"])', 0);
+        jelAssert.fuzzy('ListType(@Number).checkType("a")', 0);
 
-        jelAssert.fuzzy('OptionPropertyType([@Number, null]).checkProperty(1)', 1);
-        jelAssert.fuzzy('OptionPropertyType([@Number, null]).checkProperty(null)', 1);
-        jelAssert.fuzzy('OptionPropertyType([@Number, null]).checkProperty("a")', 0);
+        jelAssert.fuzzy('OptionType([@Number, null]).checkType(1)', 1);
+        jelAssert.fuzzy('OptionType([@Number, null]).checkType(null)', 1);
+        jelAssert.fuzzy('OptionType([@Number, null]).checkType("a")', 0);
       })
 
     });

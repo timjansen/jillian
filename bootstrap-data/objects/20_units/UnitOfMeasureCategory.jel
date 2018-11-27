@@ -13,8 +13,8 @@ Category('UnitOfMeasureCategory',
 		idealMin: [@Number, null],  // should be converted if lower (>= 0, absolute value)
 		idealMax: [@Number, null],  // should be converted if higher
 		granularity: [@Number, null], // if the unit can not easily be divided. E.g. For Dollar it would be 0.01, for Dozens it would be 0.5
-		convertsTo: DictionaryPropertyType(@String, {f: FunctionPropertyType(['v']), factor: [@Number, @Fraction, null]}),
-		createFrom: [ListPropertyType(@Unit), null], // if this unit is a composite type, the underlying Units. E.g. MeterPerSecond is created from Unit(@Meter, @Second)
-		usedBy: ListPropertyType(@UnitOfMeasureCategory) // List of units this unit is a composite type of, most desirable first.. E.g. In @Meter, this list includes @MeterPerSecond
+		convertsTo: DictionaryType(@String, {f: FunctionType(['v']), factor: [@Number, @Fraction, null]}),
+		createFrom: [ListType(@Unit), null], // if this unit is a composite type, the underlying Units. E.g. MeterPerSecond is created from Unit(@Meter, @Second)
+		usedBy: ListType(@UnitOfMeasureCategory) // List of units this unit is a composite type of, most desirable first.. E.g. In @Meter, this list includes @MeterPerSecond
 	}
 )

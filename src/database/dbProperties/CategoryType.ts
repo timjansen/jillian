@@ -1,4 +1,4 @@
-import PropertyType from '../../jel/types/properties/PropertyType';
+import TypeDescriptor from '../../jel/types/typeDescriptors/TypeDescriptor';
 import {IDbRef, IDbEntry} from '../../jel/IDatabase';
 import Dictionary from '../../jel/types/Dictionary';
 import TypeChecker from '../../jel/types/TypeChecker';
@@ -9,14 +9,14 @@ import JelObject from '../../jel/JelObject';
 /**
  * Declares a property that is a reference to a Category. 
  */
-export default class CategoryPropertyType extends PropertyType {
+export default class CategoryType extends TypeDescriptor {
 
   constructor(public superCategory: IDbRef | null, public directChild = false) {
     super();
   }
 
   // note: superCategory can't be checked, since this can't be done synchronously
-  checkProperty(ctx: Context, value: JelObject|null): boolean {
+  checkType(ctx: Context, value: JelObject|null): boolean {
     if (value == null)
       return false;
     if ((value as any).isIDBRef)
@@ -31,7 +31,7 @@ export default class CategoryPropertyType extends PropertyType {
   
   static create_jel_mapping = {superCategory: 1, directChild: 2};
   static create(ctx: Context, ...args: any[]) {
-    return new CategoryPropertyType(TypeChecker.optionalDbRef(args[0], 'superCategory'), TypeChecker.realBoolean(args[1], 'directChild', false));
+    return new CategoryType(TypeChecker.optionalDbRef(args[0], 'superCategory'), TypeChecker.realBoolean(args[1], 'directChild', false));
   }
 }
 

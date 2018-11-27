@@ -2,10 +2,10 @@ Category('CalendarElementCategory',
 	properties = {},
 	instanceDefaults = {},
 	instanceProperties = {
-		duration: [SimplePropertyType(@UnitValue, {unit: @Day}), @Range], // duration of the element in days, e.g. 1 @Day
+		duration: [SimpleType(@UnitValue, {unit: @Day}), @Range], // duration of the element in days, e.g. 1 @Day
     frequency: @CalendarFrequency,
-		isMatch: FunctionPropertyType(['this', 'date']),        // a function f(date) that returns whether the given date is part of the calendar element
-		matchesInYear: FunctionPropertyType(['this', 'year']),  // a function f(year) that returns a list of all matching days in the given year
+		isMatch: FunctionType(['this', 'date']),        // a function f(date) that returns whether the given date is part of the calendar element
+		matchesInYear: FunctionType(['this', 'year']),  // a function f(year) that returns a list of all matching days in the given year
 		first: [@LocalDate, null], // if there was a beginning
 		last: [@LocalDate, null]   // if there was a last date
 	}

@@ -1,7 +1,7 @@
 import DbEntry from '../DbEntry';
 import DbRef from '../DbRef';
 import DbSession from '../DbSession';
-import PropertyHelper from '../../jel/types/properties/PropertyHelper';
+import TypeHelper from '../../jel/types/typeDescriptors/TypeHelper';
 import DbIndexDescriptor from '../DbIndexDescriptor';
 import Dictionary from '../../jel/types/Dictionary';
 import JelObject from '../../jel/JelObject';
@@ -40,7 +40,7 @@ export default class Category extends DbEntry {
 			throw Error('By convention, all Category names must end with "Category". Illegal name: ' + distinctName);
 
     this.superCategory = superCategory ? (superCategory instanceof DbRef ? superCategory : new DbRef(superCategory)) : null; 
-		instanceProperties.elements.forEach((value, key)=>this.instanceProperties.elements.set(key, PropertyHelper.convertFromAny(value, key)));
+		instanceProperties.elements.forEach((value, key)=>this.instanceProperties.elements.set(key, TypeHelper.convertFromAny(value, key)));
   }
 
   // returns promise with all matching objects

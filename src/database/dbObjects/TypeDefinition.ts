@@ -1,8 +1,8 @@
 import Category from './Category';
 import DbEntry from '../DbEntry';
 import DbRef from '../DbRef';
-import PropertyType from '../../jel/types/properties/PropertyType';
-import PropertyHelper from '../../jel/types/properties/PropertyHelper';
+import TypeDescriptor from '../../jel/types/typeDescriptors/TypeDescriptor';
+import TypeHelper from '../../jel/types/typeDescriptors/TypeHelper';
 import Dictionary from '../../jel/types/Dictionary';
 import List from '../../jel/types/List';
 import JelString from '../../jel/types/JelString';
@@ -25,7 +25,7 @@ class GenericJelObject extends JelObject {
       if (type.ctorToProps[i]) {
         const val = args[i]||null;
         const pType = type.propertyDefs.elements.get(type.ctorToProps[i] as string);
-        if (!(pType as PropertyType).checkProperty(ctx, val))
+        if (!(pType as TypeDescriptor).checkType(ctx, val))
           throw new Error(`Illegal value in argument number ${i+1} for property ${type.ctorToProps[i]}. Required type is ${pType}. Value was ${val}.`);
         this.props.set(type.ctorToProps[i]!, val);
       }
@@ -99,7 +99,7 @@ export default class TypeDefinition extends DbEntry {
    * Creates a new TypeDefinition.
    * @param typeName the name of the type. The distinct name of the TypeDefinition will be this typeName with a 'Type' postfix.
    * @param constructorArgs a list of argument names for the constructor. Those that match property names will automatically be stored.
-   * @param propertyDefs a dictionary string->PropertyType. Instead of property types, the usual shortcuts allowed by PropertyHelper
+   * @param propertyDefs a dictionary string->Type. Instead of property types, the usual shortcuts allowed by TypeHelper
    *        are possible, like using a DbRef directly.
    * @param methods a dictionary of string->function definitions for the type methods. The first argument to the functions
    *        must always 'this' and will contain a reference to the type.
@@ -117,11 +117,11 @@ export default class TypeDefinition extends DbEntry {
     super(typeName, undefined, undefined, staticProperties);
     const ctorArgs = constructorArgs.elements.map(s=>JelString.toRealString(s));
     this.create_jel_mapping = ctorArgs;
-    this.propertyDefs = propertyDefs.mapJs((k,v)=>PropertyHelper.convertFromAny(v, 'properties definitions'));
+    this.propertyDefs = propertyDefs.mapJs((k,v)=>TypeHelper.convertFromAny(v, 'properties definitions'));
     if (methods.hasAnyJs((n: string, e: any)=>!(e instanceof Callable)))
       throw new Error('All methods must be defined using a Callable as value.');
   
-    this.propertyDefs = propertyDefs.filterJs((k, v)=>PropertyHelper.convertFromAny(v, 'property definitions'));
+    this.propertyDefs = propertyDefs.filterJs((k, v)=>TypeHelper.convertFromAny(v, 'property definitions'));
     this.ctorToProps = ctorArgs.map(arg=>propertyDefs.elements.has(arg) ? arg : null);
   
     if (staticProperties && staticProperties.elements.has('create'))
