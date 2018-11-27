@@ -39,20 +39,31 @@ export default class Call extends JelNode {
   
   private callCallable(ctx: Context, callable: Callable): JelObject|null|Promise<JelObject|null> {
     const args = this.argList.map(a=>a.execute(ctx));
-    const argObjValues = this.namedArgs.map(a=>a.execute(ctx));
-
-    return resolveValueObj(objArgs=>Util.resolveArray(args, (listArgs: (JelObject|null)[])=>callable.invokeWithObject(ctx, undefined, listArgs, objArgs)), this.namedArgs, argObjValues);
+    if (this.namedArgs.length) {
+      const argObjValues = this.namedArgs.map(a=>a.execute(ctx));
+      return resolveValueObj(objArgs=>Util.resolveArray(args, (listArgs: (JelObject|null)[])=>callable.invokeWithObject(ctx, undefined, listArgs, objArgs)), this.namedArgs, argObjValues);
+    }
+    else
+      return Util.resolveArray(args, (listArgs: (JelObject|null)[])=>callable.invokeWithObject(ctx, undefined, listArgs));
   }
+
+  private callCreate(ctx: Context, left: any): JelObject|null|Promise<JelObject|null> {
+    const args = this.argList.map(a=>a.execute(ctx));
+    
+    if (this.namedArgs.length) {
+      const argObjValues = this.namedArgs.map(a=>a.execute(ctx));
+      return resolveValueObj(objArgs=>Util.resolveArray(args, (listArgs: (JelObject|null)[])=>Runtime.callMethod(ctx, left, 'create', listArgs, objArgs)), this.namedArgs, argObjValues);
+    }
+    else
+      return Util.resolveArray(args, (listArgs: (JelObject|null)[])=>Runtime.callMethod(ctx, left, 'create', listArgs));
+  }
+
   
-  private callLeft(ctx: Context, left: JelNode): JelObject|null|Promise<JelObject|null> {
+  private callLeft(ctx: Context, left: any): JelObject|null|Promise<JelObject|null> {
     if (left instanceof Callable) 
       return this.callCallable(ctx, left);
     else if (JelObject.isPrototypeOf(left) || left instanceof JelObject) 
-      return Util.resolveValue(Runtime.member(ctx, left, 'create'), (callable: any) => {
-				if (!callable)
-					throw new Error(`Call failed. Tried to create '${left.constructor.name}', but it does not support creation. It needs a public create() method.`);
-				return this.callCallable(ctx, callable);
-			});
+      return this.callCreate(ctx, left);
     else 
         throw new Error(`Can not call, not a callable object.`);
   }

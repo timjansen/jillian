@@ -38,9 +38,13 @@ export default class MethodCall extends JelNode {
   
   private callLeft(ctx: Context, left: JelObject|null): JelObject|null|Promise<JelObject|null> {
     const args = this.argList.map(a=>a.execute(ctx));
-    const argObjValues = this.namedArgs.map(a=>a.execute(ctx));
     
-    return resolveValueObj(objArgs=>Util.resolveArray(args, (listArgs: (JelObject|null)[])=>Runtime.callMethod(ctx, left, this.name, listArgs, objArgs)), this.namedArgs, argObjValues);
+    if (this.namedArgs.length) {
+      const argObjValues = this.namedArgs.map(a=>a.execute(ctx));
+      return resolveValueObj(objArgs=>Util.resolveArray(args, (listArgs: (JelObject|null)[])=>Runtime.callMethod(ctx, left, this.name, listArgs, objArgs)), this.namedArgs, argObjValues);
+    }
+    else
+      return Util.resolveArray(args, (listArgs: (JelObject|null)[])=>Runtime.callMethod(ctx, left, this.name, listArgs));
   }
   
   // override
