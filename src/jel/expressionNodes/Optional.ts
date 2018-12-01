@@ -8,7 +8,7 @@ import Context from '../Context';
 import Util from '../../util/Util';
 
 /**
- * Represents an optional value (aka type). Returns an OptionalType.
+ * Represents an optional value (aka type). Returns a TypeDescriptor.
  *
  * Examples: 
  *  Number?

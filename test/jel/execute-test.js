@@ -84,8 +84,9 @@ describe('JEL', function() {
 
  		it('should support optional types', function() {
       assert.ok(new JEL('@Hello?').executeImmediately(ctx) instanceof OptionalType);
-      assert.equal(new JEL('@Hello?').executeImmediately(ctx).type.type.distinctName, 'Hello');
-      assert.equal(new JEL('(@Hello)?').executeImmediately(ctx).type.type.distinctName, 'Hello');
+      assert.equal(new JEL('@Hello?').executeImmediately(ctx).type.type, 'Hello');
+      assert.equal(new JEL('(@Hello)?').executeImmediately(ctx).type.type, 'Hello');
+      assert.equal(new JEL('Number?').executeImmediately(ctx).type.type, 'Number');
     });
 
     

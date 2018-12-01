@@ -12,9 +12,9 @@ import JelObject from '../../JelObject';
  * Declares a property can have more than one value.
  */
 export default class OptionType extends TypeDescriptor {
-	options: List; // of TypeDescriptor
+	options: List; // of TypeDescriptor or null
 	
-  constructor(options: List|TypeDescriptor|IDbRef|Dictionary) {
+  constructor(options: JelObject|null) {
     super();
 		this.options = new List(options instanceof List ? options.elements.map(e=>TypeHelper.convertNullableFromAny(e, 'list of property types')) : [TypeHelper.convertNullableFromAny(options, 'list of property types')]);
   }
@@ -27,10 +27,13 @@ export default class OptionType extends TypeDescriptor {
     return this.options.hasAnyJs(option=>option ? (option as any).checkType(ctx, value) : value == null);
   }
   
+  serializeType(): string {  
+    return `OptionType([${this.options.elements.map(option=>option ? option.serializeType() : 'null').join(', ')}])`;
+  }
+  
   static create_jel_mapping = {options: 1};
   static create(ctx: Context, ...args: any[]) {
-    const vt = args[0] instanceof List || args[0] instanceof TypeDescriptor || args[0] instanceof Dictionary ? args[0] : TypeChecker.dbRef(args[0], 'options');
-    return new OptionType(vt);
+    return new OptionType(args[0]);
   }
 }
 

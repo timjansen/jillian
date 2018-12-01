@@ -11,6 +11,9 @@ import List from './List';
 import Dictionary from './Dictionary';
 import TypeChecker from './TypeChecker';
 
+const NUMERATOR_TYPES = ['List', 'String', 'Dictionary'];
+const DENOMINATOR_TYPES = ['List', 'String', 'Dictionary'];
+
 function mergeUnitMaps(a: Map<string, number>, b?: Map<string, number>): Map<string, number> {
 	const r = new Map<string, number>();
 	a.forEach((v, k)=>r.set(k, v));
@@ -156,7 +159,8 @@ export default class Unit extends JelObject {
 	
 	static create_jel_mapping = {numeratorUnits: 1, denominatorUnits: 2, units: 1};
 	static create(ctx: Context, ...args: any[]): Unit {
-		return new Unit(args[0], args[1]);
+		return new Unit((args[0] && (args[0] as any).isIDBRef) ? args[0] : TypeChecker.types(NUMERATOR_TYPES, args[0], 'numerator'), 
+                    ((args[1] && (args[1] as any).isIDBRef) ? args[1] : TypeChecker.optionalTypes(DENOMINATOR_TYPES, args[1], 'denominator')) || null);
 	}
 }
 

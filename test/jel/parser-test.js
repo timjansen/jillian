@@ -16,6 +16,7 @@ const Condition = require('../../build/jel/expressionNodes/Condition.js').defaul
 const Assignment = require('../../build/jel/expressionNodes/Assignment.js').default;
 const With = require('../../build/jel/expressionNodes/With.js').default;
 const Lambda = require('../../build/jel/expressionNodes/Lambda.js').default;
+const Argument = require('../../build/jel/expressionNodes/Argument.js').default;
 const Call = require('../../build/jel/expressionNodes/Call.js').default;
 const MethodCall = require('../../build/jel/expressionNodes/MethodCall.js').default;
 const Optional = require('../../build/jel/expressionNodes/Optional.js').default;
@@ -74,8 +75,8 @@ describe('JEL', function() {
       jelAssert.equal(new JEL('f("foo", 4, a = 5, b = "bar")').parseTree, new Call(new Variable('f'), [new Literal('foo'), new Literal(4)], [new Assignment('a', new Literal(5)), new Assignment('b', new Literal('bar'))]));
 
       jelAssert.equal(new JEL('(f)()').parseTree, new Call(new Variable('f'), []));
-      jelAssert.equal(new JEL('g(a=>2)').parseTree, new Call(new Variable('g'), [new Lambda(['a'], new Literal(2))]));
-      jelAssert.equal(new JEL('g((a,b,c)=>2)').parseTree, new Call(new Variable('g'), [new Lambda(['a', 'b', 'c'], new Literal(2))]));
+      jelAssert.equal(new JEL('g(a=>2)').parseTree, new Call(new Variable('g'), [new Lambda([new Argument('a')], new Literal(2))]));
+      jelAssert.equal(new JEL('g((a,b,c)=>2)').parseTree, new Call(new Variable('g'), [new Lambda([new Argument('a'), new Argument('b'), new Argument('c')], new Literal(2))]));
     });
 
     it('should support method calls', function() {
@@ -89,12 +90,19 @@ describe('JEL', function() {
 
     
     it('should support lambdas', function() {
-      jelAssert.equal(new JEL('x=>1').parseTree, new Lambda(['x'], new Literal(1)));
+      jelAssert.equal(new JEL('x=>1').parseTree, new Lambda([new Argument('x')], new Literal(1)));
       jelAssert.equal(new JEL('()=>1').parseTree, new Lambda([], new Literal(1)));
-      jelAssert.equal(new JEL('(a, b)=>a+b').parseTree, new Lambda(['a', 'b'], new Operator('+', new Variable('a'), new Variable('b'))));
-      jelAssert.equal(new JEL('(a=>a)(1)').parseTree, new Call(new Lambda(['a'], new Variable('a')), [new Literal(1)]));
-      jelAssert.equal(new JEL('(a=>a*a)(1)').parseTree, new Call(new Lambda(['a'], new Operator('*', new Variable('a'), new Variable('a'))), [new Literal(1)]));
-      jelAssert.equal(new JEL('((a, b)=>a+b)(1,2)').parseTree, new Call(new Lambda(['a', 'b'], new Operator('+', new Variable('a'), new Variable('b'))), [new Literal(1),  new Literal(2)]));
+      jelAssert.equal(new JEL('(a, b)=>a+b').parseTree, new Lambda([new Argument('a'), new Argument('b')], new Operator('+', new Variable('a'), new Variable('b'))));
+      jelAssert.equal(new JEL('(a=>a)(1)').parseTree, new Call(new Lambda([new Argument('a')], new Variable('a')), [new Literal(1)]));
+      jelAssert.equal(new JEL('(a=>a*a)(1)').parseTree, new Call(new Lambda([new Argument('a')], new Operator('*', new Variable('a'), new Variable('a'))), [new Literal(1)]));
+      jelAssert.equal(new JEL('((a, b)=>a+b)(1,2)').parseTree, new Call(new Lambda([new Argument('a'), new Argument('b')], new Operator('+', new Variable('a'), new Variable('b'))), [new Literal(1),  new Literal(2)]));
+      jelAssert.equal(new JEL('(a="x")=>a').parseTree, new Lambda([new Argument('a', new Literal('x'))], new Variable('a')));
+      jelAssert.equal(new JEL('(a: LocalDate)=>a').parseTree, new Lambda([new Argument('a', undefined, new Variable('LocalDate'))], new Variable('a')));
+      jelAssert.equal(new JEL('(a: String = "y")=>a').parseTree, new Lambda([new Argument('a', new Literal('y'), new Variable('String'))], new Variable('a')));
+      jelAssert.equal(new JEL('((a = 12, b: String, c: Number = 1)=>a+b)(1,2)').parseTree, new Call(new Lambda([new Argument('a', new Literal(12)), 
+                                                                                                                new Argument('b', null, new Variable('String')), 
+                                                                                                                new Argument('c', new Literal(1), new Variable('Number'))], 
+                                                                                                               new Operator('+', new Variable('a'), new Variable('b'))), [new Literal(1),  new Literal(2)]));
     });
 
     it('should support if/then/else', function() {
@@ -108,8 +116,8 @@ describe('JEL', function() {
       jelAssert.equal(new JEL('with a=1: a').parseTree, new With([new Assignment('a', new Literal(1))], new Variable('a')));
       jelAssert.equal(new JEL('with a=1,b=2:b').parseTree, new With([new Assignment('a', new Literal(1)), new Assignment('b', new Literal(2))], new Variable('b')));
       jelAssert.equal(new JEL('with a=1, b=a + 2: b').parseTree, new With([new Assignment('a', new Literal(1)), new Assignment('b', new Operator('+', new Variable('a'), new Literal(2)))], new Variable('b')));
-      jelAssert.equal(new JEL('with a=1 : a=>2').parseTree, new With([new Assignment('a', new Literal(1))], new Lambda(['a'], new Literal(2))));
-      jelAssert.equal(new JEL('with a=1, b=c=>d : b').parseTree, new With([new Assignment('a', new Literal(1)), new Assignment('b', new Lambda(['c'], new Variable('d')))], new Variable('b')));
+      jelAssert.equal(new JEL('with a=1 : a=>2').parseTree, new With([new Assignment('a', new Literal(1))], new Lambda([new Argument('a')], new Literal(2))));
+      jelAssert.equal(new JEL('with a=1, b=c=>d : b').parseTree, new With([new Assignment('a', new Literal(1)), new Assignment('b', new Lambda([new Argument('c')], new Variable('d')))], new Variable('b')));
     });
 
     it('allows only lower-case variables', function() {

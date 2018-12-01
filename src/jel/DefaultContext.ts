@@ -28,6 +28,7 @@ import LocalDateTime from './types/time/LocalDateTime';
 import ZonedDate from './types/time/ZonedDate';
 import ZonedDateTime from './types/time/ZonedDateTime';
 
+import AnyType from './types/typeDescriptors/AnyType';
 import ComplexType from './types/typeDescriptors/ComplexType';
 import DictionaryType from './types/typeDescriptors/DictionaryType';
 import FunctionType from './types/typeDescriptors/FunctionType';
@@ -45,7 +46,8 @@ const CTX_IDENTIFIERS = {Boolean: c(JelBoolean), Number: c(JelNumber), String: c
 												 Dictionary: c(Dictionary), List: c(List), Distribution: c(Distribution), DistributionPoint: c(DistributionPoint), Pattern: c(Pattern), Translator: c(Translator), EnumValue: c(EnumValue), 
 												 Duration: c(Duration), DurationRange: c(DurationRange), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 
                          ZonedDate: c(ZonedDate), ZonedDateTime: c(ZonedDateTime),
-                         ComplexType: c(ComplexType), DictionaryType: c(DictionaryType), FunctionType: c(FunctionType), ListType: c(ListType), OptionType: c(OptionType), OptionalType: c(OptionalType), SimpleType: c(SimpleType),
+                         AnyType: c(AnyType), ComplexType: c(ComplexType), DictionaryType: c(DictionaryType), FunctionType: c(FunctionType), ListType: c(ListType), OptionType: c(OptionType), OptionalType: c(OptionalType), SimpleType: c(SimpleType),
+                         any: AnyType.instance,
 												 ___IS_DEFAULT_CONTEXT: 'magic123'};
 
 export default class DefaultContext {

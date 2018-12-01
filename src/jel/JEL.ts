@@ -21,6 +21,7 @@ import Dictionary from './expressionNodes/Dictionary';
 import Translator from './expressionNodes/Translator';
 import Reference from './expressionNodes/Reference';
 import Condition from './expressionNodes/Condition';
+import Argument from './expressionNodes/Argument';
 import Assignment from './expressionNodes/Assignment';
 import PatternAssignment from './expressionNodes/PatternAssignment';
 import With from './expressionNodes/With';
@@ -76,6 +77,9 @@ const SQUARE_BRACE_STOP = {']': true};
 const LIST_ENTRY_STOP = {']': true, ',': true};
 const DICT_KEY_STOP = {':': true, '}': true, ',': true};
 const DICT_VALUE_STOP = {',': true, '}': true};
+const LAMBDA_KEY_STOP = {':': true, ')': true, ',': true};
+const LAMBDA_TYPE_STOP = {',': true, '=': true, ')': true};
+const LAMBDA_VALUE_STOP = {',': true, ')': true};
 const TRANSLATOR_META_STOP = {',': true, ':': true, '=': true};
 const TRANSLATOR_META_VALUE_STOP = {',': true, ':': true};
 const TRANSLATOR_PATTERN_STOP = {'=>': true};
@@ -199,7 +203,8 @@ export default class JEL {
     JEL.throwParseException(token, "Unexpected token");
 		return undefined as any; // this is a dummy return to make Typescript happy
   }
-	
+
+  
 	static parseDictionary(tokens: TokenReader, precedence: number, stopOps: any): JelNode {
 		if (tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == '}') {
 			tokens.next();
@@ -374,46 +379,85 @@ export default class JEL {
     else
       return JEL.tryBinaryOps(tokens, new Operator(binOpToken.value, left, JEL.parseExpression(tokens, binaryOperators[binOpToken.value] as number, stopOps)), precedence, stopOps);
   }
+
+  
+  // Tries to parse a list of lambda arguments. Returns undefined if it is not a possible lambda expression.
+ 	static  tryParseLambdaArguments(tokens: TokenReader, precedence: number, stopOps: any): Argument[] | undefined {
+		if (tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == ')') {
+			tokens.next();
+			return [];
+		}
+
+		const args: Argument[] = [];
+		const usedNames: any = new Set();
+		while (true) {
+			const name = JEL.nextOrThrow(tokens, "Unexpected end of expression");
+			if (name.type != TokenType.Identifier)
+				return undefined;
+			if (usedNames.has(name.value))
+				JEL.throwParseException(name, `Duplicate key in lambda: ${name.value}`);
+			if (name.value == 'this' && usedNames.size)
+				JEL.throwParseException(name, `The argument 'this' must be defined first (or not at all).`);
+			usedNames.add(name.value);
+
+      const separator = JEL.nextOrThrow(tokens, "Unexpected end of expression.");
+      if (separator.type != TokenType.Operator)
+        return undefined;
+
+ 			if (separator.value == '=') {
+ 				args.push(new Argument(name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, LAMBDA_VALUE_STOP)));
+				if (JEL.expectOp(tokens, LAMBDA_VALUE_STOP, "Expecting comma or end of lambda arguments").value == ')')
+					return args;
+      }
+			else if (separator.value == ':') {
+        const typeDef = JEL.parseExpression(tokens, PARENS_PRECEDENCE, LAMBDA_TYPE_STOP);
+
+        const separator2 = JEL.expectOp(tokens, LAMBDA_TYPE_STOP, "Expecting comma, default value or end of lambda arguments")
+        if (separator2.value == '=') {
+          args.push(new Argument(name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, LAMBDA_VALUE_STOP), typeDef));
+          const separator3 = JEL.expectOp(tokens, LAMBDA_VALUE_STOP, "Expecting command or end of lambda arguments");
+          if (separator3.value == ')')
+            return args;
+        }
+        else {
+          args.push(new Argument(name.value, undefined, typeDef));
+          if (separator2.value == ')')
+            return args;
+        }
+			}
+			else if (separator.value == ',' || separator.value == ')') {
+				args.push(new Argument(name.value));
+				if (separator.value == ')')
+					return args;
+			}
+      else
+         return undefined;
+		}
+	}
   
   static tryLambda(tokens: TokenReader, argName: string | null, precedence: number, stopOps: any): Lambda | undefined {
-    let args;
     const tok = tokens.copy();
     if (argName) {
       if (!tok.hasNext() || tok.peek().type != TokenType.Operator || tok.next().value != '=>')
         return undefined;
-      args = [argName];
+      
+      TokenReader.copyInto(tok, tokens);
+      return new Lambda([new Argument(argName)], JEL.parseExpression(tokens, precedence, stopOps));
     }
     else {
-      args = [];
       if (!tok.hasNext())
         return undefined;
 
-			const emptyArgsPeek = tok.peek();
-      if (emptyArgsPeek.type == TokenType.Operator && emptyArgsPeek.value == ')')
-        tok.next();
-      else
-        while (true) {
-          if (!tok.hasNext())
-             return undefined;
-          const name = tok.next();
-          if (name.type != TokenType.Identifier)
-             return undefined;
-          args.push(name.value);
-					
-          if (!tok.hasNext())
-            return undefined;
-          const terminator = tok.next();
-          if (terminator.type != TokenType.Operator || !PARAMETER_STOP[terminator.value])
-            return undefined;
-          if (terminator.value == ')')
-            break;
-      }  
-
-			if (!tok.hasNext() || tok.peek().type != TokenType.Operator || tok.next().value != '=>')
+      const args: Argument[]|undefined = JEL.tryParseLambdaArguments(tok, precedence, stopOps);
+			if (!args || !tok.hasNext() || tok.peek().type != TokenType.Operator || tok.next().value != '=>')
         return undefined;
+      
+      if (args.length && args[0].name == 'this' && (args[0].defaultValue != null || args[0].type != null))
+        throw new Error("The 'this' argument in a lambda declaration must not have a default value or type.");
+
+      TokenReader.copyInto(tok, tokens);
+      return new Lambda(args, JEL.parseExpression(tokens, precedence, stopOps));
     }
-    TokenReader.copyInto(tok, tokens);
-    return new Lambda(args, JEL.parseExpression(tokens, precedence, stopOps));
   }
   
   static parseCall(tokens: TokenReader, left: JelNode, methodName?: string): JelNode {

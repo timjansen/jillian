@@ -35,7 +35,7 @@ tmp.dir(function(err, path) {
 		
 		describe('Types', function() {
       it('can be created and serialized', function() {
-        jelAssert.equal('SimpleType(@Number, {a: 2}, {x: @Number})', new SimpleType(new DbRef('Number'), Dictionary.fromObject({a: JelNumber.valueOf(2)}), Dictionary.fromObject({x: new DbRef('Number')})));
+        jelAssert.equal('SimpleType(@Number, {a: 2}, {x: @Number})', new SimpleType('Number', Dictionary.fromObject({a: JelNumber.valueOf(2)}), Dictionary.fromObject({x: new DbRef('Number')})));
         jelAssert.equal('ComplexType({b: @Number})', new ComplexType(Dictionary.fromObject({b: new DbRef('Number')})));
         jelAssert.equal('CategoryType(@Number, true)', new CategoryType(new DbRef('Number'), true));
         jelAssert.equal('FunctionType(["c", "v"])', new FunctionType(new List([JelString.valueOf("c"), JelString.valueOf("v")])));
@@ -45,9 +45,25 @@ tmp.dir(function(err, path) {
       })
 
       it('checks types', function() {
+        jelAssert.fuzzy('AnyType().checkType(1)', 1);
+        jelAssert.fuzzy('AnyType().checkType(null)', 1);
+        jelAssert.fuzzy('AnyType().checkType("a")', 1);
+
+        jelAssert.fuzzy('any.checkType(1)', 1);
+        jelAssert.fuzzy('any.checkType(null)', 1);
+        jelAssert.fuzzy('any.checkType("a")', 1);
+
         jelAssert.fuzzy('SimpleType(@Number).checkType(2)', 1);
         jelAssert.fuzzy('SimpleType(@Number).checkType(null)', 0);
         jelAssert.fuzzy('SimpleType(@Number).checkType("x")', 0);
+
+        jelAssert.fuzzy('SimpleType(Number).checkType(2)', 1);
+        jelAssert.fuzzy('SimpleType(Number).checkType(null)', 0);
+        jelAssert.fuzzy('SimpleType(Number).checkType("x")', 0);
+        
+        jelAssert.fuzzy('SimpleType("Number").checkType(2)', 1);
+        jelAssert.fuzzy('SimpleType("Number").checkType(null)', 0);
+        jelAssert.fuzzy('SimpleType("Number").checkType("x")', 0);
         
         jelAssert.fuzzy('ComplexType({b: @Number}).checkType({b: 2})', 1);
         jelAssert.fuzzy('ComplexType({b: @Number}).checkType({b: 2, x: 1})', 1);
@@ -78,7 +94,7 @@ tmp.dir(function(err, path) {
         jelAssert.fuzzy('@Number?.checkType(1)', 1);
         jelAssert.fuzzy('@Number?.checkType(null)', 1);
         jelAssert.fuzzy('@Number?.checkType("a")', 0);
-})
+      });
 
     });
 

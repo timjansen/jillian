@@ -9,6 +9,7 @@ import JelString from '../../jel/types/JelString';
 import JelBoolean from '../../jel/types/JelBoolean';
 import TypeChecker from '../../jel/types/TypeChecker';
 import JelObject from '../../jel/JelObject';
+import ITypeDefinition from '../../jel/ITypeDefinition';
 import Callable from '../../jel/Callable';
 import Context from '../../jel/Context';
 import Util from '../../util/Util';
@@ -91,7 +92,7 @@ GenericJelObject.prototype.reverseOps = Object.assign({'-':1, '/': 1, '+-': 1, '
 
 
 // Base class for defining instantiable types
-export default class TypeDefinition extends DbEntry {
+export default class TypeDefinition extends DbEntry implements ITypeDefinition {
   JEL_PROPERTIES: Object;
   ctorToProps: (string|null)[]; // list of properties to write the constructor arguments to. Will be auto-typechecked.
 

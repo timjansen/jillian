@@ -15,6 +15,8 @@ export default class JelString extends JelObject implements SerializablePrimitiv
 	
 	static readonly EMPTY = new JelString("");
 	
+  static typeName = 'String';
+  
 	constructor(public value: string) {
 		super('String');
 	}

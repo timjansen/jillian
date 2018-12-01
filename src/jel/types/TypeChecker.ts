@@ -148,6 +148,14 @@ export default class TypeChecker {
 		return TypeChecker.notNull(TypeChecker.optionalDbRef(value, name, defaultValue), name);
 	}
 	
+  static isIDbRef(value: any) {
+    return !!(value && value.isIDBRef);
+  }
+
+  static isITypeDefinition(value: any) {
+    return !!(value && value.typeName);
+  }
+  
 	static optionalType(typeName: string, value: any, name: string, defaultValue: any = null): any {
 		if (value == null)
 			return defaultValue;

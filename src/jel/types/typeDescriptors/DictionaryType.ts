@@ -20,9 +20,9 @@ export default class DictionaryType extends TypeDescriptor {
 	 *              DbRefs will be converted to SimpleTypes. Dictionary into DictionaryType.
 	 *              The List may also contain 'null' as element, if values can be null.
 	 */
-  constructor(valueTypes: List|TypeDescriptor|IDbRef|Dictionary|null) {
+  constructor(valueTypes: JelObject|null) {
     super();
-		this.valueTypes = valueTypes && TypeHelper.convert(valueTypes);
+		this.valueTypes = TypeHelper.convertFromAny(valueTypes, 'dictionary values');
   }
   
    checkType(ctx: Context, value: JelObject|null): boolean {
@@ -38,10 +38,13 @@ export default class DictionaryType extends TypeDescriptor {
     return [this.valueTypes];
   }
 
+  serializeType(): string {
+    return this.valueTypes ? `DictionaryType(${this.valueTypes.serializeType()})` : `DictionaryType()`;
+  }
+  
   static create_jel_mapping = {valueTypes: 1};
   static create(ctx: Context, ...args: any[]) {
-    const vt = args[1] instanceof List || args[1] instanceof TypeDescriptor || args[1] instanceof Dictionary ? args[1] : TypeChecker.optionalDbRef(args[1], 'valueTypes');
-    return new DictionaryType(vt);
+    return new DictionaryType(args[0]);
   }
 }
 

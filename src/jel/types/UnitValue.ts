@@ -16,6 +16,8 @@ import ApproximateNumber from './ApproximateNumber';
 import Util from '../../util/Util';
 import TypeChecker from './TypeChecker';
 
+const VALUE_TYPES = ['Number', 'Fraction', 'ApproximateNumber'];
+const UNIT_TYPES = ['Unit', 'String'];
 
 /**
  * Represents a value with unit and accuracy.
@@ -373,22 +375,22 @@ export default class UnitValue extends JelObject implements Numeric {
 		return [this.value, this.unit];
 	}
 	
-	static create_jel_mapping = {value: 1, unit: 2};
+	static create_jel_mapping = ['value', 'unit'];
 	static create(ctx: Context, ...args: any[]): UnitValue {
-		return new UnitValue(args[0], args[1]);
+		return new UnitValue(TypeChecker.types(VALUE_TYPES, args[0], 'value'), (args[1] && (args[1] as any).isIDBRef) ? args[1] : TypeChecker.types(UNIT_TYPES, args[1], 'unit'));
 	}
 }
 
 UnitValue.prototype.reverseOps = Object.assign({'*':1, '/': 1}, JelObject.SWAP_OPS);
-UnitValue.prototype.toNumber_jel_mapping = {};
-UnitValue.prototype.abs_jel_mapping = {};
-UnitValue.prototype.negate_jel_mapping = {};
-UnitValue.prototype.convertTo_jel_mapping = {type: 1};
-UnitValue.prototype.round_jel_mapping = {};
-UnitValue.prototype.simplify_jel_mapping = {};
-UnitValue.prototype.isSimple_jel_mapping = {};
-UnitValue.prototype.toSimpleType_jel_mapping = {};
-UnitValue.prototype.toPrimaryUnits_jel_mapping = {};
-UnitValue.prototype.isType_jel_mapping = {unit: 1};
+UnitValue.prototype.toNumber_jel_mapping = [];
+UnitValue.prototype.abs_jel_mapping = [];
+UnitValue.prototype.negate_jel_mapping = [];
+UnitValue.prototype.convertTo_jel_mapping = ['type'];
+UnitValue.prototype.round_jel_mapping = [];
+UnitValue.prototype.simplify_jel_mapping = [];
+UnitValue.prototype.isSimple_jel_mapping = [];
+UnitValue.prototype.toSimpleType_jel_mapping = [];
+UnitValue.prototype.toPrimaryUnits_jel_mapping = [];
+UnitValue.prototype.isType_jel_mapping = ['unit'];
 UnitValue.prototype.JEL_PROPERTIES = {value:1, unit:1};
 

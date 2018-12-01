@@ -10,39 +10,35 @@ import JelObject from '../../JelObject';
 
 
 /**
- * Represets a type that can be null. Is a shortcut for OptionType with null
+ * Represets any type, including null.
  */
-export default class OptionalType extends TypeDescriptor {
-	type: TypeDescriptor;
-	
-  constructor(e: JelObject|null) {
+export default class AnyType extends TypeDescriptor {
+  static readonly instance = new AnyType();
+  
+  constructor() {
     super();
-		this.type = TypeHelper.convertFromAny(e, 'property types');
   }
   
   getSerializationProperties(): Object {
-    return [this.type];
+    return [];
   }
 	
   checkType(ctx: Context, value: JelObject|null): boolean {
-    return value == null || this.type.checkType(ctx, value);
-  }
-  
-  static valueOf(e: JelObject): OptionalType {
-    return new OptionalType(e);
+    return true;
   }
   
   serializeType(): string {
-    return `${this.type}?`;
+    return 'any';
   }
+
   
-  static create_jel_mapping = ['type'];
+  static create_jel_mapping = [];
   static create(ctx: Context, ...args: any[]) {
-    return new OptionalType(args[0]);
+    return AnyType.instance;
   }
 }
 
-BaseTypeRegistry.register('OptionalType', OptionalType);
+BaseTypeRegistry.register('AnyType', AnyType);
 
 
 

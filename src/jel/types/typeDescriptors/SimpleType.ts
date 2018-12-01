@@ -5,6 +5,7 @@ import TypeChecker from '../../types/TypeChecker';
 import Runtime from '../../Runtime';
 import Context from '../../Context';
 import JelObject from '../../JelObject';
+import Serializer from '../../Serializer';
 
 
 /**
@@ -22,22 +23,30 @@ export default class SimpleType extends TypeDescriptor {
   // Example: SimpleType(@UnitValue, {unit: @Meter}) defines a @UnitValue measuring in meters
   // Example: SimpleType(@UnitValue, {unit: @Inch}, {value: SimpleType(@Fraction, {denominator: 16)}) defines
   //          a unit value using 1/16th inch
-  constructor(public type: IDbRef, public constants: Dictionary = Dictionary.empty, public types: Dictionary = Dictionary.empty) {
+  constructor(public type: string, public constants: Dictionary = Dictionary.empty, public types: Dictionary = Dictionary.empty) {
     super();
   }
   
   // note: constants and types are not checked yet. That would become async.
   checkType(ctx: Context, value: JelObject|null): boolean {
-    return Runtime.instanceOf(ctx, value, this.type as any);
+    return Runtime.instanceOf(ctx, value, this.type);
   }
   
   getSerializationProperties(): Object {
     return this.constants.empty && this.types.empty ? [this.type] : [this.type, this.constants, this.types];
   }
+  
+  serializeType(): string {  
+    if (this.constants.size + this.types.size == 0)
+      return Serializer.serialize(this.type);
+    else
+      return `SimpleType(${Serializer.serialize(this.type)}, ${Serializer.serialize(this.constants)}, ${Serializer.serialize(this.types)})`;
+  }
 	
   static create_jel_mapping = {type: 1, constants: 2, types: 3};
   static create(ctx: Context, ...args: any[]) {
-    return new SimpleType(TypeChecker.dbRef(args[0], 'type'), TypeChecker.optionalInstance(Dictionary, args[1], 'constants', Dictionary.empty), TypeChecker.optionalInstance(Dictionary, args[2], 'types', Dictionary.empty));
+    const type = TypeChecker.isITypeDefinition(args[0]) ? args[0].typeName : TypeChecker.isIDbRef(args[0]) ? args[0].distinctName : TypeChecker.realString(args[0], 'type');
+    return new SimpleType(type, TypeChecker.optionalInstance(Dictionary, args[1], 'constants', Dictionary.empty), TypeChecker.optionalInstance(Dictionary, args[2], 'types', Dictionary.empty));
   }
 }
 

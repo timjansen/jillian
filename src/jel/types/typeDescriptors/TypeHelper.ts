@@ -2,7 +2,7 @@ import TypeDescriptor from './TypeDescriptor';
 import SimpleType from './SimpleType';
 import OptionType from './OptionType';
 import ComplexType from './ComplexType';
-import {IDbRef} from '../../IDatabase';
+import JelObject from '../../JelObject';
 import Dictionary from '../../types/Dictionary';
 import TypeChecker from '../../types/TypeChecker';
 import List from '../../types/List';
@@ -10,16 +10,18 @@ import List from '../../types/List';
 
 export default class TypeHelper {
 	/**
-	 * Converts TypeDescriptor, DbRefs or Dictionary into a TypeDescriptor. It wraps the DbRef into a SimpleType, and the
-	 * Dictionary in a DictionaryType.
-	 * @param l a TypeDescriptor or DbRef or Dictionary or List
+	 * Converts TypeDefintion, TypeDescriptor, DbRefs, List or Dictionary into a TypeDescriptor. It wraps the DbRef or TypeDefinition into a SimpleType, and the
+	 * Dictionary in a ComplexType. Lists become OptionTypes.
+	 * @param l a TypeDefintion or TypeDescriptor or DbRef or Dictionary or List
 	 * @return the TypeDescriptor
 	 */
-	static convert(l: List | TypeDescriptor | IDbRef | Dictionary): TypeDescriptor {
-		if (l instanceof List)
+	static convert(l: JelObject): TypeDescriptor {
+		if (TypeChecker.isITypeDefinition(l))
+			return new SimpleType((l as any).typeName);
+		else if (TypeChecker.isIDbRef(l))
+			return new SimpleType((l as any).distinctName);
+		else if (l instanceof List)
 			return new OptionType(l);
-		else if (l && (l as any).isIDBRef)
-			return new SimpleType(l as any);
     else if (l instanceof Dictionary)
       return new ComplexType(l)
     else
@@ -27,16 +29,18 @@ export default class TypeHelper {
 	}
 
  	/**
-	 * Converts TypeDescriptor, DbRefs or Dictionary into a TypeDescriptor. It wraps the DbRef into a SimpleType, and the
-	 * Dictionary in a DictionaryType.
-	 * @param l a Types or DbRef or Dictionary or List
+	 * Converts TypeDefintion, TypeDescriptor, DbRefs, List or Dictionary into a TypeDescriptor. It wraps the DbRef or TypeDefinition into a SimpleType, and the
+	 * Dictionary in a ComplexType. Lists become OptionTypes.
+	 * @param l a TypeDefintion or TypeDescriptor or DbRef or Dictionary or List, or null
 	 * @return the TypeDescriptor
 	 */
-	static convertNullable(l: List | TypeDescriptor | IDbRef | Dictionary | null): TypeDescriptor | null {
-		if (l instanceof List)
+	static convertNullable(l: JelObject | null): TypeDescriptor | null {
+		if (TypeChecker.isITypeDefinition(l))
+			return new SimpleType((l as any).typeName);
+		else if (TypeChecker.isIDbRef(l))
+			return new SimpleType((l as any).distinctName);
+		else if (l instanceof List)
 			return new OptionType(l);
-		else if (l && (l as any).isIDBRef)
-			return new SimpleType(l as any);
     else if (l instanceof Dictionary)
       return new ComplexType(l)
     else
@@ -44,15 +48,15 @@ export default class TypeHelper {
 	}
   
   static convertFromAny(l: any, name: string): TypeDescriptor {
-    if (l && (l instanceof List || l instanceof TypeDescriptor || l instanceof Dictionary || (l as any).isIDBRef))
+    if (l && (TypeChecker.isITypeDefinition(l) || l instanceof TypeDescriptor || l instanceof List || l instanceof Dictionary || TypeChecker.isIDbRef(l)))
       return TypeHelper.convert(l);
-    throw new Error('Expected Type or DbRef or Dictionary or List in ' + name);
+    throw new Error('Expected Type or TypeDefintion or DbRef or Dictionary or List in ' + name);
   }
 
   static convertNullableFromAny(l: any, name: string): TypeDescriptor | null {
-    if ((!l) || l instanceof List || l instanceof TypeDescriptor || l instanceof Dictionary || (l as any).isIDBRef)
+    if ((!l) || TypeChecker.isITypeDefinition(l) || l instanceof TypeDescriptor || l instanceof List || l instanceof Dictionary || TypeChecker.isIDbRef(l))
       return TypeHelper.convertNullable(l);
-    throw new Error('Expected Type or DbRef or Dictionary or List or null in ' + name);
+    throw new Error('Expected Type or TypeDefintion or DbRef or Dictionary or List or null in ' + name);
   }
 
 }

@@ -4,6 +4,7 @@ import Dictionary from '../../jel/types/Dictionary';
 import TypeChecker from '../../jel/types/TypeChecker';
 import Context from '../../jel/Context';
 import JelObject from '../../jel/JelObject';
+import Serializer from '../../jel/Serializer';
 
 
 /**
@@ -19,7 +20,7 @@ export default class CategoryType extends TypeDescriptor {
   checkType(ctx: Context, value: JelObject|null): boolean {
     if (value == null)
       return false;
-    if ((value as any).isIDBRef)
+    if (TypeChecker.isIDbRef(value))
       return (value as any).distinctName.match(/.*Category$/);
     else
       return value.getJelType() == 'Category';
@@ -27,6 +28,15 @@ export default class CategoryType extends TypeDescriptor {
   
   getSerializationProperties(): Object {
     return [this.superCategory, this.directChild];
+  }
+  
+  serializeType(): string {  
+    if (!this.superCategory && !this.directChild)
+      return 'CategoryType()';
+    else if (!this.directChild)
+      return `CategoryType(${Serializer.serialize(this.superCategory)})`;
+    else
+      return `CategoryType(${Serializer.serialize(this.superCategory)}, true)`;
   }
   
   static create_jel_mapping = {superCategory: 1, directChild: 2};

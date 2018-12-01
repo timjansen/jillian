@@ -46,7 +46,7 @@ export default class JelMath extends JelObject {
 		Degree: 360/(2*Math.PI)
 	};
 	
-	
+	static typeName = 'Math';
 	
 	private static restoreUnit(original: Numeric, n: number): JelNumber | UnitValue {
 		if (original instanceof UnitValue)

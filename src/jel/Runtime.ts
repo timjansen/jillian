@@ -64,12 +64,14 @@ export default class Runtime {
 		return Util.resolveValue(left, (left: any)=>Runtime.singleOp(ctx, operator, left));
 	}
 	
-	static instanceOf(ctx: Context, left: JelObject|null, right: JelObject|null): boolean {
+	static instanceOf(ctx: Context, left: JelObject|null, right: JelObject|string|null): boolean {
 		if (!right || !left)
 			return false;
     
 		if ((right as any).isIDBRef)
       return left.getJelType() == (right as any).distinctName; 
+    else if (typeof right == 'string')
+      return left.getJelType() == right; 
     else
       return false;
 	}

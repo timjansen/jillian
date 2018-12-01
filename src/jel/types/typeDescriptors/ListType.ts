@@ -19,9 +19,9 @@ export default class ListType extends TypeDescriptor {
 	 * types - one or more Types to define the acceptable member types of the list. 
 	 *         The List may also contain 'null' as element, if the List can have nulls.
 	 */
-  constructor(types: List|TypeDescriptor|IDbRef|Dictionary) {
+  constructor(types: JelObject|null) {
     super();
-		this.types = TypeHelper.convert(types);
+		this.types = TypeHelper.convertFromAny(types, 'list values');
   }
   
   checkType(ctx: Context, value: JelObject|null): boolean {
@@ -34,11 +34,15 @@ export default class ListType extends TypeDescriptor {
   getSerializationProperties(): Object {
     return [this.types];
   }
+  
+  serializeType(): string {
+    return this.types ? `ListType(${this.types.serializeType()})` : `ListType()`;
+  }
+
 
   static create_jel_mapping = {types: 1};
   static create(ctx: Context, ...args: any[]) {
-    const vt = args[0] instanceof List || args[0] instanceof TypeDescriptor || args[0] instanceof Dictionary ? args[0] : TypeChecker.dbRef(args[0], 'types');
-    return new ListType(vt);
+    return new ListType(args[0]);
   }
 }
 

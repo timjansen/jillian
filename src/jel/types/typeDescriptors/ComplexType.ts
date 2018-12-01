@@ -5,6 +5,7 @@ import TypeChecker from '../TypeChecker';
 import JelObject from '../../JelObject';
 import List from '../List';
 import Context from '../../Context';
+import Serializer from '../../Serializer';
 
 /**
  * Defines a complex type that has named, typed fields. It is represented as a Dictionary in the DbEntry, but always has the same fields.
@@ -40,6 +41,11 @@ export default class ComplexType extends TypeDescriptor {
   getSerializationProperties(): Object {
     return {fields: this.fields};
   }
+  
+  serializeType(): string {
+    return Serializer.serialize(this.fields);
+  }
+
 
   static create_jel_mapping = {fields: 1};
   static create(ctx: Context, ...args: any[]) {
