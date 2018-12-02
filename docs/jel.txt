@@ -120,9 +120,23 @@ Examples:
 	{}                            // empty dictionary
   {a: 2, b: "bar", c: 4*5}      // keys following identifier logic do not need to be quoted. Values can be expressions.
 	{"a": 2, 'b': 4, 77: "foo"}   // all literals can be keys
-	{true: 1, false: 0}           // boolean values as keys
   {a}                           // short-cut for {a: a} . Reads the variable "a" and stores it as "a".
 	{a, b: 2, c}
+
+
+Lambda 
+-------------------
+Lambda expressions define callable functions.
+
+Examples:
+	() => 45      // always returns 45
+	a => a*a      // one argument, returns the square number
+	(a,b) => a+b  // function thats returns the sum of two arguments
+  (a: Number, b: String= "foo") => b+a   // Argument types, default value
+  (a: Number?) => if a then a else ""    // Optional type
+	[1, 2, 3].map(e => 2*e)  // returns the list [2, 4, 6]
+  
+
 
 
 Patterns
@@ -145,16 +159,6 @@ Examples:
   `{{date: /([0-9]+)-([0-9]+)-([0-9]+)/ }}`                     // RE with groups: returns a List containing the three numbers
   `{{date: /[0-9]+/ /[0-9]+/ /[0-9]+/ }}`                       // Three REs, to match three words. Also returns list.
 
-
-Lambda 
--------------------
-Lambda expressions define functions.Lambda
-
-Examples:
-	() => 45      // always returns 45
-	a => a*a      // one argument, returns the square number
-	(a,b) => a+b  // function thats returns the sum of two arguments
-	[1, 2, 3].map(e => 2*e)  // returns the list [2, 4, 6]
 
 
 Translators

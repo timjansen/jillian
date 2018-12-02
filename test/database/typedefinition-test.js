@@ -33,26 +33,26 @@ tmp.dir(function(err, path) {
         jelAssert.equal('TypeDefinition("MyTestType").properties.size', 0);        
         jelAssert.equal('TypeDefinition("MyTestType").methods.size', 0);        
         jelAssert.equal('TypeDefinition("MyTestType", methods={add: this=>2}).methods.size', 1);
-        jelAssert.equal('TypeDefinition("MyTestType", ["x", "y"], {a: @Number, b: @String}, {add: this=>this.a+this.b})', 
+        jelAssert.equal('TypeDefinition("MyTestType", null, ["x", "y"], {a: @Number, b: @String}, {add: this=>this.a+this.b})', 
                         'TypeDefinition(typeName="MyTestType", constructorArgs=["x", "y"], propertyDefs={a: @Number, b: @String}, methods={add: this=>this.a+this.b})');
       });
 
       it('supports properties set in the constructor', function() {
-        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", ["x", "y"], {x: @Number, y: @String}), m=myTestType(5, "foo"): [m.x, m.y]', "[5, 'foo']");
-        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", ["x", "y"], {x: @Number, y: @String}), m=myTestType(y="foo", x=2): [m.x, m.y]', "[2, 'foo']");
-        return Promise.all([jelAssert.errorPromise('with myTestType=TypeDefinition("MyTestType", ["x", "y"], {x: @Number, y: @String}), m=myTestType("wrong type", "foo"): [m.x, m.y]', "[2, 'foo']"),
-                            jelAssert.errorPromise('with myTestType=TypeDefinition("MyTestType", ["x", "y"], {x: @Number, y: @String}), m=myTestType(): [m.x, m.y]', "[2, 'foo']")]);
+        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", null, ["x", "y"], {x: @Number, y: @String}), m=myTestType(5, "foo"): [m.x, m.y]', "[5, 'foo']");
+        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", null, ["x", "y"], {x: @Number, y: @String}), m=myTestType(y="foo", x=2): [m.x, m.y]', "[2, 'foo']");
+        return Promise.all([jelAssert.errorPromise('with myTestType=TypeDefinition("MyTestType", null, ["x", "y"], {x: @Number, y: @String}), m=myTestType("wrong type", "foo"): [m.x, m.y]', "[2, 'foo']"),
+                            jelAssert.errorPromise('with myTestType=TypeDefinition("MyTestType", null, ["x", "y"], {x: @Number, y: @String}), m=myTestType(): [m.x, m.y]', "[2, 'foo']")]);
       });
 
       it('supports constructors', function() {
-        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", ["x", "y"], {x: @Number, y: @String, z: @Number}, {"constructor": (this, x, y)=>{y: "bar", z: x+1} }), m=myTestType(5, "foo"): [m.x, m.y, m.z]', "[5, 'bar', 6]");
+        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", null, ["x", "y"], {x: @Number, y: @String, z: @Number}, {"constructor": (this, x, y)=>{y: "bar", z: x+1} }), m=myTestType(5, "foo"): [m.x, m.y, m.z]', "[5, 'bar', 6]");
       });
     
       it('supports methods', function() {
-        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", ["x", "y"], {x: @Number, y: @Number}, methods={add: this=>this.x+this.y}), m=myTestType(5, 12): m.add()', "17");
-        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", ["x", "y"], {x: @Number, y: @Number}, methods={add: (this, a, b)=>this.x+this.y+a/b}), m=myTestType(5, 12): m.add(20, 4)', "22");
-        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", ["x", "y"], {x: @Number, y: @Number}, methods={add: (this, a, b)=>this.x+this.y+a/b}), m=myTestType(5, 12): m.add(b=4, a=20)', "22");
-        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", ["x", "y"], {x: @Number, y: @Number}, methods={add: (this, a, b)=>this.x+this.y+a/b}), m=myTestType(15, 12), add=m.add: add(b=4, a=20)', "32");
+        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", null, ["x", "y"], {x: @Number, y: @Number}, methods={add: this=>this.x+this.y}), m=myTestType(5, 12): m.add()', "17");
+        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", null, ["x", "y"], {x: @Number, y: @Number}, methods={add: (this, a, b)=>this.x+this.y+a/b}), m=myTestType(5, 12): m.add(20, 4)', "22");
+        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", null, ["x", "y"], {x: @Number, y: @Number}, methods={add: (this, a, b)=>this.x+this.y+a/b}), m=myTestType(5, 12): m.add(b=4, a=20)', "22");
+        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", null, ["x", "y"], {x: @Number, y: @Number}, methods={add: (this, a, b)=>this.x+this.y+a/b}), m=myTestType(15, 12), add=m.add: add(b=4, a=20)', "32");
         jelAssert.equal('with myTestType=TypeDefinition("MyTestType", methods={div: (a, b)=>a/b}), m=myTestType(), div=m.div: m.div(60, 10) + div(40, 10)', "10");
       });
 
@@ -61,17 +61,17 @@ tmp.dir(function(err, path) {
       });
       
       it('supports getter', function() {
-        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", ["x", "y"], {x: @Number, y: @Number}, methods={get_x: this=>8, get_z: this=>4}), m=myTestType(5, 12): m.x/m.z', "2");
+        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", null, ["x", "y"], {x: @Number, y: @Number}, methods={get_x: this=>8, get_z: this=>4}), m=myTestType(5, 12): m.x/m.z', "2");
       });
 
       it('supports ops', function() {
-        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", ["x"], {x: @Number}, methods={"op+": (this,right)=>myTestType(this.x+right)}), m=myTestType(5): (m+10).x', "15");
-        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", ["x"], {x: @Number}, methods={"opReversed+": (this,left)=>myTestType(this.x+left)}), m=myTestType(5): (10+m).x', "15");
-        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", ["x"], {x: @Number}, methods={"singleOp-": (this)=>myTestType(-this.x*2)}), m=myTestType(5): (-m).x', "-10");
+        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", null, ["x"], {x: @Number}, methods={"op+": (this,right)=>myTestType(this.x+right)}), m=myTestType(5): (m+10).x', "15");
+        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", null, ["x"], {x: @Number}, methods={"opReversed+": (this,left)=>myTestType(this.x+left)}), m=myTestType(5): (10+m).x', "15");
+        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", null, ["x"], {x: @Number}, methods={"singleOp-": (this)=>myTestType(-this.x*2)}), m=myTestType(5): (-m).x', "-10");
       });
 
       it('can be loaded from DB and used like a real type', function() {
-        return db.put(ctx, new JEL('TypeDefinition("TupleXY", ["x", "y"], {x: @Number, y: @Number}, methods={add: this=>this.x+this.y}, static={A: 44})').executeImmediately(ctx))
+        return db.put(ctx, new JEL('TypeDefinition("TupleXY", null, ["x", "y"], {x: @Number, y: @Number}, methods={add: this=>this.x+this.y}, static={A: 44})').executeImmediately(ctx))
           .then(()=>Promise.all([jelAssert.equalPromise('TupleXY(7, 10).add()', "17"),
                              jelAssert.equalPromise('TupleXY.A', "44"),
                              jelAssert.equalPromise('TupleXY(x=7, y=1) instanceof @TupleXY', "true")]));

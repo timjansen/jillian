@@ -47,7 +47,7 @@ export default class Package extends DbEntry {
     if (!(ref instanceof DbRef))
       throw new Error(`Unsupported property in ${name}. Requires DbRef, but it is ${ref.getJelType()}.`);
     
-		return Util.resolveValue(ref.get(ctx), type=>{
+		return ref.with(ctx, type=>{
       if (type instanceof TypeDefinition || type instanceof Enum || type instanceof Package)
         return type;
       else

@@ -114,7 +114,7 @@ export default class TypeDefinition extends DatabaseType implements ITypeDefinit
    *        To define a getter, create a method with the name 'get_propertyname'. It will get 'this' as only argument.
    * @param staticProperties static values and methods to be added. They will be stored as TypeDefinition's properties.
    */
-  constructor(public typeName: string, public constructorArgs: List = new List(), public propertyDefs: Dictionary = new Dictionary(), public methods: Dictionary = new Dictionary(),
+  constructor(public typeName: string, public superType?: TypeDefinition, public constructorArgs: List = new List(), public propertyDefs: Dictionary = new Dictionary(), public methods: Dictionary = new Dictionary(),
       staticProperties?: Dictionary) {
     super(typeName, staticProperties);
     const ctorArgs = constructorArgs.elements.map(s=>JelString.toRealString(s));
@@ -132,7 +132,7 @@ export default class TypeDefinition extends DatabaseType implements ITypeDefinit
 
   
   getSerializationProperties(): Object {
-    return [this.typeName, this.constructorArgs, this.propertyDefs, this.methods, this.properties];
+    return [this.typeName, this.superType && new DbRef(this.superType.distinctName), this.constructorArgs, this.propertyDefs, this.methods, this.properties];
   }
 
   create_jel_mapping: any; // set in ctor
@@ -140,17 +140,21 @@ export default class TypeDefinition extends DatabaseType implements ITypeDefinit
     return new GenericJelObject(this, ctx, args);
   }
   
-  static create_jel_mapping = ['typeName', 'constructorArgs', 'propertyDefs', 'methods', 'static'];
+  static create_jel_mapping = ['typeName', 'superType', 'constructorArgs', 'propertyDefs', 'methods', 'static'];
   static create(ctx: Context, ...args: any[]) {
+    if (TypeChecker.isIDbRef(args[1]))
+      return args[1].with(ctx, (t: TypeDefinition) => TypeDefinition.create(ctx, args[0], t, args[2], args[3], args[4], args[5]));
+
     return new TypeDefinition(TypeChecker.realString(args[0], 'typeName'), 
-                              TypeChecker.optionalInstance(List, args[1], 'constructorArgs')||undefined, 
-                              TypeChecker.optionalInstance(Dictionary, args[2], 'propertyDefs')||undefined,
-                              TypeChecker.optionalInstance(Dictionary, args[3], 'methods')||undefined,
-                              TypeChecker.optionalInstance(Dictionary, args[4], 'static')||undefined);
+                              TypeChecker.optionalInstance(TypeDefinition, args[1], 'superType')||undefined,
+                              TypeChecker.optionalInstance(List, args[2], 'constructorArgs')||undefined, 
+                              TypeChecker.optionalInstance(Dictionary, args[3], 'propertyDefs')||undefined,
+                              TypeChecker.optionalInstance(Dictionary, args[4], 'methods')||undefined,
+                              TypeChecker.optionalInstance(Dictionary, args[5], 'static')||undefined);
   }
 }
 
 
 
-TypeDefinition.prototype.JEL_PROPERTIES = {typeName: true, 'constructorArgs': true, properties: true, methods: true, operators: true, singleOperators: true};
+TypeDefinition.prototype.JEL_PROPERTIES = {typeName: true, 'constructorArgs': true, properties: true, methods: true, operators: true, singleOperators: true, superType: true};
 

@@ -8,7 +8,7 @@ export default abstract class DatabaseType extends DbEntry {
  
   constructor(distinctName: string, properties?: Dictionary) {
     super(distinctName, undefined, undefined, properties);
-    this.package = distinctName.replace(/.*::/, '');
+    this.package = distinctName.replace(/::[^:]+$/, '');
   }
 
 }
