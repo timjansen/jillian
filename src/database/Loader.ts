@@ -33,7 +33,7 @@ export default class Loader {
 		if (logFunction)
 			logFunction(`Start bootstrapping database at ${database.dbPath} from ${dirPath}`);
 		
-		return (fs as any).readdir(dirPath, {withFileTypes: true}) // TODO: remove any when new readdir() signature is in fs-extra
+		return (fs as any).readdir(dirPath, {withFileTypes: true}) // TODO: remove any cast when new readdir() signature is in fs-extra
 			.then((files: any[]) => {  // TODO: use fs.Dirent as type here when available for TypeScript
 				const dirs: string[] = files.filter(s=>s.isDirectory()).map(s=>s.name).sort();
 				dirCount = dirs.length;

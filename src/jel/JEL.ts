@@ -329,8 +329,8 @@ export default class JEL {
 			const name = JEL.nextOrThrow(tokens, `Expected identifier for ${errorParamName}.`);
 			if (name.type != TokenType.Identifier)
 				JEL.throwParseException(name || tokens.last(), `Expected identifier for ${errorParamName}.`);
-			if (/(^[A-Z])|(^_$)/.test(name.value))
-				JEL.throwParseException(name || tokens.last(), `Illegal name ${name.value}, must not start ${errorParamName} with capital letter or be the underscore.`);
+			if (/(^_$)|::/.test(name.value))
+				JEL.throwParseException(name || tokens.last(), `Illegal name ${name.value}, a ${errorParamName} must not contain a double-colon ('::') or be the underscore.`);
 			const eq = JEL.expectOp(tokens, EQUAL, "Expected equal sign after variable name.");
 			const expression = JEL.parseExpression(tokens, precedence, stop);
 			if (!expression)

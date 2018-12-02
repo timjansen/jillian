@@ -98,7 +98,7 @@ export default class TypeDefinition extends DbEntry implements ITypeDefinition {
 
   /**
    * Creates a new TypeDefinition.
-   * @param typeName the name of the type. The distinct name of the TypeDefinition will be this typeName with a 'Type' postfix.
+   * @param typeName the name of the type.
    * @param constructorArgs a list of argument names for the constructor. Those that match property names will automatically be stored.
    * @param propertyDefs a dictionary string->Type. Instead of property types, the usual shortcuts allowed by TypeHelper
    *        are possible, like using a DbRef directly.
@@ -139,7 +139,7 @@ export default class TypeDefinition extends DbEntry implements ITypeDefinition {
     return new GenericJelObject(this, ctx, args);
   }
   
-  static create_jel_mapping = {typeName: 1, constructorArgs: 2, propertyDefs: 3, methods: 4, static: 5};
+  static create_jel_mapping = ['typeName', 'constructorArgs', 'propertyDefs', 'methods', 'static'];
   static create(ctx: Context, ...args: any[]) {
     return new TypeDefinition(TypeChecker.realString(args[0], 'typeName'), 
                               TypeChecker.optionalInstance(List, args[1], 'constructorArgs')||undefined, 

@@ -22,7 +22,9 @@ describe('jelTokenizer', function() {
     });
 
     it('should parse identifiers', function() {
-      assert.deepEqual(Tokenizer.tokenize('a $_b0 c_d_093_d').tokens, [new Token(1, 1, TokenType.Identifier, 'a'), new Token(1, 3, TokenType.Identifier, '$_b0'), new Token(1, 8, TokenType.Identifier, 'c_d_093_d')]);
+      assert.deepEqual(Tokenizer.tokenize('a _b0 c_d_093_d').tokens, [new Token(1, 1, TokenType.Identifier, 'a'), new Token(1, 3, TokenType.Identifier, '_b0'), new Token(1, 7, TokenType.Identifier, 'c_d_093_d')]);
+      assert.deepEqual(Tokenizer.tokenize('Hello::World').tokens, [new Token(1, 1, TokenType.Identifier, 'Hello::World')]);
+      assert.deepEqual(Tokenizer.tokenize('Hello::3').tokens, [new Token(1, 1, TokenType.Identifier, 'Hello'), new Token(1, 6, TokenType.Operator, ':'), new Token(1, 7, TokenType.Operator, ':'), new Token(1, 8, TokenType.Literal, 3)]);
     });
 
     it('should handle multiple lines', function() {
@@ -32,7 +34,7 @@ describe('jelTokenizer', function() {
 		
     
     it('should parse comments', function() {
-      assert.deepEqual(Tokenizer.tokenize('a //comment\n $_b0 /*blabla*/ "d" f/*bla\nbla*/a').tokens, [new Token(1, 1, TokenType.Identifier, 'a'), new Token(2, 2, TokenType.Identifier, '$_b0'), new Token(2, 18, TokenType.Literal, 'd'),
+      assert.deepEqual(Tokenizer.tokenize('a //comment\n __b0 /*blabla*/ "d" f/*bla\nbla*/a').tokens, [new Token(1, 1, TokenType.Identifier, 'a'), new Token(2, 2, TokenType.Identifier, '__b0'), new Token(2, 18, TokenType.Literal, 'd'),
                                                                                                new Token(2, 22, TokenType.Identifier, 'f'), new Token(3, 6, TokenType.Identifier, 'a')]);
     });
     

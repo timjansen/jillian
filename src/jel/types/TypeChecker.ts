@@ -210,7 +210,6 @@ export default class TypeChecker {
     return BaseTypeRegistry.get('List').valueOf([TypeChecker.string(value, name)]);
 	}
 
-  
 }
 
 
