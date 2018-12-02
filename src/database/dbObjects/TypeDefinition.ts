@@ -1,3 +1,4 @@
+import DatabaseType from './DatabaseType';
 import Category from './Category';
 import DbEntry from '../DbEntry';
 import DbRef from '../DbRef';
@@ -92,7 +93,7 @@ GenericJelObject.prototype.reverseOps = Object.assign({'-':1, '/': 1, '+-': 1, '
 
 
 // Base class for defining instantiable types
-export default class TypeDefinition extends DbEntry implements ITypeDefinition {
+export default class TypeDefinition extends DatabaseType implements ITypeDefinition {
   JEL_PROPERTIES: Object;
   ctorToProps: (string|null)[]; // list of properties to write the constructor arguments to. Will be auto-typechecked.
 
@@ -115,7 +116,7 @@ export default class TypeDefinition extends DbEntry implements ITypeDefinition {
    */
   constructor(public typeName: string, public constructorArgs: List = new List(), public propertyDefs: Dictionary = new Dictionary(), public methods: Dictionary = new Dictionary(),
       staticProperties?: Dictionary) {
-    super(typeName, undefined, undefined, staticProperties);
+    super(typeName, staticProperties);
     const ctorArgs = constructorArgs.elements.map(s=>JelString.toRealString(s));
     this.create_jel_mapping = ctorArgs;
     this.propertyDefs = propertyDefs.mapJs((k,v)=>TypeHelper.convertFromAny(v, 'properties definitions'));

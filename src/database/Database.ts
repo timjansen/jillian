@@ -7,12 +7,15 @@ import DatabaseContext from './DatabaseContext';
 import DbIndexDescriptor from './DbIndexDescriptor';
 import WorkerPool from './WorkerPool';
 import Category from './dbObjects/Category';
+import Package from './dbObjects/Package';
+import DatabaseType from './dbObjects/DatabaseType';
 
 
 import JEL from '../jel/JEL';
 import Context from '../jel/Context';
 import DefaultContext from '../jel/DefaultContext';
 import NativeTypeDefinition from '../jel/NativeTypeDefinition';
+import List from '../jel/types/List';
 import Runtime from '../jel/Runtime';
 import serializer from '../jel/Serializer';
 
@@ -244,10 +247,21 @@ export default class Database {
 								});
 						}
 
-						return loadCategories(categories, MAX_ITERATIONS).then(()=>
-							pool.runJobIgnoreNull(entryFiles, file=>db.readEntry(ctx, file.replace(/^.*\/|\.jel$/g, ''), file)
-												 							        .then(entry=>db.put(ctx, entry as DbEntry)))
-						);
+						return loadCategories(categories, MAX_ITERATIONS).then(()=>{
+              const packagesContent: DatabaseType[] = [];
+							return pool.runJobIgnoreNull(entryFiles, file=>db.readEntry(ctx, file.replace(/^.*\/|\.jel$/g, ''), file)
+												 							        .then(entry=> {
+                if (entry instanceof DatabaseType) 
+                  packagesContent.push(entry);
+                return db.put(ctx, entry as DbEntry);
+              }))
+              .then(()=> {
+                const typeByPackage = new Map<string, DatabaseType[]>();
+                packagesContent.filter(pc=>pc.package.includes('::'))
+                  .forEach(pc=>typeByPackage.has(pc.package)?typeByPackage.get(pc.package)!.push(pc):typeByPackage.set(pc.package, [pc]));
+                return pool.runJob(Array.from(typeByPackage.keys()), pkg=>db.exists(pkg).then(e=>e as any|| db.put(ctx, new Package(pkg, new List(typeByPackage.get(pkg) as any)))));
+              });
+            });
 					})
 					.then(()=>categoryFiles.length + entryFiles.length);
 			});
