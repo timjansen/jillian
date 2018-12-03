@@ -1,4 +1,4 @@
-import DatabaseType from './DatabaseType';
+import PackageContent from './PackageContent';
 import DbEntry from '../DbEntry';
 import DbRef from '../DbRef';
 import Context from '../../jel/Context';
@@ -17,7 +17,7 @@ function createProperties(distinctName: string, values: List): Dictionary {
 }
 
 // Base class for enum definitions.
-export default class Enum extends DatabaseType {
+export default class Enum extends PackageContent {
   JEL_PROPERTIES: Object;
   
 	/**
@@ -40,6 +40,6 @@ export default class Enum extends DatabaseType {
   }
 }
 
-Enum.prototype.JEL_PROPERTIES = {values: true};
+Enum.prototype.JEL_PROPERTIES = {values: true, packageName: true};
 
 

@@ -1,4 +1,4 @@
-import DatabaseType from './DatabaseType';
+import PackageContent from './PackageContent';
 import Category from './Category';
 import DbEntry from '../DbEntry';
 import DbRef from '../DbRef';
@@ -93,14 +93,15 @@ GenericJelObject.prototype.reverseOps = Object.assign({'-':1, '/': 1, '+-': 1, '
 
 
 // Base class for defining instantiable types
-export default class TypeDefinition extends DatabaseType implements ITypeDefinition {
+export default class TypeDefinition extends PackageContent implements ITypeDefinition {
   JEL_PROPERTIES: Object;
   ctorToProps: (string|null)[]; // list of properties to write the constructor arguments to. Will be auto-typechecked.
 
   /**
    * Creates a new TypeDefinition.
    * @param typeName the name of the type.
-   * @param constructorArgs a list of argument names for the constructor. Those that match property names will automatically be stored.
+   * @param constructorArgs a list of argument names for the constructor. Those that match property names will automatically be stored. The remaining arguments
+   *                        are for the constructor only.
    * @param propertyDefs a dictionary string->Type. Instead of property types, the usual shortcuts allowed by TypeHelper
    *        are possible, like using a DbRef directly.
    * @param methods a dictionary of string->function definitions for the type methods. The first argument to the functions
@@ -117,17 +118,29 @@ export default class TypeDefinition extends DatabaseType implements ITypeDefinit
   constructor(public typeName: string, public superType?: TypeDefinition, public constructorArgs: List = new List(), public propertyDefs: Dictionary = new Dictionary(), public methods: Dictionary = new Dictionary(),
       staticProperties?: Dictionary) {
     super(typeName, staticProperties);
-    const ctorArgs = constructorArgs.elements.map(s=>JelString.toRealString(s));
-    this.create_jel_mapping = ctorArgs;
-    this.propertyDefs = propertyDefs.mapJs((k,v)=>TypeHelper.convertFromAny(v, 'properties definitions'));
-    if (methods.hasAnyJs((n: string, e: any)=>!(e instanceof Callable)))
-      throw new Error('All methods must be defined using a Callable as value.');
-  
-    this.propertyDefs = propertyDefs.filterJs((k, v)=>TypeHelper.convertFromAny(v, 'property definitions'));
-    this.ctorToProps = ctorArgs.map(arg=>propertyDefs.elements.has(arg) ? arg : null);
-  
+
+    if (/^[^A-Z]/.test(typeName))
+      throw new Error(`Type name ${typeName} is not allowed: types must start with a capital letter.`);
+
+    const uncallableMethod = methods.findJs((n: string, e: any)=>!(e instanceof Callable));
+    if (uncallableMethod)
+      throw new Error(`Method ${uncallableMethod} is not a Callable.`);
+
+    if (superType) {
+      const overridenProperty = propertyDefs.findJs((n: string)=>superType.propertyDefs.elements.has(n));
+      if (overridenProperty)
+        throw new Error(`Property ${overridenProperty} is already defined in super type ${superType.typeName}, you must not override it.`);
+    }
+
     if (staticProperties && staticProperties.elements.has('create'))
       throw new Error('You must not overwrite the property "create".')
+
+    this.propertyDefs = new Dictionary(superType && superType.propertyDefs).putAll(propertyDefs.mapJs((k,v)=>TypeHelper.convertFromAny(v, 'properties definitions')));
+    this.methods = new Dictionary(superType && superType.methods).putAll(methods);
+
+    const ctorArgs = constructorArgs.elements.map(s=>JelString.toRealString(s));
+    this.create_jel_mapping = ctorArgs;
+    this.ctorToProps = ctorArgs.map(arg=>this.propertyDefs.elements.has(arg) ? arg : null);
   }
 
   
@@ -156,5 +169,5 @@ export default class TypeDefinition extends DatabaseType implements ITypeDefinit
 
 
 
-TypeDefinition.prototype.JEL_PROPERTIES = {typeName: true, 'constructorArgs': true, properties: true, methods: true, operators: true, singleOperators: true, superType: true};
+TypeDefinition.prototype.JEL_PROPERTIES = {typeName: true, 'constructorArgs': true, properties: true, methods: true, operators: true, singleOperators: true, superType: true, packageName: true};
 

@@ -48,7 +48,7 @@ export default class DbEntry extends JelObject implements IDbEntry {
 		
 	// sets a property
   set(ctx: Context, name: string, value: JelObject|null): DbEntry {
-		this.properties.set(name, value);
+		this.properties = this.properties.set(ctx, name, value);
 		return this;
 	}
 	

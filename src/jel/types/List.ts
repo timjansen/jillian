@@ -125,7 +125,7 @@ export default class List extends JelObject implements SerializablePrimitive {
 		}
 		return exec();
 	}
-
+  
 	map_jel_mapping: Object;
 	map(ctx: Context, f0: any): List | Promise<List> {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');

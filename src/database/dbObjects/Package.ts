@@ -1,3 +1,4 @@
+import PackageContent from './PackageContent';
 import Enum from './Enum';
 import TypeDefinition from './TypeDefinition';
 import DbEntry from '../DbEntry';
@@ -27,7 +28,7 @@ function createDictionary(packageName: string, content: List): Dictionary {
 }
 
 // Defines a package of TypeDefinitions and Enums
-export default class Package extends DbEntry {
+export default class Package extends PackageContent {
   JEL_PROPERTIES: Object;
 
   /**
@@ -35,8 +36,8 @@ export default class Package extends DbEntry {
    * @param packageName the name of the package. 
    * @param content a list of DbRefs 
    */
-  constructor(public packageName: string, public content: List = new List()) {
-    super(packageName, undefined, undefined, createDictionary(packageName, content));
+  constructor(packageName: string, public content: List = new List()) {
+    super(packageName, createDictionary(packageName, content));
   }
   
 	member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null>|undefined {
@@ -56,7 +57,7 @@ export default class Package extends DbEntry {
 	}
   
   getSerializationProperties(): Object {
-    return [this.packageName, this.content];
+    return [this.distinctName, this.content];
   }
 
   static create_jel_mapping = ['packageName', 'content'];

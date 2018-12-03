@@ -14,6 +14,7 @@ import Thing from './dbObjects/Thing';
 import Enum from './dbObjects/Enum';
 import MixinProperty from './dbObjects/MixinProperty';
 import TypeDefinition from './dbObjects/TypeDefinition';
+import PackageContent from './dbObjects/PackageContent';
 import CategoryType from './dbProperties/CategoryType';
 
 
@@ -37,7 +38,7 @@ export default class DatabaseContext extends Context {
   		return super.get(name);
     }
     catch (e) {
-      return Util.resolveValue(this.dbSession!.get(name), dbe=>((dbe instanceof TypeDefinition) || (dbe instanceof Enum)) ? dbe : undefined);
+      return Util.resolveValue(this.dbSession!.get(name), dbe=>((dbe instanceof PackageContent)) ? dbe : undefined);
     }   
   }
   

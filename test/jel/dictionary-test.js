@@ -163,19 +163,42 @@ describe('jelDictionary', function() {
     });
   });
 
-
   describe('set()', function() {
     it('sets', function() {
       const d = new Dictionary();
-      d.set('a', 3);
-      assert.deepEqual(d.toObjectDebug(), {a: 3}); 
-      d.set('z', 5).set('b', 2);
-      assert.deepEqual(d.toObjectDebug(), {a: 3, b: 2, z: 5}); 
-      d.set('a', 5).set('b', 7);
-      assert.deepEqual(d.toObjectDebug(), {a: 5, b: 7, z: 5}); 
+      const d2 = d.set(ctx, 'a', 3);
+      assert.deepEqual(d2.toObjectDebug(), {a: 3}); 
+      const d3 = d2.set(ctx, 'z', 5).set(ctx, 'b', 2);
+      assert.deepEqual(d3.toObjectDebug(), {a: 3, b: 2, z: 5}); 
+      const d4 = d3.set(ctx, 'a', 5).set(ctx, 'b', 7);
+      assert.deepEqual(d4.toObjectDebug(), {a: 5, b: 7, z: 5}); 
     });
   });
 
+  describe('setAll()', function() {
+    it('sets', function() {
+      jelAssert.equal("{a: 2, b: 5}.setAll({b: 6, c: 5})", "{a: 2, b: 6, c: 5}");
+      jelAssert.equal("{a: 2, b: 5} + {b: 6, c: 5}", "{a: 2, b: 6, c: 5}");
+    });
+  });
+
+  describe('delete()', function() {
+    it('deletes', function() {
+      jelAssert.equal("{a: 2, b: 5}.delete('b')", "{a: 2}");
+      jelAssert.equal("{a: 2, b: 5}.delete('c')", "{a: 2, b: 5}");
+    });
+  });
+  
+  describe('deleteAll()', function() {
+    it('deletes', function() {
+      jelAssert.equal("{a: 2, b: 5}.deleteAll({b: 6, c: 5})", "{a: 2}");
+      jelAssert.equal("{a: 2, b: 5} - {b: 6, c: 5}", "{a: 2}");
+      jelAssert.equal("{a: 2, b: 5}.deleteAll(['b', 'c'])", "{a: 2}");
+    });
+  });
+
+  
+  
   
   describe('keys()', function() {
     it('keys', function() {

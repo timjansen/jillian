@@ -23,9 +23,9 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 	static readonly JEL_PROPERTIES = {empty: true};
 	static readonly empty = new Dictionary();
 	
-	constructor(elements: any = [], keepMap = false) {
+	constructor(elements?: any, keepMap = false) {
 		super();
-		if (keepMap)
+		if (keepMap && elements)
 			this.elements = elements;
 		else {
 			this.elements = new Map();
@@ -49,6 +49,10 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 						else
 							result = JelBoolean.falsestWithPromises(ctx, result, Runtime.op(ctx, operator, this.elements.get(key) as JelObject, right.elements.get(key) as JelObject) as any);
 					return result;
+        case '+':
+          return this.setAll(ctx, right);
+        case '-':
+          return this.deleteAll(ctx, right);
 			}
 		}
 		return super.op(ctx, operator, right);
@@ -84,13 +88,52 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 		return JelBoolean.valueOf(this.elements.has(key));
 	}
 
-	set(key0: JelString | string, value: JelObject|null): Dictionary {
+  set_jel_mapping: Object;
+  set(ctx: Context, key0: any, value: JelObject|null): Dictionary {
 		const key = TypeChecker.realString(key0, 'key');
-		
-		this.elements.set(key, value);
-		return this;
+		const t = new Dictionary(this);
+		t.elements.set(key, value);
+		return t;
 	}
 
+  setAll_jel_mapping: Object;
+  setAll(ctx: Context, other0: any): Dictionary {
+		const other = TypeChecker.instance(Dictionary, other0,'other');
+    if (other.empty)
+      return this;
+    else if (this.empty)
+      return other;
+    else 
+      return new Dictionary(this).putAll(other);
+  }
+
+  delete_jel_mapping: Object;
+  delete(ctx: Context, key0: any): Dictionary {
+	  const key = TypeChecker.realString(key0, 'key');
+    if (!key)
+      return this;
+    const d = new Dictionary(this);
+    d.elements.delete(key);
+    return d;
+  }
+
+  
+  deleteAll_jel_mapping: Object;
+  deleteAll(ctx: Context, keys0: any): Dictionary {
+	  const keys = TypeChecker.types(['Dictionary', 'List'], keys0, 'keys');
+    if (this.empty || keys.empty)
+      return this;
+    const d = new Dictionary(this);
+    if (keys instanceof Dictionary)
+      keys.eachJs((key: string)=>d.elements.delete(key));
+    else
+      keys.elements.forEach((e: JelObject|null)=>d.elements.delete(TypeChecker.realString(e, 'list element')));
+    return d;
+  }
+
+  
+  
+  // inline put, for JS only
 	putAll(otherDict: any): Dictionary {
 		if (!otherDict)
 			return this;
@@ -100,7 +143,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 				this.elements.set(key, otherDict.get(key));
 		}
 		else if (otherDict instanceof Dictionary) {
-			this.putAll(otherDict.elements);
+ 			this.putAll(otherDict.elements);
 		}
 		else if (Array.isArray(otherDict)) {
 			for (let i = 0; i < otherDict.length-1; i+=2)
@@ -171,11 +214,11 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> {
-						newDict.set(next.value, v);
+						newDict.elements.set(next.value, v);
 						return exec();
 					});
 				else
-					newDict.set(next.value, r);
+					newDict.elements.set(next.value, r);
 			}
 		}
 		return exec();
@@ -226,11 +269,11 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 				if (r instanceof Promise)
 					return r.then(v=> {
 						if (JelBoolean.toRealBoolean(v))
-							newDict.set(next.value, thisValue);
+							newDict.elements.set(next.value, thisValue);
 						return exec();
 					});
 				else if (JelBoolean.toRealBoolean(r))
-					newDict.set(next.value, thisValue);
+					newDict.elements.set(next.value, thisValue);
 			}
 		}
 		return exec();
@@ -240,7 +283,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 		const newDict = new Dictionary();
 		for (let key of this.elements.keys()) {
       const value = (this.elements.get(key)||null) as JelObject|null;
-      newDict.set(key, f(key, value));
+      newDict.elements.set(key, f(key, value));
     }
     return newDict;
 	}
@@ -300,6 +343,13 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
       if (f(key, this.elements.get(key) || null))
         return true;
     return false;
+	}
+
+  findJs(f: (k: string, v: JelObject|null)=>boolean): any {
+    for (let key of this.elements.keys())
+      if (f(key, this.elements.get(key) || null))
+        return key;
+    return undefined;
 	}
 
   
@@ -381,6 +431,10 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 Dictionary.prototype.JEL_PROPERTIES = {size: true, anyKey: true, keys: true, empty: true};
 Dictionary.prototype.get_jel_mapping = ['key'];
 Dictionary.prototype.has_jel_mapping = ['key'];
+Dictionary.prototype.set_jel_mapping = ['key', 'value'];
+Dictionary.prototype.setAll_jel_mapping = ['other'];
+Dictionary.prototype.delete_jel_mapping = ['key'];
+Dictionary.prototype.deleteAll_jel_mapping = ['keys'];
 Dictionary.prototype.each_jel_mapping = ['f'];
 Dictionary.prototype.map_jel_mapping = ['f'];
 Dictionary.prototype.filter_jel_mapping = ['f'];

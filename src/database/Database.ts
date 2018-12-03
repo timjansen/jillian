@@ -8,7 +8,7 @@ import DbIndexDescriptor from './DbIndexDescriptor';
 import WorkerPool from './WorkerPool';
 import Category from './dbObjects/Category';
 import Package from './dbObjects/Package';
-import DatabaseType from './dbObjects/DatabaseType';
+import PackageContent from './dbObjects/PackageContent';
 
 
 import JEL from '../jel/JEL';
@@ -248,17 +248,17 @@ export default class Database {
 						}
 
 						return loadCategories(categories, MAX_ITERATIONS).then(()=>{
-              const packagesContent: DatabaseType[] = [];
+              const packagesContent: PackageContent[] = [];
 							return pool.runJobIgnoreNull(entryFiles, file=>db.readEntry(ctx, file.replace(/^.*\/|\.jel$/g, ''), file)
 												 							        .then(entry=> {
-                if (entry instanceof DatabaseType) 
+                if (entry instanceof PackageContent) 
                   packagesContent.push(entry);
                 return db.put(ctx, entry as DbEntry);
               }))
               .then(()=> {
-                const typeByPackage = new Map<string, DatabaseType[]>();
-                packagesContent.filter(pc=>pc.package.includes('::'))
-                  .forEach(pc=>typeByPackage.has(pc.package)?typeByPackage.get(pc.package)!.push(pc):typeByPackage.set(pc.package, [pc]));
+                const typeByPackage = new Map<string, PackageContent[]>();
+                packagesContent.filter(pc=>pc.packageName.includes('::'))
+                  .forEach(pc=>typeByPackage.has(pc.packageName)?typeByPackage.get(pc.packageName)!.push(pc):typeByPackage.set(pc.packageName, [pc]));
                 return pool.runJob(Array.from(typeByPackage.keys()), pkg=>db.exists(pkg).then(e=>e as any|| db.put(ctx, new Package(pkg, new List(typeByPackage.get(pkg) as any)))));
               });
             });
