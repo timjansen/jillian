@@ -24,6 +24,9 @@ export default class Dictionary extends JelNode {
 
   // override
   execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
+    if (this.elements.length == 0)
+      return JelDictionary.empty;
+    
     const map = new Map();
 		const promises: Promise<any>[] = [];
     this.elements.forEach(a => {

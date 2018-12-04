@@ -20,7 +20,7 @@ export default class SimpleType extends TypeDescriptor {
 	//            it could set denominator=2 .
   // types: restrictions for base type parameter in the form string->SimpleType. 
 	//            E.g. for @UnitValue, it could set value = @Fraction to allow only fractions as values
-  // Example: SimpleType(@UnitValue, {unit: @Meter}) defines a @UnitValue measuring in meters
+  // Example: SimpleType(UnitValue, {unit: @Meter}) defines a @UnitValue measuring in meters
   // Example: SimpleType(@UnitValue, {unit: @Inch}, {value: SimpleType(@Fraction, {denominator: 16)}) defines
   //          a unit value using 1/16th inch
   constructor(public type: string, public constants: Dictionary = Dictionary.empty, public types: Dictionary = Dictionary.empty) {
@@ -38,7 +38,7 @@ export default class SimpleType extends TypeDescriptor {
   
   serializeType(): string {  
     if (this.constants.size + this.types.size == 0)
-      return Serializer.serialize(this.type);
+      return this.type.endsWith('Category') ? `@${this.type}` : this.type;
     else
       return `SimpleType(${Serializer.serialize(this.type)}, ${Serializer.serialize(this.constants)}, ${Serializer.serialize(this.types)})`;
   }

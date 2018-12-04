@@ -146,8 +146,12 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
  			this.putAll(otherDict.elements);
 		}
 		else if (Array.isArray(otherDict)) {
-			for (let i = 0; i < otherDict.length-1; i+=2)
-				this.elements.set(otherDict[i] instanceof JelString ? otherDict[i].value : '', otherDict[i+1]);
+      if (Array.isArray(otherDict[0]))
+        for (let i = 0; i < otherDict.length; i++)
+          this.elements.set(otherDict[i][0] || '', otherDict[i][1]);
+      else
+        for (let i = 0; i < otherDict.length-1; i+=2)
+          this.elements.set(otherDict[i] instanceof JelString ? otherDict[i].value : '', otherDict[i+1]);
 		}
 		else if (otherDict instanceof List) {
 			this.putAll(otherDict.elements);

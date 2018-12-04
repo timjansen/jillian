@@ -50,13 +50,13 @@ export default class TypeHelper {
   static convertFromAny(l: any, name: string): TypeDescriptor {
     if (l && (TypeChecker.isITypeDefinition(l) || l instanceof TypeDescriptor || l instanceof List || l instanceof Dictionary || TypeChecker.isIDbRef(l)))
       return TypeHelper.convert(l);
-    throw new Error('Expected Type or TypeDefintion or DbRef or Dictionary or List in ' + name);
+    throw new Error(`Expected NativeTypeDefinition or TypeDefinition or DbRef or Dictionary or List in ${name}. But it is a ${l==null?'null': l.getJelType()}: ${l}`);
   }
 
   static convertNullableFromAny(l: any, name: string): TypeDescriptor | null {
     if ((!l) || TypeChecker.isITypeDefinition(l) || l instanceof TypeDescriptor || l instanceof List || l instanceof Dictionary || TypeChecker.isIDbRef(l))
       return TypeHelper.convertNullable(l);
-    throw new Error('Expected Type or TypeDefintion or DbRef or Dictionary or List or null in ' + name);
+    throw new Error(`Expected NativeTypeDefinition or TypeDefinition or DbRef or Dictionary or List or null in ${name}. But it is a ${l==null?'null': l.getJelType()}: ${l}`);
   }
 
 }

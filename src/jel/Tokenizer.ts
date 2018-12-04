@@ -7,9 +7,9 @@ import Util from '../util/Util';
 import TokenReader from './TokenReader';
 import {TokenType, Token, TemplateToken, RegExpToken, FractionToken} from './Token';
 
-const wordOperators: any = {'instanceof': true, 'if': true, 'then': true, 'else': true, 'with': true};
-const constants: any = {'null': null, 'true': true, 'false': false};
-const escapes: any = {n: '\n', t: '\t'};
+const wordOperators: any = new Set(['instanceof', 'if', 'then', 'else', 'with']);
+const constantMapping: any = {'null': null, 'true': true, 'false': false};
+const constants: any = new Map(Object.keys(constantMapping).map(x=>[x, constantMapping[x]]) as any);
 
 //                          name:                          templateName       .hint.hint               expression
 const patternTemplateRE = /^\s*(?:([a-zA-Z_$][\w_$]*):)?\s*([a-zA-Z_$][\w_$]*)(?:\.(\w+(?:\.\w+)*))?\s*(?:::\s*(.*))?$/;
@@ -25,7 +25,7 @@ const fractionRE = /^(\d+)\s*\/\s*(\d+)$/;
 
 export default class Tokenizer {
 	static unescape(s: string): string {
-		return s.replace(/\\(.)/g, (m,c)=>escapes[c]||c);
+		return s.replace(/\\(.)/g, (m,c)=>c == 'n' ? '\n': c == 't' ? '\t' : c);
 	}
 	
   static tokenize(input: string): TokenReader {
@@ -60,9 +60,9 @@ export default class Tokenizer {
 			
       if (matches[3])
         tokens.push(new Token(line, col, TokenType.Operator, matches[3]));
-      else if (matches[4] && matches[4] in constants)
-        tokens.push(new Token(line, col, TokenType.Literal, constants[matches[4]]));
-      else if (matches[4] && matches[4] in wordOperators)
+      else if (matches[4] && constants.has(matches[4]))
+        tokens.push(new Token(line, col, TokenType.Literal, constants.get(matches[4])));
+      else if (matches[4] && wordOperators.has(matches[4]))
         tokens.push(new Token(line, col, TokenType.Operator, matches[4]));
       else if (matches[4])
         tokens.push(new Token(line, col, TokenType.Identifier, matches[4])); 

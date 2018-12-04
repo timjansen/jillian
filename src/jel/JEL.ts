@@ -482,17 +482,16 @@ export default class JEL {
         return methodName ? new MethodCall(left, methodName, argList) : new Call(left, argList);
     }
  
-    const argNames: any = {};           // for tracking dupes
+    const argNames = new Set();           // for tracking dupes
     const namedArgs: Assignment[] = []; // for the actual values
-
     while (true) {
       const name = JEL.nextOrThrow(tokens, "Expected identifier for named argument");
       if (name.type != TokenType.Identifier)
         JEL.throwParseException(name, "Expected identifier for named argument");
-      if (name.value in argNames)
+      if (argNames.has(name.value))
         JEL.throwParseException(name, "Duplicate name in named arguments");
       JEL.expectOp(tokens, EQUAL, "Expected equal sign after identifier for named argument");
-      argNames[name.value] = true;
+      argNames.add(name.value);
       namedArgs.push(new Assignment(name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, PARAMETER_STOP)));
 
       const next = JEL.expectOp(tokens, PARAMETER_STOP, "Expected ')' or '='");
