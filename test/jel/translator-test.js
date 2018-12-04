@@ -52,7 +52,7 @@ describe('jelTranslators', function() {
       assert.equal(translator(JEL.createPattern(`abc`), JEL.parseTree('2'), createMap({x: true, y: true, z: true}))
                                    .toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=true, y=true, z=true})])}))");
       assert.equal(translator(JEL.createPattern(`abc`), JEL.parseTree('2'), createMap({x: true, y: 1, zzz: "bla"}))
-                                   .toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=true, y=1, zzz=bla})])}))");
+                                   .toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=true, y=1, zzz=\"bla\"})])}))");
     });
     
     it('should support templates', function() {

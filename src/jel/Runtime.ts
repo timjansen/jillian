@@ -72,6 +72,10 @@ export default class Runtime {
       return left.getJelType() == (right as any).distinctName; 
     else if (typeof right == 'string')
       return left.getJelType() == right; 
+    else if (right.getJelType() == 'String')
+      return left.getJelType() == (right as any).value;
+    else if (right.getJelType() == 'TypeDefinition' || right.getJelType() == 'NativeTypeDefinition')
+      return left.getJelType() == (right as any).typeName;
     else
       return false;
 	}
@@ -109,7 +113,6 @@ export default class Runtime {
  	static callMethod(ctx: Context, obj: JelObject|null, name: string, args: any[], argObj?: any): JelObject|null|Promise<JelObject|null> {
     if (!obj)
       throw new Error("Can't call method on null."); 
-const x: any = obj; if (!x.member) throw new Error('Error calling '+x.toString());
     const value = obj.member(ctx, name);
     if (value) {
      return Util.resolveValue(value, resolvedValue=>{

@@ -290,9 +290,9 @@ describe('JEL', function() {
       assert.equal(new JEL('${`abc def` => 2, `foo` => 6}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={def: TranslatorNode(tokens={} results=[LambdaResultNode(2)])}),\nfoo: TranslatorNode(tokens={} results=[LambdaResultNode(6)])}))");
       assert.equal(new JEL('${`abc def` => 2, `foo` => 6, `abc foo bar` => 4}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={def: TranslatorNode(tokens={} results=[LambdaResultNode(2)]),\nfoo: TranslatorNode(tokens={bar: TranslatorNode(tokens={} results=[LambdaResultNode(4)])})}),\nfoo: TranslatorNode(tokens={} results=[LambdaResultNode(6)])}))");
     
-      assert.equal(new JEL('${x: `abc` => 2}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=JelBoolean(1)})])}))");
-      assert.equal(new JEL('${x,y,z: `abc` => 2}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=JelBoolean(1), y=JelBoolean(1), z=JelBoolean(1)})])}))");
-      assert.equal(new JEL('${x,y=1,zzz="bla": `abc` => 2}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=JelBoolean(1), y=1, zzz=\"bla\"})])}))");
+      assert.equal(new JEL('${x: `abc` => 2}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=true})])}))");
+      assert.equal(new JEL('${x,y,z: `abc` => 2}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=true, y=true, z=true})])}))");
+      assert.equal(new JEL('${x,y=1,zzz="bla": `abc` => 2}').executeImmediately().toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=true, y=1, zzz=\"bla\"})])}))");
 
       assert.equal(new JEL('${}.match("").length').executeImmediately(), 0);
       assert.equal(new JEL('${}.match("a").length').executeImmediately(), 0);

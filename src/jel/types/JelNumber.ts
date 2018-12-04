@@ -106,11 +106,21 @@ export default class JelNumber extends JelObject implements SerializablePrimitiv
 		return typeof n == 'number' ? n : (n && (n as any).toRealNumber) ? (n as any).toRealNumber() : defaultValue;
 	}
 
-	static isInteger_jel_mapping: ['n'];
+	static isInteger_jel_mapping = ['n'];
 	static isInteger(ctx: Context, n: any): boolean {
 		return Number.isInteger(JelNumber.toRealNumber(n));
 	}
-	
+
+	static isNumeric_jel_mapping = ['n'];
+	static isNumeric(ctx: Context, n: JelObject|null): boolean {
+		return n && (n as any).toNumber;
+	}
+
+  static noUnit_jel_mapping = ['n'];
+	static noUnit(ctx: Context, n: JelObject|null): boolean {
+		return n && (n as any).toNumber && n.getJelType() != 'UnitValue';
+	}
+
 	static toOptionalRealNumber(n: any, defaultValue: number|null = null): number | null {
 		return n == null ? null : typeof n == 'number' ? n : (n && (n as any).toRealNumber) ? (n as any).toRealNumber() : defaultValue;
 	}

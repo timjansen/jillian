@@ -86,9 +86,9 @@ export default class JelString extends JelObject implements SerializablePrimitiv
 	toNumber(): number {
 		return this.value.length;
 	}
-	
-	toString(): string {
-		return this.serializeToString(true, 0, '');
+
+  toString(): string {
+  	return this.value;
 	}
 }
 

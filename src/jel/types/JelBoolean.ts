@@ -232,7 +232,7 @@ export default class JelBoolean extends JelObject implements SerializablePrimiti
 	}
 
 	serializeToString(pretty: boolean, indent: number, spaces: string) : string {
-		return this.state == 0 ? 'false' : this.state == 1 ? 'true' : `JelBoolean(${this.state})`;
+		return this.state == 0 ? 'false' : this.state == 1 ? 'true' : `Boolean(${this.state})`;
 	}
 
 	toString(): string {

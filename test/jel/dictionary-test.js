@@ -90,13 +90,13 @@ describe('jelDictionary', function() {
       let x = '';
       const accumulator = new FunctionCallable((ctx, k, v)=> x+=k+'-'+v+',' );
       new JEL('Dictionary(["3", 2, "9", 10]).each(accumulator)').executeImmediately(new Context().setAll({Dictionary: new NativeTypeDefinition(Dictionary), accumulator}));
-      assert.equal(x, "\"3\"-2,\"9\"-10,");
+      assert.equal(x, "3-2,9-10,");
     });
     it('iterates with promises', function() {
       let x = '';
       const accumulator = new FunctionCallable((ctx, k, v)=> Promise.resolve(x+=k+'-'+v+','));
       return new JEL('Dictionary(["3", 2, "9", 10, "a", 11, "b", 22]).each(accumulator)').execute(new Context(ctx).setAll({accumulator}))
-				.then(()=>assert.equal(x, "\"3\"-2,\"9\"-10,\"a\"-11,\"b\"-22,"));
+				.then(()=>assert.equal(x, "3-2,9-10,a-11,b-22,"));
     });
   });
 
