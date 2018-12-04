@@ -194,18 +194,18 @@ export default class LocalDate extends AbstractDate {
 		return [this.year, this.month, this.day];
 	}
 	
-	static create_jel_mapping: any = {year: 1, month: 2, day: 3};
+	static create_jel_mapping: any = ['year', 'month', 'day'];
 	static create(ctx: Context, ...args: any[]): any {
 		return new LocalDate(TypeChecker.realNumber(args[0], 'year', 0), TypeChecker.optionalRealNumber(args[1], 'month'), TypeChecker.optionalRealNumber(args[2], 'day')).simplify();
 	}
 }
 
 LocalDate.prototype.JEL_PROPERTIES = AbstractDate.prototype.JEL_PROPERTIES;
-LocalDate.prototype.simplify_jel_mapping = {};
 LocalDate.prototype.reverseOps = {'+': 1};
-LocalDate.prototype.toZonedDate_jel_mapping = {timeZone: 1, time: 2};
-LocalDate.prototype.toZonedDateTime_jel_mapping = {timeZone: 1, time: 2};
-LocalDate.prototype.toTimestamp_jel_mapping = {timeZone: 1, time: 2};
-LocalDate.prototype.toLocalDateTime_jel_mapping = {time: 1};
+LocalDate.prototype.simplify_jel_mapping = [];
+LocalDate.prototype.toZonedDate_jel_mapping = ['timeZone', 'time'];
+LocalDate.prototype.toZonedDateTime_jel_mapping = ['timeZone', 'time'];
+LocalDate.prototype.toTimestamp_jel_mapping = ['timeZone', 'time'];
+LocalDate.prototype.toLocalDateTime_jel_mapping = ['time'];
 
 

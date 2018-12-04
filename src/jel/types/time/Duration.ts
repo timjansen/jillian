@@ -252,7 +252,7 @@ export default class Duration extends JelObject {
 	}
 	
 	// create either with years/months/days/hours/minutes/seconds, or a UnitValue
-	static create_jel_mapping = {unit: 1, years: 1, months: 2, days: 3, hours: 4, minutes: 5, seconds: 6};
+	static create_jel_mapping = {'unit':1, 'years':1, 'months':2, 'days':3, 'hours':4, 'minutes':5, 'seconds':6};
 	static create(ctx: Context, ...args: any[]): any {
 		if (args[0] instanceof UnitValue) {
 			const uv = args[0];
@@ -283,9 +283,9 @@ export default class Duration extends JelObject {
 }
 
 Duration.prototype.reverseOps = JelObject.SWAP_OPS;
-Duration.prototype.abs_jel_mapping = {};
-Duration.prototype.fullDays_jel_mapping = {};
-Duration.prototype.simplify_jel_mapping = {};
-Duration.prototype.toEstimatedSeconds_jel_mapping = {};
+Duration.prototype.abs_jel_mapping = [];
+Duration.prototype.fullDays_jel_mapping = [];
+Duration.prototype.simplify_jel_mapping = [];
+Duration.prototype.toEstimatedSeconds_jel_mapping = [];
 
 

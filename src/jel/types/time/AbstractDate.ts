@@ -130,5 +130,5 @@ export default abstract class AbstractDate extends TimeDescriptor {
 }
 
 AbstractDate.prototype.JEL_PROPERTIES = {year:1, month:1, day: 1, dayOfYear: 1, dayOfWeek: 1, isoWeek: 1, isoWeeksInYear: 1, quarter: 1, century: 1, millenium: 1, allDays: 1, leapYear: 1, numberOfDays: 1};
-AbstractDate.prototype.diff_jel_mapping = {otherDate: 1, type: 2};
+AbstractDate.prototype.diff_jel_mapping = ['otherDate', 'type'];
 

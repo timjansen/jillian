@@ -31,7 +31,7 @@ export default class OptionType extends TypeDescriptor {
     return `OptionType([${this.options.elements.map(option=>option ? option.serializeType() : 'null').join(', ')}])`;
   }
   
-  static create_jel_mapping = {options: 1};
+  static create_jel_mapping = ['options'];
   static create(ctx: Context, ...args: any[]) {
     return new OptionType(args[0]);
   }

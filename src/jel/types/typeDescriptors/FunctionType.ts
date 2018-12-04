@@ -32,7 +32,7 @@ export default class FunctionType extends TypeDescriptor {
   }
 
   
-  static create_jel_mapping = {arguments: 1};
+  static create_jel_mapping = ['arguments'];
   static create(ctx: Context, ...args: any[]) {
     return new FunctionType(TypeChecker.listOfStrings(args[0], 'arguments'));
   }

@@ -37,7 +37,7 @@ export default class EnumValue extends JelObject {
 	}
 	
 	
-	static create_jel_mapping = {value: 1, parent: 2 };
+	static create_jel_mapping = ['value', 'parent'];
 	static create(ctx: Context, ...args: any[]): EnumValue {
 		return new EnumValue(TypeChecker.realString(args[0], 'value'), TypeChecker.dbRef(args[1], 'parent'));
 	}

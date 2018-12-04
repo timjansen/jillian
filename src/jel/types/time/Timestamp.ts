@@ -161,7 +161,7 @@ export default class Timestamp extends TimeDescriptor {
 		return new Timestamp(m.valueOf());
 	}
 	
-	static create_jel_mapping = {msSinceEpoch: 1, precisionInMs: 2};
+	static create_jel_mapping = ['msSinceEpoch', 'precisionInMs'];
 	static create(ctx: Context, ...args: any[]): any {
 		return new Timestamp(TypeChecker.realNumber(args[0], 'msSinceEpoch'), TypeChecker.realNumber(args[1], 'precisionInMs', 0));
 	}
@@ -170,9 +170,9 @@ export default class Timestamp extends TimeDescriptor {
 Timestamp.prototype.JEL_PROPERTIES = {msSinceEpoch:1, precisionInMs:1};
 Timestamp.prototype.reverseOps = {'-':1, '+': 1};
 
-Timestamp.prototype.toNumber_jel_mapping = {};
-Timestamp.prototype.toZonedDateTime_jel_mapping = {timeZone: 1};
-Timestamp.prototype.toLocalDateTime_jel_mapping = {timeZone: 1};
-Timestamp.prototype.toLocalDate_jel_mapping = {timeZone: 1};
+Timestamp.prototype.toNumber_jel_mapping = [];
+Timestamp.prototype.toZonedDateTime_jel_mapping = ['timeZone'];
+Timestamp.prototype.toLocalDateTime_jel_mapping = ['timeZone'];
+Timestamp.prototype.toLocalDate_jel_mapping = ['timeZone'];
 
 

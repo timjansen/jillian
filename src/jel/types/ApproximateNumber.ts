@@ -196,17 +196,17 @@ export default class ApproximateNumber extends JelObject implements Numeric {
 		return this.hasError ? [this.value, this.maxError] : [this.value];
 	}
 	
-	static create_jel_mapping = {value: 1, maxError: 2};
+	static create_jel_mapping = ['value', 'maxError'];
 	static create(ctx: Context, ...args: any[]): ApproximateNumber {
 		return new ApproximateNumber(TypeChecker.types(NUMBER_OR_FRACTION, args[0], 'value'), TypeChecker.optionalTypes(NUMBER_OR_FRACTION, args[1], 'maxError', 0));
 	}
 }
 
 ApproximateNumber.prototype.reverseOps = Object.assign({'-':1, '/': 1, '+-': 1, '^': 1}, JelObject.SWAP_OPS);
-ApproximateNumber.prototype.toNumber_jel_mapping = {};
-ApproximateNumber.prototype.abs_jel_mapping = {};
-ApproximateNumber.prototype.negate_jel_mapping = {};
-ApproximateNumber.prototype.hasError_jel_mapping = {};
+ApproximateNumber.prototype.toNumber_jel_mapping = [];
+ApproximateNumber.prototype.abs_jel_mapping = [];
+ApproximateNumber.prototype.negate_jel_mapping = [];
+ApproximateNumber.prototype.hasError_jel_mapping = [];
 
 BaseTypeRegistry.register('ApproximateNumber', ApproximateNumber);
 

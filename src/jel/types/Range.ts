@@ -112,16 +112,16 @@ export default class Range extends JelObject {
 		return new Range(JelNumber.valueOf(value - accuracy), JelNumber.valueOf(value + accuracy));
 	}
 	
-	static create_jel_mapping = {min:1, max:2};
+	static create_jel_mapping = ['min', 'max'];
 	static create(ctx: Context, ...args: any[]): Range {
 		return new Range(args[0] != null ? args[0] : null, args[1] != null ? args[1] : null);
 	}
 }
 
 Range.prototype.JEL_PROPERTIES = {min: 1, max: 1};
-Range.prototype.contains_jel_mapping = {right: 1};
-Range.prototype.middle_jel_mapping = {};
-Range.prototype.isFinite_jel_mapping = {};
+Range.prototype.contains_jel_mapping = ['right'];
+Range.prototype.middle_jel_mapping = [];
+Range.prototype.isFinite_jel_mapping = [];
 Range.prototype.reverseOps = JelObject.SWAP_OPS;
 
 	

@@ -233,17 +233,17 @@ export default class Fraction extends JelObject implements Numeric {
 		return a0; 
  	}
 	
-	static create_jel_mapping = {numerator:1, denominator: 2};
+	static create_jel_mapping = ['numerator', 'denominator'];
 	static create(ctx: Context, ...args: any[]): any {
 		return new Fraction(TypeChecker.realNumber(args[0], 'numerator'), TypeChecker.realNumber(args[1], 'denominator'));
 	}
 }
 
 Fraction.prototype.reverseOps = Object.assign({'-': true, '/': true, '+-': true, '^': true}, JelObject.SWAP_OPS);
-Fraction.prototype.abs_jel_mapping = {};
-Fraction.prototype.negate_jel_mapping = {};
-Fraction.prototype.toNumber_jel_mapping = {};
-Fraction.prototype.simplify_jel_mapping = {};
+Fraction.prototype.abs_jel_mapping = [];
+Fraction.prototype.negate_jel_mapping = [];
+Fraction.prototype.toNumber_jel_mapping = [];
+Fraction.prototype.simplify_jel_mapping = [];
 
 BaseTypeRegistry.register('Fraction', Fraction);
 

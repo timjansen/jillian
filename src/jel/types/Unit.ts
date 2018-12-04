@@ -157,7 +157,7 @@ export default class Unit extends JelObject {
 		return Array.from(this.units.entries()).map((r: any) =>r[1] != 1 ? `${r[0]}^${r[1]}` : r[0]).join('*');
 	}
 	
-	static create_jel_mapping = {numeratorUnits: 1, denominatorUnits: 2, units: 1};
+	static create_jel_mapping = ['numeratorUnits', 'denominatorUnits', 'units'];
 	static create(ctx: Context, ...args: any[]): Unit {
 		return new Unit((args[0] && (args[0] as any).isIDBRef) ? args[0] : TypeChecker.types(NUMERATOR_TYPES, args[0], 'numerator'), 
                     ((args[1] && (args[1] as any).isIDBRef) ? args[1] : TypeChecker.optionalTypes(DENOMINATOR_TYPES, args[1], 'denominator')) || null);

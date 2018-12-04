@@ -221,7 +221,7 @@ export default class Distribution extends JelObject {
 		return [this.points, this.average];
 	}
 
-	static create_jel_mapping = {distributionPoints: 1, average: 2, min: 3, max: 4, mean: 5};
+	static create_jel_mapping = ['distributionPoints', 'average', 'min', 'max', 'mean'];
 	static create(ctx: Context, ...args: any[]): Distribution {
 		return new Distribution(TypeChecker.optionalType('List', args[0], 'distributionPoints'), 
 														TypeChecker.optionalNumeric(args[1], 'average'), TypeChecker.optionalNumeric(args[2], 'min'), 

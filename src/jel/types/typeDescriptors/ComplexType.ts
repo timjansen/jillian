@@ -47,7 +47,7 @@ export default class ComplexType extends TypeDescriptor {
   }
 
 
-  static create_jel_mapping = {fields: 1};
+  static create_jel_mapping = ['fields'];
   static create(ctx: Context, ...args: any[]) {
     return new ComplexType(TypeChecker.instance(Dictionary, args[0], 'fields'));
   }

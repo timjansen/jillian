@@ -27,6 +27,8 @@ export default class ListType extends TypeDescriptor {
   checkType(ctx: Context, value: JelObject|null): boolean {
     if (!(value instanceof List))
       return false;
+    if (!this.types)
+      return true;
     
     return value.hasOnlyJs(v=>this.types.checkType(ctx, v as any));
   }
@@ -40,7 +42,7 @@ export default class ListType extends TypeDescriptor {
   }
 
 
-  static create_jel_mapping = {types: 1};
+  static create_jel_mapping = ['types'];
   static create(ctx: Context, ...args: any[]) {
     return new ListType(args[0]);
   }

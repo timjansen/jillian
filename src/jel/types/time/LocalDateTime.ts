@@ -166,6 +166,6 @@ export default class LocalDateTime extends AbstractDate {
 
 LocalDateTime.prototype.JEL_PROPERTIES = Object.assign({time: 1, date: 1, hour:1, minute: 1, seconds:1}, AbstractDate.prototype.JEL_PROPERTIES);
 LocalDateTime.prototype.reverseOps = {'+': 1};
-LocalDateTime.prototype.toZonedDate_jel_mapping = {timeZone: 1};
-LocalDateTime.prototype.toZonedDateTime_jel_mapping = {timeZone: 1};
-LocalDateTime.prototype.toTimestamp_jel_mapping = {timeZone: 1};
+LocalDateTime.prototype.toZonedDate_jel_mapping = ['timeZone'];
+LocalDateTime.prototype.toZonedDateTime_jel_mapping = ['timeZone'];
+LocalDateTime.prototype.toTimestamp_jel_mapping = ['timeZone'];

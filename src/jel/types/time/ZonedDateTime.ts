@@ -167,9 +167,9 @@ export default class ZonedDateTime extends AbstractDate {
 
 ZonedDateTime.prototype.reverseOps = JelObject.SWAP_OPS;
 ZonedDateTime.prototype.JEL_PROPERTIES = Object.assign({time: 1, date: 1, timeZone: 1, hour:1, minute: 1, seconds:1}, AbstractDate.prototype.JEL_PROPERTIES);
-ZonedDateTime.prototype.toZonedDate_jel_mapping = {};
-ZonedDateTime.prototype.toLocalDateTime_jel_mapping = {};
-ZonedDateTime.prototype.toTimestamp_jel_mapping = {};
-ZonedDateTime.prototype.toUTC_jel_mapping = {};
-ZonedDateTime.prototype.withTimeZone_jel_mapping = {timeZone: 1};
+ZonedDateTime.prototype.toZonedDate_jel_mapping = [];
+ZonedDateTime.prototype.toLocalDateTime_jel_mapping = [];
+ZonedDateTime.prototype.toTimestamp_jel_mapping = [];
+ZonedDateTime.prototype.toUTC_jel_mapping = [];
+ZonedDateTime.prototype.withTimeZone_jel_mapping = ['timeZone'];
 

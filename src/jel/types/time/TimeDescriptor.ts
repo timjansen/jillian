@@ -64,10 +64,10 @@ export default abstract class TimeDescriptor extends JelObject {
 	
 }
 
-TimeDescriptor.prototype.getStartTime_jel_mapping = {defaultTimeZone: 1};
-TimeDescriptor.prototype.getEndTime_jel_mapping = {defaultTimeZone: 1};
-TimeDescriptor.prototype.isBefore_jel_mapping = {time: 1, defaultTimeZone: 2};
-TimeDescriptor.prototype.isAfter_jel_mapping = {time: 1, defaultTimeZone: 2};
-TimeDescriptor.prototype.isContinous_jel_mapping = {};
-TimeDescriptor.prototype.contains_jel_mapping = {time: 1, defaultTimeZone: 2};
+TimeDescriptor.prototype.getStartTime_jel_mapping = ['defaultTimeZone'];
+TimeDescriptor.prototype.getEndTime_jel_mapping = ['defaultTimeZone'];
+TimeDescriptor.prototype.isBefore_jel_mapping = ['time', 'defaultTimeZone'];
+TimeDescriptor.prototype.isAfter_jel_mapping = ['time', 'defaultTimeZone'];
+TimeDescriptor.prototype.isContinous_jel_mapping = [];
+TimeDescriptor.prototype.contains_jel_mapping = ['time', 'defaultTimeZone'];
 

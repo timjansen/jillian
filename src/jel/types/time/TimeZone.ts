@@ -64,12 +64,12 @@ export default class TimeZone extends JelObject {
 		return [this.tz];
 	}
 	
-	static create_jel_mapping: any = {tz: 1};
+	static create_jel_mapping: any = ['tz'];
 	static create(ctx: Context, ...args: any[]): any {
 		return new TimeZone(TypeChecker.realString(args[0], 'tz', 'UTC'));
 	}
 }
 
-TimeZone.prototype.JEL_PROPERTIES = {tz: 1};
-TimeZone.prototype.isDST_jel_mapping = {time: 1};
-TimeZone.prototype.getOffset_jel_mapping = {time: 1};
+TimeZone.prototype.JEL_PROPERTIES = {'tz': true};
+TimeZone.prototype.isDST_jel_mapping = ['time'];
+TimeZone.prototype.getOffset_jel_mapping = ['time'];

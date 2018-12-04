@@ -64,13 +64,13 @@ export default class DurationRange extends Range {
 		return [this.min, this.max];
 	}
 	
-	static create_jel_mapping = {min: 1, max: 2};
+	static create_jel_mapping = ['min', 'max'];
 	static create(ctx: Context, ...args: any[]): DurationRange {
 		return new DurationRange(TypeChecker.instance(Duration, args[0], 'min'), TypeChecker.instance(Duration, args[1], 'max'));
 	}
 
 }
 
-DurationRange.prototype.contains_jel_mapping = {value: 1};
+DurationRange.prototype.contains_jel_mapping = ['value'];
 DurationRange.prototype.reverseOps = JelObject.SWAP_OPS;
 
