@@ -35,6 +35,7 @@ import FunctionType from './types/typeDescriptors/FunctionType';
 import ListType from './types/typeDescriptors/ListType';
 import OptionType from './types/typeDescriptors/OptionType';
 import OptionalType from './types/typeDescriptors/OptionalType';
+import RangeType from './types/typeDescriptors/RangeType';
 import SimpleType from './types/typeDescriptors/SimpleType';
 
 function c(ctor: any): NativeTypeDefinition {
@@ -46,7 +47,7 @@ const CTX_IDENTIFIERS = {Boolean: c(JelBoolean), Number: c(JelNumber), String: c
 												 Dictionary: c(Dictionary), List: c(List), Distribution: c(Distribution), DistributionPoint: c(DistributionPoint), Pattern: c(Pattern), Translator: c(Translator), EnumValue: c(EnumValue), 
 												 Duration: c(Duration), DurationRange: c(DurationRange), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 
                          ZonedDate: c(ZonedDate), ZonedDateTime: c(ZonedDateTime),
-                         AnyType: c(AnyType), ComplexType: c(ComplexType), DictionaryType: c(DictionaryType), FunctionType: c(FunctionType), ListType: c(ListType), OptionType: c(OptionType), OptionalType: c(OptionalType), SimpleType: c(SimpleType),
+                         AnyType: c(AnyType), ComplexType: c(ComplexType), DictionaryType: c(DictionaryType), FunctionType: c(FunctionType), ListType: c(ListType), OptionType: c(OptionType), OptionalType: c(OptionalType), RangeType: c(RangeType), SimpleType: c(SimpleType),
                          any: AnyType.instance,
 												 ___IS_DEFAULT_CONTEXT: 'magic123'};
 

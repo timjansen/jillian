@@ -38,6 +38,7 @@ tmp.dir(function(err, path) {
 
       it('supports properties set in the constructor', function() {
         jelAssert.equal('with myTestType=TypeDefinition("MyTestType", null, (x: Number, y: String)=>{}), m=myTestType(5, "foo"): [m.x, m.y]', "[5, 'foo']");
+        jelAssert.equal('with myTestType=TypeDefinition("MyTestType", null, (x: Number|String, y: Number|String)=>{}), m=myTestType(5, "foo"): [m.x, m.y]', "[5, 'foo']");
         jelAssert.equal('with myTestType=TypeDefinition("MyTestType", null, (this, x: Number, y: String)=>{}), m=myTestType(5, "foo"): [m.x, m.y]', "[5, 'foo']");
         jelAssert.equal('with myTestType=TypeDefinition("MyTestType", null, (x: Number, y: Number)=>{z: x+y}, propertyDefs={z: Number}), m=myTestType(5, 10): [m.x, m.y, m.z]', "[5, 10, 15]");
         jelAssert.equal('with myTestType=TypeDefinition("MyTestType", constructor=(x: Number, y: String)=>{x: x+1}), m=myTestType(5, "foo"): [m.x, m.y]', "[6, 'foo']");

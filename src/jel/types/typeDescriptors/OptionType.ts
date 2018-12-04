@@ -4,6 +4,7 @@ import {IDbRef} from '../../IDatabase';
 import Dictionary from '../../types/Dictionary';
 import List from '../../types/List';
 import TypeChecker from '../../types/TypeChecker';
+import BaseTypeRegistry from '../../BaseTypeRegistry';
 import Context from '../../Context';
 import JelObject from '../../JelObject';
 
@@ -26,6 +27,10 @@ export default class OptionType extends TypeDescriptor {
   checkType(ctx: Context, value: JelObject|null): boolean {
     return this.options.hasAnyJs(option=>option ? (option as any).checkType(ctx, value) : value == null);
   }
+    
+  static valueOf(e: JelObject[]): OptionType {
+    return new OptionType(new List(e));
+  }
   
   serializeType(): string {  
     return `OptionType([${this.options.elements.map(option=>option ? option.serializeType() : 'null').join(', ')}])`;
@@ -37,6 +42,7 @@ export default class OptionType extends TypeDescriptor {
   }
 }
 
+BaseTypeRegistry.register('OptionType', OptionType);
 
 
 

@@ -29,6 +29,7 @@ import Lambda from './expressionNodes/Lambda';
 import Call from './expressionNodes/Call';
 import MethodCall from './expressionNodes/MethodCall';
 import Optional from './expressionNodes/Optional';
+import Options from './expressionNodes/Options';
 import Get from './expressionNodes/Get';
 import UnitValue from './expressionNodes/UnitValue';
 
@@ -49,12 +50,13 @@ const binaryOperators: any = { // op->precedence
   '!==': 10,
   '&&': 6,
   '||': 5,
-  'instanceof': 15,
+	'|': 10,
   '+': 13,
   '-': 13,
   '*': 14,
   '/': 14,
   '%': 14,
+  'instanceof': 15,
 	'^': 15,
   '+-': 17, 
   '(': 18,
@@ -361,7 +363,7 @@ export default class JEL {
     if (opPrecedence <= precedence)
       return left;
     
-    tokens.next();    
+    tokens.next();
     
     if (binOpToken.value == '.' && tokens.hasNext(2) && 
         tokens.peek().type == TokenType.Identifier && 
@@ -370,14 +372,24 @@ export default class JEL {
       tokens.next(); 
       return JEL.tryBinaryOps(tokens, JEL.parseCall(tokens, left, methodName.value), precedence, stopOps);
     }
-    else if (binOpToken.value == '(') 
-      return JEL.tryBinaryOps(tokens, JEL.parseCall(tokens, left), precedence, stopOps);
-    else if (binOpToken.value == '[') 
-      return JEL.tryBinaryOps(tokens, JEL.parseGet(tokens, left), precedence, stopOps);
-    else if (binOpToken.value == '?')
-      return JEL.tryBinaryOps(tokens, new Optional(left), precedence, stopOps);
-    else
-      return JEL.tryBinaryOps(tokens, new Operator(binOpToken.value, left, JEL.parseExpression(tokens, binaryOperators[binOpToken.value] as number, stopOps)), precedence, stopOps);
+    
+    switch (binOpToken.value) {
+      case '(': 
+        return JEL.tryBinaryOps(tokens, JEL.parseCall(tokens, left), precedence, stopOps);
+      case '[': 
+        return JEL.tryBinaryOps(tokens, JEL.parseGet(tokens, left), precedence, stopOps);
+      case '?':
+        return JEL.tryBinaryOps(tokens, new Optional(left), precedence, stopOps);
+      case '|': 
+        const elements: JelNode[] = [left, JEL.parseExpression(tokens, binaryOperators[binOpToken.value] as number, stopOps)];
+        while (tokens.hasNext(2) && tokens.peek().type == TokenType.Operator && tokens.peek().value == '|') {
+          tokens.next();
+          elements.push(JEL.parseExpression(tokens, binaryOperators[binOpToken.value] as number, stopOps));
+        }
+        return JEL.tryBinaryOps(tokens, new Options(elements), precedence, stopOps);
+      default:
+        return JEL.tryBinaryOps(tokens, new Operator(binOpToken.value, left, JEL.parseExpression(tokens, binaryOperators[binOpToken.value] as number, stopOps)), precedence, stopOps);
+    }
   }
 
   

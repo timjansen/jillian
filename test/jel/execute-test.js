@@ -258,7 +258,7 @@ describe('JEL', function() {
       assert.equal(new JEL('if false then 7').executeImmediately().state, 1);
     });
 
-    it('supports lists', function() {
+    it('supports lists using the regular syntax []', function() {
       assert(new JEL('[]').executeImmediately() instanceof JelList);
       assert.deepEqual(new JEL('[]').executeImmediately().elements, []);
       assert.deepEqual(new JEL('[1]').executeImmediately().elements, [JelNumber.valueOf(1)]);
@@ -266,7 +266,7 @@ describe('JEL', function() {
       
 			return new JEL('[JelPromise(2), 0, JelPromise.resolve(8), JelPromise(9), JelPromise.resolve(7), 5]').execute(ctx).then(r=> assert.deepEqual(r.elements, [2, 0, 8, 9, 7, 5].map(JelNumber.valueOf)));
     });
-
+    
     it('supports dictionaries', function() {
       assert.deepEqual(new JEL('{}').executeImmediately().toObjectDebug(), {});
       assert.deepEqual(new JEL('{a: 3, b: 1}').executeImmediately().toObjectDebug(), {a: JelNumber.valueOf(3), b: JelNumber.valueOf(1)});

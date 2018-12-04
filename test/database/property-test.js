@@ -42,7 +42,7 @@ tmp.dir(function(err, path) {
         jelAssert.equal('ListType(@Number)', new ListType(new DbRef('Number')));
         jelAssert.equal('OptionType([@Number, null])', new OptionType(new List([new DbRef('Number'), null])));
         jelAssert.equal('OptionalType(@Number)', new OptionalType(new DbRef('Number')));
-      })
+      });
 
       it('checks types', function() {
         jelAssert.fuzzy('AnyType().checkType(1)', 1);
@@ -83,9 +83,17 @@ tmp.dir(function(err, path) {
 
         jelAssert.fuzzy('OptionType([@Number, @String, null]).checkType(1)', 1);
         jelAssert.fuzzy('OptionType([@Number, @String, null]).checkType("foo")', 1);
-        jelAssert.fuzzy('OptionType([@Number, null]).checkType(null)', 1);
-        jelAssert.fuzzy('OptionType([@Number, null]).checkType("a")', 0);
         jelAssert.fuzzy('OptionType([@Number, @String]).checkType(null)', 0);
+        
+        jelAssert.fuzzy('(@Number|@String|null).checkType(1)', 1);
+        jelAssert.fuzzy('(Number|String|null).checkType(1)', 1);
+        jelAssert.fuzzy('(@Number|@String|null).checkType("foo")', 1);
+        jelAssert.fuzzy('(@Number|@String|null).checkType(null)', 1);
+        jelAssert.fuzzy('(@Number|@String|null).checkType({})', 0);
+        jelAssert.fuzzy('(Number|String|null).checkType({})', 0);
+        jelAssert.fuzzy('(@Number|null).checkType(100)', 1);
+        jelAssert.fuzzy('(@Number|null).checkType(null)', 1);
+        jelAssert.fuzzy('(@Number|null).checkType("a")', 0);
 
         jelAssert.fuzzy('OptionalType(@Number).checkType(1)', 1);
         jelAssert.fuzzy('OptionalType(@Number).checkType(null)', 1);

@@ -20,8 +20,6 @@ export default class TypeHelper {
 			return new SimpleType((l as any).typeName);
 		else if (TypeChecker.isIDbRef(l))
 			return new SimpleType((l as any).distinctName);
-		else if (l instanceof List)
-			return new OptionType(l);
     else if (l instanceof Dictionary)
       return new ComplexType(l)
     else
@@ -39,8 +37,6 @@ export default class TypeHelper {
 			return new SimpleType((l as any).typeName);
 		else if (TypeChecker.isIDbRef(l))
 			return new SimpleType((l as any).distinctName);
-		else if (l instanceof List)
-			return new OptionType(l);
     else if (l instanceof Dictionary)
       return new ComplexType(l)
     else
@@ -48,15 +44,15 @@ export default class TypeHelper {
 	}
   
   static convertFromAny(l: any, name: string): TypeDescriptor {
-    if (l && (TypeChecker.isITypeDefinition(l) || l instanceof TypeDescriptor || l instanceof List || l instanceof Dictionary || TypeChecker.isIDbRef(l)))
+    if (l && (TypeChecker.isITypeDefinition(l) || l instanceof TypeDescriptor || l instanceof Dictionary || TypeChecker.isIDbRef(l)))
       return TypeHelper.convert(l);
-    throw new Error(`Expected NativeTypeDefinition or TypeDefinition or DbRef or Dictionary or List in ${name}. But it is a ${l==null?'null': l.getJelType()}: ${l}`);
+    throw new Error(`Expected NativeTypeDefinition or TypeDefinition or DbRef or Dictionary or List in ${name}. But it is a ${l==null?'null': l.getJelType? l.getJelType() : 'Native: '+l.constructor.name}: ${l}`);
   }
 
   static convertNullableFromAny(l: any, name: string): TypeDescriptor | null {
-    if ((!l) || TypeChecker.isITypeDefinition(l) || l instanceof TypeDescriptor || l instanceof List || l instanceof Dictionary || TypeChecker.isIDbRef(l))
+    if ((!l) || TypeChecker.isITypeDefinition(l) || l instanceof TypeDescriptor || l instanceof Dictionary || TypeChecker.isIDbRef(l))
       return TypeHelper.convertNullable(l);
-    throw new Error(`Expected NativeTypeDefinition or TypeDefinition or DbRef or Dictionary or List or null in ${name}. But it is a ${l==null?'null': l.getJelType()}: ${l}`);
+    throw new Error(`Expected NativeTypeDefinition or TypeDefinition or DbRef or Dictionary or List or null in ${name}. But it is a ${l==null?'null': l.getJelType? l.getJelType() : 'Native: '+l.constructor.name}: ${l}`);
   }
 
 }

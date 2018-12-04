@@ -11,9 +11,9 @@ Category('HolidayCategory',
 		matchesInYear: (this, year)=>if (this.firstDate == null || year >= this.firstDate.year) then [LocalDate(year, this.month, this.day)] else []
   },
 	instanceProperties = {
-   month: [@Number, SimpleType(@Range, types={min: @Number, max: @Number})],   // range if it can be in more than one month
-   day: [@Number, null],               // null if not always on the same day
-   weekDay: [@WeekdayCategory, null]   // null if it is not a fixed weekday
+   month: Number|RangeType(Number),   // range if it can be in more than one month
+   day: @Number?,               // null if not always on the same day
+   weekDay: @WeekdayCategory?   // null if it is not a fixed weekday
    
    // TODO: something to define 40 days after easter, or last thursday in november...
 	}

@@ -5,6 +5,6 @@ Category('QuantityCategory',
 	},
 	instanceProperties={
 		primaryUnit: @UnitOfMeasureCategory,
-		imperialUnit: [@UnitOfMeasureCategory, null]
+		imperialUnit: @UnitOfMeasureCategory?
 	}
 )
