@@ -6,6 +6,7 @@ import {IDbRef, IDbEntry} from '../../IDatabase';
 import Dictionary from '../../types/Dictionary';
 import Context from '../../Context';
 import JelObject from '../../JelObject';
+import BaseTypeRegistry from '../../BaseTypeRegistry';
 
 
 
@@ -40,6 +41,10 @@ export default class ListType extends TypeDescriptor {
   serializeType(): string {
     return this.types ? `ListType(${this.types.serializeType()})` : `ListType()`;
   }
+  
+  static valueOf(e: JelObject|null): ListType {
+    return new ListType(e);
+  }
 
 
   static create_jel_mapping = ['types'];
@@ -47,6 +52,8 @@ export default class ListType extends TypeDescriptor {
     return new ListType(args[0]);
   }
 }
+
+BaseTypeRegistry.register('ListType', ListType);
 
 
 

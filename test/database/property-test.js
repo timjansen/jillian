@@ -81,6 +81,26 @@ tmp.dir(function(err, path) {
         jelAssert.fuzzy('ListType(@Number).checkType([1, "a"])', 0);
         jelAssert.fuzzy('ListType(@Number).checkType("a")', 0);
 
+        jelAssert.fuzzy('Number[].checkType([1,2,3])', 1);
+        jelAssert.fuzzy('Number[].checkType([])', 1);
+        jelAssert.fuzzy('Number[].checkType([1, "a"])', 0);
+        jelAssert.fuzzy('Number[].checkType("a")', 0);
+
+        jelAssert.fuzzy('@Number[].checkType([1,2,3])', 1);
+        jelAssert.fuzzy('@Number[].checkType([])', 1);
+        jelAssert.fuzzy('@Number[].checkType([1, "a"])', 0);
+        jelAssert.fuzzy('@Number[].checkType("a")', 0);
+
+        jelAssert.fuzzy('DictionaryType(@Number).checkType({a:2, b: 3})', 1);
+        jelAssert.fuzzy('DictionaryType(@Number).checkType({})', 1);
+        jelAssert.fuzzy('DictionaryType(@Number).checkType({a: 2, b: "a"})', 0);
+        jelAssert.fuzzy('DictionaryType(@Number).checkType("a")', 0);
+
+        jelAssert.fuzzy('@Number{}.checkType({a:2, b: 3})', 1);
+        jelAssert.fuzzy('@Number{}.checkType({})', 1);
+        jelAssert.fuzzy('@Number{}.checkType({a: 2, b: "a"})', 0);
+        jelAssert.fuzzy('@Number{}.checkType("a")', 0);
+
         jelAssert.fuzzy('OptionType([@Number, @String, null]).checkType(1)', 1);
         jelAssert.fuzzy('OptionType([@Number, @String, null]).checkType("foo")', 1);
         jelAssert.fuzzy('OptionType([@Number, @String]).checkType(null)', 0);

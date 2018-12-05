@@ -6,6 +6,7 @@ import List from '../List';
 import TypeChecker from '../TypeChecker';
 import JelObject from '../../JelObject';
 import Context from '../../Context';
+import BaseTypeRegistry from '../../BaseTypeRegistry';
 
 
 
@@ -41,11 +42,16 @@ export default class DictionaryType extends TypeDescriptor {
     return this.valueTypes ? `DictionaryType(${this.valueTypes.serializeType()})` : `DictionaryType()`;
   }
   
+  static valueOf(e: JelObject|null): DictionaryType {
+    return new DictionaryType(e);
+  }
+  
   static create_jel_mapping = ['valueTypes'];
   static create(ctx: Context, ...args: any[]) {
     return new DictionaryType(args[0]);
   }
 }
+BaseTypeRegistry.register('DictionaryType', DictionaryType);
 
 
 

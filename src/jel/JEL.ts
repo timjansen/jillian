@@ -17,6 +17,8 @@ import ExpressionPattern from './expressionNodes/Pattern';
 import Variable from './expressionNodes/Variable';
 import Operator from './expressionNodes/Operator';
 import List from './expressionNodes/List';
+import ListType from './expressionNodes/ListType';
+import DictType from './expressionNodes/DictType';
 import Dictionary from './expressionNodes/Dictionary';
 import Translator from './expressionNodes/Translator';
 import Reference from './expressionNodes/Reference';
@@ -35,6 +37,8 @@ import UnitValue from './expressionNodes/UnitValue';
 
 const binaryOperators: any = { // op->precedence
   '?': 20,
+  '[]': 20,
+  '{}': 20,
   '.': 19,
   '==': 10,
   '<': 11,
@@ -385,6 +389,10 @@ export default class JEL {
         return JEL.tryBinaryOps(tokens, JEL.parseGet(tokens, left), precedence, stopOps);
       case '?':
         return JEL.tryBinaryOps(tokens, new Optional(left), precedence, stopOps);
+      case '[]':
+        return JEL.tryBinaryOps(tokens, new ListType(left), precedence, stopOps);
+      case '{}':
+        return JEL.tryBinaryOps(tokens, new DictType(left), precedence, stopOps);
       case '|': 
         const elements: JelNode[] = [left, JEL.parseExpression(tokens, binaryOperators[binOpToken.value] as number, stopOps)];
         while (tokens.hasNext(2) && tokens.peek().type == TokenType.Operator && tokens.peek().value == '|') {
