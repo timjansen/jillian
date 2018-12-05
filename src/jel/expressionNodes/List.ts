@@ -20,6 +20,8 @@ export default class List extends JelNode {
 
   // override
   execute(ctx: Context): JelList { 
+    if (!this.elements.length)
+      return JelList.empty;
     return Util.resolveArray(this.elements.map(e=>e.execute(ctx)), (l: any[])=>new JelList(l));
   }
   

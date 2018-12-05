@@ -92,7 +92,8 @@ const THEN_STOP = {'else': true};
 const WITH_STOP = {':': true, ',': true};
 const EQUAL = {'=': true};
 
-
+const EMPTY_LIST = new List([]);
+const EMPTY_DICT = new Dictionary([]);
 
 export default class JEL {
 	parseTree: JelNode;
@@ -159,47 +160,51 @@ export default class JEL {
         const operand = JEL.parseExpression(tokens, unOp, stopOps);
         return JEL.tryBinaryOps(tokens, new Operator(token.value, operand), precedence, stopOps);
       }
-      else if (token.value == '(') {
-        const lambda = JEL.tryLambda(tokens, null, precedence, stopOps);
-        if (lambda)
-          return JEL.tryBinaryOps(tokens, lambda, precedence, stopOps);
-        else {
-          const e = JEL.parseExpression(tokens, PARENS_PRECEDENCE, PARENS_STOP);
-          JEL.expectOp(tokens, PARENS_STOP, "Expected closing parens");
-          return JEL.tryBinaryOps(tokens, e, precedence, stopOps);
+      else {
+        switch (token.value) {
+          case '(':
+            const lambda = JEL.tryLambda(tokens, null, precedence, stopOps);
+            if (lambda)
+              return JEL.tryBinaryOps(tokens, lambda, precedence, stopOps);
+            else {
+              const e = JEL.parseExpression(tokens, PARENS_PRECEDENCE, PARENS_STOP);
+              JEL.expectOp(tokens, PARENS_STOP, "Expected closing parens");
+              return JEL.tryBinaryOps(tokens, e, precedence, stopOps);
+            }
+          case '[':
+              return JEL.parseList(tokens, token, precedence, stopOps);
+          case '{':
+              return JEL.parseDictionary(tokens, precedence, stopOps);
+          case '[]':
+              return JEL.tryBinaryOps(tokens, EMPTY_LIST, precedence, stopOps);
+          case '{}':
+              return JEL.tryBinaryOps(tokens, EMPTY_DICT, precedence, stopOps);
+          case '${': 
+              return JEL.parseTranslator(tokens, token, precedence, stopOps);
+          case '@': 
+            const t2 = JEL.nextOrThrow(tokens, "Expected identifier after '@' for reference.");
+            if (t2.type != TokenType.Identifier)
+              JEL.throwParseException(token, "Expected identifier after '@' for reference.");
+            if (tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == '(') {
+              tokens.next();
+              const assignments: Assignment[] = JEL.parseParameters(tokens, PARENS_PRECEDENCE, PARAMETER_STOP, ')', "Expected comma or closing parens", 'parameter');
+              return JEL.tryBinaryOps(tokens, new Reference(t2.value, assignments), precedence, stopOps);
+            }
+            else
+              return JEL.tryBinaryOps(tokens, new Reference(t2.value), precedence, stopOps);
+          case 'if':
+            const cond = JEL.parseExpression(tokens, IF_PRECEDENCE, IF_STOP);
+            JEL.expectOp(tokens, IF_STOP, "Expected 'then'");
+            const thenV = JEL.parseExpression(tokens, IF_PRECEDENCE, THEN_STOP);
+            if (tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == 'else') {
+              tokens.next();
+              return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, JEL.parseExpression(tokens, IF_PRECEDENCE, stopOps)), precedence, stopOps);
+            }
+            return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, new Literal(true)), precedence, stopOps);
+          case 'with':
+            const assignments: Assignment[] = JEL.parseParameters(tokens, WITH_PRECEDENCE, WITH_STOP, ':', "Expected colon or equal sign after expression in 'with' statement,", 'constant');
+            return new With(assignments, JEL.parseExpression(tokens, precedence, stopOps));
         }
-      }
-      else if (token.value == '[')
-				return JEL.parseList(tokens, token, precedence, stopOps);
-      else if (token.value == '{')
-        return JEL.parseDictionary(tokens, precedence, stopOps);
-      else if (token.value == '${') 
-        return JEL.parseTranslator(tokens, token, precedence, stopOps);
-      else if (token.value == '@') {
-        const t2 = JEL.nextOrThrow(tokens, "Expected identifier after '@' for reference.");
-        if (t2.type != TokenType.Identifier)
-          JEL.throwParseException(token, "Expected identifier after '@' for reference.");
-				if (tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == '(') {
-					tokens.next();
-					const assignments: Assignment[] = JEL.parseParameters(tokens, PARENS_PRECEDENCE, PARAMETER_STOP, ')', "Expected comma or closing parens", 'parameter');
-	        return JEL.tryBinaryOps(tokens, new Reference(t2.value, assignments), precedence, stopOps);
-				}
-				else
-	        return JEL.tryBinaryOps(tokens, new Reference(t2.value), precedence, stopOps);
-      }
-      else if (token.value == 'if') {
-        const cond = JEL.parseExpression(tokens, IF_PRECEDENCE, IF_STOP);
-        JEL.expectOp(tokens, IF_STOP, "Expected 'then'");
-        const thenV = JEL.parseExpression(tokens, IF_PRECEDENCE, THEN_STOP);
-				if (tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == 'else') {
-					tokens.next();
-					return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, JEL.parseExpression(tokens, IF_PRECEDENCE, stopOps)), precedence, stopOps);
-				}
-				return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, new Literal(true)), precedence, stopOps);
-      }
-      else if (token.value == 'with') {
-        const assignments: Assignment[] = JEL.parseParameters(tokens, WITH_PRECEDENCE, WITH_STOP, ':', "Expected colon or equal sign after expression in 'with' statement,", 'constant');
-        return new With(assignments, JEL.parseExpression(tokens, precedence, stopOps));
       }
     }
     JEL.throwParseException(token, "Unexpected token");
@@ -210,7 +215,7 @@ export default class JEL {
 	static parseDictionary(tokens: TokenReader, precedence: number, stopOps: any): JelNode {
 		if (tokens.hasNext() && tokens.peek().type == TokenType.Operator && tokens.peek().value == '}') {
 			tokens.next();
-			return JEL.tryBinaryOps(tokens, new Dictionary(), precedence, stopOps);
+			return JEL.tryBinaryOps(tokens, EMPTY_DICT, precedence, stopOps);
 		}
 
 		const assignments: Assignment[] = [];
@@ -313,7 +318,7 @@ export default class JEL {
 			JEL.throwParseException(startToken, "Unexpexted end, list not closed");
 		if (possibleEOL.type == TokenType.Operator && possibleEOL.value == ']') {
 			tokens.next();
-			return JEL.tryBinaryOps(tokens, new List([]), precedence, stopOps);
+			return JEL.tryBinaryOps(tokens, EMPTY_LIST, precedence, stopOps);
 		}
 
 		const list: JelNode[] = [];

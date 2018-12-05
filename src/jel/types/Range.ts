@@ -103,7 +103,13 @@ export default class Range extends JelObject {
 	isFinite(): boolean {
 		return this.min != null && this.max != null;
 	}
-	
+
+ 	isEmpty_jel_mapping: Object;
+	isEmpty(ctx: Context): boolean | JelObject | Promise<JelObject>{
+		return !this.min && !this.max && Runtime.op(ctx, '===', this.min, this.max);
+	}
+
+  
 	getSerializationProperties(): any[] {
 		return [this.min, this.max];
 	}
@@ -122,6 +128,7 @@ Range.prototype.JEL_PROPERTIES = {min: 1, max: 1};
 Range.prototype.contains_jel_mapping = ['right'];
 Range.prototype.middle_jel_mapping = [];
 Range.prototype.isFinite_jel_mapping = [];
+Range.prototype.isEmpty_jel_mapping = [];
 Range.prototype.reverseOps = JelObject.SWAP_OPS;
 
 	
