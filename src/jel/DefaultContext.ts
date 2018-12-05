@@ -1,5 +1,5 @@
 import Context from './Context';
-import NativeTypeDefinition from './NativeTypeDefinition';
+import NativeClass from './NativeClass';
 
 import JelBoolean from './types/JelBoolean';
 import JelNumber from './types/JelNumber';
@@ -38,8 +38,8 @@ import OptionalType from './types/typeDescriptors/OptionalType';
 import RangeType from './types/typeDescriptors/RangeType';
 import SimpleType from './types/typeDescriptors/SimpleType';
 
-function c(ctor: any): NativeTypeDefinition {
-  return new NativeTypeDefinition(ctor);
+function c(ctor: any): NativeClass {
+  return new NativeClass(ctor);
 }
 
 const CTX_IDENTIFIERS = {Boolean: c(JelBoolean), Number: c(JelNumber), String: c(JelString), ApproximateNumber: c(ApproximateNumber), Math: c(JelMath), 

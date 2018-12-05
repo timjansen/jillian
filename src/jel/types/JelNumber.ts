@@ -23,7 +23,7 @@ export default class JelNumber extends JelObject implements SerializablePrimitiv
 		JelNumber.DEFAULT_NUMBERS[NaN] = JelNumber.NAN;
 	}
 	
-  static typeName = 'Number';
+  static className = 'Number';
   
 	constructor(public value: number) {
 		super('Number');

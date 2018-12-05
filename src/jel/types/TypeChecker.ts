@@ -152,8 +152,8 @@ export default class TypeChecker {
     return !!(value && value.isIDBRef);
   }
 
-  static isITypeDefinition(value: any) {
-    return !!(value && value.typeName);
+  static isIClass(value: any) {
+    return !!(value && value.className);
   }
   
 	static optionalType(typeName: string, value: any, name: string, defaultValue: any = null): any {

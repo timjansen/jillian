@@ -1,6 +1,6 @@
 import PackageContent from './PackageContent';
 import Enum from './Enum';
-import TypeDefinition from './TypeDefinition';
+import Class from './Class';
 import DbEntry from '../DbEntry';
 import DbRef from '../DbRef';
 import ListType from '../../jel/types/typeDescriptors/ListType';
@@ -14,7 +14,7 @@ import Context from '../../jel/Context';
 import Util from '../../util/Util';
 
 
-const listTypeChecker = new ListType(new OptionType(new List([new SimpleType('Package'), new SimpleType('TypeDefinition'), new SimpleType('Enum')])));
+const listTypeChecker = new ListType(new OptionType(new List([new SimpleType('Package'), new SimpleType('Class'), new SimpleType('Enum')])));
 
 function createDictionary(packageName: string, content: List): Dictionary {
   const prefix = packageName + '::';
@@ -27,7 +27,7 @@ function createDictionary(packageName: string, content: List): Dictionary {
   return new Dictionary(m, true);
 }
 
-// Defines a package of TypeDefinitions and Enums
+// Defines a package of Classes and Enums
 export default class Package extends PackageContent {
   JEL_PROPERTIES: Object;
 
@@ -49,10 +49,10 @@ export default class Package extends PackageContent {
       throw new Error(`Unsupported property in ${name}. Requires DbRef, but it is ${ref.getJelType()}.`);
     
 		return ref.with(ctx, type=>{
-      if (type instanceof TypeDefinition || type instanceof Enum || type instanceof Package)
+      if (type instanceof Class || type instanceof Enum || type instanceof Package)
         return type;
       else
-        throw new Error(`Can not resolve package member ${name}. Package, TypeDefinition or Enum required, but it has the type ${type && type.getJelType()}.`);
+        throw new Error(`Can not resolve package member ${name}. Package, Class or Enum required, but it has the type ${type && type.getJelType()}.`);
     });
 	}
   

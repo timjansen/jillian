@@ -6,7 +6,7 @@ const assert = require('assert');
 const Context = require('../../build/jel/Context.js').default;
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
-const NativeTypeDefinition = require('../../build/jel/NativeTypeDefinition.js').default;
+const NativeClass = require('../../build/jel/NativeClass.js').default;
 const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const Callable = require('../../build/jel/Callable.js').default;
 const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
@@ -34,7 +34,7 @@ const {JelAssert, JelPromise, JelConsole, MockSession} = require('../jel-assert.
 const jelAssert = new JelAssert();
 
 
-const ctx = DefaultContext.plus(new MockSession()).plus({JelPromise: new NativeTypeDefinition(JelPromise), JelConsole: new NativeTypeDefinition(JelConsole)});
+const ctx = DefaultContext.plus(new MockSession()).plus({JelPromise: new NativeClass(JelPromise), JelConsole: new NativeClass(JelConsole)});
 jelAssert.setCtx(ctx);
 
 describe('JEL', function() {
@@ -214,7 +214,7 @@ describe('JEL', function() {
       const create = new Callable(A.create, A.create_jel_mapping);
       assert(new JEL('a.getX').executeImmediately(DefaultContext.plus({a:new A()})) instanceof Callable);
       jelAssert.equal(new JEL('a.getX()').executeImmediately(DefaultContext.plus({a:new A()})), 2);
-      const ctx = DefaultContext.plus({A: new NativeTypeDefinition(A)});
+      const ctx = DefaultContext.plus({A: new NativeClass(A)});
       assert(new JEL('A()').executeImmediately(ctx) instanceof A);
       jelAssert.equal(new JEL('A().getX()').executeImmediately(ctx), 2);
       jelAssert.equal(new JEL('A()["getX"]()').executeImmediately(ctx), 2);
@@ -358,7 +358,7 @@ describe('JEL', function() {
       A.pic_jel_mapping = [];
       A.add2_jel_mapping = ['a','b'];
      
-      const ctx = new Context().setAll({A: new NativeTypeDefinition(A)});
+      const ctx = new Context().setAll({A: new NativeClass(A)});
       assert.equal(new JEL('A()').executeImmediately(ctx).x, 2);
       assert.equal(new JEL('A()').executeImmediately(ctx).y, 5);
       assert.equal(new JEL('A(7,8)').executeImmediately(ctx).x, 7);
@@ -423,7 +423,7 @@ describe('JEL', function() {
      A.JEL_PROPERTIES = {x:1};
 
      const l = [];
-     const ctx = new Context().setAll({A: new NativeTypeDefinition(A)});
+     const ctx = new Context().setAll({A: new NativeClass(A)});
      l.push(JEL.execute('A.promise(3)+4', ctx).then(v=>assert.equal(v, 7)));
      l.push(JEL.execute('3+A.promise(4)', ctx).then(v=>assert.equal(v, 7)));
      l.push(JEL.execute('A.promise(3)+A.promise(4)', ctx).then(v=>assert.equal(v, 7)));

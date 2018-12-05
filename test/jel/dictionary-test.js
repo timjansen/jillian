@@ -4,7 +4,7 @@ require('source-map-support').install();
 const assert = require('assert');
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
-const NativeTypeDefinition = require('../../build/jel/NativeTypeDefinition.js').default;
+const NativeClass = require('../../build/jel/NativeClass.js').default;
 const JelString = require('../../build/jel/types/JelString.js').default;
 const JelNumber = require('../../build/jel/types/JelNumber.js').default;
 const List = require('../../build/jel/types/List.js').default;
@@ -14,7 +14,7 @@ const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 
-const ctx = DefaultContext.plus({JelPromise: new NativeTypeDefinition(JelPromise)});
+const ctx = DefaultContext.plus({JelPromise: new NativeClass(JelPromise)});
 const jelAssert = new JelAssert(ctx);
 
 
@@ -89,7 +89,7 @@ describe('jelDictionary', function() {
     it('iterates', function() {
       let x = '';
       const accumulator = new FunctionCallable((ctx, k, v)=> x+=k+'-'+v+',' );
-      new JEL('Dictionary(["3", 2, "9", 10]).each(accumulator)').executeImmediately(new Context().setAll({Dictionary: new NativeTypeDefinition(Dictionary), accumulator}));
+      new JEL('Dictionary(["3", 2, "9", 10]).each(accumulator)').executeImmediately(new Context().setAll({Dictionary: new NativeClass(Dictionary), accumulator}));
       assert.equal(x, "3-2,9-10,");
     });
     it('iterates with promises', function() {

@@ -3,19 +3,20 @@ import JelObject from './JelObject';
 import Context from './Context';
 import Serializer from './Serializer';
 import FunctionCallable from './FunctionCallable';
+import IClass from './IClass';
 
 
 /**
- * This is the base class for all objects that can be accessed by JEL. It implements operators and other functions required in JEL.
+ * Represents a natively implemented type as JelObject.
  */
-export default abstract class AbstractTypeDefinition extends JelObject {
+export default class NativeClass extends JelObject implements IClass {
   methods = new Map<string, FunctionCallable>();
-  typeName: string;
+  className: string;
   
 	constructor(public ctor: any) {
-		super('NativeType');
+		super('NativeClass');
+    this.className = ctor.className || ctor.name;
     
-    this.typeName = ctor.name;
     for (let prop in ctor) 
       if (/^\w+_jel_mapping$/.test(prop)) {
         const name = prop.replace(/_jel_mapping$/, '');
@@ -40,7 +41,7 @@ export default abstract class AbstractTypeDefinition extends JelObject {
 	}
 	
 	toString(): string {
-		return `NativeTypeDefinition for ${this.ctor.name}`;
+		return `NativeClass for ${this.ctor.name}`;
 	}
 
 }

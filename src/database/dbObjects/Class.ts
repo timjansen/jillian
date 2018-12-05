@@ -2,6 +2,7 @@ import PackageContent from './PackageContent';
 import Category from './Category';
 import DbEntry from '../DbEntry';
 import DbRef from '../DbRef';
+import BaseTypeRegistry from '../../jel/BaseTypeRegistry';
 import TypeDescriptor from '../../jel/types/typeDescriptors/TypeDescriptor';
 import AnyType from '../../jel/types/typeDescriptors/AnyType';
 import TypeHelper from '../../jel/types/typeDescriptors/TypeHelper';
@@ -13,7 +14,7 @@ import TypeChecker from '../../jel/types/TypeChecker';
 import JelObject from '../../jel/JelObject';
 import LambdaCallable from '../../jel/LambdaCallable';
 import LambdaArgument from '../../jel/LambdaArgument';
-import ITypeDefinition from '../../jel/ITypeDefinition';
+import IClass from '../../jel/IClass';
 import Callable from '../../jel/Callable';
 import Context from '../../jel/Context';
 import Util from '../../util/Util';
@@ -22,8 +23,8 @@ class GenericJelObject extends JelObject {
   props: Dictionary;
   methodCache: Map<string, Callable> = new Map<string, Callable>();
   
-  constructor(public type: TypeDefinition, ctx: Context, args: any[]) {
-    super(type.typeName);
+  constructor(public type: Class, ctx: Context, args: any[]) {
+    super(type.className);
     
     this.props = new Dictionary();
     for (let i = 0; i < type.ctorArgList.length; i++) {
@@ -95,13 +96,13 @@ GenericJelObject.prototype.reverseOps = Object.assign({'-':1, '/': 1, '+-': 1, '
 
 
 // Base class for defining instantiable types
-export default class TypeDefinition extends PackageContent implements ITypeDefinition {
+export default class Class extends PackageContent implements IClass {
   JEL_PROPERTIES: Object;
   ctorArgList: LambdaArgument[]; 
 
   /**
-   * Creates a new TypeDefinition.
-   * @param typeName the name of the type.
+   * Creates a new Class.
+   * @param className the name of the type.
    * @param superType an optional super type to inherit properties from. Its constructor will be automatically invoked.
    * @param ctor the constructor, or null if this type can not be instantiated. 
    *                              All its argument are also automatically created as properties of the type, and pre-filled
@@ -119,14 +120,14 @@ export default class TypeDefinition extends PackageContent implements ITypeDefin
    *        To define a unary operator, prefix the operator with 'singleOp'.
    *        For a reverse operator, use the prefix 'opReversed'. The arguments will be 'this' and 'left'.
    *        To define a getter, create a method with the name 'get_propertyname'. It will get 'this' as only argument.
-   * @param staticProperties static values and methods to be added. They will be stored as TypeDefinition's properties.
+   * @param staticProperties static values and methods to be added. They will be stored as Class's properties.
    */
-  constructor(public typeName: string, public superType?: TypeDefinition, public ctor: LambdaCallable|null = null, public propertyDefs: Dictionary = new Dictionary(), public methods: Dictionary = new Dictionary(),
+  constructor(public className: string, public superType?: Class, public ctor: LambdaCallable|null = null, public propertyDefs: Dictionary = new Dictionary(), public methods: Dictionary = new Dictionary(),
       staticProperties?: Dictionary) {
-    super(typeName, staticProperties);
+    super(className, staticProperties);
 
-    if (/^[^A-Z]/.test(typeName))
-      throw new Error(`Type name ${typeName} is not allowed: types must start with a capital letter.`);
+    if (/^[^A-Z]/.test(className))
+      throw new Error(`Type name ${className} is not allowed: types must start with a capital letter.`);
 
     const uncallableMethod = methods.findJs((n: string, e: any)=>!(e instanceof Callable));
     if (uncallableMethod)
@@ -135,7 +136,7 @@ export default class TypeDefinition extends PackageContent implements ITypeDefin
     if (superType) {
       const overridenProperty = propertyDefs.findJs((n: string)=>superType.propertyDefs.elements.has(n));
       if (overridenProperty)
-        throw new Error(`Property ${overridenProperty} is already defined in super type ${superType.typeName}, you must not override it.`);
+        throw new Error(`Property ${overridenProperty} is already defined in super type ${superType.className}, you must not override it.`);
     }
 
     if (staticProperties && staticProperties.elements.has('create'))
@@ -151,24 +152,24 @@ export default class TypeDefinition extends PackageContent implements ITypeDefin
 
   
   getSerializationProperties(): Object {
-    return [this.typeName, this.superType && new DbRef(this.superType.distinctName), this.ctor, this.propertyDefs, this.methods, this.properties];
+    return [this.className, this.superType && new DbRef(this.superType.distinctName), this.ctor, this.propertyDefs, this.methods, this.properties];
   }
 
   create_jel_mapping: any; // set in ctor
   create(ctx: Context, ...args: any[]) {
     if (!this.ctor)
-      throw new Error(`The type ${this.typeName} can not be instantiated. No constructor defined.`);
+      throw new Error(`The type ${this.className} can not be instantiated. No constructor defined.`);
 
     return new GenericJelObject(this, ctx, args);
   }
   
-  static create_jel_mapping = ['typeName', 'superType', 'constructor', 'propertyDefs', 'methods', 'static'];
+  static create_jel_mapping = ['className', 'superType', 'constructor', 'propertyDefs', 'methods', 'static'];
   static create(ctx: Context, ...args: any[]) {
     if (TypeChecker.isIDbRef(args[1]))
-      return args[1].with(ctx, (t: TypeDefinition) => TypeDefinition.create(ctx, args[0], t, args[2], args[3], args[4], args[5]));
+      return args[1].with(ctx, (t: Class) => Class.create(ctx, args[0], t, args[2], args[3], args[4], args[5]));
 
-    return new TypeDefinition(TypeChecker.realString(args[0], 'typeName'), 
-                              TypeChecker.optionalInstance(TypeDefinition, args[1], 'superType')||undefined,
+    return new Class(TypeChecker.realString(args[0], 'className'), 
+                              TypeChecker.optionalInstance(Class, args[1], 'superType')||undefined,
                               TypeChecker.optionalInstance(LambdaCallable, args[2], 'constructor'), 
                               TypeChecker.optionalInstance(Dictionary, args[3], 'propertyDefs')||undefined,
                               TypeChecker.optionalInstance(Dictionary, args[4], 'methods')||undefined,
@@ -176,7 +177,7 @@ export default class TypeDefinition extends PackageContent implements ITypeDefin
   }
 }
 
+Class.prototype.JEL_PROPERTIES = {className: true, properties: true, methods: true, operators: true, singleOperators: true, superType: true, packageName: true};
 
-
-TypeDefinition.prototype.JEL_PROPERTIES = {typeName: true, properties: true, methods: true, operators: true, singleOperators: true, superType: true, packageName: true};
+BaseTypeRegistry.register('Class', Class);
 

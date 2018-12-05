@@ -8,7 +8,7 @@ import FunctionCallable from './FunctionCallable';
 /**
  * This is the base class for type defining classes.
  */
-export default interface ITypeDefinition extends JelObject {
-  typeName: string;
+export default interface IClass extends JelObject {
+  className: string;
 }
 

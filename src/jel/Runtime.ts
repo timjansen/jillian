@@ -74,8 +74,8 @@ export default class Runtime {
       return left.getJelType() == right; 
     else if (right.getJelType() == 'String')
       return left.getJelType() == (right as any).value;
-    else if (right.getJelType() == 'TypeDefinition' || right.getJelType() == 'NativeTypeDefinition')
-      return left.getJelType() == (right as any).typeName;
+    else if (right.getJelType() == 'Class' || right.getJelType() == 'NativeClass')
+      return left.getJelType() == (right as any).className;
     else
       return false;
 	}

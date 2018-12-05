@@ -2,7 +2,7 @@
 
 require('source-map-support').install();
 const assert = require('assert');
-const NativeTypeDefinition = require('../../build/jel/NativeTypeDefinition.js').default;
+const NativeClass = require('../../build/jel/NativeClass.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
@@ -16,7 +16,7 @@ const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
 
-const ctx = DefaultContext.plus({JelPromise: new NativeTypeDefinition(JelPromise), JelConsole: new NativeTypeDefinition(JelConsole)});
+const ctx = DefaultContext.plus({JelPromise: new NativeClass(JelPromise), JelConsole: new NativeClass(JelConsole)});
 jelAssert.setCtx(ctx);
 
 describe('jelList', function() {
@@ -258,7 +258,7 @@ describe('jelList', function() {
       X.create_jel_mapping = {x:1};
       X.prototype.JEL_PROPERTIES = {a:1};
 			
-			const je2 = new JelAssert(DefaultContext.plus({X: new NativeTypeDefinition(X)}));
+			const je2 = new JelAssert(DefaultContext.plus({X: new NativeClass(X)}));
 
 			je2.equal('[X(17), X(3), X(11), X(9)].sort(key="a").map(o=>o.a)', new List([3, 9, 11, 17].map(JelNumber.valueOf))); 
       je2.equal('[X(17), X(3), X(11), X(9)].sort(isLess=(a,b)=>a<b, key="a").map(o=>o.a)', new List([3, 9, 11, 17].map(JelNumber.valueOf))); 
@@ -284,7 +284,7 @@ describe('jelList', function() {
       }
       X.create_jel_mapping = {x:1};
 
-			const je2 = new JelAssert(DefaultContext.plus({X: new NativeTypeDefinition(X)}));
+			const je2 = new JelAssert(DefaultContext.plus({X: new NativeClass(X)}));
 			
 			JelPromise.resetRnd();
 			return Promise.all([
@@ -341,7 +341,7 @@ describe('jelList', function() {
       X.prototype.JEL_PROPERTIES = {a:1};
 			
 			JelPromise.resetRnd();
-			const je2 = new JelAssert(new Context(ctx).setAll({X: new NativeTypeDefinition(X)}));
+			const je2 = new JelAssert(new Context(ctx).setAll({X: new NativeClass(X)}));
 
 			return Promise.all([
 				je2.equalPromise('[X(17), X(3), X(11), X(9)].min(key="a").a', 3),
