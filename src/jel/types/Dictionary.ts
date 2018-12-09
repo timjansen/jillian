@@ -9,6 +9,7 @@ import List from './List';
 import JelBoolean from './JelBoolean';
 import TypeChecker from './TypeChecker';
 import Callable from '../Callable';
+import Util from '../../util/Util';
 
 
 const LIST_OR_DICTIONARY = ['List', 'Dictionary'];
@@ -228,6 +229,33 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 		return exec();
 	}
 
+  mapToList_jel_mapping: Object;
+	mapToList(ctx: Context, f0: any): List | Promise<List> {
+		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
+		const self = this;
+		const l: any[] = [];
+		let i = 0;
+		const it = this.elements.keys();
+		function exec(): Promise<any[]> | any[] {
+			while (true) {
+				const next = it.next();
+				if (next.done)
+					return l;
+				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, JelNumber.valueOf(i));
+				i++;
+				if (r instanceof Promise)
+					return r.then(v=> {
+						l.push(v);
+						return exec();
+					});
+				else
+					l.push(r);
+			}
+		}
+		return Util.resolveValue(exec(), l=>new List(l));
+	}
+
+  
 	mapJs(f: (k: string, v: JelObject|null, i: number)=>JelObject|null): Dictionary {
 		const self = this;
 		const newDict = new Dictionary();
@@ -242,6 +270,21 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 		}
 	}
 
+ 	mapToArrayJs(f: (k: string, v: JelObject|null, i: number)=>JelObject|null): any[] {
+		const self = this;
+		const l = [];
+		let i = 0;
+		const it = this.elements.keys();
+		while (true) {
+			const next = it.next();
+			if (next.done)
+				return l;
+      const k = next.value;
+	    l.push(f(k, this.elements.get(next.value) as JelObject|null, i++));
+		}
+	}
+
+  
  	eachJs(f: (k: string, v: JelObject|null, i: number)=>any): Dictionary {
 		const self = this;
 		let i = 0;
@@ -441,6 +484,7 @@ Dictionary.prototype.delete_jel_mapping = ['key'];
 Dictionary.prototype.deleteAll_jel_mapping = ['keys'];
 Dictionary.prototype.each_jel_mapping = ['f'];
 Dictionary.prototype.map_jel_mapping = ['f'];
+Dictionary.prototype.mapToList_jel_mapping = ['f'];
 Dictionary.prototype.filter_jel_mapping = ['f'];
 Dictionary.prototype.reduce_jel_mapping = ['f', 'init'];
 Dictionary.prototype.hasAny_jel_mapping = ['f'];

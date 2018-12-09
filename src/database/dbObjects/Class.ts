@@ -26,18 +26,18 @@ class GenericJelObject extends JelObject {
   constructor(public type: Class, ctx: Context, args: any[]) {
     super(type.className);
     
-    this.props = new Dictionary();
+    this.props = new Dictionary().putAll(type.propertyDefaults);
     for (let i = 0; i < type.ctorArgList.length; i++) {
       const val = args[i]||type.ctorArgList[i].defaultValue;
 
-      const pType = type.propertyDefs.elements.get(type.ctorArgList[i].name);
+      const pType = type.propertyTypes.elements.get(type.ctorArgList[i].name);
       if (!(pType as TypeDescriptor).checkType(ctx, val))
         throw new Error(`Illegal value in argument number ${i+1} for property ${type.ctorArgList[i].name}. Required type is ${pType}. Value was ${val}.`);
       this.props.elements.set(type.ctorArgList[i].name, val);
     }
   
     if (type.ctor) {
-      const ctorReturn: any = type.ctor.invoke(ctx, this, ...args);
+      const ctorReturn: any = type.ctor.invoke(ctx, undefined, ...args);
       if (ctorReturn instanceof Dictionary)
         this.props.putAll(ctorReturn);
     }
@@ -73,7 +73,7 @@ class GenericJelObject extends JelObject {
 	}
 
 	member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null>|undefined {
-    const getter = this.type.methods.elements.get('get_'+name) as Callable;
+    const getter = this.type.getters.elements.get(name) as Callable;
     if (getter)
       return getter.invoke(ctx, this);
     const propsValue = this.props.elements.get(name);
@@ -91,7 +91,7 @@ class GenericJelObject extends JelObject {
     return undefined;    
 	}
 }
-GenericJelObject.prototype.reverseOps = Object.assign({'-':1, '/': 1, '+-': 1, '^': 1}, JelObject.SWAP_OPS);
+GenericJelObject.prototype.reverseOps = JelObject.SWAP_OPS;
 
 
 
@@ -99,6 +99,8 @@ GenericJelObject.prototype.reverseOps = Object.assign({'-':1, '/': 1, '+-': 1, '
 export default class Class extends PackageContent implements IClass {
   JEL_PROPERTIES: Object;
   ctorArgList: LambdaArgument[]; 
+  propertyTypes: Dictionary;
+  propertyDefaults: Dictionary;
 
   /**
    * Creates a new Class.
@@ -109,21 +111,19 @@ export default class Class extends PackageContent implements IClass {
    *                              before the constructor is invoked. The constructor may set additional properties, 
    *                              defined by propertyDefs, or change the values of its own by returning a Dictionary with
    *                              property keys as keys and property values as values.
-   *                              The argument 'this' is supported to provide the constructor with an instance to the object, 
-   *                              and will not define a property.
-   * @param propertyDefs a dictionary string->TypeDescriptor of additional properties. Instead of property types, the usual shortcuts allowed by TypeHelper
-   *        are possible, like using a DbRef directly. The types defined in propertyDefs wil overwrite those set by super type and constructor.
+   *                              The argument 'this' is always set to null in the constructor.
+   * @param propertyDefs a List of LambdaArgument of additional properties. The types defined in propertyDefs wil overwrite those set by super type and constructor.
    * @param methods a dictionary of string->function definitions for the type methods. The first argument to the functions
    *        must always 'this' and will contain a reference to the type.
    *        To define a binary operator, define a method with the name of the operator prefixed by 'op', like 'op+'.
    *         It will get two arguments 'this' and 'right'. 
    *        To define a unary operator, prefix the operator with 'singleOp'.
    *        For a reverse operator, use the prefix 'opReversed'. The arguments will be 'this' and 'left'.
-   *        To define a getter, create a method with the name 'get_propertyname'. It will get 'this' as only argument.
-   * @param staticProperties static values and methods to be added. They will be stored as Class's properties.
+   * @param getters defined getter methods for properties
+   * @param staticProperties static values. They will be stored as Class's properties.
    */
-  constructor(public className: string, public superType?: Class, public ctor: LambdaCallable|null = null, public propertyDefs: Dictionary = new Dictionary(), public methods: Dictionary = new Dictionary(),
-      staticProperties?: Dictionary) {
+  constructor(public className: string, public superType?: Class, public ctor: LambdaCallable|null = null, public propertyDefs: List = List.empty,
+               public methods: Dictionary = Dictionary.empty, public getters: Dictionary = Dictionary.empty, staticProperties: Dictionary = Dictionary.empty) {
     super(className, staticProperties);
 
     if (/^[^A-Z]/.test(className))
@@ -133,26 +133,32 @@ export default class Class extends PackageContent implements IClass {
     if (uncallableMethod)
       throw new Error(`Method ${uncallableMethod} is not a Callable.`);
 
-    if (superType) {
-      const overridenProperty = propertyDefs.findJs((n: string)=>superType.propertyDefs.elements.has(n));
-      if (overridenProperty)
-        throw new Error(`Property ${overridenProperty} is already defined in super type ${superType.className}, you must not override it.`);
-    }
+    const uncallableGetter = getters.findJs((n: string, e: any)=>!(e instanceof Callable));
+    if (uncallableGetter)
+      throw new Error(`Getter ${uncallableGetter} is not a Callable.`);
 
     if (staticProperties && staticProperties.elements.has('create'))
       throw new Error('You must not overwrite the property "create".')
 
-    this.ctorArgList = (ctor?ctor.argDefs:[]).filter(lc=>lc.name != 'this');
+    if (superType) {
+      const overridenProperty = propertyDefs.elements.find((n: string)=>superType.propertyTypes.elements.has(n));
+      if (overridenProperty)
+        throw new Error(`Property ${overridenProperty} is already defined in super type ${superType.className}, you must not override it.`);
+      
+      this.ctor = ctor && ctor.bindSuper(superType.ctor);
+    }
+
+    this.ctorArgList = ctor?ctor.argDefs:[];
     const ctorProps = new Dictionary(this.ctorArgList.map(lc=>[lc.name, lc.type||AnyType.instance]));
-    this.propertyDefs = new Dictionary(superType && superType.propertyDefs).putAll(ctorProps).putAll(propertyDefs.mapJs((k,v)=>TypeHelper.convertFromAny(v, `property ${k}`)));
+    this.propertyTypes = new Dictionary(superType && superType.propertyTypes).putAll(ctorProps).putAll(propertyDefs.elements.map((v)=>[v.name,v.type]));
+    this.propertyDefaults = new Dictionary(superType && superType.propertyDefaults).putAll(propertyDefs.elements.map((v)=>[v.name,v.defaultValue]));
     this.methods = new Dictionary(superType && superType.methods).putAll(methods);
 
     this.create_jel_mapping = this.ctorArgList.map(lc=>lc.name);
   }
-
   
   getSerializationProperties(): Object {
-    return [this.className, this.superType && new DbRef(this.superType.distinctName), this.ctor, this.propertyDefs, this.methods, this.properties];
+    return [this.className, this.superType && new DbRef(this.superType.distinctName), this.ctor, this.propertyDefs, this.methods, this.getters, this.properties];
   }
 
   create_jel_mapping: any; // set in ctor
@@ -163,21 +169,26 @@ export default class Class extends PackageContent implements IClass {
     return new GenericJelObject(this, ctx, args);
   }
   
-  static create_jel_mapping = ['className', 'superType', 'constructor', 'propertyDefs', 'methods', 'static'];
-  static create(ctx: Context, ...args: any[]) {
+  static create_jel_mapping = ['className', 'superType', 'constructor', 'propertyDefs', 'methods', 'getters', 'static'];
+  static create(ctx: Context, ...args: any[]): any {
     if (TypeChecker.isIDbRef(args[1]))
-      return args[1].with(ctx, (t: Class) => Class.create(ctx, args[0], t, args[2], args[3], args[4], args[5]));
+      return args[1].with(ctx, (t: Class) => Class.create(ctx, args[0], t, args[2], args[3], args[4], args[5], args[6]));
 
+    if (args[3] instanceof Dictionary) {
+      return Class.create(ctx, args[0], args[1], args[2], new List(args[3].mapToArrayJs((name: any, type: any)=>new LambdaArgument(name, null, type))), args[4], args[5], args[6]);
+    }
+    
     return new Class(TypeChecker.realString(args[0], 'className'), 
                               TypeChecker.optionalInstance(Class, args[1], 'superType')||undefined,
                               TypeChecker.optionalInstance(LambdaCallable, args[2], 'constructor'), 
-                              TypeChecker.optionalInstance(Dictionary, args[3], 'propertyDefs')||undefined,
+                              TypeChecker.optionalInstance(List, args[3], 'propertyDefs')||undefined,
                               TypeChecker.optionalInstance(Dictionary, args[4], 'methods')||undefined,
-                              TypeChecker.optionalInstance(Dictionary, args[5], 'static')||undefined);
+                              TypeChecker.optionalInstance(Dictionary, args[5], 'getters')||undefined,
+                              TypeChecker.optionalInstance(Dictionary, args[6], 'static')||undefined);
   }
 }
 
-Class.prototype.JEL_PROPERTIES = {className: true, properties: true, methods: true, operators: true, singleOperators: true, superType: true, packageName: true};
+Class.prototype.JEL_PROPERTIES = {className: true, methods: true, operators: true, singleOperators: true, superType: true, getters: true, packageName: true};
 
 BaseTypeRegistry.register('Class', Class);
 

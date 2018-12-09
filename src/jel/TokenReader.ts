@@ -1,4 +1,4 @@
-import {Token} from './Token';
+import {Token, TokenType} from './Token';
 
 export default class TokenReader {
 	constructor(public tokens: Token[], public startPos = 0) {
@@ -15,7 +15,12 @@ export default class TokenReader {
 	peek(offset=0): Token {
 		return this.tokens[this.startPos+offset];
 	}
-		
+
+ 	peekIs(type: TokenType, value?: any, offset=0): Token|undefined {
+		const t = this.tokens[this.startPos+offset];
+    return (t && t.is(type, value)) ? t : undefined;
+	}
+  
 	last(): Token {
 		return this.tokens[this.startPos-1];
 	}

@@ -10,7 +10,7 @@ import Util from '../util/Util';
 
 export default class LambdaCallable extends Callable implements SerializablePrimitive {
   
-  constructor(public argDefs: LambdaArgument[], public expression: JelNode, public parentContext: Context, public name?: string, public self?: JelObject) {
+  constructor(public argDefs: LambdaArgument[], public expression: JelNode, public parentContext: Context, public name?: string, public self?: JelObject, public superConstructor?: LambdaCallable) {
 		super();
   }
 
@@ -21,18 +21,17 @@ export default class LambdaCallable extends Callable implements SerializablePrim
     return value;
   }
   
-  static invoke(ctx: Context, self: JelObject|undefined, argDefs: LambdaArgument[], expression: JelNode, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>): JelObject|null|Promise<JelObject|null> {
+  private static invoke(ctx: Context, self: JelObject|undefined, superConstructor: LambdaCallable|undefined, argDefs: LambdaArgument[], expression: JelNode, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>): JelObject|null|Promise<JelObject|null> {
 		const newCtx = new Context(ctx);
-    const methodOffset = (argDefs.length && argDefs[0].name) == 'this' ? 1 : 0;
     
     args.forEach((arg, i) => {
-      const argDef = argDefs[i+methodOffset];
+      const argDef = argDefs[i];
       if (argDef)
         newCtx.set(argDef.name, LambdaCallable.checkValue(ctx, argDef, arg));
     });
     
-		for (let i = args.length; i < argDefs.length-methodOffset; i++) {
-      const argDef = argDefs[i+methodOffset];
+		for (let i = args.length; i < argDefs.length; i++) {
+      const argDef = argDefs[i];
       newCtx.set(argDef.name, LambdaCallable.checkValue(ctx, argDef, null));
     }
     
@@ -47,23 +46,28 @@ export default class LambdaCallable extends Callable implements SerializablePrim
         if (!found)
           throw new Error('Can not set unknown named argument ' + name);
         }
-    if (methodOffset)
-      newCtx.set('this', self || null);
+    newCtx.set('this', self || null);
+    newCtx.set('super', superConstructor || undefined);
 		newCtx.freeze();
     return expression.execute(newCtx);
   }
   
 	invokeWithObject(ctx: Context, self: JelObject|undefined, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>): JelObject|null|Promise<JelObject|null> {   // context will be ignored for lambda. No promise support here, only in Call.
-    return LambdaCallable.invoke(this.parentContext, self || this.self, this.argDefs, this.expression, args, argObj);
+    return LambdaCallable.invoke(this.parentContext, self || this.self, this.superConstructor, this.argDefs, this.expression, args, argObj);
 	}
 	
 	invoke(ctx: Context, self: JelObject|undefined, ...args: (JelObject|null)[]): JelObject|null|Promise<JelObject|null> {
-    return LambdaCallable.invoke(this.parentContext, self || this.self, this.argDefs, this.expression, args);
+    return LambdaCallable.invoke(this.parentContext, self || this.self, this.superConstructor, this.argDefs, this.expression, args);
 	}
 
   rebind(self: JelObject|undefined): LambdaCallable {
-    return Object.is(this.self, self) ? this : new LambdaCallable(this.argDefs, this.expression, this.parentContext, this.name, self);
+    return Object.is(this.self, self) ? this : new LambdaCallable(this.argDefs, this.expression, this.parentContext, this.name, self, this.superConstructor);
   }
+
+  bindSuper(superConstructor: LambdaCallable|null): LambdaCallable {
+    return Object.is(this.superConstructor, superConstructor) ? this : new LambdaCallable(this.argDefs, this.expression, this.parentContext, this.name, this.self, superConstructor||undefined);
+  }
+
   
 	serializeToString() : string {
 		return this.toString();

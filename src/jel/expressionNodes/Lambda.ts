@@ -55,16 +55,21 @@ export default class Lambda extends JelNode {
 		return other instanceof Lambda &&
 			this.expression.equals(other.expression) && 
       this.args.length == other.args.length && 
-      !this.args.find((l, i)=>l != other.args[i]);
+      !this.args.find((l, i)=>!l.equals(other.args[i]));
 	}
 
 	toString(): string {
 		if (this.args.length == 1 && this.args[0].isNameOnly) 
 			return `${this.args[0].name}=>${this.expression.toString()}`;
 		else
-			return `(${this.args.map(a=>a.toString()).join(', ')})=>${this.expression.toString()}`;		
+			return `${this.toArgumentString()}=>${this.expression.toString()}`;		
 	}
-	
+
+ 	toArgumentString(): string {
+			return `(${this.args.map(a=>a.toString()).join(', ')})`;		
+	}
+
+  
   getSerializationProperties(): Object {
     return [this.args, this.expression];
   }

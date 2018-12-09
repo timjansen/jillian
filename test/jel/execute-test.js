@@ -317,6 +317,9 @@ describe('JEL', function() {
       jelAssert.equal(new JEL('with a=1: a').executeImmediately(), 1);
       jelAssert.equal(new JEL('with a=1, b=2: a+b').executeImmediately(), 3);
       jelAssert.equal(new JEL('with a=1, b=a+1, c=b*3, d=c*4, e=d/6: [a,b,c,d,e]').executeImmediately().elements, "[1,2,6,24,4]");
+      jelAssert.equal(new JEL('3+(with a=1: a)+10').executeImmediately(), 14);
+      jelAssert.equal(new JEL('3+(with a=1: a)*10').executeImmediately(), 13);
+      jelAssert.equal(new JEL('3+2*with a=1: a*10').executeImmediately(), 23);
     });
 
     
@@ -391,12 +394,12 @@ describe('JEL', function() {
       jelAssert.equal(new JEL('(a,b)=>a+b').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), null, [JelNumber.valueOf(40)], new Map(Object.entries({b:JelNumber.valueOf(2)}))), 42);
       jelAssert.equal(new JEL('(a,b)=>b').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), null, []), null);
 
-      jelAssert.equal(new JEL('this=>this').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), JelNumber.valueOf(42), []), 42);
-      jelAssert.equal(new JEL('(this, x)=>this+x').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), JelNumber.valueOf(42), [JelNumber.valueOf(66)]), 108);
+      jelAssert.equal(new JEL('()=>this').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), JelNumber.valueOf(42), []), 42);
+      jelAssert.equal(new JEL('(x)=>this+x').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), JelNumber.valueOf(42), [JelNumber.valueOf(66)]), 108);
      
       jelAssert.equal(new JEL('(x=>x)(66)').executeImmediately(DefaultContext.get()), 66);
       jelAssert.equal(new JEL('(x=>x)(x=66)').executeImmediately(DefaultContext.get()), 66);
-      jelAssert.equal(new JEL('((this, x)=>x)(x=66)').executeImmediately(DefaultContext.get()), 66);
+      jelAssert.equal(new JEL('((x)=>x)(x=66)').executeImmediately(DefaultContext.get()), 66);
       jelAssert.equal(new JEL('((a,b)=>a+b)(20, 22)').executeImmediately(DefaultContext.get()), 42);
       jelAssert.equal(new JEL('((a,b)=>a+b)(b=20, a=22)').executeImmediately(DefaultContext.get()), 42);
 

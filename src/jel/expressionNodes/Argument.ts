@@ -2,6 +2,7 @@ import JelNode from './JelNode';
 import JelObject from '../JelObject';
 import Context from '../Context';
 import LambdaArgument from '../LambdaArgument';
+import BaseTypeRegistry from '../../jel/BaseTypeRegistry';
 import TypeHelper from '../types/typeDescriptors/TypeHelper';
 import Serializable from '../Serializable';
 import Util from '../../util/Util';

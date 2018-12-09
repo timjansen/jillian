@@ -15,6 +15,10 @@ export class Token {
 	constructor(public line: number, public column: number, public type: TokenType, public value: any) {
 	}
 	
+  is(type: TokenType, value?: any): Token|undefined {
+    return (this.type == type && (value == null || this.value == value)) ? this : undefined;
+  }
+  
 	toString(): string {
 		return `Token(line=${this.line} column=${this.column} type=${this.type} value=${this.value})`;
 	}
