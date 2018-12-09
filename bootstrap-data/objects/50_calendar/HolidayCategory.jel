@@ -3,12 +3,12 @@ Category('HolidayCategory',
 	properties = {},
 	instanceDefaults = {
     duration: 1 @Day,
-    durationInYear: (this, year)=>1 @Day,
+    durationInYear: (year)=>1 @Day,
     calendarFrequency: @CalendarFrequencyEnum.YEARLY,
     firstDate: null,
     lastDate: null,
- 		isMatch: (this, date)=>date >= this.firstDate && date.month==this.month && date.day==this.day && (this.firstDate == null || this.firstDate <= date),
-		matchesInYear: (this, year)=>if (this.firstDate == null || year >= this.firstDate.year) then [LocalDate(year, this.month, this.day)] else []
+ 		isMatch: (date)=>date >= this.firstDate && date.month==this.month && date.day==this.day && (this.firstDate == null || this.firstDate <= date),
+		matchesInYear: (year)=>if (this.firstDate == null || year >= this.firstDate.year) then [LocalDate(year, this.month, this.day)] else []
   },
 	instanceProperties = {
    month: Number|RangeType(Number),   // range if it can be in more than one month

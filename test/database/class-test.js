@@ -31,8 +31,8 @@ tmp.dir(function(err, path) {
       it('can be created and serialized', function() {
         jelAssert.equal('Class("MyTestType").methods.size', 0);
         jelAssert.equal('Class("MyTestType", methods={add: ()=>2}).methods.size', 1);
-//        jelAssert.equal('Class("MyTestType", null, (x,y)=>{}, {a: Number, b: String}, {add: ()=>this.a+this.b})', 
-//                        'Class(className="MyTestType", constructor=(x,y)=>{}, propertyDefs={a: Number, b: String}, methods={add: ()=>this.a+this.b})');
+        jelAssert.equal('Class("MyTestType", null, (x,y)=>{}, {a: Number, b: String}, {add: ()=>this.a+this.b})', 
+                        'Class(className="MyTestType", constructor=(x,y)=>{}, propertyDefs={a: Number, b: String}, methods={add: ()=>this.a+this.b})');
       });
 
       it('supports properties set in the constructor', function() {

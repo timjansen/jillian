@@ -3,7 +3,7 @@ Thing('BlackFriday', @HolidayCategory,
     month: 11,
     weekDay: @Friday,
     firstDate: LocalDate(2000, 11, 27),
-  	isMatch: (this, date)=>@Thanksgiving.isMatch(date - 1 @Day),
+  	isMatch: (date)=>@Thanksgiving.isMatch(date - 1 @Day),
 		matchesInYear: (year)=>@Thanksgiving.matchesInYear(year).map(d=>d+1 @Day)
   }
 )

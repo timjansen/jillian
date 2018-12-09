@@ -3,7 +3,7 @@ Thing('MemorialDay', @HolidayCategory,
     month: 1,
     firstDate: LocalDate(1971, 1, 18),
     weekDay: @Monday,
- 		isMatch: (this, date)=>with memday=this.matchesInYear(date.year).first: date == memday,
-		matchesInYear: (this, year)=>if year >= this.firstDate.year then [LocalDate(year, this.month).allDays.lastMatch(d=>d.dayOfWeek == 1)] else []
+ 		isMatch: (date)=>with memday=this.matchesInYear(date.year).first: date == memday,
+		matchesInYear: (year)=>if year >= this.firstDate.year then [LocalDate(year, this.month).allDays.lastMatch(d=>d.dayOfWeek == 1)] else []
   }
 )

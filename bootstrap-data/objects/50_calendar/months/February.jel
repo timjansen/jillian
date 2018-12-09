@@ -2,7 +2,7 @@ Thing('February', @MonthCategory,
 	properties={
     monthNumber: 2,
     duration: Range(28 @Day, 29 @Day),
-    durationInYear: (this, year)=>if LocalDate(year).leapYear then 29 else 28,
+    durationInYear: (year)=>if LocalDate(year).leapYear then 29 else 28,
     order: {
       predecessor: @January,
       successor: @March

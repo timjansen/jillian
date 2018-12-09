@@ -4,12 +4,13 @@ import Context from './Context';
 import Serializer from './Serializer';
 import FunctionCallable from './FunctionCallable';
 import IClass from './IClass';
+import SerializablePrimitive from './SerializablePrimitive';
 
 
 /**
  * Represents a natively implemented type as JelObject.
  */
-export default class NativeClass extends JelObject implements IClass {
+export default class NativeClass extends JelObject implements IClass, SerializablePrimitive {
   methods = new Map<string, FunctionCallable>();
   className: string;
   
@@ -40,8 +41,13 @@ export default class NativeClass extends JelObject implements IClass {
 		return undefined;
 	}
 	
+ 	serializeToString(pretty: boolean, indent: number, spaces: string, serializer: (object: any, pretty: boolean, indent: number, spaces: string)=>string): string | undefined {
+    return this.className;
+  }
+
+  
 	toString(): string {
-		return `NativeClass for ${this.ctor.name}`;
+		return `NativeClass ${this.className} for ${this.ctor.name}`;
 	}
 
 }

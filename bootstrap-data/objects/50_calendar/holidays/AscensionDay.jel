@@ -2,7 +2,7 @@ Thing('WhitMonday', @HolidayCategory,
 	properties={
     month: Range(5, 6),
     weekDay: @Thursday,
-  	isMatch: (this, date)=>@Easter.isMatch(date - 39 @Day),
+  	isMatch: (date)=>@Easter.isMatch(date - 39 @Day),
 		matchesInYear: (year)=>@Easter.matchesInYear(year).map(d=>d+39 @Day)
   }
 )

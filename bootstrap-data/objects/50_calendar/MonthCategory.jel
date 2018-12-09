@@ -3,12 +3,12 @@ Category('MonthCategory',
 	properties = {},
 	instanceDefaults = {
     duration: Range(28 @Day, 31 @Day),
-    durationInYear: (this, year)=>this.duration,
+    durationInYear: (year)=>this.duration,
     calendarFrequency: @CalendarFrequencyEnum.YEARLY,
     first: null,
     last: null,
-		isMatch: (this, date)=>date.month==this.monthNumber,
-		matchesInYear: (this, year)=>[LocalDate(year, this.monthNumber)]
+		isMatch: (date)=>date.month==this.monthNumber,
+		matchesInYear: (year)=>[LocalDate(year, this.monthNumber)]
   },
 	instanceProperties = {
     monthNumber: @Number

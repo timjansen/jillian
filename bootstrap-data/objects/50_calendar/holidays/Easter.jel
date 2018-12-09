@@ -3,7 +3,7 @@ Thing('Easter', @HolidayCategory,
     month: Range(3, 4),
     weekDay: @Sunday,
     firstDate: LocalDate(1583, 3, 21), // gregorian calendar
-  	isMatch: (this, date)=>with easter=this.matchesInYear(date.year)[0]: date == easter,
+  	isMatch: (date)=>with easter=this.matchesInYear(date.year)[0]: date == easter,
 		matchesInYear: year=>with a = year % 19,  // from https://en.wikipedia.org/wiki/Computus, Python algorithm
       b = Math.floor(year/4),
       c = Math.floor(b/25) + 1,
