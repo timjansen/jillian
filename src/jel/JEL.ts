@@ -106,7 +106,7 @@ const CLASS_TYPE_EXPRESSION_STOP = {'=': true, identifier: true};
 const EQUAL = {'=': true};
 const COLON = {':': true};
 const OPEN_ARGS = {'(': true};
-const CLOSE_ARGS = {'(': true};
+const CLOSE_ARGS = {')': true};
 
 const EMPTY_LIST = new List([]);
 const EMPTY_DICT = new Dictionary([]);
@@ -514,6 +514,8 @@ export default class JEL {
   
   
   static parseClass(tokens: TokenReader, precedence: number, stopOps: any): ClassDef {
+    const classExpressionStop: any = Object.assign(CLASS_EXPRESSION_STOP, stopOps);
+    const classTypeExpressionStop: any = Object.assign(CLASS_TYPE_EXPRESSION_STOP, stopOps);
     const className = JEL.nextOrThrow(tokens, "Expected identifier after 'class' declaration");
     if (className.type != TokenType.Identifier)
       JEL.throwParseException(className, "Expected identifier after 'class' declaration");
@@ -529,12 +531,13 @@ export default class JEL {
     const staticProperties: Assignment[] = [];
     
     while (true) {
-      const next = tokens.peek();
-      if (!next || (next.type == TokenType.Operator && stopOps[next.value]))
+      const peek = tokens.peek();
+      if (!peek || (peek.type == TokenType.Operator && stopOps[peek.value]))
         return new ClassDef(className.value, superType, ctor, propertyDefs, methods, getters, staticProperties);
       tokens.next();
       
-      const staticModifier = tokens.peekIs(TokenType.Identifier, 'static') && tokens.next();
+      const staticModifier = peek.is(TokenType.Identifier, 'static');
+      const next = staticModifier ? tokens.next() : peek;
       
       if (next.is(TokenType.Identifier, 'constructor') && tokens.peekIs(TokenType.Operator, '(')) {
         tokens.next();
@@ -543,7 +546,7 @@ export default class JEL {
         if (args == null)
           JEL.throwParseException(tokens.last(), `Can not parse argument list for constructor`);
         JEL.expectOp(tokens, COLON, `Expected colon (':') before start of constructor expression.`);
-        ctor = new Lambda(args!, JEL.parseExpression(tokens, CLASS_PRECEDENCE, CLASS_EXPRESSION_STOP));
+        ctor = new Lambda(args!, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
       }
       else if (next.is(TokenType.Identifier, 'get') && tokens.peekIs(TokenType.Identifier)) { // getter
         if (staticModifier)
@@ -553,7 +556,7 @@ export default class JEL {
         JEL.expectOp(tokens, OPEN_ARGS, `Expected '()' following declaration of getter`);
         JEL.expectOp(tokens, CLOSE_ARGS, `Expected '()' following declaration of getter. Getters can't take any arguments.`);
         JEL.expectOp(tokens, COLON, `Expected colon (':') before start of getter expression.`);
-        getters.push(new Assignment(propName, JEL.parseExpression(tokens, CLASS_PRECEDENCE, CLASS_EXPRESSION_STOP)));
+        getters.push(new Assignment(propName, new Lambda([], JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop))));
       }
       else if ((next.is(TokenType.Identifier, 'op') ||  next.is(TokenType.Identifier, 'singleOp')) && tokens.peekIs(TokenType.Operator) && !tokens.peekIs(TokenType.Operator, '(')) { // ops
         if (staticModifier)
@@ -573,7 +576,7 @@ export default class JEL {
         if (args!.length > argsMax)
           JEL.throwParseException(tokens.last(), argsMax == 0 ? `Single operator overload ${methodName} must not take any arguments` : `Too many arguments for operator overload ${methodName}, can have only one.`);
         JEL.expectOp(tokens, COLON, `Expected colon (':') before start of operator overload expression.`);
-        methods.push(new Assignment(methodName, new Lambda(args!, JEL.parseExpression(tokens, CLASS_PRECEDENCE, CLASS_EXPRESSION_STOP))));
+        methods.push(new Assignment(methodName, new Lambda(args!, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop))));
       }
       else if (next.is(TokenType.Identifier) && tokens.peekIs(TokenType.Operator, '(')) {
         tokens.next();
@@ -583,7 +586,7 @@ export default class JEL {
         if (args == null)
           JEL.throwParseException(tokens.last(), `Can not parse argument list for method ${methodName}`);
         JEL.expectOp(tokens, COLON, `Expected colon (':') before start of method.`);
-        const lambda = new Lambda(args!, JEL.parseExpression(tokens, CLASS_PRECEDENCE, CLASS_EXPRESSION_STOP));
+        const lambda = new Lambda(args!, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
         if (staticModifier)
           staticProperties.push(new Assignment(methodName, lambda));
         else
@@ -595,12 +598,12 @@ export default class JEL {
         
         let arg;
         if (separator.value == '=')
-          arg = new Argument(propertyName, JEL.parseExpression(tokens, CLASS_PRECEDENCE, CLASS_EXPRESSION_STOP));
+          arg = new Argument(propertyName, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
         else {
           if (staticModifier)
             JEL.throwParseException(next, 'You must not set the type of a static property. Only a value is allowed.');
-          const typeDef = JEL.parseExpression(tokens, CLASS_PRECEDENCE, EQUAL);
-          const value = tokens.peekIs(TokenType.Operator, '=') ? JEL.parseExpression(tokens, CLASS_PRECEDENCE, CLASS_EXPRESSION_STOP) : undefined;
+          const typeDef = JEL.parseExpression(tokens, CLASS_PRECEDENCE, classTypeExpressionStop);
+          const value = tokens.peekIs(TokenType.Operator, '=') ? JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop) : undefined;
           arg = new Argument(propertyName, value, typeDef);
         }
         

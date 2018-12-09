@@ -30,7 +30,7 @@ export default class ClassDef extends JelNode {
                               this.name, 
                               this.superName ? this.superName.execute(ctx) : null, 
                               this.ctor ? this.ctor.execute(ctx) : null,
-                              Util.resolveArray(this.propertyDefs.map((p: Argument)=>p.execute(ctx)), (pl: LambdaArgument[])=>BaseTypeRegistry.get('list').valueOf(pl)),
+                              Util.resolveArray(this.propertyDefs.map((p: Argument)=>p.execute(ctx)), (pl: LambdaArgument[])=>BaseTypeRegistry.get('List').valueOf(pl)),
                               ClassDef.executeToDictionary(ctx, this.methods),
                               ClassDef.executeToDictionary(ctx, this.getters),
                               ClassDef.executeToDictionary(ctx, this.staticProperties));
