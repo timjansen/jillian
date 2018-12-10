@@ -14,9 +14,6 @@ import TypeChecker from './TypeChecker';
 
 
 
-function toNumber(n: Float | Fraction | UnitValue | ApproximateNumber): number {
-	return (n && n.toNumber) ? n.toNumber().value : NaN;
-}
 
 /**
  * Collection of static method for math.

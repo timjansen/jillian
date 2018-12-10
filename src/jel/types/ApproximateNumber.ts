@@ -157,9 +157,9 @@ export default class ApproximateNumber extends JelObject implements Numeric {
 	}
 
 	
-	toNumber_jel_mapping: Object;
-	toNumber(): Float {
-		return Float.toNumber(this.value);
+	toFloat_jel_mapping: Object;
+	toFloat(): Float {
+		return Float.toFloat(this.value);
 	}
 	
 	toRealNumber(): number {
@@ -203,7 +203,7 @@ export default class ApproximateNumber extends JelObject implements Numeric {
 }
 
 ApproximateNumber.prototype.reverseOps = Object.assign({'-':1, '/': 1, '+-': 1, '^': 1}, JelObject.SWAP_OPS);
-ApproximateNumber.prototype.toNumber_jel_mapping = [];
+ApproximateNumber.prototype.toFloat_jel_mapping = [];
 ApproximateNumber.prototype.abs_jel_mapping = [];
 ApproximateNumber.prototype.negate_jel_mapping = [];
 ApproximateNumber.prototype.hasError_jel_mapping = [];

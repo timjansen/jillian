@@ -48,11 +48,11 @@ describe('jelMath', function() {
 		jelAssert.equal('Math.acos(0.44)', Math.acos(0.44));
 		jelAssert.equal('Math.atan(0.2)', Math.atan(0.2));
 
-		jelAssert.equal('Math.asin(0.63, @Turn).toNumber()', Math.asin(0.63) / 2 / Math.PI);
-		jelAssert.equal('Math.acos(1, @Radian).toNumber()', Math.acos(1));
-		jelAssert.equal('Math.acos(0.44, @Degree).toNumber()', Math.acos(0.44) / 2 / Math.PI * 360);
+		jelAssert.equal('Math.asin(0.63, @Turn).toFloat()', Math.asin(0.63) / 2 / Math.PI);
+		jelAssert.equal('Math.acos(1, @Radian).toFloat()', Math.acos(1));
+		jelAssert.equal('Math.acos(0.44, @Degree).toFloat()', Math.acos(0.44) / 2 / Math.PI * 360);
 		jelAssert.equal('Math.acos(0.44, @Degree).unit', "Unit(@Degree)");
-		jelAssert.equal('Math.round(Math.atan(0.2, "Gradian").toNumber())', Math.round(Math.atan(0.2) / 2 / Math.PI * 400));		
+		jelAssert.equal('Math.round(Math.atan(0.2, "Gradian").toFloat())', Math.round(Math.atan(0.2) / 2 / Math.PI * 400));		
 	});
 	
 	it('has misc functions', function() {

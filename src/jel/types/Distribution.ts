@@ -144,7 +144,7 @@ export default class Distribution extends JelObject {
 					// P.share = (P.value-lp.value)*(rp.share-lp.share)/(rp.value-lp.value)  + lp.share
 
 					const lpShare = Float.valueOf(lp.share), rpShare = Float.valueOf(rp.share);
-					return Float.toNumberWithPromise(Runtime.opWithPromises(ctx, '+', Runtime.opWithPromises(ctx, '/', Runtime.opWithPromises(ctx, '*', Runtime.opWithPromises(ctx, '-', value as any, lp.value as any), Runtime.op(ctx, '-', rpShare, lpShare)), Runtime.opWithPromises(ctx, '-', rp.value as any, lp.value as any)),  lpShare));
+					return Float.toFloatWithPromise(Runtime.opWithPromises(ctx, '+', Runtime.opWithPromises(ctx, '/', Runtime.opWithPromises(ctx, '*', Runtime.opWithPromises(ctx, '-', value as any, lp.value as any), Runtime.op(ctx, '-', rpShare, lpShare)), Runtime.opWithPromises(ctx, '-', rp.value as any, lp.value as any)),  lpShare));
 				});
 			});
 		}, Runtime.op(ctx, '<', value, this.min(ctx)), Runtime.op(ctx, '>', value, this.max(ctx)));
@@ -161,7 +161,7 @@ export default class Distribution extends JelObject {
 						if (this.points.length != right.points.length)
 							return JelBoolean.FALSE;
 						for (let i = 0; i < this.points.length; i++)
-							if (Float.toNumber(this.points[i].value) != Float.toNumber(right.points[i].value) || this.points[i].share !=right.points[i].share)
+							if (Float.toFloat(this.points[i].value) != Float.toFloat(right.points[i].value) || this.points[i].share !=right.points[i].share)
 								return JelBoolean.FALSE;
 						return JelBoolean.TRUE;
 					}, Runtime.op(ctx, '===', this.average, right.average));

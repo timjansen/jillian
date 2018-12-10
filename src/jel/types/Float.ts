@@ -98,8 +98,8 @@ export default class Float extends JelObject implements SerializablePrimitive, N
 		return !!this.value;
 	}
 
-	static toNumber(n: any, defaultValue: any = Float.NAN): any {
-		return typeof n == 'number' ? Float.valueOf(n) :(n && (n as any).toNumber) ? (n as any).toNumber() : defaultValue;
+	static toFloat(n: any, defaultValue: any = Float.NAN): any {
+		return typeof n == 'number' ? Float.valueOf(n) :(n && (n as any).toFloat) ? (n as any).toFloat() : defaultValue;
 	}
 
 	static toRealNumber(n: any, defaultValue: number = NaN): number {
@@ -113,27 +113,27 @@ export default class Float extends JelObject implements SerializablePrimitive, N
 
 	static isNumeric_jel_mapping = ['n'];
 	static isNumeric(ctx: Context, n: JelObject|null): boolean {
-		return n && (n as any).toNumber;
+		return n && (n as any).toFloat;
 	}
 
   static noUnit_jel_mapping = ['n'];
 	static noUnit(ctx: Context, n: JelObject|null): boolean {
-		return n && (n as any).toNumber && n.getJelType() != 'UnitValue';
+		return n && (n as any).toFloat && n.getJelType() != 'UnitValue';
 	}
 
 	static toOptionalRealNumber(n: any, defaultValue: number|null = null): number | null {
 		return n == null ? null : typeof n == 'number' ? n : (n && (n as any).toRealNumber) ? (n as any).toRealNumber() : defaultValue;
 	}
 	
-	static toNumberWithPromise(n: any | Promise<any>): any | Promise<any> {
-		return Util.resolveValue(n, Float.toNumber);
+	static toFloatWithPromise(n: any | Promise<any>): any | Promise<any> {
+		return Util.resolveValue(n, Float.toFloat);
 	}
 
 	toString(): string {
 		return this.value.toString();
 	}
 
-	toNumber(): Float {
+	toFloat(): Float {
 		return this;
 	}
 	

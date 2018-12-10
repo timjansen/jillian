@@ -3,7 +3,7 @@ import Float from './Float';
 export default interface Numeric {
 	negate(): Numeric;
 	abs(): Numeric;
-	toNumber(): Float;
+	toFloat(): Float;
 	toRealNumber(): number;
 	toBoolean(): boolean;
 }

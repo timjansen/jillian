@@ -36,7 +36,7 @@ export default class Fraction extends JelObject implements Numeric {
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (right instanceof Float) {
 			if (!Number.isInteger(right.value))
-				return this.toNumber().op(ctx, operator, right);
+				return this.toFloat().op(ctx, operator, right);
 
 			const l = this.simplify();
 			if (!(l instanceof Fraction))
@@ -85,7 +85,7 @@ export default class Fraction extends JelObject implements Numeric {
 					return BaseTypeRegistry.get('ApproximateNumber').fromNumber(this, right);
 					
 				default:
-					return Runtime.op(ctx, operator, this.toNumber(), right);
+					return Runtime.op(ctx, operator, this.toFloat(), right);
 			}
 		}
 		else if (right instanceof Fraction) {
@@ -131,7 +131,7 @@ export default class Fraction extends JelObject implements Numeric {
 					return BaseTypeRegistry.get('ApproximateNumber').fromNumber(this, right);
 
 				default:
-					return Runtime.op(ctx, operator, this.toNumber(), right.toNumber());
+					return Runtime.op(ctx, operator, this.toFloat(), right.toFloat());
 			}
 		}
 		return super.op(ctx, operator, right);
@@ -141,7 +141,7 @@ export default class Fraction extends JelObject implements Numeric {
 		if (left instanceof Float) {
 			const lnum = left.value;
 			if (!Number.isInteger(lnum))
-				return Runtime.op(ctx, operator, left, this.toNumber());
+				return Runtime.op(ctx, operator, left, this.toFloat());
 			switch (operator) {
 				case '+':
 					return Fraction.valueOf(lnum*this.denominator+this.numerator, this.denominator).simplify();
@@ -182,8 +182,8 @@ export default class Fraction extends JelObject implements Numeric {
 		return new Fraction(-this.numerator, this.denominator);
 	}
 
-	toNumber_jel_mapping: Object;
-	toNumber(): Float {
+	toFloat_jel_mapping: Object;
+	toFloat(): Float {
 		return this.denominator !== 0 ? Float.valueOf(this.numerator / this.denominator) : Float.NAN;
 	}
 
@@ -242,7 +242,7 @@ export default class Fraction extends JelObject implements Numeric {
 Fraction.prototype.reverseOps = Object.assign({'-': true, '/': true, '+-': true, '^': true}, JelObject.SWAP_OPS);
 Fraction.prototype.abs_jel_mapping = [];
 Fraction.prototype.negate_jel_mapping = [];
-Fraction.prototype.toNumber_jel_mapping = [];
+Fraction.prototype.toFloat_jel_mapping = [];
 Fraction.prototype.simplify_jel_mapping = [];
 
 BaseTypeRegistry.register('Fraction', Fraction);

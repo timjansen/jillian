@@ -83,7 +83,7 @@ export default class JelString extends JelObject implements SerializablePrimitiv
 		return JelBoolean.valueOf(!!this.value.length);
 	}
 
-	toNumber(): number {
+	toFloat(): number {
 		return this.value.length;
 	}
 

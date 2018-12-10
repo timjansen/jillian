@@ -339,9 +339,9 @@ export default class UnitValue extends JelObject implements Numeric {
 		return new UnitValue(this.value.negate(), this.unit);
 	}
 	
-	toNumber_jel_mapping: Object;
-	toNumber(): Float {
-		return this.value.toNumber();
+	toFloat_jel_mapping: Object;
+	toFloat(): Float {
+		return this.value.toFloat();
 	}
 	
 	toRealNumber(): number {
@@ -382,7 +382,7 @@ export default class UnitValue extends JelObject implements Numeric {
 }
 
 UnitValue.prototype.reverseOps = Object.assign({'*':1, '/': 1}, JelObject.SWAP_OPS);
-UnitValue.prototype.toNumber_jel_mapping = [];
+UnitValue.prototype.toFloat_jel_mapping = [];
 UnitValue.prototype.abs_jel_mapping = [];
 UnitValue.prototype.negate_jel_mapping = [];
 UnitValue.prototype.convertTo_jel_mapping = ['type'];
