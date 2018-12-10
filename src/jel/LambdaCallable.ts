@@ -1,6 +1,6 @@
 import SerializablePrimitive from './SerializablePrimitive';
 import JelNode from './expressionNodes/JelNode';
-import LambdaArgument from './LambdaArgument';
+import TypedParameterValue from './TypedParameterValue';
 import JelObject from './JelObject';
 import Context from './Context';
 import Callable from './Callable';
@@ -10,18 +10,18 @@ import Util from '../util/Util';
 
 export default class LambdaCallable extends Callable implements SerializablePrimitive {
   
-  constructor(public argDefs: LambdaArgument[], public expression: JelNode, public parentContext: Context, public name?: string, public self?: JelObject, public superConstructor?: LambdaCallable) {
+  constructor(public argDefs: TypedParameterValue[], public expression: JelNode, public parentContext: Context, public name?: string, public self?: JelObject, public superConstructor?: LambdaCallable) {
 		super();
   }
 
-  static checkValue(ctx: Context, argDef: LambdaArgument, value0: JelObject|null): JelObject|null {
+  static checkValue(ctx: Context, argDef: TypedParameterValue, value0: JelObject|null): JelObject|null {
     const value = value0 || argDef.defaultValue;
     if (argDef.type && !argDef.type.checkType(ctx, value))
       throw new Error(`Invalid argument for ${argDef.name}: expected ${argDef.type.serializeType()}, but got the value ${Serializer.serialize(value)}.`);
     return value;
   }
   
-  private static invoke(ctx: Context, self: JelObject|undefined, superConstructor: LambdaCallable|undefined, argDefs: LambdaArgument[], expression: JelNode, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>): JelObject|null|Promise<JelObject|null> {
+  private static invoke(ctx: Context, self: JelObject|undefined, superConstructor: LambdaCallable|undefined, argDefs: TypedParameterValue[], expression: JelNode, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>): JelObject|null|Promise<JelObject|null> {
 		const newCtx = new Context(ctx);
     
     args.forEach((arg, i) => {

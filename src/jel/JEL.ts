@@ -24,7 +24,7 @@ import Dictionary from './expressionNodes/Dictionary';
 import Translator from './expressionNodes/Translator';
 import Reference from './expressionNodes/Reference';
 import Condition from './expressionNodes/Condition';
-import Argument from './expressionNodes/Argument';
+import TypedParameterDefinition from './expressionNodes/TypedParameterDefinition';
 import Assignment from './expressionNodes/Assignment';
 import PatternAssignment from './expressionNodes/PatternAssignment';
 import With from './expressionNodes/With';
@@ -427,7 +427,7 @@ export default class JEL {
     }
   }
 
-  static checkLambdaArguments(args: Argument[]|null|undefined, token: Token): any {
+  static checkTypedParameters(args: TypedParameterDefinition[]|null|undefined, token: Token): any {
     if (!args)
       return args;
 		const usedNames: any = new Set();
@@ -445,13 +445,13 @@ export default class JEL {
   
   
   // Tries to parse a list of lambda/function arguments. Returns undefined if it is not a possible lambda expression.
- 	static  tryParseLambdaArguments(tokens: TokenReader, precedence: number, stopOps: any): Argument[] | undefined {
+ 	static  tryParseTypedParameters(tokens: TokenReader, precedence: number, stopOps: any): TypedParameterDefinition[] | undefined {
 		if (tokens.peekIs(TokenType.Operator, ')')) {
 			tokens.next();
 			return [];
 		}
 
-		const args: Argument[] = [];
+		const args: TypedParameterDefinition[] = [];
 		while (true) {
 			const name = JEL.nextOrThrow(tokens, "Unexpected end of expression");
 			if (name.type != TokenType.Identifier)
@@ -462,7 +462,7 @@ export default class JEL {
         return undefined;
 
  			if (separator.value == '=') {
-        args.push(new Argument(name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, LAMBDA_VALUE_STOP)));
+        args.push(new TypedParameterDefinition(name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, LAMBDA_VALUE_STOP)));
 				if (JEL.expectOp(tokens, LAMBDA_VALUE_STOP, "Expecting comma or end of lambda arguments").value == ')')
 					return args;
       }
@@ -471,19 +471,19 @@ export default class JEL {
 
         const separator2 = JEL.expectOp(tokens, LAMBDA_TYPE_STOP, "Expecting comma, default value or end of lambda arguments")
         if (separator2.value == '=') {
-          args.push(new Argument(name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, LAMBDA_VALUE_STOP), typeDef));
+          args.push(new TypedParameterDefinition(name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, LAMBDA_VALUE_STOP), typeDef));
           const separator3 = JEL.expectOp(tokens, LAMBDA_VALUE_STOP, "Expecting command or end of lambda arguments");
           if (separator3.value == ')')
             return args;
         }
         else {
-          args.push(new Argument(name.value, undefined, typeDef));
+          args.push(new TypedParameterDefinition(name.value, undefined, typeDef));
           if (separator2.value == ')')
             return args;
         }
 			}
 			else if (separator.value == ',' || separator.value == ')') {
-				args.push(new Argument(name.value));
+				args.push(new TypedParameterDefinition(name.value));
 				if (separator.value == ')')
 					return args;
 			}
@@ -514,19 +514,19 @@ export default class JEL {
 				JEL.throwParseException(tokens.last(), `The arguments 'this' and 'super' must not be defined explicitly.`);
       
       TokenReader.copyInto(tok, tokens);
-      return new Lambda([new Argument(argName)], undefined, JEL.parseExpression(tokens, precedence, stopOps));
+      return new Lambda([new TypedParameterDefinition(argName)], undefined, JEL.parseExpression(tokens, precedence, stopOps));
     }
     else {
       if (!tok.hasNext())
         return undefined;
 
-      const args: Argument[]|undefined = JEL.tryParseLambdaArguments(tok, precedence, stopOps);
+      const args: TypedParameterDefinition[]|undefined = JEL.tryParseTypedParameters(tok, precedence, stopOps);
 			if (!args)
         return undefined;
       const asCheck = JEL.tryParseAsTypeCheck(tok, precedence, Object.assign({'=>': true}, stopOps));
       if (!tok.peekIs(TokenType.Operator, '=>'))
         return undefined;
-      JEL.checkLambdaArguments(args, tok.next());     
+      JEL.checkTypedParameters(args, tok.next());     
       
       TokenReader.copyInto(tok, tokens);
       return new Lambda(args, asCheck, JEL.parseExpression(tokens, precedence, stopOps));
@@ -546,7 +546,7 @@ export default class JEL {
     JEL.expectOp(tokens, COLON, superType ? `Expected a colon (':') following the class 'extends' declaration.` : `Expected a colon (':') following the class declaration.`);
       
     let ctor: Lambda|undefined = undefined;
-    const propertyDefs: Argument[] = [];
+    const propertyDefs: TypedParameterDefinition[] = [];
     const methods: Assignment[] = [];
     const getters: Assignment[] = [];
     const staticProperties: Assignment[] = [];
@@ -565,7 +565,7 @@ export default class JEL {
       if (next.is(TokenType.Identifier, 'constructor') && tokens.peekIs(TokenType.Operator, '(')) {
         tokens.next();
         
-        const args = JEL.checkLambdaArguments(JEL.tryParseLambdaArguments(tokens, CLASS_PRECEDENCE, NO_STOP), next);
+        const args = JEL.checkTypedParameters(JEL.tryParseTypedParameters(tokens, CLASS_PRECEDENCE, NO_STOP), next);
         if (args == null)
           JEL.throwParseException(tokens.last(), `Can not parse argument list for constructor`);
         JEL.expectOp(tokens, COLON, `Expected colon (':') before start of constructor expression.`);
@@ -599,7 +599,7 @@ export default class JEL {
 
         const methodName = next.value + op;
         JEL.expectOp(tokens, OPEN_ARGS, `Expected '(' following declaration of operator overloading method`);
-        const args = JEL.checkLambdaArguments(JEL.tryParseLambdaArguments(tokens, CLASS_PRECEDENCE, NO_STOP), next);
+        const args = JEL.checkTypedParameters(JEL.tryParseTypedParameters(tokens, CLASS_PRECEDENCE, NO_STOP), next);
         if (args == null)
           JEL.throwParseException(tokens.last(), `Can not parse argument list for operator overload ${methodName}`);
         const argsMax = next.value == 'op' ? 1 : 0;
@@ -617,7 +617,7 @@ export default class JEL {
         if (propertyNames.has(methodName))
           JEL.throwParseException(tokens.last(), `Method ${methodName} already declared`);
         propertyNames.add(methodName);
-        const args = JEL.checkLambdaArguments(JEL.tryParseLambdaArguments(tokens, CLASS_PRECEDENCE, NO_STOP), next);
+        const args = JEL.checkTypedParameters(JEL.tryParseTypedParameters(tokens, CLASS_PRECEDENCE, NO_STOP), next);
         if (args == null)
           JEL.throwParseException(tokens.last(), `Can not parse argument list for method ${methodName}`);
         const asCheck = JEL.tryParseAsTypeCheck(tokens, precedence, COLON);
@@ -638,13 +638,13 @@ export default class JEL {
         
         let arg;
         if (separator.value == '=')
-          arg = new Argument(propertyName, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
+          arg = new TypedParameterDefinition(propertyName, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
         else {
           if (staticModifier)
             JEL.throwParseException(next, 'You must not set the type of a static property. Only a value is allowed.');
           const typeDef = JEL.parseExpression(tokens, CLASS_PRECEDENCE, classTypeExpressionStop);
           const value = tokens.peekIs(TokenType.Operator, '=') ? JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop) : undefined;
-          arg = new Argument(propertyName, value, typeDef);
+          arg = new TypedParameterDefinition(propertyName, value, typeDef);
         }
         
         if (staticModifier)

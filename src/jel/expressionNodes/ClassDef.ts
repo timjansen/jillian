@@ -1,13 +1,13 @@
 import JelNode from './JelNode';
 import Assignment from './Assignment';
-import Argument from './Argument';
+import TypedParameterDefinition from './TypedParameterDefinition';
 import Lambda from './Lambda';
 import JelObject from '../JelObject';
 import Runtime from '../Runtime';
 import Context from '../Context';
 import TypeHelper from '../types/typeDescriptors/TypeHelper';
 import LambdaCallable from '../LambdaCallable';
-import LambdaArgument from '../LambdaArgument';
+import TypedParameterValue from '../TypedParameterValue';
 import Util from '../../util/Util';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 
@@ -19,7 +19,7 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
  */ 
 export default class ClassDef extends JelNode {
   
-  constructor(public name: string, public superName?: JelNode, public ctor?: Lambda, public propertyDefs: Argument[] = [], public methods: Assignment[] = [], public getters: Assignment[] = [], public staticProperties: Assignment[] = []) {
+  constructor(public name: string, public superName?: JelNode, public ctor?: Lambda, public propertyDefs: TypedParameterDefinition[] = [], public methods: Assignment[] = [], public getters: Assignment[] = [], public staticProperties: Assignment[] = []) {
 		super();
   }
   
@@ -30,7 +30,7 @@ export default class ClassDef extends JelNode {
                               this.name, 
                               this.superName ? this.superName.execute(ctx) : null, 
                               this.ctor ? this.ctor.execute(ctx) : null,
-                              Util.resolveArray(this.propertyDefs.map((p: Argument)=>p.execute(ctx)), (pl: LambdaArgument[])=>BaseTypeRegistry.get('List').valueOf(pl)),
+                              Util.resolveArray(this.propertyDefs.map((p: TypedParameterDefinition)=>p.execute(ctx)), (pl: TypedParameterValue[])=>BaseTypeRegistry.get('List').valueOf(pl)),
                               ClassDef.executeToDictionary(ctx, this.methods),
                               ClassDef.executeToDictionary(ctx, this.getters),
                               ClassDef.executeToDictionary(ctx, this.staticProperties));

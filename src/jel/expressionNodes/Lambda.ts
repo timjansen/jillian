@@ -1,5 +1,5 @@
 import JelNode from './JelNode';
-import Argument from './Argument';
+import TypedParameterDefinition from './TypedParameterDefinition';
 import Literal from './Literal';
 import Reference from './Reference';
 import As from './As';
@@ -9,7 +9,7 @@ import JelObject from '../JelObject';
 import Runtime from '../Runtime';
 import Context from '../Context';
 import LambdaCallable from '../LambdaCallable';
-import LambdaArgument from '../LambdaArgument';
+import TypedParameterValue from '../TypedParameterValue';
 import Util from '../../util/Util';
 
 
@@ -26,10 +26,10 @@ import Util from '../../util/Util';
  */ 
 export default class Lambda extends JelNode {
   public argsAreCachable: boolean;
-  public cachedArguments: LambdaArgument[]|undefined;
+  public cachedArguments: TypedParameterValue[]|undefined;
   private wrappedExpression: JelNode;
   
-  constructor(public args: Argument[], public typeCheck: JelNode|undefined, public expression: JelNode) {
+  constructor(public args: TypedParameterDefinition[], public typeCheck: JelNode|undefined, public expression: JelNode) {
 		super();
     this.argsAreCachable = !!args.find(arg=>(!arg.defaultValue ||
                                             arg.defaultValue instanceof Literal ||

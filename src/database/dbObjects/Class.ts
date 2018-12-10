@@ -13,7 +13,7 @@ import JelBoolean from '../../jel/types/JelBoolean';
 import TypeChecker from '../../jel/types/TypeChecker';
 import JelObject from '../../jel/JelObject';
 import LambdaCallable from '../../jel/LambdaCallable';
-import LambdaArgument from '../../jel/LambdaArgument';
+import TypedParameterValue from '../../jel/TypedParameterValue';
 import IClass from '../../jel/IClass';
 import Serializable from '../../jel/Serializable';
 import Callable from '../../jel/Callable';
@@ -103,7 +103,7 @@ GenericJelObject.prototype.reverseOps = JelObject.SWAP_OPS;
 // Base class for defining instantiable types
 export default class Class extends PackageContent implements IClass {
   JEL_PROPERTIES: Object;
-  ctorArgList: LambdaArgument[]; 
+  ctorArgList: TypedParameterValue[]; 
   propertyTypes: Dictionary;
   propertyDefaults: Dictionary;
 
@@ -117,7 +117,7 @@ export default class Class extends PackageContent implements IClass {
    *                              defined by propertyDefs, or change the values of its own by returning a Dictionary with
    *                              property keys as keys and property values as values.
    *                              The argument 'this' is always set to null in the constructor.
-   * @param propertyDefs a List of LambdaArgument of additional properties. The types defined in propertyDefs wil overwrite those set by super type and constructor.
+   * @param propertyDefs a List of TypedParameterValues of additional properties. The types defined in propertyDefs wil overwrite those set by super type and constructor.
    * @param methods a dictionary of string->function definitions for the type methods. The first argument to the functions
    *        must always 'this' and will contain a reference to the type.
    *        To define a binary operator, define a method with the name of the operator prefixed by 'op', like 'op+'.
@@ -180,7 +180,7 @@ export default class Class extends PackageContent implements IClass {
       return args[1].with(ctx, (t: Class) => Class.create(ctx, args[0], t, args[2], args[3], args[4], args[5], args[6]));
 
     if (args[3] instanceof Dictionary) {
-      return Class.create(ctx, args[0], args[1], args[2], new List(args[3].mapToArrayJs((name: any, type: any)=>new LambdaArgument(name, null, type))), args[4], args[5], args[6]);
+      return Class.create(ctx, args[0], args[1], args[2], new List(args[3].mapToArrayJs((name: any, type: any)=>new TypedParameterValue(name, null, type))), args[4], args[5], args[6]);
     }
     
     return new Class(TypeChecker.realString(args[0], 'className'), 
