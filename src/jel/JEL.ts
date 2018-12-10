@@ -39,11 +39,11 @@ import As from './expressionNodes/As';
 import InstanceOf from './expressionNodes/InstanceOf';
 
 const binaryOperators: any = { // op->precedence
-  '?': 20,
-  '[]': 20,
-  '{}': 20,
-  '.': 19,
-	'|': 17,  // must be higher than instanceof/as, but lower than ?/[]/{}/()
+  '?': 40,
+  '[]': 40,
+  '{}': 40,
+  '.': 30,
+	'|': 20,  // must be higher than instanceof/as, but lower than ?/[]/{}/()
   '==': 10,
   '<': 11,
   '>': 11,
@@ -63,18 +63,18 @@ const binaryOperators: any = { // op->precedence
   '*': 14,
   '/': 14,
   '%': 14,
-  'instanceof': 15,
-  'as': 15,
+  'instanceof': 16,
+  'as': 16,
 	'^': 15,
   '+-': 17, 
-  '(': 18,
-  '[': 18,
-  '{': 18
+  '(': 25,
+  '[': 25,
+  '{': 25
 };
 const unaryOperators: any = { // op->precedence
-  '-': 16,
-  '+': 16,
-  '!': 16
+  '-': 17,
+  '+': 17,
+  '!': 17
 };
 
 const overloadableOperators: any = {'+': true, '-': true, '*': true, '/': true, '%': true, '==': true, '===': true, '!=': true, '!==': true, '<': true, '<<': true, '<=': true, '<<=': true, '>': true, '>>': true, '>=': true, '>>=': true};
@@ -405,6 +405,10 @@ export default class JEL {
         return JEL.tryBinaryOps(tokens, JEL.parseCall(tokens, left), precedence, stopOps);
       case '[': 
         return JEL.tryBinaryOps(tokens, JEL.parseGet(tokens, left), precedence, stopOps);
+      case 'instanceof': 
+        return JEL.tryBinaryOps(tokens, new InstanceOf(left, JEL.parseExpression(tokens, binaryOperators['instanceof'] as number, stopOps)), precedence, stopOps);
+      case 'as': 
+        return JEL.tryBinaryOps(tokens, new As(left, JEL.parseExpression(tokens, binaryOperators['as'] as number, stopOps)), precedence, stopOps);
       case '?':
         return JEL.tryBinaryOps(tokens, new Optional(left), precedence, stopOps);
       case '[]':

@@ -148,19 +148,52 @@ describe('JEL', function() {
     });
 		
 		 it('should support instanceof', function() {
+      jelAssert.equal("3 instanceof any", "true");
       jelAssert.equal("3 instanceof @Number", "true");
       jelAssert.equal("null instanceof @Number", "false");
       jelAssert.equal("'hello' instanceof @Number", "false");
       jelAssert.equal("true instanceof @Number", "false");
-      jelAssert.equal("3 instanceof @String", "false");
-      jelAssert.equal("null instanceof @String", "false");
-      jelAssert.equal("'hello' instanceof @String", "true");
-      jelAssert.equal("true instanceof @String", "false");
-      jelAssert.equal("3 instanceof @Boolean", "false");
-      jelAssert.equal("'hello' instanceof @Boolean", "false");
-      jelAssert.equal("true instanceof @Boolean", "true");
-    });
 
+      jelAssert.equal("3 instanceof Number", "true");
+      jelAssert.equal("null instanceof Number", "false");
+      jelAssert.equal("'hello' instanceof Number", "false");
+      jelAssert.equal("true instanceof Number", "false");
+      jelAssert.equal("3 instanceof String", "false");
+      jelAssert.equal("null instanceof String", "false");
+      jelAssert.equal("'hello' instanceof String", "true");
+      jelAssert.equal("true instanceof String", "false");
+      jelAssert.equal("3 instanceof Boolean", "false");
+      jelAssert.equal("'hello' instanceof Boolean", "false");
+      jelAssert.equal("true instanceof Boolean", "true");
+
+      jelAssert.equal("3 instanceof Number?", "true");
+      jelAssert.equal("null instanceof Number?", "true");
+      jelAssert.equal("'hello' instanceof Number?", "false");
+      jelAssert.equal("true instanceof Number?", "false");
+
+      jelAssert.equal("3 instanceof Number|String", "true");
+      jelAssert.equal("null instanceof Number|String", "false");
+      jelAssert.equal("'hello' instanceof Number|String", "true");
+      jelAssert.equal("true instanceof Number|String", "false");
+      jelAssert.equal("null instanceof Number|String?", "true");
+     });
+
+ 		 it('should support as', function() {
+      jelAssert.equal("true as any", "true");
+      jelAssert.equal("null as any", "null");
+      jelAssert.equal("3 as @Number", "3");
+      jelAssert.equal("3 as Number", "3");
+      jelAssert.equal("'hello' as String", "'hello'");
+      jelAssert.equal("true as Boolean", "true");
+      jelAssert.equal("3 as Number?", "3");
+      jelAssert.equal("null as Number?", "null");
+      jelAssert.equal("3 as Number|String", "3");
+      jelAssert.equal("'hello' as Number|String", "'hello'");
+      jelAssert.equal("null as Number|String?", "null");
+      return jelAssert.errorPromise("true as String|Number");
+     });
+
+    
     it('should access member fields of JelObjects', function() {
       class A extends JelObject {
         constructor() {

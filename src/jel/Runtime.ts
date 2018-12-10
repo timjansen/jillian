@@ -35,13 +35,11 @@ export default class Runtime {
 				return BaseTypeRegistry.get('Boolean').valueOf(left === right);
 			else if (operator == '!=' || operator == '!==')
 				return BaseTypeRegistry.get('Boolean').valueOf(left !== right);
-			else if (operator == 'instanceof' || operator in RELATIONAL_OPS)
+			else if (operator in RELATIONAL_OPS)
 				return BaseTypeRegistry.get('Boolean').FALSE;
 			else
 				throw new Error(`Operator ${operator} does not support null values.`);
 		}
-		else if (operator == 'instanceof') 
-			return BaseTypeRegistry.get('Boolean').valueOf(Runtime.instanceOf(ctx, left, right));
 		else 
 			return left.op(ctx, operator, right);
 	}
