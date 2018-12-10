@@ -193,6 +193,35 @@ Examples:
 	with x=1, y=x+2, z=y*3: z*4   // returns 36
 	
 	
+Classes
+---------
+The 'class' keyword allows you to set up a class that can be stored in the database:
+
+class Schedule::Single extends Schedule::Entry {
+  c: Number
+  static PI = 3.14
+
+  constructor(a: Number, b: Number, c: Number): // arguments are automatically stored as properties in the object!
+    super(a, b)+                                // calling super(), which returns a Dictionary of property values to set
+    {sum: a+b+c}                                // return a Dictionary to store additional fields or overwrite argument values
+  
+  get x() as Number:
+    this.c+2
+  
+  add(a, b):
+    this.c+a+b
+
+  addWithTypes(a: Number, b: Number) as Number: 
+    this.c+a+b
+
+  static add(x,y):
+    x+y
+}
+
+
+
+ 
+  
 TODO: 
 	
 

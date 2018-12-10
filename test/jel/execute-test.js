@@ -411,7 +411,12 @@ describe('JEL', function() {
       jelAssert.equal(new JEL('((a: Number?)=>a)(null)').executeImmediately(DefaultContext.get()), null);
       jelAssert.equal(new JEL('((a: Number?)=>a)()').executeImmediately(DefaultContext.get()), null);
 
-      return jelAssert.errorPromise('((a: Number?)=>a)("this is a string")');
+      jelAssert.equal(new JEL('((a: Number?) as Number=>a)(5)').executeImmediately(DefaultContext.get()), 5);
+      jelAssert.equal(new JEL('((a: Number?) as Number?=>a)(null)').executeImmediately(DefaultContext.get()), null);
+      jelAssert.equal(new JEL('((a: Number?) as Number?=>a)()').executeImmediately(DefaultContext.get()), null);
+
+     
+      return Promise.all([jelAssert.errorPromise('((a: Number?) as String=>a)(42)'), jelAssert.errorPromise('((a: Number?)=>a)("this is a string")')]);
    });
     
    it('supports promises', function() {

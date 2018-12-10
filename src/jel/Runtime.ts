@@ -106,7 +106,7 @@ export default class Runtime {
 				throw new Error(`Property ${name} is not accessible. It would need to be defined in JEL_PROPERTIES.`);
 		}
 		else
-			throw new Error(`Unknown property ${name} in ${obj.getJelType()}.`);
+			throw new Error(`Can not find method ${name} in ${obj.getJelType()}.`);
   } 
 
 

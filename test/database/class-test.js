@@ -7,6 +7,7 @@ const DatabaseContext = require('../../build/database/DatabaseContext.js').defau
 const DbRef = require('../../build/database/DbRef.js').default;
 const Class = require('../../build/database/dbObjects/Class.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
+const Serializer = require('../../build/jel/Serializer.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const Util = require('../../build/util/Util.js').default;
@@ -65,6 +66,7 @@ tmp.dir(function(err, path) {
         jelAssert.equal('with myTestType=Class("MyTestType", null, (x: Number, y: Number)=>{}, methods={add: (a, b)=>this.x+this.y+a/b}), m=myTestType(15, 12), add=m.add: add(b=4, a=20)', "32");
 
         jelAssert.equal('with myTestType=class MyTestType: constructor(x: Number, y: Number): {} add(a, b):this.x+this.y+a/b, m=myTestType(15, 12), add=m.add: add(b=4, a=20)', "32");
+        jelAssert.equal('with myTestType=class MyTestType: constructor(x: Number, y: Number): {} add(a, b) as Number:this.x+this.y+a/b, m=myTestType(15, 12), add=m.add: add(b=4, a=20)', "32");
         
         jelAssert.equal('with myTestType=Class("MyTestType", null, ()=>{}, methods={div: (a, b)=>a/b}), m=myTestType(), div=m.div: m.div(60, 10) + div(40, 10)', "10");
       });
@@ -72,6 +74,14 @@ tmp.dir(function(err, path) {
       it('supports packages', function() {
         jelAssert.equal('with myTestType=Class("My::Test::Type"): myTestType.packageName', "'My::Test'");
         jelAssert.equal('with myTestType=class My::Test::Type: : myTestType.packageName', "'My::Test'");
+      });
+
+      it('supports serialization of instances', function() {
+        const ctx2 = ctx.plus({MyType: new JEL('class MyType: constructor(a, b, c):{}').executeImmediately(ctx)});
+        const serialized = Serializer.serialize(new JEL('MyType(4, 1, 6)').executeImmediately(ctx2));
+        const obj = new JEL(serialized).executeImmediately(ctx2);
+        assert.equal(obj.props.elements.get('a'), 4);
+        assert.equal(obj.props.elements.get('c'), 6);
       });
       
       it('supports superTypes', function() {
@@ -90,12 +100,12 @@ tmp.dir(function(err, path) {
       
       it('supports static properties', function() {
         jelAssert.equal('with myTestType=Class("MyTestType", static={add: (a,b)=>a+b, ft: 42}): myTestType.ft + myTestType.add(1, 2)', "45");
-        jelAssert.equal('with myTestType=class MyTestType: static add(a,b):a+b static ft = 42: myTestType.ft + myTestType.add(1, 2)', "45");
+        jelAssert.equal('with myTestType=class MyTestType: static add(a,b) as Number:a+b static ft = 42: myTestType.ft + myTestType.add(1, 2)', "45");
       });
       
       it('supports getter', function() {
         jelAssert.equal('with myTestType=Class("MyTestType", null, (x: Number, y: Number)=>{}, getters={x: ()=>8, z: ()=>4}), m=myTestType(5, 12): m.x/m.z', "2");
-        jelAssert.equal('with myTestType=class MyTestType: constructor(x: Number, y: Number):{} get x():8 get z():4, m=myTestType(5, 12): m.x/m.z', "2");
+        jelAssert.equal('with myTestType=class MyTestType: constructor(x: Number, y: Number):{} get x() as Number:8 get z():4, m=myTestType(5, 12): m.x/m.z', "2");
       });
 
       it('supports ops', function() {
@@ -103,6 +113,7 @@ tmp.dir(function(err, path) {
         jelAssert.equal('with myTestType=Class("MyTestType", null, (x: Number)=>{}, methods={"singleOp-": ()=>myTestType(-this.x*2)}), m=myTestType(5): (-m).x', "-10");
         
         jelAssert.equal('with myTestType=class MyTestType: constructor(x: Number):{} op+(right): myTestType(this.x+right), m=myTestType(5): (m+10).x', "15");
+        jelAssert.equal('with myTestType=class MyTestType: constructor(x: Number):{} op+(right) as Number: this.x+right, m=myTestType(5): m+10', "15");
       });
 
       it('can be loaded from DB and used like a real type', function() {

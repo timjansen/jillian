@@ -15,15 +15,16 @@ import JelObject from '../../jel/JelObject';
 import LambdaCallable from '../../jel/LambdaCallable';
 import LambdaArgument from '../../jel/LambdaArgument';
 import IClass from '../../jel/IClass';
+import Serializable from '../../jel/Serializable';
 import Callable from '../../jel/Callable';
 import Context from '../../jel/Context';
 import Util from '../../util/Util';
 
-class GenericJelObject extends JelObject {
+class GenericJelObject extends JelObject implements Serializable {
   props: Dictionary;
   methodCache: Map<string, Callable> = new Map<string, Callable>();
   
-  constructor(public type: Class, ctx: Context, args: any[]) {
+  constructor(public type: Class, ctx: Context, public args: any[]) {
     super(type.className);
     
     this.props = new Dictionary().putAll(type.propertyDefaults);
@@ -90,6 +91,10 @@ class GenericJelObject extends JelObject {
     }
     return undefined;    
 	}
+  
+  getSerializationProperties(): any[] {
+    return this.args;
+  }
 }
 GenericJelObject.prototype.reverseOps = JelObject.SWAP_OPS;
 
@@ -157,7 +162,7 @@ export default class Class extends PackageContent implements IClass {
     this.create_jel_mapping = this.ctorArgList.map(lc=>lc.name);
   }
   
-  getSerializationProperties(): Object {
+  getSerializationProperties(): any[] {
     return [this.className, this.superType && new DbRef(this.superType.distinctName), this.ctor, this.propertyDefs, this.methods, this.getters, this.properties];
   }
 

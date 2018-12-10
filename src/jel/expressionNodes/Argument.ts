@@ -22,7 +22,7 @@ export default class Argument extends JelNode implements Serializable {
     
     const defaultValue = this.defaultValue ? this.defaultValue.execute(ctx) : null;
     const type = this.type ? this.type.execute(ctx) : null;
-    return Util.resolveValues((d: JelNode|null, t: JelNode|null)=>new LambdaArgument(this.name, d, type && TypeHelper.convertNullableFromAny(t, `lambda type for ${this.name}`)), defaultValue, type);
+    return Util.resolveValues((d: JelNode|null, t: JelNode|null)=>new LambdaArgument(this.name, d, type && TypeHelper.convertNullableFromAny(t, this.name)), defaultValue, type);
   }
  
   get isNameOnly(): boolean {

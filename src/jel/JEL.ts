@@ -35,12 +35,15 @@ import Optional from './expressionNodes/Optional';
 import Options from './expressionNodes/Options';
 import Get from './expressionNodes/Get';
 import UnitValue from './expressionNodes/UnitValue';
+import As from './expressionNodes/As';
+import InstanceOf from './expressionNodes/InstanceOf';
 
 const binaryOperators: any = { // op->precedence
   '?': 20,
   '[]': 20,
   '{}': 20,
   '.': 19,
+	'|': 17,  // must be higher than instanceof/as, but lower than ?/[]/{}/()
   '==': 10,
   '<': 11,
   '>': 11,
@@ -55,13 +58,13 @@ const binaryOperators: any = { // op->precedence
   '!==': 10,
   '&&': 6,
   '||': 5,
-	'|': 10,
   '+': 13,
   '-': 13,
   '*': 14,
   '/': 14,
   '%': 14,
   'instanceof': 15,
+  'as': 15,
 	'^': 15,
   '+-': 17, 
   '(': 18,
@@ -437,7 +440,7 @@ export default class JEL {
   }
   
   
-  // Tries to parse a list of lambda arguments. Returns undefined if it is not a possible lambda expression.
+  // Tries to parse a list of lambda/function arguments. Returns undefined if it is not a possible lambda expression.
  	static  tryParseLambdaArguments(tokens: TokenReader, precedence: number, stopOps: any): Argument[] | undefined {
 		if (tokens.peekIs(TokenType.Operator, ')')) {
 			tokens.next();
@@ -485,30 +488,44 @@ export default class JEL {
 		}
 	}
   
+  static tryParseAsTypeCheck(tokens: TokenReader, precedence: number, stopOps: any): JelNode | undefined {
+    if (!tokens.peekIs(TokenType.Operator, 'as'))
+      return undefined;
+    tokens.next();
+    
+    return JEL.parseExpression(tokens, precedence, stopOps);
+  }
+  
   static tryLambda(tokens: TokenReader, argName: string | null, precedence: number, stopOps: any): Lambda | undefined {
+    if (stopOps['=>'])
+      return undefined;
+    
     const tok = tokens.copy();
     if (argName) {
       if (!tok.peekIs(TokenType.Operator, '=>'))
         return undefined;
       tok.next();
 
- 			if (argName == 'this')
-				JEL.throwParseException(tokens.last(), `The argument 'this' must not be defined explicitly.`);
+ 			if (argName == 'this' || argName == 'super')
+				JEL.throwParseException(tokens.last(), `The arguments 'this' and 'super' must not be defined explicitly.`);
       
       TokenReader.copyInto(tok, tokens);
-      return new Lambda([new Argument(argName)], JEL.parseExpression(tokens, precedence, stopOps));
+      return new Lambda([new Argument(argName)], undefined, JEL.parseExpression(tokens, precedence, stopOps));
     }
     else {
       if (!tok.hasNext())
         return undefined;
 
       const args: Argument[]|undefined = JEL.tryParseLambdaArguments(tok, precedence, stopOps);
-			if (!args || !tok.peekIs(TokenType.Operator, '=>'))
+			if (!args)
+        return undefined;
+      const asCheck = JEL.tryParseAsTypeCheck(tok, precedence, Object.assign({'=>': true}, stopOps));
+      if (!tok.peekIs(TokenType.Operator, '=>'))
         return undefined;
       JEL.checkLambdaArguments(args, tok.next());     
       
       TokenReader.copyInto(tok, tokens);
-      return new Lambda(args, JEL.parseExpression(tokens, precedence, stopOps));
+      return new Lambda(args, asCheck, JEL.parseExpression(tokens, precedence, stopOps));
     }
   }
   
@@ -530,6 +547,8 @@ export default class JEL {
     const getters: Assignment[] = [];
     const staticProperties: Assignment[] = [];
     
+    const propertyNames = new Set();
+    
     while (true) {
       const peek = tokens.peek();
       if (!peek || (peek.type == TokenType.Operator && stopOps[peek.value]))
@@ -546,22 +565,29 @@ export default class JEL {
         if (args == null)
           JEL.throwParseException(tokens.last(), `Can not parse argument list for constructor`);
         JEL.expectOp(tokens, COLON, `Expected colon (':') before start of constructor expression.`);
-        ctor = new Lambda(args!, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
+        ctor = new Lambda(args!, undefined, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
       }
       else if (next.is(TokenType.Identifier, 'get') && tokens.peekIs(TokenType.Identifier)) { // getter
         if (staticModifier)
           JEL.throwParseException(next, `Static getters are not supported.`);
         
-        const propName = tokens.next().value;
+        const propertyName = tokens.next().value;
+        if (propertyNames.has(propertyName))
+          JEL.throwParseException(tokens.last(), `Property ${propertyName} is already declared`);
+        propertyNames.add(propertyName);
         JEL.expectOp(tokens, OPEN_ARGS, `Expected '()' following declaration of getter`);
         JEL.expectOp(tokens, CLOSE_ARGS, `Expected '()' following declaration of getter. Getters can't take any arguments.`);
+        const asCheck = JEL.tryParseAsTypeCheck(tokens, precedence, COLON);
         JEL.expectOp(tokens, COLON, `Expected colon (':') before start of getter expression.`);
-        getters.push(new Assignment(propName, new Lambda([], JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop))));
+        getters.push(new Assignment(propertyName, new Lambda([], asCheck, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop))));
       }
       else if ((next.is(TokenType.Identifier, 'op') ||  next.is(TokenType.Identifier, 'singleOp')) && tokens.peekIs(TokenType.Operator) && !tokens.peekIs(TokenType.Operator, '(')) { // ops
         if (staticModifier)
           JEL.throwParseException(next, `Operator methods can not be combined with a 'static' modifier.`);
         const op = tokens.next().value;
+        if (propertyNames.has(op))
+          JEL.throwParseException(tokens.last(), `Operator ${op} already declared`);
+        propertyNames.add(op);
         if (next.value == 'op' && !overloadableOperators[op])
           JEL.throwParseException(tokens.last(), `Binary operator ${op} can not be overloaded`);
         if (next.value == 'singleOp' && !overloadableSingleOps[op])
@@ -575,18 +601,24 @@ export default class JEL {
         const argsMax = next.value == 'op' ? 1 : 0;
         if (args!.length > argsMax)
           JEL.throwParseException(tokens.last(), argsMax == 0 ? `Single operator overload ${methodName} must not take any arguments` : `Too many arguments for operator overload ${methodName}, can have only one.`);
+
+        const asCheck = JEL.tryParseAsTypeCheck(tokens, precedence, COLON);
         JEL.expectOp(tokens, COLON, `Expected colon (':') before start of operator overload expression.`);
-        methods.push(new Assignment(methodName, new Lambda(args!, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop))));
+        methods.push(new Assignment(methodName, new Lambda(args!, asCheck, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop))));
       }
       else if (next.is(TokenType.Identifier) && tokens.peekIs(TokenType.Operator, '(')) {
         tokens.next();
         
         const methodName = next.value;
+        if (propertyNames.has(methodName))
+          JEL.throwParseException(tokens.last(), `Method ${methodName} already declared`);
+        propertyNames.add(methodName);
         const args = JEL.checkLambdaArguments(JEL.tryParseLambdaArguments(tokens, CLASS_PRECEDENCE, NO_STOP), next);
         if (args == null)
           JEL.throwParseException(tokens.last(), `Can not parse argument list for method ${methodName}`);
+        const asCheck = JEL.tryParseAsTypeCheck(tokens, precedence, COLON);
         JEL.expectOp(tokens, COLON, `Expected colon (':') before start of method.`);
-        const lambda = new Lambda(args!, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
+        const lambda = new Lambda(args!, asCheck, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
         if (staticModifier)
           staticProperties.push(new Assignment(methodName, lambda));
         else
@@ -594,6 +626,10 @@ export default class JEL {
       }
       else if (next.is(TokenType.Identifier) && (tokens.peekIs(TokenType.Operator, ':') || tokens.peekIs(TokenType.Operator, '='))) {
         const propertyName = next.value;
+        if (propertyNames.has(propertyName))
+          JEL.throwParseException(tokens.last(), `Property ${propertyName} is already declared`);
+        propertyNames.add(propertyName);
+        
         const separator = tokens.next();
         
         let arg;

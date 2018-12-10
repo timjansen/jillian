@@ -30,7 +30,7 @@ export default class Serializer {
 			
 			if ('getSerializationProperties' in obj) {
 				const props = (obj as Serializable).getSerializationProperties();
-				let r = obj.constructor.name + '(';
+				let r = (obj.jelTypeName || obj.constructor.name) + '(';
 				if (Array.isArray(props)) {
 					for (let i = 0; i < props.length; i++) {
 						if (i > 0)

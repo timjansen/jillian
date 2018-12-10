@@ -2,6 +2,7 @@ import JelNode from './JelNode';
 import Argument from './Argument';
 import Literal from './Literal';
 import Reference from './Reference';
+import As from './As';
 import Optional from './Optional';
 import Variable from './Variable';
 import JelObject from '../JelObject';
@@ -26,8 +27,9 @@ import Util from '../../util/Util';
 export default class Lambda extends JelNode {
   public argsAreCachable: boolean;
   public cachedArguments: LambdaArgument[]|undefined;
+  private wrappedExpression: JelNode;
   
-  constructor(public args: Argument[], public expression: JelNode) {
+  constructor(public args: Argument[], public typeCheck: JelNode|undefined, public expression: JelNode) {
 		super();
     this.argsAreCachable = !!args.find(arg=>(!arg.defaultValue ||
                                             arg.defaultValue instanceof Literal ||
@@ -36,42 +38,46 @@ export default class Lambda extends JelNode {
                                         arg.type instanceof Reference || 
                                         (arg.type instanceof Optional && arg.type.left instanceof Reference) ||
                                         (arg.type instanceof Variable && arg.type.name == 'any')));
+
+    this.wrappedExpression = this.typeCheck ? new As(expression, this.typeCheck, ' for return value') : expression;
   }
   
 	// override
   execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
+    
     if (this.cachedArguments)
-      return new LambdaCallable(this.cachedArguments, this.expression, ctx, "(anon lambda)");
+      return new LambdaCallable(this.cachedArguments, this.wrappedExpression, ctx, "(anon lambda)");
 
     return Util.resolveArray(this.args.map(a=>a.execute(ctx)), args=>{
       if (this.argsAreCachable)
         this.cachedArguments = args;
-      return new LambdaCallable(args, this.expression, ctx, "(anon lambda)");
+      return new LambdaCallable(args, this.wrappedExpression, ctx, "(anon lambda)");
     });
 	}
 	
 	// override
   equals(other?: JelNode): boolean {
 		return other instanceof Lambda &&
-			this.expression.equals(other.expression) && 
+			this.wrappedExpression.equals(other.wrappedExpression) && 
       this.args.length == other.args.length && 
       !this.args.find((l, i)=>!l.equals(other.args[i]));
 	}
 
 	toString(): string {
-		if (this.args.length == 1 && this.args[0].isNameOnly) 
+    if (this.typeCheck)
+			return `${this.toArgumentString()} as ${this.typeCheck.toString()}=>${this.expression.toString()}`;		
+		else if (this.args.length == 1 && this.args[0].isNameOnly) 
 			return `${this.args[0].name}=>${this.expression.toString()}`;
 		else
 			return `${this.toArgumentString()}=>${this.expression.toString()}`;		
 	}
 
  	toArgumentString(): string {
-			return `(${this.args.map(a=>a.toString()).join(', ')})`;		
+			return `(${this.args.map(a=>a.toString()).join(', ')})`;
 	}
-
   
   getSerializationProperties(): Object {
-    return [this.args, this.expression];
+    return [this.args, this.typeCheck, this.expression];
   }
 }
 
