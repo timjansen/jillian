@@ -43,10 +43,10 @@ export default class TypeChecker {
 			return defaultValue;
 		
 		const typeName: string = value.getJelType ? value.getJelType() : '';
-		if (typeName == 'Number' || typeName == 'Fraction' || typeName == 'ApproximateNumber' || typeName == 'UnitValue')
+		if (typeName == 'Float' || typeName == 'Fraction' || typeName == 'ApproximateNumber' || typeName == 'UnitValue')
 			return value;
 		if (typeof value == 'number')
-			return BaseTypeRegistry.get('Number').valueOf(value);
+			return BaseTypeRegistry.get('Float').valueOf(value);
 		return TypeChecker.throwArgumentError(value, name, 'numeric');
 	}
 
@@ -59,7 +59,7 @@ export default class TypeChecker {
 			return defaultValue;
 		
 		const typeName: string = value.getJelType ? value.getJelType() : '';
-		if (typeName == 'Number' || typeName == 'Fraction' || typeName == 'ApproximateNumber' || typeName == 'UnitValue')
+		if (typeName == 'Float' || typeName == 'Fraction' || typeName == 'ApproximateNumber' || typeName == 'UnitValue')
 			return value.toRealNumber();
 		if (typeof value == 'number')
 			return value;

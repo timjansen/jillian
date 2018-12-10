@@ -5,7 +5,7 @@ import Util from '../../../util/Util';
 import Runtime from '../../Runtime';
 import JelObject from '../../JelObject';
 import Context from '../../Context';
-import JelNumber from '../JelNumber';
+import Float from '../Float';
 import UnitValue from '../UnitValue';
 import JelBoolean from '../JelBoolean';
 import Timestamp from './Timestamp';
@@ -143,14 +143,14 @@ export default class LocalDate extends AbstractDate {
 			switch (operator) {
 				case '+':
 				case '-':
-					if (right.isType(ctx, 'Year') && JelNumber.isInteger(ctx, right))
-						return this.op(ctx, operator, new Duration(JelNumber.toRealNumber(right)));
-					else if (right.isType(ctx, 'Month') && JelNumber.isInteger(ctx, right))
-						return this.op(ctx, operator, new Duration(0, JelNumber.toRealNumber(right)));
-					else if (right.isType(ctx, 'Week') && JelNumber.isInteger(ctx, right))
-						return this.op(ctx, operator, new Duration(0, 0, JelNumber.toRealNumber(right)*7));
+					if (right.isType(ctx, 'Year') && Float.isInteger(ctx, right))
+						return this.op(ctx, operator, new Duration(Float.toRealNumber(right)));
+					else if (right.isType(ctx, 'Month') && Float.isInteger(ctx, right))
+						return this.op(ctx, operator, new Duration(0, Float.toRealNumber(right)));
+					else if (right.isType(ctx, 'Week') && Float.isInteger(ctx, right))
+						return this.op(ctx, operator, new Duration(0, 0, Float.toRealNumber(right)*7));
 					else
-						return Util.resolveValue(right.convertTo(ctx, 'Day'), days=>this.op(ctx, operator, new Duration(0,0,JelNumber.toRealNumber(days))));
+						return Util.resolveValue(right.convertTo(ctx, 'Day'), days=>this.op(ctx, operator, new Duration(0,0,Float.toRealNumber(days))));
 			}
 		}
 		

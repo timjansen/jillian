@@ -2,7 +2,7 @@ import JelObject from '../../JelObject';
 import Context from '../../Context';
 import UnitValue from '../UnitValue';
 import JelBoolean from '../JelBoolean';
-import JelNumber from '../JelNumber';
+import Float from '../Float';
 import ApproximateNumber from '../ApproximateNumber';
 import TimeDescriptor from './TimeDescriptor';
 import ZonedDateTime from './ZonedDateTime';
@@ -61,7 +61,7 @@ export default class Timestamp extends TimeDescriptor {
 
 				case '-':
 					return new UnitValue((this.precisionInMs == 0 && right.precisionInMs == 0) ? 
-															 		JelNumber.valueOf(this.msSinceEpoch - right.msSinceEpoch) : new ApproximateNumber(JelNumber.valueOf(this.msSinceEpoch - right.msSinceEpoch), JelNumber.valueOf(this.precisionInMs + right.precisionInMs)), 
+															 		Float.valueOf(this.msSinceEpoch - right.msSinceEpoch) : new ApproximateNumber(Float.valueOf(this.msSinceEpoch - right.msSinceEpoch), Float.valueOf(this.precisionInMs + right.precisionInMs)), 
 															 'Millisecond');
 			}
 		}
@@ -69,16 +69,16 @@ export default class Timestamp extends TimeDescriptor {
 			return Util.resolveValue(right.convertTo(ctx, 'Millisecond'), (v: any)=> {
 				switch (operator) {
 					case '+':
-						return new Timestamp(this.msSinceEpoch + JelNumber.toRealNumber(v), this.precisionInMs);
+						return new Timestamp(this.msSinceEpoch + Float.toRealNumber(v), this.precisionInMs);
 					case '-':
-						return new Timestamp(this.msSinceEpoch - JelNumber.toRealNumber(v), this.precisionInMs);
+						return new Timestamp(this.msSinceEpoch - Float.toRealNumber(v), this.precisionInMs);
 					case '+-':
-						return new Timestamp(this.msSinceEpoch, JelNumber.toRealNumber(v));
+						return new Timestamp(this.msSinceEpoch, Float.toRealNumber(v));
 				}
 				return super.op(ctx, operator, right);
 			});
 		}
-		else if (right instanceof JelNumber) {
+		else if (right instanceof Float) {
 			switch (operator) {
 				case '+':
 					return new Timestamp(this.msSinceEpoch + right.value, this.precisionInMs);
@@ -96,14 +96,14 @@ export default class Timestamp extends TimeDescriptor {
 			return Util.resolveValue(left.convertTo(ctx, 'Millisecond'), (v: any)=> {
 				switch (operator) {
 					case '+':
-						return new Timestamp(JelNumber.toRealNumber(v) + this.msSinceEpoch, this.precisionInMs);
+						return new Timestamp(Float.toRealNumber(v) + this.msSinceEpoch, this.precisionInMs);
 					case '-':
-						return new Timestamp(JelNumber.toRealNumber(v) - this.msSinceEpoch, this.precisionInMs);
+						return new Timestamp(Float.toRealNumber(v) - this.msSinceEpoch, this.precisionInMs);
 				}
 				return super.opReversed(ctx, operator, left);
 			});
 		}
-		else if (left instanceof JelNumber) {
+		else if (left instanceof Float) {
 			switch (operator) {
 				case '+':
 					return new Timestamp(left.value + this.msSinceEpoch, this.precisionInMs);

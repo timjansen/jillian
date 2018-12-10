@@ -4,7 +4,7 @@ import SerializablePrimitive from '../SerializablePrimitive';
 import Context from '../Context';
 import Runtime from '../Runtime';
 import JelObject from '../JelObject';
-import JelNumber from './JelNumber';
+import Float from './Float';
 import JelString from './JelString';
 import JelBoolean from './JelBoolean';
 import Callable from '../Callable';
@@ -101,11 +101,11 @@ export default class List extends JelObject implements SerializablePrimitive {
 		return v === undefined ? null : v;
 	}
 	
-	get length(): JelNumber {
-		return JelNumber.valueOf(this.elements.length);
+	get length(): Float {
+		return Float.valueOf(this.elements.length);
 	}
-	get size(): JelNumber {
-		return JelNumber.valueOf(this.elements.length);
+	get size(): Float {
+		return Float.valueOf(this.elements.length);
 	}
 	
 	each_jel_mapping: Object;
@@ -116,7 +116,7 @@ export default class List extends JelObject implements SerializablePrimitive {
 		const len = this.elements.length;
 		function exec(): Promise<List> | List {
 			while (i < len) {
-				const r = f.invoke(ctx, undefined, self.elements[i], JelNumber.valueOf(i));
+				const r = f.invoke(ctx, undefined, self.elements[i], Float.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(exec);
@@ -130,7 +130,7 @@ export default class List extends JelObject implements SerializablePrimitive {
 	map(ctx: Context, f0: any): List | Promise<List> {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		const newList: any[] = [];
-		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, undefined, e, JelNumber.valueOf(i)), v=>{newList.push(v);}, ()=>new List(newList));
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, undefined, e, Float.valueOf(i)), v=>{newList.push(v);}, ()=>new List(newList));
 	}
 
 	filter_jel_mapping: Object;
@@ -138,7 +138,7 @@ export default class List extends JelObject implements SerializablePrimitive {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		const newList: any[] = [];
 
-		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, undefined, e, JelNumber.valueOf(i)), (v, e)=> {
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, undefined, e, Float.valueOf(i)), (v, e)=> {
 			if (JelBoolean.toRealBoolean(v))
 				newList.push(e);
 		}, ()=>new List(newList));
@@ -149,13 +149,13 @@ export default class List extends JelObject implements SerializablePrimitive {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		let result: any = init;
 		
-		return Util.processPromiseList(this.elements, (v,i)=>f.invoke(ctx, undefined, v, result, JelNumber.valueOf(i)), v=>{result=v;}, ()=>result);
+		return Util.processPromiseList(this.elements, (v,i)=>f.invoke(ctx, undefined, v, result, Float.valueOf(i)), v=>{result=v;}, ()=>result);
 	}
 
 	hasAny_jel_mapping: Object;
 	hasAny(ctx: Context, f0: any): JelBoolean | Promise<JelBoolean> {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
-		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, undefined, e, JelNumber.valueOf(i)), (v, e)=>JelBoolean.toRealBoolean(v) ? JelBoolean.TRUE : undefined, r=>r || JelBoolean.FALSE);
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, undefined, e, Float.valueOf(i)), (v, e)=>JelBoolean.toRealBoolean(v) ? JelBoolean.TRUE : undefined, r=>r || JelBoolean.FALSE);
 	}
 
  	hasAnyJs(f: (a: JelObject|null, i: number)=>boolean): boolean {
@@ -168,7 +168,7 @@ export default class List extends JelObject implements SerializablePrimitive {
 	hasOnly_jel_mapping: Object;
 	hasOnly(ctx: Context, f0: any): JelBoolean | Promise<JelBoolean> {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
-		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, undefined, e, JelNumber.valueOf(i)), (v, e)=>JelBoolean.toRealBoolean(v) ? undefined : JelBoolean.FALSE, r=>r || JelBoolean.TRUE);
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, undefined, e, Float.valueOf(i)), (v, e)=>JelBoolean.toRealBoolean(v) ? undefined : JelBoolean.FALSE, r=>r || JelBoolean.TRUE);
 	}
 
 	hasOnlyJs(f: (a: JelObject|null, i: number)=>boolean): boolean {
@@ -196,7 +196,7 @@ export default class List extends JelObject implements SerializablePrimitive {
       throw new Error('Index must not be 0. nthMatch is not 0-based.');
     const absIndex = Math.abs(index);
     let matchCount = 0;
-		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, undefined, e, JelNumber.valueOf(i)), (v, e)=>{
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, undefined, e, Float.valueOf(i)), (v, e)=>{
       if (JelBoolean.toRealBoolean(v)) {
         if (++matchCount == absIndex)
           return e;

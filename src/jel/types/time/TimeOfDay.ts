@@ -4,7 +4,6 @@ import Util from '../../../util/Util';
 import JelObject from '../../JelObject';
 import Context from '../../Context';
 import JelBoolean from '../JelBoolean';
-import JelNumber from '../JelNumber';
 import UnitValue from '../UnitValue';
 import Duration from './Duration';
 import TypeChecker from '../TypeChecker';

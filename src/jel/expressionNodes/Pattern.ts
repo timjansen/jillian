@@ -17,7 +17,7 @@ import Util from '../../util/Util';
  *	`my favorite color is {{col: color}}`      
  *	`I like {{a: animal.plural}}`        // specifies that only Translator matches with the meta property 'plural' are used
  *	`I like {{a: animal.plural :: @Bird.isCategoryOf(a)}}`        // limits matches to instances of @Bird
- *  `This is number {{n: /[0-9]+/ :: Number.parse(n) > 0}}`       // Regular expression match
+ *  `This is number {{n: /[0-9]+/ :: Float.parse(n) > 0}}`       // Regular expression match
  *  `{{date: /([0-9]+)-([0-9]+)-([0-9]+)/ }}`                     // RE with groups: returns a List containing the three numbers
  *  `{{date: /[0-9]+/ /[0-9]+/ /[0-9]+/ }}`                       // Three REs, to match three words. Also returns list.
  */

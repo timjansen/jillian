@@ -3,7 +3,7 @@ import JelObject from '../jel/JelObject';
 import Context from '../jel/Context';
 import Serializable from '../jel/Serializable';
 import TypeChecker from '../jel/types/TypeChecker';
-import JelNumber from '../jel/types/JelNumber';
+import Float from '../jel/types/Float';
 import JelBoolean from '../jel/types/JelBoolean';
 import Dictionary from '../jel/types/Dictionary';
 
@@ -17,8 +17,8 @@ export default class DatabaseConfig extends JelObject implements Serializable {
   constructor(config = new Map<string, JelObject|null>()) {
     super();
     
-    this.version = JelNumber.toRealNumber(config.get('version')) || 1;
-    this.sizing = JelNumber.toRealNumber(config.get('sizing')) || 10000;
+    this.version = Float.toRealNumber(config.get('version')) || 1;
+    this.sizing = Float.toRealNumber(config.get('sizing')) || 10000;
     this.prettyPrint = config.get('prettyPrint') == null ?  true : JelBoolean.toRealBoolean(config.get('prettyPrint'));
   }
 

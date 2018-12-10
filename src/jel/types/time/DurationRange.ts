@@ -5,7 +5,7 @@ import Runtime from '../../Runtime';
 import Context from '../../Context';
 import Util from '../../../util/Util';
 import Range from '../Range';
-import JelNumber from '../JelNumber';
+import Float from '../Float';
 import JelBoolean from '../JelBoolean';
 import UnitValue from '../UnitValue';
 import Duration from './Duration';
@@ -41,7 +41,7 @@ export default class DurationRange extends Range {
 					return new DurationRange(Runtime.op(ctx, operator, this.min, right.min) as Duration, Runtime.op(ctx, operator, this.max, right.max) as Duration);
 			}
 		}
-		else if (right instanceof JelNumber || right instanceof Fraction || right instanceof ApproximateNumber) {
+		else if (right instanceof Float || right instanceof Fraction || right instanceof ApproximateNumber) {
 			switch (operator) {
 				case '*':
 				case '/':

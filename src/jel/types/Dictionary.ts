@@ -3,7 +3,7 @@ import Runtime from '../Runtime';
 import SerializablePrimitive from '../SerializablePrimitive';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import Context from '../Context';
-import JelNumber from './JelNumber';
+import Float from './Float';
 import JelString from './JelString';
 import List from './List';
 import JelBoolean from './JelBoolean';
@@ -194,7 +194,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 				const next = it.next();
 				if (next.done)
 					return self;
-				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, JelNumber.valueOf(i));
+				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, Float.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(exec);
@@ -215,7 +215,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 				const next = it.next();
 				if (next.done)
 					return newDict;
-				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, JelNumber.valueOf(i));
+				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, Float.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> {
@@ -241,7 +241,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 				const next = it.next();
 				if (next.done)
 					return l;
-				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, JelNumber.valueOf(i));
+				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, Float.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> {
@@ -311,7 +311,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 				if (next.done)
 					return newDict;
 				const thisValue = self.elements.get(next.value) as JelObject;
-				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), thisValue, JelNumber.valueOf(i));
+				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), thisValue, Float.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> {
@@ -348,7 +348,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 				const next = it.next();
 				if (next.done)
 					return result;
-				const r = f.invoke(ctx, undefined, result, JelString.valueOf(next.value), self.elements.get(next.value) || null, JelNumber.valueOf(i));
+				const r = f.invoke(ctx, undefined, result, JelString.valueOf(next.value), self.elements.get(next.value) || null, Float.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> {
@@ -374,7 +374,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 				const next = it.next();
 				if (next.done)
 					return JelBoolean.FALSE;
-				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, JelNumber.valueOf(i));
+				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, Float.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> JelBoolean.toRealBoolean(v) ? JelBoolean.TRUE : exec());
@@ -412,7 +412,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 				const next = it.next();
 				if (next.done)
 					return JelBoolean.TRUE;
-				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, JelNumber.valueOf(i));
+				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, Float.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> JelBoolean.toRealBoolean(v) ? exec() : JelBoolean.FALSE);

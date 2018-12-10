@@ -11,7 +11,7 @@ import Util from '../../util/Util';
  * Represents an optional value (aka type). Returns a TypeDescriptor.
  *
  * Examples: 
- *  Number?
+ *  Float?
  *  @Meter?
  */
 export default class Optional extends JelNode {

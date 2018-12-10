@@ -1,9 +1,9 @@
-import JelNumber from './JelNumber';
+import Float from './Float';
 
 export default interface Numeric {
 	negate(): Numeric;
 	abs(): Numeric;
-	toNumber(): JelNumber;
+	toNumber(): Float;
 	toRealNumber(): number;
 	toBoolean(): boolean;
 }

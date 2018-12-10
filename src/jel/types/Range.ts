@@ -2,7 +2,7 @@ import Util from '../../util/Util';
 import Runtime from '../Runtime';
 import JelObject from '../JelObject';
 import Context from '../Context';
-import JelNumber from './JelNumber';
+import Float from './Float';
 import Fraction from './Fraction';
 import Callable from '../Callable';
 import UnitValue from './UnitValue';
@@ -115,7 +115,7 @@ export default class Range extends JelObject {
 	}
 	
 	static withAccuracy(value: number, accuracy: number): Range {
-		return new Range(JelNumber.valueOf(value - accuracy), JelNumber.valueOf(value + accuracy));
+		return new Range(Float.valueOf(value - accuracy), Float.valueOf(value + accuracy));
 	}
 	
 	static create_jel_mapping = ['min', 'max'];

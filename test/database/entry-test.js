@@ -10,7 +10,7 @@ const JEL = require('../../build/jel/JEL.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const Util = require('../../build/util/Util.js').default;
-const JelNumber = require('../../build/jel/types/JelNumber.js').default;
+const Float = require('../../build/jel/types/Float.js').default;
 const JelString = require('../../build/jel/types/JelString.js').default;
 const Dictionary = require('../../build/jel/types/Dictionary.js').default;
 const EnumValue = require('../../build/jel/types/EnumValue.js').default;
@@ -56,8 +56,8 @@ tmp.dir(function(err, path) {
 			});
 			
 			it('supports category-level properties', function() {
-				const animal = new Category('Animal1Category', undefined, Dictionary.fromObject({a: JelNumber.valueOf(1), b: JelNumber.valueOf(2), x: JelString.valueOf("foo"), y: JelString.valueOf("bar")}));
-				const cat = new Category('Cat1Category', animal, Dictionary.fromObject({a: JelNumber.valueOf(5), c: JelNumber.valueOf(3), x: JelString.valueOf("bla"), z: JelString.valueOf("nope")}));
+				const animal = new Category('Animal1Category', undefined, Dictionary.fromObject({a: Float.valueOf(1), b: Float.valueOf(2), x: JelString.valueOf("foo"), y: JelString.valueOf("bar")}));
+				const cat = new Category('Cat1Category', animal, Dictionary.fromObject({a: Float.valueOf(5), c: Float.valueOf(3), x: JelString.valueOf("bla"), z: JelString.valueOf("nope")}));
 				return db.put(ctx, animal, cat)
 				.then(()=>session.getFromDatabase('Cat1Category') 
 					.then(cc=>{
@@ -92,16 +92,16 @@ tmp.dir(function(err, path) {
 				const e1 = new EnumValue('required', DbRef.create('PropertyTypeEnum'));
 				const e2 = new EnumValue('optional', DbRef.create('PropertyTypeEnum'));
 				const animal = new Category('Animal2Category', undefined, undefined,
-																	Dictionary.fromObject({a: JelNumber.valueOf(1), b: JelNumber.valueOf(2)}));
+																	Dictionary.fromObject({a: Float.valueOf(1), b: Float.valueOf(2)}));
 				const cat = new Category('Cat2Category', animal, undefined, 
-																Dictionary.fromObject({a: JelNumber.valueOf(7), c: JelNumber.valueOf(3)}));
+																Dictionary.fromObject({a: Float.valueOf(7), c: Float.valueOf(3)}));
 
 				return db.put(ctx, animal, cat)
 				.then(()=>session.getFromDatabase('Cat2Category') 
 					.then(cc=>{
 						assert.ok(!!cc);
-						assert.equal(cc.instanceDefault(ctx, 'a'), JelNumber.valueOf(7));
-						assert.equal(cc.instanceDefault(ctx, 'c'), JelNumber.valueOf(3));
+						assert.equal(cc.instanceDefault(ctx, 'a'), Float.valueOf(7));
+						assert.equal(cc.instanceDefault(ctx, 'c'), Float.valueOf(3));
 						assert.equal(cc.superCategory.distinctName, 'Animal2Category');
 
 						return Promise.all([
@@ -111,8 +111,8 @@ tmp.dir(function(err, path) {
 					})
 					.then(aa=> {
 						assert.ok(!!aa);
-						assert.equal(aa.instanceDefault(ctx, 'a'), JelNumber.valueOf(1));
-						assert.equal(aa.instanceDefault(ctx, 'b'), JelNumber.valueOf(2));
+						assert.equal(aa.instanceDefault(ctx, 'a'), Float.valueOf(1));
+						assert.equal(aa.instanceDefault(ctx, 'b'), Float.valueOf(2));
 						return Promise.all([
 							Promise.resolve(aa.instanceDefault(ctx, 'b')).then(value=>jelAssert.equal(value, 2))
 							])
@@ -142,12 +142,12 @@ tmp.dir(function(err, path) {
 		
 		describe('Thing', function() {
 			it('supports thing-level properties', function() {
-				const animal = new Category('Animal5Category', undefined, undefined, Dictionary.fromObject({a: JelNumber.valueOf(1), b: JelNumber.valueOf(2), x: JelString.valueOf("foo"), y: JelString.valueOf("bar")}));
+				const animal = new Category('Animal5Category', undefined, undefined, Dictionary.fromObject({a: Float.valueOf(1), b: Float.valueOf(2), x: JelString.valueOf("foo"), y: JelString.valueOf("bar")}));
 				jelAssert.equal(animal.instanceDefault(ctx, 'a'), 1);
-				const cat = new Category('Cat5Category', animal, undefined, Dictionary.fromObject({a: JelNumber.valueOf(5), c: JelNumber.valueOf(3), x: JelString.valueOf("bla"), z: JelString.valueOf("nope")}));
+				const cat = new Category('Cat5Category', animal, undefined, Dictionary.fromObject({a: Float.valueOf(5), c: Float.valueOf(3), x: JelString.valueOf("bla"), z: JelString.valueOf("nope")}));
 				jelAssert.equal(cat.instanceDefault(ctx, 'a'), 5);
 
-				const grumpy = new Thing('GrumpyCat', cat, Dictionary.fromObject({b: JelNumber.valueOf(3), d: JelNumber.valueOf(5), x: JelString.valueOf("bar"), w: JelString.valueOf("www")}));
+				const grumpy = new Thing('GrumpyCat', cat, Dictionary.fromObject({b: Float.valueOf(3), d: Float.valueOf(5), x: JelString.valueOf("bar"), w: JelString.valueOf("www")}));
 				jelAssert.equal(grumpy.properties.get(ctx, 'b'), 3);
 				jelAssert.equal(grumpy.member(ctx, 'b'), 3);
 

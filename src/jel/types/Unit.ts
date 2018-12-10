@@ -6,7 +6,7 @@ import JelBoolean from './JelBoolean';
 import Fraction from './Fraction';
 import ApproximateNumber from './ApproximateNumber';
 import JelString from './JelString';
-import JelNumber from './JelNumber';
+import Float from './Float';
 import List from './List';
 import Dictionary from './Dictionary';
 import TypeChecker from './TypeChecker';
@@ -65,7 +65,7 @@ export default class Unit extends JelObject {
 		}
 		else if (numeratorUnits instanceof Dictionary) {
 			const newMap = new Map<string, number>();
-			numeratorUnits.eachJs((k, v)=>newMap.set(k, (v as JelNumber).value));
+			numeratorUnits.eachJs((k, v)=>newMap.set(k, (v as Float).value));
 			this.units = newMap;
 			this.simple = this.units.size == 1 && newMap.values().next().value == 1  && !denominatorUnits;
 		}
@@ -107,10 +107,10 @@ export default class Unit extends JelObject {
 					return new Unit(mergeUnitMaps(this.units, invertUnitMap(right.units)));
 			}
 		}
-		else if (right instanceof JelNumber || right instanceof Fraction || right instanceof ApproximateNumber) { 
+		else if (right instanceof Float || right instanceof Fraction || right instanceof ApproximateNumber) { 
 			switch (operator) {
 			case '^':
-				return new Unit(multiplyUnitMap(JelNumber.toRealNumber(right), this.units));
+				return new Unit(multiplyUnitMap(Float.toRealNumber(right), this.units));
 			case '*':
 			case '/':
 				return this;

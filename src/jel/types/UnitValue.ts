@@ -7,7 +7,7 @@ import {IDbRef, IDbEntry} from '../IDatabase';
 import Unit from './Unit';
 import JelBoolean from './JelBoolean';
 import JelString from './JelString';
-import JelNumber from './JelNumber';
+import Float from './Float';
 import Numeric from './Numeric';
 import Dictionary from './Dictionary';
 import List from './List';
@@ -16,7 +16,7 @@ import ApproximateNumber from './ApproximateNumber';
 import Util from '../../util/Util';
 import TypeChecker from './TypeChecker';
 
-const VALUE_TYPES = ['Number', 'Fraction', 'ApproximateNumber'];
+const VALUE_TYPES = ['Float', 'Fraction', 'ApproximateNumber'];
 const UNIT_TYPES = ['Unit', 'String'];
 
 /**
@@ -27,7 +27,7 @@ export default class UnitValue extends JelObject implements Numeric {
 	
 	public unit: Unit;
 	
-	constructor(public value: JelNumber | Fraction | ApproximateNumber, unit: IDbRef | Unit | string | JelString) {
+	constructor(public value: Float | Fraction | ApproximateNumber, unit: IDbRef | Unit | string | JelString) {
 		super();
 		this.value = value;
 		this.unit = unit instanceof Unit ? unit : new Unit(unit);
@@ -87,7 +87,7 @@ export default class UnitValue extends JelObject implements Numeric {
 				}
 			}
 		}
-		else if (right instanceof JelNumber || right instanceof Fraction || right instanceof ApproximateNumber) {
+		else if (right instanceof Float || right instanceof Fraction || right instanceof ApproximateNumber) {
 				switch (operator) {
 				case '*':
 				case '/':
@@ -103,7 +103,7 @@ export default class UnitValue extends JelObject implements Numeric {
 		return super.op(ctx, operator, right);
 	}
 	
-	private toApproxNumber(newError: JelNumber | Fraction): UnitValue {
+	private toApproxNumber(newError: Float | Fraction): UnitValue {
 		if (this.value instanceof ApproximateNumber)
 			return new UnitValue(new ApproximateNumber(this.value.value, newError), this.unit);
 		else
@@ -117,7 +117,7 @@ export default class UnitValue extends JelObject implements Numeric {
 	}
 
 	opReversed(ctx: Context, operator: string, left: JelObject): JelObject|Promise<JelObject> {
-		if (left instanceof JelNumber || left instanceof Fraction || left instanceof ApproximateNumber) {
+		if (left instanceof Float || left instanceof Fraction || left instanceof ApproximateNumber) {
 			switch (operator) {
 				case '*':
 				case '/':
@@ -275,7 +275,7 @@ export default class UnitValue extends JelObject implements Numeric {
 								newUnitMap.delete(oldUnit.distinctName);
 								newUnitMap.set(primaryUnit.distinctName, (newUnitMap.get(primaryUnit.distinctName) || 0) as number + exp);
 								if (t.elements.has('factor')) {
-									uv = new UnitValue(Runtime.op(ctx, '*', uv.value, Runtime.op(ctx, '^', t.elements.get('factor') as any, JelNumber.valueOf(exp)) as any) as any, new Unit(newUnitMap));
+									uv = new UnitValue(Runtime.op(ctx, '*', uv.value, Runtime.op(ctx, '^', t.elements.get('factor') as any, Float.valueOf(exp)) as any) as any, new Unit(newUnitMap));
 								}
 								else if (t.elements.has('f') && exp == 1 && t.elements.get('f') instanceof Callable)
 									uv = new UnitValue((t.elements.get('f') as Callable).invoke(ctx, undefined, uv.value) as any, new Unit(newUnitMap));
@@ -325,8 +325,8 @@ export default class UnitValue extends JelObject implements Numeric {
 	}
 	
 	round_jel_mapping: Object;
-	round(ctx: Context, precision: JelNumber = JelNumber.valueOf(1)): UnitValue {
-		return new UnitValue(JelNumber.valueOf(Math.round(JelNumber.toRealNumber(this.value)*precision.value)/precision.value), this.unit);
+	round(ctx: Context, precision: Float = Float.valueOf(1)): UnitValue {
+		return new UnitValue(Float.valueOf(Math.round(Float.toRealNumber(this.value)*precision.value)/precision.value), this.unit);
 	}
 	
 	abs_jel_mapping: Object;
@@ -340,7 +340,7 @@ export default class UnitValue extends JelObject implements Numeric {
 	}
 	
 	toNumber_jel_mapping: Object;
-	toNumber(): JelNumber {
+	toNumber(): Float {
 		return this.value.toNumber();
 	}
 	

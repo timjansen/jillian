@@ -6,7 +6,6 @@ import Dictionary from '../jel/types/Dictionary';
 import DbIndexDescriptor from './DbIndexDescriptor';
 import DbRef from './DbRef';
 import JelString from '../jel/types/JelString';
-import JelNumber from '../jel/types/JelNumber';
 import List from '../jel/types/List';
 
 const tifu = require('tifuhash');

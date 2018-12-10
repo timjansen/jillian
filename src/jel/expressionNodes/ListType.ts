@@ -11,7 +11,7 @@ import Util from '../../util/Util';
  * Represents an list type. Returns a TypeDescriptor.
  *
  * Examples: 
- *  Number[]
+ *  Float[]
  *  @Meter[]
  */
 export default class ListType extends JelNode {

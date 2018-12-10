@@ -11,7 +11,7 @@ import Util from '../../util/Util';
  * Represents an dictionary type. Returns a TypeDescriptor.
  *
  * Examples: 
- *  Number{}
+ *  Float{}
  *  @Meter{}
  */
 export default class DictType extends JelNode {

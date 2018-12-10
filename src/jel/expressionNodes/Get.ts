@@ -23,7 +23,7 @@ export default class Get extends JelNode {
 		const leftCtor = left.constructor.name;
 		const nameCtor = name.constructor.name;
     if (leftCtor == 'List') {
-			if (nameCtor == 'JelNumber')
+			if (nameCtor == 'Float')
       	return (left as any).get(ctx, (name as any).value);
 			else
 				throw new Error('Index operator [] on List supports only numbers.');

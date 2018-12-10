@@ -7,7 +7,7 @@ const Serializer = require('../../build/jel/Serializer.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
-const JelNumber = require('../../build/jel/types/JelNumber.js').default;
+const Float = require('../../build/jel/types/Float.js').default;
 const Duration = require('../../build/jel/types/time/Duration.js').default;
 const DurationRange = require('../../build/jel/types/time/DurationRange.js').default;
 const Timestamp = require('../../build/jel/types/time/Timestamp.js').default;
@@ -321,7 +321,7 @@ it('supports operations with UnitValues', function() {
 
 describe('DurationRange', function() {
 	it('creates and serializes', function() {
-		jelAssert.equal(new Range(JelNumber.valueOf(2), JelNumber.valueOf(3)), "Range(2, 3)"); // just to check that inheritance is working
+		jelAssert.equal(new Range(Float.valueOf(2), Float.valueOf(3)), "Range(2, 3)"); // just to check that inheritance is working
 		assert.equal(Serializer.serialize(new DurationRange(new Duration(0,0,0, 0, 2, 11), new Duration(0,0,0, 0, 5, 7))), "DurationRange(Duration(0,0,0,0,2,11),Duration(0,0,0,0,5,7))");
 		assert.equal(new JEL('DurationRange(Duration(0,0,0, 0, 2, 12), Duration(0,0,0, 0, 5, 7))').executeImmediately(DefaultContext.get()).constructor.name, "DurationRange");
 		jelAssert.equal(new DurationRange(new Duration(0,0,0, 0, 2, 3), new Duration(0,0,0, 0, 5, 7)), "DurationRange(Duration(minutes=2, seconds=3), Duration(minutes=5, seconds=7))");

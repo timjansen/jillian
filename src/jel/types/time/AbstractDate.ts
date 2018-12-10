@@ -6,7 +6,7 @@ import Runtime from '../../Runtime';
 import JelObject from '../../JelObject';
 import {IDbRef} from '../../IDatabase';
 import Context from '../../Context';
-import JelNumber from '../JelNumber';
+import Float from '../Float';
 import List from '../List';
 import UnitValue from '../UnitValue';
 import JelBoolean from '../JelBoolean';
@@ -47,7 +47,7 @@ export default abstract class AbstractDate extends TimeDescriptor {
   }
 
   get numberOfDays(): UnitValue {
-    return new UnitValue(JelNumber.valueOf(this.day != null ? 1 : (this.month != null ? this.getMonth0Duration(this.year, this.month-1) : (this.leapYear ? 366 : 355))), 'Day');
+    return new UnitValue(Float.valueOf(this.day != null ? 1 : (this.month != null ? this.getMonth0Duration(this.year, this.month-1) : (this.leapYear ? 366 : 355))), 'Day');
   }
 
 	get dayOfYear(): number {
@@ -115,7 +115,7 @@ export default abstract class AbstractDate extends TimeDescriptor {
 		if (!(type in AbstractDate.JEL_TO_MOMENT_TYPES))
 			return (this.diff(ctx, otherDate0, 'Second') as UnitValue).convertTo(ctx, type);
 		else
-			return new UnitValue(JelNumber.valueOf(this.toMoment().diff(otherDate.toMoment(), AbstractDate.JEL_TO_MOMENT_TYPES[type])), type);
+			return new UnitValue(Float.valueOf(this.toMoment().diff(otherDate.toMoment(), AbstractDate.JEL_TO_MOMENT_TYPES[type])), type);
 	}
 	
 	isValid(): boolean {

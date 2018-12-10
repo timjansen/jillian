@@ -133,8 +133,9 @@ Examples:
   a instanceof @AnimalCategory        // true if a is a Thing in the @AnimalCategory
   a instanceof CategoryType(@AnimalCategory) // true if a is a Category derived from @AnimalCategory (or @AnimalCategory itself)
   a instanceof String?                // true if a is a String or null
-  a instanceof String|Number          // true if a is a String or a number
-  a instanceof String|Number?         // true if a is a String or a number or null
+  a instanceof String|Float           // true if a is a String or a number
+  a instanceof String|Float?          // true if a is a String or a number or null
+  a instanceof String|Float|null      // true if a is a String or a number or null
   a instanceof String[]               // true if a is a List of only Strings 
   a instanceof String{}               // true if a is a Dictionary with all values being String
   a instanceof String[]|Boolean[]     // true if a is either a List of Strings or a List of Booleans

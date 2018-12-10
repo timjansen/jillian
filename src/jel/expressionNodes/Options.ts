@@ -11,7 +11,7 @@ import Util from '../../util/Util';
  * Represents an set of type options. Returns a OptionType.
  *
  * Examples: 
- *  Number|String
+ *  Float|String
  *  @Length|@Size|null
  */
 export default class Options extends JelNode {

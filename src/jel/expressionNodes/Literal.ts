@@ -31,7 +31,7 @@ export default class Literal extends JelNode {
 		else if (value == null)
 			this.value = null;
 		else if (typeof value == 'number')
-			this.value = BaseTypeRegistry.get('Number').valueOf(value);
+			this.value = BaseTypeRegistry.get('Float').valueOf(value);
 		else if (typeof value == 'string')
 			this.value = BaseTypeRegistry.get('String').valueOf(value);
 		else

@@ -8,7 +8,7 @@ import ApproximateNumber from './ApproximateNumber';
 import Numeric from './Numeric';
 import JelBoolean from './JelBoolean';
 import UnitValue from './UnitValue';
-import JelNumber from './JelNumber';
+import Float from './Float';
 import Fraction from './Fraction';
 import TypeChecker from './TypeChecker';
 
@@ -99,12 +99,12 @@ export default class Distribution extends JelObject {
 		// P.share = x * (rp.share-lp.share) + lp.share
 		// x = (P.share-lp.share) / (rp.share-lp.share) 
 		// P.value = (rp.value-lp.value) * (P.share - lp.share) / (rp.share-lp.share) + lp.value
-		const rpShare = JelNumber.valueOf(rp.share), lpShare = JelNumber.valueOf(lp.share);
-		return Runtime.op(ctx, '+', Runtime.op(ctx, '/', Runtime.op(ctx, '*', Runtime.op(ctx, '-', rp.value, lp.value) as any, Runtime.op(ctx, '-', JelNumber.valueOf(share0), lpShare) as any) as any, Runtime.op(ctx, '-', rpShare, lpShare) as any) as any, lp.value) as any;
+		const rpShare = Float.valueOf(rp.share), lpShare = Float.valueOf(lp.share);
+		return Runtime.op(ctx, '+', Runtime.op(ctx, '/', Runtime.op(ctx, '*', Runtime.op(ctx, '-', rp.value, lp.value) as any, Runtime.op(ctx, '-', Float.valueOf(share0), lpShare) as any) as any, Runtime.op(ctx, '-', rpShare, lpShare) as any) as any, lp.value) as any;
 	}
 
 	getShare_jel_mapping: Object;
-	getShare(ctx: Context, value0: any): Promise<JelNumber>|JelNumber|null {
+	getShare(ctx: Context, value0: any): Promise<Float>|Float|null {
 		const value = TypeChecker.numeric(value0, 'value');
 		if (this.points.length == 1) 
 			return Util.resolveValues((avg: JelBoolean, p0: JelBoolean)=>avg.toRealBoolean() ? 0.5 : p0.toRealBoolean() ? 1 : null, Runtime.op(ctx, '==', this.average, value), Runtime.op(ctx, '==', this.points[0].value, value)); 
@@ -113,7 +113,7 @@ export default class Distribution extends JelObject {
 			if (lt.toRealBoolean() || gt.toRealBoolean())
 				return null;
 			
-			let bestShare: JelNumber|undefined = undefined;
+			let bestShare: Float|undefined = undefined;
 			let ri: number | undefined = undefined;
 
 			return Util.processPromiseList(this.points, r=>Runtime.op(ctx, '==', r.value, value), (p, r)=>{
@@ -143,8 +143,8 @@ export default class Distribution extends JelObject {
 					// x = (P.value-lp.value)/(rp.value-lp.value)
 					// P.share = (P.value-lp.value)*(rp.share-lp.share)/(rp.value-lp.value)  + lp.share
 
-					const lpShare = JelNumber.valueOf(lp.share), rpShare = JelNumber.valueOf(rp.share);
-					return JelNumber.toNumberWithPromise(Runtime.opWithPromises(ctx, '+', Runtime.opWithPromises(ctx, '/', Runtime.opWithPromises(ctx, '*', Runtime.opWithPromises(ctx, '-', value as any, lp.value as any), Runtime.op(ctx, '-', rpShare, lpShare)), Runtime.opWithPromises(ctx, '-', rp.value as any, lp.value as any)),  lpShare));
+					const lpShare = Float.valueOf(lp.share), rpShare = Float.valueOf(rp.share);
+					return Float.toNumberWithPromise(Runtime.opWithPromises(ctx, '+', Runtime.opWithPromises(ctx, '/', Runtime.opWithPromises(ctx, '*', Runtime.opWithPromises(ctx, '-', value as any, lp.value as any), Runtime.op(ctx, '-', rpShare, lpShare)), Runtime.opWithPromises(ctx, '-', rp.value as any, lp.value as any)),  lpShare));
 				});
 			});
 		}, Runtime.op(ctx, '<', value, this.min(ctx)), Runtime.op(ctx, '>', value, this.max(ctx)));
@@ -161,7 +161,7 @@ export default class Distribution extends JelObject {
 						if (this.points.length != right.points.length)
 							return JelBoolean.FALSE;
 						for (let i = 0; i < this.points.length; i++)
-							if (JelNumber.toNumber(this.points[i].value) != JelNumber.toNumber(right.points[i].value) || this.points[i].share !=right.points[i].share)
+							if (Float.toNumber(this.points[i].value) != Float.toNumber(right.points[i].value) || this.points[i].share !=right.points[i].share)
 								return JelBoolean.FALSE;
 						return JelBoolean.TRUE;
 					}, Runtime.op(ctx, '===', this.average, right.average));
@@ -193,7 +193,7 @@ export default class Distribution extends JelObject {
 					}, Runtime.op(ctx, operator, this.max(ctx), right.min(ctx)), Runtime.op(ctx, INVERSE_OP[operator], this.max(ctx), right.min(ctx)));
 			}
 		}
-		else if (right instanceof JelNumber || right instanceof Fraction || right instanceof ApproximateNumber || right instanceof UnitValue) {
+		else if (right instanceof Float || right instanceof Fraction || right instanceof ApproximateNumber || right instanceof UnitValue) {
 			switch (operator) {
 				case '==': 
 					return JelBoolean.falsestWithPromises(ctx, Runtime.op(ctx, '>=', right, this.min(ctx)) as JelBoolean, Runtime.op(ctx, '<=', right, this.max(ctx)) as JelBoolean);

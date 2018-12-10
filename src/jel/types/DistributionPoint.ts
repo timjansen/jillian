@@ -2,7 +2,6 @@ import JelObject from '../JelObject';
 import ApproximateNumber from './ApproximateNumber';
 import UnitValue from './UnitValue';
 import Fraction from './Fraction';
-import JelNumber from './JelNumber';
 import Numeric from './Numeric';
 
 import Context from '../Context';

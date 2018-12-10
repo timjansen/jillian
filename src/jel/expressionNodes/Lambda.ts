@@ -22,7 +22,7 @@ import Util from '../../util/Util';
  *	(a,b) => a+b             // function thats returns the sum of two arguments
  *	[1, 2, 3].map(e => 2*e)  // returns the list [2, 4, 6]
  *	(a, b=5)=>a+b            // optional argument
- *	(a: Number, b: Number = 5)=>a+b          // type checks
+ *	(a: Float, b: Float = 5)=>a+b          // type checks
  */ 
 export default class Lambda extends JelNode {
   public argsAreCachable: boolean;

@@ -3,7 +3,7 @@ import Runtime from '../Runtime';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import Context from '../Context';
 import Numeric from './Numeric';
-import JelNumber from './JelNumber';
+import Float from './Float';
 import JelBoolean from './JelBoolean';
 import TypeChecker from './TypeChecker';
 
@@ -34,7 +34,7 @@ export default class Fraction extends JelObject implements Numeric {
 	}
 	
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
-		if (right instanceof JelNumber) {
+		if (right instanceof Float) {
 			if (!Number.isInteger(right.value))
 				return this.toNumber().op(ctx, operator, right);
 
@@ -76,11 +76,11 @@ export default class Fraction extends JelObject implements Numeric {
 					if (Number.isInteger(right.value) && right.value > 0) 
 						return Fraction.valueOf(Math.pow(this.numerator, right.value), Math.pow(this.denominator, right.value)).simplify();
 					else if (right.value == 0)
-						return JelNumber.valueOf(1);
+						return Float.valueOf(1);
 					else if (right.value == -1)
 						return Fraction.valueOf(this.denominator, this.numerator).simplify();
 					else
-						return JelNumber.valueOf(Math.pow(this.toRealNumber(), right.value));
+						return Float.valueOf(Math.pow(this.toRealNumber(), right.value));
 				case '+-':
 					return BaseTypeRegistry.get('ApproximateNumber').fromNumber(this, right);
 					
@@ -89,11 +89,11 @@ export default class Fraction extends JelObject implements Numeric {
 			}
 		}
 		else if (right instanceof Fraction) {
-			const l: Fraction | JelNumber = this.simplify();
-			const r: Fraction | JelNumber = right.simplify();
+			const l: Fraction | Float = this.simplify();
+			const r: Fraction | Float = right.simplify();
 			if (!((l instanceof Fraction) && (r instanceof Fraction))) {
-				if (operator == '/' && l instanceof JelNumber && r instanceof JelNumber)
-					return Fraction.valueOf((l as JelNumber).value, (r as JelNumber).value).simplify();
+				if (operator == '/' && l instanceof Float && r instanceof Float)
+					return Fraction.valueOf((l as Float).value, (r as Float).value).simplify();
 				else 
 					return Runtime.op(ctx, operator, l, r);
 			}
@@ -138,7 +138,7 @@ export default class Fraction extends JelObject implements Numeric {
 	}
 
 	opReversed(ctx: Context, operator: string, left: JelObject): JelObject|Promise<JelObject> {	
-		if (left instanceof JelNumber) {
+		if (left instanceof Float) {
 			const lnum = left.value;
 			if (!Number.isInteger(lnum))
 				return Runtime.op(ctx, operator, left, this.toNumber());
@@ -152,7 +152,7 @@ export default class Fraction extends JelObject implements Numeric {
 				case '/':
 					return Fraction.valueOf(lnum*this.denominator, this.numerator).simplify();
 				case '^':
-					return JelNumber.valueOf(Math.pow(lnum, this.toRealNumber()));
+					return Float.valueOf(Math.pow(lnum, this.toRealNumber()));
 				case '+-': 
 					return BaseTypeRegistry.get('ApproximateNumber').fromNumber(left, this);
 			}
@@ -183,8 +183,8 @@ export default class Fraction extends JelObject implements Numeric {
 	}
 
 	toNumber_jel_mapping: Object;
-	toNumber(): JelNumber {
-		return this.denominator !== 0 ? JelNumber.valueOf(this.numerator / this.denominator) : JelNumber.NAN;
+	toNumber(): Float {
+		return this.denominator !== 0 ? Float.valueOf(this.numerator / this.denominator) : Float.NAN;
 	}
 
 	toRealNumber(): number {
@@ -200,15 +200,15 @@ export default class Fraction extends JelObject implements Numeric {
 	}
 	
 	simplify_jel_mapping: Object;
-	simplify(): Fraction | JelNumber {
+	simplify(): Fraction | Float {
 		if (this.denominator == 1)
-			return JelNumber.valueOf(this.numerator);
+			return Float.valueOf(this.numerator);
 		
 		const n = Fraction.gcd(this.numerator, this.denominator);
 		if (n == 1)
 			return this;
 		else if (n == this.denominator)
-			return JelNumber.valueOf(this.numerator / this.denominator);
+			return Float.valueOf(this.numerator / this.denominator);
 		else
 			return Fraction.valueOf(this.numerator / n, this.denominator / n); 
 	}

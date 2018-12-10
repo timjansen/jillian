@@ -7,7 +7,6 @@ const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const NativeClass = require('../../build/jel/NativeClass.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
 const JelString = require('../../build/jel/types/JelString.js').default;
-const JelNumber = require('../../build/jel/types/JelNumber.js').default;
 const Pattern = require('../../build/jel/types/Pattern.js').default;
 const Translator = require('../../build/jel/types/Translator.js').default;
 const Dictionary = require('../../build/jel/types/Dictionary.js').default;

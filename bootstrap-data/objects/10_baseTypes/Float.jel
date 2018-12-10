@@ -1,4 +1,4 @@
-Thing('Number', @BaseTypeCategory, 
+Thing('Float', @BaseTypeCategory, 
 properties={
 	baseTypeDescriptor: {
 		isNumeric: true,

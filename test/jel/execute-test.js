@@ -12,7 +12,7 @@ const Callable = require('../../build/jel/Callable.js').default;
 const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
 const JelObject = require('../../build/jel/JelObject.js').default;
 const JelString = require('../../build/jel/types/JelString.js').default;
-const JelNumber = require('../../build/jel/types/JelNumber.js').default;
+const Float = require('../../build/jel/types/Float.js').default;
 const JelList = require('../../build/jel/types/List.js').default;
 const JelDictionary = require('../../build/jel/types/Dictionary.js').default;
 const Fraction = require('../../build/jel/types/Fraction.js').default;
@@ -41,12 +41,12 @@ describe('JEL', function() {
   describe('execute()', function() {
     
     it('should execute a simple literal', function() {
-      jelAssert.equal(new JEL('5').executeImmediately(), JelNumber.valueOf(5));
-      jelAssert.equal(new JEL('+5').executeImmediately(), JelNumber.valueOf(5));
-      jelAssert.equal(new JEL('-5').executeImmediately(), JelNumber.valueOf(-5));
-      jelAssert.equal(new JEL('- 5').executeImmediately(), JelNumber.valueOf(-5));
-      jelAssert.equal(new JEL('1e5').executeImmediately(), JelNumber.valueOf(1e5));
-      jelAssert.equal(new JEL('-1e-5').executeImmediately(), JelNumber.valueOf(-1e-5));
+      jelAssert.equal(new JEL('5').executeImmediately(), Float.valueOf(5));
+      jelAssert.equal(new JEL('+5').executeImmediately(), Float.valueOf(5));
+      jelAssert.equal(new JEL('-5').executeImmediately(), Float.valueOf(-5));
+      jelAssert.equal(new JEL('- 5').executeImmediately(), Float.valueOf(-5));
+      jelAssert.equal(new JEL('1e5').executeImmediately(), Float.valueOf(1e5));
+      jelAssert.equal(new JEL('-1e-5').executeImmediately(), Float.valueOf(-1e-5));
       jelAssert.equal(new JEL('"foo"').executeImmediately(), JelString.valueOf('foo'));
       assert.equal(new JEL('true').executeImmediately().state, 1);
       assert.equal(new JEL('null').executeImmediately(), null);
@@ -59,13 +59,13 @@ describe('JEL', function() {
     });
 
 		it('should execute a UnitValues', function() {
-      jelAssert.equal('1 @Meter', new UnitValue(JelNumber.valueOf(1), 'Meter'));
-      jelAssert.equal('5.5 @Meter', new UnitValue(JelNumber.valueOf(5.5), 'Meter'));
-      jelAssert.equal('-2 @Second', new UnitValue(JelNumber.valueOf(-2), 'Second'));
-      jelAssert.equal('+3 @Second', new UnitValue(JelNumber.valueOf(3), 'Second'));
+      jelAssert.equal('1 @Meter', new UnitValue(Float.valueOf(1), 'Meter'));
+      jelAssert.equal('5.5 @Meter', new UnitValue(Float.valueOf(5.5), 'Meter'));
+      jelAssert.equal('-2 @Second', new UnitValue(Float.valueOf(-2), 'Second'));
+      jelAssert.equal('+3 @Second', new UnitValue(Float.valueOf(3), 'Second'));
       jelAssert.equal('1/4 @Inch', new UnitValue(new Fraction(1, 4), 'Inch'));
       jelAssert.equal('-3/4 @Mile', new UnitValue(new Fraction(-3, 4), 'Mile'));
-      jelAssert.equal('1 @Meter + 1 @Meter', new UnitValue(JelNumber.valueOf(2), 'Meter'));
+      jelAssert.equal('1 @Meter + 1 @Meter', new UnitValue(Float.valueOf(2), 'Meter'));
     });
 
 		
@@ -86,7 +86,7 @@ describe('JEL', function() {
       assert.ok(new JEL('@Hello?').executeImmediately(ctx) instanceof OptionalType);
       assert.equal(new JEL('@Hello?').executeImmediately(ctx).type.type, 'Hello');
       assert.equal(new JEL('(@Hello)?').executeImmediately(ctx).type.type, 'Hello');
-      assert.equal(new JEL('Number?').executeImmediately(ctx).type.type, 'Number');
+      assert.equal(new JEL('Float?').executeImmediately(ctx).type.type, 'Float');
     });
 
     
@@ -149,15 +149,15 @@ describe('JEL', function() {
 		
 		 it('should support instanceof', function() {
       jelAssert.equal("3 instanceof any", "true");
-      jelAssert.equal("3 instanceof @Number", "true");
-      jelAssert.equal("null instanceof @Number", "false");
-      jelAssert.equal("'hello' instanceof @Number", "false");
-      jelAssert.equal("true instanceof @Number", "false");
+      jelAssert.equal("3 instanceof @Float", "true");
+      jelAssert.equal("null instanceof @Float", "false");
+      jelAssert.equal("'hello' instanceof @Float", "false");
+      jelAssert.equal("true instanceof @Float", "false");
 
-      jelAssert.equal("3 instanceof Number", "true");
-      jelAssert.equal("null instanceof Number", "false");
-      jelAssert.equal("'hello' instanceof Number", "false");
-      jelAssert.equal("true instanceof Number", "false");
+      jelAssert.equal("3 instanceof Float", "true");
+      jelAssert.equal("null instanceof Float", "false");
+      jelAssert.equal("'hello' instanceof Float", "false");
+      jelAssert.equal("true instanceof Float", "false");
       jelAssert.equal("3 instanceof String", "false");
       jelAssert.equal("null instanceof String", "false");
       jelAssert.equal("'hello' instanceof String", "true");
@@ -166,31 +166,31 @@ describe('JEL', function() {
       jelAssert.equal("'hello' instanceof Boolean", "false");
       jelAssert.equal("true instanceof Boolean", "true");
 
-      jelAssert.equal("3 instanceof Number?", "true");
-      jelAssert.equal("null instanceof Number?", "true");
-      jelAssert.equal("'hello' instanceof Number?", "false");
-      jelAssert.equal("true instanceof Number?", "false");
+      jelAssert.equal("3 instanceof Float?", "true");
+      jelAssert.equal("null instanceof Float?", "true");
+      jelAssert.equal("'hello' instanceof Float?", "false");
+      jelAssert.equal("true instanceof Float?", "false");
 
-      jelAssert.equal("3 instanceof Number|String", "true");
-      jelAssert.equal("null instanceof Number|String", "false");
-      jelAssert.equal("'hello' instanceof Number|String", "true");
-      jelAssert.equal("true instanceof Number|String", "false");
-      jelAssert.equal("null instanceof Number|String?", "true");
+      jelAssert.equal("3 instanceof Float|String", "true");
+      jelAssert.equal("null instanceof Float|String", "false");
+      jelAssert.equal("'hello' instanceof Float|String", "true");
+      jelAssert.equal("true instanceof Float|String", "false");
+      jelAssert.equal("null instanceof Float|String?", "true");
      });
 
  		 it('should support as', function() {
       jelAssert.equal("true as any", "true");
       jelAssert.equal("null as any", "null");
-      jelAssert.equal("3 as @Number", "3");
-      jelAssert.equal("3 as Number", "3");
+      jelAssert.equal("3 as @Float", "3");
+      jelAssert.equal("3 as Float", "3");
       jelAssert.equal("'hello' as String", "'hello'");
       jelAssert.equal("true as Boolean", "true");
-      jelAssert.equal("3 as Number?", "3");
-      jelAssert.equal("null as Number?", "null");
-      jelAssert.equal("3 as Number|String", "3");
-      jelAssert.equal("'hello' as Number|String", "'hello'");
-      jelAssert.equal("null as Number|String?", "null");
-      return jelAssert.errorPromise("true as String|Number");
+      jelAssert.equal("3 as Float?", "3");
+      jelAssert.equal("null as Float?", "null");
+      jelAssert.equal("3 as Float|String", "3");
+      jelAssert.equal("'hello' as Float|String", "'hello'");
+      jelAssert.equal("null as Float|String?", "null");
+      return jelAssert.errorPromise("true as String|Float");
      });
 
     
@@ -219,18 +219,18 @@ describe('JEL', function() {
       }
       B.prototype.JEL_PROPERTIES = {ref:1};
       
-      jelAssert.equal(new JEL('b.ref').executeImmediately(new Context().setAll({b: new B(JelNumber.valueOf(5))})), 5);
-      jelAssert.equal(new JEL('b.ref.ref.ref').executeImmediately(new Context().setAll({b: new B(new B(new B(JelNumber.valueOf(7))))})), 7);
+      jelAssert.equal(new JEL('b.ref').executeImmediately(new Context().setAll({b: new B(Float.valueOf(5))})), 5);
+      jelAssert.equal(new JEL('b.ref.ref.ref').executeImmediately(new Context().setAll({b: new B(new B(new B(Float.valueOf(7))))})), 7);
    });
 
    it('should access methods of JelObjects', function() {
       class A extends JelObject {
-        constructor(a = JelNumber.valueOf(2), b = JelNumber.valueOf(5)) {
+        constructor(a = Float.valueOf(2), b = Float.valueOf(5)) {
           super();
           this.x = a;
           this.y = b;
         }
-        static create(ctx, a = JelNumber.valueOf(2), b = JelNumber.valueOf(5)) {
+        static create(ctx, a = Float.valueOf(2), b = Float.valueOf(5)) {
           return new A(a, b);
         }
         getX() {
@@ -270,8 +270,8 @@ describe('JEL', function() {
 
     
    it('should access variables', function() {
-     jelAssert.equal(new JEL('a').executeImmediately(new Context().setAll({a: JelNumber.valueOf(10)})), 10);
-     jelAssert.equal(new JEL('a+b').executeImmediately(new Context().setAll({a: JelNumber.valueOf(1), b: JelNumber.valueOf(3)})), 4);
+     jelAssert.equal(new JEL('a').executeImmediately(new Context().setAll({a: Float.valueOf(10)})), 10);
+     jelAssert.equal(new JEL('a+b').executeImmediately(new Context().setAll({a: Float.valueOf(1), b: Float.valueOf(3)})), 4);
     });
     
     
@@ -294,23 +294,23 @@ describe('JEL', function() {
     it('supports lists using the regular syntax []', function() {
       assert(new JEL('[]').executeImmediately() instanceof JelList);
       assert.deepEqual(new JEL('[]').executeImmediately().elements, []);
-      assert.deepEqual(new JEL('[1]').executeImmediately().elements, [JelNumber.valueOf(1)]);
-      assert.deepEqual(new JEL('[7, 9-4, 7*3]').executeImmediately().elements, [7, 5, 21].map(JelNumber.valueOf));
+      assert.deepEqual(new JEL('[1]').executeImmediately().elements, [Float.valueOf(1)]);
+      assert.deepEqual(new JEL('[7, 9-4, 7*3]').executeImmediately().elements, [7, 5, 21].map(Float.valueOf));
       
-			return new JEL('[JelPromise(2), 0, JelPromise.resolve(8), JelPromise(9), JelPromise.resolve(7), 5]').execute(ctx).then(r=> assert.deepEqual(r.elements, [2, 0, 8, 9, 7, 5].map(JelNumber.valueOf)));
+			return new JEL('[JelPromise(2), 0, JelPromise.resolve(8), JelPromise(9), JelPromise.resolve(7), 5]').execute(ctx).then(r=> assert.deepEqual(r.elements, [2, 0, 8, 9, 7, 5].map(Float.valueOf)));
     });
     
     it('supports dictionaries', function() {
       assert.deepEqual(new JEL('{}').executeImmediately().toObjectDebug(), {});
-      assert.deepEqual(new JEL('{a: 3, b: 1}').executeImmediately().toObjectDebug(), {a: JelNumber.valueOf(3), b: JelNumber.valueOf(1)});
-      assert.deepEqual(new JEL('{"a": 3, "b": 1}').executeImmediately().toObjectDebug(), {a: JelNumber.valueOf(3), b: JelNumber.valueOf(1)});
-      assert.deepEqual(new JEL("{'a': 3, 'b': 1}").executeImmediately().toObjectDebug(), {a: JelNumber.valueOf(3), b: JelNumber.valueOf(1)});
-      assert.deepEqual(new JEL('{a, b: 1, c}').executeImmediately(new Context().setAll({a:JelNumber.valueOf(7),b:JelNumber.valueOf(2),c:JelNumber.valueOf(10)})).toObjectDebug(), {a:JelNumber.valueOf(7),b:JelNumber.valueOf(1),c:JelNumber.valueOf(10)});
+      assert.deepEqual(new JEL('{a: 3, b: 1}').executeImmediately().toObjectDebug(), {a: Float.valueOf(3), b: Float.valueOf(1)});
+      assert.deepEqual(new JEL('{"a": 3, "b": 1}').executeImmediately().toObjectDebug(), {a: Float.valueOf(3), b: Float.valueOf(1)});
+      assert.deepEqual(new JEL("{'a': 3, 'b': 1}").executeImmediately().toObjectDebug(), {a: Float.valueOf(3), b: Float.valueOf(1)});
+      assert.deepEqual(new JEL('{a, b: 1, c}').executeImmediately(new Context().setAll({a:Float.valueOf(7),b:Float.valueOf(2),c:Float.valueOf(10)})).toObjectDebug(), {a:Float.valueOf(7),b:Float.valueOf(1),c:Float.valueOf(10)});
       assert.deepEqual(new JEL('{a: {b: 2}}').executeImmediately().toObjectDebug().a.toObjectDebug().b.value, 2);
       
       assert.throws(()=>new JEL('{a: 1, a: 2}').executeImmediately());
 
-      return new JEL("{a: JelPromise(1), b: 2, c: JelPromise(3), d: JelPromise.resolve(6)}").execute(ctx).then(r=>assert.deepEqual(r.toObjectDebug(), {a: JelNumber.valueOf(1), b: JelNumber.valueOf(2), c: JelNumber.valueOf(3), d: JelNumber.valueOf(6)}));
+      return new JEL("{a: JelPromise(1), b: 2, c: JelPromise(3), d: JelPromise.resolve(6)}").execute(ctx).then(r=>assert.deepEqual(r.toObjectDebug(), {a: Float.valueOf(1), b: Float.valueOf(2), c: Float.valueOf(3), d: Float.valueOf(6)}));
 		});
 
 
@@ -357,11 +357,11 @@ describe('JEL', function() {
 
     
    it('supports calls', function() {
-      function f(ctx, a=JelNumber.valueOf(1), b=JelNumber.valueOf(2)) { 
+      function f(ctx, a=Float.valueOf(1), b=Float.valueOf(2)) { 
         return a.value + b.value + (this && this.c.value || 5);
       }
-      const fc1 = new FunctionCallable(f, {a:JelNumber.valueOf(1), b:JelNumber.valueOf(2)}, {c:JelNumber.valueOf(7)});
-      const fc2 = new FunctionCallable(f, {a:JelNumber.valueOf(1), b:JelNumber.valueOf(2)});
+      const fc1 = new FunctionCallable(f, {a:Float.valueOf(1), b:Float.valueOf(2)}, {c:Float.valueOf(7)});
+      const fc2 = new FunctionCallable(f, {a:Float.valueOf(1), b:Float.valueOf(2)});
       jelAssert.equal(new JEL('f()').executeImmediately(new Context().setAll({f:fc1})), 10);
       jelAssert.equal(new JEL('f()').executeImmediately(new Context().setAll({f:fc2})), 8);
       jelAssert.equal(new JEL('f(10)').executeImmediately(new Context().setAll({f:fc1})), 19);
@@ -375,7 +375,7 @@ describe('JEL', function() {
     
    it('supports constructors and static methods', function() {
       class A extends JelObject {
-        constructor(a = JelNumber.valueOf(2), b = JelNumber.valueOf(5)) {
+        constructor(a = Float.valueOf(2), b = Float.valueOf(5)) {
           super();
           this.x = a;
           this.y = b;
@@ -386,7 +386,7 @@ describe('JEL', function() {
         static pic() {
           return 3;
         }
-        static add2(ctx, a = JelNumber.valueOf(3), b = JelNumber.valueOf(7)) {
+        static add2(ctx, a = Float.valueOf(3), b = Float.valueOf(7)) {
           return a.value + 2*b.value;
         }
       }
@@ -418,17 +418,17 @@ describe('JEL', function() {
    it('supports lambda', function() {
       assert(new JEL('a=>1').executeImmediately(new Context()) instanceof Callable);
       jelAssert.equal(new JEL('a=>55').executeImmediately(new Context()).invokeWithObject(DefaultContext.get(), null, []), 55);
-      jelAssert.equal(new JEL('x=>x').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), null, [JelNumber.valueOf(66)]), 66);
-      jelAssert.equal(new JEL('x=>x').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), JelNumber.valueOf(42), [JelNumber.valueOf(66)]), 66);
-      jelAssert.equal(new JEL('x=>x').executeImmediately(DefaultContext.get()).invoke(DefaultContext.get(), JelNumber.valueOf(66)), null);
-      jelAssert.equal(new JEL('x=>x').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), null, [], new Map(Object.entries({x:JelNumber.valueOf(66)}))), 66);
-      jelAssert.equal(new JEL('x=>x').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), JelNumber.valueOf(42), [], new Map(Object.entries({x:JelNumber.valueOf(66)}))), 66);
-      jelAssert.equal(new JEL('(a,b)=>a+b').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), null, [], new Map(Object.entries({a:JelNumber.valueOf(40),b:JelNumber.valueOf(2)}))), 42);
-      jelAssert.equal(new JEL('(a,b)=>a+b').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), null, [JelNumber.valueOf(40)], new Map(Object.entries({b:JelNumber.valueOf(2)}))), 42);
+      jelAssert.equal(new JEL('x=>x').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), null, [Float.valueOf(66)]), 66);
+      jelAssert.equal(new JEL('x=>x').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), Float.valueOf(42), [Float.valueOf(66)]), 66);
+      jelAssert.equal(new JEL('x=>x').executeImmediately(DefaultContext.get()).invoke(DefaultContext.get(), Float.valueOf(66)), null);
+      jelAssert.equal(new JEL('x=>x').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), null, [], new Map(Object.entries({x:Float.valueOf(66)}))), 66);
+      jelAssert.equal(new JEL('x=>x').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), Float.valueOf(42), [], new Map(Object.entries({x:Float.valueOf(66)}))), 66);
+      jelAssert.equal(new JEL('(a,b)=>a+b').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), null, [], new Map(Object.entries({a:Float.valueOf(40),b:Float.valueOf(2)}))), 42);
+      jelAssert.equal(new JEL('(a,b)=>a+b').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), null, [Float.valueOf(40)], new Map(Object.entries({b:Float.valueOf(2)}))), 42);
       jelAssert.equal(new JEL('(a,b)=>b').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), null, []), null);
 
-      jelAssert.equal(new JEL('()=>this').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), JelNumber.valueOf(42), []), 42);
-      jelAssert.equal(new JEL('(x)=>this+x').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), JelNumber.valueOf(42), [JelNumber.valueOf(66)]), 108);
+      jelAssert.equal(new JEL('()=>this').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), Float.valueOf(42), []), 42);
+      jelAssert.equal(new JEL('(x)=>this+x').executeImmediately(DefaultContext.get()).invokeWithObject(DefaultContext.get(), Float.valueOf(42), [Float.valueOf(66)]), 108);
      
       jelAssert.equal(new JEL('(x=>x)(66)').executeImmediately(DefaultContext.get()), 66);
       jelAssert.equal(new JEL('(x=>x)(x=66)').executeImmediately(DefaultContext.get()), 66);
@@ -439,17 +439,17 @@ describe('JEL', function() {
       jelAssert.equal(new JEL('((a=1,b=2)=>a+b)()').executeImmediately(DefaultContext.get()), 3);
       jelAssert.equal(new JEL('((a=1,b=2)=>a+b)(5)').executeImmediately(DefaultContext.get()), 7);
      
-      jelAssert.equal(new JEL('((a: Number = 1,b: Number=2)=>a+b)(5)').executeImmediately(DefaultContext.get()), 7);
-      jelAssert.equal(new JEL('((a: Number?)=>a)(5)').executeImmediately(DefaultContext.get()), 5);
-      jelAssert.equal(new JEL('((a: Number?)=>a)(null)').executeImmediately(DefaultContext.get()), null);
-      jelAssert.equal(new JEL('((a: Number?)=>a)()').executeImmediately(DefaultContext.get()), null);
+      jelAssert.equal(new JEL('((a: Float = 1,b: Float=2)=>a+b)(5)').executeImmediately(DefaultContext.get()), 7);
+      jelAssert.equal(new JEL('((a: Float?)=>a)(5)').executeImmediately(DefaultContext.get()), 5);
+      jelAssert.equal(new JEL('((a: Float?)=>a)(null)').executeImmediately(DefaultContext.get()), null);
+      jelAssert.equal(new JEL('((a: Float?)=>a)()').executeImmediately(DefaultContext.get()), null);
 
-      jelAssert.equal(new JEL('((a: Number?) as Number=>a)(5)').executeImmediately(DefaultContext.get()), 5);
-      jelAssert.equal(new JEL('((a: Number?) as Number?=>a)(null)').executeImmediately(DefaultContext.get()), null);
-      jelAssert.equal(new JEL('((a: Number?) as Number?=>a)()').executeImmediately(DefaultContext.get()), null);
+      jelAssert.equal(new JEL('((a: Float?) as Float=>a)(5)').executeImmediately(DefaultContext.get()), 5);
+      jelAssert.equal(new JEL('((a: Float?) as Float?=>a)(null)').executeImmediately(DefaultContext.get()), null);
+      jelAssert.equal(new JEL('((a: Float?) as Float?=>a)()').executeImmediately(DefaultContext.get()), null);
 
      
-      return Promise.all([jelAssert.errorPromise('((a: Number?) as String=>a)(42)'), jelAssert.errorPromise('((a: Number?)=>a)("this is a string")')]);
+      return Promise.all([jelAssert.errorPromise('((a: Float?) as String=>a)(42)'), jelAssert.errorPromise('((a: Float?)=>a)("this is a string")')]);
    });
     
    it('supports promises', function() {

@@ -11,39 +11,39 @@ import TypeChecker from './TypeChecker';
 /**
  * Represents a number.
  */
-export default class JelNumber extends JelObject implements SerializablePrimitive, Numeric {
+export default class Float extends JelObject implements SerializablePrimitive, Numeric {
 	
-	static readonly NAN = new JelNumber(NaN);
+	static readonly NAN = new Float(NaN);
 	static readonly DEFAULT_NUMBERS_RANGE = 100;
-	static readonly DEFAULT_NUMBERS: JelNumber[] = [];
+	static readonly DEFAULT_NUMBERS: Float[] = [];
 	
 	static init() {
-		for (let i = -JelNumber.DEFAULT_NUMBERS_RANGE; i < JelNumber.DEFAULT_NUMBERS_RANGE; i++)
-			JelNumber.DEFAULT_NUMBERS.push(new JelNumber(i));
-		JelNumber.DEFAULT_NUMBERS[NaN] = JelNumber.NAN;
+		for (let i = -Float.DEFAULT_NUMBERS_RANGE; i < Float.DEFAULT_NUMBERS_RANGE; i++)
+			Float.DEFAULT_NUMBERS.push(new Float(i));
+		Float.DEFAULT_NUMBERS[NaN] = Float.NAN;
 	}
 	
-  static className = 'Number';
+  static className = 'Float';
   
 	constructor(public value: number) {
-		super('Number');
+		super('Float');
 	}
 	
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
-		if (right instanceof JelNumber) {
+		if (right instanceof Float) {
 			switch (operator) {
 				case '+': 
-					return JelNumber.valueOf(this.value + right.value);
+					return Float.valueOf(this.value + right.value);
 				case '-': 
-					return JelNumber.valueOf(this.value - right.value);
+					return Float.valueOf(this.value - right.value);
 				case '*': 
-					return JelNumber.valueOf(this.value * right.value);
+					return Float.valueOf(this.value * right.value);
 				case '/': 
-					return JelNumber.valueOf(this.value / right.value);
+					return Float.valueOf(this.value / right.value);
 				case '%': 
-					return JelNumber.valueOf(((this.value % right.value) + right.value) % right.value);
+					return Float.valueOf(((this.value % right.value) + right.value) % right.value);
 				case '^': 
-					return JelNumber.valueOf(Math.pow(this.value, right.value));
+					return Float.valueOf(Math.pow(this.value, right.value));
 				case '==': 
 				case '===': 
 					return JelBoolean.valueOf(this.value === right.value);
@@ -68,8 +68,8 @@ export default class JelNumber extends JelObject implements SerializablePrimitiv
 		return super.op(ctx, operator, right);
 	}
 	
-	static valueOf(n: number): JelNumber {
-		return JelNumber.DEFAULT_NUMBERS[n + JelNumber.DEFAULT_NUMBERS_RANGE] || new JelNumber(n);
+	static valueOf(n: number): Float {
+		return Float.DEFAULT_NUMBERS[n + Float.DEFAULT_NUMBERS_RANGE] || new Float(n);
 	}
 	
 	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
@@ -79,27 +79,27 @@ export default class JelNumber extends JelObject implements SerializablePrimitiv
 			case '-':
 				return this.negate();
 			case '+':
-				return JelNumber.valueOf(+this.value);
+				return Float.valueOf(+this.value);
 		}
 		return super.singleOp(ctx, operator);
 	}
 	
 	negate_jel_mapping: Object;
-	negate(): JelNumber {
-		return JelNumber.valueOf(-this.value);
+	negate(): Float {
+		return Float.valueOf(-this.value);
 	}
 
 	abs_jel_mapping: Object;
-	abs(): JelNumber {
-		return this.value >= 0 ? this : JelNumber.valueOf(Math.abs(this.value));
+	abs(): Float {
+		return this.value >= 0 ? this : Float.valueOf(Math.abs(this.value));
 	}
 
 	toBoolean(): boolean {
 		return !!this.value;
 	}
 
-	static toNumber(n: any, defaultValue: any = JelNumber.NAN): any {
-		return typeof n == 'number' ? JelNumber.valueOf(n) :(n && (n as any).toNumber) ? (n as any).toNumber() : defaultValue;
+	static toNumber(n: any, defaultValue: any = Float.NAN): any {
+		return typeof n == 'number' ? Float.valueOf(n) :(n && (n as any).toNumber) ? (n as any).toNumber() : defaultValue;
 	}
 
 	static toRealNumber(n: any, defaultValue: number = NaN): number {
@@ -108,7 +108,7 @@ export default class JelNumber extends JelObject implements SerializablePrimitiv
 
 	static isInteger_jel_mapping = ['n'];
 	static isInteger(ctx: Context, n: any): boolean {
-		return Number.isInteger(JelNumber.toRealNumber(n));
+		return Number.isInteger(Float.toRealNumber(n));
 	}
 
 	static isNumeric_jel_mapping = ['n'];
@@ -126,14 +126,14 @@ export default class JelNumber extends JelObject implements SerializablePrimitiv
 	}
 	
 	static toNumberWithPromise(n: any | Promise<any>): any | Promise<any> {
-		return Util.resolveValue(n, JelNumber.toNumber);
+		return Util.resolveValue(n, Float.toNumber);
 	}
 
 	toString(): string {
 		return this.value.toString();
 	}
 
-	toNumber(): JelNumber {
+	toNumber(): Float {
 		return this;
 	}
 	
@@ -151,8 +151,8 @@ export default class JelNumber extends JelObject implements SerializablePrimitiv
 
 }
 
-JelNumber.init();
-JelNumber.prototype.reverseOps = {
+Float.init();
+Float.prototype.reverseOps = {
 	'+': 1,
 	'*': 1,
 	'==': 1,
@@ -168,9 +168,9 @@ JelNumber.prototype.reverseOps = {
 	'<=': 1,
 	'<<=': 1,
 };
-JelNumber.prototype.abs_jel_mapping = [];
-JelNumber.prototype.negate_jel_mapping = [];
+Float.prototype.abs_jel_mapping = [];
+Float.prototype.negate_jel_mapping = [];
 
-BaseTypeRegistry.register('Number', JelNumber);
+BaseTypeRegistry.register('Float', Float);
 
 

@@ -11,9 +11,9 @@ import Util from '../../util/Util';
  * Represents an 'As'
  *
  * Examples:
- *  a as Number
+ *  a as Float
  *  a as @Cat
- *  a as String|Number?
+ *  a as String|Float?
  * 
  */ 
 export default class As extends TypeCheck {

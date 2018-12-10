@@ -14,7 +14,7 @@ const Context = require('../../build/jel/Context.js').default;
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const List = require('../../build/jel/types/List.js').default;
 const Dictionary = require('../../build/jel/types/Dictionary.js').default;
-const JelNumber = require('../../build/jel/types/JelNumber.js').default;
+const Float = require('../../build/jel/types/Float.js').default;
 const Unit = require('../../build/jel/types/Unit.js').default;
 const UnitValue = require('../../build/jel/types/UnitValue.js').default;
 const ApproximateNumber = require('../../build/jel/types/ApproximateNumber.js').default;
@@ -44,7 +44,7 @@ describe('Unit', function() {
     assert.deepEqual(new Unit('Meter', new List([new DbRef('Second'), new DbRef('Second')])).units, Util.toMap({Meter: 1, Second: -2}));
     assert.deepEqual(new Unit('Second', new List([new DbRef('Second'), new DbRef('Second')])).units, Util.toMap({Second: -1}));
     assert.deepEqual(new Unit(Util.toMap({Meter: 1, Second: 4, Watt: -1})).units, Util.toMap({Meter: 1, Second: 4, Watt: -1}));
-    assert.deepEqual(new Unit(new Dictionary(Util.toMap({Meter: JelNumber.valueOf(1), Second: JelNumber.valueOf(4), Watt: JelNumber.valueOf(-1)}), true)).units, Util.toMap({Meter: 1, Second: 4, Watt: -1}));
+    assert.deepEqual(new Unit(new Dictionary(Util.toMap({Meter: Float.valueOf(1), Second: Float.valueOf(4), Watt: Float.valueOf(-1)}), true)).units, Util.toMap({Meter: 1, Second: 4, Watt: -1}));
 
     assert.ok(new JEL("Unit(@Meter)").executeImmediately(session.ctx) instanceof Unit);
     jelAssert.equal("Unit(@Second)", "Unit(@Second)");

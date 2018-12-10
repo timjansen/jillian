@@ -2,7 +2,7 @@ import Context from './Context';
 import NativeClass from './NativeClass';
 
 import JelBoolean from './types/JelBoolean';
-import JelNumber from './types/JelNumber';
+import Float from './types/Float';
 import JelString from './types/JelString';
 import Fraction from './types/Fraction';
 import ApproximateNumber from './types/ApproximateNumber';
@@ -42,7 +42,7 @@ function c(ctor: any): NativeClass {
   return new NativeClass(ctor);
 }
 
-const CTX_IDENTIFIERS = {Boolean: c(JelBoolean), Number: c(JelNumber), String: c(JelString), ApproximateNumber: c(ApproximateNumber), Math: c(JelMath), 
+const CTX_IDENTIFIERS = {Boolean: c(JelBoolean), Float: c(Float), String: c(JelString), ApproximateNumber: c(ApproximateNumber), Math: c(JelMath), 
                          Range: c(Range), Fraction: c(Fraction), Unit: c(Unit), UnitValue: c(UnitValue),
 												 Dictionary: c(Dictionary), List: c(List), Distribution: c(Distribution), DistributionPoint: c(DistributionPoint), Pattern: c(Pattern), Translator: c(Translator), EnumValue: c(EnumValue), 
 												 Duration: c(Duration), DurationRange: c(DurationRange), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 

@@ -1,5 +1,5 @@
 
-// A collection of basic types, like JelString and JelNumber. 
+// A collection of basic types, like JelString and Float. 
 // This is mainly used to avoid circular dependencies that Typescript can not resolve.
 export default class BaseTypeRegistry {
 	private static reg: any =  {};
@@ -23,7 +23,7 @@ export default class BaseTypeRegistry {
 		if (tv == 'object')
 			return v;
 		if (typeof v == 'number')
-			return BaseTypeRegistry.get('Number').valueOf(v);
+			return BaseTypeRegistry.get('Float').valueOf(v);
 		if (typeof v == 'string')
 			return BaseTypeRegistry.get('String').valueOf(v);
 		if (typeof v == 'boolean')

@@ -4,7 +4,7 @@ import Moment = moment.Moment;
 import Util from '../../../util/Util';
 import Context from '../../Context';
 import JelBoolean from '../JelBoolean';
-import JelNumber from '../JelNumber';
+import Float from '../Float';
 import UnitValue from '../UnitValue';
 import TypeChecker from '../TypeChecker';
 import AbstractDate from './AbstractDate';
@@ -111,24 +111,24 @@ export default class LocalDateTime extends AbstractDate {
 			switch (operator) {
 				case '+':
 				case '-':
-					if (JelNumber.isInteger(ctx, right.value)) {
+					if (Float.isInteger(ctx, right.value)) {
 						if (right.isType(ctx, 'Year'))
-							return this.op(ctx, operator, new Duration(JelNumber.toRealNumber(right)));
+							return this.op(ctx, operator, new Duration(Float.toRealNumber(right)));
 						else if (right.isType(ctx, 'Month'))
-							return this.op(ctx, operator, new Duration(0, JelNumber.toRealNumber(right)));
+							return this.op(ctx, operator, new Duration(0, Float.toRealNumber(right)));
 						else if (right.isType(ctx, 'Week'))
-							return this.op(ctx, operator, new Duration(0, 0, JelNumber.toRealNumber(right)*7));
+							return this.op(ctx, operator, new Duration(0, 0, Float.toRealNumber(right)*7));
 						else if (right.isType(ctx, 'Day'))
-							return this.op(ctx, operator, new Duration(0, 0, JelNumber.toRealNumber(right)));
+							return this.op(ctx, operator, new Duration(0, 0, Float.toRealNumber(right)));
 						else if (right.isType(ctx, 'Hour'))
-							return this.op(ctx, operator, new Duration(0, 0, 0, JelNumber.toRealNumber(right)));
+							return this.op(ctx, operator, new Duration(0, 0, 0, Float.toRealNumber(right)));
 						else if (right.isType(ctx, 'Minute'))
-							return this.op(ctx, operator, new Duration(0, 0, 0, 0, JelNumber.toRealNumber(right)));
+							return this.op(ctx, operator, new Duration(0, 0, 0, 0, Float.toRealNumber(right)));
 						else
-							return Util.resolveValue(right.convertTo(ctx, 'Second'), seconds=>this.op(ctx, operator, new Duration(0,0,0, 0,0,JelNumber.toRealNumber(seconds))));
+							return Util.resolveValue(right.convertTo(ctx, 'Second'), seconds=>this.op(ctx, operator, new Duration(0,0,0, 0,0,Float.toRealNumber(seconds))));
 					}
 					else
-						return Util.resolveValue(right.convertTo(ctx, 'Second'), seconds=>this.op(ctx, operator, new Duration(0,0,0, 0,0,JelNumber.toRealNumber(seconds))));
+						return Util.resolveValue(right.convertTo(ctx, 'Second'), seconds=>this.op(ctx, operator, new Duration(0,0,0, 0,0,Float.toRealNumber(seconds))));
 			}
 		}
 		return super.op(ctx, operator, right);

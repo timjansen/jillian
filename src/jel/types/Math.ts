@@ -3,7 +3,7 @@ import JelObject from '../JelObject';
 import Context from '../Context';
 import {IDbRef} from '../IDatabase';
 import JelString from './JelString';
-import JelNumber from './JelNumber';
+import Float from './Float';
 import Numeric from './Numeric';
 import JelBoolean from './JelBoolean';
 import Fraction from './Fraction';
@@ -14,7 +14,7 @@ import TypeChecker from './TypeChecker';
 
 
 
-function toNumber(n: JelNumber | Fraction | UnitValue | ApproximateNumber): number {
+function toNumber(n: Float | Fraction | UnitValue | ApproximateNumber): number {
 	return (n && n.toNumber) ? n.toNumber().value : NaN;
 }
 
@@ -24,14 +24,14 @@ function toNumber(n: JelNumber | Fraction | UnitValue | ApproximateNumber): numb
 export default class JelMath extends JelObject {
 	static readonly JEL_PROPERTIES = {PI: true, E: true, LN2: true, LN10: true, LOG2E: true, LOG10E: true, SQRT1_2: true, SQRT2: true};
 
-	static readonly PI = JelNumber.valueOf(Math.PI);
-	static readonly E = JelNumber.valueOf(Math.E);
-	static readonly LN2 = JelNumber.valueOf(Math.LN2);
-	static readonly LN10 = JelNumber.valueOf(Math.LN10);
-	static readonly LOG2E = JelNumber.valueOf(Math.LOG2E);
-	static readonly LOG10E = JelNumber.valueOf(Math.LOG10E);
-	static readonly SQRT1_2 = JelNumber.valueOf(Math.SQRT1_2);
-	static readonly SQRT2 = JelNumber.valueOf(Math.SQRT2);
+	static readonly PI = Float.valueOf(Math.PI);
+	static readonly E = Float.valueOf(Math.E);
+	static readonly LN2 = Float.valueOf(Math.LN2);
+	static readonly LN10 = Float.valueOf(Math.LN10);
+	static readonly LOG2E = Float.valueOf(Math.LOG2E);
+	static readonly LOG10E = Float.valueOf(Math.LOG10E);
+	static readonly SQRT1_2 = Float.valueOf(Math.SQRT1_2);
+	static readonly SQRT2 = Float.valueOf(Math.SQRT2);
 	
 	private static units: any = {
 		Turn: new Unit('Turn'),
@@ -48,40 +48,40 @@ export default class JelMath extends JelObject {
 	
 	static className = 'Math';
 	
-	private static restoreUnit(original: Numeric, n: number): JelNumber | UnitValue {
+	private static restoreUnit(original: Numeric, n: number): Float | UnitValue {
 		if (original instanceof UnitValue)
-			return new UnitValue(JelNumber.valueOf(n), original.unit);
+			return new UnitValue(Float.valueOf(n), original.unit);
 		else
-			return JelNumber.valueOf(n);
+			return Float.valueOf(n);
 	}
 	
 	private static convertAngle(radians: number, unit: string): UnitValue {
 		const o: Unit = JelMath.units[unit];
 		if (!o)
 			throw new Error("Unsupported angle unit: @"+unit);
-		return new UnitValue(JelNumber.valueOf(radians * JelMath.unitFactors[unit]), o);
+		return new UnitValue(Float.valueOf(radians * JelMath.unitFactors[unit]), o);
 	}
 	
 	// Returns either number in radians, or converts to the given unit. Must be @Degree, @Radian, @Gradian or @Turn. Defaults to @Radian as plain number.
 	static acos_jel_mapping = ['x', 'unit'];
-	static acos(ctx: Context, x: any, unit?: IDbRef | JelString): JelNumber | UnitValue {
+	static acos(ctx: Context, x: any, unit?: IDbRef | JelString): Float | UnitValue {
 		const r = Math.acos(TypeChecker.realNumber(x, 'x'));
-		return unit ? JelMath.convertAngle(r, unit instanceof JelString ? unit.value : unit.distinctName) : JelNumber.valueOf(r);
+		return unit ? JelMath.convertAngle(r, unit instanceof JelString ? unit.value : unit.distinctName) : Float.valueOf(r);
 	}
 	static asin_jel_mapping = ['x', 'unit'];
-	static asin(ctx: Context, x: any, unit?: IDbRef | JelString): JelNumber | UnitValue {
+	static asin(ctx: Context, x: any, unit?: IDbRef | JelString): Float | UnitValue {
 		const r = Math.asin(TypeChecker.realNumber(x, 'x'));
-		return unit ? JelMath.convertAngle(r, unit instanceof JelString ? unit.value : unit.distinctName) : JelNumber.valueOf(r);
+		return unit ? JelMath.convertAngle(r, unit instanceof JelString ? unit.value : unit.distinctName) : Float.valueOf(r);
 	}
 	static atan_jel_mapping = ['x', 'unit'];
-	static atan(ctx: Context, x: any, unit?: IDbRef | JelString): JelNumber | UnitValue {
+	static atan(ctx: Context, x: any, unit?: IDbRef | JelString): Float | UnitValue {
 		const r = Math.atan(TypeChecker.realNumber(x, 'x'));
-		return unit ? JelMath.convertAngle(r, unit instanceof JelString ? unit.value : unit.distinctName) : JelNumber.valueOf(r);
+		return unit ? JelMath.convertAngle(r, unit instanceof JelString ? unit.value : unit.distinctName) : Float.valueOf(r);
 	}
 	static atan2_jel_mapping = {x: 1, y: 2, unit: 3};
-	static atan2(ctx: Context, x: any, y: any, unit?: IDbRef | JelString): JelNumber | UnitValue {
+	static atan2(ctx: Context, x: any, y: any, unit?: IDbRef | JelString): Float | UnitValue {
 		const r = Math.atan2(TypeChecker.realNumber(x, 'x'), TypeChecker.realNumber(y, 'y'));
-		return unit ? JelMath.convertAngle(r, unit instanceof JelString ? unit.value : unit.distinctName) : JelNumber.valueOf(r);
+		return unit ? JelMath.convertAngle(r, unit instanceof JelString ? unit.value : unit.distinctName) : Float.valueOf(r);
 	}
 
 	static cbrt_jel_mapping = ['x'];
@@ -90,7 +90,7 @@ export default class JelMath extends JelObject {
 	}
 
 	static ceil_jel_mapping = ['x'];
-	static ceil(ctx: Context, x: any): JelNumber | UnitValue {
+	static ceil(ctx: Context, x: any): Float | UnitValue {
 			return JelMath.restoreUnit(x, Math.ceil(TypeChecker.realNumber(x, 'x')));
 	}
 
@@ -101,9 +101,9 @@ export default class JelMath extends JelObject {
 			const	st = x.unit.toSimpleType(ctx).distinctName;
 			if (!(st in JelMath.unitFactors))
 				throw new Error('Supports only Radians, Degree, Turn and Gradian as unit, but not ' + st);
-			return f(JelNumber.toRealNumber(x.value) / JelMath.unitFactors[st]);
+			return f(Float.toRealNumber(x.value) / JelMath.unitFactors[st]);
 		}
-		return f(JelNumber.toRealNumber(x));
+		return f(Float.toRealNumber(x));
 	}
 
 	static cos_jel_mapping = ['x'];
@@ -129,7 +129,7 @@ export default class JelMath extends JelObject {
 	}
 	
 	static floor_jel_mapping = ['x'];
-	static floor(ctx: Context, x: any): JelNumber | UnitValue {
+	static floor(ctx: Context, x: any): Float | UnitValue {
 		return JelMath.restoreUnit(x, Math.floor(TypeChecker.realNumber(x, 'x')));
 	}
 
@@ -139,7 +139,7 @@ export default class JelMath extends JelObject {
 	}
 
 	static delta_jel_mapping = ['x', 'y'];
-	static delta(ctx: Context, x: any, y: any): JelNumber | UnitValue {
+	static delta(ctx: Context, x: any, y: any): Float | UnitValue {
 		return JelMath.restoreUnit(x, Math.abs(TypeChecker.realNumber(x, 'x') - TypeChecker.realNumber(y, 'y')));
 	}
 	
@@ -162,7 +162,7 @@ export default class JelMath extends JelObject {
 
 	private static best(op: string, ctx: Context, a: any[]): Numeric | Promise<Numeric> {
 		if (!a.length)
-			return JelNumber.valueOf(0);
+			return Float.valueOf(0);
 		let f = a[0];
 		for (let i = 1; i < a.length; i++) {
 			const cf = f;
@@ -192,21 +192,21 @@ export default class JelMath extends JelObject {
 	
 	static pow_jel_mapping = ['x', 'y'];
 	static pow(ctx: Context, x: any, y: any): Numeric {
-		return JelNumber.valueOf(Math.pow(TypeChecker.realNumber(x, 'x'), TypeChecker.realNumber(y, 'y')));
+		return Float.valueOf(Math.pow(TypeChecker.realNumber(x, 'x'), TypeChecker.realNumber(y, 'y')));
 	}
 
 	static random_jel_mapping = ['min', 'max', 'unit'];
-	static random(ctx: Context, min: any, max: any,	unit?: any): JelNumber | UnitValue {
+	static random(ctx: Context, min: any, max: any,	unit?: any): Float | UnitValue {
 		const min0 = TypeChecker.realNumber(min, 'min', 0);
 		const r = Math.random() *  (TypeChecker.realNumber(max, 'max', 1)-min0) + min0;
 		if (unit || min instanceof UnitValue || max instanceof UnitValue)
-			return new UnitValue(JelNumber.valueOf(r), TypeChecker.optionalTypes(['JelString', 'Unit', 'DbRef'], unit, 'unit') || (min instanceof UnitValue ? min.unit : (max as UnitValue).unit));
+			return new UnitValue(Float.valueOf(r), TypeChecker.optionalTypes(['JelString', 'Unit', 'DbRef'], unit, 'unit') || (min instanceof UnitValue ? min.unit : (max as UnitValue).unit));
 		else
-			return JelNumber.valueOf(r);
+			return Float.valueOf(r);
 	}
 	
 	static round_jel_mapping = ['x'];
-	static round(ctx: Context, x: any): JelNumber | UnitValue {
+	static round(ctx: Context, x: any): Float | UnitValue {
 		return JelMath.restoreUnit(x, Math.round(TypeChecker.realNumber(x, 'x')));
 	}
 
@@ -221,7 +221,7 @@ export default class JelMath extends JelObject {
 	}
 	
 	static trunc_jel_mapping = ['x'];
-	static trunc(ctx: Context, x: any): JelNumber | UnitValue {
+	static trunc(ctx: Context, x: any): Float | UnitValue {
 		return JelMath.restoreUnit(x, Math.trunc(TypeChecker.realNumber(x, 'x')));
 	}
 }
