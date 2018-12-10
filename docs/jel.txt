@@ -123,6 +123,29 @@ Examples:
   {a}                           // short-cut for {a: a} . Reads the variable "a" and stores it as "a".
 	{a, b: 2, c}
 
+Types
+------------------
+JEL supports complex runtime type checks.
+
+Examples:
+  a instanceof String                 // true if a is a String, false otherwise
+  a as String                         // returns a if it is a string, throws an exception if not
+  a instanceof @AnimalCategory        // true if a is a Thing in the @AnimalCategory
+  a instanceof CategoryType(@AnimalCategory) // true if a is a Category derived from @AnimalCategory (or @AnimalCategory itself)
+  a instanceof String?                // true if a is a String or null
+  a instanceof String|Number          // true if a is a String or a number
+  a instanceof String|Number?         // true if a is a String or a number or null
+  a instanceof String[]               // true if a is a List of only Strings 
+  a instanceof String{}               // true if a is a Dictionary with all values being String
+  a instanceof String[]|Boolean[]     // true if a is either a List of Strings or a List of Booleans
+  a instanceof (String|Boolean)[]     // true if a is a List containing only Strings and/or Booleans
+  a as (String|Boolean){}             // returns a if a is a Dictionary containing only Strings and/or Booleans
+  a instanceof any                    // always true
+  a as any                            // always returns any
+  a as any[]                          // returns a if a is a List
+  a as List                           // returns a if a is a List
+  
+  
 
 Lambda 
 -------------------
@@ -132,8 +155,8 @@ Examples:
 	() => 45      // always returns 45
 	a => a*a      // one argument, returns the square number
 	(a,b) => a+b  // function thats returns the sum of two arguments
-  (a: Number, b: String= "foo") => b+a   // Argument types, default value
-  (a: Number?) => if a then a else ""    // Optional type
+  (a: Number, b: String = "foo") as String => b+a   // Argument types, default value
+  (a: String?) => if a then a else ""    // Optional type
 	[1, 2, 3].map(e => 2*e)  // returns the list [2, 4, 6]
   
 
