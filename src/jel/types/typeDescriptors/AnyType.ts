@@ -7,6 +7,7 @@ import TypeChecker from '../../types/TypeChecker';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
 import Context from '../../Context';
 import JelObject from '../../JelObject';
+import SerializablePrimitive from '../../SerializablePrimitive';
 
 
 /**
@@ -30,12 +31,10 @@ export default class AnyType extends TypeDescriptor {
   serializeType(): string {
     return 'any';
   }
-
   
-  static create_jel_mapping = [];
-  static create(ctx: Context, ...args: any[]) {
-    return AnyType.instance;
-  }
+  serializeToString() : string {
+		return this.serializeType();
+	}
 }
 
 BaseTypeRegistry.register('AnyType', AnyType);

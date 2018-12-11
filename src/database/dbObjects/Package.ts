@@ -61,7 +61,7 @@ export default class Package extends PackageContent {
   }
 
   static create_jel_mapping = ['packageName', 'content'];
-  static create(ctx: Context, ...args: any[]) {
+  static create(ctx: Context, ...args: any[]): Package {
     const list = TypeChecker.instance(List, args[1], 'content');
     if (!listTypeChecker.checkType(ctx, list))
       throw new Error(`Argument content must be a list of type ${listTypeChecker.serializeType()}`);

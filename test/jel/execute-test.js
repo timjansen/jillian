@@ -149,10 +149,20 @@ describe('JEL', function() {
 		
 		 it('should support instanceof', function() {
       jelAssert.equal("3 instanceof any", "true");
-      jelAssert.equal("3 instanceof @Float", "true");
-      jelAssert.equal("null instanceof @Float", "false");
-      jelAssert.equal("'hello' instanceof @Float", "false");
-      jelAssert.equal("true instanceof @Float", "false");
+      jelAssert.equal("3 instanceof number", "true");
+      jelAssert.equal("null instanceof number", "false");
+      jelAssert.equal("null instanceof string", "false");
+      jelAssert.equal("null instanceof bool", "false");
+      jelAssert.equal("'hello' instanceof string", "true");
+      jelAssert.equal("'' instanceof string", "false");
+      jelAssert.equal("true instanceof string", "false");
+      jelAssert.equal("'hello' instanceof bool", "false");
+      jelAssert.equal("true instanceof bool", "true");
+      jelAssert.equal("null instanceof int", "false");
+      jelAssert.equal("1/2 instanceof int", "false");
+      jelAssert.equal("0.5 instanceof int", "false");
+      jelAssert.equal("42 instanceof int", "true");
+      jelAssert.equal("42/3 instanceof int", "true");
 
       jelAssert.equal("3 instanceof Float", "true");
       jelAssert.equal("null instanceof Float", "false");

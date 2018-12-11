@@ -11,7 +11,7 @@ Category('MonthCategory',
 		matchesInYear: (year)=>[LocalDate(year, this.monthNumber)]
   },
 	instanceProperties = {
-    monthNumber: Float
+    monthNumber: int
 	},
   mixinProperties = {
     order: @PropertyTypeEnum.REQUIRED

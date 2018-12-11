@@ -38,8 +38,8 @@ export default class ComplexType extends TypeDescriptor {
     return this.fields.hasOnlyJs((k,v)=>v&&(v as any).checkType(ctx, value.elements.get(k)||null));
   }
   
-  getSerializationProperties(): Object {
-    return {fields: this.fields};
+  getSerializationProperties(): any[] {
+    return [this.fields];
   }
   
   serializeType(): string {

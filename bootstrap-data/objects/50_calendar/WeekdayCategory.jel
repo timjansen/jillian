@@ -10,7 +10,7 @@ Category('WeekdayCategory',
 		matchesInYear: (year)=>LocalDate(year).allDays.filter(d=>d.dayOfWeek==this.dayOfWeekNumber)
   },
 	instanceProperties = {
-    dayOfWeekNumber: Float
+    dayOfWeekNumber: int
 	},
   mixinProperties = {
     order: @PropertyTypeEnum.REQUIRED

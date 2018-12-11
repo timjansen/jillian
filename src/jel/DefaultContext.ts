@@ -29,14 +29,18 @@ import ZonedDate from './types/time/ZonedDate';
 import ZonedDateTime from './types/time/ZonedDateTime';
 
 import AnyType from './types/typeDescriptors/AnyType';
+import BoolType from './types/typeDescriptors/BoolType';
 import ComplexType from './types/typeDescriptors/ComplexType';
 import DictionaryType from './types/typeDescriptors/DictionaryType';
 import FunctionType from './types/typeDescriptors/FunctionType';
+import IntType from './types/typeDescriptors/IntType';
 import ListType from './types/typeDescriptors/ListType';
+import NumberType from './types/typeDescriptors/NumberType';
 import OptionType from './types/typeDescriptors/OptionType';
 import OptionalType from './types/typeDescriptors/OptionalType';
 import RangeType from './types/typeDescriptors/RangeType';
 import SimpleType from './types/typeDescriptors/SimpleType';
+import StringType from './types/typeDescriptors/StringType';
 
 function c(ctor: any): NativeClass {
   return new NativeClass(ctor);
@@ -47,8 +51,9 @@ const CTX_IDENTIFIERS = {Boolean: c(JelBoolean), Float: c(Float), String: c(JelS
 												 Dictionary: c(Dictionary), List: c(List), Distribution: c(Distribution), DistributionPoint: c(DistributionPoint), Pattern: c(Pattern), Translator: c(Translator), EnumValue: c(EnumValue), 
 												 Duration: c(Duration), DurationRange: c(DurationRange), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 
                          ZonedDate: c(ZonedDate), ZonedDateTime: c(ZonedDateTime),
-                         AnyType: c(AnyType), ComplexType: c(ComplexType), DictionaryType: c(DictionaryType), FunctionType: c(FunctionType), ListType: c(ListType), OptionType: c(OptionType), OptionalType: c(OptionalType), RangeType: c(RangeType), SimpleType: c(SimpleType),
-                         any: AnyType.instance,
+                         AnyType: c(AnyType), BoolType: c(BoolType), ComplexType: c(ComplexType), DictionaryType: c(DictionaryType), FunctionType: c(FunctionType), IntType: c(IntType), ListType: c(ListType), OptionType: c(OptionType), 
+                         NumberType: c(NumberType), OptionalType: c(OptionalType), RangeType: c(RangeType), SimpleType: c(SimpleType), StringType: c(StringType),
+                         any: AnyType.instance, int: IntType.instance, bool: BoolType.instance, number: NumberType.instance, string: StringType.instance,
 												 ___IS_DEFAULT_CONTEXT: 'magic123'};
 
 export default class DefaultContext {

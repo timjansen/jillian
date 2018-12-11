@@ -5,6 +5,7 @@ import TypeChecker from '../../jel/types/TypeChecker';
 import Context from '../../jel/Context';
 import JelObject from '../../jel/JelObject';
 import Serializer from '../../jel/Serializer';
+import BaseTypeRegistry from '../../jel/BaseTypeRegistry';
 
 
 /**
@@ -16,7 +17,7 @@ export default class CategoryType extends TypeDescriptor {
     super();
   }
 
-  // note: superCategory can't be checked, since this can't be done synchronously
+  // note: superCategory can't be checked yet, since this can't be done synchronously
   checkType(ctx: Context, value: JelObject|null): boolean {
     if (value == null)
       return false;
@@ -45,6 +46,6 @@ export default class CategoryType extends TypeDescriptor {
   }
 }
 
-
+BaseTypeRegistry.register('CategoryType', CategoryType);
 
 

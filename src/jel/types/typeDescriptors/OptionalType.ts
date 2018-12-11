@@ -35,7 +35,7 @@ export default class OptionalType extends TypeDescriptor {
   serializeType(): string {
     return `${this.type}?`;
   }
-  
+    
   static create_jel_mapping = ['type'];
   static create(ctx: Context, ...args: any[]) {
     return new OptionalType(args[0]);

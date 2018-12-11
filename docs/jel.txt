@@ -128,19 +128,24 @@ Types
 JEL supports complex runtime type checks.
 
 Examples:
-  a instanceof String                 // true if a is a String, false otherwise
-  a as String                         // returns a if it is a string, throws an exception if not
+  a instanceof string                 // true if a is a non-empty string, false otherwise
+  a as string                         // returns a if it is a non-empty string, throws an exception if not
+  a instanceof string?                // true if a is a non-empty string or null
+  a instanceof Timestamp              // true if a is a Timestamp, false otherwise
+  a as Timestamp                      // returns a if it is a Timestamp, throws an exception if not
+  a instanceof Timestamp?             // true if a is a Timestamp or null
+  a instanceof number                 // true if a is a number (Float or Fraction)
+  a instanceof Timestamp|number       // true if a is a Timestamp or a number
+  a instanceof Timestamp|number?      // true if a is a Timestamp or a number or null
+  a instanceof Timestamp|number|null  // true if a is a Timestamp or a number or null
+  a instanceof string[]               // true if a is a List of only strings 
+  a instanceof string{}               // true if a is a Dictionary with all values being string
+  a instanceof string[]|bool[]        // true if a is either a List of strings or a List of Booleans
+  a instanceof (string|bool)[]        // true if a is a List containing only strings and/or Booleans
+  a as (string|bool){}                // returns a if a is a Dictionary containing only strings and/or Booleans
   a instanceof @AnimalCategory        // true if a is a Thing in the @AnimalCategory
   a instanceof CategoryType(@AnimalCategory) // true if a is a Category derived from @AnimalCategory (or @AnimalCategory itself)
-  a instanceof String?                // true if a is a String or null
-  a instanceof String|Float           // true if a is a String or a number
-  a instanceof String|Float?          // true if a is a String or a number or null
-  a instanceof String|Float|null      // true if a is a String or a number or null
-  a instanceof String[]               // true if a is a List of only Strings 
-  a instanceof String{}               // true if a is a Dictionary with all values being String
-  a instanceof String[]|Boolean[]     // true if a is either a List of Strings or a List of Booleans
-  a instanceof (String|Boolean)[]     // true if a is a List containing only Strings and/or Booleans
-  a as (String|Boolean){}             // returns a if a is a Dictionary containing only Strings and/or Booleans
+  a instanceof int                    // true if a is a number representing an integer value
   a instanceof any                    // always true
   a as any                            // always returns any
   a as any[]                          // returns a if a is a List
@@ -225,17 +230,17 @@ class Schedule::Single extends Schedule::Entry {
   c: Number
   static PI = 3.14
 
-  constructor(a: Number, b: Number, c: Number): // arguments are automatically stored as properties in the object!
+  constructor(a: number, b: number, c: number): // arguments are automatically stored as properties in the object!
     super(a, b)+                                // calling super(), which returns a Dictionary of property values to set
     {sum: a+b+c}                                // return a Dictionary to store additional fields or overwrite argument values
   
-  get x() as Number:
+  get x() as number:
     this.c+2
   
   add(a, b):
     this.c+a+b
 
-  addWithTypes(a: Number, b: Number) as Number: 
+  addWithTypes(a: number, b: number) as number: 
     this.c+a+b
 
   static add(x,y):
