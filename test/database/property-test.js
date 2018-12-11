@@ -74,10 +74,6 @@ tmp.dir(function(err, path) {
         jelAssert.fuzzy('bool.checkType("a")', 0);
         jelAssert.fuzzy('bool.checkType(false)', 1);
 
-        jelAssert.fuzzy('SimpleType(@Float).checkType(2)', 1);
-        jelAssert.fuzzy('SimpleType(@Float).checkType(null)', 0);
-        jelAssert.fuzzy('SimpleType(@Float).checkType("x")', 0);
-
         jelAssert.fuzzy('SimpleType(Float).checkType(2)', 1);
         jelAssert.fuzzy('SimpleType(Float).checkType(null)', 0);
         jelAssert.fuzzy('SimpleType(Float).checkType("x")', 0);
@@ -86,63 +82,52 @@ tmp.dir(function(err, path) {
         jelAssert.fuzzy('SimpleType("Float").checkType(null)', 0);
         jelAssert.fuzzy('SimpleType("Float").checkType("x")', 0);
         
-        jelAssert.fuzzy('ComplexType({b: @Float}).checkType({b: 2})', 1);
-        jelAssert.fuzzy('ComplexType({b: @Float}).checkType({b: 2, x: 1})', 1);
-        jelAssert.fuzzy('ComplexType({b: @Float}).checkType({b: "d"})', 0);
-        jelAssert.fuzzy('ComplexType({b: @Float}).checkType({a: 2})', 0);
-        jelAssert.fuzzy('ComplexType({b: @Float}).checkType(2)', 0);
+        jelAssert.fuzzy('ComplexType({b: number}).checkType({b: 2})', 1);
+        jelAssert.fuzzy('ComplexType({b: number}).checkType({b: 2, x: 1})', 1);
+        jelAssert.fuzzy('ComplexType({b: number}).checkType({b: "d"})', 0);
+        jelAssert.fuzzy('ComplexType({b: number}).checkType({a: 2})', 0);
+        jelAssert.fuzzy('ComplexType({b: number}).checkType(2)', 0);
         
         jelAssert.fuzzy('FunctionType(["c", "v"]).checkType((c,v)=>c+v)', 1);
         jelAssert.fuzzy('FunctionType(["c", "v"]).checkType((c,o)=>c+v)', 1);
         jelAssert.fuzzy('FunctionType(["c", "v"]).checkType((c)=>c+v)', 1);
         jelAssert.fuzzy('FunctionType(["c", "v"]).checkType("eek")', 0);
         
-        jelAssert.fuzzy('ListType(@Float).checkType([1,2,3])', 1);
-        jelAssert.fuzzy('ListType(@Float).checkType([])', 1);
-        jelAssert.fuzzy('ListType(@Float).checkType([1, "a"])', 0);
-        jelAssert.fuzzy('ListType(@Float).checkType("a")', 0);
+        jelAssert.fuzzy('ListType(number).checkType([1,2,3])', 1);
+        jelAssert.fuzzy('ListType(number).checkType([])', 1);
+        jelAssert.fuzzy('ListType(number).checkType([1, "a"])', 0);
+        jelAssert.fuzzy('ListType(number).checkType("a")', 0);
 
         jelAssert.fuzzy('Float[].checkType([1,2,3])', 1);
         jelAssert.fuzzy('Float[].checkType([])', 1);
         jelAssert.fuzzy('Float[].checkType([1, "a"])', 0);
         jelAssert.fuzzy('Float[].checkType("a")', 0);
 
-        jelAssert.fuzzy('@Float[].checkType([1,2,3])', 1);
-        jelAssert.fuzzy('@Float[].checkType([])', 1);
-        jelAssert.fuzzy('@Float[].checkType([1, "a"])', 0);
-        jelAssert.fuzzy('@Float[].checkType("a")', 0);
-
         jelAssert.fuzzy('DictionaryType(@Float).checkType({a:2, b: 3})', 1);
         jelAssert.fuzzy('DictionaryType(@Float).checkType({})', 1);
         jelAssert.fuzzy('DictionaryType(@Float).checkType({a: 2, b: "a"})', 0);
         jelAssert.fuzzy('DictionaryType(@Float).checkType("a")', 0);
 
-        jelAssert.fuzzy('@Float{}.checkType({a:2, b: 3})', 1);
-        jelAssert.fuzzy('@Float{}.checkType({})', 1);
-        jelAssert.fuzzy('@Float{}.checkType({a: 2, b: "a"})', 0);
-        jelAssert.fuzzy('@Float{}.checkType("a")', 0);
-
-        jelAssert.fuzzy('OptionType([@Float, @String, null]).checkType(1)', 1);
-        jelAssert.fuzzy('OptionType([@Float, @String, null]).checkType("foo")', 1);
-        jelAssert.fuzzy('OptionType([@Float, @String]).checkType(null)', 0);
+        jelAssert.fuzzy('OptionType([Float, String, null]).checkType(1)', 1);
+        jelAssert.fuzzy('OptionType([Float, String, null]).checkType("foo")', 1);
+        jelAssert.fuzzy('OptionType([Float, String]).checkType(null)', 0);
         
-        jelAssert.fuzzy('(@Float|@String|null).checkType(1)', 1);
         jelAssert.fuzzy('(Float|String|null).checkType(1)', 1);
-        jelAssert.fuzzy('(@Float|@String|null).checkType("foo")', 1);
-        jelAssert.fuzzy('(@Float|@String|null).checkType(null)', 1);
-        jelAssert.fuzzy('(@Float|@String|null).checkType({})', 0);
+        jelAssert.fuzzy('(Float|String|null).checkType("foo")', 1);
+        jelAssert.fuzzy('(Float|String|null).checkType(null)', 1);
         jelAssert.fuzzy('(Float|String|null).checkType({})', 0);
-        jelAssert.fuzzy('(@Float|null).checkType(100)', 1);
-        jelAssert.fuzzy('(@Float|null).checkType(null)', 1);
-        jelAssert.fuzzy('(@Float|null).checkType("a")', 0);
+        jelAssert.fuzzy('(Float|String|null).checkType({})', 0);
+        jelAssert.fuzzy('(Float|null).checkType(100)', 1);
+        jelAssert.fuzzy('(Float|null).checkType(null)', 1);
+        jelAssert.fuzzy('(Float|null).checkType("a")', 0);
 
-        jelAssert.fuzzy('OptionalType(@Float).checkType(1)', 1);
-        jelAssert.fuzzy('OptionalType(@Float).checkType(null)', 1);
-        jelAssert.fuzzy('OptionalType(@Float).checkType("a")', 0);
+        jelAssert.fuzzy('OptionalType(Float).checkType(1)', 1);
+        jelAssert.fuzzy('OptionalType(Float).checkType(null)', 1);
+        jelAssert.fuzzy('OptionalType(Float).checkType("a")', 0);
 
-        jelAssert.fuzzy('@Float?.checkType(1)', 1);
-        jelAssert.fuzzy('@Float?.checkType(null)', 1);
-        jelAssert.fuzzy('@Float?.checkType("a")', 0);
+        jelAssert.fuzzy('Float?.checkType(1)', 1);
+        jelAssert.fuzzy('Float?.checkType(null)', 1);
+        jelAssert.fuzzy('Float?.checkType("a")', 0);
       });
 
     });
