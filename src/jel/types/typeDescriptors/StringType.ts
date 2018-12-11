@@ -6,6 +6,7 @@ import Context from '../../Context';
 import TypeChecker from '../TypeChecker';
 import JelObject from '../../JelObject';
 import SerializablePrimitive from '../../SerializablePrimitive';
+import JelBoolean from '../JelBoolean';
 
 
 /**
@@ -22,8 +23,8 @@ export default class StringType extends TypeDescriptor {
   }
   
   // note: constants and types are not checked yet. That would become async.
-  checkType(ctx: Context, value: JelObject|null): boolean {
-    return (value instanceof JelString) && (this.allowEmpty || !!value.length);
+  checkType(ctx: Context, value: JelObject|null): JelBoolean {
+    return JelBoolean.valueOf((value instanceof JelString) && (this.allowEmpty || !!value.length));
   }
   
   serializeType(): string {

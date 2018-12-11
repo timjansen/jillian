@@ -5,6 +5,7 @@ import Callable from '../../Callable';
 import Context from '../../Context';
 import JelObject from '../../JelObject';
 import Serializer from '../../Serializer';
+import JelBoolean from '../JelBoolean';
 
 /**
  * Declares a property type that is either a JEL function or a method.
@@ -19,8 +20,8 @@ export default class FunctionType extends TypeDescriptor {
     super();
   }
 
-  checkType(ctx: Context, value: JelObject|null): boolean {
-    return value instanceof Callable;
+  checkType(ctx: Context, value: JelObject|null): JelBoolean {
+    return JelBoolean.valueOf(value instanceof Callable);
   }
   
   getSerializationProperties(): Object {

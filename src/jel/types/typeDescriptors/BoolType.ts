@@ -23,8 +23,8 @@ export default class BoolType extends TypeDescriptor {
   }
   
   // note: constants and types are not checked yet. That would become async.
-  checkType(ctx: Context, value: JelObject|null): boolean {
-    return (value instanceof JelBoolean) && (!this.onlyFullValues || value.state == 0 || value.state == 1);
+  checkType(ctx: Context, value: JelObject|null): JelBoolean {
+    return JelBoolean.valueOf((value instanceof JelBoolean) && (!this.onlyFullValues || value.state == 0 || value.state == 1));
   }
   
   serializeType(): string {

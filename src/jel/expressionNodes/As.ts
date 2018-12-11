@@ -22,11 +22,9 @@ export default class As extends TypeCheck {
     super(left, right);
   }
 
-  executeTypeCheck(ctx: Context, left: JelObject|null, right: JelObject|null): JelObject|null {
+  executeTypeCheck(ctx: Context, left: JelObject|null, right: JelObject|null): JelObject|null|Promise<JelObject|null> {
     const type = TypeHelper.convertFromAny(right, "'as' right operand");
-    if (!type.checkType(ctx, left))
-      throw new Error(`Failed type check${this.extraMessage}. Value ${left&&left.toString()} does not have type ${type.serializeType()}.`);
-    return left;
+    return Util.resolveValue(type.checkType(ctx, left), ct=>ct.toRealBoolean() ? left : Promise.reject(new Error(`Failed type check${this.extraMessage}. Value ${left&&left.toString()} does not have type ${type.serializeType()}.`)));
   }  
   
   // overrride

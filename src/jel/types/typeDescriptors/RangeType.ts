@@ -6,6 +6,8 @@ import {IDbRef, IDbEntry} from '../../IDatabase';
 import Dictionary from '../../types/Dictionary';
 import Context from '../../Context';
 import JelObject from '../../JelObject';
+import JelBoolean from '../JelBoolean';
+import Util from '../../../util/Util';
 
 
 
@@ -23,13 +25,13 @@ export default class RangeType extends TypeDescriptor {
 		this.types = TypeHelper.convertFromAny(types, 'range values');
   }
   
-  checkType(ctx: Context, value: JelObject|null): boolean {
+  checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean> {
     if (!(value instanceof Range))
-      return false;
+      return JelBoolean.FALSE;
     if (!this.types)
-      return true;
+      return JelBoolean.TRUE;
     
-    return this.types.checkType(ctx, value.min) && this.types.checkType(ctx, value.max);
+    return Util.resolveValue(this.types.checkType(ctx, value.min), (r: any)=>r.toRealBoolean() ? this.types.checkType(ctx, value.max) : r);
   }
   
   getSerializationProperties(): Object {

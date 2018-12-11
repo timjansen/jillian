@@ -14,33 +14,57 @@ export default class LambdaCallable extends Callable implements SerializablePrim
 		super();
   }
 
-  static checkValue(ctx: Context, argDef: TypedParameterValue, value0: JelObject|null): JelObject|null {
+  static setVariable(ctx: Context, newCtx: Context, argDef: TypedParameterValue, value0: JelObject|null): Promise<any>|undefined {
     const value = value0 || argDef.defaultValue;
-    if (argDef.type && !argDef.type.checkType(ctx, value))
-      throw new Error(`Invalid argument for ${argDef.name}: expected ${argDef.type.serializeType()}, but got the value ${Serializer.serialize(value)}.`);
-    return value;
+    if (argDef.type) {
+      const checkResult: any = argDef.type.checkType(ctx, value); // type is actually JelBoolean|Promise<JelBoolean>
+      if (checkResult instanceof Promise)
+        return checkResult.then(r=>{
+          if (r.toRealBoolean()) {
+            if (newCtx.hasInThisScope(argDef.name))
+              throw new Error(`Argument ${argDef.name} is set more than once this function call. You must not set them twice.`);
+            newCtx.set(argDef.name, value);
+          }
+          else
+            throw new Error(`Invalid argument for ${argDef.name}: expected ${argDef.type!.serializeType()}, but got the value ${Serializer.serialize(value)}.`);
+        });
+      else if (!checkResult.toRealBoolean())
+        throw new Error(`Invalid argument for ${argDef.name}: expected ${argDef.type!.serializeType()}, but got the value ${Serializer.serialize(value)}.`);
+    }
+    newCtx.set(argDef.name, value);
+    return undefined;
   }
   
   private static invoke(ctx: Context, self: JelObject|undefined, superConstructor: LambdaCallable|undefined, argDefs: TypedParameterValue[], expression: JelNode, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>): JelObject|null|Promise<JelObject|null> {
 		const newCtx = new Context(ctx);
+    const openPromises: any[] = [];
     
     args.forEach((arg, i) => {
       const argDef = argDefs[i];
-      if (argDef)
-        newCtx.set(argDef.name, LambdaCallable.checkValue(ctx, argDef, arg));
+      if (argDef) {
+        const p: Promise<any>|undefined = LambdaCallable.setVariable(ctx, newCtx, argDef, arg);
+        if (p)
+          openPromises.push(p);
+      }
     });
     
-		for (let i = args.length; i < argDefs.length; i++) {
-      const argDef = argDefs[i];
-      newCtx.set(argDef.name, LambdaCallable.checkValue(ctx, argDef, null));
-    }
+		for (let i = args.length; i < argDefs.length; i++) 
+      if (!argObj || !argObj.has(argDefs[i].name)) {
+        const p: Promise<any>|undefined = LambdaCallable.setVariable(ctx, newCtx, argDefs[i], null);
+        if (p)
+          openPromises.push(p);
+      }
     
 		if (argObj)
 			for (let name of argObj.keys()) {
         let found = false;
         for (let argDef of argDefs) 
           if (name == argDef.name) {
-  				  newCtx.set(name, LambdaCallable.checkValue(ctx, argDef, argObj.get(name) || null));
+            if (newCtx.hasInThisScope(name))
+              throw new Error(`Argument ${name} is set more than once this function call. You must not set them twice.`);
+            const p: Promise<any>|undefined = LambdaCallable.setVariable(ctx, newCtx, argDef, argObj.get(name) || null);
+            if (p)
+              openPromises.push(p);
             found = true;
         }
         if (!found)
@@ -48,8 +72,11 @@ export default class LambdaCallable extends Callable implements SerializablePrim
         }
     newCtx.set('this', self || null);
     newCtx.set('super', superConstructor || undefined);
-		newCtx.freeze();
-    return expression.execute(newCtx);
+    
+    return Util.resolveArray(openPromises, ()=> {
+      newCtx.freeze();
+      return expression.execute(newCtx);
+    });
   }
   
 	invokeWithObject(ctx: Context, self: JelObject|undefined, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>): JelObject|null|Promise<JelObject|null> {   // context will be ignored for lambda. No promise support here, only in Call.

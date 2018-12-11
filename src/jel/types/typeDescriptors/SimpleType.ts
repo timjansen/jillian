@@ -6,6 +6,7 @@ import Runtime from '../../Runtime';
 import Context from '../../Context';
 import JelObject from '../../JelObject';
 import Serializer from '../../Serializer';
+import JelBoolean from '../JelBoolean';
 
 
 /**
@@ -28,8 +29,8 @@ export default class SimpleType extends TypeDescriptor {
   }
   
   // note: constants and types are not checked yet. That would become async.
-  checkType(ctx: Context, value: JelObject|null): boolean {
-    return Runtime.instanceOf(ctx, value, this.type);
+  checkType(ctx: Context, value: JelObject|null): JelBoolean {
+    return JelBoolean.valueOf(Runtime.instanceOf(ctx, value, this.type));
   }
   
   getSerializationProperties(): Object {

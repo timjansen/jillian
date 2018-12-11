@@ -6,6 +6,7 @@ import JelObject from '../../JelObject';
 import List from '../List';
 import Context from '../../Context';
 import Serializer from '../../Serializer';
+import JelBoolean from '../JelBoolean';
 
 /**
  * Defines a complex type that has named, typed fields. It is represented as a Dictionary in the DbEntry, but always has the same fields.
@@ -31,11 +32,24 @@ export default class ComplexType extends TypeDescriptor {
     this.fields = new Dictionary(m);
   }
   
-  checkType(ctx: Context, value: JelObject|null): boolean {
+  checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean> {
     if (!(value instanceof Dictionary))
-      return false;
+      return JelBoolean.FALSE;
     
-    return this.fields.hasOnlyJs((k,v)=>v&&(v as any).checkType(ctx, value.elements.get(k)||null));
+    const open: Promise<JelBoolean>[] = [];
+    let foundProblem = false;
+    this.fields.elements.forEach((type, name)=>{
+      const r: any = type && (type as any).checkType(ctx, value.elements.get(name)||null);
+      if (r instanceof Promise)
+        open.push(r);
+      else if (r instanceof JelBoolean && !r.toRealBoolean())
+        foundProblem = true;
+    });
+    if (foundProblem)
+      return JelBoolean.FALSE;
+    if (open.length)
+      return Promise.all(open).then(o=>o.find(r=>!r.toRealBoolean())||JelBoolean.TRUE);
+    return JelBoolean.TRUE;
   }
   
   getSerializationProperties(): any[] {

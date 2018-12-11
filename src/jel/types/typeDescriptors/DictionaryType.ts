@@ -7,6 +7,7 @@ import TypeChecker from '../TypeChecker';
 import JelObject from '../../JelObject';
 import Context from '../../Context';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
+import JelBoolean from '../JelBoolean';
 
 
 
@@ -24,15 +25,29 @@ export default class DictionaryType extends TypeDescriptor {
     super();
 		this.valueTypes = TypeHelper.convertFromAny(valueTypes, 'dictionary values');
   }
-  
-   checkType(ctx: Context, value: JelObject|null): boolean {
+
+  checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean> {
     if (!(value instanceof Dictionary))
-      return false;
+      return JelBoolean.FALSE;
     if (!this.valueTypes)
-      return true;
-     
-    return value.hasOnlyJs((k,v)=>this.valueTypes!.checkType(ctx, v));
+      return JelBoolean.TRUE;
+    
+    const open: Promise<JelBoolean>[] = [];
+    let foundProblem = false;
+    (value as Dictionary).elements.forEach((v, name)=>{
+      const r: any = this.valueTypes!.checkType(ctx, v as any);
+      if (r instanceof Promise)
+        open.push(r);
+      else if (r instanceof JelBoolean && !r.toRealBoolean())
+        foundProblem = true;
+    });
+    if (foundProblem)
+      return JelBoolean.FALSE;
+    if (open.length)
+      return Promise.all(open).then(o=>o.find(r=>!r.toRealBoolean())||JelBoolean.TRUE);
+    return JelBoolean.TRUE;
   }
+
   
   getSerializationProperties(): Object {
     return [this.valueTypes];

@@ -21,27 +21,10 @@ import Context from '../../jel/Context';
 import Util from '../../util/Util';
 
 class GenericJelObject extends JelObject implements Serializable {
-  props: Dictionary;
   methodCache: Map<string, Callable> = new Map<string, Callable>();
   
-  constructor(public type: Class, ctx: Context, public args: any[]) {
+  constructor(public type: Class, ctx: Context, public args: any[], public props:Dictionary) {
     super(type.className);
-    
-    this.props = new Dictionary().putAll(type.propertyDefaults);
-    for (let i = 0; i < type.ctorArgList.length; i++) {
-      const val = args[i]||type.ctorArgList[i].defaultValue;
-
-      const pType = type.propertyTypes.elements.get(type.ctorArgList[i].name);
-      if (!(pType as TypeDescriptor).checkType(ctx, val))
-        throw new Error(`Illegal value in argument number ${i+1} for property ${type.ctorArgList[i].name}. Required type is ${pType}. Value was ${val}.`);
-      this.props.elements.set(type.ctorArgList[i].name, val);
-    }
-  
-    if (type.ctor) {
-      const ctorReturn: any = type.ctor.invoke(ctx, undefined, ...args);
-      if (ctorReturn instanceof Dictionary)
-        this.props.putAll(ctorReturn);
-    }
   }
   
   static forbidNull(value: any): JelObject|Promise<JelObject> {
@@ -167,11 +150,32 @@ export default class Class extends PackageContent implements IClass {
   }
 
   create_jel_mapping: any; // set in ctor
-  create(ctx: Context, ...args: any[]) {
+  create(ctx: Context, ...args: any[]): any {
     if (!this.ctor)
       throw new Error(`The type ${this.className} can not be instantiated. No constructor defined.`);
 
-    return new GenericJelObject(this, ctx, args);
+    const props = new Dictionary().putAll(this.propertyDefaults);
+    const openChecks: (JelBoolean|Promise<JelBoolean>)[] = [];
+    for (let i = 0; i < this.ctorArgList.length; i++) {
+      const val = args[i]||this.ctorArgList[i].defaultValue;
+      const pType: TypeDescriptor = this.propertyTypes.elements.get(this.ctorArgList[i].name) as TypeDescriptor;
+      const checkResult: JelBoolean|Promise<JelBoolean> = pType.checkType(ctx, val);
+      openChecks.push(checkResult);
+      props.elements.set(this.ctorArgList[i].name, val);
+    }
+  
+    return Util.resolveArray(openChecks, resolvedChecks => {
+      for (let i = 0; i < resolvedChecks.length; i++)
+        if (!resolvedChecks[i].toRealBoolean())
+          throw new Error(`Illegal value in argument number ${i+1} for property ${this.ctorArgList[i].name}. Required type is ${this.propertyTypes.elements.get(this.ctorArgList[i].name)}. Value was ${args[i]||this.ctorArgList[i].defaultValue}.`);
+   
+        if (this.ctor) {
+          const ctorReturn: any = this.ctor.invoke(ctx, undefined, ...args);
+          if (ctorReturn instanceof Dictionary)
+            props.putAll(ctorReturn);
+        }
+        return new GenericJelObject(this, ctx, args, props);
+    });
   }
   
   static create_jel_mapping = ['className', 'superType', 'constructor', 'propertyDefs', 'methods', 'getters', 'static'];

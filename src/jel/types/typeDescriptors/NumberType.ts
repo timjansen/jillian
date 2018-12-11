@@ -7,6 +7,7 @@ import Context from '../../Context';
 import JelObject from '../../JelObject';
 import Serializer from '../../Serializer';
 import SerializablePrimitive from '../../SerializablePrimitive';
+import JelBoolean from '../JelBoolean';
 
 
 /**
@@ -20,8 +21,8 @@ export default class NumberType extends TypeDescriptor {
   }
   
   // note: constants and types are not checked yet. That would become async.
-  checkType(ctx: Context, value: JelObject|null): boolean {
-    return value instanceof Float || value instanceof Fraction;
+  checkType(ctx: Context, value: JelObject|null): JelBoolean {
+    return JelBoolean.valueOf(value instanceof Float || value instanceof Fraction);
   }
   
   serializeType(): string {

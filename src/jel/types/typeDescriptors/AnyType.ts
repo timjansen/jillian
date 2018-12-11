@@ -8,6 +8,7 @@ import BaseTypeRegistry from '../../BaseTypeRegistry';
 import Context from '../../Context';
 import JelObject from '../../JelObject';
 import SerializablePrimitive from '../../SerializablePrimitive';
+import JelBoolean from '../JelBoolean';
 
 
 /**
@@ -24,8 +25,8 @@ export default class AnyType extends TypeDescriptor {
     return [];
   }
 	
-  checkType(ctx: Context, value: JelObject|null): boolean {
-    return true;
+  checkType(ctx: Context, value: JelObject|null): JelBoolean {
+    return JelBoolean.TRUE;
   }
   
   serializeType(): string {

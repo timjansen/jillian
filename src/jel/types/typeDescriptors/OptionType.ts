@@ -7,6 +7,7 @@ import TypeChecker from '../../types/TypeChecker';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
 import Context from '../../Context';
 import JelObject from '../../JelObject';
+import JelBoolean from '../JelBoolean';
 
 
 /**
@@ -24,8 +25,24 @@ export default class OptionType extends TypeDescriptor {
     return [this.options];
   }
 	
-  checkType(ctx: Context, value: JelObject|null): boolean {
-    return this.options.hasAnyJs(option=>option ? (option as any).checkType(ctx, value) : value == null);
+  checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean> {
+    const open: Promise<JelBoolean>[] = [];
+    for (let type of this.options.elements) {
+      if (type == null) {
+        if (value == null)
+          return JelBoolean.TRUE;
+      }
+      else {
+        const r: any = type.checkType(ctx, value as any);
+        if (r instanceof Promise)
+          open.push(r);
+        else if (r instanceof JelBoolean && r.toRealBoolean())
+          return JelBoolean.TRUE;
+      }
+    }
+    if (open.length)
+      return Promise.all(open).then(o=>o.find(r=>r.toRealBoolean())||JelBoolean.FALSE);
+    return JelBoolean.FALSE;
   }
     
   static valueOf(e: JelObject[]): OptionType {

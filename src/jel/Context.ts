@@ -28,6 +28,10 @@ export default class Context {
 		throw new Error(`Can not read unknown variable ${name}.`);
 	}
 
+ 	hasInThisScope(name: string): boolean {
+		return this.frame.has(name);
+	}
+  
 	getOrNull(name: string): any {
 		if (this.frame.has(name))
 				return this.frame.get(name);

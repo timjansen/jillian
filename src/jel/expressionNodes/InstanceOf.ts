@@ -22,8 +22,8 @@ export default class As extends TypeCheck {
     super(left, right);
   }
 
-  executeTypeCheck(ctx: Context, left: JelObject|null, right: JelObject|null): JelObject {
-    return BaseTypeRegistry.get('Boolean').valueOf(TypeHelper.convertFromAny(right, "'instanceof' right operand").checkType(ctx, left));
+  executeTypeCheck(ctx: Context, left: JelObject|null, right: JelObject|null): JelObject|Promise<JelObject> {
+    return TypeHelper.convertFromAny(right, "'instanceof' right operand").checkType(ctx, left);
   }  
   
   // overrride

@@ -7,6 +7,7 @@ import TypeChecker from '../../types/TypeChecker';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
 import Context from '../../Context';
 import JelObject from '../../JelObject';
+import JelBoolean from '../JelBoolean';
 
 
 /**
@@ -24,8 +25,10 @@ export default class OptionalType extends TypeDescriptor {
     return [this.type];
   }
 	
-  checkType(ctx: Context, value: JelObject|null): boolean {
-    return value == null || this.type.checkType(ctx, value);
+  checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean> {
+    if (value == null)
+      return JelBoolean.TRUE;
+    return this.type.checkType(ctx, value);
   }
   
   static valueOf(e: JelObject): OptionalType {

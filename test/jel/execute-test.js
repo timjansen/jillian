@@ -30,11 +30,11 @@ const With = require('../../build/jel/expressionNodes/With.js').default;
 const Lambda = require('../../build/jel/expressionNodes/Lambda.js').default;
 const Call = require('../../build/jel/expressionNodes/Call.js').default;
 
-const {JelAssert, JelPromise, JelConsole, MockSession} = require('../jel-assert.js');
+const {JelAssert, JelPromise, JelConsole, MockSession, PromiseType} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
 
 
-const ctx = DefaultContext.plus(new MockSession()).plus({JelPromise: new NativeClass(JelPromise), JelConsole: new NativeClass(JelConsole)});
+const ctx = DefaultContext.plus(new MockSession()).plus({JelPromise: new NativeClass(JelPromise), JelConsole: new NativeClass(JelConsole), PromiseType: new NativeClass(PromiseType)});
 jelAssert.setCtx(ctx);
 
 describe('JEL', function() {
@@ -203,6 +203,31 @@ describe('JEL', function() {
       return jelAssert.errorPromise("true as String|Float");
      });
 
+ 		 it('should support Promises in Types', function() {
+        return Promise.all([jelAssert.equalPromise("3 instanceof string|PromiseType(number)|null|bool", "true"),
+        jelAssert.equalPromise("'str' instanceof string|PromiseType(number)|null|bool", "true"),
+        jelAssert.equalPromise("null instanceof string|PromiseType(number)|null|bool", "true"),
+        jelAssert.equalPromise("[] instanceof string|PromiseType(number)|null|bool", "false"),
+        jelAssert.equalPromise("3 instanceof PromiseType(string)|PromiseType(number)|PromiseType(bool)", "true"),
+        jelAssert.equalPromise("{} instanceof PromiseType(string)|PromiseType(number)|PromiseType(bool)", "false"),
+                           
+        jelAssert.equalPromise("[true, false, 2, true] instanceof PromiseType(bool)[]", "false"),
+        jelAssert.equalPromise("[true, false, true] instanceof PromiseType(bool)[]", "true"),
+
+        jelAssert.equalPromise("{a: true, b: 'false', c: true} instanceof PromiseType(bool){}", "false"),
+        jelAssert.equalPromise("{a: true, b: false, c: true} instanceof PromiseType(bool){}", "true"),
+
+        jelAssert.equalPromise("{a: true, b: 'false', c: true} instanceof {a: PromiseType(bool), b: PromiseType(bool), c: bool}", "false"),
+        jelAssert.equalPromise("{a: true, b: false, c: true} instanceof {a: PromiseType(bool), b: PromiseType(bool), c: bool}", "true"),
+                            
+        jelAssert.equalPromise("true instanceof PromiseType(bool)?", "true"),
+        jelAssert.equalPromise("null instanceof PromiseType(bool)?", "true"),
+        jelAssert.equalPromise("1 instanceof PromiseType(bool)?", "false"),
+
+        jelAssert.equalPromise("{a: [true], b: [], c: false} instanceof PromiseType(bool)[]{}", "false"),
+        jelAssert.equalPromise("{a: [true], b: [], c: [false, true]} instanceof PromiseType(bool)[]{}", "true")
+     ]);
+    });
     
     it('should access member fields of JelObjects', function() {
       class A extends JelObject {
@@ -459,7 +484,16 @@ describe('JEL', function() {
       jelAssert.equal(new JEL('((a: Float?) as Float?=>a)()').executeImmediately(DefaultContext.get()), null);
 
      
-      return Promise.all([jelAssert.errorPromise('((a: Float?) as String=>a)(42)'), jelAssert.errorPromise('((a: Float?)=>a)("this is a string")')]);
+      return Promise.all([jelAssert.errorPromise('((a: Float?) as String=>a)(42)'), 
+                          jelAssert.errorPromise('((a: Float?)=>a)("this is a string")'),
+                          jelAssert.errorPromise('((a: PromiseType(number))=>a)("this is a string")'),
+                          jelAssert.equalPromise('((a: PromiseType(number))=>a)(5)', 5),
+                          jelAssert.equalPromise('((a: PromiseType(number))=>a)(a=5)', 5),
+                          jelAssert.equalPromise('((a: PromiseType(number?))=>a)()', null),
+                          jelAssert.equalPromise('((a: PromiseType(number), b: PromiseType(string?), c: PromiseType(any))=>[a,b,c])(7, null, c=6)', '[7,null,6]'),
+                          jelAssert.equalPromise('((a: PromiseType(number), b: PromiseType(string?), c: PromiseType(any))=>[a,b,c])(a=7, b="n", c=6)', '[7,"n",6]'),
+                          jelAssert.equalPromise('((a: PromiseType(number), b: PromiseType(string?), c: PromiseType(any))=>[a,b,c])(7, "n", 6)', '[7,"n",6]')
+                         ]);
    });
     
    it('supports promises', function() {

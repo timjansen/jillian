@@ -7,6 +7,7 @@ import Dictionary from '../../types/Dictionary';
 import Context from '../../Context';
 import JelObject from '../../JelObject';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
+import JelBoolean from '../JelBoolean';
 
 
 
@@ -25,13 +26,23 @@ export default class ListType extends TypeDescriptor {
 		this.types = TypeHelper.convertFromAny(types, 'list values');
   }
   
-  checkType(ctx: Context, value: JelObject|null): boolean {
+  checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean> {
     if (!(value instanceof List))
-      return false;
+      return JelBoolean.FALSE;
     if (!this.types)
-      return true;
+      return JelBoolean.TRUE;
     
-    return value.hasOnlyJs(v=>this.types.checkType(ctx, v as any));
+    const open: Promise<JelBoolean>[] = [];
+    for (let v of (value as List).elements) {
+      const r: any = this.types.checkType(ctx, v as any);
+      if (r instanceof Promise)
+        open.push(r);
+      else if (r instanceof JelBoolean && !r.toRealBoolean())
+        return JelBoolean.FALSE;
+    }
+    if (open.length)
+      return Promise.all(open).then(o=>o.find(r=>!r.toRealBoolean())||JelBoolean.TRUE);
+    return JelBoolean.TRUE;
   }
   
   getSerializationProperties(): Object {

@@ -6,6 +6,7 @@ import Runtime from '../../Runtime';
 import Context from '../../Context';
 import JelObject from '../../JelObject';
 import SerializablePrimitive from '../../SerializablePrimitive';
+import JelBoolean from '../JelBoolean';
 
 
 /**
@@ -19,9 +20,9 @@ export default class IntType extends TypeDescriptor {
   }
   
   // note: constants and types are not checked yet. That would become async.
-  checkType(ctx: Context, value: JelObject|null): boolean {
+  checkType(ctx: Context, value: JelObject|null): JelBoolean {
     const v: any = value;
-    return (value instanceof Float || value instanceof Fraction) && Number.isInteger((value as any).toFloat().value);
+    return JelBoolean.valueOf((value instanceof Float || value instanceof Fraction) && Number.isInteger((value as any).toFloat().value));
   }
   
   serializeType(): string {

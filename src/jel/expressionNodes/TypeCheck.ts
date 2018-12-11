@@ -15,7 +15,7 @@ export default abstract class TypeCheck extends JelNode {
     super();
   }
 
-  abstract executeTypeCheck(ctx: Context, left: JelObject|null, right: JelObject|null): JelObject|null;
+  abstract executeTypeCheck(ctx: Context, left: JelObject|null, right: JelObject|null): JelObject|null|Promise<JelObject|null>;
   
   // override
   execute(ctx: Context): JelObject|null|Promise<JelObject|null> {

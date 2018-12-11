@@ -5,6 +5,7 @@ const Serializer = require('../build/jel/Serializer.js').default;
 const JEL = require('../build/jel/JEL.js').default; 
 const JelObject = require('../build/jel/JelObject.js').default; 
 const JelBoolean = require('../build/jel/types/JelBoolean.js').default; 
+const TypeDescriptor = require('../build/jel/types/typeDescriptors/TypeDescriptor.js').default;
 
 class JelAssert {
 	constructor(c) {
@@ -121,5 +122,31 @@ class MockSession {
 }
 MockSession.prototype.isIDBSession = true;
 
-module.exports = {JelAssert, JelPromise, JelConsole, MockSession};
+
+class PromiseType extends TypeDescriptor {
+  constructor(e) {
+    super();
+    this.type = e;
+  }
+
+  getSerializationProperties() {
+    return [this.type];
+  }
+
+  checkType(ctx, value) {
+    return Promise.resolve(this.type.checkType(ctx, value));
+  }
+
+  serializeType() {
+    return `${this.type}??`;
+  }
+
+  static create(ctx, ...args) {
+    return new PromiseType(args[0]);
+  }
+}
+PromiseType.create_jel_mapping = ['type'];
+
+
+module.exports = {JelAssert, JelPromise, JelConsole, MockSession, PromiseType};
 

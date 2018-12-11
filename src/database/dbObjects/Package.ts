@@ -8,6 +8,7 @@ import OptionType from '../../jel/types/typeDescriptors/OptionType';
 import SimpleType from '../../jel/types/typeDescriptors/SimpleType';
 import TypeChecker from '../../jel/types/TypeChecker';
 import Dictionary from '../../jel/types/Dictionary';
+import JelBoolean from '../../jel/types/JelBoolean';
 import List from '../../jel/types/List';
 import JelObject from '../../jel/JelObject';
 import Context from '../../jel/Context';
@@ -63,9 +64,9 @@ export default class Package extends PackageContent {
   static create_jel_mapping = ['packageName', 'content'];
   static create(ctx: Context, ...args: any[]): Package {
     const list = TypeChecker.instance(List, args[1], 'content');
-    if (!listTypeChecker.checkType(ctx, list))
-      throw new Error(`Argument content must be a list of type ${listTypeChecker.serializeType()}`);
-    return new Package(TypeChecker.realString(args[0], 'packageName'), list);
+    return Util.resolveValue(listTypeChecker.checkType(ctx, list), (ltc: JelBoolean)=>
+      ltc.toRealBoolean() ? new Package(TypeChecker.realString(args[0], 'packageName'), list) : 
+        Promise.reject(new Error(`Argument content must be a list of type ${listTypeChecker.serializeType()}`)));
   }
 }
 

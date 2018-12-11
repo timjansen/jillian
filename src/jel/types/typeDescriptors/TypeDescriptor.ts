@@ -16,7 +16,7 @@ export default abstract class TypeDescriptor extends JelObject {
    * @return true if the type matches
    */
   checkType_jel_mapping: Object;
-  abstract checkType(ctx: Context, value: JelObject|null): boolean;
+  abstract checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean>;
   
   /**
    * A simplified serialization for places that use TypeHelper.convert..().
