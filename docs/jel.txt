@@ -140,6 +140,7 @@ Examples:
   a instanceof Timestamp|number|null  // true if a is a Timestamp or a number or null
   a instanceof string[]               // true if a is a List of only strings 
   a instanceof string{}               // true if a is a Dictionary with all values being string
+  a instanceof number<>               // true if a is a number or a Range of numbers
   a instanceof string[]|bool[]        // true if a is either a List of strings or a List of Booleans
   a instanceof (string|bool)[]        // true if a is a List containing only strings and/or Booleans
   a as (string|bool){}                // returns a if a is a Dictionary containing only strings and/or Booleans

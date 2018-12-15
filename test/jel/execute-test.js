@@ -186,12 +186,12 @@ describe('JEL', function() {
       jelAssert.equal("true instanceof Float|String", "false");
       jelAssert.equal("null instanceof Float|String?", "true");
        
-      jelAssert.equal("3 instanceof number~", "true");
-      jelAssert.equal("2.3 instanceof int~", "false");
-      jelAssert.equal("'str' instanceof number~", "false");
-      jelAssert.equal("Range(2, 3) instanceof number~", "true");
-      jelAssert.equal("Range(2, 3) instanceof int~", "true");
-      jelAssert.equal("Range(2, 5/2) instanceof int~", "false");
+      jelAssert.equal("3 instanceof number<>", "true");
+      jelAssert.equal("2.3 instanceof int<>", "false");
+      jelAssert.equal("'str' instanceof number<>", "false");
+      jelAssert.equal("Range(2, 3) instanceof number<>", "true");
+      jelAssert.equal("Range(2, 3) instanceof int<>", "true");
+      jelAssert.equal("Range(2, 5/2) instanceof int<>", "false");
      });
 
  		 it('should support as', function() {

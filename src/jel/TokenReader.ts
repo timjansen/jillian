@@ -20,6 +20,14 @@ export default class TokenReader {
 		const t = this.tokens[this.startPos+offset];
     return (t && t.is(type, value)) ? t : undefined;
 	}
+
+ 	nextIf(type: TokenType, value?: any, offset=0): Token|undefined {
+		const t = this.peekIs(type, value, offset);
+    if(t)
+      this.startPos+=offset+1;
+    return t;
+	}
+
   
 	last(): Token {
 		return this.tokens[this.startPos-1];

@@ -41,7 +41,7 @@ import InstanceOf from './expressionNodes/InstanceOf';
 
 const binaryOperators: any = { // op->precedence
   '?': 40,
-  '~': 40,
+  '<>': 40,
   '[]': 40,
   '{}': 40,
   '.': 30,
@@ -206,8 +206,7 @@ export default class JEL {
             const t2 = JEL.nextOrThrow(tokens, "Expected identifier after '@' for reference.");
             if (t2.type != TokenType.Identifier)
               JEL.throwParseException(token, "Expected identifier after '@' for reference.");
-            if (tokens.peekIs(TokenType.Operator, '(')) {
-              tokens.next();
+            if (tokens.nextIf(TokenType.Operator, '(')) {
               const assignments: Assignment[] = JEL.parseParameters(tokens, PARENS_PRECEDENCE, PARAMETER_STOP, ')', "Expected comma or closing parens", 'parameter');
               return JEL.tryBinaryOps(tokens, new Reference(t2.value, assignments), precedence, stopOps);
             }
@@ -217,11 +216,10 @@ export default class JEL {
             const cond = JEL.parseExpression(tokens, IF_PRECEDENCE, IF_STOP);
             JEL.expectOp(tokens, IF_STOP, "Expected 'then'");
             const thenV = JEL.parseExpression(tokens, IF_PRECEDENCE, THEN_STOP);
-            if (tokens.peekIs(TokenType.Operator, 'else')) {
-              tokens.next();
+            if (tokens.nextIf(TokenType.Operator, 'else'))
               return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, JEL.parseExpression(tokens, IF_PRECEDENCE, stopOps)), precedence, stopOps);
-            }
-            return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, new Literal(true)), precedence, stopOps);
+            else
+              return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, new Literal(true)), precedence, stopOps);
           case 'with':
             const assignments: Assignment[] = JEL.parseParameters(tokens, WITH_PRECEDENCE, WITH_STOP, ':', "Expected colon or equal sign after expression in 'with' statement,", 'constant');
             return JEL.tryBinaryOps(tokens, new With(assignments, JEL.parseExpression(tokens, WITH_PRECEDENCE, stopOps)), precedence, stopOps);
@@ -236,10 +234,8 @@ export default class JEL {
 
   
 	static parseDictionary(tokens: TokenReader, precedence: number, stopOps: any): JelNode {
-		if (tokens.peekIs(TokenType.Operator, '}')) {
-			tokens.next();
+		if (tokens.nextIf(TokenType.Operator, '}'))
 			return JEL.tryBinaryOps(tokens, EMPTY_DICT, precedence, stopOps);
-		}
 
 		const assignments: Assignment[] = [];
 		const usedNames: any = new Set();
@@ -269,10 +265,8 @@ export default class JEL {
 	}
 	
 	static parseTranslator(tokens: TokenReader, startToken: Token, precedence: number, stopOps: any): JelNode {
-		if (tokens.peekIs(TokenType.Operator, '}')) {
-			tokens.next();
+		if (tokens.nextIf(TokenType.Operator, '}'))
 			return JEL.tryBinaryOps(tokens, new Translator(), precedence, stopOps);
-		}
 
 		const assignments: PatternAssignment[] = [];
 
@@ -417,14 +411,13 @@ export default class JEL {
         return JEL.tryBinaryOps(tokens, new ListType(left), precedence, stopOps);
       case '{}':
         return JEL.tryBinaryOps(tokens, new DictType(left), precedence, stopOps);
-      case '~':
+      case '<>':
         return JEL.tryBinaryOps(tokens, new Rangable(left), precedence, stopOps);
       case '|': 
         const elements: JelNode[] = [left, JEL.parseExpression(tokens, binaryOperators[binOpToken.value] as number, stopOps)];
-        while (tokens.hasNext(2) && tokens.peekIs(TokenType.Operator, '|')) {
-          tokens.next();
+        while (tokens.hasNext(2) && tokens.nextIf(TokenType.Operator, '|'))
           elements.push(JEL.parseExpression(tokens, binaryOperators[binOpToken.value] as number, stopOps));
-        }
+
         return JEL.tryBinaryOps(tokens, new Options(elements), precedence, stopOps);
       default:
         return JEL.tryBinaryOps(tokens, new Operator(binOpToken.value, left, JEL.parseExpression(tokens, binaryOperators[binOpToken.value] as number, stopOps)), precedence, stopOps);
@@ -497,9 +490,8 @@ export default class JEL {
 	}
   
   static tryParseAsTypeCheck(tokens: TokenReader, precedence: number, stopOps: any): JelNode | undefined {
-    if (!tokens.peekIs(TokenType.Operator, 'as'))
+    if (!tokens.nextIf(TokenType.Operator, 'as'))
       return undefined;
-    tokens.next();
     
     return JEL.parseExpression(tokens, precedence, stopOps);
   }
@@ -510,9 +502,8 @@ export default class JEL {
     
     const tok = tokens.copy();
     if (argName) {
-      if (!tok.peekIs(TokenType.Operator, '=>'))
+      if (!tok.nextIf(TokenType.Operator, '=>'))
         return undefined;
-      tok.next();
 
  			if (argName == 'this' || argName == 'super')
 				JEL.throwParseException(tokens.last(), `The arguments 'this' and 'super' must not be defined explicitly.`);
@@ -566,8 +557,7 @@ export default class JEL {
       const staticModifier = peek.is(TokenType.Identifier, 'static');
       const next = staticModifier ? tokens.next() : peek;
       
-      if (next.is(TokenType.Identifier, 'constructor') && tokens.peekIs(TokenType.Operator, '(')) {
-        tokens.next();
+      if (next.is(TokenType.Identifier, 'constructor') && tokens.nextIf(TokenType.Operator, '(')) {
         
         const args = JEL.checkTypedParameters(JEL.tryParseTypedParameters(tokens, CLASS_PRECEDENCE, NO_STOP), next);
         if (args == null)
@@ -614,8 +604,7 @@ export default class JEL {
         JEL.expectOp(tokens, COLON, `Expected colon (':') before start of operator overload expression.`);
         methods.push(new Assignment(methodName, new Lambda(args!, asCheck, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop))));
       }
-      else if (next.is(TokenType.Identifier) && tokens.peekIs(TokenType.Operator, '(')) {
-        tokens.next();
+      else if (next.is(TokenType.Identifier) && tokens.nextIf(TokenType.Operator, '(')) {
         
         const methodName = next.value;
         if (propertyNames.has(methodName))
@@ -667,10 +656,8 @@ export default class JEL {
   static parseCall(tokens: TokenReader, left: JelNode, methodName?: string): JelNode {
     const argList: JelNode[] = [];
 
-    if (tokens.peekIs(TokenType.Operator, ')')) {
-        tokens.next();
+    if (tokens.nextIf(TokenType.Operator, ')')) 
         return methodName ? new MethodCall(left, methodName, argList) : new Call(left, argList);
-    }
     
     while (!(tokens.peekIs(TokenType.Identifier) && tokens.peekIs(TokenType.Operator, '=', 1))) {
       argList.push(JEL.parseExpression(tokens, PARENS_PRECEDENCE, PARAMETER_STOP));
