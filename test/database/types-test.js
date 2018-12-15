@@ -5,6 +5,7 @@ const Database = require('../../build/database/Database.js').default;
 const DbSession = require('../../build/database/DbSession.js').default;
 const DatabaseContext = require('../../build/database/DatabaseContext.js').default;
 const DbRef = require('../../build/database/DbRef.js').default;
+const AnyType = require('../../build/jel/types/typeDescriptors/AnyType.js').default;
 const SimpleType = require('../../build/jel/types/typeDescriptors/SimpleType.js').default;
 const ComplexType = require('../../build/jel/types/typeDescriptors/ComplexType.js').default;
 const DictionaryType = require('../../build/jel/types/typeDescriptors/DictionaryType.js').default;
@@ -35,16 +36,16 @@ tmp.dir(function(err, path) {
 		
 		describe('Types', function() {
       it('can be created and serialized', function() {
-        jelAssert.equal('SimpleType(@Float, {a: 2}, {x: @Float})', new SimpleType('Float', Dictionary.fromObject({a: Float.valueOf(2)}), Dictionary.fromObject({x: new DbRef('Float')})));
-        jelAssert.equal('ComplexType({b: @Float})', new ComplexType(Dictionary.fromObject({b: new DbRef('Float')})));
-        jelAssert.equal('CategoryType(@Float, true)', new CategoryType(new DbRef('Float'), true));
+        jelAssert.equal('SimpleType(Float)', new SimpleType('Float'));
+        jelAssert.equal('ComplexType({b: any})', new ComplexType(Dictionary.fromObject({b: AnyType.instance})));
+        jelAssert.equal('CategoryType()', new CategoryType());
         jelAssert.equal('FunctionType(["c", "v"])', new FunctionType(new List([JelString.valueOf("c"), JelString.valueOf("v")])));
-        jelAssert.equal('ListType(@Float)', new ListType(new DbRef('Float')));
-        jelAssert.equal('OptionType([@Float, null])', new OptionType(new List([new DbRef('Float'), null])));
-        jelAssert.equal('OptionalType(@Float)', new OptionalType(new DbRef('Float')));
+        jelAssert.equal('ListType(any)', new ListType(AnyType.instance));
+        jelAssert.equal('OptionType([any, null])', new OptionType(new List([AnyType.instance, null])));
+        jelAssert.equal('OptionalType(any)', new OptionalType(AnyType.instance));
       });
 
-      it('checks types', function() {
+      it('checks non-db types', function() {
         jelAssert.fuzzy('any.checkType(1)', 1);
         jelAssert.fuzzy('any.checkType(null)', 1);
         jelAssert.fuzzy('any.checkType("a")', 1);
@@ -103,10 +104,10 @@ tmp.dir(function(err, path) {
         jelAssert.fuzzy('Float[].checkType([1, "a"])', 0);
         jelAssert.fuzzy('Float[].checkType("a")', 0);
 
-        jelAssert.fuzzy('DictionaryType(@Float).checkType({a:2, b: 3})', 1);
-        jelAssert.fuzzy('DictionaryType(@Float).checkType({})', 1);
-        jelAssert.fuzzy('DictionaryType(@Float).checkType({a: 2, b: "a"})', 0);
-        jelAssert.fuzzy('DictionaryType(@Float).checkType("a")', 0);
+        jelAssert.fuzzy('DictionaryType(Float).checkType({a:2, b: 3})', 1);
+        jelAssert.fuzzy('DictionaryType(Float).checkType({})', 1);
+        jelAssert.fuzzy('DictionaryType(Float).checkType({a: 2, b: "a"})', 0);
+        jelAssert.fuzzy('DictionaryType(Float).checkType("a")', 0);
 
         jelAssert.fuzzy('OptionType([Float, String, null]).checkType(1)', 1);
         jelAssert.fuzzy('OptionType([Float, String, null]).checkType("foo")', 1);
@@ -130,7 +131,29 @@ tmp.dir(function(err, path) {
         jelAssert.fuzzy('Float?.checkType("a")', 0);
       });
 
-    });
+      it('checks categories', function() {
+        return JEL.execute(`[Category('CatCategory', @AnimalCategory), Category('AnimalCategory'), Category('DummyCategory')]`, ctx).then(cats=>db.put(ctx, ...cats.elements))
+          .then(()=>Promise.all([jelAssert.equalPromise('@CatCategory instanceof CategoryType(@CatCategory)', 'true'),
+                                 jelAssert.equalPromise('@CatCategory instanceof CategoryType(@AnimalCategory)', 'true')/*, 
+                                 jelAssert.equalPromise('@AnimalCategory instanceof CategoryType(@AnimalCategory)', 'true'), 
+                                 jelAssert.equalPromise('null instanceof CategoryType(@AnimalCategory)', 'false'), 
+                                 jelAssert.equalPromise('@DummyCategory instanceof CategoryType(@CatCategory)', 'false')*/]));
+      });
 
+      it('checks things', function() {
+        return JEL.execute(`[Category('CatCategory', @AnimalCategory), Category('AnimalCategory', @LifeformCategory), Category('LifeformCategory'), Category('DummyCategory')]`, ctx).then(cats=>db.put(ctx, ...cats.elements))
+          .then(()=>JEL.execute(`[Thing('GrumpyCat', @CatCategory), Thing('Flipper', @AnimalCategory)]`, ctx)).then(t=>db.put(ctx, ...t.elements))
+          .then(()=>Promise.all([jelAssert.equalPromise('@GrumpyCat instanceof @CatCategory', 'true'), 
+                                jelAssert.equalPromise('@GrumpyCat instanceof @AnimalCategory', 'true')/*, 
+                                jelAssert.equalPromise('@GrumpyCat instanceof @LifeformCategory', 'true'), 
+                                jelAssert.equalPromise('@CatCategory instanceof @AnimalCategory', 'false'), 
+                                jelAssert.equalPromise('null instanceof @AnimalCategory', 'false'), 
+                                jelAssert.equalPromise('@Flipper instanceof @AnimalCategory', 'true'), 
+                                jelAssert.equalPromise('@Flipper instanceof @CatCategory', 'false'), 
+                                jelAssert.equalPromise('@GrumpyCat instanceof @DummyCategory', 'false')*/]));
+      });
+
+    });
+    
 	});
 });

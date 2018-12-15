@@ -119,7 +119,7 @@ tmp.dir(function(err, path) {
         return db.put(ctx, new JEL('class TupleXY: constructor(x: Float, y: Float):{}  add():this.x+this.y static A= 44').executeImmediately(ctx))
           .then(()=>Promise.all([jelAssert.equalPromise('TupleXY(7, 10).add()', "17"),
                              jelAssert.equalPromise('TupleXY.A', "44"),
-                             jelAssert.equalPromise('TupleXY(x=7, y=1) instanceof @TupleXY', "true")]));
+                             jelAssert.equalPromise('TupleXY(x=7, y=1) instanceof TupleXY', "true")]));
       });
       
     });

@@ -16,13 +16,17 @@ import MixinProperty from './dbObjects/MixinProperty';
 import Class from './dbObjects/Class';
 import PackageContent from './dbObjects/PackageContent';
 import CategoryType from './dbProperties/CategoryType';
+import ThingType from './dbProperties/ThingType';
+import UnitValueQuantityType from './dbProperties/UnitValueQuantityType';
+import ReferenceDispatcherType from './dbProperties/ReferenceDispatcherType';
 
 
 function c(ctor: any): NativeClass {
   return new NativeClass(ctor);
 }
 
-const DB_IDENTIFIERS = {DbEntry: c(DbEntry), DbRef: c(DbRef), Category: c(Category), Thing: c(Thing), Enum: c(Enum), MixinProperty: c(MixinProperty), Class: c(Class), CategoryType: c(CategoryType),
+const DB_IDENTIFIERS = {DbEntry: c(DbEntry), DbRef: c(DbRef), Category: c(Category), Thing: c(Thing), Enum: c(Enum), MixinProperty: c(MixinProperty), Class: c(Class), 
+                        CategoryType: c(CategoryType), ReferenceDispatcherType: c(ReferenceDispatcherType), ThingType: c(ThingType), UnitValueQuantityType: c(UnitValueQuantityType),
 												 ___IS_DATABASE_CONTEXT: 'magic123'};
 
 

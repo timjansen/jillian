@@ -33,7 +33,7 @@ export default class CategoryType extends TypeDescriptor {
     if (!cat.superCategory)
       return JelBoolean.FALSE;
     if (cat.superCategory!.distinctName == this.superCategory.distinctName)
-      return JelBoolean.FALSE;
+      return JelBoolean.TRUE;
     return cat.superCategory.with(ctx, sc=>this.checkType(ctx, sc)) as any;
   }
   

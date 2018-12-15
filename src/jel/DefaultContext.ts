@@ -39,8 +39,10 @@ import NumberType from './types/typeDescriptors/NumberType';
 import OptionType from './types/typeDescriptors/OptionType';
 import OptionalType from './types/typeDescriptors/OptionalType';
 import RangeType from './types/typeDescriptors/RangeType';
+import RangableType from './types/typeDescriptors/RangableType';
 import SimpleType from './types/typeDescriptors/SimpleType';
 import StringType from './types/typeDescriptors/StringType';
+import UnitValueType from './types/typeDescriptors/UnitValueType';
 
 function c(ctor: any): NativeClass {
   return new NativeClass(ctor);
@@ -52,7 +54,7 @@ const CTX_IDENTIFIERS = {Boolean: c(JelBoolean), Float: c(Float), String: c(JelS
 												 Duration: c(Duration), DurationRange: c(DurationRange), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 
                          ZonedDate: c(ZonedDate), ZonedDateTime: c(ZonedDateTime),
                          AnyType: c(AnyType), BoolType: c(BoolType), ComplexType: c(ComplexType), DictionaryType: c(DictionaryType), FunctionType: c(FunctionType), IntType: c(IntType), ListType: c(ListType), OptionType: c(OptionType), 
-                         NumberType: c(NumberType), OptionalType: c(OptionalType), RangeType: c(RangeType), SimpleType: c(SimpleType), StringType: c(StringType),
+                         NumberType: c(NumberType), OptionalType: c(OptionalType), RangeType: c(RangeType), RangableType: c(RangableType), SimpleType: c(SimpleType), StringType: c(StringType), UnitValueType: c(UnitValueType),
                          any: AnyType.instance, int: IntType.instance, bool: BoolType.instance, number: NumberType.instance, string: StringType.instance,
 												 ___IS_DEFAULT_CONTEXT: 'magic123'};
 

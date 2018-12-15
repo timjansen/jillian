@@ -8,13 +8,14 @@ import Context from '../../Context';
 import JelObject from '../../JelObject';
 import JelBoolean from '../JelBoolean';
 import Util from '../../../util/Util';
+import BaseTypeRegistry from '../../BaseTypeRegistry';
 
 
 
 /**
- * Declares a property type that is a range.
+ * Declares a type that either represents a Range of the given types, or just one of the types.
  */
-export default class RangeType extends TypeDescriptor {
+export default class RangableType extends TypeDescriptor {
 	public types: TypeDescriptor;
 	
 	/**
@@ -26,10 +27,10 @@ export default class RangeType extends TypeDescriptor {
   }
   
   checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean> {
-    if (!(value instanceof Range))
-      return JelBoolean.FALSE;
-     
-    return Util.resolveValue(this.types.checkType(ctx, value.min), (r: any)=>r.toRealBoolean() ? this.types.checkType(ctx, value.max) : r);
+    if (value instanceof Range)
+      return Util.resolveValue(this.types.checkType(ctx, value.min), (r: any)=>r.toRealBoolean() ? this.types.checkType(ctx, value.max) : r);
+    else 
+      return this.types.checkType(ctx, value);
   }
   
   getSerializationProperties(): Object {
@@ -37,15 +38,21 @@ export default class RangeType extends TypeDescriptor {
   }
   
   serializeType(): string {
-    return this.types ? `RangeType(${this.types.serializeType()})` : `RangeType()`;
+    return `RangableType(${this.types.serializeType()})`;
   }
-
+    
+  static valueOf(e: JelObject): RangableType {
+    return new RangableType(e);
+  }
 
   static create_jel_mapping = ['types'];
   static create(ctx: Context, ...args: any[]) {
-    return new RangeType(args[0]);
+    return new RangableType(args[0]);
   }
 }
+  
+BaseTypeRegistry.register('RangableType', RangableType);
+
 
 
 

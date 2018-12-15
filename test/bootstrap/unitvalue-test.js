@@ -233,9 +233,25 @@ describe('UnitValue', function() {
   });			
 
   it('supports abs()', function() {
-    jelAssert.equalPromise("(5 @Meter).abs()", "(5 @Meter)");
-    jelAssert.equalPromise("(-5 @Meter).abs()", "(5 @Meter)");
-    jelAssert.equalPromise("(-1/5 @Meter).abs()", "(1/5 @Meter)");
+    return Promise.all([
+      jelAssert.equalPromise("(5 @Meter).abs()", "(5 @Meter)"),
+      jelAssert.equalPromise("(-5 @Meter).abs()", "(5 @Meter)"),
+      jelAssert.equalPromise("(-1/5 @Meter).abs()", "(1/5 @Meter)")
+    ]);
   });			
 
+  it('can be type-checked', function() {
+    return Promise.all([
+      jelAssert.equalPromise("5 @Meter instanceof @Meter", "true"),
+      jelAssert.equalPromise("5 @Meter instanceof @Centimeter", "false"),
+      jelAssert.equalPromise("5 @Meter instanceof @Length", "true"),
+      jelAssert.equalPromise("5 @Hour instanceof @Time", "true"),
+      jelAssert.equalPromise("5 @Meter instanceof @Velocity", "false"),
+      jelAssert.equalPromise("5 instanceof @Meter", "false"),
+      jelAssert.equalPromise("null instanceof @Meter", "false"),
+      jelAssert.equalPromise("null instanceof @Time", "false")
+    ]);
+  });			
+
+  
 });

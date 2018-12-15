@@ -8,29 +8,29 @@ import Context from '../Context';
 import Util from '../../util/Util';
 
 /**
- * Represents an optional value (aka type). Returns a TypeDescriptor.
+ * Represents an rangable value (aka type). Returns a TypeDescriptor.
  *
  * Examples: 
- *  Float?
- *  string?
+ *  Float~
+ *  number~
  */
-export default class Optional extends JelNode {
+export default class Rangable extends JelNode {
   constructor(public left: JelNode) {
     super();
   }
   
   // override
   execute(ctx: Context): JelObject {
-    return Util.resolveValue(this.left.execute(ctx), v=>BaseTypeRegistry.get('OptionalType').valueOf(v));
+    return Util.resolveValue(this.left.execute(ctx), v=>BaseTypeRegistry.get('RangableType').valueOf(v));
   }
   
   // overrride
   equals(other?: JelNode): boolean {
-		return other instanceof Optional && this.left.equals(other.left);
+		return other instanceof Rangable && this.left.equals(other.left);
 	}
 
 	toString(): string {
-		return `${this.left}?`;
+		return `${this.left}~`;
 	}
   
   getSerializationProperties(): any {

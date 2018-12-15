@@ -3,6 +3,7 @@ import SimpleType from './SimpleType';
 import OptionType from './OptionType';
 import ComplexType from './ComplexType';
 import JelObject from '../../JelObject';
+import BaseTypeRegistry from '../../BaseTypeRegistry';
 import Dictionary from '../../types/Dictionary';
 import TypeChecker from '../../types/TypeChecker';
 import List from '../../types/List';
@@ -16,12 +17,12 @@ export default class TypeHelper {
 	 * @return the TypeDescriptor
 	 */
 	static convert(l: JelObject): TypeDescriptor {
-		if (TypeChecker.isIClass(l))
-			return new SimpleType((l as any).className);
-		else if (TypeChecker.isIDbRef(l))
-			return new SimpleType((l as any).distinctName);
+    if (TypeChecker.isIDbRef(l))
+			return BaseTypeRegistry.get('ReferenceDispatcherType').valueOf(l);
     else if (l instanceof Dictionary)
       return new ComplexType(l)
+		else if (TypeChecker.isIClass(l))
+			return new SimpleType((l as any).className);
     else
       return l as TypeDescriptor;
 	}
@@ -33,12 +34,12 @@ export default class TypeHelper {
 	 * @return the TypeDescriptor
 	 */
 	static convertNullable(l: JelObject | null): TypeDescriptor | null {
-		if (TypeChecker.isIClass(l))
-			return new SimpleType((l as any).className);
-		else if (TypeChecker.isIDbRef(l))
-			return new SimpleType((l as any).distinctName);
+		if (TypeChecker.isIDbRef(l))
+			return BaseTypeRegistry.get('ReferenceDispatcherType').valueOf(l);
     else if (l instanceof Dictionary)
       return new ComplexType(l)
+		else if (TypeChecker.isIClass(l))
+			return new SimpleType((l as any).className);
     else
       return l as TypeDescriptor | null;
 	}

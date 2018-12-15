@@ -83,10 +83,9 @@ describe('JEL', function() {
     });
 
  		it('should support optional types', function() {
-      assert.ok(new JEL('@Hello?').executeImmediately(ctx) instanceof OptionalType);
-      assert.equal(new JEL('@Hello?').executeImmediately(ctx).type.type, 'Hello');
-      assert.equal(new JEL('(@Hello)?').executeImmediately(ctx).type.type, 'Hello');
+      assert.ok(new JEL('Float?').executeImmediately(ctx) instanceof OptionalType);
       assert.equal(new JEL('Float?').executeImmediately(ctx).type.type, 'Float');
+      assert.equal(new JEL('(Float)?').executeImmediately(ctx).type.type, 'Float');
     });
 
     
@@ -186,12 +185,18 @@ describe('JEL', function() {
       jelAssert.equal("'hello' instanceof Float|String", "true");
       jelAssert.equal("true instanceof Float|String", "false");
       jelAssert.equal("null instanceof Float|String?", "true");
+       
+      jelAssert.equal("3 instanceof number~", "true");
+      jelAssert.equal("2.3 instanceof int~", "false");
+      jelAssert.equal("'str' instanceof number~", "false");
+      jelAssert.equal("Range(2, 3) instanceof number~", "true");
+      jelAssert.equal("Range(2, 3) instanceof int~", "true");
+      jelAssert.equal("Range(2, 5/2) instanceof int~", "false");
      });
 
  		 it('should support as', function() {
       jelAssert.equal("true as any", "true");
       jelAssert.equal("null as any", "null");
-      jelAssert.equal("3 as @Float", "3");
       jelAssert.equal("3 as Float", "3");
       jelAssert.equal("'hello' as String", "'hello'");
       jelAssert.equal("true as Boolean", "true");

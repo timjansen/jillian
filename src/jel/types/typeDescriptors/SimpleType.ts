@@ -21,7 +21,6 @@ export default class SimpleType extends TypeDescriptor {
     super();
   }
   
-  // note: constants and types are not checked yet. That would become async.
   checkType(ctx: Context, value: JelObject|null): JelBoolean {
     return JelBoolean.valueOf(Runtime.instanceOf(ctx, value, this.type));
   }
@@ -31,7 +30,7 @@ export default class SimpleType extends TypeDescriptor {
   }
   
   serializeType(): string {  
-    return this.type.endsWith('Category') ? `@${this.type}` : this.type;
+    return this.type;
   }
 	
   static create_jel_mapping = ['type'];
