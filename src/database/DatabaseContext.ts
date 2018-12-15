@@ -19,6 +19,7 @@ import CategoryType from './dbProperties/CategoryType';
 import ThingType from './dbProperties/ThingType';
 import UnitValueQuantityType from './dbProperties/UnitValueQuantityType';
 import ReferenceDispatcherType from './dbProperties/ReferenceDispatcherType';
+import DurationType from './dbProperties/DurationType';
 
 
 function c(ctor: any): NativeClass {
@@ -27,6 +28,7 @@ function c(ctor: any): NativeClass {
 
 const DB_IDENTIFIERS = {DbEntry: c(DbEntry), DbRef: c(DbRef), Category: c(Category), Thing: c(Thing), Enum: c(Enum), MixinProperty: c(MixinProperty), Class: c(Class), 
                         CategoryType: c(CategoryType), ReferenceDispatcherType: c(ReferenceDispatcherType), ThingType: c(ThingType), UnitValueQuantityType: c(UnitValueQuantityType),
+                        DurationType: c(DurationType), duration: DurationType.instance,
 												 ___IS_DATABASE_CONTEXT: 'magic123'};
 
 

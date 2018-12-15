@@ -249,7 +249,9 @@ describe('UnitValue', function() {
       jelAssert.equalPromise("5 @Meter instanceof @Velocity", "false"),
       jelAssert.equalPromise("5 instanceof @Meter", "false"),
       jelAssert.equalPromise("null instanceof @Meter", "false"),
-      jelAssert.equalPromise("null instanceof @Time", "false")
+      jelAssert.equalPromise("null instanceof @Time", "false"),
+      jelAssert.equalPromise("5 @Meter instanceof duration", "false"),
+      jelAssert.equalPromise("5 @Day instanceof duration", "true")
     ]);
   });			
 

@@ -770,6 +770,15 @@ describe('ZonedDateTime', function() {
 		jelAssert.equal('ZonedDateTime(TimeZone.UTC, 2020, 5, 12, 3, 4, 5).toTimestamp().toZonedDateTime(TimeZone.UTC)', 'ZonedDateTime(TimeZone.UTC, 2020, 5, 12, 3, 4, 5)');
 		jelAssert.equal('ZonedDateTime(TimeZone("America/New_York"), 2020, 5, 12, 3, 4, 5).toTimestamp().toZonedDateTime(TimeZone.UTC)', 'ZonedDateTime(TimeZone.UTC, 2020, 5, 12, 7, 4, 5)');
 	});
+  
+  it('can be type checked', function() {
+    jelAssert.equal('LocalDate(2018, 12) instanceof date', 'true');
+    jelAssert.equal('LocalDate(2018, 12) instanceof time', 'true');
+    jelAssert.equal('"x" instanceof date', 'false');
+    jelAssert.equal('"x" instanceof time', 'false');
+    jelAssert.equal('LocalDateTime(2018, 12, 12, 20, 0, 0) instanceof date', 'false');
+    jelAssert.equal('LocalDateTime(2018, 12, 12, 20, 0, 0) instanceof time', 'true');
+  });
 });
 
 

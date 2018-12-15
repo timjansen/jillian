@@ -31,6 +31,7 @@ import ZonedDateTime from './types/time/ZonedDateTime';
 import AnyType from './types/typeDescriptors/AnyType';
 import BoolType from './types/typeDescriptors/BoolType';
 import ComplexType from './types/typeDescriptors/ComplexType';
+import DateType from './types/typeDescriptors/DateType';
 import DictionaryType from './types/typeDescriptors/DictionaryType';
 import FunctionType from './types/typeDescriptors/FunctionType';
 import IntType from './types/typeDescriptors/IntType';
@@ -42,20 +43,21 @@ import RangeType from './types/typeDescriptors/RangeType';
 import RangableType from './types/typeDescriptors/RangableType';
 import SimpleType from './types/typeDescriptors/SimpleType';
 import StringType from './types/typeDescriptors/StringType';
+import TimeType from './types/typeDescriptors/TimeType';
 import UnitValueType from './types/typeDescriptors/UnitValueType';
 
 function c(ctor: any): NativeClass {
   return new NativeClass(ctor);
 }
 
-const CTX_IDENTIFIERS = {Boolean: c(JelBoolean), Float: c(Float), String: c(JelString), ApproximateNumber: c(ApproximateNumber), Math: c(JelMath), 
+const CTX_IDENTIFIERS = {Boolean: c(JelBoolean), Float: c(Float), String: c(JelString), ApproximateNumber: c(ApproximateNumber), Math: c(JelMath), DateType: c(DateType), TimeType: c(TimeType),
                          Range: c(Range), Fraction: c(Fraction), Unit: c(Unit), UnitValue: c(UnitValue),
 												 Dictionary: c(Dictionary), List: c(List), Distribution: c(Distribution), DistributionPoint: c(DistributionPoint), Pattern: c(Pattern), Translator: c(Translator), EnumValue: c(EnumValue), 
 												 Duration: c(Duration), DurationRange: c(DurationRange), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 
                          ZonedDate: c(ZonedDate), ZonedDateTime: c(ZonedDateTime),
                          AnyType: c(AnyType), BoolType: c(BoolType), ComplexType: c(ComplexType), DictionaryType: c(DictionaryType), FunctionType: c(FunctionType), IntType: c(IntType), ListType: c(ListType), OptionType: c(OptionType), 
                          NumberType: c(NumberType), OptionalType: c(OptionalType), RangeType: c(RangeType), RangableType: c(RangableType), SimpleType: c(SimpleType), StringType: c(StringType), UnitValueType: c(UnitValueType),
-                         any: AnyType.instance, int: IntType.instance, bool: BoolType.instance, number: NumberType.instance, string: StringType.instance,
+                         any: AnyType.instance, int: IntType.instance, bool: BoolType.instance, number: NumberType.instance, string: StringType.instance, date: DateType.instance, time: TimeType.instance,
 												 ___IS_DEFAULT_CONTEXT: 'magic123'};
 
 export default class DefaultContext {
