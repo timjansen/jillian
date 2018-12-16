@@ -8,6 +8,7 @@ import Context from '../../Context';
 import JelObject from '../../JelObject';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
 import JelBoolean from '../JelBoolean';
+import Util from '../../../util/Util';
 
 
 
@@ -43,6 +44,20 @@ export default class ListType extends TypeDescriptor {
     if (open.length)
       return Promise.all(open).then(o=>o.find(r=>!r.toRealBoolean())||JelBoolean.TRUE);
     return JelBoolean.TRUE;
+  }
+  
+  convert(ctx: Context, value: JelObject|null, fieldName=''): JelObject|Promise<JelObject> {
+    if (value == null)
+      return List.empty;
+    if (value instanceof List) {
+      if (this.types)
+        return Util.resolveValue(this.checkType(ctx, value), (b: JelBoolean)=>b.toRealBoolean() ? value : Util.resolveArray(value.elements.map(v=>this.types.convert(ctx, v)), (e: any[])=>new List(e)));
+      else
+        return value;
+    }
+    if (!this.types)
+      return new List([value]);
+    return new List([this.types.convert(ctx, value)]);
   }
   
   getSerializationProperties(): Object {

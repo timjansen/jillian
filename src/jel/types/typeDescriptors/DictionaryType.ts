@@ -8,6 +8,7 @@ import JelObject from '../../JelObject';
 import Context from '../../Context';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
 import JelBoolean from '../JelBoolean';
+import Util from '../../../util/Util';
 
 
 
@@ -46,6 +47,19 @@ export default class DictionaryType extends TypeDescriptor {
     if (open.length)
       return Promise.all(open).then(o=>o.find(r=>!r.toRealBoolean())||JelBoolean.TRUE);
     return JelBoolean.TRUE;
+  }
+  
+  convert(ctx: Context, value: JelObject|null, fieldName=''):  JelObject|null|Promise<JelObject|null> {
+    if (value == null)
+      return Dictionary.empty;
+    if (value instanceof Dictionary) {
+      if (this.valueTypes)
+        return Util.resolveValue(this.checkType(ctx, value), (b: JelBoolean)=>b.toRealBoolean() ? value : value.mapWithPromisesJs((k: string, v: any)=>this.valueTypes!.convert(ctx, v)));
+      else
+        return value;
+    }
+    else
+      return Promise.reject(new Error(`Failed to convert${fieldName?' '+fieldName:''}. Value ${value&&value.toString()} is not a Dictionary.`));
   }
 
   

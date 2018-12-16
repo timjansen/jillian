@@ -138,7 +138,7 @@ export default class UnitValue extends JelObject implements Numeric {
 		else if (typeof target != 'string')
 			return this.convertTo(ctx, TypeChecker.dbRef(target, 'target').distinctName);
 
-		if (this.unit.isSimple()) 
+		if (this.unit.isSimple())
 			return this.convertSimpleTo(ctx, target as string, false);
 		else
 			return this.convertComplexTo(ctx, target as string);
@@ -326,7 +326,10 @@ export default class UnitValue extends JelObject implements Numeric {
 	
 	round_jel_mapping: Object;
 	round(ctx: Context, precision: Float = Float.valueOf(1)): UnitValue {
-		return new UnitValue(Float.valueOf(Math.round(Float.toRealNumber(this.value)*precision.value)/precision.value), this.unit);
+    if (precision.value == 1)
+	  	return new UnitValue(this.value.round(ctx), this.unit);
+    else
+  		return new UnitValue(Float.valueOf(Math.round(Float.toRealNumber(this.value)*precision.value)/precision.value), this.unit);
 	}
 	
 	abs_jel_mapping: Object;
@@ -342,6 +345,11 @@ export default class UnitValue extends JelObject implements Numeric {
 	toFloat_jel_mapping: Object;
 	toFloat(): Float {
 		return this.value.toFloat();
+	}
+  	
+	trunc_jel_mapping: Object;
+	trunc(): UnitValue {
+		return new UnitValue(this.value.trunc() as any, this.unit);
 	}
 	
 	toRealNumber(): number {
@@ -386,7 +394,8 @@ UnitValue.prototype.toFloat_jel_mapping = [];
 UnitValue.prototype.abs_jel_mapping = [];
 UnitValue.prototype.negate_jel_mapping = [];
 UnitValue.prototype.convertTo_jel_mapping = ['type'];
-UnitValue.prototype.round_jel_mapping = [];
+UnitValue.prototype.round_jel_mapping = ['precision'];
+UnitValue.prototype.trunc_jel_mapping = [];
 UnitValue.prototype.simplify_jel_mapping = [];
 UnitValue.prototype.isSimple_jel_mapping = [];
 UnitValue.prototype.toSimpleType_jel_mapping = [];

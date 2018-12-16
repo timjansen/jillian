@@ -14,7 +14,6 @@ import Util from '../../util/Util';
  *  a as Float
  *  a as @Cat
  *  a as String|Float?
- * 
  */ 
 export default class As extends TypeCheck {
 		
@@ -23,8 +22,7 @@ export default class As extends TypeCheck {
   }
 
   executeTypeCheck(ctx: Context, left: JelObject|null, right: JelObject|null): JelObject|null|Promise<JelObject|null> {
-    const type = TypeHelper.convertFromAny(right, "'as' right operand");
-    return Util.resolveValue(type.checkType(ctx, left), ct=>ct.toRealBoolean() ? left : Promise.reject(new Error(`Failed type check${this.extraMessage}. Value ${left&&left.toString()} does not have type ${type.serializeType()}.`)));
+    return TypeHelper.convertFromAny(right, "'as' right operand").convert(ctx, left, this.extraMessage||'');
   }  
   
   // overrride

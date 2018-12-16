@@ -29,6 +29,10 @@ export default class AnyType extends TypeDescriptor {
     return JelBoolean.TRUE;
   }
   
+  convert(ctx: Context, value: JelObject|null): JelObject|null {
+    return value;
+  }
+  
   serializeType(): string {
     return 'any';
   }

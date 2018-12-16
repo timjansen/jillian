@@ -8,6 +8,7 @@ import Context from '../../Context';
 import JelObject from '../../JelObject';
 import Serializer from '../../Serializer';
 import JelBoolean from '../JelBoolean';
+import Util from '../../../util/Util';
 
 
 /**
@@ -22,6 +23,21 @@ export default class UnitValueType extends TypeDescriptor {
   checkType(ctx: Context, value: JelObject|null): JelBoolean {
     return JelBoolean.valueOf(value instanceof UnitValue && value.unit.equals(this.unit));
   }
+  
+  convert(ctx: Context, value: JelObject|null, fieldName=''): JelObject|null|Promise<JelObject|null> {
+    if (!(value instanceof UnitValue))
+      throw new Error(`Can not convert${fieldName?' '+fieldName:''} to UnitValue of type ${this.unit.toString()}`);
+    
+    if (value.unit.equals(this.unit))
+      return value;
+    
+    const p = value.convertTo(ctx, this.unit);
+    if (p instanceof Promise)
+      return p.catch(()=>{throw new Error(`Can not convert${fieldName?' '+fieldName:''} from ${value.unit.toString()} to ${this.unit.toString()}`);});
+    else
+      return p;
+  }
+  
   
   getSerializationProperties(): Object {
     return [this.unit];

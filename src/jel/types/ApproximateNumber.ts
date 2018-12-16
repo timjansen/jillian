@@ -155,7 +155,16 @@ export default class ApproximateNumber extends JelObject implements Numeric {
 	negate(): ApproximateNumber {
 		return new ApproximateNumber(this.value.negate(), this.maxError);
 	}
-
+  
+	round_jel_mapping: Object;
+	round(ctx: Context): ApproximateNumber {
+		return new ApproximateNumber(this.value.round(ctx), this.maxError);
+	}
+	
+	trunc_jel_mapping: Object;
+	trunc(): ApproximateNumber {
+		return new ApproximateNumber(this.value.trunc(), this.maxError);
+	}
 	
 	toFloat_jel_mapping: Object;
 	toFloat(): Float {
@@ -204,6 +213,8 @@ export default class ApproximateNumber extends JelObject implements Numeric {
 
 ApproximateNumber.prototype.reverseOps = Object.assign({'-':1, '/': 1, '+-': 1, '^': 1}, JelObject.SWAP_OPS);
 ApproximateNumber.prototype.toFloat_jel_mapping = [];
+ApproximateNumber.prototype.round_jel_mapping = [];
+ApproximateNumber.prototype.trunc_jel_mapping = [];
 ApproximateNumber.prototype.abs_jel_mapping = [];
 ApproximateNumber.prototype.negate_jel_mapping = [];
 ApproximateNumber.prototype.hasError_jel_mapping = [];

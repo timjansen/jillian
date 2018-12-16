@@ -35,10 +35,9 @@ export default class ReferenceDispatcherType extends TypeDescriptor {
       this.ref = refOrType;     
   }
 
-  
-  checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean> {
+  dispatch(ctx: Context, action: (type: TypeDescriptor)=>any): any {
     if (this.type)
-      return this.type.checkType(ctx, value);
+      return action(this.type);
     return this.ref!.with(ctx, (dbe: DbEntry)=>{
       if (dbe instanceof Category)
         this.type = new ThingType(new DbRef(dbe));
@@ -52,9 +51,19 @@ export default class ReferenceDispatcherType extends TypeDescriptor {
       }
       else
         throw new Error(`Unsupported database entry ${dbe.distinctName} as reference type.`);
-      return this.type!.checkType(ctx, value) as any;
+      return action(this.type);
     });
+    
   }
+
+  checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean> {
+    return this.dispatch(ctx, (type: TypeDescriptor)=>type.checkType(ctx, value));
+  }
+  
+  convert(ctx: Context, value: JelObject|null, fieldName=''):  JelObject|null|Promise<JelObject|null> {
+    return this.dispatch(ctx, (type: TypeDescriptor)=>type.convert(ctx, value));
+  }
+
   
   getSerializationProperties(): Object {
     return [this.type||this.ref];

@@ -255,5 +255,13 @@ describe('UnitValue', function() {
     ]);
   });			
 
+    it('can be type-converted', function() {
+    return Promise.all([
+      jelAssert.equalPromise("5 @Meter as @Meter", "5 @Meter"),
+      jelAssert.equalPromise("5 @Kilometer as @Meter", "5000 @Meter"),
+      jelAssert.equalPromise("1 @Inch as @Centimeter", "2.54 @Centimeter")
+    ]);
+  });			
+
   
 });

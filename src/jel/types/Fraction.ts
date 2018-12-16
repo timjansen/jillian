@@ -187,6 +187,16 @@ export default class Fraction extends JelObject implements Numeric {
 		return this.denominator !== 0 ? Float.valueOf(this.numerator / this.denominator) : Float.NAN;
 	}
 
+ 	round_jel_mapping: Object;
+	round(ctx: Context): Float {
+		return Float.valueOf(Math.round(this.toFloat().value));
+	}
+	
+	trunc_jel_mapping: Object;
+	trunc(): Float {
+		return Float.valueOf(Math.trunc(this.toFloat().value));
+	}
+
 	toRealNumber(): number {
 		return this.denominator !== 0 ? this.numerator / this.denominator : NaN;
 	}
@@ -244,6 +254,9 @@ Fraction.prototype.abs_jel_mapping = [];
 Fraction.prototype.negate_jel_mapping = [];
 Fraction.prototype.toFloat_jel_mapping = [];
 Fraction.prototype.simplify_jel_mapping = [];
+Fraction.prototype.round_jel_mapping = [];
+Fraction.prototype.trunc_jel_mapping = [];
+
 
 BaseTypeRegistry.register('Fraction', Fraction);
 

@@ -30,6 +30,12 @@ export default class OptionalType extends TypeDescriptor {
       return JelBoolean.TRUE;
     return this.type.checkType(ctx, value);
   }
+
+  convert(ctx: Context, value: JelObject|null, fieldName=''): JelObject|null|Promise<JelObject|null> {
+    if (value == null)
+      return value;
+    return this.type.convert(ctx, value, fieldName);
+  }
   
   static valueOf(e: JelObject): OptionalType {
     return new OptionalType(e);

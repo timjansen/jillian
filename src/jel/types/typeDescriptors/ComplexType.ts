@@ -7,6 +7,7 @@ import List from '../List';
 import Context from '../../Context';
 import Serializer from '../../Serializer';
 import JelBoolean from '../JelBoolean';
+import Util from '../../../util/Util';
 
 /**
  * Defines a complex type that has named, typed fields. It is represented as a Dictionary in the DbEntry, but always has the same fields.
@@ -50,6 +51,16 @@ export default class ComplexType extends TypeDescriptor {
     if (open.length)
       return Promise.all(open).then(o=>o.find(r=>!r.toRealBoolean())||JelBoolean.TRUE);
     return JelBoolean.TRUE;
+  }
+  
+  convert(ctx: Context, value: JelObject|null, fieldName=''):  JelObject|null|Promise<JelObject|null> {
+    if (value == null)
+      return Promise.reject(new Error(`Failed type check ${fieldName}. Value must not be null.`));
+
+    if (value instanceof Dictionary)
+      return Util.resolveValue(this.checkType(ctx, value), (b: JelBoolean)=>b.toRealBoolean() ? value : this.fields.mapWithPromisesJs((name: string, td: TypeDescriptor)=>td.convert(ctx, value.elements.get(name)||null, fieldName)));
+    else
+      return Promise.reject(new Error(`Failed type convert ${fieldName}. Value ${value&&value.toString()} is not a Dictionary.`));
   }
   
   getSerializationProperties(): any[] {

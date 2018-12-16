@@ -94,6 +94,16 @@ export default class Float extends JelObject implements SerializablePrimitive, N
 		return this.value >= 0 ? this : Float.valueOf(Math.abs(this.value));
 	}
 
+  round_jel_mapping: Object;
+	round(ctx: Context): Float {
+		return Float.valueOf(Math.round(this.value));
+	}
+	
+	trunc_jel_mapping: Object;
+	trunc(): Float {
+		return Float.valueOf(Math.trunc(this.value));
+	}
+
 	toBoolean(): boolean {
 		return !!this.value;
 	}
@@ -170,6 +180,8 @@ Float.prototype.reverseOps = {
 };
 Float.prototype.abs_jel_mapping = [];
 Float.prototype.negate_jel_mapping = [];
+Float.prototype.round_jel_mapping = [];
+Float.prototype.trunc_jel_mapping = [];
 
 BaseTypeRegistry.register('Float', Float);
 

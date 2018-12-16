@@ -192,9 +192,12 @@ describe('JEL', function() {
       jelAssert.equal("Range(2, 3) instanceof number<>", "true");
       jelAssert.equal("Range(2, 3) instanceof int<>", "true");
       jelAssert.equal("Range(2, 5/2) instanceof int<>", "false");
+      jelAssert.equal("{a:1, b:2} instanceof {a: int, b: int}", "true");
+      jelAssert.equal("{a:1, b:3.3} instanceof {a: int, b: int}", "false");
+      jelAssert.equal("{a: 5} instanceof int[]{}", "false");      
      });
 
- 		 it('should support as', function() {
+ 		 it('should support as for type checking', function() {
       jelAssert.equal("true as any", "true");
       jelAssert.equal("null as any", "null");
       jelAssert.equal("3 as Float", "3");
@@ -205,9 +208,26 @@ describe('JEL', function() {
       jelAssert.equal("3 as Float|String", "3");
       jelAssert.equal("'hello' as Float|String", "'hello'");
       jelAssert.equal("null as Float|String?", "null");
+      jelAssert.equal("{a:1, b:2} as {a: int, b: int}", "{a:1, b:2}");
       return jelAssert.errorPromise("true as String|Float");
      });
 
+		 it('should support as for type conversion', function() {
+      jelAssert.equal("null as any[]", "[]");
+      jelAssert.equal("'a' as any[]", "['a']");
+      jelAssert.equal("5 as int[]", "[5]");
+      jelAssert.equal("[null] as int{}[]", "[{}]");
+
+      jelAssert.equal("null as any{}", "{}");
+      jelAssert.equal("{a: 5} as int[]{}", "{a:[5]}");
+
+      jelAssert.equal("null as any{}", "{}");
+      jelAssert.equal("{a: 5} as int[]{}", "{a:[5]}");
+
+      return jelAssert.errorPromise("true as String|Float");
+     });
+
+    
  		 it('should support Promises in Types', function() {
         return Promise.all([jelAssert.equalPromise("3 instanceof string|PromiseType(number)|null|bool", "true"),
         jelAssert.equalPromise("'str' instanceof string|PromiseType(number)|null|bool", "true"),

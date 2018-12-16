@@ -228,6 +228,29 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 		}
 		return exec();
 	}
+  
+  
+	mapWithPromisesJs(f: (k: string, v: JelObject|null)=>JelObject|null|Promise<JelObject|null>): Promise<Dictionary> | Dictionary {
+		const self = this;
+		const newDict = new Dictionary();
+		const it = this.elements.keys();
+		function exec(): Promise<Dictionary> | Dictionary {
+			while (true) {
+				const next = it.next();
+				if (next.done)
+					return newDict;
+				const r = f(next.value, self.elements.get(next.value) || null);
+				if (r instanceof Promise)
+					return r.then(v=> {
+						newDict.elements.set(next.value, v);
+						return exec();
+					});
+				else
+					newDict.elements.set(next.value, r);
+			}
+		}
+		return exec();
+	}
 
   mapToList_jel_mapping: Object;
 	mapToList(ctx: Context, f0: any): List | Promise<List> {

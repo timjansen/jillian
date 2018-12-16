@@ -33,6 +33,14 @@ export default class RangableType extends TypeDescriptor {
       return this.types.checkType(ctx, value);
   }
   
+  convert(ctx: Context, value: JelObject|null, fieldName=''): JelObject|null|Promise<JelObject|null> {
+    if (value instanceof Range)
+      return Util.resolveValue(this.checkType(ctx, value), (b: JelBoolean)=>b.toRealBoolean() ? value : Util.resolveValues((min: any, max: any)=>new Range(min, max), this.types.convert(ctx, value.min, fieldName), this.types.convert(ctx, value.max, fieldName)));
+    
+    return Util.resolveValue(this.types.convert(ctx, value, fieldName), v=>new Range(v, v));
+  }
+
+  
   getSerializationProperties(): Object {
     return [this.types];
   }
