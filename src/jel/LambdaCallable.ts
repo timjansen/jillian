@@ -17,21 +17,17 @@ export default class LambdaCallable extends Callable implements SerializablePrim
   static setVariable(ctx: Context, newCtx: Context, argDef: TypedParameterValue, value0: JelObject|null): Promise<any>|undefined {
     const value = value0 || argDef.defaultValue;
     if (argDef.type) {
-      const checkResult: any = argDef.type.checkType(ctx, value); // type is actually JelBoolean|Promise<JelBoolean>
-      if (checkResult instanceof Promise)
-        return checkResult.then(r=>{
-          if (r.toRealBoolean()) {
-            if (newCtx.hasInThisScope(argDef.name))
-              throw new Error(`Argument ${argDef.name} is set more than once this function call. You must not set them twice.`);
-            newCtx.set(argDef.name, value);
-          }
-          else
-            throw new Error(`Invalid argument for ${argDef.name}: expected ${argDef.type!.serializeType()}, but got the value ${Serializer.serialize(value)}.`);
+      const convertedValue: any = argDef.type.convert(ctx, value, argDef.name);
+      if (convertedValue instanceof Promise)
+        return convertedValue.then(r=>{
+          if (newCtx.hasInThisScope(argDef.name))
+            throw new Error(`Argument ${argDef.name} is set more than once this function call. You must not set them twice.`);
+          newCtx.set(argDef.name, convertedValue);
         });
-      else if (!checkResult.toRealBoolean())
-        throw new Error(`Invalid argument for ${argDef.name}: expected ${argDef.type!.serializeType()}, but got the value ${Serializer.serialize(value)}.`);
+      newCtx.set(argDef.name, convertedValue);
     }
-    newCtx.set(argDef.name, value);
+    else
+      newCtx.set(argDef.name, value);
     return undefined;
   }
   

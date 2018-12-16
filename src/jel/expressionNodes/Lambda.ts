@@ -25,32 +25,17 @@ import Util from '../../util/Util';
  *	(a: Float, b: Float = 5)=>a+b          // type checks
  */ 
 export default class Lambda extends JelNode {
-  public argsAreCachable: boolean;
-  public cachedArguments: TypedParameterValue[]|undefined;
   private wrappedExpression: JelNode;
   
   constructor(public args: TypedParameterDefinition[], public typeCheck: JelNode|undefined, public expression: JelNode) {
 		super();
-    this.argsAreCachable = !!args.find(arg=>(!arg.defaultValue ||
-                                            arg.defaultValue instanceof Literal ||
-                                            arg.defaultValue instanceof Reference) && 
-                                       (!arg.type || 
-                                        arg.type instanceof Reference || 
-                                        (arg.type instanceof Optional && arg.type.left instanceof Reference) ||
-                                        (arg.type instanceof Variable && arg.type.name == 'any')));
 
     this.wrappedExpression = this.typeCheck ? new As(expression, this.typeCheck, ' for return value') : expression;
   }
   
 	// override
   execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
-    
-    if (this.cachedArguments)
-      return new LambdaCallable(this.cachedArguments, this.wrappedExpression, ctx, "(anon lambda)");
-
     return Util.resolveArray(this.args.map(a=>a.execute(ctx)), args=>{
-      if (this.argsAreCachable)
-        this.cachedArguments = args;
       return new LambdaCallable(args, this.wrappedExpression, ctx, "(anon lambda)");
     });
 	}

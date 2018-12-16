@@ -507,6 +507,7 @@ describe('JEL', function() {
       jelAssert.equal(new JEL('((a: Float?) as Float=>a)(5)').executeImmediately(DefaultContext.get()), 5);
       jelAssert.equal(new JEL('((a: Float?) as Float?=>a)(null)').executeImmediately(DefaultContext.get()), null);
       jelAssert.equal(new JEL('((a: Float?) as Float?=>a)()').executeImmediately(DefaultContext.get()), null);
+      jelAssert.equal(new JEL('((a: int[]) as int[]=>a[0])(5)').executeImmediately(DefaultContext.get()), 5);
 
      
       return Promise.all([jelAssert.errorPromise('((a: Float?) as String=>a)(42)'), 
