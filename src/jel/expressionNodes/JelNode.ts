@@ -1,21 +1,22 @@
 import JelObject from '../JelObject';
-import Runtime from '../Runtime';
 import Context from '../Context';
 import Serializable from '../Serializable';
 
 /**
  * Represents a node in a JEL expression.
  */
-export default class JelNode extends JelObject implements Serializable {
+export default abstract class JelNode extends JelObject implements Serializable {
 	// Returns either a value or a Promise for a value!
-	execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
-		throw new Error(`execute() not implemented in ${this.constructor.name}`);
-	}
+	abstract execute(ctx: Context): JelObject|null|Promise<JelObject|null>;
 	
-	equals(other?: JelNode): boolean {
-		throw new Error(`equals() not implemented in ${this.constructor.name}`);
-	}
+	abstract equals(other?: JelNode): boolean;
 	
+  // if true, the result is cachable
+  isStatic(ctx: Context): boolean {return false;} // TODO: abstract
+
+  // flushes the cache in the expression tree, e.g. after changing the DB.
+  flushCache(): void {} // TODO: abstract
+  
 	// Returns always Promise for a value!
 	executePromise(ctx: Context): Promise<JelObject|null> {
 		const r = this.execute(ctx);

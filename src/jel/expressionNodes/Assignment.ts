@@ -1,4 +1,5 @@
 import JelNode from './JelNode';
+import CachableJelNode from './CachableJelNode';
 import JelObject from '../JelObject';
 import Context from '../Context';
 import Serializable from '../Serializable';
@@ -6,14 +7,23 @@ import Serializable from '../Serializable';
 /**
  * Represents an assignment, which is a helper construct for with and calls.
  */
-export default class Assignment extends JelNode implements Serializable {
+export default class Assignment extends CachableJelNode implements Serializable {
   constructor(public name: string, public expression: JelNode) {
     super();
   }
 
   // override
-  execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
+  executeUncached(ctx: Context): JelObject|null|Promise<JelObject|null> {
       return this.expression.execute(ctx);
+  }
+  
+  isStaticUncached(ctx: Context): boolean {
+    return this.expression.isStatic(ctx);
+  }
+  
+  flushCache(): void {
+    super.flushCache();
+    this.expression.flushCache();
   }
  
   // override
