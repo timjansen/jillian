@@ -4,6 +4,7 @@ import Runtime from '../Runtime';
 import JelObject from '../JelObject';
 import Callable from '../Callable';
 import Context from '../Context';
+import BaseTypeRegistry from '../BaseTypeRegistry';
 
 import JelString from './JelString';
 import List from './List';
@@ -54,12 +55,16 @@ export default class Translator extends JelObject {
 		return Promise.resolve(this.match(ctx, input, metaFilter));
 	}
 	
+  static create(): Translator {
+    return new Translator();
+  }
+  
 	toString(): string {
 		return `Translator(${this.tree})`;
 	}
 }
 
 Translator.prototype.match_jel_mapping = ['input'];
-
+BaseTypeRegistry.register('Translator', Translator);
 
 

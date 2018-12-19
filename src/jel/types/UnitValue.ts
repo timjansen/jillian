@@ -375,6 +375,10 @@ export default class UnitValue extends JelObject implements Numeric {
 		return this.unit.toSimpleType(ctx);
 	}
 
+  static valueOf(value: Float | Fraction | ApproximateNumber, unit: IDbRef | Unit | string | JelString): UnitValue {
+    return new UnitValue(value, unit);
+  }
+
 	toBoolean(): boolean {
 		return this.value.toBoolean();
 	}

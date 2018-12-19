@@ -58,6 +58,7 @@ export default class TypeHelper {
 
 }
 
+BaseTypeRegistry.register('TypeHelper', TypeHelper);
 
 
 

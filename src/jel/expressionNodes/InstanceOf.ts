@@ -1,11 +1,9 @@
 import JelNode from './JelNode';
 import TypeCheck from './TypeCheck';
-import BaseTypeRegistry from '../BaseTypeRegistry';
 import JelObject from '../JelObject';
-import Runtime from '../Runtime';
-import TypeHelper from '../types/typeDescriptors/TypeHelper';
 import Context from '../Context';
 import Util from '../../util/Util';
+import BaseTypeRegistry from '../BaseTypeRegistry';
 
 /**
  * Represents an 'instanceof'
@@ -17,13 +15,16 @@ import Util from '../../util/Util';
  * 
  */ 
 export default class As extends TypeCheck {
-		
+	private typeHelper: any;	
+
   constructor(left: JelNode, right: JelNode) {
     super(left, right);
+    this.typeHelper = BaseTypeRegistry.get('TypeHelper');
+
   }
 
   executeTypeCheck(ctx: Context, left: JelObject|null, right: JelObject|null): JelObject|Promise<JelObject> {
-    return TypeHelper.convertFromAny(right, "'instanceof' right operand").checkType(ctx, left);
+    return this.typeHelper.convertFromAny(right, "'instanceof' right operand").checkType(ctx, left);
   }  
   
   // overrride

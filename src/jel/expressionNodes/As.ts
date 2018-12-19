@@ -2,8 +2,6 @@ import JelNode from './JelNode';
 import TypeCheck from './TypeCheck';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import JelObject from '../JelObject';
-import Runtime from '../Runtime';
-import TypeHelper from '../types/typeDescriptors/TypeHelper';
 import Context from '../Context';
 import Util from '../../util/Util';
 
@@ -16,13 +14,15 @@ import Util from '../../util/Util';
  *  a as String|Float?
  */ 
 export default class As extends TypeCheck {
-		
+	private typeHelper: any;	
+  
   constructor(left: JelNode, right: JelNode, public extraMessage?: string) {
     super(left, right);
+    this.typeHelper = BaseTypeRegistry.get('TypeHelper');
   }
 
   executeTypeCheck(ctx: Context, left: JelObject|null, right: JelObject|null): JelObject|null|Promise<JelObject|null> {
-    return TypeHelper.convertFromAny(right, "'as' right operand").convert(ctx, left, this.extraMessage||'');
+    return this.typeHelper.convertFromAny(right, "'as' right operand").convert(ctx, left, this.extraMessage||'');
   }  
   
   // overrride
