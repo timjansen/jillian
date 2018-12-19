@@ -10,8 +10,9 @@ export default class Context {
 	dbSession: IDbSession | undefined;
 	translationDict: any; // Dictionary
 	
-	private frame: Map<string, any>;
+	private frame: Map<string, any>; // string->JelObject|null
 	private frozen: boolean;
+	private staticScope: boolean;
 	
 	constructor(public parent?: Context, dbSession?: IDbSession, translationDict?: any) {
 		this.dbSession = dbSession || (parent && parent.dbSession);
@@ -28,9 +29,23 @@ export default class Context {
 		throw new Error(`Can not read unknown variable ${name}.`);
 	}
 
+  // checks whether parent has this in its frame, immediately available
+	has(name: string): boolean {
+		if (this.frame.has(name))
+				return true;
+		if (this.parent)
+			return this.parent.has(name);
+    return false;
+	}
+  
  	hasInThisScope(name: string): boolean {
 		return this.frame.has(name);
 	}
+
+ 	hasInStaticScope(name: string): boolean {
+		return this.hasInThisScope(name) ? this.staticScope : (!!this.parent && this.parent.hasInStaticScope(name));
+	}
+
   
 	getOrNull(name: string): any {
 		if (this.frame.has(name))
@@ -47,20 +62,20 @@ export default class Context {
 		return this;
 	}
 	
-	setAll(obj: any): Context {
+	setAll(obj: any, staticScope=false): Context {
 		if (obj)
 			for (const name in obj) 
 				this.set(name, obj[name]);
-		return this.freeze();
+		return this.freeze(staticScope);
 	}
 	
-	plus(obj: any): Context {
+	plus(obj: any, staticScope=false): Context {
 		if (obj.isIDBSession)
 			return new Context(this, obj as IDbSession);
 		else if (obj.constructor.name == 'Dictionary')
 			return new Context(this, undefined, obj);
 		else
-			return new Context(this).setAll(obj as any);
+			return new Context(this).setAll(obj as any, staticScope);
 	}
 
 	getSession(): IDbSession {
@@ -69,8 +84,9 @@ export default class Context {
 		return this.dbSession;
 	}
 	
-	freeze(): Context {
+	freeze(staticScope=false): Context {
 		this.frozen = true;
+    this.staticScope = staticScope;
 		return this;
 	}
 	

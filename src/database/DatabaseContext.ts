@@ -1,6 +1,7 @@
 import Util from '../util/Util';
 
 import Context from '../jel/Context';
+import JelObject from '../jel/JelObject';
 import DefaultContext from '../jel/DefaultContext';
 import NativeClass from '../jel/NativeClass';
 
@@ -33,36 +34,56 @@ const DB_IDENTIFIERS = {DbEntry: c(DbEntry), DbRef: c(DbRef), Category: c(Catego
 
 
 export default class DatabaseContext extends Context {
+  private cache = new Map<string, PackageContent|undefined>(); // undefined means DB lookup failed
 
   constructor(parent: Context|null, session: DbSession) {
     super(parent||DefaultContext.get(), session);
-    this.setAll(DB_IDENTIFIERS);
+    this.setAll(DB_IDENTIFIERS, true);
   }
 
-  private genericGet(name: string): any {
-		try {
-  		return super.get(name);
-    }
-    catch (e) {
-      return Util.resolveValue(this.dbSession!.get(name), dbe=>((dbe instanceof PackageContent)) ? dbe : undefined);
-    }   
+  private getFromDatabase(name: string): JelObject|null|undefined|Promise<JelObject|null|undefined> {
+    if (this.cache.has(name)) 
+      return this.cache.get(name);
+    
+    return Util.resolveValueAndError(this.dbSession!.get(name), dbe=> {
+      if (dbe instanceof PackageContent) {
+        this.cache.set(name, dbe);
+        return dbe;
+      }
+      else {
+        this.cache.set(name, undefined);
+        return undefined;
+      }
+    }, ()=>{
+      this.cache.set(name, undefined);
+      return undefined;
+    });
   }
   
-	get(name: string): any {
-    if (/^[a-z]/.test(name))
-      return super.get(name);
-        
-    const r = this.genericGet(name);
-    if (r === undefined)
-   		throw new Error(`Can not read unknown variable ${name}.`);
-    return r;
+ 	hasInStaticScope(name: string): boolean {
+		if (this.hasInThisScope(name))
+      return true;
+    if (this.parent!.has(name))
+      return this.parent!.hasInStaticScope(name);
+    return /^[A-Z]/.test(name);
 	}
+  
+	get(name: string): JelObject|null|Promise<JelObject|null> {
+    if (/^[a-z]/.test(name) || this.has(name))
+      return super.get(name);
 
-	getOrNull(name: string): any {
-    if (/^[a-z]/.test(name))
+    const r = this.getFromDatabase(name);
+    if (r === undefined) 
+      throw new Error(`Can not find identifier ${name}. Database lookup failed as well.`);
+    else
+      return r as any;
+  }
+
+	getOrNull(name: string): JelObject|null|Promise<JelObject|null> {
+    if (/^[a-z]/.test(name) || this.has(name))
       return super.getOrNull(name);
     
-    return this.genericGet(name) || null;
-	}  
+    return Util.resolveValue(this.getFromDatabase(name), v=>v||null);
+	}
 }
 

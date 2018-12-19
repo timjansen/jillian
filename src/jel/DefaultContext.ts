@@ -61,7 +61,8 @@ const CTX_IDENTIFIERS = {Boolean: c(JelBoolean), Float: c(Float), String: c(JelS
 												 ___IS_DEFAULT_CONTEXT: 'magic123'};
 
 export default class DefaultContext {
-	static readonly DEFAULT_CONTEXT = new Context().setAll(CTX_IDENTIFIERS);
+	static readonly DEFAULT_CONTEXT = new Context().setAll(CTX_IDENTIFIERS, true);
+  
 	static get(): Context {
 		return DefaultContext.DEFAULT_CONTEXT;
 	}
