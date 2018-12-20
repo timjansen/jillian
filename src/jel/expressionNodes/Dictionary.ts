@@ -1,10 +1,11 @@
 import JelNode from './JelNode';
+import CachableJelNode from './CachableJelNode';
 import Assignment from './Assignment';
 import JelObject from '../JelObject';
-import Runtime from '../Runtime';
 import Context from '../Context';
 import Util from '../../util/Util';
-import JelDictionary from '../types/Dictionary';
+import BaseTypeRegistry from '../BaseTypeRegistry';
+
 
 /**
  * A key/value map literal.
@@ -17,15 +18,16 @@ import JelDictionary from '../types/Dictionary';
  *  {a}                           // short-cut for {a: a} . Reads the variable "a" and stores it as "a".
  *	{a, b: 2, c}
  */
-export default class Dictionary extends JelNode {
+export default class Dictionary extends CachableJelNode {
+  private dictionary: any;
   constructor(public elements: Assignment[] = []) {
     super();
+    this.dictionary = BaseTypeRegistry.get('Dictionary');
   }
 
-  // override
-  execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
+  executeUncached(ctx: Context): JelObject|null|Promise<JelObject|null> {
     if (this.elements.length == 0)
-      return JelDictionary.empty;
+      return this.dictionary.empty;
     
     const map = new Map();
 		const promises: Promise<any>[] = [];
@@ -38,16 +40,29 @@ export default class Dictionary extends JelNode {
 		});
 		
 		if (promises.length)
-			return Promise.all(promises).then(()=>new JelDictionary(map, true));
+			return Promise.all(promises).then(()=>this.dictionary.valueOf(map, true));
 		else
-	    return new JelDictionary(map, true);
+	    return this.dictionary.valueOf(map, true);
+  }
+  
+  isStaticUncached(ctx: Context): boolean {
+    let s = true;
+    this.elements.forEach(a => {
+      s = s && a.isStatic(ctx);
+		});
+    return s;    
+  }
+  
+  flushCache(): void {
+    super.flushCache();
+    this.elements.forEach(e=>e.flushCache());
   }
   
   // override
   equals(other?: JelNode): boolean {
-		return other instanceof Dictionary &&
-      this.elements.length == other.elements.length && 
-      !this.elements.find((l, i)=>!l.equals(other.elements[i]));
+		return other instanceof this.dictionary &&
+      this.elements.length == (other as any).elements.length && 
+      !this.elements.find((l, i)=>!l.equals((other as any).elements[i]));
 	}
 
   toString(): string {

@@ -1,7 +1,8 @@
 import JelNode from './JelNode';
-import JelPattern from '../types/Pattern';
 import Context from '../Context';
+import JelObject from '../JelObject';
 import Util from '../../util/Util';
+import BaseTypeRegistry from '../BaseTypeRegistry';
 
 /**
  * Represents a word matching pattern.
@@ -22,15 +23,21 @@ import Util from '../../util/Util';
  *  `{{date: /[0-9]+/ /[0-9]+/ /[0-9]+/ }}`                       // Three REs, to match three words. Also returns list.
  */
 export default class Pattern extends JelNode {
-  constructor(public pattern: JelPattern) {
+  constructor(public pattern: any) {
     super();
   }
   
   // override
-  execute(ctx: Context): JelPattern {
+  execute(ctx: Context): JelObject {
     return this.pattern;
   }
   
+  isStatic(ctx: Context): boolean {
+    return true;
+  }
+  
+  flushCache(): void {
+  }
   
   // overrride
   equals(other?: JelNode): boolean {
@@ -42,12 +49,12 @@ export default class Pattern extends JelNode {
 		return Pattern.toString(this.pattern);	
 	}
 	
-	static toString(p: JelPattern): string {
+	static toString(p: any): string {
 		return '`' + p.patternText.replace(/`/g, '\\`').replace(/\n/g, '\\n') + '`';	
 	}
 	
 	
-  getSerializationProperties(): JelPattern[] {
+  getSerializationProperties(): any[] {
     return [this.pattern];
   }
 }

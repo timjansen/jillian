@@ -1,4 +1,5 @@
 import JelNode from './JelNode';
+import CachableJelNode from './CachableJelNode';
 import Assignment from './Assignment';
 import JelObject from '../JelObject';
 import Runtime from '../Runtime';
@@ -32,7 +33,7 @@ function resolveValueObj(f: (e: Map<string,JelObject|null>|undefined)=>JelObject
  *     f(x = 2)
  *     (()=>4)()                     // calling lambda, returns 4
  */
-export default class Call extends JelNode {
+export default class Call extends CachableJelNode {
   constructor(public left: JelNode, public argList: JelNode[]  = [], public namedArgs: Assignment[] = []) {
     super();
   }
@@ -69,9 +70,21 @@ export default class Call extends JelNode {
   }
   
   // override
-  execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
+  executeUncached(ctx: Context): JelObject|null|Promise<JelObject|null> {
     return Util.resolveValue(this.left.execute(ctx), v=>this.callLeft(ctx, v));
   }
+  
+  isStaticUncached(ctx: Context): boolean {
+    return this.left.isStatic(ctx) && !this.argList.find(a=>!a.isStatic(ctx)) && !this.namedArgs.find(a=>!a.isStatic(ctx));
+  }
+  
+  flushCache(): void {
+    super.flushCache();
+    this.left.flushCache();
+    this.argList.forEach(a=>a.flushCache());
+    this.namedArgs.forEach(a=>a.flushCache());
+  }
+
   
   // overrride
   equals(other?: JelNode): boolean {

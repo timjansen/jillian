@@ -1,5 +1,5 @@
 import JelNode from './JelNode';
-import JelPattern from '../types/Pattern';
+import CachableJelNode from './CachableJelNode';
 import Pattern from './Pattern';
 import Assignment from './Assignment';
 import JelObject from '../JelObject';
@@ -12,16 +12,27 @@ const EMPTY_MAP = new Map();
  * Helper class used by Translators to define the translator's elements. Each assignment consists of a Pattern, an expression and 
  * optional meta values.
  */
-export default class PatternAssignment extends JelNode implements Serializable {
-  constructor(public name: JelPattern, public expression: JelNode, public meta: Assignment[]) {
+export default class PatternAssignment extends CachableJelNode implements Serializable {
+  constructor(public name: any, public expression: JelNode, public meta: Assignment[]|undefined) {
     super();
   }
 
   // override
-  execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
+  executeUncached(ctx: Context): JelObject|null|Promise<JelObject|null> {
   	return this.expression.execute(ctx);
   }
+  
+  isStaticUncached(ctx: Context): boolean {
+    return this.expression.isStatic(ctx) && (!this.meta || !this.meta.find(m=>!m.isStatic(ctx)));
+  }
  
+  flushCache(): void {
+    super.flushCache();
+    this.expression.flushCache();
+    if (this.meta)  
+      this.meta.forEach(a=>a.flushCache());
+  }
+  
 	getMetaData(ctx: Context): Map<string, any> {
 		if (!this.meta)
 			return EMPTY_MAP;
@@ -36,7 +47,7 @@ export default class PatternAssignment extends JelNode implements Serializable {
 		if (!(other instanceof PatternAssignment))
 			return false;
 		if (this.meta) {
-			if ((!this.meta) != (!other.meta))
+			if (!other.meta)
 				return false;
 			if (this.meta.length != other.meta.length)
 				return false;

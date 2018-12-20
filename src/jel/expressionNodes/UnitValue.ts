@@ -1,7 +1,8 @@
 import JelNode from './JelNode';
+import CachableJelNode from './CachableJelNode';
 import Context from '../Context';
-import JelFraction from '../types/Fraction';
-import JelUnitValue from '../types/UnitValue';
+import BaseTypeRegistry from '../BaseTypeRegistry';
+import JelObject from '../JelObject';
 
 /**
  * Represents a Unit Value
@@ -10,27 +11,31 @@ import JelUnitValue from '../types/UnitValue';
  *   3 @Meter
  *   3/4 @Inch
  */
-export default class UnitValue extends JelNode {
-	private cached: JelUnitValue | undefined;	
-	
+export default class UnitValue extends CachableJelNode {
 	constructor(public value: JelNode, public unit: string) {
     super();
   }
 
   // override
-  execute(ctx: Context): JelUnitValue | Promise<JelUnitValue> {
-		if (!this.cached) {
+  executeUncached(ctx: Context): JelObject | Promise<JelObject> {
 			const left: any = this.value.execute(ctx);
 			if (left instanceof Promise)
-				return left as any;
-			this.cached = new JelUnitValue(left, this.unit);
-		}
-    return this.cached as JelUnitValue;
+				return left.then((l: any)=>BaseTypeRegistry.get('UnitValue').valueOf(l, this.unit));
+			return BaseTypeRegistry.get('UnitValue').valueOf(left, this.unit);
+  }
+  
+  isStaticUncached(ctx: Context): boolean {
+    return true;
+  }
+  
+  flushCache(): void {
+    super.flushCache();
+    this.value.flushCache();
   }
   
   // override
   equals(other?: JelNode): boolean {
-		return other instanceof UnitValue && this.value.equals(other.value) && this.unit == other.unit;
+		return other instanceof BaseTypeRegistry.get('UnitValue') && (this.value as any).equals((other as any).value) && this.unit == (other as any).unit;
 	}
   
 	toString(): string {

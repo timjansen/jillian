@@ -1,7 +1,9 @@
 import JelNode from './JelNode';
-import JelTranslator from '../types/Translator';
+import CachableJelNode from './CachableJelNode';
 import PatternAssignment from './PatternAssignment';
+import JelObject from '../JelObject';
 import Context from '../Context';
+import BaseTypeRegistry from '../BaseTypeRegistry';
 
 /**
  * Represents a translator that maps Patterns onto expressions, with optional meta values.
@@ -12,16 +14,25 @@ import Context from '../Context';
  *	  verb, tense="past": `walked`: Walking(past=true), 
  *		verb: `run` => Running()}}
  */
-export default class Translator extends JelNode {
+export default class Translator extends CachableJelNode {
   constructor(public elements: PatternAssignment[] = []) {
     super();
   }
 
   // override
-  execute(ctx: Context): JelTranslator {
-    const t = new JelTranslator();
+  executeUncached(ctx: Context): JelObject {
+    const t = BaseTypeRegistry.get('Translator').create();
     this.elements.forEach(e=>t.addPattern(e.name, e.expression, e.getMetaData(ctx)));
     return t;
+  }
+  
+  isStaticUncached(ctx: Context): boolean {
+    return !this.elements.find(e=>!e.isStatic(ctx));
+  }
+  
+  flushCache(): void {
+    super.flushCache();
+    this.elements.forEach(a=>a.flushCache());
   }
   
   // override

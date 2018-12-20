@@ -1,4 +1,5 @@
 import JelNode from './JelNode';
+import CachableJelNode from './CachableJelNode';
 import Assignment from './Assignment';
 import Context from '../Context';
 import JelObject from '../JelObject';
@@ -22,14 +23,14 @@ function resolveValueMap(ctx: Context, assignments: Assignment[]): Map<string, a
  *	 @Mars    // returns the instance called Mars
  *	 @Mars(a=2, b="hello")    // returns the instance called Mars modified with the given parameters
  */
-export default class Reference extends JelNode {
+export default class Reference extends CachableJelNode {
 	public ref: IDbRef | Promise<IDbRef> | undefined;
   constructor(public name: string, public parameters: Assignment[] = []) {
     super();
   }
   
   // override
-  execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
+  executeUncached(ctx: Context): JelObject|null|Promise<JelObject|null> {
 		const dbSession: IDbSession = ctx.getSession();
 		if (!this.ref) {
 			if (!this.parameters.length)
@@ -43,6 +44,15 @@ export default class Reference extends JelNode {
 			}
 		}
     return this.ref as any;
+  }
+  
+  isStaticUncached(ctx: Context): boolean {
+    return true;
+  }
+  
+  flushCache(): void {
+    super.flushCache();
+    this.parameters.forEach(a=>a.flushCache());
   }
   
   // overrride

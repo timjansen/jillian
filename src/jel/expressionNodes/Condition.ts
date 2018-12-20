@@ -1,7 +1,7 @@
 import JelNode from './JelNode';
+import CachableJelNode from './CachableJelNode';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import JelObject from '../JelObject';
-import Runtime from '../Runtime';
 import Context from '../Context';
 import Util from '../../util/Util';
 
@@ -13,14 +13,18 @@ import Util from '../../util/Util';
  *     if a > 0 then 1 else 2
  *     if c instanceof @Cat then c instanceof @Animal
  */
-export default class Condition extends JelNode {
+export default class Condition extends CachableJelNode {
   constructor(public condition: JelNode, public thenExp: JelNode, public elseExp: JelNode) {
     super();
   }
   
   // override
-  execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
+  executeUncached(ctx: Context): JelObject|null|Promise<JelObject|null> {
     return Util.resolveValue(this.condition.execute(ctx), v=>this.runOnValue(ctx, v));
+  }
+  
+  isStaticUncached(ctx: Context): boolean {
+    return this.condition.isStatic(ctx) && this.thenExp.isStatic(ctx) && this.elseExp.isStatic(ctx);
   }
   
   // override
@@ -31,6 +35,12 @@ export default class Condition extends JelNode {
       this.elseExp.equals(other.elseExp);
 	}
 
+  flushCache(): void {
+    super.flushCache();
+    this.condition.flushCache();
+    this.thenExp.flushCache();
+    this.elseExp.flushCache();
+  }
 
   private runOnValue(ctx: Context, cond: any): JelObject|null|Promise<JelObject|null> {
     if (BaseTypeRegistry.get('Boolean').toRealBoolean(cond))

@@ -1,4 +1,5 @@
 import JelNode from './JelNode';
+import CachableJelNode from './CachableJelNode';
 import Assignment from './Assignment';
 import JelObject from '../JelObject';
 import BaseTypeRegistry from '../BaseTypeRegistry';
@@ -14,16 +15,26 @@ import Util from '../../util/Util';
  *  Float[]
  *  @Meter[]
  */
-export default class ListType extends JelNode {
+export default class ListType extends CachableJelNode {
   constructor(public left: JelNode) {
     super();
   }
   
   // override
-  execute(ctx: Context): JelObject {
+  executeUncached(ctx: Context): JelObject {
     return Util.resolveValue(this.left.execute(ctx), v=>BaseTypeRegistry.get('ListType').valueOf(v));
   }
   
+  isStaticUncached(ctx: Context): boolean {
+    return this.left.isStatic(ctx);
+  }
+  
+  flushCache(): void {
+    super.flushCache();
+    this.left.flushCache();
+  }
+
+ 
   // overrride
   equals(other?: JelNode): boolean {
 		return other instanceof ListType && this.left.equals(other.left);

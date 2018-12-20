@@ -1,9 +1,7 @@
 import JelNode from './JelNode';
-import Assignment from './Assignment';
+import CachableJelNode from './CachableJelNode';
 import JelObject from '../JelObject';
 import BaseTypeRegistry from '../BaseTypeRegistry';
-import Runtime from '../Runtime';
-import Callable from '../Callable';
 import Context from '../Context';
 import Util from '../../util/Util';
 
@@ -14,14 +12,23 @@ import Util from '../../util/Util';
  *  Float|String
  *  @Length|@Size|null
  */
-export default class Options extends JelNode {
+export default class Options extends CachableJelNode {
   constructor(public options: JelNode[]) {
     super();
   }
   
   // override
-  execute(ctx: Context): JelObject {
+  executeUncached(ctx: Context): JelObject {
     return Util.resolveArray(this.options.map(o=>o.execute(ctx)), v=>BaseTypeRegistry.get('OptionType').valueOf(v));
+  }
+  
+  isStaticUncached(ctx: Context) {
+    return !this.options.find(o=>!o.isStatic(ctx));
+  }
+  
+  flushCache(): void {
+    super.flushCache();
+    this.options.forEach(a=>a.flushCache());
   }
   
   // overrride

@@ -1,4 +1,5 @@
 import Util from '../../util/Util';
+import BaseTypeRegistry from '../BaseTypeRegistry';
 import Runtime from '../Runtime';
 import JelObject from '../JelObject';
 import Context from '../Context';
@@ -118,6 +119,10 @@ export default class Range extends JelObject {
 		return new Range(Float.valueOf(value - accuracy), Float.valueOf(value + accuracy));
 	}
 	
+	static valueOf(min: JelObject|null, max: JelObject|null): Range {
+		return new Range(min, max);
+	}
+	
 	static create_jel_mapping = ['min', 'max'];
 	static create(ctx: Context, ...args: any[]): Range {
 		return new Range(args[0] != null ? args[0] : null, args[1] != null ? args[1] : null);
@@ -130,5 +135,7 @@ Range.prototype.middle_jel_mapping = [];
 Range.prototype.isFinite_jel_mapping = [];
 Range.prototype.isEmpty_jel_mapping = [];
 Range.prototype.reverseOps = JelObject.SWAP_OPS;
+
+BaseTypeRegistry.register('Range', Range);
 
 	

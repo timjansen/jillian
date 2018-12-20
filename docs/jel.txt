@@ -79,6 +79,7 @@ Examples:
 	mul(6, 7)
 	obj.print("hello")
 	200 +- 10      // Creates an approximate number with an max error of 10
+  1...10         // Creates a range of 1...10
 
 
 
@@ -135,6 +136,7 @@ Examples:
   a as Timestamp                      // returns a if it is a Timestamp, throws an exception if not
   a instanceof Timestamp?             // true if a is a Timestamp or null
   a instanceof number                 // true if a is a number (Float or Fraction)
+  a instanceof number(1...10)         // true if a is a between 1 and 10 (inclusive)
   a instanceof Timestamp|number       // true if a is a Timestamp or a number
   a instanceof Timestamp|number?      // true if a is a Timestamp or a number or null
   a instanceof Timestamp|number|null  // true if a is a Timestamp or a number or null

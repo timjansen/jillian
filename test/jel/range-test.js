@@ -12,7 +12,9 @@ const jelAssert = new JelAssert(DefaultContext.get());
 describe('Range', function() {
 		it('creates and serializes', function() {
 			jelAssert.equal(new Range(1, 2), "Range(1, 2)");
+			jelAssert.equal("1...2", "Range(1, 2)");
 			jelAssert.equal(new Range(new Fraction(1, 2), 2), "Range(Fraction(1, 2), 2)");
+			jelAssert.equal("1/2...2", "Range(Fraction(1, 2), 2)");
 			jelAssert.equal(new Range(undefined, 5), "Range(null, 5)");
 			jelAssert.equal(new Range(-1, undefined), "Range(-1, null)");
 			jelAssert.notEqual(new Range(1, 2), "Range(1, 3)");
@@ -20,6 +22,7 @@ describe('Range', function() {
 
 		it('supports Range<->Range comparisons', function() {
 			jelAssert.equal(JelBoolean.TRUE, "Range(1, 4) == Range(1, 4)");
+			jelAssert.equal(JelBoolean.TRUE, "1...4 == Range(1, 4)");
 			jelAssert.equal(JelBoolean.TRUE, "Range(1, 4) === Range(1, 4)");
 			jelAssert.equal(JelBoolean.TRUE, "Range(1, null) == Range(1, null)");
 			jelAssert.equal(JelBoolean.TRUE, "Range(null, null) == Range(null, null)");
@@ -173,10 +176,10 @@ describe('Range', function() {
 			jelAssert.equal(JelBoolean.TRUE, "Range(1, 4) <<= Fraction(5, 3)");
 			jelAssert.equal(JelBoolean.FALSE, "Range(1, 4) <<= Fraction(1, 2)");
 
-			jelAssert.equal(new Range(2, 8), "Range(1, 4) * 2");
-			jelAssert.equal(new Range(1, 2), "Range(4, 8) / 4");
-			jelAssert.equal(new Range(3, 5), "Range(1, 3) + 2");
-			jelAssert.equal(new Range(3, 5), "Range(5, 7) - 2");
+			jelAssert.equal(new Range(2, 8), "1...4 * 2");
+			jelAssert.equal(new Range(1, 2), "(4...8) / 4");
+			jelAssert.equal(new Range(3, 5), "1...3 + 2");
+			jelAssert.equal(new Range(3, 5), "5...7 - 2");
 			jelAssert.equal(new Range(new Fraction(1, 2), new Fraction(5, 2)), "Range(1, 3) - Fraction(1, 2)");
 			jelAssert.equal(new Range(4, 16), "2 * Range(1, 4) * 2");
 			jelAssert.equal(new Range(3, 5), "2 + Range(1, 3)");

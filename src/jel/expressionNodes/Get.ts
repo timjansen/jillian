@@ -1,4 +1,5 @@
 import JelNode from './JelNode';
+import CachableJelNode from './CachableJelNode';
 import JelObject from '../JelObject';
 import Runtime from '../Runtime';
 import Context from '../Context';
@@ -11,7 +12,7 @@ import Util from '../../util/Util';
  *    a['x']
  *    a['execute']()
  */
-export default class Get extends JelNode {
+export default class Get extends CachableJelNode {
   constructor(public left: JelNode, public name: JelNode) {
     super();
   }
@@ -41,9 +42,9 @@ export default class Get extends JelNode {
 				throw new Error('Index operator [] on objects supports only strings.');
 		}
   }
-   
+  
   // override
-  execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
+  executeUncached(ctx: Context): JelObject|null|Promise<JelObject|null> {
     return Util.resolveValues((l: any, n: any)=>{
 			if (n != null)
 				return this.getValue(ctx, l, n);
@@ -52,6 +53,16 @@ export default class Get extends JelNode {
 		}, this.left.execute(ctx), this.name.execute(ctx));
   }
   
+  isStaticUncached(ctx: Context): boolean {
+    return this.left.isStatic(ctx) && this.name.isStatic(ctx);
+  }
+    
+  flushCache(): void {
+    super.flushCache();
+    this.left.flushCache();
+    this.name.flushCache();
+  }
+
   // override
   equals(other?: JelNode): any {
 		return other instanceof Get &&

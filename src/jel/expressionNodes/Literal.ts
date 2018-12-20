@@ -2,7 +2,6 @@ import JelNode from './JelNode';
 import Context from '../Context';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import JelObject from '../JelObject';
-import Runtime from '../Runtime';
 
 
 /**
@@ -42,6 +41,15 @@ export default class Literal extends JelNode {
   execute(ctx: Context): JelObject|null {
     return this.value;
   }
+  
+  isStatic(): boolean {
+    return true;
+  }
+  
+    
+  flushCache(): void {
+  }
+
   
   // override
   equals(other?: JelNode): boolean {

@@ -1,4 +1,5 @@
 import JelNode from './JelNode';
+import CachableJelNode from './CachableJelNode';
 import Variable from './Variable';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import JelObject from '../JelObject';
@@ -29,14 +30,14 @@ import Util from '../../util/Util';
  *	obj.print("hello")
  * 
  */ 
-export default class Operator extends JelNode {
+export default class Operator extends CachableJelNode {
 		
   constructor(public operator: string, public left: JelNode, public right?: JelNode) {
     super();
   }
 
   // override
-  execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
+  executeUncached(ctx: Context): JelObject|null|Promise<JelObject|null> {
     switch (this.operator) {
     case '.':
     case '||':
@@ -51,6 +52,16 @@ export default class Operator extends JelNode {
 		}
   }
 
+  isStaticUncached(ctx: Context): boolean {
+    return this.left.isStatic(ctx) && (!this.right || this.right.isStatic(ctx));
+  }
+  
+  flushCache(): void {
+    super.flushCache();
+    this.left.flushCache();
+    if (this.right) this.right.flushCache();
+  }
+  
   private evaluateLeftFirstOp(ctx: Context): JelObject|null|Promise<JelObject|null> {
     return Util.resolveValue(this.left.execute(ctx), left=>this.leftFirstOps(ctx, left));
   }
@@ -101,9 +112,9 @@ export default class Operator extends JelNode {
 	
   getSerializationProperties(): Object {
     if (this.right != null) 
-      return {op: this.operator, left: this.left, right: this.right};
+      return [this.operator, this.left, this.right];
     else
-      return {op: this.operator, left: this.left};
+      return [this.operator, this.left];
   }
 }
 

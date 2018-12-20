@@ -3,10 +3,7 @@ import Assignment from './Assignment';
 import TypedParameterDefinition from './TypedParameterDefinition';
 import Lambda from './Lambda';
 import JelObject from '../JelObject';
-import Runtime from '../Runtime';
 import Context from '../Context';
-import TypeHelper from '../types/typeDescriptors/TypeHelper';
-import LambdaCallable from '../LambdaCallable';
 import TypedParameterValue from '../TypedParameterValue';
 import Util from '../../util/Util';
 import BaseTypeRegistry from '../BaseTypeRegistry';
@@ -44,6 +41,20 @@ export default class ClassDef extends JelNode {
     const d = new Map<string, JelObject|null>();
     return Util.resolveValue(Util.resolveArray(args.map(a=>a.execute(ctx)), argValues=>argValues.forEach((argValue, i)=>d.set(args[i].name, argValue))), ()=>BaseTypeRegistry.get('Dictionary').valueOf(d, true));
   }
+  
+  isStatic(): boolean {
+    return false;
+  }
+
+  flushCache(): void {
+    if (this.superName) this.superName.flushCache();
+    if (this.ctor) this.ctor.flushCache();
+    this.propertyDefs.forEach(a=>a.flushCache());
+    this.methods.forEach(a=>a.flushCache());
+    this.getters.forEach(a=>a.flushCache());
+    this.staticProperties.forEach(a=>a.flushCache());
+  }
+
   
 	// override
   equals(other?: JelNode): boolean {

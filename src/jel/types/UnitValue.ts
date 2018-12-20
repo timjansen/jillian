@@ -15,6 +15,7 @@ import Fraction from './Fraction';
 import ApproximateNumber from './ApproximateNumber';
 import Util from '../../util/Util';
 import TypeChecker from './TypeChecker';
+import BaseTypeRegistry from '../BaseTypeRegistry';
 
 const VALUE_TYPES = ['Float', 'Fraction', 'ApproximateNumber'];
 const UNIT_TYPES = ['Unit', 'String'];
@@ -407,3 +408,4 @@ UnitValue.prototype.toPrimaryUnits_jel_mapping = [];
 UnitValue.prototype.isType_jel_mapping = ['unit'];
 UnitValue.prototype.JEL_PROPERTIES = {value:1, unit:1};
 
+BaseTypeRegistry.register('UnitValue', UnitValue);

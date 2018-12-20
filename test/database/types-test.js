@@ -62,12 +62,23 @@ tmp.dir(function(err, path) {
         jelAssert.fuzzy('int.checkType(15/5)', 1);
         jelAssert.fuzzy('int.checkType(15/4)', 0);
 
+        jelAssert.fuzzy('int(2, 3).checkType(2)', 1);
+        jelAssert.fuzzy('int(2, 3).checkType(3)', 1);
+        jelAssert.fuzzy('int(2, 3).checkType(4)', 0);
+        jelAssert.fuzzy('int(1...10).checkType(4)', 1);
+
         jelAssert.fuzzy('number.checkType(1)', 1);
         jelAssert.fuzzy('number.checkType(1.1)', 1);
         jelAssert.fuzzy('number.checkType(null)', 0);
         jelAssert.fuzzy('number.checkType("a")', 0);
         jelAssert.fuzzy('number.checkType(15/5)', 1);
         jelAssert.fuzzy('number.checkType(15/4)', 1);
+
+        jelAssert.fuzzy('number(2, 3).checkType(2)', 1);
+        jelAssert.fuzzy('number(2...3).checkType(2.5)', 1);
+        jelAssert.fuzzy('number(2...3).checkType(3)', 1);
+        jelAssert.fuzzy('number(2...3).checkType(4)', 0);
+        jelAssert.fuzzy('number(1...10).checkType(4)', 1);
 
         jelAssert.fuzzy('bool.checkType(true)', 1);
         jelAssert.fuzzy('bool.checkType(1.1)', 0);
@@ -126,9 +137,9 @@ tmp.dir(function(err, path) {
         jelAssert.fuzzy('OptionalType(Float).checkType(null)', 1);
         jelAssert.fuzzy('OptionalType(Float).checkType("a")', 0);
 
-        jelAssert.fuzzy('Float?.checkType(1)', 1);
-        jelAssert.fuzzy('Float?.checkType(null)', 1);
-        jelAssert.fuzzy('Float?.checkType("a")', 0);
+        jelAssert.fuzzy('number?.checkType(1)', 1);
+        jelAssert.fuzzy('number?.checkType(null)', 1);
+        jelAssert.fuzzy('number?.checkType("a")', 0);
       });
 
       it('checks categories', function() {

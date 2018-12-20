@@ -1,28 +1,39 @@
 import JelNode from './JelNode';
-import JelObject from '../JelObject';
+import CachableJelNode from './CachableJelNode';
 import Context from '../Context';
 import TypedParameterValue from '../TypedParameterValue';
-import BaseTypeRegistry from '../../jel/BaseTypeRegistry';
-import TypeHelper from '../types/typeDescriptors/TypeHelper';
+import BaseTypeRegistry from '../BaseTypeRegistry';
 import Serializable from '../Serializable';
 import Util from '../../util/Util';
 
 /**
  * Represents an lambda argument, with optional type and default value.
  */
-export default class TypedParameterDefinition extends JelNode implements Serializable {
+export default class TypedParameterDefinition extends CachableJelNode implements Serializable {
+ 	private typeHelper: any;	
   constructor(public name: string, public defaultValue?: JelNode | undefined, public type?: JelNode | undefined ) {
     super();
+    this.typeHelper = BaseTypeRegistry.get('TypeHelper');
   }
 
   // override
-  execute(ctx: Context): TypedParameterValue|Promise<TypedParameterValue> {
+  executeUncached(ctx: Context): TypedParameterValue|Promise<TypedParameterValue> {
     if (!this.defaultValue && !this.type)
       return new TypedParameterValue(this.name, null, null);
     
     const defaultValue = this.defaultValue ? this.defaultValue.execute(ctx) : null;
     const type = this.type ? this.type.execute(ctx) : null;
-    return Util.resolveValues((d: JelNode|null, t: JelNode|null)=>new TypedParameterValue(this.name, d, type && TypeHelper.convertNullableFromAny(t, this.name)), defaultValue, type);
+    return Util.resolveValues((d: JelNode|null, t: JelNode|null)=>new TypedParameterValue(this.name, d, type && this.typeHelper.convertNullableFromAny(t, this.name)), defaultValue, type);
+  }
+  
+  isStaticUncached(ctx: Context): boolean {
+    return ((!this.defaultValue || this.defaultValue.isStatic(ctx)) && (!this.type || this.type.isStatic(ctx)))
+  }
+  
+  flushCache(): void {
+    super.flushCache();
+    if (this.defaultValue) this.defaultValue.flushCache();
+    if (this.type) this.type.flushCache();
   }
  
   get isNameOnly(): boolean {

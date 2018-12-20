@@ -1,6 +1,7 @@
 import JelNode from './JelNode';
 import Context from '../Context';
-import JelFraction from '../types/Fraction';
+import JelObject from '../JelObject';
+import BaseTypeRegistry from '../BaseTypeRegistry';
 
 /**
  * Represents a Fraction literal.
@@ -12,21 +13,29 @@ import JelFraction from '../types/Fraction';
  */
 export default class Fraction extends JelNode {
 
-	value: JelFraction;
+	value: any;
 	
 	constructor(a: number, b: number) {
     super();
-		this.value = new JelFraction(a, b);
+		this.value = BaseTypeRegistry.get('Fraction').valueOf(a, b);
   }
 
   // override
-  execute(ctx: Context): JelFraction {
+  execute(ctx: Context): JelObject {
     return this.value;
+  }
+  
+  isStatic(): boolean {
+    return true;
+  }
+  
+    
+  flushCache(): void {
   }
   
   // override
   equals(other?: JelNode): boolean {
-		return other instanceof Fraction && this.value.equals(other.value);
+		return other instanceof BaseTypeRegistry.get('Fraction') && this.value.equals((other as any).value);
 	}
   
 	toString(): string {

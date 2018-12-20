@@ -12,10 +12,10 @@ export default abstract class JelNode extends JelObject implements Serializable 
 	abstract equals(other?: JelNode): boolean;
 	
   // if true, the result is cachable
-  isStatic(ctx: Context): boolean {return false;} // TODO: abstract
+  abstract isStatic(ctx: Context): boolean;
 
   // flushes the cache in the expression tree, e.g. after changing the DB.
-  flushCache(): void {} // TODO: abstract
+  abstract flushCache(): void;
   
 	// Returns always Promise for a value!
 	executePromise(ctx: Context): Promise<JelObject|null> {

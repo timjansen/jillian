@@ -1,8 +1,7 @@
 import JelNode from './JelNode';
-import Assignment from './Assignment';
+import CachableJelNode from './CachableJelNode';
 import JelObject from '../JelObject';
 import BaseTypeRegistry from '../BaseTypeRegistry';
-import Runtime from '../Runtime';
 import Callable from '../Callable';
 import Context from '../Context';
 import Util from '../../util/Util';
@@ -14,14 +13,22 @@ import Util from '../../util/Util';
  *  Float~
  *  number~
  */
-export default class Rangable extends JelNode {
+export default class Rangable extends CachableJelNode {
   constructor(public left: JelNode) {
     super();
   }
   
-  // override
-  execute(ctx: Context): JelObject {
+  executeUncached(ctx: Context): JelObject {
     return Util.resolveValue(this.left.execute(ctx), v=>BaseTypeRegistry.get('RangableType').valueOf(v));
+  }
+  
+  isStaticUncached(ctx: Context): boolean {
+    return this.left.isStatic(ctx);
+  }
+  
+  flushCache(): void {
+    super.flushCache();
+    this.left.flushCache();
   }
   
   // overrride

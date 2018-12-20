@@ -1,4 +1,5 @@
 import JelNode from './JelNode';
+import CachableJelNode from './CachableJelNode';
 import Context from '../Context';
 import JelObject from '../JelObject';
 
@@ -10,14 +11,23 @@ import JelObject from '../JelObject';
  *   counter
  *   myValue
  */
-export default class Variable extends JelNode {
+export default class Variable extends CachableJelNode {
+  
   constructor(public name: string) {
     super();
   }
   
   // override
-  execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
+  executeUncached(ctx: Context): JelObject|null|Promise<JelObject|null> {
     return ctx.get(this.name);
+  }
+  
+  isStaticUncached(ctx: Context): boolean {
+    return ctx.hasInStaticScope(this.name);
+  }
+  
+  flushCache(): void {
+    super.flushCache();
   }
   
   // overrride

@@ -1,4 +1,5 @@
 import JelNode from './JelNode';
+import CachableJelNode from './CachableJelNode';
 import Assignment from './Assignment';
 import Context from '../Context';
 import JelObject from '../JelObject';
@@ -11,19 +12,33 @@ import JelObject from '../JelObject';
  *   with a=2: a+3   // returns 5
  *   with x=1, y=x+2, z=y*3: z*4   // returns 36
  */
-export default class With extends JelNode {
+export default class With extends CachableJelNode {
   constructor(public assignments: Assignment[], public expression: JelNode) {
     super();
   }
   
   // override
-  execute(ctx:Context): JelObject|null|Promise<JelObject|null> {
+  executeUncached(ctx:Context): JelObject|null|Promise<JelObject|null> {
     const newCtx = new Context(ctx);
-    this.assignments.forEach(a => newCtx.set(a.name, a.execute(newCtx)));
-		newCtx.freeze();
+    let isStatic = true;
+    this.assignments.forEach(a => {
+      newCtx.set(a.name, a.execute(newCtx));
+      isStatic = isStatic && a.isStatic(ctx);
+    });
+		newCtx.freeze(isStatic);
     return this.expression.execute(newCtx);
   }
+  
+  isStaticUncached(ctx: Context): boolean {
+    return this.expression.isStatic(ctx) && !this.assignments.find(a=>!a.isStatic(ctx));
+  }
 
+  flushCache(): void {
+    super.flushCache();
+    this.expression.flushCache();
+    this.assignments.forEach(a=>a.flushCache());
+  }
+  
   // override
   equals(other?: JelNode): boolean {
 		return (other instanceof With) &&
