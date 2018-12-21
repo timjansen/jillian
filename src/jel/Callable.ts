@@ -20,7 +20,7 @@ export default abstract class Callable extends JelObject {
    * @param args unnamed arguments
    * @return the return value, may be a Promise
    */
-	invoke(ctx: Context, self: JelObject | undefined, ...args: (JelObject|null)[]): JelObject|null|Promise<JelObject|null> {
+	invoke(ctx: Context, self?: JelObject, ...args: (JelObject|null)[]): JelObject|null|Promise<JelObject|null> {
 		return this.invokeWithObject(ctx, self, args);
 	}
   

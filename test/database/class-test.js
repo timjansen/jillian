@@ -102,6 +102,13 @@ tmp.dir(function(err, path) {
         jelAssert.equal('with myTestType=class MyTestType: static add(a,b) as Float:a+b static ft = 42: myTestType.ft + myTestType.add(1, 2)', "45");
       });
       
+      it('supports static properties that use the constructor or other elements', function() {
+        jelAssert.equal('with myTestType=class MyTestType: static ft = 42 static ft1=ft+1: myTestType.ft + myTestType.add(1, 2)', "45");
+        jelAssert.equal('with myTestType=class MyTestType: static add(a,b) as number:a+b static ft = MyTestType.add(1, 3): myTestType.ft', "4");
+        jelAssert.equal('with myTestType=class MyTestType: constructor(a: int){} static ft = MyTestType(42): myTestType.ft.a', "42");
+        jelAssert.equal('with myTestType=class MyTestType: x: int constructor(){x: MyTestType.X} static X = 100: myTestType().x', "100");
+      });
+      
       it('supports getter', function() {
         jelAssert.equal('with myTestType=Class("MyTestType", null, (x: Float, y: Float)=>{}, getters={x: ()=>8, z: ()=>4}), m=myTestType(5, 12): m.x/m.z', "2");
         jelAssert.equal('with myTestType=class MyTestType: constructor(x: Float, y: Float):{} get x() as Float:8 get z():4, m=myTestType(5, 12): m.x/m.z', "2");

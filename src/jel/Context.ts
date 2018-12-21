@@ -10,15 +10,16 @@ export default class Context {
 	dbSession: IDbSession | undefined;
 	translationDict: any; // Dictionary
 	
-	private frame: Map<string, any>; // string->JelObject|null
-	private frozen: boolean;
-	private staticScope: boolean;
+	protected frame: Map<string, any>; // string->JelObject|null
+	protected frozen: boolean;
+	protected staticScope: boolean;
 	
 	constructor(public parent?: Context, dbSession?: IDbSession, translationDict?: any) {
 		this.dbSession = dbSession || (parent && parent.dbSession);
 		this.translationDict = translationDict || (parent && parent.translationDict) || BaseTypeRegistry.get('Dictionary').create();
 		this.frame = new Map();
 		this.frozen = false;
+    this.staticScope = false;
 	}
 	
 	get(name: string): any {

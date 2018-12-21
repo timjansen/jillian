@@ -16,12 +16,13 @@ import IClass from '../IClass';
 import Serializable from '../Serializable';
 import Callable from '../Callable';
 import Context from '../Context';
+import StaticContext from '../StaticContext';
 import Util from '../../util/Util';
 
 class GenericJelObject extends JelObject implements Serializable {
   methodCache: Map<string, Callable> = new Map<string, Callable>();
   
-  constructor(public type: Class, ctx: Context, public args: any[], public props:Dictionary) {
+  constructor(public type: Class, ctx: Context, public args: any[], public props: Dictionary) {
     super(type.className);
   }
   
@@ -98,6 +99,7 @@ export default class Class extends PackageContent implements IClass {
    *                              defined by propertyDefs, or change the values of its own by returning a Dictionary with
    *                              property keys as keys and property values as values.
    *                              The argument 'this' is always set to null in the constructor.
+   *                              The constructor can access the created class by name and read static properties that are not dynamic (not in staticContextProps)
    * @param propertyDefs a List of TypedParameterValues of additional properties. The types defined in propertyDefs wil overwrite those set by super type and constructor.
    * @param methods a dictionary of string->function definitions for the type methods. The first argument to the functions
    *        must always 'this' and will contain a reference to the type.
@@ -107,9 +109,13 @@ export default class Class extends PackageContent implements IClass {
    *        For a reverse operator, use the prefix 'opReversed'. The arguments will be 'this' and 'left'.
    * @param getters defined getter methods for properties
    * @param staticProperties static values. They will be stored as Class's properties.
+   * @param staticContextProps a Dictionary of Callables that set properties. The Callables are invoked, in unspecified order, after
+   *         creating the Class instance and setting the staticProperties. The can access the new Class object using its name and
+   *         can use it to create new instances.
    */
-  constructor(public className: string, public superType?: Class, public ctor: LambdaCallable|null = null, public propertyDefs: List = List.empty,
-               public methods: Dictionary = Dictionary.empty, public getters: Dictionary = Dictionary.empty, public staticProperties: Dictionary = Dictionary.empty) {
+  constructor(public className: string, public superType?: Class, public ctor: LambdaCallable|null = null, public propertyDefs = List.empty,
+               public methods = Dictionary.empty, public getters = Dictionary.empty, public staticProperties = Dictionary.empty,
+               public staticContextProps = Dictionary.empty) {
     super(className);
 
     if (/^[^A-Z]/.test(className))
@@ -123,6 +129,10 @@ export default class Class extends PackageContent implements IClass {
     if (uncallableGetter)
       throw new Error(`Getter ${uncallableGetter} is not a Callable.`);
 
+    const uncallableStaticCallable = staticContextProps.findJs((n: string, e: any)=>!(e instanceof Callable));
+    if (uncallableStaticCallable)
+      throw new Error(`Static initializer for ${uncallableStaticCallable} is not a Callable.`);
+    
     if (staticProperties && staticProperties.elements.has('create'))
       throw new Error('You must not overwrite the property "create".')
 
@@ -141,6 +151,28 @@ export default class Class extends PackageContent implements IClass {
     this.methods = new Dictionary(superType && superType.methods).putAll(methods);
 
     this.create_jel_mapping = this.ctorArgList.map(lc=>lc.name);
+    
+
+  }
+  
+  protected staticInit(ctx: Context): Promise<Class>|Class {
+    if (this.staticContextProps.empty)
+      return this;
+        
+    const openPromises: any[] = [];
+    const newProperties = new Dictionary(this.staticProperties);
+    const sctx = new StaticContext(ctx).set(this.className, this).freeze(true);
+    this.staticContextProps.eachJs((name: string, callable: Callable)=>{
+      const v = callable.invoke(sctx, undefined);
+      if (v instanceof Promise)
+        openPromises.push(v.then(r=>newProperties.elements.set(name, r)));
+      else
+        newProperties.elements.set(name, v);
+    });
+    return Util.resolveArray(openPromises, ()=>{
+      this.staticProperties = newProperties; 
+      return this; 
+    });
   }
 
   member(ctx: Context, name: string, parameters?: Map<string, any>): any {
@@ -151,7 +183,7 @@ export default class Class extends PackageContent implements IClass {
 	}
   
   getSerializationProperties(): any[] {
-    return [this.className, this.superType && new ReferenceHelper(this.superType.distinctName), this.ctor, this.propertyDefs, this.methods, this.getters, this.staticProperties];
+    return [this.className, this.superType && new ReferenceHelper(this.superType.distinctName), this.ctor, this.propertyDefs, this.methods, this.getters, this.staticProperties, this.staticContextProps];
   }
 
   create_jel_mapping: any; // set in ctor
@@ -175,7 +207,7 @@ export default class Class extends PackageContent implements IClass {
           throw new Error(`Illegal value in argument number ${i+1} for property ${this.ctorArgList[i].name}. Required type is ${this.propertyTypes.elements.get(this.ctorArgList[i].name)}. Value was ${args[i]||this.ctorArgList[i].defaultValue}.`);
    
         if (this.ctor) {
-          const ctorReturn: any = this.ctor.invoke(ctx, undefined, ...args);
+          const ctorReturn: any = this.ctor.invoke(new StaticContext(ctx).set(this.className, this).freeze(true), undefined, ...args);
           if (ctorReturn instanceof Dictionary)
             props.putAll(ctorReturn);
         }
@@ -183,22 +215,24 @@ export default class Class extends PackageContent implements IClass {
     });
   }
   
-  static create_jel_mapping = ['className', 'superType', 'constructor', 'propertyDefs', 'methods', 'getters', 'static'];
-  static create(ctx: Context, ...args: any[]): any {
+  static create_jel_mapping = ['className', 'superType', 'constructor', 'propertyDefs', 'methods', 'getters', 'static', 'staticInitializer'];
+  static create(ctx: Context, ...args: any[]): Class|Promise<Class> {
     if (TypeChecker.isIDbRef(args[1]))
-      return args[1].with(ctx, (t: Class) => Class.create(ctx, args[0], t, args[2], args[3], args[4], args[5], args[6]));
+      return args[1].with(ctx, (t: Class) => Class.create(ctx, args[0], t, args[2], args[3], args[4], args[5], args[6], args[7]));
 
     if (args[3] instanceof Dictionary) {
-      return Class.create(ctx, args[0], args[1], args[2], new List(args[3].mapToArrayJs((name: any, type: any)=>new TypedParameterValue(name, null, type))), args[4], args[5], args[6]);
+      return Class.create(ctx, args[0], args[1], args[2], new List(args[3].mapToArrayJs((name: any, type: any)=>new TypedParameterValue(name, null, type))), args[4], args[5], args[6], args[7]);
     }
     
-    return new Class(TypeChecker.realString(args[0], 'className'), 
+    const c = new Class(TypeChecker.realString(args[0], 'className'), 
                               TypeChecker.optionalInstance(Class, args[1], 'superType')||undefined,
                               TypeChecker.optionalInstance(LambdaCallable, args[2], 'constructor'), 
                               TypeChecker.optionalInstance(List, args[3], 'propertyDefs')||undefined,
                               TypeChecker.optionalInstance(Dictionary, args[4], 'methods')||undefined,
                               TypeChecker.optionalInstance(Dictionary, args[5], 'getters')||undefined,
-                              TypeChecker.optionalInstance(Dictionary, args[6], 'static')||undefined);
+                              TypeChecker.optionalInstance(Dictionary, args[6], 'static')||undefined,
+                              TypeChecker.optionalInstance(Dictionary, args[7], 'staticInitializer')||undefined);
+    return c.staticInit(ctx);
   }
 }
 
