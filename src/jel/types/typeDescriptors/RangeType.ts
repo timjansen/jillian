@@ -2,7 +2,6 @@ import TypeDescriptor from './TypeDescriptor';
 import TypeHelper from './TypeHelper';
 import Range from '../Range';
 import TypeChecker from '../TypeChecker';
-import {IDbRef, IDbEntry} from '../../IDatabase';
 import Dictionary from '../../types/Dictionary';
 import Context from '../../Context';
 import JelObject from '../../JelObject';

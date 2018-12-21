@@ -4,7 +4,7 @@ import SerializablePrimitive from '../jel/SerializablePrimitive';
 import JelBoolean from '../jel/types/JelBoolean';
 import JelString from '../jel/types/JelString';
 import {IDbRef} from '../jel/IDatabase';
-import DbEntry from './DbEntry';
+import NamedObject from '../jel/NamedObject';
 import DbSession from './DbSession';
 import Database from './Database';
 import NotFoundError from './NotFoundError';
@@ -12,12 +12,12 @@ import NotFoundError from './NotFoundError';
 
 export default class DbRef extends JelObject implements IDbRef, SerializablePrimitive {
 	distinctName: string;
-	cached: DbEntry | undefined | null;    // stores null for entries that have not been found, undefined if the existance is unknown
+	cached: NamedObject | undefined | null;    // stores null for entries that have not been found, undefined if the existance is unknown
 	readonly isIDBRef: boolean = true;
 	
-	constructor(distinctNameOrEntry: string | JelString |DbEntry, public parameters?: Map<string, any>) {
+	constructor(distinctNameOrEntry: string | JelString | NamedObject, public parameters?: Map<string, any>) {
 		super();
-		if (distinctNameOrEntry instanceof DbEntry) {
+		if (distinctNameOrEntry instanceof NamedObject) {
 			this.distinctName = distinctNameOrEntry.distinctName;
 			this.cached = distinctNameOrEntry;
 		}
@@ -25,8 +25,8 @@ export default class DbRef extends JelObject implements IDbRef, SerializablePrim
 			this.distinctName = JelString.toRealString(distinctNameOrEntry);
 	}
 	
-	// returns either DbEntry or Promise! Rejects promise if not found.
-	get(ctx: Context): DbEntry | Promise<DbEntry> {
+	// returns either NamedObject or Promise! Rejects promise if not found.
+	get(ctx: Context): NamedObject | Promise<NamedObject> {
 		if (this.cached != null)
 			return this.cached;
 		else if (this.cached === null)
@@ -34,7 +34,7 @@ export default class DbRef extends JelObject implements IDbRef, SerializablePrim
 
 		const o = (ctx.getSession() as DbSession).get(this.distinctName);
 		if (o instanceof Promise) 
-			return o.then((r: DbEntry)=>this.cached = r)
+			return o.then((r: NamedObject)=>this.cached = r)
 				.catch((e: any)=>{
 					if (e instanceof NotFoundError)
 						this.cached = null;
@@ -46,7 +46,7 @@ export default class DbRef extends JelObject implements IDbRef, SerializablePrim
 	
 
 	// Executes function with the object. Returns f()'s return value, either directly or in Promise
-	with<T>(ctx: Context, f: (obj: DbEntry)=>T): Promise<T> | T {
+	with<T>(ctx: Context, f: (obj: NamedObject)=>T): Promise<T> | T {
 		if (this.cached != null)
 			return f(this.cached);
 		else if (this.cached === null)
@@ -59,7 +59,7 @@ export default class DbRef extends JelObject implements IDbRef, SerializablePrim
 						this.cached = null;
 					return Promise.reject(e);
 				})
-			.then((r: DbEntry)=>f(this.cached = r));
+			.then((r: NamedObject)=>f(this.cached = r));
 		else
 			return f(this.cached = o);
 	}
@@ -83,7 +83,7 @@ export default class DbRef extends JelObject implements IDbRef, SerializablePrim
 		return true;
 	}
 
-	private memberInternal(ctx: Context, obj: DbEntry | null, name: string, parameters?: Map<string, any>): any {
+	private memberInternal(ctx: Context, obj: NamedObject | null, name: string, parameters?: Map<string, any>): any {
 		if (obj === null)
 			return null;
 		else if (parameters && this.parameters)
@@ -96,7 +96,7 @@ export default class DbRef extends JelObject implements IDbRef, SerializablePrim
 
 	// Returns the member value with the given name, possibly wrapped in a Promise
 	member(ctx: Context, name: string, parameters?: Map<string, any>): Promise<any> | any {
-		return this.with(ctx, (o: DbEntry) =>this.memberInternal(ctx, o, name, parameters));
+		return this.with(ctx, (o: NamedObject) =>this.memberInternal(ctx, o, name, parameters));
 	}
 	
 	op(ctx: Context, operator: string, right: any): any {
@@ -115,7 +115,7 @@ export default class DbRef extends JelObject implements IDbRef, SerializablePrim
 		return super.op(ctx, operator, right);
 	}
 	
-	getAsync(ctx: Context): Promise<DbEntry|null> {
+	getAsync(ctx: Context): Promise<NamedObject|null> {
 		const v = this.get(ctx);
 		if (v instanceof Promise)
 			return v;
@@ -123,8 +123,8 @@ export default class DbRef extends JelObject implements IDbRef, SerializablePrim
 			return Promise.resolve(v);
 	}
 
-	// returns either DbEntry or Promise!
-	getFromDb(ctx: Context): DbEntry | Promise<DbEntry> {
+	// returns either NamedObject or Promise!
+	getFromDb(ctx: Context): NamedObject | Promise<NamedObject> {
 		if (this.cached != null)
 			return this.cached;
 		else if (this.cached === null)
@@ -145,7 +145,7 @@ export default class DbRef extends JelObject implements IDbRef, SerializablePrim
 		return this.parameters ? undefined : '@'+this.distinctName;
 	}
 	
-  static toPromise(ctx: Context, ref: DbRef | DbEntry): Promise<DbEntry | null> {
+  static toPromise(ctx: Context, ref: DbRef | NamedObject): Promise<NamedObject | null> {
 		return Promise.resolve(ref instanceof DbRef ? ref.get(ctx) : ref);
 	}
   

@@ -7,12 +7,13 @@ import DatabaseContext from './DatabaseContext';
 import DbIndexDescriptor from './DbIndexDescriptor';
 import WorkerPool from './WorkerPool';
 import Category from './dbObjects/Category';
-import Package from './dbObjects/Package';
-import PackageContent from './dbObjects/PackageContent';
+import Package from '../jel/types/Package';
+import PackageContent from '../jel/types/PackageContent';
 
 
 import JEL from '../jel/JEL';
 import Context from '../jel/Context';
+import NamedObject from '../jel/NamedObject';
 import DefaultContext from '../jel/DefaultContext';
 import NativeClass from '../jel/NativeClass';
 import List from '../jel/types/List';
@@ -73,7 +74,7 @@ export default class Database {
     return this.getFilePathForHash(config, tifu.hash(distinctName));
   }
   
-  private readEntry(ctx: Context, distinctName: string, path: string): Promise<DbEntry | null> {
+  private readEntry(ctx: Context, distinctName: string, path: string): Promise<NamedObject | null> {
     return fs.readFile(path, {encoding: 'utf8'})
     .then(entryTxt=>JEL.execute(entryTxt, ctx))
     .catch(e=> {
@@ -83,16 +84,16 @@ export default class Database {
     });
   }
  
-  getIfFound(ctx: Context, distinctName: string): Promise<DbEntry|null> {
+  getIfFound(ctx: Context, distinctName: string): Promise<NamedObject|null> {
     return this.init(config=>this.readEntry(ctx, distinctName, this.getFilePath(config, distinctName)));
   }
 
-  get(ctx: Context, distinctName: string): Promise<DbEntry> {
+  get(ctx: Context, distinctName: string): Promise<NamedObject> {
     return this.getIfFound(ctx, distinctName)
 							 .then(p=>(p || Promise.reject(new NotFoundError(distinctName))) as any);
   }
 	
-  getByHash(ctx: Context, hash: string): Promise<DbEntry> {
+  getByHash(ctx: Context, hash: string): Promise<NamedObject> {
     return this.init(config=>this.readEntry(ctx, hash, this.getFilePathForHash(config, hash))
 							 .then(p=>(p || Promise.reject(new NotFoundError(hash))) as any));
   }
@@ -101,27 +102,30 @@ export default class Database {
     return this.init(config=>fs.pathExists(this.getFilePath(config, distinctName)));
   }
   
-  put(ctx: Context, ...dbEntries: DbEntry[]): Promise<never> {
-    return this.init(config=>WorkerPool.run(dbEntries, dbEntry=>{
-      const distinctName = dbEntry.distinctName;
-      const p = this.getFilePathForHash(config, dbEntry.hashCode);
+  put(ctx: Context, ...dbEntries: NamedObject[]): Promise<never> {
+    return this.init(config=>WorkerPool.run(dbEntries, e=>{
+      const distinctName = e.distinctName;
+      const p = this.getFilePathForHash(config, e.hashCode);
       return fs.ensureDir(path.dirname(p))
       .then(()=>fs.pathExists(p))
       .then(oldEntryExists=>
-         fs.writeFile(p, serializer.serialize(dbEntry), {encoding: 'utf8'})
+         fs.writeFile(p, serializer.serialize(e), {encoding: 'utf8'})
         .then(()=>{
-          if (!oldEntryExists)
-            return this.addIndexing(ctx, config, dbEntry);
+          if (!oldEntryExists && e instanceof DbEntry)
+            return this.addIndexing(ctx, config, e);
         }))
       .catch (e=>DatabaseError.rethrow(`Can not write database entry ${distinctName} at ${p}`, e));
     }));
   }
 
-  delete(ctx: Context, dbEntry: DbEntry): Promise<any> {
+  delete(ctx: Context, e: NamedObject): Promise<any> {
     return this.init(config=>{
-      const path = this.getFilePathForHash(config, dbEntry.hashCode);
+      const path = this.getFilePathForHash(config, e.hashCode);
 
-      return this.removeIndexing(ctx, config, dbEntry).then(()=>fs.unlink(path));
+      if (e instanceof DbEntry)
+        return this.removeIndexing(ctx, config, e).then(()=>fs.unlink(path));
+      else
+        return Promise.resolve();
     });
   }
 
@@ -253,7 +257,7 @@ export default class Database {
 												 							        .then(entry=> {
                 if (entry instanceof PackageContent) 
                   packagesContent.push(entry);
-                return db.put(ctx, entry as DbEntry);
+                return db.put(ctx, entry as NamedObject);
               }))
               .then(()=> {
                 const typeByPackage = new Map<string, PackageContent[]>();

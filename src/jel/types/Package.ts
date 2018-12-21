@@ -1,17 +1,15 @@
 import PackageContent from './PackageContent';
 import Enum from './Enum';
 import Class from './Class';
-import DbEntry from '../DbEntry';
-import DbRef from '../DbRef';
-import ListType from '../../jel/types/typeDescriptors/ListType';
-import OptionType from '../../jel/types/typeDescriptors/OptionType';
-import SimpleType from '../../jel/types/typeDescriptors/SimpleType';
-import TypeChecker from '../../jel/types/TypeChecker';
-import Dictionary from '../../jel/types/Dictionary';
-import JelBoolean from '../../jel/types/JelBoolean';
-import List from '../../jel/types/List';
-import JelObject from '../../jel/JelObject';
-import Context from '../../jel/Context';
+import ListType from './typeDescriptors/ListType';
+import OptionType from './typeDescriptors/OptionType';
+import SimpleType from './typeDescriptors/SimpleType';
+import TypeChecker from './TypeChecker';
+import Dictionary from './Dictionary';
+import JelBoolean from './JelBoolean';
+import List from './List';
+import JelObject from '../JelObject';
+import Context from '../Context';
 import Util from '../../util/Util';
 
 
@@ -31,6 +29,7 @@ function createDictionary(packageName: string, content: List): Dictionary {
 // Defines a package of Classes and Enums
 export default class Package extends PackageContent {
   JEL_PROPERTIES: Object;
+  public packageContent: Dictionary;
 
   /**
    * Creates a new Package.
@@ -38,18 +37,19 @@ export default class Package extends PackageContent {
    * @param content a list of DbRefs 
    */
   constructor(packageName: string, public content: List = new List()) {
-    super(packageName, createDictionary(packageName, content));
+    super(packageName);
+    this.packageContent = createDictionary(packageName, content);
   }
   
 	member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null>|undefined {
-    const ref: any = this.properties.elements.get(name);
+    const ref: any = this.packageContent.elements.get(name);
     if (!ref)
-      return super.member(ctx, name, parameters);
+      return undefined;
     
-    if (!(ref instanceof DbRef))
+    if (!TypeChecker.isIDbRef(ref))
       throw new Error(`Unsupported property in ${name}. Requires DbRef, but it is ${ref.getJelType()}.`);
     
-		return ref.with(ctx, type=>{
+		return ref.with(ctx, (type: any)=>{
       if (type instanceof Class || type instanceof Enum || type instanceof Package)
         return type;
       else

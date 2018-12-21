@@ -1,5 +1,4 @@
 import TypeDescriptor from '../../jel/types/typeDescriptors/TypeDescriptor';
-import {IDbRef, IDbEntry} from '../../jel/IDatabase';
 import Duration from '../../jel/types/time/Duration';
 import JelBoolean from '../../jel/types/JelBoolean';
 import UnitValue from '../../jel/types/UnitValue';

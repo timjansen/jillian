@@ -2,8 +2,9 @@ import JelObject from '../JelObject';
 import Runtime from '../Runtime';
 import Serializer from '../Serializer';
 import Context from '../Context';
+import NamedObject from '../NamedObject';
 import Callable from '../Callable';
-import {IDbRef, IDbEntry} from '../IDatabase';
+import {IDbRef} from '../IDatabase';
 import Unit from './Unit';
 import JelBoolean from './JelBoolean';
 import JelString from './JelString';
@@ -199,7 +200,7 @@ export default class UnitValue extends JelObject implements Numeric {
 	}
 	
 	private convertComplexTo(ctx: Context, target: string): Promise<UnitValue> | UnitValue {
-		return ctx.getSession().with(target, (targetEntry: IDbEntry) =>{
+		return ctx.getSession().with(target, (targetEntry: NamedObject) =>{
 			return targetEntry.withMember(ctx, 'createFrom', (compatTypes: any) => {
 				// attempt 1: direct conversion
 				if (compatTypes instanceof List && compatTypes.elements.length) {

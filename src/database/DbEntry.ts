@@ -1,7 +1,7 @@
 import JelObject from '../jel/JelObject';
+import NamedObject from '../jel/NamedObject';
 import Serializable from '../jel/Serializable';
 import Context from '../jel/Context';
-import {IDbEntry} from '../jel/IDatabase';
 import Dictionary from '../jel/types/Dictionary';
 import DbIndexDescriptor from './DbIndexDescriptor';
 import DbRef from './DbRef';
@@ -12,13 +12,13 @@ const tifu = require('tifuhash');
 
 // Base class for any kind of physical or immaterial instance of a category
 // Note that all references to other DbEntrys must be stored as a DbRef!!
-export default class DbEntry extends JelObject implements IDbEntry {
+export default class DbEntry extends NamedObject {
   isIDBEntry: boolean;
 	
-  constructor(public distinctName: string, public reality?: any, 
-							 public hashCode: string = tifu.hash(distinctName), 
+  constructor(distinctName: string, public reality?: any, 
+							 hashCode: string = tifu.hash(distinctName), 
 							 public properties = new Dictionary()) {
-    super();
+    super(distinctName, hashCode);
   }
   
   // returns a map index_name->{type: 'index-type, always "category" for now', property: 'the name of the property to index', includeParents: 'bool. for categories, if true, index for all parent cats as well'}

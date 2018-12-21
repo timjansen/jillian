@@ -6,16 +6,14 @@ import DefaultContext from '../jel/DefaultContext';
 import NativeClass from '../jel/NativeClass';
 
 import Database from './Database';
-import DbEntry from './DbEntry';
 import DbSession from './DbSession';
 import DbRef from './DbRef';
 
+import DbEntry from './DbEntry';
 import Category from './dbObjects/Category';
 import Thing from './dbObjects/Thing';
-import Enum from './dbObjects/Enum';
 import MixinProperty from './dbObjects/MixinProperty';
-import Class from './dbObjects/Class';
-import PackageContent from './dbObjects/PackageContent';
+import PackageContent from '../jel/types/PackageContent';
 import CategoryType from './dbProperties/CategoryType';
 import ThingType from './dbProperties/ThingType';
 import UnitValueQuantityType from './dbProperties/UnitValueQuantityType';
@@ -27,7 +25,7 @@ function c(ctor: any): NativeClass {
   return new NativeClass(ctor);
 }
 
-const DB_IDENTIFIERS = {DbEntry: c(DbEntry), DbRef: c(DbRef), Category: c(Category), Thing: c(Thing), Enum: c(Enum), MixinProperty: c(MixinProperty), Class: c(Class), 
+const DB_IDENTIFIERS = {DbRef: c(DbRef), DbEntry: c(DbEntry), Category: c(Category), Thing: c(Thing), MixinProperty: c(MixinProperty), 
                         CategoryType: c(CategoryType), ReferenceDispatcherType: c(ReferenceDispatcherType), ThingType: c(ThingType), UnitValueQuantityType: c(UnitValueQuantityType),
                         DurationType: c(DurationType), duration: DurationType.instance,
 												 ___IS_DATABASE_CONTEXT: 'magic123'};

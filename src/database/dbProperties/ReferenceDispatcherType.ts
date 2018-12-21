@@ -1,6 +1,6 @@
 import TypeDescriptor from '../../jel/types/typeDescriptors/TypeDescriptor';
 import UnitValueType from '../../jel/types/typeDescriptors/UnitValueType';
-import {IDbRef, IDbEntry} from '../../jel/IDatabase';
+import {IDbRef} from '../../jel/IDatabase';
 import TypeChecker from '../../jel/types/TypeChecker';
 import JelBoolean from '../../jel/types/JelBoolean';
 import Unit from '../../jel/types/Unit';

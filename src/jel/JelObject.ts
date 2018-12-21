@@ -1,7 +1,7 @@
 import BaseTypeRegistry from './BaseTypeRegistry';
 import Context from './Context';
 import Serializer from './Serializer';
-
+import {IDbRef, isDbRef} from './IDatabase';
 
 /**
  * This is the base class for all objects that can be accessed by JEL. It implements operators and other functions required in JEL.
@@ -96,7 +96,17 @@ export default class JelObject {
 			return BaseTypeRegistry.mapNativeTypes((this as any)[name]);
 		return undefined;
 	}
-	
+  
+	withMember<T>(ctx: Context, name: string, f: (value: any)=>T): T | Promise<T> {
+		const v = this.member(ctx, name);
+		if (isDbRef(v))
+			return (v as any).with(ctx, f);
+		else if (v instanceof Promise)
+			return v.then(val=>isDbRef(v) ? (val as any).with(ctx, f) : f(val));
+		else
+			return f(v);
+	}
+  
 	toBoolean_jel_mapping: Object;
 	toBoolean(): any { // this is any to avoid the circular dep in TypeScript, but would be FuzzyB
 		throw new Error(`Boolean conversion not supported for type "${this.jelTypeName}"`);

@@ -1,23 +1,21 @@
 import PackageContent from './PackageContent';
-import Category from './Category';
-import DbEntry from '../DbEntry';
-import DbRef from '../DbRef';
-import BaseTypeRegistry from '../../jel/BaseTypeRegistry';
-import TypeDescriptor from '../../jel/types/typeDescriptors/TypeDescriptor';
-import AnyType from '../../jel/types/typeDescriptors/AnyType';
-import TypeHelper from '../../jel/types/typeDescriptors/TypeHelper';
-import Dictionary from '../../jel/types/Dictionary';
-import List from '../../jel/types/List';
-import JelString from '../../jel/types/JelString';
-import JelBoolean from '../../jel/types/JelBoolean';
-import TypeChecker from '../../jel/types/TypeChecker';
-import JelObject from '../../jel/JelObject';
-import LambdaCallable from '../../jel/LambdaCallable';
-import TypedParameterValue from '../../jel/TypedParameterValue';
-import IClass from '../../jel/IClass';
-import Serializable from '../../jel/Serializable';
-import Callable from '../../jel/Callable';
-import Context from '../../jel/Context';
+import ReferenceHelper from './ReferenceHelper';
+import BaseTypeRegistry from '../BaseTypeRegistry';
+import TypeDescriptor from './typeDescriptors/TypeDescriptor';
+import AnyType from './typeDescriptors/AnyType';
+import TypeHelper from './typeDescriptors/TypeHelper';
+import Dictionary from './Dictionary';
+import List from './List';
+import JelString from './JelString';
+import JelBoolean from './JelBoolean';
+import TypeChecker from './TypeChecker';
+import JelObject from '../JelObject';
+import LambdaCallable from '../LambdaCallable';
+import TypedParameterValue from '../TypedParameterValue';
+import IClass from '../IClass';
+import Serializable from '../Serializable';
+import Callable from '../Callable';
+import Context from '../Context';
 import Util from '../../util/Util';
 
 class GenericJelObject extends JelObject implements Serializable {
@@ -111,8 +109,8 @@ export default class Class extends PackageContent implements IClass {
    * @param staticProperties static values. They will be stored as Class's properties.
    */
   constructor(public className: string, public superType?: Class, public ctor: LambdaCallable|null = null, public propertyDefs: List = List.empty,
-               public methods: Dictionary = Dictionary.empty, public getters: Dictionary = Dictionary.empty, staticProperties: Dictionary = Dictionary.empty) {
-    super(className, staticProperties);
+               public methods: Dictionary = Dictionary.empty, public getters: Dictionary = Dictionary.empty, public staticProperties: Dictionary = Dictionary.empty) {
+    super(className);
 
     if (/^[^A-Z]/.test(className))
       throw new Error(`Type name ${className} is not allowed: types must start with a capital letter.`);
@@ -144,9 +142,16 @@ export default class Class extends PackageContent implements IClass {
 
     this.create_jel_mapping = this.ctorArgList.map(lc=>lc.name);
   }
+
+  member(ctx: Context, name: string, parameters?: Map<string, any>): any {
+		if (this.staticProperties.elements.has(name))
+			return this.staticProperties.get(ctx, name);
+		else
+      return super.member(ctx, name, parameters);
+	}
   
   getSerializationProperties(): any[] {
-    return [this.className, this.superType && new DbRef(this.superType.distinctName), this.ctor, this.propertyDefs, this.methods, this.getters, this.properties];
+    return [this.className, this.superType && new ReferenceHelper(this.superType.distinctName), this.ctor, this.propertyDefs, this.methods, this.getters, this.staticProperties];
   }
 
   create_jel_mapping: any; // set in ctor
@@ -197,7 +202,7 @@ export default class Class extends PackageContent implements IClass {
   }
 }
 
-Class.prototype.JEL_PROPERTIES = {className: true, methods: true, operators: true, singleOperators: true, superType: true, getters: true, packageName: true};
+Class.prototype.JEL_PROPERTIES = {distinctName: true, className: true, methods: true, operators: true, singleOperators: true, superType: true, getters: true, packageName: true};
 
 BaseTypeRegistry.register('Class', Class);
 

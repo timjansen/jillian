@@ -1,6 +1,5 @@
 import TypeDescriptor from './TypeDescriptor';
 import TypeHelper from './TypeHelper';
-import {IDbRef, IDbEntry} from '../../IDatabase';
 import Dictionary from '../Dictionary';
 import List from '../List';
 import TypeChecker from '../TypeChecker';
