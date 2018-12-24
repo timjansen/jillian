@@ -487,7 +487,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 	}
 
 
-	static valueOf(data: Map<string, any>, keepMap = false): Dictionary {
+	static valueOf(data?: Map<string, any>, keepMap = false): Dictionary {
 		return new Dictionary(data, keepMap);
 	}
 	

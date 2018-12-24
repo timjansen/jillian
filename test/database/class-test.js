@@ -5,7 +5,7 @@ const Database = require('../../build/database/Database.js').default;
 const DbSession = require('../../build/database/DbSession.js').default;
 const DatabaseContext = require('../../build/database/DatabaseContext.js').default;
 const DbRef = require('../../build/database/DbRef.js').default;
-const Class = require('../../build/database/dbObjects/Class.js').default;
+const Class = require('../../build/jel/types/Class.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
 const Serializer = require('../../build/jel/Serializer.js').default;
 const Context = require('../../build/jel/Context.js').default;
@@ -46,15 +46,18 @@ tmp.dir(function(err, path) {
         jelAssert.equal('with myTestType=Class("MyTestType", null, (x: Float, y: String)=>{}), m=myTestType(5, "foo"): [m.x, m.y]', "[5, 'foo']");
         jelAssert.equal('with myTestType=Class("MyTestType", null, (x: Float|String, y: Float|String)=>{}), m=myTestType(5, "foo"): [m.x, m.y]', "[5, 'foo']");
         jelAssert.equal('with myTestType=Class("MyTestType", null, (x: Float, y: String)=>{}), m=myTestType(5, "foo"): [m.x, m.y]', "[5, 'foo']");
-        jelAssert.equal('with myTestType=Class("MyTestType", null, (x: Float, y: Float)=>{z: x+y}, propertyDefs={z: Float}), m=myTestType(5, 10): [m.x, m.y, m.z]', "[5, 10, 15]");
+        jelAssert.equal('with myTestType=Class("MyTestType", null, (x: Float, y: Float)=>{z: x+y}, propertyDefs={z: SimpleType("Float")}), m=myTestType(5, 10): [m.x, m.y, m.z]', "[5, 10, 15]");
         jelAssert.equal('with myTestType=Class("MyTestType", constructor=(x: Float, y: String)=>{x: x+1}), m=myTestType(5, "foo"): [m.x, m.y]', "[6, 'foo']");
         jelAssert.equal('with myTestType=Class("MyTestType", null, (x: Float, y: String)=>{}), m=myTestType(y="foo", x=2): [m.x, m.y]', "[2, 'foo']");
 
         jelAssert.equal('with myTestType=class MyTestType: constructor(x: Float, y: String):{}, m=myTestType(y="foo", x=2): [m.x, m.y]', "[2, 'foo']");
-        
-        return Promise.all([jelAssert.errorPromise('with myTestType=Class("MyTestType", null, (x,y)=>{}, {x: Float, y: String}), m=myTestType("wrong type", "foo"): [m.x, m.y]', "[2, 'foo']"),
-                            jelAssert.errorPromise('with myTestType=Class("MyTestType", null, (x: Float, y: String)=>{}), m=myTestType("wrong type", "foo"): [m.x, m.y]', "[2, 'foo']"),
-                            jelAssert.errorPromise('with myTestType=Class("MyTestType", null, (x,y)=>{}, {x: Float, y: String}), m=myTestType(): [m.x, m.y]', "[2, 'foo']")]);
+        jelAssert.equal('with myTestType=class MyTestType: x: int constructor():{x: 5}, m=myTestType(): m.x', "5");
+
+        return Promise.all([jelAssert.errorPromise('with myTestType=Class("MyTestType", null, (x,y)=>{}, {x: Float, y: String}), m=myTestType("wrong type", "foo"): [m.x, m.y]'),
+                            jelAssert.errorPromise('with myTestType=Class("MyTestType", null, (x: Float, y: String)=>{}), m=myTestType("wrong type", "foo"): [m.x, m.y]'),
+                            jelAssert.errorPromise('with myTestType=Class("MyTestType", null, (x,y)=>{}, {x: Float, y: String}), m=myTestType(): [m.x, m.y]'),
+                            jelAssert.errorPromise('with myTestType=class MyTestType: x: int constructor():{x: 0.5}, m=myTestType(): m.x'),
+                           jelAssert.errorPromise('with myTestType=class MyTestType: constructor():{x: 0.5}: myTestType()')]);
       });
 
       it('supports methods', function() {
@@ -103,10 +106,12 @@ tmp.dir(function(err, path) {
       });
       
       it('supports static properties that use the constructor or other elements', function() {
-        jelAssert.equal('with myTestType=class MyTestType: static ft = 42 static ft1=ft+1: myTestType.ft + myTestType.add(1, 2)', "45");
-        jelAssert.equal('with myTestType=class MyTestType: static add(a,b) as number:a+b static ft = MyTestType.add(1, 3): myTestType.ft', "4");
-        jelAssert.equal('with myTestType=class MyTestType: constructor(a: int){} static ft = MyTestType(42): myTestType.ft.a', "42");
-        jelAssert.equal('with myTestType=class MyTestType: x: int constructor(){x: MyTestType.X} static X = 100: myTestType().x', "100");
+        jelAssert.equal('with myTestType=class MyTestType1: static ft = 44 static ft1=MyTestType1.ft+1: myTestType.ft1', "45");
+        jelAssert.equal('with myTestType=class MyTestType2: static add(a,b) as number:a+b static ft = MyTestType2.add(1, 3): myTestType.ft', "4");
+        jelAssert.equal('with myTestType=class MyTestType3: constructor(a: int): {} static ft = MyTestType3(42): myTestType.ft.a', "42");
+        jelAssert.equal('with myTestType=class MyTestType4: x: int constructor(): {x: MyTestType4.X} static X = 100: myTestType().x', "100");
+        jelAssert.equal('with myTestType=class MyTestType4: x: int constructor(): {x: this.X} static X = 100: myTestType().x', "100");
+        return jelAssert.errorPromise('with myTestType=class MyTestType5: x: int constructor(x = MyTestType5.X): {} static X = 100: myTestType().x', "100");
       });
       
       it('supports getter', function() {

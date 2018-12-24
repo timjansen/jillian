@@ -2,6 +2,7 @@ import SerializablePrimitive from './SerializablePrimitive';
 import JelNode from './expressionNodes/JelNode';
 import TypedParameterValue from './TypedParameterValue';
 import JelObject from './JelObject';
+import NamedObject from './NamedObject';
 import Context from './Context';
 import Callable from './Callable';
 import Serializer from './Serializer';
@@ -68,6 +69,8 @@ export default class LambdaCallable extends Callable implements SerializablePrim
         }
     newCtx.set('this', self || null);
     newCtx.set('super', superConstructor || undefined);
+    if (self instanceof NamedObject && !newCtx.has(self.distinctName))
+      newCtx.set(self.distinctName, self);
     
     return Util.resolveArray(openPromises, ()=> {
       newCtx.freeze();

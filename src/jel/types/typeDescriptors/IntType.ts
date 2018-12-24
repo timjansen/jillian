@@ -33,9 +33,9 @@ export default class IntType extends TypeDescriptor {
   
   serializeType(): string {
     if (this.range)
-      return 'int';
-    else
       return `int(${Serializer.serialize(this.range)})`
+    else
+      return 'int';
   }
   
   create_jel_mapping: any;

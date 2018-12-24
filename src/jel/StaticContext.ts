@@ -7,8 +7,8 @@ import Context from './Context';
  * A special Context that's always completely static. Also makes parent contexts static.
  */
 export default class StaticContext extends Context {
-	constructor(public parent?: Context) {
-    super();
+	constructor(parent?: Context) {
+    super(parent);
 	}
 	
  	hasInStaticScope(name: string): boolean {

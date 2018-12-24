@@ -88,6 +88,7 @@ export default class Class extends PackageContent implements IClass {
   ctorArgList: TypedParameterValue[]; 
   propertyTypes: Dictionary;
   propertyDefaults: Dictionary;
+  staticProperties: Dictionary;
 
   /**
    * Creates a new Class.
@@ -99,7 +100,7 @@ export default class Class extends PackageContent implements IClass {
    *                              defined by propertyDefs, or change the values of its own by returning a Dictionary with
    *                              property keys as keys and property values as values.
    *                              The argument 'this' is always set to null in the constructor.
-   *                              The constructor can access the created class by name and read static properties that are not dynamic (not in staticContextProps)
+   *                              The constructor can access the created class by name and read static properties that are not dynamic (not in staticContextProperties)
    * @param propertyDefs a List of TypedParameterValues of additional properties. The types defined in propertyDefs wil overwrite those set by super type and constructor.
    * @param methods a dictionary of string->function definitions for the type methods. The first argument to the functions
    *        must always 'this' and will contain a reference to the type.
@@ -108,16 +109,16 @@ export default class Class extends PackageContent implements IClass {
    *        To define a unary operator, prefix the operator with 'singleOp'.
    *        For a reverse operator, use the prefix 'opReversed'. The arguments will be 'this' and 'left'.
    * @param getters defined getter methods for properties
-   * @param staticProperties static values. They will be stored as Class's properties.
-   * @param staticContextProps a Dictionary of Callables that set properties. The Callables are invoked, in unspecified order, after
-   *         creating the Class instance and setting the staticProperties. The can access the new Class object using its name and
+   * @param staticConstantProperties static values that are simple constants. They will be stored as Class's properties.
+   * @param staticContextProperties a Dictionary of Callables that set properties. The Callables are invoked, in unspecified order, after
+   *         creating the Class instance and setting the staticProperties. They can access the new Class object using its name and
    *         can use it to create new instances.
    */
   constructor(public className: string, public superType?: Class, public ctor: LambdaCallable|null = null, public propertyDefs = List.empty,
-               public methods = Dictionary.empty, public getters = Dictionary.empty, public staticProperties = Dictionary.empty,
-               public staticContextProps = Dictionary.empty) {
+               public methods = Dictionary.empty, public getters = Dictionary.empty, public staticConstantProperties = Dictionary.empty,
+               public staticContextProperties = Dictionary.empty) {
     super(className);
-
+   
     if (/^[^A-Z]/.test(className))
       throw new Error(`Type name ${className} is not allowed: types must start with a capital letter.`);
 
@@ -129,11 +130,11 @@ export default class Class extends PackageContent implements IClass {
     if (uncallableGetter)
       throw new Error(`Getter ${uncallableGetter} is not a Callable.`);
 
-    const uncallableStaticCallable = staticContextProps.findJs((n: string, e: any)=>!(e instanceof Callable));
+    const uncallableStaticCallable = staticContextProperties.findJs((n: string, e: any)=>!(e instanceof Callable));
     if (uncallableStaticCallable)
       throw new Error(`Static initializer for ${uncallableStaticCallable} is not a Callable.`);
     
-    if (staticProperties && staticProperties.elements.has('create'))
+    if (staticConstantProperties.elements.has('create'))
       throw new Error('You must not overwrite the property "create".')
 
     if (superType) {
@@ -146,24 +147,22 @@ export default class Class extends PackageContent implements IClass {
 
     this.ctorArgList = ctor?ctor.argDefs:[];
     const ctorProps = new Dictionary(this.ctorArgList.map(lc=>[lc.name, lc.type||AnyType.instance]));
-    this.propertyTypes = new Dictionary(superType && superType.propertyTypes).putAll(ctorProps).putAll(propertyDefs.elements.map((v)=>[v.name,v.type]));
+    this.propertyTypes = new Dictionary(superType && superType.propertyTypes).putAll(ctorProps).putAll(propertyDefs.elements.map((v)=>[v.name,v.type||AnyType.instance]));
     this.propertyDefaults = new Dictionary(superType && superType.propertyDefaults).putAll(propertyDefs.elements.map((v)=>[v.name,v.defaultValue]));
     this.methods = new Dictionary(superType && superType.methods).putAll(methods);
+    this.staticProperties = staticConstantProperties;
 
     this.create_jel_mapping = this.ctorArgList.map(lc=>lc.name);
-    
-
   }
   
   protected staticInit(ctx: Context): Promise<Class>|Class {
-    if (this.staticContextProps.empty)
+    if (this.staticContextProperties.empty)
       return this;
-        
     const openPromises: any[] = [];
-    const newProperties = new Dictionary(this.staticProperties);
+    const newProperties = new Dictionary(this.staticConstantProperties);
     const sctx = new StaticContext(ctx).set(this.className, this).freeze(true);
-    this.staticContextProps.eachJs((name: string, callable: Callable)=>{
-      const v = callable.invoke(sctx, undefined);
+    this.staticContextProperties.eachJs((name: string, callable: Callable)=>{
+      const v = callable.invoke(sctx, this);
       if (v instanceof Promise)
         openPromises.push(v.then(r=>newProperties.elements.set(name, r)));
       else
@@ -177,13 +176,13 @@ export default class Class extends PackageContent implements IClass {
 
   member(ctx: Context, name: string, parameters?: Map<string, any>): any {
 		if (this.staticProperties.elements.has(name))
-			return this.staticProperties.get(ctx, name);
+			return this.staticProperties.elements.get(name);
 		else
       return super.member(ctx, name, parameters);
 	}
   
   getSerializationProperties(): any[] {
-    return [this.className, this.superType && new ReferenceHelper(this.superType.distinctName), this.ctor, this.propertyDefs, this.methods, this.getters, this.staticProperties, this.staticContextProps];
+    return [this.className, this.superType && new ReferenceHelper(this.superType.distinctName), this.ctor, this.propertyDefs, this.methods, this.getters, this.staticConstantProperties, this.staticContextProperties];
   }
 
   create_jel_mapping: any; // set in ctor
@@ -206,12 +205,32 @@ export default class Class extends PackageContent implements IClass {
         if (!resolvedChecks[i].toRealBoolean())
           throw new Error(`Illegal value in argument number ${i+1} for property ${this.ctorArgList[i].name}. Required type is ${this.propertyTypes.elements.get(this.ctorArgList[i].name)}. Value was ${args[i]||this.ctorArgList[i].defaultValue}.`);
    
-        if (this.ctor) {
-          const ctorReturn: any = this.ctor.invoke(new StaticContext(ctx).set(this.className, this).freeze(true), undefined, ...args);
-          if (ctorReturn instanceof Dictionary)
+      if (this.ctor) {
+        const ctorReturnProm: any = this.ctor.invoke(ctx, this, ...args);
+        
+        return Util.resolveValue(ctorReturnProm, (ctorReturn: any)=>{
+          if (!(ctorReturn instanceof Dictionary))
+            throw new Error(`Constructors must return a Dictionary.`);
+          const typePromises: Promise<any>[] = [];
+          if (!ctorReturn.empty) {
+            for (let key of ctorReturn.elements.keys()) {
+              const type: TypeDescriptor|null|undefined = this.propertyTypes.elements.get(key) as any;
+              if (!type)
+                throw new Error(`Constructor returned undeclared property ${key}. All properties must be declared in the class.`);
+              const checkTypeResult = type.checkType(ctx, ctorReturn.elements.get(key) || null);
+              if (checkTypeResult instanceof Promise)
+                typePromises.push(checkTypeResult.then((r)=>r.toRealBoolean() ? r : Promise.reject(new Error(`Constructor returned incompatible value for property ${key}. Required type is ${type.serializeType()}. Value was ${ctorReturn.elements.get(key)}.`)) as any));
+              else if (!checkTypeResult.toRealBoolean())
+                throw new Error(`Constructor returned incompatible value for property ${key}. Required type is ${type.serializeType()}. Value was ${ctorReturn.elements.get(key)}.`);
+            }
+          }
+          return Util.resolveArray(typePromises, ()=>{
             props.putAll(ctorReturn);
-        }
-        return new GenericJelObject(this, ctx, args, props);
+            return new GenericJelObject(this, ctx, args, props);
+          });
+        });
+      }
+      return new GenericJelObject(this, ctx, args, props);
     });
   }
   
@@ -220,18 +239,17 @@ export default class Class extends PackageContent implements IClass {
     if (TypeChecker.isIDbRef(args[1]))
       return args[1].with(ctx, (t: Class) => Class.create(ctx, args[0], t, args[2], args[3], args[4], args[5], args[6], args[7]));
 
-    if (args[3] instanceof Dictionary) {
+    if (args[3] instanceof Dictionary)
       return Class.create(ctx, args[0], args[1], args[2], new List(args[3].mapToArrayJs((name: any, type: any)=>new TypedParameterValue(name, null, type))), args[4], args[5], args[6], args[7]);
-    }
-    
+      
     const c = new Class(TypeChecker.realString(args[0], 'className'), 
                               TypeChecker.optionalInstance(Class, args[1], 'superType')||undefined,
                               TypeChecker.optionalInstance(LambdaCallable, args[2], 'constructor'), 
-                              TypeChecker.optionalInstance(List, args[3], 'propertyDefs')||undefined,
-                              TypeChecker.optionalInstance(Dictionary, args[4], 'methods')||undefined,
-                              TypeChecker.optionalInstance(Dictionary, args[5], 'getters')||undefined,
-                              TypeChecker.optionalInstance(Dictionary, args[6], 'static')||undefined,
-                              TypeChecker.optionalInstance(Dictionary, args[7], 'staticInitializer')||undefined);
+                              TypeChecker.optionalInstance(List, args[3], 'propertyDefs')||List.empty,
+                              TypeChecker.optionalInstance(Dictionary, args[4], 'methods')||Dictionary.empty,
+                              TypeChecker.optionalInstance(Dictionary, args[5], 'getters')||Dictionary.empty,
+                              TypeChecker.optionalInstance(Dictionary, args[6], 'static')||Dictionary.empty,
+                              TypeChecker.optionalInstance(Dictionary, args[7], 'staticInitializer')||Dictionary.empty);
     return c.staticInit(ctx);
   }
 }

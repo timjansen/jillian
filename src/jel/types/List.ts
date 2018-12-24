@@ -165,6 +165,21 @@ export default class List extends JelObject implements SerializablePrimitive {
     return false;
 	}
   
+  toDictionaryJs(f: (a: JelObject|null, i: number)=>string): boolean {
+    const d = BaseTypeRegistry.get('Dictionary').valueOf();
+		for (let i = 0; i < this.elements.length; i++)
+      d.elements.set(f(this.elements[i], i), this.elements[i]);
+    return d;
+  }
+
+  mapJs(f: (a: JelObject|null, i: number)=>JelObject|null): List {
+    const l: (JelObject|null)[] = [];
+		for (let i = 0; i < this.elements.length; i++)
+      l.push(f(this.elements[i], i));
+    return new List(l);
+  }
+
+  
 	hasOnly_jel_mapping: Object;
 	hasOnly(ctx: Context, f0: any): JelBoolean | Promise<JelBoolean> {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');

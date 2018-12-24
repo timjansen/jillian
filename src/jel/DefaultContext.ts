@@ -1,3 +1,4 @@
+import BaseTypeRegistry from './BaseTypeRegistry';
 import Context from './Context';
 import NativeClass from './NativeClass';
 
@@ -73,3 +74,4 @@ export default class DefaultContext {
 	}
 }
 
+BaseTypeRegistry.register('DefaultContext', DefaultContext);

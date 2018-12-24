@@ -22,6 +22,11 @@ export default class ClassDef extends JelNode {
   
 	// override
   execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
+    const baseCtx = BaseTypeRegistry.get('DefaultContext').get();
+    const staticStaticProperties: Assignment[] = [];
+    const unstaticStaticProperties: Assignment[] = [];
+    this.staticProperties.forEach(a=>(a.isStatic(baseCtx)?staticStaticProperties:unstaticStaticProperties).push(a));
+    
     return Util.resolveValues(BaseTypeRegistry.get('Class').create, 
                               ctx, 
                               this.name, 
@@ -30,12 +35,13 @@ export default class ClassDef extends JelNode {
                               Util.resolveArray(this.propertyDefs.map((p: TypedParameterDefinition)=>p.execute(ctx)), (pl: TypedParameterValue[])=>BaseTypeRegistry.get('List').valueOf(pl)),
                               ClassDef.executeToDictionary(ctx, this.methods),
                               ClassDef.executeToDictionary(ctx, this.getters),
-                              ClassDef.executeToDictionary(ctx, this.staticProperties));
+                              ClassDef.executeToDictionary(ctx, staticStaticProperties),
+                              unstaticStaticProperties.length ? BaseTypeRegistry.get('List').valueOf(unstaticStaticProperties).toDictionaryJs((l: Assignment)=>l.name).mapJs((k:string, l: Assignment)=>l.asCallable()) : BaseTypeRegistry.get('Dictionary').empty);
 	}
                               
 
-  static executeToDictionary(ctx: Context, args: Assignment[]|null): any {
-    if (!args || !args.length)
+  static executeToDictionary(ctx: Context, args: Assignment[]): any {
+    if (!args.length)
       return BaseTypeRegistry.get('Dictionary').empty;
 
     const d = new Map<string, JelObject|null>();
@@ -52,6 +58,7 @@ export default class ClassDef extends JelNode {
     this.propertyDefs.forEach(a=>a.flushCache());
     this.methods.forEach(a=>a.flushCache());
     this.getters.forEach(a=>a.flushCache());
+    this.staticProperties.forEach(a=>a.flushCache());
     this.staticProperties.forEach(a=>a.flushCache());
   }
 

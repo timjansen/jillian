@@ -32,9 +32,9 @@ export default class NumberType extends TypeDescriptor {
   
   serializeType(): string {
     if (this.range)
-      return 'number';
-    else
       return `number(${Serializer.serialize(this.range)})`
+    else
+      return 'number';
   }
   
   serializeToString() : string {

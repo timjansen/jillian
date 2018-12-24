@@ -21,6 +21,11 @@ export default class Variable extends CachableJelNode {
   executeUncached(ctx: Context): JelObject|null|Promise<JelObject|null> {
     return ctx.get(this.name);
   }
+
+  execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
+    return ctx.get(this.name);
+  }
+
   
   isStaticUncached(ctx: Context): boolean {
     return ctx.hasInStaticScope(this.name);
