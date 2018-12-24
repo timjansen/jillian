@@ -29,7 +29,7 @@ import Condition from './expressionNodes/Condition';
 import TypedParameterDefinition from './expressionNodes/TypedParameterDefinition';
 import Assignment from './expressionNodes/Assignment';
 import PatternAssignment from './expressionNodes/PatternAssignment';
-import With from './expressionNodes/With';
+import Let from './expressionNodes/Let';
 import Lambda from './expressionNodes/Lambda';
 import Call from './expressionNodes/Call';
 import MethodCall from './expressionNodes/MethodCall';
@@ -86,7 +86,7 @@ const overloadableSingleOps: any = {'+': true, '-': true, '!': true};
 
 const IF_PRECEDENCE = 4; 
 const PARENS_PRECEDENCE = 4; 
-const WITH_PRECEDENCE = 4; 
+const LET_PRECEDENCE = 4; 
 const CLASS_PRECEDENCE = 4; 
 
 const NO_STOP = {};
@@ -105,7 +105,7 @@ const TRANSLATOR_LAMBDA_STOP = {',': true, '}': true};
 const PARAMETER_STOP: any = {')': true, ',': true};
 const IF_STOP = {'then': true};
 const THEN_STOP = {'else': true};
-const WITH_STOP = {':': true, ',': true};
+const LET_STOP = {':': true, ',': true};
 const CLASS_EXTENDS_STOP = {':': true, ',': true};
 const CLASS_EXPRESSION_STOP = {identifier: true};
 const CLASS_TYPE_EXPRESSION_STOP = {'=': true, identifier: true};
@@ -222,9 +222,9 @@ export default class JEL {
               return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, JEL.parseExpression(tokens, IF_PRECEDENCE, stopOps)), precedence, stopOps);
             else
               return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, new Literal(true)), precedence, stopOps);
-          case 'with':
-            const assignments: Assignment[] = JEL.parseParameters(tokens, WITH_PRECEDENCE, WITH_STOP, ':', "Expected colon or equal sign after expression in 'with' statement,", 'constant');
-            return JEL.tryBinaryOps(tokens, new With(assignments, JEL.parseExpression(tokens, WITH_PRECEDENCE, stopOps)), precedence, stopOps);
+          case 'let':
+            const assignments: Assignment[] = JEL.parseParameters(tokens, LET_PRECEDENCE, LET_STOP, ':', "Expected colon or equal sign after expression in 'let' statement,", 'constant');
+            return JEL.tryBinaryOps(tokens, new Let(assignments, JEL.parseExpression(tokens, LET_PRECEDENCE, stopOps)), precedence, stopOps);
           case 'class':
             return JEL.tryBinaryOps(tokens, JEL.parseClass(tokens, precedence, stopOps), precedence, stopOps);
         }

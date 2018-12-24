@@ -26,7 +26,7 @@ const List = require('../../build/jel/expressionNodes/List.js').default;
 const Reference = require('../../build/jel/expressionNodes/Reference.js').default;
 const Condition = require('../../build/jel/expressionNodes/Condition.js').default;
 const Assignment = require('../../build/jel/expressionNodes/Assignment.js').default;
-const With = require('../../build/jel/expressionNodes/With.js').default;
+const Let = require('../../build/jel/expressionNodes/Let.js').default;
 const Lambda = require('../../build/jel/expressionNodes/Lambda.js').default;
 const Call = require('../../build/jel/expressionNodes/Call.js').default;
 
@@ -406,13 +406,13 @@ describe('JEL', function() {
       jelAssert.equal(new JEL('[1, 2, 3, 4][2]').executeImmediately(), 3);
     });
 
-    it('supports with', function() {
-      jelAssert.equal(new JEL('with a=1: a').executeImmediately(), 1);
-      jelAssert.equal(new JEL('with a=1, b=2: a+b').executeImmediately(), 3);
-      jelAssert.equal(new JEL('with a=1, b=a+1, c=b*3, d=c*4, e=d/6: [a,b,c,d,e]').executeImmediately().elements, "[1,2,6,24,4]");
-      jelAssert.equal(new JEL('3+(with a=1: a)+10').executeImmediately(), 14);
-      jelAssert.equal(new JEL('3+(with a=1: a)*10').executeImmediately(), 13);
-      jelAssert.equal(new JEL('3+2*with a=1: a*10').executeImmediately(), 23);
+    it('supports let', function() {
+      jelAssert.equal(new JEL('let a=1: a').executeImmediately(), 1);
+      jelAssert.equal(new JEL('let a=1, b=2: a+b').executeImmediately(), 3);
+      jelAssert.equal(new JEL('let a=1, b=a+1, c=b*3, d=c*4, e=d/6: [a,b,c,d,e]').executeImmediately().elements, "[1,2,6,24,4]");
+      jelAssert.equal(new JEL('3+(let a=1: a)+10').executeImmediately(), 14);
+      jelAssert.equal(new JEL('3+(let a=1: a)*10').executeImmediately(), 13);
+      jelAssert.equal(new JEL('3+2*let a=1: a*10').executeImmediately(), 23);
     });
 
     

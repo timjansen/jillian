@@ -14,7 +14,7 @@ const List = require('../../build/jel/expressionNodes/List.js').default;
 const Reference = require('../../build/jel/expressionNodes/Reference.js').default;
 const Condition = require('../../build/jel/expressionNodes/Condition.js').default;
 const Assignment = require('../../build/jel/expressionNodes/Assignment.js').default;
-const With = require('../../build/jel/expressionNodes/With.js').default;
+const Let = require('../../build/jel/expressionNodes/Let.js').default;
 const Lambda = require('../../build/jel/expressionNodes/Lambda.js').default;
 const TypedParameterDefinition = require('../../build/jel/expressionNodes/TypedParameterDefinition.js').default;
 const Call = require('../../build/jel/expressionNodes/Call.js').default;
@@ -112,17 +112,17 @@ describe('JEL', function() {
       jelAssert.equal(new JEL("if false then (if false then 2 else 1) else 6").parseTree, new Condition(new Literal(false), new Condition(new Literal(false), new Literal(2), new Literal(1)), new Literal(6)));
     });  
     
-    it('should support with', function() {
-      jelAssert.equal(new JEL('with a=1: a').parseTree, new With([new Assignment('a', new Literal(1))], new Variable('a')));
-      jelAssert.equal(new JEL('with a=1,b=2:b').parseTree, new With([new Assignment('a', new Literal(1)), new Assignment('b', new Literal(2))], new Variable('b')));
-      jelAssert.equal(new JEL('with a=1, b=a + 2: b').parseTree, new With([new Assignment('a', new Literal(1)), new Assignment('b', new Operator('+', new Variable('a'), new Literal(2)))], new Variable('b')));
-      jelAssert.equal(new JEL('with a=1 : a=>2').parseTree, new With([new Assignment('a', new Literal(1))], new Lambda([new TypedParameterDefinition('a')], undefined, new Literal(2))));
-      jelAssert.equal(new JEL('with a=1, b=c=>d : b').parseTree, new With([new Assignment('a', new Literal(1)), new Assignment('b', new Lambda([new TypedParameterDefinition('c')], undefined, new Variable('d')))], new Variable('b')));
+    it('should support let', function() {
+      jelAssert.equal(new JEL('let a=1: a').parseTree, new Let([new Assignment('a', new Literal(1))], new Variable('a')));
+      jelAssert.equal(new JEL('let a=1,b=2:b').parseTree, new Let([new Assignment('a', new Literal(1)), new Assignment('b', new Literal(2))], new Variable('b')));
+      jelAssert.equal(new JEL('let a=1, b=a + 2: b').parseTree, new Let([new Assignment('a', new Literal(1)), new Assignment('b', new Operator('+', new Variable('a'), new Literal(2)))], new Variable('b')));
+      jelAssert.equal(new JEL('let a=1 : a=>2').parseTree, new Let([new Assignment('a', new Literal(1))], new Lambda([new TypedParameterDefinition('a')], undefined, new Literal(2))));
+      jelAssert.equal(new JEL('let a=1, b=c=>d : b').parseTree, new Let([new Assignment('a', new Literal(1)), new Assignment('b', new Lambda([new TypedParameterDefinition('c')], undefined, new Variable('d')))], new Variable('b')));
     });
 
     it('allows only lower-case variables', function() {
-      assert.throws(()=>new JEL('with A= 1 => a').parseTree);
-      assert.throws(()=>new JEL('with _=2 => 2').parseTree);
+      assert.throws(()=>new JEL('let A= 1 => a').parseTree);
+      assert.throws(()=>new JEL('let _=2 => 2').parseTree);
     });
 
     it('should support lists', function() {

@@ -9,10 +9,10 @@ import JelObject from '../JelObject';
  * Defines one or more constants in its execution scope.
  * 
  * Examples:
- *   with a=2: a+3   // returns 5
- *   with x=1, y=x+2, z=y*3: z*4   // returns 36
+ *   let a=2: a+3   // returns 5
+ *   let x=1, y=x+2, z=y*3: z*4   // returns 36
  */
-export default class With extends CachableJelNode {
+export default class Let extends CachableJelNode {
   constructor(public assignments: Assignment[], public expression: JelNode) {
     super();
   }
@@ -41,14 +41,14 @@ export default class With extends CachableJelNode {
   
   // override
   equals(other?: JelNode): boolean {
-		return (other instanceof With) &&
+		return (other instanceof Let) &&
 			this.expression.equals(other.expression) && 
       this.assignments.length == other.assignments.length && 
       !this.assignments.find((l, i)=>!l.equals(other.assignments[i]));
 	}
   
 	toString(): string {
-		return `with ${this.assignments.map(s=>s.toString()).join(', ')}: ${this.expression.toString()}`;		
+		return `let ${this.assignments.map(s=>s.toString()).join(', ')}: ${this.expression.toString()}`;		
 	}
 	
   getSerializationProperties(): Object {

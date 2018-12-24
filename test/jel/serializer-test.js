@@ -81,7 +81,7 @@ describe('jelSerializer', function() {
 
 		it('should serialize Lambda expressions', function() {
       assert.equal(s.serialize(new JEL("a=>a+1").executeImmediately()), 'a=>(a + 1)');
-      assert.equal(s.serialize(new JEL("(a, b,  c )=>with d=a+b: a.b(c , if a==1 then d else a, @Ref)").executeImmediately()), '(a, b, c)=>with d=(a + b): a.b(c, if (a == 1) then d else a, @Ref)');
+      assert.equal(s.serialize(new JEL("(a, b,  c )=>let d=a+b: a.b(c , if a==1 then d else a, @Ref)").executeImmediately()), '(a, b, c)=>let d=(a + b): a.b(c, if (a == 1) then d else a, @Ref)');
     });
 
     
