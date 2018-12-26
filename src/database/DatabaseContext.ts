@@ -42,7 +42,6 @@ export default class DatabaseContext extends Context {
   private getFromDatabase(name: string): JelObject|null|undefined|Promise<JelObject|null|undefined> {
     if (this.cache.has(name)) 
       return this.cache.get(name);
-    
     return Util.resolveValueAndError(this.dbSession!.get(name), dbe=> {
       if (dbe instanceof PackageContent) {
         this.cache.set(name, dbe);
@@ -70,11 +69,12 @@ export default class DatabaseContext extends Context {
     if (/^[a-z]/.test(name) || this.has(name))
       return super.get(name);
 
-    const r = this.getFromDatabase(name);
-    if (r === undefined) 
-      throw new Error(`Can not find identifier ${name}. Database lookup failed as well.`);
-    else
-      return r as any;
+    return Util.resolveValue(this.getFromDatabase(name), r=>{
+      if (r == null) 
+        throw new Error(`Can not find identifier ${name}. Database lookup failed as well.`);
+      else
+        return r as any;      
+    });
   }
 
 	getOrNull(name: string): JelObject|null|Promise<JelObject|null> {

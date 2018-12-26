@@ -106,7 +106,7 @@ const PARAMETER_STOP: any = {')': true, ',': true};
 const IF_STOP = {'then': true};
 const THEN_STOP = {'else': true};
 const LET_STOP = {':': true, ',': true};
-const CLASS_EXTENDS_STOP = {':': true, ',': true};
+const CLASS_EXTENDS_STOP = {':': true, ',': true, identifier: true};
 const CLASS_EXPRESSION_STOP = {identifier: true};
 const CLASS_TYPE_EXPRESSION_STOP = {'=': true, identifier: true};
 
@@ -542,8 +542,8 @@ export default class JEL {
 
     const superType: JelNode|undefined = (tokens.peekIs(TokenType.Identifier, 'extends')) ? tokens.next() && JEL.parseExpression(tokens, CLASS_PRECEDENCE, CLASS_EXTENDS_STOP) : undefined;
     
-    JEL.expectOp(tokens, COLON, superType ? `Expected a colon (':') following the class 'extends' declaration.` : `Expected a colon (':') following the class declaration.`);
-      
+    tokens.nextIf(TokenType.Operator, ':');
+    
     let ctor: Lambda|undefined = undefined;
     const propertyDefs: TypedParameterDefinition[] = [];
     const methods: Assignment[] = [];
@@ -566,7 +566,7 @@ export default class JEL {
         const args = JEL.checkTypedParameters(JEL.tryParseTypedParameters(tokens, CLASS_PRECEDENCE, NO_STOP), next);
         if (args == null)
           JEL.throwParseException(tokens.last(), `Can not parse argument list for constructor`);
-        JEL.expectOp(tokens, COLON, `Expected colon (':') before start of constructor expression.`);
+        tokens.nextIf(TokenType.Operator, ':');
         ctor = new Lambda(args!, undefined, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
       }
       else if (next.is(TokenType.Identifier, 'get') && tokens.peekIs(TokenType.Identifier)) { // getter
@@ -580,7 +580,7 @@ export default class JEL {
         JEL.expectOp(tokens, OPEN_ARGS, `Expected '()' following declaration of getter`);
         JEL.expectOp(tokens, CLOSE_ARGS, `Expected '()' following declaration of getter. Getters can't take any arguments.`);
         const asCheck = JEL.tryParseAsTypeCheck(tokens, precedence, COLON);
-        JEL.expectOp(tokens, COLON, `Expected colon (':') before start of getter expression.`);
+        tokens.nextIf(TokenType.Operator, ':');
         getters.push(new Assignment(propertyName, new Lambda([], asCheck, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop))));
       }
       else if ((next.is(TokenType.Identifier, 'op') ||  next.is(TokenType.Identifier, 'singleOp')) && tokens.peekIs(TokenType.Operator) && !tokens.peekIs(TokenType.Operator, '(')) { // ops
@@ -605,7 +605,7 @@ export default class JEL {
           JEL.throwParseException(tokens.last(), argsMax == 0 ? `Single operator overload ${methodName} must not take any arguments` : `Too many arguments for operator overload ${methodName}, can have only one.`);
 
         const asCheck = JEL.tryParseAsTypeCheck(tokens, precedence, COLON);
-        JEL.expectOp(tokens, COLON, `Expected colon (':') before start of operator overload expression.`);
+        tokens.nextIf(TokenType.Operator, ':');
         methods.push(new Assignment(methodName, new Lambda(args!, asCheck, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop))));
       }
       else if (next.is(TokenType.Identifier) && tokens.nextIf(TokenType.Operator, '(')) {
@@ -618,7 +618,7 @@ export default class JEL {
         if (args == null)
           JEL.throwParseException(tokens.last(), `Can not parse argument list for method ${methodName}`);
         const asCheck = JEL.tryParseAsTypeCheck(tokens, precedence, COLON);
-        JEL.expectOp(tokens, COLON, `Expected colon (':') before start of method.`);
+        tokens.nextIf(TokenType.Operator, ':');
         const lambda = new Lambda(args!, asCheck, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
         if (staticModifier)
           staticProperties.push(new Assignment(methodName, lambda));
@@ -702,7 +702,7 @@ export default class JEL {
       JEL.throwParseException(tokens.last(), msg || "Expected operator");
     return op;
   }
-  
+ 
   static createPattern(value: string, jelToken?: Token): any {
 		const t = jelToken || new Token(1, 1, TokenType.Pattern, value);
     return BaseTypeRegistry.get('Pattern').valueOf(PatternParser.parsePattern(Tokenizer.tokenizePattern(t.line, t.column, value), t)!, value);

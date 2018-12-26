@@ -47,13 +47,13 @@ export default class TypeHelper {
   static convertFromAny(l: any, name: string): TypeDescriptor {
     if (l && (TypeChecker.isIClass(l) || l instanceof TypeDescriptor || l instanceof Dictionary || TypeChecker.isIDbRef(l)))
       return TypeHelper.convert(l);
-    throw new Error(`Expected NativeClass or Class or DbRef or Dictionary or List in ${name}. But it is a ${l==null?'null': l.getJelType? l.getJelType() : 'Native: '+l.constructor.name}: ${l}`);
+    throw new Error(`Expected NativeClass or Class or DbRef or Dictionary or List in ${name}. But it is ` + (l==null?'null.' : `${l.getJelType? l.getJelType() : 'Native: '+l.constructor.name}: ${l}`));
   }
 
   static convertNullableFromAny(l: any, name: string): TypeDescriptor | null {
     if ((!l) || TypeChecker.isIClass(l) || l instanceof TypeDescriptor || l instanceof Dictionary || TypeChecker.isIDbRef(l))
       return TypeHelper.convertNullable(l);
-    throw new Error(`Expected NativeClass or Class or DbRef or Dictionary or List or null in ${name}. But it is a ${l==null?'null': l.getJelType? l.getJelType() : 'Native: '+l.constructor.name}: ${l}`);
+    throw new Error(`Expected NativeClass or Class or DbRef or Dictionary or List or null in ${name}. But it is ${l.getJelType? l.getJelType() : 'Native: '+l.constructor.name}: ${l}`);
   }
 
 }

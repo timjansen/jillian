@@ -40,6 +40,8 @@ tmp.dir(function(err, path) {
         jelAssert.equal('class MyTestType: add(): 2', 'Class("MyTestType", methods={add: ()=>2})');
         jelAssert.equal('class MyTestType: constructor(x, y): {} a: Float b: String add(): this.a+this.b', 
                         'Class("MyTestType", constructor=(x,y)=>{}, propertyDefs={a: SimpleType("Float"), b: SimpleType("String")}, methods={add: ()=>this.a+this.b})');
+        jelAssert.equal('class MyTestType constructor(x, y) {} a: Float b: String add() this.a+this.b', 
+                        'class MyTestType: constructor(x, y): {} a: Float b: String add(): this.a+this.b');
       });
 
       it('supports properties set in the constructor', function() {
