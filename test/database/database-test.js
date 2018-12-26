@@ -2,6 +2,7 @@
 
 require('source-map-support').install();
 const Database = require('../../build/database/Database.js').default;
+const Loader = require('../../build/database/Loader.js').default;
 const DbSession = require('../../build/database/DbSession.js').default;
 const DatabaseContext = require('../../build/database/DatabaseContext.js').default;
 const DatabaseConfig = require('../../build/database/DatabaseConfig.js').default;
@@ -143,12 +144,16 @@ tmp.dir(function(err, path) {
 								);
 			});
 		});
+		
+	});
+
+	describe('database', function() {
 
 		it('does a batch loadDir()', function() {
 			return Database.create(path+'/db9', new DatabaseConfig(Dictionary.fromObject({sizing: 99}).elements))
 			.then(db=> {
 				const ctx = getCtx(db);
-				return db.loadDir(ctx, 'test/database/data/loadTest')
+				return Loader.loadDir(ctx, 'test/database/data/loadTest')
 				.then(n=>{
 					assert.equal(5, n);
 					return db.get(ctx, 'AThing2');
@@ -159,7 +164,8 @@ tmp.dir(function(err, path) {
 			
 			});
 		});
-		
-	});
-	
+
+  
+  });
+
 });
