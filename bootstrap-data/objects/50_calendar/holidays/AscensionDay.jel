@@ -1,4 +1,4 @@
-Thing('WhitMonday', @HolidayCategory,
+Thing('AscensionDay', @HolidayCategory,
 	properties={
     month: Range(5, 6),
     weekDay: @Thursday,

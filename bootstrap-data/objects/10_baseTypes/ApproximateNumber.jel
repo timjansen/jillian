@@ -1,8 +1,0 @@
-Thing('ApproximateNumber', @BaseTypeCategory, 
-properties={
-	baseTypeDescriptor: {
-		isNumeric: true,
-		canBeRange: true,
-		canHaveMultipleValues: false
-	}
-})

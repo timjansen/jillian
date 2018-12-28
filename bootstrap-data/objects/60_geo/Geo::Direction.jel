@@ -1,0 +1,11 @@
+class Geo::Direction:
+  angle: @Degree
+
+  constructor(angle)
+    {}
+
+  static NORTH = Geo::Direction(0 @Degree)
+  static EAST = Geo::Direction(90 @Degree)
+  static SOUTH = Geo::Direction(180 @Degree)
+  static WEST = Geo::Direction(270 @Degree)
+  

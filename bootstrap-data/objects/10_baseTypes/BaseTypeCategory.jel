@@ -1,9 +1,0 @@
-Category('BaseTypeCategory', 
-	properties={}, 
-	instanceDefaults={}, 
-	instanceProperties={
-		isNumeric: @Boolean,
-		canBeRange: @Boolean,
-		canHaveMultipleValues: @Boolean
-	}
-)

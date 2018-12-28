@@ -1,4 +1,4 @@
-Thing('NewYearsDay', @HolidayCategory,
+Thing('NewYearsEve', @HolidayCategory,
 	properties={
     month: 12,
     day: 31,

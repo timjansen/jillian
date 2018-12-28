@@ -1,8 +1,0 @@
-Thing('Duration', @BaseTypeCategory, 
-properties={
-	baseTypeDescriptor: {
-		isNumeric: false,
-		canBeRange: true,
-		canHaveMultipleValues: false
-	}
-})

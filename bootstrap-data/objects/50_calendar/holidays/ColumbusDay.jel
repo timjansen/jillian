@@ -1,4 +1,4 @@
-Thing('MartinLutherKindJrDay', @HolidayCategory,
+Thing('ColumbusDay', @HolidayCategory,
 	properties={
     month: 10,
     firstDate: LocalDate(1492, 10, 12),
