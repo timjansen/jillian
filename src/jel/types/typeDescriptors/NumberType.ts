@@ -21,7 +21,6 @@ export default class NumberType extends TypeDescriptor {
     super();
   }
   
-  // note: constants and types are not checked yet. That would become async.
   checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean> {
     if (!(value instanceof Float || value instanceof Fraction))
       return JelBoolean.FALSE;

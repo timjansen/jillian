@@ -195,6 +195,9 @@ describe('JEL', function() {
       jelAssert.equal("{a:1, b:2} instanceof {a: int, b: int}", "true");
       jelAssert.equal("{a:1, b:3.3} instanceof {a: int, b: int}", "false");
       jelAssert.equal("{a: 5} instanceof int[]{}", "false");      
+       
+      jelAssert.equal("0.5 instanceof 2...3", "false");
+      jelAssert.equal("0.5 instanceof 0...3", "true");
      });
 
  		 it('should support as for type checking', function() {

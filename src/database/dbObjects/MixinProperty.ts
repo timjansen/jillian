@@ -29,7 +29,7 @@ export default class MixinProperty extends DbEntry {
 	 */
   constructor(distinctName: string, type: TypeDescriptor | DbRef | Dictionary, public categoryProperty: DbRef | null) {
     super(distinctName, null);
-		this.type = TypeHelper.convert(type);
+		this.type = TypeHelper.convertFromAny(type, 'type');
 		if (!distinctName.match(/^[a-z]/))
 			throw Error('By convention, all MixinProperty names must begin with a lower-case letter. Illegal name: ' + distinctName);
   }

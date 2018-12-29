@@ -80,6 +80,11 @@ tmp.dir(function(err, path) {
         jelAssert.fuzzy('number(2...3).checkType(4)', 0);
         jelAssert.fuzzy('number(1...10).checkType(4)', 1);
 
+        jelAssert.fuzzy('InRangeType(2...3).checkType(2.5)', 1);
+        jelAssert.fuzzy('InRangeType(2...3).checkType(3)', 1);
+        jelAssert.fuzzy('InRangeType(2...3).checkType(4)', 0);
+        jelAssert.fuzzy('InRangeType(1...10).checkType(4)', 1);
+        
         jelAssert.fuzzy('bool.checkType(true)', 1);
         jelAssert.fuzzy('bool.checkType(1.1)', 0);
         jelAssert.fuzzy('bool.checkType(null)', 0);
