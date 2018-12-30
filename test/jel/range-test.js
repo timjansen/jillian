@@ -13,6 +13,8 @@ describe('Range', function() {
 		it('creates and serializes', function() {
 			jelAssert.equal(new Range(1, 2), "Range(1, 2)");
 			jelAssert.equal("1...2", "Range(1, 2)");
+			jelAssert.equal("*...2", "Range(null, 2)");
+			jelAssert.equal("1...*", "Range(1, null)");
 			jelAssert.equal(new Range(new Fraction(1, 2), 2), "Range(Fraction(1, 2), 2)");
 			jelAssert.equal("1/2...2", "Range(Fraction(1, 2), 2)");
 			jelAssert.equal(new Range(undefined, 5), "Range(null, 5)");

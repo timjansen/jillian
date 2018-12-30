@@ -80,6 +80,8 @@ Examples:
 	obj.print("hello")
 	200 +- 10      // Creates an approximate number with an max error of 10
   1...10         // Creates a range of 1...10
+  1...*          // Creates a range from 1 to infinity
+  *...6          // Creates a range with a max of 6
 
 
 
@@ -134,8 +136,8 @@ Examples:
   a instanceof Timestamp              // true if a is a Timestamp, false otherwise
   a instanceof Timestamp?             // true if a is a Timestamp or null
   a instanceof number                 // true if a is a number (Float or Fraction)
-  a instanceof number(1...10)         // true if a is a between 1 and 10 (inclusive)
-  a instanceof 1...10                 // true if a is a between 1 and 10 (inclusive, regardless of the type)
+  a instanceof number(1...10)         // true if a is a number between 1 and 10 (inclusive)
+  a instanceof 1...10                 // true if a is a number between 1 and 10 (inclusive, regardless of the type)
   a instanceof Timestamp|number       // true if a is a Timestamp or a number
   a instanceof Timestamp|number?      // true if a is a Timestamp or a number or null
   a instanceof Timestamp|number|null  // true if a is a Timestamp or a number or null

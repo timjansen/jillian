@@ -227,6 +227,8 @@ export default class JEL {
             return JEL.tryBinaryOps(tokens, new Let(assignments, JEL.parseExpression(tokens, LET_PRECEDENCE, stopOps)), precedence, stopOps);
           case 'class':
             return JEL.tryBinaryOps(tokens, JEL.parseClass(tokens, precedence, stopOps), precedence, stopOps);
+          case '*':
+            return JEL.tryBinaryOps(tokens, new Literal(null), precedence, stopOps);
         }
       }
     }
