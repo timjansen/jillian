@@ -71,7 +71,7 @@ export default class Tokenizer {
       else if (matches[5])
         tokens.push(new Token(line, col, TokenType.Pattern, Tokenizer.unescape(matches[5].replace(/^.|.$/g, ''))));
       else if (matches[6])
-        tokens.push(new Token(line, col, TokenType.Literal, Tokenizer.unescape(matches[6].replace(/^.|.$/g, ''))));
+        tokens.push(new Token(line, col, TokenType.TemplateString, Tokenizer.unescape(matches[6].replace(/^.|.$/g, ''))));
       else if (matches[7])
         tokens.push(new Token(line, col, TokenType.Literal, Tokenizer.unescape(matches[7].replace(/^.|.$/g, ''))));
       else if (matches[8])
@@ -97,11 +97,11 @@ export default class Tokenizer {
     const tokens: Token[] = [];
     while ((m = re.exec(pattern)) && tokensLeft--) {
 			if (m[1] != null)
-				tokens.push(new Token(line, column, TokenType.Word, m[1]));
+				tokens.push(new Token(line, column+m.index, TokenType.Word, m[1]));
 			else if (m[2] != null)
-				tokens.push(new Token(line, column, TokenType.Operator, m[2]));
+				tokens.push(new Token(line, column+m.index, TokenType.Operator, m[2]));
 			else if (m[3] != null)
-				tokens.push(Tokenizer.parsePatternTemplate(line, column, m[3]));
+				tokens.push(Tokenizer.parsePatternTemplate(line, column+m.index, m[3]));
 			else if (m[4])
         throw new Error(`Unsupported token found in pattern: "${m[4]}"`);
     }
@@ -111,15 +111,32 @@ export default class Tokenizer {
 	static parsePatternTemplate(line: number, column: number, tpl: string): Token {
 		const m = patternTemplateRE.exec(tpl);
 		if (m)
-			return new TemplateToken(line, column, m[1], m[2], m[3] ? new Set(m[3].split('.')) : new Set(), m[4]);
+			return new TemplateToken(line, column+m.index, m[1], m[2], m[3] ? new Set(m[3].split('.')) : new Set(), m[4]);
 
 		const rm = patternRegexpRE.exec(tpl)
 		if (rm)
-			return new RegExpToken(line, column, rm[1], 
+			return new RegExpToken(line, column+rm.index, rm[1], 
 														 rm[2].match(patternRegexpFinderRE)!.map(r=>Tokenizer.unescape(r).replace(/^.|.$/g, '')), 
 														 rm[3]);
 
 		throw new Error(`Can not parse pattern template: {{${tpl}}}`);
+	}
+  
+  static tokenizeTemplateString(line: number, column: number, template: string): TokenReader {
+		//          simple word              choice ops      template
+		const re = /((?:[^\{]|\{[^\{])+)|(\{\{(?:[^\}]|\}[^\}])*\}\})|(.+)/g;
+		
+		let m, tokensLeft = 1000;
+    const tokens: Token[] = [];
+    while ((m = re.exec(template)) && tokensLeft--) {
+			if (m[1] != null)
+				tokens.push(new Token(line, column+m.index, TokenType.StringFragment, Tokenizer.unescape(m[1])));
+			else if (m[2] != null)
+				tokens.push(new Token(line, column+m.index, TokenType.Expression, m[2].replace(/^..|..$/g, '')));
+			else if (m[3])
+        throw new Error(`Unsupported token found in string template: "${m[3]}" at line ${line} column ${column+m.index}`);
+    }
+    return new TokenReader(tokens);
 	}
 }
 

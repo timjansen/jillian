@@ -57,10 +57,16 @@ export default class Literal extends JelNode {
       this.value == other.value;
 	}
   
+  static escapeString(s: string): string {
+    return s.replace(/[\n\t\\\'\"]/g, function(s) {return s == '\n' ? '\\n' : (s == '\t' ? '\\t' : ('\\'+s))});
+  }
+  
 	toString(): string {
 		if (this.value == null)
 			return 'null';
-		else 
+		else if (this.value instanceof BaseTypeRegistry.get('String'))
+			return `"${Literal.escapeString(this.value.value)}"`;
+    else
 			return this.value.toString();
 	}  
 	

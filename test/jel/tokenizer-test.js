@@ -40,7 +40,7 @@ describe('jelTokenizer', function() {
     
     it('should parse values', function() {
       assert.deepEqual(Tokenizer.tokenize('3.5 null true "hello" "hi\\n\\"di\\"\\tho" \'huhu\'').tokens, [new Token(1, 1, TokenType.Literal, 3.5), new Token(1, 5, TokenType.Literal, null), new Token(1, 10, TokenType.Literal, true),
-                                                                         new Token(1, 15, TokenType.Literal, 'hello'), new Token(1, 23, TokenType.Literal, 'hi\n"di"\tho'), new Token(1, 40, TokenType.Literal, 'huhu')]);
+                                                                         new Token(1, 15, TokenType.Literal, 'hello'), new Token(1, 23, TokenType.Literal, 'hi\n"di"\tho'), new Token(1, 40, TokenType.TemplateString, 'huhu')]);
       assert.deepEqual(Tokenizer.tokenize('1e3 1e-3 4e2 -4e2 2e-3 -273.16').tokens, [new Token(1, 1, TokenType.Literal, 1e3), new Token(1, 5, TokenType.Literal, 1e-3), new Token(1, 10, TokenType.Literal, 4e2), new Token(1, 14, 
 																																				TokenType.Operator, '-'), new Token(1, 15, TokenType.Literal, 4e2), new Token(1, 19, TokenType.Literal, 2e-3), 
 																																				new Token(1, 24, TokenType.Operator, '-'), new Token(1, 25, TokenType.Literal, 273.16)]);
@@ -113,29 +113,49 @@ describe('tokenizePattern()', function() {
     });
 
     it('should parse words and ops', function() {
-      assert.deepEqual(Tokenizer.tokenizePattern(4, 2, 'foo bar bar').tokens, [new Token(4, 2, TokenType.Word, 'foo'), new Token(4, 2, TokenType.Word, 'bar'), new Token(4, 2, TokenType.Word, 'bar')]);
-      assert.deepEqual(Tokenizer.tokenizePattern(4, 2, '   foo\n bar\nbar   \t  ').tokens, [new Token(4, 2, TokenType.Word, 'foo'), new Token(4, 2, TokenType.Word, 'bar'), new Token(4, 2, TokenType.Word, 'bar')]);
-      assert.deepEqual(Tokenizer.tokenizePattern(4, 2, 'foo [bar|n42] [bar]?').tokens, [new Token(4, 2, TokenType.Word, 'foo'), new Token(4, 2, TokenType.Operator, '['), new Token(4, 2, TokenType.Word, 'bar'), new Token(4, 2, TokenType.Operator, '|'), new Token(4, 2, TokenType.Word, 'n42'), 
-                                                                           new Token(4, 2, TokenType.Operator, ']'), new Token(4, 2, TokenType.Operator, '['), new Token(4, 2, TokenType.Word, 'bar'), new Token(4, 2, TokenType.Operator, ']?')]);
+      assert.deepEqual(Tokenizer.tokenizePattern(4, 2, 'foo bar bar').tokens, [new Token(4, 2, TokenType.Word, 'foo'), new Token(4, 6, TokenType.Word, 'bar'), new Token(4, 10, TokenType.Word, 'bar')]);
+      assert.deepEqual(Tokenizer.tokenizePattern(4, 2, '   foo\n bar\nbar   \t  ').tokens, [new Token(4, 2, TokenType.Word, 'foo'), new Token(4, 10, TokenType.Word, 'bar'), new Token(4, 14, TokenType.Word, 'bar')]);
+      assert.deepEqual(Tokenizer.tokenizePattern(4, 2, 'foo [bar|n42] [bar]?').tokens, [new Token(4, 2, TokenType.Word, 'foo'), new Token(4, 6, TokenType.Operator, '['), new Token(4, 7, TokenType.Word, 'bar'), new Token(4, 10, TokenType.Operator, '|'), new Token(4, 11, TokenType.Word, 'n42'), 
+                                                                           new Token(4, 14, TokenType.Operator, ']'), new Token(4, 16, TokenType.Operator, '['), new Token(4, 17, TokenType.Word, 'bar'), new Token(4, 20, TokenType.Operator, ']?')]);
     });
 
     it('should parse templates', function() {
       assert.deepEqual(Tokenizer.tokenizePattern(4, 2, '{{trr}} {{nl: g}} {{foo:bar.x}} {{bar.foo.kk::bla {} bla}}').tokens, [
         new TemplateToken(4, 2, undefined, 'trr', new Set()), 
-        new TemplateToken(4, 2, 'nl', 'g', new Set()), 
-        new TemplateToken(4, 2, 'foo', 'bar', new Set(['x'])), 
-        new TemplateToken(4, 2, undefined, 'bar', new Set(['foo', 'kk']), 'bla {} bla')]);
+        new TemplateToken(4, 10, 'nl', 'g', new Set()), 
+        new TemplateToken(4, 20, 'foo', 'bar', new Set(['x'])), 
+        new TemplateToken(4, 34, undefined, 'bar', new Set(['foo', 'kk']), 'bla {} bla')]);
     });
 
     it('should regexps templates', function() {
       assert.deepEqual(Tokenizer.tokenizePattern(4, 2, '{{/a/}} {{nl: /a/ /b/ /c\\/d/}} {{/x/:: bla}}').tokens, [
         new RegExpToken(4, 2, undefined, ['a']), 
-        new RegExpToken(4, 2, 'nl', ['a', 'b', 'c/d']), 
-        new RegExpToken(4, 2, undefined, ['x'], 'bla')
+        new RegExpToken(4, 10, 'nl', ['a', 'b', 'c/d']), 
+        new RegExpToken(4, 33, undefined, ['x'], 'bla')
       ]);
     });
-
-  
   });
+  
+  describe('tokenizeTemplateString()', function() {
+    
+    it('should parse an empty string', function() {
+      assert.deepEqual(Tokenizer.tokenizeTemplateString(1, 1, '').tokens, []);
+      assert.deepEqual(Tokenizer.tokenizeTemplateString(1, 1, '   ').tokens, [new Token(1, 1, TokenType.StringFragment, '   ')]);
+    });
+
+    it('should parse strings with escapes', function() {
+      assert.deepEqual(Tokenizer.tokenizeTemplateString(4, 2, 'foo bar bar').tokens, [new Token(4, 2, TokenType.StringFragment, 'foo bar bar')]);
+      assert.deepEqual(Tokenizer.tokenizeTemplateString(4, 2, 'foo\n\tbar').tokens, [new Token(4, 2, TokenType.StringFragment, 'foo\n\tbar')]);
+      assert.deepEqual(Tokenizer.tokenizeTemplateString(4, 2, 'foo{}bar\\{\\{ bla').tokens, [new Token(4, 2, TokenType.StringFragment, 'foo{}bar{{ bla')]);
+    });
+
+    it('should parse templates', function() {
+      assert.deepEqual(Tokenizer.tokenizeTemplateString(4, 2, '{{trr}} {{nl: {} }}').tokens, [
+        new Token(4, 2, TokenType.Expression, 'trr'), 
+        new Token(4, 9, TokenType.StringFragment, ' '), 
+        new Token(4, 10, TokenType.Expression, 'nl: {} ')]);
+    });
+  });
+
 });
 

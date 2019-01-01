@@ -37,7 +37,7 @@ export default class Optional extends CachableJelNode {
 	}
 
 	toString(): string {
-		return `${this.left}?`;
+		return `${this.left.toString()}?`;
 	}
   
   getSerializationProperties(): any {

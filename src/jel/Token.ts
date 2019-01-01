@@ -1,14 +1,18 @@
 
 export const enum TokenType {
-	Operator = 1, 
+	Operator = 1,        // for JEL expressions
 	Literal,
 	Identifier,
 	Pattern,
 	Fraction,
+  TemplateString,
 		
-	Word = 20,
+	Word = 20,           // for patterns
 	Template,
-	RegExp
+	RegExp,
+    
+  StringFragment = 40, // for template strings
+  Expression
 }
 
 export class Token {

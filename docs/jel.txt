@@ -6,13 +6,12 @@ JEL is a JavaScript-inspired expression language with a functional design. Unlik
 
 Literals
 ------------------
-1. Strings: can be single-quoted ('foo') or double-quoted ("bar"). Quotes can be escaped with backslashes. Only escape sequences supported are \n and \t.
+1. Strings: are double-quoted ("foo") by default. Quotes can be escaped with backslashes. Only escape sequences supported are \n and \t.
+(You can also use single-quotes, but these are actually string templates, not literals, see below)
 
 Examples:
 	"foo"
-	'bar'
 	"it said \"boo\""
-	'it said "boo"'
 	"Here are some indented lines:\n\tLine1\n\tLine2\n"
 
 
@@ -44,7 +43,18 @@ Examples:
 
 Example:
 	null
-		
+
+
+String Templates
+--------------------
+Single-quoted strings ('bar') are string templates. Unlike double-quoted strings, they can contain sub-expressions in double curly braces that will be computed at runtime and then inserted
+into the string. If you don't have a sub-expression in the single-quoted string, it behaves like a double-quoted one.
+
+Examples:
+	'1+2 is {{1+2}}'        // prints "1+2 is 3"
+	'{{a}} is {{a%2==0}}'   
+
+
 
 Lists
 ------------------
