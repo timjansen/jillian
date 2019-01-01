@@ -52,7 +52,7 @@ export default class Let extends CachableJelNode {
 	}
 	
   getSerializationProperties(): Object {
-    return {assignments: this.assignments, expression: this.expression};
+    return [this.assignments, this.expression];
   }
 }
 

@@ -32,6 +32,7 @@ import TypedParameterDefinition from './expressionNodes/TypedParameterDefinition
 import Assignment from './expressionNodes/Assignment';
 import PatternAssignment from './expressionNodes/PatternAssignment';
 import Let from './expressionNodes/Let';
+import With from './expressionNodes/With';
 import Lambda from './expressionNodes/Lambda';
 import Call from './expressionNodes/Call';
 import MethodCall from './expressionNodes/MethodCall';
@@ -90,6 +91,7 @@ const overloadableSingleOps: any = {'+': true, '-': true, '!': true};
 const IF_PRECEDENCE = 4; 
 const PARENS_PRECEDENCE = 4; 
 const LET_PRECEDENCE = 4; 
+const WITH_PRECEDENCE = 4; 
 const CLASS_PRECEDENCE = 4; 
 
 const NO_STOP = {};
@@ -109,6 +111,7 @@ const PARAMETER_STOP: any = {')': true, ',': true};
 const IF_STOP = {'then': true};
 const THEN_STOP = {'else': true};
 const LET_STOP = {':': true, ',': true};
+const WITH_STOP = {':': true, ',': true};
 const CLASS_EXTENDS_STOP = {':': true, ',': true, identifier: true};
 const CLASS_EXPRESSION_STOP = {identifier: true};
 const CLASS_TYPE_EXPRESSION_STOP = {'=': true, identifier: true};
@@ -267,6 +270,9 @@ export default class JEL {
     case 'let':
       const assignments: Assignment[] = JEL.parseParameters(tokens, LET_PRECEDENCE, LET_STOP, ':', "Expected colon or equal sign after expression in 'let' statement,", 'constant');
       return JEL.tryBinaryOps(tokens, new Let(assignments, JEL.parseExpression(tokens, LET_PRECEDENCE, stopOps)), precedence, stopOps);
+    case 'with':
+      const assertions: JelNode[] = JEL.parseListOfExpressions(tokens, WITH_PRECEDENCE, WITH_STOP, ':', "Expected colon after last expression in 'with' assertion");
+      return JEL.tryBinaryOps(tokens, new With(assertions, JEL.parseExpression(tokens, WITH_PRECEDENCE, stopOps)), precedence, stopOps);
     case 'class':
       return JEL.tryBinaryOps(tokens, JEL.parseClass(tokens, precedence, stopOps), precedence, stopOps);
     case '*':
@@ -387,6 +393,15 @@ export default class JEL {
 			list.push(JEL.parseExpression(tokens, PARENS_PRECEDENCE, LIST_ENTRY_STOP));
 			if (JEL.expectOp(tokens, LIST_ENTRY_STOP, "Expecting comma or end of list").value == ']')
 				return JEL.tryBinaryOps(tokens, new List(list), precedence, stopOps);
+		}
+	}
+  
+  static parseListOfExpressions(tokens: TokenReader, precedence: number, stopOps: any, terminator: string, errorMessage: string): JelNode[] {
+		const list: JelNode[] = [];
+		while (true) {
+			list.push(JEL.parseExpression(tokens, precedence, stopOps));
+			if (JEL.expectOp(tokens, stopOps, errorMessage).value == terminator)
+				return list;
 		}
 	}
 

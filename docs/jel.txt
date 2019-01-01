@@ -243,12 +243,22 @@ Examples:
 
 Constants
 -------------------
-Let allows you to define constants that can be used in the following expression.
+'let' allows you to define constants that can be used in the following expression.
 
 Examples:
 	let a=2: a+3   // returns 5
 	let x=1, y=x+2, z=y*3: z*4+x   // returns 37
 	
+
+Assertions
+-------------------
+'with' allows you to define assertions that will be checked before the child expression has been executed. If the assertions fail, an exception will be thrown.
+Assertions are mostly meant to be used at the top of class methods, to document and check any assertions made.
+
+Examples:
+	with a>=b, b>0, a>0: a/b
+	with a in 0...16: a/16
+  
 	
 Classes
 ---------
@@ -270,6 +280,11 @@ class Schedule::Single extends Schedule::Entry {
 
   addWithTypes(a: number, b: number) as number: 
     this.c+a+b
+
+  divWithTypes(a: number, b: number) as number: 
+    with b!=0:
+      a/b
+
 
   static add(x,y):
     x+y

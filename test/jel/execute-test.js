@@ -439,6 +439,12 @@ describe('JEL', function() {
       jelAssert.equal(new JEL('3+2*let a=1: a*10').executeImmediately(), 23);
     });
 
+    it('supports with', function() {
+      jelAssert.equal('let a=1: with a>0: a', 1);
+      jelAssert.equal('let a=1: with a>0, 3>2: a', 1);
+      assert.throws(()=>jelAssert.errorPromise('let a=1: with a>0, a<0: a'));
+    });
+
     
    it('supports calls', function() {
       function f(ctx, a=Float.valueOf(1), b=Float.valueOf(2)) { 
