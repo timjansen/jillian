@@ -3,14 +3,17 @@ import SimpleType from './SimpleType';
 import InRangeType from './InRangeType';
 import OptionType from './OptionType';
 import ComplexType from './ComplexType';
+import NumberType from './NumberType';
+import UnitValueType from './UnitValueType';
 import JelObject from '../../JelObject';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
-import Range from '../../types/Range';
-import Float from '../../types/Float';
-import Fraction from '../../types/Fraction';
-import Dictionary from '../../types/Dictionary';
-import TypeChecker from '../../types/TypeChecker';
-import List from '../../types/List';
+import Range from '../Range';
+import Float from '../Float';
+import Fraction from '../Fraction';
+import UnitValue from '../UnitValue';
+import Dictionary from '../Dictionary';
+import TypeChecker from '../TypeChecker';
+import List from '../List';
 
 export default class TypeHelper {
   
@@ -27,8 +30,14 @@ export default class TypeHelper {
 			return BaseTypeRegistry.get('ReferenceDispatcherType').valueOf(l);
     else if (l instanceof Dictionary)
       return new ComplexType(l);
-    else if (l instanceof Range)
-      return new InRangeType(l);
+    else if (l instanceof Range) {
+      if (l.min instanceof Float || l.min instanceof Fraction || (l.min == null && (l.max instanceof Float || l.max instanceof Fraction)))
+        return new NumberType(l);
+      else if (l.min instanceof UnitValue || (l.min == null && (l.max instanceof UnitValue)))
+        return new UnitValueType(l.min ? l.min.unit : (l.max as UnitValue).unit, l);
+      else
+        return new InRangeType(l);
+    }
 		else if (TypeChecker.isIClass(l))
 			return new SimpleType((l as any).className);
   

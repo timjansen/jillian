@@ -11,7 +11,7 @@ import JelBoolean from '../JelBoolean';
 
 
 /**
- * Declares a property can have more than one value.
+ * Declares a property can have more than one type.
  */
 export default class OptionType extends TypeDescriptor {
 	options: List; // of TypeDescriptor or null

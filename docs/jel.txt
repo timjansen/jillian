@@ -138,6 +138,7 @@ Examples:
   a instanceof number                 // true if a is a number (Float or Fraction)
   a instanceof number(1...10)         // true if a is a number between 1 and 10 (inclusive)
   a instanceof 1...10                 // true if a is a number between 1 and 10 (inclusive, regardless of the type)
+  a instanceof 1 @Meter ... 10 @Meter // true if a is a unit value compatible with meters between 1 and 10 meters
   a instanceof Timestamp|number       // true if a is a Timestamp or a number
   a instanceof Timestamp|number?      // true if a is a Timestamp or a number or null
   a instanceof Timestamp|number|null  // true if a is a Timestamp or a number or null

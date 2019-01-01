@@ -421,7 +421,7 @@ export default class JEL {
         return JEL.tryBinaryOps(tokens, new Rangable(left), precedence, stopOps);
       case '|': 
         const elements: JelNode[] = [left, JEL.parseExpression(tokens, binaryOperators[binOpToken.value] as number, stopOps)];
-        while (tokens.hasNext(2) && tokens.nextIf(TokenType.Operator, '|'))
+        while (tokens.hasNext(2) && tokens.nextIf(TokenType.Operator, binOpToken.value))
           elements.push(JEL.parseExpression(tokens, binaryOperators[binOpToken.value] as number, stopOps));
 
         return JEL.tryBinaryOps(tokens, new Options(elements), precedence, stopOps);

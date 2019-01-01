@@ -217,6 +217,22 @@ describe('UnitValue', function() {
     ]);
   });
 
+  it('support canConvertTo()', function() {
+    return Promise.all([
+      jelAssert.equalPromise("(1 @Meter).canConvertTo(@Meter)", "true"),
+      jelAssert.equalPromise("(100 @Centimeter).canConvertTo(@Meter)", "true"),
+      jelAssert.equalPromise("UnitValue(144, Unit({Centimeter: 2})).canConvertTo(@SquareCentimeter)", "true"),
+      jelAssert.equalPromise("(25 @DegreeCelsius).canConvertTo(@DegreeFahrenheit)", "true"),
+      jelAssert.equalPromise("(18 @Piece).canConvertTo(@Dozen)", "true"),
+      jelAssert.equalPromise("(3600 @Second).canConvertTo(@Hour)", "true"),
+      
+      jelAssert.equalPromise("(1800 @Second).canConvertTo(@Meter)", "false"),
+      jelAssert.equalPromise("(1800 @Meter).canConvertTo(@Hour)", "false"),
+      jelAssert.equalPromise("(1800 @Meter).canConvertTo(@SquareMeter)", "false")
+    ]);
+  });			
+
+  
   it('supports simplify()', function() {
     return Promise.all([
       jelAssert.equalPromise("(5 @Meter).simplify()", "(5 @Meter)"),
@@ -243,7 +259,7 @@ describe('UnitValue', function() {
   it('can be type-checked', function() {
     return Promise.all([
       jelAssert.equalPromise("5 @Meter instanceof @Meter", "true"),
-      jelAssert.equalPromise("5 @Meter instanceof @Centimeter", "false"),
+      jelAssert.equalPromise("5 @Meter instanceof @Centimeter", "true"),
       jelAssert.equalPromise("5 @Meter instanceof @Length", "true"),
       jelAssert.equalPromise("5 @Hour instanceof @Time", "true"),
       jelAssert.equalPromise("5 @Meter instanceof @Velocity", "false"),
@@ -251,11 +267,20 @@ describe('UnitValue', function() {
       jelAssert.equalPromise("null instanceof @Meter", "false"),
       jelAssert.equalPromise("null instanceof @Time", "false"),
       jelAssert.equalPromise("5 @Meter instanceof duration", "false"),
-      jelAssert.equalPromise("5 @Day instanceof duration", "true")
+      jelAssert.equalPromise("5 @Day instanceof duration", "true"),
+      jelAssert.equalPromise("5 @Meter instanceof 1 @Meter ... 10 @Meter", "true"),
+      jelAssert.equalPromise("50 @Meter instanceof 1 @Meter ... 10 @Meter", "false"),
+      jelAssert.equalPromise("5 @Meter instanceof 1 @Meter ... *", "true"),
+      jelAssert.equalPromise("5 @Meter instanceof 10 @Meter ... *", "false"),
+      jelAssert.equalPromise("5 @Meter instanceof * ... 1 @Meter", "false"),
+      jelAssert.equalPromise("5 @Meter instanceof * ... 10 @Meter", "true"),
+      jelAssert.equalPromise("(50 @Inch as @Meter) instanceof 1 @Meter ... 10 @Meter", "true"),
+      jelAssert.equalPromise("50 @Inch instanceof 1 @Meter ... 10 @Meter", "true"),
+      jelAssert.equalPromise("5 @Inch instanceof 1 @Meter ... 10 @Meter", "false")
     ]);
   });			
 
-    it('can be type-converted', function() {
+  it('can be type-converted', function() {
     return Promise.all([
       jelAssert.equalPromise("5 @Meter as @Meter", "5 @Meter"),
       jelAssert.equalPromise("5 @Kilometer as @Meter", "5000 @Meter"),
@@ -263,5 +288,7 @@ describe('UnitValue', function() {
     ]);
   });			
 
+  
+  
   
 });

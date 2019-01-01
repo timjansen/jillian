@@ -129,6 +129,11 @@ export default class UnitValue extends JelObject implements Numeric {
 		return super.opReversed(ctx, operator, left);
 	}
 	
+	canConvertTo_jel_mapping: Object;
+	canConvertTo(ctx: Context, target: any): Promise<JelBoolean> | JelBoolean {
+    return Util.resolveValueAndError(this.convertTo(ctx, target), ()=>JelBoolean.TRUE, ()=>JelBoolean.FALSE);
+  }
+  
 	// returns the UnitValue converted to the given value, or returns rejected Promise if conversion not possible
 	convertTo_jel_mapping: Object;
 	convertTo(ctx: Context, target: any): Promise<UnitValue> | UnitValue {
@@ -399,6 +404,7 @@ UnitValue.prototype.reverseOps = Object.assign({'*':1, '/': 1}, JelObject.SWAP_O
 UnitValue.prototype.toFloat_jel_mapping = [];
 UnitValue.prototype.abs_jel_mapping = [];
 UnitValue.prototype.negate_jel_mapping = [];
+UnitValue.prototype.canConvertTo_jel_mapping = ['type'];
 UnitValue.prototype.convertTo_jel_mapping = ['type'];
 UnitValue.prototype.round_jel_mapping = ['precision'];
 UnitValue.prototype.trunc_jel_mapping = [];
