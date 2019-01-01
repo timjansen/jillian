@@ -264,7 +264,7 @@ Classes
 ---------
 The 'class' keyword allows you to set up a class that can be stored in the database:
 
-class Schedule::Single extends Schedule::Entry {
+class Schedule::Single extends Schedule::Entry 
   c: Number
   static PI = 3.14
 
@@ -288,6 +288,19 @@ class Schedule::Single extends Schedule::Entry {
 
   static add(x,y):
     x+y
-}
+
+
+Enums
+--------
+You can define simple enums with the 'enum' operator:
+
+enum FactType
+  Sample,
+  Definition,
+  Guess
+  
+
+
+
 
 

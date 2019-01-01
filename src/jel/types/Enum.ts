@@ -1,3 +1,4 @@
+import BaseTypeRegistry from '../BaseTypeRegistry';
 import PackageContent from './PackageContent';
 import Context from '../Context';
 import List from './List';
@@ -7,24 +8,24 @@ import JelString from './JelString';
 import TypeChecker from './TypeChecker';
 
 
-function createProperties(ctx: Context, distinctName: string, values: List): Dictionary {
-	const d = new Map<string,any>();
-	const ref = ctx.getSession().createDbRef(distinctName);
-	values.elements.map(JelString.toRealString).forEach(v=>d.set(v, new EnumValue(v, ref)));
-	return new Dictionary(d, true);
-}
 
 // Base class for enum definitions.
 export default class Enum extends PackageContent {
   JEL_PROPERTIES: Object;
+  public valueMap: Dictionary;
   
 	/**
 	 * @param values a List of strings with the possible values of the enum.
 	 */
-  constructor(distinctName: string, public values: List, public valueMap: Dictionary) {
+  constructor(distinctName: string, public values: List) {
     super(distinctName);
+
 		if (!distinctName.endsWith('Enum'))
 			throw Error('By convention, all Enum names must end with "Enum". Illegal name: ' + distinctName);
+
+    const d = new Map<string,any>();
+	  values.elements.map(JelString.toRealString).forEach(v=>d.set(v, new EnumValue(v, this)));
+	  this.valueMap = new Dictionary(d, true);
   }
   
 	member(ctx: Context, name: string, parameters?: Map<string, any>): any {
@@ -41,11 +42,11 @@ export default class Enum extends PackageContent {
   static create_jel_mapping = ['distinctName', 'values'];
   static create(ctx: Context, ...args: any[]) {
     return new Enum(TypeChecker.realString(args[0], 'distinctName'), 
-                    TypeChecker.instance(List, args[1], 'values'),
-                    createProperties(ctx, args[0], args[1]));
+                    TypeChecker.instance(List, args[1], 'values'));
   }
 }
 
 Enum.prototype.JEL_PROPERTIES = {values: true, packageName: true, valueMap: true};
 
+BaseTypeRegistry.register('Enum', Enum);
 

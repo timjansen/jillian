@@ -12,6 +12,7 @@ import BaseTypeRegistry from './BaseTypeRegistry';
 import ParseError from './ParseError';
 import JelNode from './expressionNodes/JelNode';
 import ClassDef from './expressionNodes/ClassDef';
+import EnumDef from './expressionNodes/EnumDef';
 import Literal from './expressionNodes/Literal';
 import Fraction from './expressionNodes/Fraction';
 import ExpressionPattern from './expressionNodes/Pattern';
@@ -152,6 +153,13 @@ export default class JEL {
 		return undefined as any; // just to make Typescript happy
 	}
 	 
+	static nextIsOrThrow(tokens: TokenReader, type: TokenType, msg: string): Token {
+		if (tokens.peekIs(type))
+			return tokens.next();
+		JEL.throwParseException(tokens.last(), msg);
+		return undefined as any; // just to make Typescript happy
+	}
+  
   static parseExpression(tokens: TokenReader, precedence = 0, stopOps = NO_STOP): JelNode {
     const token = JEL.nextOrThrow(tokens, "Unexpected end, expected another token");
     switch (token.type) {
@@ -250,9 +258,7 @@ export default class JEL {
     case '${': 
         return JEL.parseTranslator(tokens, precedence, stopOps);
     case '@': 
-      const t2 = JEL.nextOrThrow(tokens, "Expected identifier after '@' for reference.");
-      if (t2.type != TokenType.Identifier)
-        JEL.throwParseException(tokens.last(), "Expected identifier after '@' for reference.");
+      const t2 = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier after '@' for reference.");
       if (tokens.nextIf(TokenType.Operator, '(')) {
         const assignments: Assignment[] = JEL.parseParameters(tokens, PARENS_PRECEDENCE, PARAMETER_STOP, ')', "Expected comma or closing parens", 'parameter');
         return JEL.tryBinaryOps(tokens, new Reference(t2.value, assignments), precedence, stopOps);
@@ -275,6 +281,8 @@ export default class JEL {
       return JEL.tryBinaryOps(tokens, new With(assertions, JEL.parseExpression(tokens, WITH_PRECEDENCE, stopOps)), precedence, stopOps);
     case 'class':
       return JEL.tryBinaryOps(tokens, JEL.parseClass(tokens, precedence, stopOps), precedence, stopOps);
+    case 'enum':
+      return JEL.tryBinaryOps(tokens, JEL.parseEnum(tokens, precedence, stopOps), precedence, stopOps);
     case '*':
       return JEL.tryBinaryOps(tokens, new Literal(null), precedence, stopOps);
     default:
@@ -352,9 +360,7 @@ export default class JEL {
 				}
 			}
 
-			const pattern = name.type == TokenType.Pattern ? name : JEL.nextOrThrow(tokens, "Unexpected end of translator");
-			if (pattern.type != TokenType.Pattern)
-				JEL.throwParseException(pattern, "Expected pattern in translator");
+			const pattern = name.type == TokenType.Pattern ? name : JEL.nextIsOrThrow(tokens, TokenType.Pattern, "Unexpected end of translator");
 
 			const keyPattern = JEL.createPattern(pattern.value, pattern);
 
@@ -371,10 +377,7 @@ export default class JEL {
 	static parseUnitValue(tokens: TokenReader, content: JelNode, precedence: number, stopOps: any) {
 		tokens.next();
 		
-		const t2 = JEL.nextOrThrow(tokens, "Expected identifier after '@' for reference / unit value.");
-    if (t2.type != TokenType.Identifier)
-			JEL.throwParseException(t2, "Expected identifier after '@' for reference / unit value.");
-
+		const t2 = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier after '@' for reference / unit value.");
 		return JEL.tryBinaryOps(tokens, new UnitValue(content, t2.value), precedence, stopOps);
 	}
 
@@ -409,9 +412,7 @@ export default class JEL {
 	static parseParameters(tokens: TokenReader, precedence: number, stop: any, terminator: string, errorNoEnd: string, errorParamName: string): Assignment[] {
 		const assignments: Assignment[] = [];
 		while (true) {
-			const name = JEL.nextOrThrow(tokens, `Expected identifier for ${errorParamName}.`);
-			if (name.type != TokenType.Identifier)
-				JEL.throwParseException(name || tokens.last(), `Expected identifier for ${errorParamName}.`);
+			const name = JEL.nextIsOrThrow(tokens, TokenType.Identifier, `Expected identifier for ${errorParamName}.`);
 			if (/(^_$)|::/.test(name.value))
 				JEL.throwParseException(name || tokens.last(), `Illegal name ${name.value}, a ${errorParamName} must not contain a double-colon ('::') or be the underscore.`);
 			const eq = JEL.expectOp(tokens, EQUAL, "Expected equal sign after variable name.");
@@ -595,10 +596,7 @@ export default class JEL {
   static parseClass(tokens: TokenReader, precedence: number, stopOps: any): ClassDef {
     const classExpressionStop: any = Object.assign(CLASS_EXPRESSION_STOP, stopOps);
     const classTypeExpressionStop: any = Object.assign(CLASS_TYPE_EXPRESSION_STOP, stopOps);
-    const className = JEL.nextOrThrow(tokens, "Expected identifier after 'class' declaration");
-    if (className.type != TokenType.Identifier)
-      JEL.throwParseException(className, "Expected identifier after 'class' declaration");
-
+    const className = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier after 'class' declaration");
     const superType: JelNode|undefined = (tokens.peekIs(TokenType.Identifier, 'extends')) ? tokens.next() && JEL.parseExpression(tokens, CLASS_PRECEDENCE, CLASS_EXTENDS_STOP) : undefined;
     
     tokens.nextIf(TokenType.Operator, ':');
@@ -713,8 +711,19 @@ export default class JEL {
     }
   }
   
-  
-  
+  static parseEnum(tokens: TokenReader, precedence: number, stopOps: any): EnumDef {
+    const enumName = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier after 'enum' declaration");
+    tokens.nextIf(TokenType.Operator, ':');
+    
+    const values = [];
+    while (true) {
+      const peek = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier in enum");
+      values.push(peek.value);
+      if (!tokens.nextIf(TokenType.Operator, ','))
+        return new EnumDef(enumName.value, values);
+    }
+  }
+
   
   static parseCall(tokens: TokenReader, left: JelNode, methodName?: string): JelNode {
     const argList: JelNode[] = [];
@@ -733,11 +742,9 @@ export default class JEL {
     const argNames = new Set();           // for tracking dupes
     const namedArgs: Assignment[] = []; // for the actual values
     while (true) {
-      const name = JEL.nextOrThrow(tokens, "Expected identifier for named argument");
-      if (name.type != TokenType.Identifier)
-        JEL.throwParseException(name, "Expected identifier for named argument");
+      const name = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier for named argument");
       if (argNames.has(name.value))
-        JEL.throwParseException(name, "Duplicate name in named arguments");
+        JEL.throwParseException(name, `Duplicate name ${name.value} in named arguments`);
       JEL.expectOp(tokens, EQUAL, "Expected equal sign after identifier for named argument");
       argNames.add(name.value);
       namedArgs.push(new Assignment(name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, PARAMETER_STOP)));

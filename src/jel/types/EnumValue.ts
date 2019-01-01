@@ -1,6 +1,6 @@
 import JelObject from '../JelObject';
 import Context from '../Context';
-import {IDbRef} from '../IDatabase';
+import Enum from './Enum';
 import JelBoolean from './JelBoolean';
 import JelString from './JelString';
 import TypeChecker from './TypeChecker';
@@ -11,7 +11,7 @@ import TypeChecker from './TypeChecker';
 export default class EnumValue extends JelObject {
 	JEL_PROPERTIES: Object = {value: 1, parent: 1};
 	
-	constructor(public value: string, public parent: IDbRef) {
+	constructor(public value: string, public parent: Enum) {
 		super();
 	}
 	
@@ -21,7 +21,7 @@ export default class EnumValue extends JelObject {
 				case '==': 
 				case '===':
 					return JelBoolean.valueOf(this.value == right.value && this.parent.distinctName == right.parent.distinctName);
-					
+
 				case '!=':
 				case '!==':
 					return JelBoolean.valueOf(this.value != right.value || this.parent.distinctName != right.parent.distinctName);
@@ -33,13 +33,13 @@ export default class EnumValue extends JelObject {
 	}
 	
 	getSerializationProperties(): any[] {
-		return [this.value, this.parent];
+		return [this.value, this.parent.distinctName];
 	}
 	
 	
 	static create_jel_mapping = ['value', 'parent'];
 	static create(ctx: Context, ...args: any[]): EnumValue {
-		return new EnumValue(TypeChecker.realString(args[0], 'value'), TypeChecker.dbRef(args[1], 'parent'));
+		return new EnumValue(TypeChecker.realString(args[0], 'value'), args[1] instanceof Enum ? args[1] : ctx.get(TypeChecker.realString(args[1], 'parent')));
 	}
 }
 
