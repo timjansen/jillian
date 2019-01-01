@@ -257,4 +257,5 @@ export default class Class extends PackageContent implements IClass {
 Class.prototype.JEL_PROPERTIES = {distinctName: true, className: true, methods: true, operators: true, singleOperators: true, superType: true, getters: true, packageName: true};
 
 BaseTypeRegistry.register('Class', Class);
+BaseTypeRegistry.register('GenericJelObject', GenericJelObject);
 

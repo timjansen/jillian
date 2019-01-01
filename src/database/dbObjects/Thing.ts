@@ -52,7 +52,8 @@ export default class Thing extends DbEntry {
 
   static create_jel_mapping = {distinctName: 1, category: 2, properties: 3, reality: 4, hashCode: 5};
   static create(ctx: Context, ...args: any[]) {
-    return new Thing(TypeChecker.realString(args[0], 'distinctName'), args[1] instanceof DbRef ? args[1] : TypeChecker.instance(Category, args[1], 'category'), 
+    return new Thing(TypeChecker.realString(args[0], 'distinctName'), 
+                     args[1] instanceof DbRef ? args[1] : TypeChecker.instance(Category, args[1], 'category'), 
                      TypeChecker.optionalInstance(Dictionary, args[2], 'properties')||undefined, (TypeChecker.optionalDbRef(args[3], 'reality')||undefined) as any, 
                      TypeChecker.optionalRealString(args[4], 'hashCode')||undefined);
   }

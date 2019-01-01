@@ -61,21 +61,39 @@ export default class Runtime {
 	static singleOpWithPromise(ctx: Context, operator: string, left: JelObject | Promise<JelObject>): JelObject | Promise<JelObject> {
 		return Util.resolveValue(left, (left: any)=>Runtime.singleOp(ctx, operator, left));
 	}
-	
+
+  // checks whether left is assignable to right
+	static isClassCompatible(ctx: Context, left: any, className: string): boolean {
+    if (left.className == className)
+      return true;
+    else if (left.superType)
+      return Runtime.isClassCompatible(ctx, left.superType, className);
+    else
+      return false;
+  }
+  
 	static instanceOf(ctx: Context, left: JelObject|null, right: JelObject|string|null): boolean {
 		if (!right || !left)
 			return false;
     
-		if ((right as any).isIDBRef)
-      return left.getJelType() == (right as any).distinctName; 
-    else if (typeof right == 'string')
-      return left.getJelType() == right; 
+    let rightName: string;
+    if (typeof right == 'string')
+      rightName = right; 
+    else if (right.getJelType() == 'Class') 
+      rightName = (right as any).className;
+    else if (right.getJelType() == 'NativeClass')
+      rightName = (right as any).className;
+		else if ((right as any).isIDBRef)
+      rightName = (right as any).distinctName; 
     else if (right.getJelType() == 'String')
-      return left.getJelType() == (right as any).value;
-    else if (right.getJelType() == 'Class' || right.getJelType() == 'NativeClass')
-      return left.getJelType() == (right as any).className;
+      rightName = (right as any).value;
     else
       return false;
+    
+    if (left instanceof BaseTypeRegistry.get('GenericJelObject'))
+      return Runtime.isClassCompatible(ctx, (left as any).type, rightName);      
+    else 
+      return left.getJelType() == rightName;
 	}
   
   static getNativeMethod(rebind: boolean, obj: JelObject, name: string) {

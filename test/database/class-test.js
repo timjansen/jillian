@@ -100,6 +100,13 @@ tmp.dir(function(err, path) {
                               s1 = superType(4, 6),
                               s2 = subType(8, 10, 20): 
                             [s1.x, s1.y, s2.x, s2.y, s2.z, s1.add(5), s1.sub(4), s2.add(6), s2.sub(33), s2.mul(9, 9)]`, "[4, 6, 8, 10, 20, 6, 3, 18, 32, 81]");
+
+        jelAssert.equal(`let superType=class SuperType: a=1 constructor(){}, subType=class SubType extends superType: b=1 constructor(){}, other=class Other: c=1 constructor(){}, 
+                          super1=superType(), sub1=subType(), o=other():
+                            [super1 instanceof superType, super1 instanceof subType, super1 instanceof other,
+                             sub1 instanceof superType, sub1 instanceof subType, sub1 instanceof other,
+                             o instanceof superType, o instanceof subType, o instanceof other]`, "[true, false, false, true, true, false, false, false, true]");
+
       });
       
       it('supports static properties', function() {

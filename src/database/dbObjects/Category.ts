@@ -26,7 +26,7 @@ export default class Category extends DbEntry {
 	 * Creates a new Category.
 	 * @param instanceDefaults a dictionary (name->any) of default values for Things of this category. 
 	 * @param instanceProperties a dictionary (name->list of PropertyType) to define category properties.
-	 *                           Allows shortcuts, see DictionaryPropertyType.
+	 *                           Allows shortcuts, see TypeHelper.
 	 * @param mixinProperties a dictionary (name->EnumValue of @PropertyTypeEnum) to define required and optional mixin 
 	 *    properties for Things.
 	 */
@@ -37,7 +37,7 @@ export default class Category extends DbEntry {
 							 reality?: DbRef, hashCode?: string) {
     super(distinctName, reality, hashCode, properties);
 		if (!distinctName.endsWith('Category'))
-			throw Error('By convention, all Category names must end with "Category". Illegal name: ' + distinctName);
+			throw new Error('By convention, all Category names must end with "Category". Illegal name: ' + distinctName);
 
     this.superCategory = superCategory ? (superCategory instanceof DbRef ? superCategory : new DbRef(superCategory)) : null; 
 		instanceProperties.elements.forEach((value, key)=>this.instanceProperties.elements.set(key, TypeHelper.convertFromAny(value, key)));
