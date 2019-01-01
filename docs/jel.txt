@@ -45,7 +45,28 @@ Examples:
 Example:
 	null
 		
-	
+
+Lists
+------------------
+JEL supports lists, which work like JavaScript Arrays.
+
+Examples:
+	[]              // empty lists
+	[1,2,3] 
+	[a-1, a, a+1]   // expression to create list elements
+
+
+Dictionary
+------------------
+Dictionaries are the equivalent of JavaScript's object literals.
+
+Examples:
+	{}                            // empty dictionary
+  {a: 2, b: "bar", c: 4*5}      // keys following identifier logic do not need to be quoted. Values can be expressions.
+	{"a": 2, 'b': 4, 77: "foo"}   // all literals can be keys
+  {a}                           // short-cut for {a: a} . Reads the variable "a" and stores it as "a".
+	{a, b: 2, c}
+
 
 Comments
 ------------------
@@ -82,6 +103,8 @@ Examples:
   1...10         // Creates a range of 1...10
   1...*          // Creates a range from 1 to infinity
   *...6          // Creates a range with a max of 6
+  a in 1...10    // true if a>=1 and a<=10
+  a in [1, 2, 3] // true if a==1, a==2 or a==3
 
 
 
@@ -102,29 +125,9 @@ Examples:
   2 @Meter
 	1/2 @Inch
 	2.5 @Second
-	1 @Meter +- 5 @Centimeter
+	1 @Meter +- 5 @Centimeter   // 1 Meter with a tolerance of 5 centimeters
 
 
-Lists
-------------------
-JEL supports lists, which work like JavaScript Arrays.
-
-Examples:
-	[]              // empty lists
-	[1,2,3] 
-	[a-1, a, a+1]   // expression to create list elements
-
-
-Dictionary
-------------------
-Dictionaries are the equivalent of JavaScript's object literals.
-
-Examples:
-	{}                            // empty dictionary
-  {a: 2, b: "bar", c: 4*5}      // keys following identifier logic do not need to be quoted. Values can be expressions.
-	{"a": 2, 'b': 4, 77: "foo"}   // all literals can be keys
-  {a}                           // short-cut for {a: a} . Reads the variable "a" and stores it as "a".
-	{a, b: 2, c}
 
 Types
 ------------------
@@ -151,11 +154,6 @@ Examples:
   a instanceof CategoryType(@AnimalCategory) // true if a is a Category derived from @AnimalCategory (or @AnimalCategory itself)
   a instanceof int                    // true if a is a number representing an integer value
   a instanceof any                    // always true
-
-
-TODO:
-  a instanceof x=>x>0         // true if x is larger than 0
-  a instanceof int&(x=>x>0)   // true if x is an integer larger than 0
 
 
 Types
@@ -233,13 +231,13 @@ Examples:
 	if @Frog.isCategoryOf(a) then a.capabilities.includes(@Jumping)
 	
 
-With Constants
+Constants
 -------------------
-With allows you to define constants that can be used in the following expression.
+Let allows you to define constants that can be used in the following expression.
 
 Examples:
-	with a=2: a+3   // returns 5
-	with x=1, y=x+2, z=y*3: z*4   // returns 36
+	let a=2: a+3   // returns 5
+	let x=1, y=x+2, z=y*3: z*4+x   // returns 37
 	
 	
 Classes
@@ -267,10 +265,4 @@ class Schedule::Single extends Schedule::Entry {
     x+y
 }
 
-
-
- 
-  
-TODO: 
-	
 

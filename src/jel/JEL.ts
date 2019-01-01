@@ -22,6 +22,7 @@ import ListType from './expressionNodes/ListType';
 import DictType from './expressionNodes/DictType';
 import Rangable from './expressionNodes/Rangable';
 import Range from './expressionNodes/Range';
+import In from './expressionNodes/In';
 import Dictionary from './expressionNodes/Dictionary';
 import Translator from './expressionNodes/Translator';
 import Reference from './expressionNodes/Reference';
@@ -68,6 +69,7 @@ const binaryOperators: any = { // op->precedence
   '%': 14,
   'instanceof': 16,
   'as': 16,
+  'in': 16,
 	'^': 15,
   '+-': 18, 
   '...': 24,
@@ -409,6 +411,8 @@ export default class JEL {
         return JEL.tryBinaryOps(tokens, new InstanceOf(left, JEL.parseExpression(tokens, binaryOperators['instanceof'] as number, stopOps)), precedence, stopOps);
       case 'as': 
         return JEL.tryBinaryOps(tokens, new As(left, JEL.parseExpression(tokens, binaryOperators['as'] as number, stopOps)), precedence, stopOps);
+      case 'in': 
+        return JEL.tryBinaryOps(tokens, new In(left, JEL.parseExpression(tokens, binaryOperators['in'] as number, stopOps)), precedence, stopOps);
       case '...':
         return JEL.tryBinaryOps(tokens, new Range(left, JEL.parseExpression(tokens, binaryOperators['...'] as number, stopOps)), precedence, stopOps);
       case '?':

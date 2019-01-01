@@ -3,6 +3,7 @@ import CachableJelNode from './CachableJelNode';
 import JelObject from '../JelObject';
 import Runtime from '../Runtime';
 import Context from '../Context';
+import BaseTypeRegistry from '../BaseTypeRegistry';
 import Util from '../../util/Util';
 
 /**
@@ -13,21 +14,24 @@ import Util from '../../util/Util';
  *    a['execute']()
  */
 export default class Get extends CachableJelNode {
+  float: any;
   constructor(public left: JelNode, public name: JelNode) {
     super();
+    this.float = BaseTypeRegistry.get('Float');
   }
   
-  getValue(ctx: Context, left: JelNode, name: JelNode): JelObject|null|Promise<JelObject|null> {
+  getValue(ctx: Context, left: JelObject, name: JelObject): JelObject|null|Promise<JelObject|null> {
     if (left == null)
       return left;
 
 		const leftCtor = left.constructor.name;
 		const nameCtor = name.constructor.name;
     if (leftCtor == 'List') {
-			if (nameCtor == 'Float')
+      const i = this.float.toRealNumber(name, null);
+			if (i != null && Number.isInteger(i))
       	return (left as any).get(ctx, (name as any).value);
 			else
-				throw new Error('Index operator [] on List supports only numbers.');
+				throw new Error('Index operator [] on List supports only integers.');
 		}
     else if (leftCtor == 'Dictionary') {
 			if (nameCtor == 'JelString')

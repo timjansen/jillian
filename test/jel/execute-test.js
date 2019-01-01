@@ -230,6 +230,17 @@ describe('JEL', function() {
       return jelAssert.errorPromise("true as String|Float");
      });
 
+     it('should support in', function() {
+      jelAssert.equal("2 in 1...10", "true");
+      jelAssert.equal("1 in 1...10", "true");
+      jelAssert.equal("10 in 1...10", "true");
+      jelAssert.equal("20 in 1...10", "false");
+      jelAssert.equal("'a' in ['a', 'b', 'c']", "true");
+      jelAssert.equal("'d' in ['a', 'b', 'c']", "false");
+      jelAssert.equal("'a' in {a:1, b:1}", "true");
+      jelAssert.equal("'b' in {a:1, b:1}", "true");
+      return jelAssert.errorPromise("1 in 1");
+     });
     
  		 it('should support Promises in Types', function() {
         return Promise.all([jelAssert.equalPromise("3 instanceof string|PromiseType(number)|null|bool", "true"),

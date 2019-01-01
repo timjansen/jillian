@@ -158,12 +158,19 @@ export default class List extends JelObject implements SerializablePrimitive {
 		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, undefined, e, Float.valueOf(i)), (v, e)=>JelBoolean.toRealBoolean(v) ? JelBoolean.TRUE : undefined, r=>r || JelBoolean.FALSE);
 	}
 
- 	hasAnyJs(f: (a: JelObject|null, i: number)=>boolean): boolean {
+ 	contains_jel_mapping: Object;
+	contains(ctx: Context, b: any): JelBoolean | Promise<JelBoolean> {
+		return Util.processPromiseList(this.elements, e=>Runtime.op(ctx, '==', e, b), (v, e)=>JelBoolean.toRealBoolean(v) ? JelBoolean.TRUE : undefined, r=>r || JelBoolean.FALSE);
+	}
+
+  hasAnyJs(f: (a: JelObject|null, i: number)=>boolean): boolean {
 		for (let i = 0; i < this.elements.length; i++)
       if (f(this.elements[i], i))
         return true;
     return false;
 	}
+
+  
   
   toDictionaryJs(f: (a: JelObject|null, i: number)=>string): boolean {
     const d = BaseTypeRegistry.get('Dictionary').valueOf();
@@ -473,6 +480,7 @@ List.prototype.map_jel_mapping = ['f'];
 List.prototype.filter_jel_mapping = ['f'];
 List.prototype.reduce_jel_mapping = ['f', 'init'];
 List.prototype.hasAny_jel_mapping = ['f'];
+List.prototype.contains_jel_mapping = ['e'];
 List.prototype.hasOnly_jel_mapping = ['f'];
 List.prototype.firstMatch_jel_mapping = ['f'];
 List.prototype.lastMatch_jel_mapping = ['f'];

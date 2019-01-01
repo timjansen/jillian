@@ -7,7 +7,7 @@ import Util from '../util/Util';
 import TokenReader from './TokenReader';
 import {TokenType, Token, TemplateToken, RegExpToken, FractionToken} from './Token';
 
-const wordOperators: any = new Set(['instanceof', 'if', 'then', 'else', 'let', 'class', 'as']);
+const wordOperators: any = new Set(['instanceof', 'if', 'then', 'else', 'let', 'class', 'as', 'in']);
 const constantMapping: any = {'null': null, 'true': true, 'false': false};
 const constants: any = new Map(Object.keys(constantMapping).map(x=>[x, constantMapping[x]]) as any);
 
@@ -29,8 +29,8 @@ export default class Tokenizer {
 	}
 	
   static tokenize(input: string): TokenReader {
-    //          line comment   full comment                | Fraction                               |Number                        Operator                                                                                                                       Identifier-like                    pattern           single-quoted    double-quoted        illegal
-    const re = /\/\/.*(?:\n|$)|\/\*(?:[^\*]+|\*+[^\/])*\*\/|(\d+\s*\/\s*[1-9]\d*(?![e.][0-9]|[0-9]))|(\d+(?:\.\d+)?(?:e[+-]?\d+)?)|([\(\)\]\}:,\*\/^%@~]|\.\.\.|\.|\+-|\+|-|\{\}|\[\]|\$\{|\{|\[|=>|===|==|=|<>|<<=|>>=|>=|<=|>>|<<|>|<|!==|!=|!|\|\||\&\&|\||\?)|([a-zA-Z_](?:[\w_]|\:\:[a-zA-Z])*)|(`(?:\\.|[^`])*`)|('(?:\\.|[^'])*'|"(?:\\.|[^"])*")|\s+|(.+)/g;
+    //          line comment   full comment                | Fraction                               |Number                        Operator                                                                                                                       Identifier-like                    pattern           single-quoted      double-quoted        illegal
+    const re = /\/\/.*(?:\n|$)|\/\*(?:[^\*]+|\*+[^\/])*\*\/|(\d+\s*\/\s*[1-9]\d*(?![e.][0-9]|[0-9]))|(\d+(?:\.\d+)?(?:e[+-]?\d+)?)|([\(\)\]\}:,\*\/^%@~]|\.\.\.|\.|\+-|\+|-|\{\}|\[\]|\$\{|\{|\[|=>|===|==|=|<>|<<=|>>=|>=|<=|>>|<<|>|<|!==|!=|!|\|\||\&\&|\||\?)|([a-zA-Z_](?:[\w_]|\:\:[a-zA-Z])*)|(`(?:\\.|[^`])*`)|('(?:\\.|[^'])*')|("(?:\\.|[^"])*")|\s+|(.+)/g;
     // groups:
     // group 1: fraction
     // group 2: number
@@ -73,7 +73,9 @@ export default class Tokenizer {
       else if (matches[6])
         tokens.push(new Token(line, col, TokenType.Literal, Tokenizer.unescape(matches[6].replace(/^.|.$/g, ''))));
       else if (matches[7])
-        throw new Error(`Unsupported token found at line ${line}, column ${col}: "${matches[7]}"`);
+        tokens.push(new Token(line, col, TokenType.Literal, Tokenizer.unescape(matches[7].replace(/^.|.$/g, ''))));
+      else if (matches[8])
+        throw new Error(`Unsupported token found at line ${line}, column ${col}: "${matches[8]}"`);
       else if (matches[1]) {
 				const fractionMatch = fractionRE.exec(matches[1]);
 				if (!fractionMatch)
