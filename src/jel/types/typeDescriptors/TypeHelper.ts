@@ -2,6 +2,7 @@ import TypeDescriptor from './TypeDescriptor';
 import SimpleType from './SimpleType';
 import InRangeType from './InRangeType';
 import OptionType from './OptionType';
+import EnumType from './EnumType';
 import ComplexType from './ComplexType';
 import NumberType from './NumberType';
 import UnitValueType from './UnitValueType';
@@ -9,6 +10,7 @@ import JelObject from '../../JelObject';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
 import Range from '../Range';
 import Float from '../Float';
+import Enum from '../Enum';
 import Fraction from '../Fraction';
 import UnitValue from '../UnitValue';
 import Dictionary from '../Dictionary';
@@ -18,9 +20,9 @@ import List from '../List';
 export default class TypeHelper {
   
  	/**
-	 * Converts TypeDefintion, TypeDescriptor, DbRefs, List, Range or Dictionary into a TypeDescriptor. It wraps the DbRef or Class into a SimpleType, and the
-	 * Dictionary in a ComplexType. Lists become OptionTypes. Ranges become InRangeTypes.
-	 * @param l a TypeDefintion or TypeDescriptor or DbRef or Dictionary or List or Range, or null
+	 * Converts Class, Enum, DbRefs, List, Range or Dictionary into a TypeDescriptor. It wraps the DbRef into a ReferenceDispatcherType, and the
+	 * Dictionary in a ComplexType. Lists become OptionTypes. Ranges become InRangeTypes. Enums become EnumType. TypeDescriptors are just returned as-is.
+	 * @param l a TypeDescriptor or Class or NativeClass or DbRef or Dictionary or List or Range or Enum, or null
 	 * @return the TypeDescriptor
 	 */
 	static convertNullable(l: JelObject, name: string): TypeDescriptor {
@@ -38,6 +40,8 @@ export default class TypeHelper {
       else
         return new InRangeType(l);
     }
+    else if (l instanceof Enum)
+      return new EnumType(l.distinctName);
 		else if (TypeChecker.isIClass(l))
 			return new SimpleType((l as any).className);
   
