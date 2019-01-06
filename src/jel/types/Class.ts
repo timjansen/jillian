@@ -116,7 +116,7 @@ export default class Class extends PackageContent implements IClass {
    */
   constructor(public className: string, public superType?: Class, public ctor: LambdaCallable|null = null, public propertyDefs = List.empty,
                public methods = Dictionary.empty, public getters = Dictionary.empty, public staticConstantProperties = Dictionary.empty,
-               public staticContextProperties = Dictionary.empty) {
+               public staticContextProperties = Dictionary.empty, public isAbstract = false) {
     super(className);
    
     if (/^[^A-Z]/.test(className))
@@ -187,8 +187,11 @@ export default class Class extends PackageContent implements IClass {
 
   create_jel_mapping: any; // set in ctor
   create(ctx: Context, ...args: any[]): any {
+    if (this.isAbstract)
+      throw new Error(`The class ${this.className} can not be instantiated. Is is declared abstract.`);
     if (!this.ctor)
-      throw new Error(`The type ${this.className} can not be instantiated. No constructor defined.`);
+      throw new Error(`The class ${this.className} can not be instantiated. No constructor defined.`);
+    
 
     const props = new Dictionary().putAll(this.propertyDefaults);
     const openChecks: (JelBoolean|Promise<JelBoolean>)[] = [];
@@ -234,13 +237,13 @@ export default class Class extends PackageContent implements IClass {
     });
   }
   
-  static create_jel_mapping = ['className', 'superType', 'constructor', 'propertyDefs', 'methods', 'getters', 'static', 'staticInitializer'];
+  static create_jel_mapping = ['className', 'superType', 'constructor', 'propertyDefs', 'methods', 'getters', 'staticValues', 'staticInitializer', 'isAbstract'];
   static create(ctx: Context, ...args: any[]): Class|Promise<Class> {
     if (TypeChecker.isIDbRef(args[1]))
-      return args[1].with(ctx, (t: Class) => Class.create(ctx, args[0], t, args[2], args[3], args[4], args[5], args[6], args[7]));
+      return args[1].with(ctx, (t: Class) => Class.create(ctx, args[0], t, args[2], args[3], args[4], args[5], args[6], args[7], args[8]));
 
     if (args[3] instanceof Dictionary)
-      return Class.create(ctx, args[0], args[1], args[2], new List(args[3].mapToArrayJs((name: any, type: any)=>new TypedParameterValue(name, null, type))), args[4], args[5], args[6], args[7]);
+      return Class.create(ctx, args[0], args[1], args[2], new List(args[3].mapToArrayJs((name: any, type: any)=>new TypedParameterValue(name, null, type))), args[4], args[5], args[6], args[7], args[8]);
       
     const c = new Class(TypeChecker.realString(args[0], 'className'), 
                               TypeChecker.optionalInstance(Class, args[1], 'superType')||undefined,
@@ -248,8 +251,9 @@ export default class Class extends PackageContent implements IClass {
                               TypeChecker.optionalInstance(List, args[3], 'propertyDefs')||List.empty,
                               TypeChecker.optionalInstance(Dictionary, args[4], 'methods')||Dictionary.empty,
                               TypeChecker.optionalInstance(Dictionary, args[5], 'getters')||Dictionary.empty,
-                              TypeChecker.optionalInstance(Dictionary, args[6], 'static')||Dictionary.empty,
-                              TypeChecker.optionalInstance(Dictionary, args[7], 'staticInitializer')||Dictionary.empty);
+                              TypeChecker.optionalInstance(Dictionary, args[6], 'staticValues')||Dictionary.empty,
+                              TypeChecker.optionalInstance(Dictionary, args[7], 'staticInitializer')||Dictionary.empty,
+                              TypeChecker.realBoolean(args[8], 'isAbstract', false));
     return c.staticInit(ctx);
   }
 }

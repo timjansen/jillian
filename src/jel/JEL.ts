@@ -113,9 +113,9 @@ const IF_STOP = {'then': true};
 const THEN_STOP = {'else': true};
 const LET_STOP = {':': true, ',': true};
 const WITH_STOP = {':': true, ',': true};
-const CLASS_EXTENDS_STOP = {':': true, ',': true, identifier: true};
-const CLASS_EXPRESSION_STOP = {identifier: true};
-const CLASS_TYPE_EXPRESSION_STOP = {'=': true, identifier: true};
+const CLASS_EXTENDS_STOP = {':': true, ',': true, identifier: true, abstract: true, static: true};
+const CLASS_EXPRESSION_STOP = {identifier: true, abstract: true, static: true};
+const CLASS_TYPE_EXPRESSION_STOP = {'=': true, identifier: true, abstract: true, static: true};
 
 const EQUAL = {'=': true};
 const COLON = {':': true};
@@ -154,11 +154,16 @@ export default class JEL {
 	}
 	 
 	static nextIsOrThrow(tokens: TokenReader, type: TokenType, msg: string): Token {
-		if (tokens.peekIs(type))
+    return JEL.nextIsValueOrThrow(tokens, type, undefined, msg);
+	}
+
+ 	static nextIsValueOrThrow(tokens: TokenReader, type: TokenType, value: string|undefined, msg: string): Token {
+		if (tokens.peekIs(type, value))
 			return tokens.next();
 		JEL.throwParseException(tokens.last(), msg);
 		return undefined as any; // just to make Typescript happy
 	}
+
   
   static parseExpression(tokens: TokenReader, precedence = 0, stopOps = NO_STOP): JelNode {
     const token = JEL.nextOrThrow(tokens, "Unexpected end, expected another token");
@@ -279,6 +284,7 @@ export default class JEL {
     case 'with':
       const assertions: JelNode[] = JEL.parseListOfExpressions(tokens, WITH_PRECEDENCE, WITH_STOP, ':', "Expected colon after last expression in 'with' assertion");
       return JEL.tryBinaryOps(tokens, new With(assertions, JEL.parseExpression(tokens, WITH_PRECEDENCE, stopOps)), precedence, stopOps);
+    case 'abstract':
     case 'class':
       return JEL.tryBinaryOps(tokens, JEL.parseClass(tokens, precedence, stopOps), precedence, stopOps);
     case 'enum':
@@ -594,6 +600,7 @@ export default class JEL {
   
   
   static parseClass(tokens: TokenReader, precedence: number, stopOps: any): ClassDef {
+    const isAbstract = tokens.last().value == 'abstract' && !!JEL.nextIsValueOrThrow(tokens, TokenType.Operator, 'class', "Modifier 'abstract' must be followed by 'class'");
     const classExpressionStop: any = Object.assign(CLASS_EXPRESSION_STOP, stopOps);
     const classTypeExpressionStop: any = Object.assign(CLASS_TYPE_EXPRESSION_STOP, stopOps);
     const className = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier after 'class' declaration");
@@ -615,10 +622,15 @@ export default class JEL {
         return new ClassDef(className.value, superType, ctor, propertyDefs, methods, getters, staticProperties);
       tokens.next();
       
-      const staticModifier = peek.is(TokenType.Identifier, 'static');
-      const next = staticModifier ? tokens.next() : peek;
+      const staticModifier = peek.is(TokenType.Operator, 'static');
+      const abstractModifier = peek.is(TokenType.Operator, 'abstract');
+      const next = (staticModifier || abstractModifier) ? tokens.next() : peek;
       
       if (next.is(TokenType.Identifier, 'constructor') && tokens.nextIf(TokenType.Operator, '(')) {
+        if (staticModifier)
+          JEL.throwParseException(next, `Static constructors are not supported.`);
+        if (abstractModifier)
+          JEL.throwParseException(next, `Abstract constructors are not supported. You can make the whole class abstract.`);
         
         const args = JEL.checkTypedParameters(JEL.tryParseTypedParameters(tokens, CLASS_PRECEDENCE, NO_STOP), next);
         if (args == null)
@@ -629,6 +641,8 @@ export default class JEL {
       else if (next.is(TokenType.Identifier, 'get') && tokens.peekIs(TokenType.Identifier)) { // getter
         if (staticModifier)
           JEL.throwParseException(next, `Static getters are not supported.`);
+        if (abstractModifier)
+          JEL.throwParseException(next, `Abstract getters are not supported.`);
         
         const propertyName = tokens.next().value;
         if (propertyNames.has(propertyName))
@@ -643,6 +657,8 @@ export default class JEL {
       else if ((next.is(TokenType.Identifier, 'op') ||  next.is(TokenType.Identifier, 'singleOp')) && tokens.peekIs(TokenType.Operator) && !tokens.peekIs(TokenType.Operator, '(')) { // ops
         if (staticModifier)
           JEL.throwParseException(next, `Operator methods can not be combined with a 'static' modifier.`);
+        if (abstractModifier)
+          JEL.throwParseException(next, `Operator methods can not be combined with an 'abstract' modifier.`);
         const op = tokens.next().value;
         if (propertyNames.has(op))
           JEL.throwParseException(tokens.last(), `Operator ${op} already declared`);
@@ -675,14 +691,18 @@ export default class JEL {
         if (args == null)
           JEL.throwParseException(tokens.last(), `Can not parse argument list for method ${methodName}`);
         const asCheck = JEL.tryParseAsTypeCheck(tokens, precedence, COLON);
+        
+        if (!abstractModifier)
         tokens.nextIf(TokenType.Operator, ':');
-        const lambda = new Lambda(args!, asCheck, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
+        const lambda = new Lambda(args!, asCheck, abstractModifier ? new Literal(false) : JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
         if (staticModifier)
           staticProperties.push(new Assignment(methodName, lambda));
         else
           methods.push(new Assignment(methodName, lambda));
       }
       else if (next.is(TokenType.Identifier) && (tokens.peekIs(TokenType.Operator, ':') || tokens.peekIs(TokenType.Operator, '='))) {
+          if (abstractModifier)
+            JEL.throwParseException(next, 'You cannot declare an abstract property.');
         const propertyName = next.value;
         if (propertyNames.has(propertyName))
           JEL.throwParseException(tokens.last(), `Property ${propertyName} is already declared`);

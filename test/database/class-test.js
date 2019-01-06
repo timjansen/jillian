@@ -109,8 +109,14 @@ tmp.dir(function(err, path) {
 
       });
       
+      it('supports abstract superTypes', function() {
+        jelAssert.equal(`let superType=abstract class SuperType: a=1 constructor(x=1){a:x+5} abstract test(), subType=class SubType extends superType: constructor() super(9), sub1=subType():
+                            [sub1.a]`, "[14]");
+        return JEL.execute(`let s = abstract class AC: constructor(){} : s()`);
+      });
+      
       it('supports static properties', function() {
-        jelAssert.equal('let myTestType=Class("MyTestType", static={add: (a,b)=>a+b, ft: 42}): myTestType.ft + myTestType.add(1, 2)', "45");
+        jelAssert.equal('let myTestType=Class("MyTestType", staticValues={add: (a,b)=>a+b, ft: 42}): myTestType.ft + myTestType.add(1, 2)', "45");
         jelAssert.equal('let myTestType=class MyTestType: static add(a,b) as Float:a+b static ft = 42: myTestType.ft + myTestType.add(1, 2)', "45");
       });
       
