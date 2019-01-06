@@ -1,0 +1,17 @@
+abstract class Fact
+  transcript: @TranscriptCategory
+  transscriptSentence: int<>
+  creator: Thing // who created this titbit. Not always the person who made the claim, but rather who fed it into the AI
+  type: FactTypeEnum
+  trustLevel: 0...100        // 100 is fact by root, estimate would be 10... 
+  reality: @RealityCategory
+  startTime: time?           // the time the fact starts to become true
+  endTime: time?             // the time the fact ends
+
+  /**
+   * Checks whether the given value for the property is either the same value or compatible with the titbit's value.
+   * @param v the value to check
+   * @return true if the value is compatible, false otherwise
+   */
+  checkValue(v: any) as bool:
+    false

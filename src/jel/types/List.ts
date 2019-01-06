@@ -318,7 +318,7 @@ export default class List extends JelObject implements SerializablePrimitive {
 		
 		const ex = exec();
 		if (ex instanceof Promise) 
-			return ex.then(()=>swap(i+1, end) || i+1);
+			return ex.then(()=>{swap(i+1, end); return i+1});
 		swap(i+1, end);
 		return i + 1;
 	}

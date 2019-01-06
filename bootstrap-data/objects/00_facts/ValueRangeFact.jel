@@ -1,0 +1,3 @@
+class ValueRangeFact extends Fact
+    values: Range
+

@@ -1,0 +1,8 @@
+enum FactTypeEnum:
+  Hearsay,      // if someone tells a fact without the required context
+  Design,       // if the property is like that by design, e.g. the length of a particular car
+  Sample,       // if the property has been measured
+  Estimate,     // someone estimated the property or has a theory about it
+  Calculation,  // if the property has been derived from other values
+  Definition,   // if the property is defined to be like this. E.g. the length of an inch.
+  Narrative     // if this is the setting of a story in an alt reality

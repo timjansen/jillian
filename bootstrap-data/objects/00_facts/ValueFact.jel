@@ -1,0 +1,2 @@
+class ValueFact extends Fact
+    value: any

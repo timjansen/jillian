@@ -16,7 +16,7 @@ export default class FunctionType extends TypeDescriptor {
 	/**
 	 * A list of strings that represent argument names for the function.
 	 */
-  constructor(public args: List) {
+  constructor(public args?: List) {
     super();
   }
 

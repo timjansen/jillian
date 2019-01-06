@@ -1,0 +1,2 @@
+class ValueListFact extends Fact
+    values: any[]

@@ -1,0 +1,7 @@
+abstract class MediaReference
+  // TODO: refer to a book (ISBN,AUTHOR,TITLE,DATE,EDITION), conversation(Persons, location, time, mediatype, recordingPerson), 
+  //    movie (title, year), a URL... plus the location (e.g. page number, line number, chapter number, sentence number, timestamp)
+  x:any
+
+
+
