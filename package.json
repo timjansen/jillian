@@ -20,7 +20,7 @@
     "moment-timezone": "^0.5.21",
     "natural": "^0.6.1",
     "tifuhash": "^1.1.0",
-    "typescript": "^3.0.1"
+    "typescript": "^3.2.2"
   },
   "devDependencies": {
     "@types/node": "^8.10.24",
