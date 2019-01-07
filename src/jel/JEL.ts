@@ -559,11 +559,11 @@ export default class JEL {
 		}
 	}
   
-  static tryParseAsTypeCheck(tokens: TokenReader, precedence: number, stopOps: any): JelNode | undefined {
+  static tryParseAsTypeCheck(tokens: TokenReader, precedence: number, stopOps: any): TypedParameterDefinition | undefined {
     if (!tokens.nextIf(TokenType.Operator, 'as'))
       return undefined;
     
-    return JEL.parseExpression(tokens, precedence, stopOps);
+    return new TypedParameterDefinition('return value', undefined, JEL.parseExpression(tokens, precedence, stopOps));
   }
   
   static tryLambda(tokens: TokenReader, argName: string | null, precedence: number, stopOps: any): Lambda | undefined {

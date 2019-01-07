@@ -11,11 +11,11 @@ import Util from '../util/Util';
 
 export default class LambdaCallable extends Callable implements SerializablePrimitive {
   
-  constructor(public argDefs: TypedParameterValue[], public expression: JelNode, public parentContext: Context, public name?: string, public self?: JelObject, public superConstructor?: LambdaCallable) {
+  constructor(public argDefs: TypedParameterValue[], public expression: JelNode, public parentContext: Context, public name?: string, public self?: JelObject, public superConstructor?: LambdaCallable, public returnType?: TypedParameterValue) {
 		super();
   }
 
-  static setVariable(ctx: Context, newCtx: Context, argDef: TypedParameterValue, value0: JelObject|null): Promise<any>|undefined {
+  private static setVariable(ctx: Context, newCtx: Context, argDef: TypedParameterValue, value0: JelObject|null): Promise<any>|undefined {
     const value = value0 || argDef.defaultValue;
     if (argDef.type) {
       const convertedValue: any = argDef.type.convert(ctx, value, argDef.name);
@@ -32,7 +32,7 @@ export default class LambdaCallable extends Callable implements SerializablePrim
     return undefined;
   }
   
-  private static invoke(ctx: Context, self: JelObject|undefined, superConstructor: LambdaCallable|undefined, argDefs: TypedParameterValue[], expression: JelNode, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>): JelObject|null|Promise<JelObject|null> {
+  private static invoke(ctx: Context, self: JelObject|undefined, superConstructor: LambdaCallable|undefined, argDefs: TypedParameterValue[], expression: JelNode, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>, returnType?: TypedParameterValue): JelObject|null|Promise<JelObject|null> {
 		const newCtx = new Context(ctx);
     const openPromises: any[] = [];
     
@@ -74,27 +74,31 @@ export default class LambdaCallable extends Callable implements SerializablePrim
     
     return Util.resolveArray(openPromises, ()=> {
       newCtx.freeze();
-      return expression.execute(newCtx);
+      const r = expression.execute(newCtx);
+      if (returnType && returnType.type) 
+        return Util.resolveValue(r, ret=>returnType.type!.convert(ctx, ret, 'return value'));
+      else 
+        return r;
     });
   }
   
 	invokeWithObject(ctx: Context, self: JelObject|undefined, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>): JelObject|null|Promise<JelObject|null> {   // context will be ignored for lambda. No promise support here, only in Call.
-    return LambdaCallable.invoke(this.parentContext, self || this.self, this.superConstructor, this.argDefs, this.expression, args, argObj);
+    return LambdaCallable.invoke(this.parentContext, self || this.self, this.superConstructor, this.argDefs, this.expression, args, argObj, this.returnType);
 	}
 	
 	invoke(ctx: Context, self: JelObject|undefined, ...args: (JelObject|null)[]): JelObject|null|Promise<JelObject|null> {
-    return LambdaCallable.invoke(this.parentContext, self || this.self, this.superConstructor, this.argDefs, this.expression, args);
+    return LambdaCallable.invoke(this.parentContext, self || this.self, this.superConstructor, this.argDefs, this.expression, args, undefined, this.returnType);
 	}
 
   rebind(self: JelObject|undefined): LambdaCallable {
-    return Object.is(this.self, self) ? this : new LambdaCallable(this.argDefs, this.expression, this.parentContext, this.name, self, this.superConstructor);
+    return Object.is(this.self, self) ? this : new LambdaCallable(this.argDefs, this.expression, this.parentContext, this.name, self, this.superConstructor, this.returnType);
   }
 
   bindSuper(superConstructor: LambdaCallable|null): LambdaCallable {
-    return Object.is(this.superConstructor, superConstructor) ? this : new LambdaCallable(this.argDefs, this.expression, this.parentContext, this.name, this.self, superConstructor||undefined);
+    return Object.is(this.superConstructor, superConstructor) ? this : new LambdaCallable(this.argDefs, this.expression, this.parentContext, this.name, this.self, superConstructor||undefined, this.returnType);
   }
   
- getArguments(): any[]|undefined {
+  getArguments(): any[]|undefined {
     return this.argDefs;
   }
   
@@ -103,9 +107,11 @@ export default class LambdaCallable extends Callable implements SerializablePrim
 	}
 
 	toString(): string {
-		if (this.argDefs.length == 1 && this.argDefs[0].isNameOnly)
+		if (this.argDefs.length == 1 && this.argDefs[0].isNameOnly && !this.returnType)
 			return `${this.argDefs[0].name}=>${this.expression.toString()}`;
-		else
+		else if (this.returnType && this.returnType.type)
+			return `(${this.argDefs.map(ad=>ad.toString()).join(', ')}) as ${this.returnType.type.toString()}=>${this.expression.toString()}`;
+    else
 			return `(${this.argDefs.map(ad=>ad.toString()).join(', ')})=>${this.expression.toString()}`;
 	}
 }

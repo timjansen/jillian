@@ -20,19 +20,23 @@ import Util from '../../util/Util';
  *	(a: Float, b: Float = 5)=>a+b          // type checks
  */ 
 export default class Lambda extends CachableJelNode {
-  private wrappedExpression: JelNode;
-  
-  constructor(public args: TypedParameterDefinition[], public typeCheck: JelNode|undefined, public expression: JelNode) {
+ 
+  constructor(public args: TypedParameterDefinition[], public typeCheck: TypedParameterDefinition|undefined, public expression: JelNode) {
 		super();
-
-    this.wrappedExpression = this.typeCheck ? new As(expression, this.typeCheck, ' for return value') : expression;
   }
   
 	// override
   executeUncached(ctx: Context): JelObject|null|Promise<JelObject|null> {
-    return Util.resolveArray(this.args.map(a=>a.execute(ctx)), args=>{
-      return new LambdaCallable(args, this.wrappedExpression, ctx, "(anon lambda)");
-    });
+    if (this.typeCheck) {
+      const eList = [this.typeCheck.execute(ctx)].concat(this.args.map(a=>a.execute(ctx)));
+      return Util.resolveArray(eList, eListResolved=>{
+        return new LambdaCallable(eListResolved.slice(1), this.expression, ctx, "(anonymous lambda)", undefined, undefined, eListResolved[0]);
+      });
+    }
+    else
+      return Util.resolveArray(this.args.map(a=>a.execute(ctx)), args=>{
+        return new LambdaCallable(args, this.expression, ctx, "(anonymous lambda)");
+      });
 	}
 	
   isStaticUncached(ctx: Context): boolean {
@@ -49,14 +53,15 @@ export default class Lambda extends CachableJelNode {
 	// override
   equals(other?: JelNode): boolean {
 		return other instanceof Lambda &&
-			this.wrappedExpression.equals(other.wrappedExpression) && 
+			this.expression.equals(other.expression) && 
+      ((this.typeCheck==other.typeCheck) || (!!this.typeCheck && !!other.typeCheck && this.typeCheck.equals(other.typeCheck))) &&
       this.args.length == other.args.length && 
       !this.args.find((l, i)=>!l.equals(other.args[i]));
 	}
 
 	toString(): string {
-    if (this.typeCheck)
-			return `${this.toArgumentString()} as ${this.typeCheck.toString()}=>${this.expression.toString()}`;		
+    if (this.typeCheck && this.typeCheck.type)
+			return `${this.toArgumentString()} as ${this.typeCheck.type.toString()}=>${this.expression.toString()}`;		
 		else if (this.args.length == 1 && this.args[0].isNameOnly) 
 			return `${this.args[0].name}=>${this.expression.toString()}`;
 		else

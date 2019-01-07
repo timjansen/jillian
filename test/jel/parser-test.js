@@ -98,10 +98,10 @@ describe('JEL', function() {
       jelAssert.equal(new JEL('((a, b)=>a+b)(1,2)').parseTree, new Call(new Lambda([new TypedParameterDefinition('a'), new TypedParameterDefinition('b')], undefined, new Operator('+', new Variable('a'), new Variable('b'))), [new Literal(1),  new Literal(2)]));
       jelAssert.equal(new JEL('(a="x")=>a').parseTree, new Lambda([new TypedParameterDefinition('a', new Literal('x'))], undefined, new Variable('a')));
       jelAssert.equal(new JEL('(a: LocalDate)=>a').parseTree, new Lambda([new TypedParameterDefinition('a', undefined, new Variable('LocalDate'))], undefined, new Variable('a')));
-      jelAssert.equal(new JEL('(a: String = "y") as String=>a').parseTree, new Lambda([new TypedParameterDefinition('a', new Literal('y'), new Variable('String'))], new Variable('String'), new Variable('a')));
+      jelAssert.equal(new JEL('(a: String = "y") as String=>a').parseTree, new Lambda([new TypedParameterDefinition('a', new Literal('y'), new Variable('String'))], new TypedParameterDefinition('return value', undefined, new Variable('String')), new Variable('a')));
       jelAssert.equal(new JEL('((a = 12, b: String, c: Float = 1) as String=>a+b)(1,2)').parseTree, new Call(new Lambda([new TypedParameterDefinition('a', new Literal(12)), 
                                                                                                                 new TypedParameterDefinition('b', null, new Variable('String')), 
-                                                                                                                new TypedParameterDefinition('c', new Literal(1), new Variable('Float'))], new Variable('String'), 
+                                                                                                                new TypedParameterDefinition('c', new Literal(1), new Variable('Float'))], new TypedParameterDefinition('return value', undefined, new Variable('String')), 
                                                                                                                new Operator('+', new Variable('a'), new Variable('b'))), [new Literal(1),  new Literal(2)]));
     });
 
