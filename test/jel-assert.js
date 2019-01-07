@@ -47,9 +47,22 @@ class JelAssert {
 		return Promise.all([a0, b0]).then(x=>this.equal(Serializer.serialize(x[0]), Serializer.serialize(x[1]), c));
 	}
 
- 	errorPromise(a, c) {
-		const a0 = this.execPromise(a);
-		return a0.then(()=>false).catch(()=>true).then(v=>assert.ok(v, c||"expected error / rejected promise"));
+ 	errorPromise(a, snippet, c) {
+    try {
+  		const a0 = this.execPromise(a);
+  		return a0.then(v=>{
+        assert.fail(v, c||"expected error / rejected promise");
+      }).catch(e=>{
+        if (snippet && e instanceof Error && !e.message.includes(snippet))
+          assert.fail(`Got error in promise, but without expected text snippet: "${snippet}". Got message: ${e.message}`);
+      });
+    }
+    catch (e) {
+      // thrown error also passes
+      if (snippet && e instanceof Error && !e.message.includes(snippet))
+        assert.fail(`Got error (as exception), but without expected text snippet: "${snippet}". Got message: ${e.message}`);
+      return Promise.resolve(e);
+    }
 	}
 
   

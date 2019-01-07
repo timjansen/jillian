@@ -1,5 +1,5 @@
 import TypeDescriptor from '../../jel/types/typeDescriptors/TypeDescriptor';
-import UnitValueType from '../../jel/types/typeDescriptors/UnitValueType';
+import UnitValueType from './UnitValueType';
 import {IDbRef} from '../../jel/IDatabase';
 import TypeChecker from '../../jel/types/TypeChecker';
 import JelBoolean from '../../jel/types/JelBoolean';
@@ -51,9 +51,8 @@ export default class ReferenceDispatcherType extends TypeDescriptor {
       }
       else
         throw new Error(`Unsupported database entry ${dbe.distinctName} as reference type.`);
-      return action(this.type);
+      return action(this.type!);
     });
-    
   }
 
   checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean> {
@@ -64,7 +63,10 @@ export default class ReferenceDispatcherType extends TypeDescriptor {
     return this.dispatch(ctx, (type: TypeDescriptor)=>type.convert(ctx, value));
   }
 
-  
+  equals(ctx: Context, other: TypeDescriptor|null): JelBoolean|Promise<JelBoolean> {
+    return this.dispatch(ctx, type=>other instanceof ReferenceDispatcherType ? other.dispatch(ctx, otherType=>type.equals(ctx, otherType)) : type.equals(ctx, other));
+  }
+
   getSerializationProperties(): Object {
     return [this.type||this.ref];
   }

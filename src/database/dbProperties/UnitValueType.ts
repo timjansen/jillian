@@ -1,15 +1,16 @@
-import TypeDescriptor from './TypeDescriptor';
-import {IDbRef} from '../../IDatabase';
-import Unit from '../../types/Unit';
-import UnitValue from '../../types/UnitValue';
-import Range from '../../types/Range';
-import TypeChecker from '../../types/TypeChecker';
-import Runtime from '../../Runtime';
-import Context from '../../Context';
-import JelObject from '../../JelObject';
-import Serializer from '../../Serializer';
-import JelBoolean from '../JelBoolean';
-import Util from '../../../util/Util';
+import JelBoolean from '../../jel/types/JelBoolean';
+import TypeDescriptor from '../../jel/types/typeDescriptors/TypeDescriptor';
+import {IDbRef} from '../../jel/IDatabase';
+import Unit from '../../jel/types/Unit';
+import UnitValue from '../../jel/types/UnitValue';
+import Range from '../../jel/types/Range';
+import TypeChecker from '../../jel/types/TypeChecker';
+import Runtime from '../../jel/Runtime';
+import Context from '../../jel/Context';
+import JelObject from '../../jel/JelObject';
+import Serializer from '../../jel/Serializer';
+import Util from '../../util/Util';
+import BaseTypeRegistry from '../../jel/BaseTypeRegistry';
 
 
 /**
@@ -56,13 +57,24 @@ export default class UnitValueType extends TypeDescriptor {
   serializeType(): string {  
     return Serializer.serialize(this);
   }
+  
+  equals(ctx: Context, other: TypeDescriptor|null): JelBoolean|Promise<JelBoolean> {
+    if (other && other.constructor.name == 'ReferenceDispatcherType')
+      return other.equals(ctx, this);
+    return other instanceof UnitValueType && this.unit.equals(other.unit) ? (this.range == null ? JelBoolean.valueOf(other.range == null) : (other.range == null ? JelBoolean.FALSE : Runtime.op(ctx, '===', this.range, other.range) as any)) : JelBoolean.FALSE;
+  }
 	
+  static valueOf(unit: Unit, range?: Range): UnitValueType {
+    return new UnitValueType(unit, range);
+  }
+  
   static create_jel_mapping = ['unit', 'range'];
   static create(ctx: Context, ...args: any[]) {
     return new UnitValueType(args[0] instanceof Unit ? args[0] : Unit.create(ctx, args[0]), TypeChecker.optionalInstance(Range, args[1], 'range'));
   }
 }
 
+BaseTypeRegistry.register('UnitValueType', UnitValueType);
 
 
 

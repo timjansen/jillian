@@ -51,6 +51,12 @@ export default class JelString extends JelObject implements SerializablePrimitiv
 	trim(): string {
 		return this.value.trim();
 	}
+  
+  contains_jel_mapping: Object;
+	contains(ctx: Context, s0: any): boolean {
+    const s = TypeChecker.realString(s0, 's');
+		return this.value.includes(s);
+	}
 	
 	static valueOf(n: string): JelString {
 		return n ? new JelString(n) : JelString.EMPTY;
@@ -94,6 +100,7 @@ export default class JelString extends JelObject implements SerializablePrimitiv
 
 JelString.prototype.JEL_PROPERTIES = {length:1};
 JelString.prototype.trim_jel_mapping = [];
+JelString.prototype.contains_jel_mapping = ['s'];
 
 
 BaseTypeRegistry.register('String', JelString);

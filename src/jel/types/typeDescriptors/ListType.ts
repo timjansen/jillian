@@ -67,6 +67,10 @@ export default class ListType extends TypeDescriptor {
     return this.types ? `ListType(${this.types.serializeType()})` : `ListType()`;
   }
   
+  equals(ctx: Context, other: TypeDescriptor|null): JelBoolean|Promise<JelBoolean> {
+    return other instanceof ListType ? TypeDescriptor.equals(ctx, this.types, other.types) : JelBoolean.FALSE;
+  }
+  
   static valueOf(e: JelObject|null): ListType {
     return new ListType(e);
   }

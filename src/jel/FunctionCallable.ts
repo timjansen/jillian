@@ -40,6 +40,11 @@ export default class FunctionCallable extends Callable {
     return FunctionCallable.invoke(ctx, this.name, self || this.self, this.f, args, undefined, this.argMapper);
 	}
 	
+  getArguments(): any[]|undefined {
+    return undefined;
+  }
+
+  
 	// converts argmapper from array to object, if needed
 	convertArgMapper(argMapper?: any): Map<string,number> {
 		if (argMapper instanceof Array) {

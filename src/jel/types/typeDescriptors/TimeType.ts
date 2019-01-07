@@ -29,6 +29,10 @@ export default class TimeType extends TypeDescriptor {
     return 'time';
   }
   
+  equals(ctx: Context, other: TypeDescriptor|null): JelBoolean {
+    return JelBoolean.valueOf(other instanceof TimeType);
+  }
+  
   serializeToString() : string {
 		return this.serializeType();
 	}

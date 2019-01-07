@@ -30,6 +30,17 @@ export default abstract class TypeDescriptor extends JelObject {
     return Util.resolveValue(this.checkType(ctx, value), (b: JelBoolean)=>b.toRealBoolean() ? value : Promise.reject(new Error(`Failed to convert${fieldName?' '+fieldName:''} to ${this.serializeType()}. Value ${value&&value.toString()} is not compatible.`)));
   }
   
+  /**
+   * Returns true if this TypeDescriptor is identical with the given one.
+   */
+  abstract equals(ctx: Context, other: TypeDescriptor|null): JelBoolean|Promise<JelBoolean>;
+
+  /**
+   * Compares two (nullable) TypeDescriptors.
+   */
+  static equals(ctx: Context, a: TypeDescriptor|null, b: TypeDescriptor|null): JelBoolean|Promise<JelBoolean> {
+    return a == null ? JelBoolean.valueOf(b == null) : a.equals(ctx, b);
+  }
   
   /**
    * A simplified serialization for places that use TypeHelper.convert..().

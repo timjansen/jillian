@@ -17,6 +17,7 @@ import PackageContent from '../jel/types/PackageContent';
 import CategoryType from './dbProperties/CategoryType';
 import ThingType from './dbProperties/ThingType';
 import UnitValueQuantityType from './dbProperties/UnitValueQuantityType';
+import UnitValueType from './dbProperties/UnitValueType';
 import ReferenceDispatcherType from './dbProperties/ReferenceDispatcherType';
 import DurationType from './dbProperties/DurationType';
 
@@ -27,7 +28,7 @@ function c(ctor: any): NativeClass {
 
 const DB_IDENTIFIERS = {DbRef: c(DbRef), DbEntry: c(DbEntry), Category: c(Category), Thing: c(Thing), MixinProperty: c(MixinProperty), 
                         CategoryType: c(CategoryType), ReferenceDispatcherType: c(ReferenceDispatcherType), ThingType: c(ThingType), UnitValueQuantityType: c(UnitValueQuantityType),
-                        DurationType: c(DurationType), duration: DurationType.instance,
+                        DurationType: c(DurationType), UnitValueType: c(UnitValueType),duration: DurationType.instance,
 												 ___IS_DATABASE_CONTEXT: 'magic123'};
 
 

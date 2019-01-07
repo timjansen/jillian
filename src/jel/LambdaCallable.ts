@@ -93,7 +93,10 @@ export default class LambdaCallable extends Callable implements SerializablePrim
   bindSuper(superConstructor: LambdaCallable|null): LambdaCallable {
     return Object.is(this.superConstructor, superConstructor) ? this : new LambdaCallable(this.argDefs, this.expression, this.parentContext, this.name, this.self, superConstructor||undefined);
   }
-
+  
+ getArguments(): any[]|undefined {
+    return this.argDefs;
+  }
   
 	serializeToString() : string {
 		return this.toString();

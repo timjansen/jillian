@@ -459,6 +459,24 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
         return false;
     return true;
 	}
+  
+  hasOnlyWithPromises(f: (k: string, v: JelObject|null)=>JelBoolean|Promise<JelBoolean>): JelBoolean | Promise<JelBoolean> {
+		const self = this;
+		const it = this.elements.keys();
+		function exec(): Promise<JelBoolean> | JelBoolean {
+			while (true) {
+				const next = it.next();
+				if (next.done)
+					return JelBoolean.TRUE;
+				const r = f(next.value, self.elements.get(next.value) || null);
+				if (r instanceof Promise)
+					return r.then(v=> JelBoolean.toRealBoolean(v) ? exec() : JelBoolean.FALSE);
+				else if (!JelBoolean.toRealBoolean(r))
+					return JelBoolean.FALSE;
+			}
+		}
+		return exec();
+	}
 
   
 	toObjectDebug(): any {

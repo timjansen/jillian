@@ -5,7 +5,6 @@ import OptionType from './OptionType';
 import EnumType from './EnumType';
 import ComplexType from './ComplexType';
 import NumberType from './NumberType';
-import UnitValueType from './UnitValueType';
 import JelObject from '../../JelObject';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
 import Range from '../Range';
@@ -36,7 +35,7 @@ export default class TypeHelper {
       if (l.min instanceof Float || l.min instanceof Fraction || (l.min == null && (l.max instanceof Float || l.max instanceof Fraction)))
         return new NumberType(l);
       else if (l.min instanceof UnitValue || (l.min == null && (l.max instanceof UnitValue)))
-        return new UnitValueType(l.min ? l.min.unit : (l.max as UnitValue).unit, l);
+        return BaseTypeRegistry.get('UnitValueType').valueOf(l.min ? l.min.unit : (l.max as UnitValue).unit, l);
       else
         return new InRangeType(l);
     }

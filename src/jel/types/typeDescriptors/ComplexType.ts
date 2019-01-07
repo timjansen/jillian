@@ -71,6 +71,12 @@ export default class ComplexType extends TypeDescriptor {
     return Serializer.serialize(this.fields);
   }
 
+  equals(ctx: Context, other: TypeDescriptor|null): JelBoolean|Promise<JelBoolean> {
+    if (!(other instanceof ComplexType && this.fields.size == other.fields.size))
+      return JelBoolean.FALSE;
+    
+    return this.fields.hasOnlyWithPromises((k, v)=>JelBoolean.andWithPromises(JelBoolean.valueOf(other.fields.elements.get(k) != null), (other.fields.elements.get(k) as any).equals(ctx, this.fields.elements.get(k)!)));
+  }
 
   static create_jel_mapping = ['fields'];
   static create(ctx: Context, ...args: any[]) {

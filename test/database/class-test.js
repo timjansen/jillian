@@ -106,14 +106,25 @@ tmp.dir(function(err, path) {
                             [super1 instanceof superType, super1 instanceof subType, super1 instanceof other,
                              sub1 instanceof superType, sub1 instanceof subType, sub1 instanceof other,
                              o instanceof superType, o instanceof subType, o instanceof other]`, "[true, false, false, true, true, false, false, false, true]");
-
       });
       
       it('supports abstract superTypes', function() {
         jelAssert.equal(`let superType=abstract class SuperType: a=1 constructor(x=1){a:x+5} abstract test(), subType=class SubType extends superType: constructor() super(9), sub1=subType():
                             [sub1.a]`, "[14]");
-        return JEL.execute(`let s = abstract class AC: constructor(){} : s()`);
+        return jelAssert.errorPromise(`let s = abstract class AC: constructor(){} : s()`, 'declared abstract');
       });
+      
+      it('allows overriding methods', function() {
+        jelAssert.equal(`let superType=class SuperType: constructor(){} incX(x) x+1, subType=class SubType extends superType: constructor(){} incX(x)x+2, sup1=superType(), sub1=subType():
+                            [sup1.incX(5), sub1.incX(10)]`, "[6, 12]");
+        return Promise.all([
+          jelAssert.errorPromise(`let superType=abstract class SuperType: incX(x: int) x+1, subType=class SubType extends superType: constructor(){} incX(x: number)x+2: subType()`, 'number'),
+          jelAssert.errorPromise(`let superType=abstract class SuperType: incX(x: int) x+1, subType=class SubType extends superType: constructor(){} incX(ypsilon: int)x+2: subType()`, 'ypsilon'),
+          jelAssert.errorPromise(`let superType=abstract class SuperType: incX(a,b,c,d,e,f) a+1, subType=class SubType extends superType: constructor(){} incX(a,b,c,d,e,f,g)a+2: subType()`, '7'),
+          jelAssert.errorPromise(`let superType=abstract class SuperType: incX(x: int) x+1, subType=class SubType extends superType: constructor(){} incX(x: any)x+2: subType()`, 'any')
+          ]);
+      });
+
       
       it('supports static properties', function() {
         jelAssert.equal('let myTestType=Class("MyTestType", staticValues={add: (a,b)=>a+b, ft: 42}): myTestType.ft + myTestType.add(1, 2)', "45");

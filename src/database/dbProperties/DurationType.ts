@@ -34,6 +34,9 @@ export default class DurationType extends TypeDescriptor {
     return 'duration';
   }
   
+  equals(ctx: Context, other: TypeDescriptor|null): JelBoolean {
+    return JelBoolean.valueOf(other instanceof DurationType);
+  }
   serializeToString() : string {
 		return this.serializeType();
 	}

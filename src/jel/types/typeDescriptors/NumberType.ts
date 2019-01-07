@@ -39,6 +39,10 @@ export default class NumberType extends TypeDescriptor {
   serializeToString() : string {
 		return this.serializeType();
 	}
+  
+  equals(ctx: Context, other: TypeDescriptor|null): JelBoolean|Promise<JelBoolean> {
+    return other instanceof NumberType ? (this.range == null ? JelBoolean.valueOf(other.range == null) : (other.range == null ? JelBoolean.FALSE : Runtime.op(ctx, '===', this.range, other.range) as any)) : JelBoolean.FALSE;
+  }
 
   create_jel_mapping: any;
   create(ctx: Context, rangeOrMin: any, max: any): NumberType {

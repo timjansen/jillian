@@ -31,6 +31,10 @@ export default class InRangeType extends TypeDescriptor {
 		return this.serializeType();
 	}
 
+  equals(ctx: Context, other: TypeDescriptor|null): JelBoolean|Promise<JelBoolean> {
+    return other instanceof InRangeType ? Runtime.op(ctx, '===', this.range, other.range) as any : JelBoolean.FALSE;
+  }
+  
   static create_jel_mapping = ['range'];
   static create(ctx: Context, ...args: any[]): InRangeType {
     if (!(args[0] instanceof Range))

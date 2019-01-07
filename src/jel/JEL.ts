@@ -619,7 +619,7 @@ export default class JEL {
     while (true) {
       const peek = tokens.peek();
       if (!peek || (peek.type == TokenType.Operator && stopOps[peek.value]))
-        return new ClassDef(className.value, superType, ctor, propertyDefs, methods, getters, staticProperties);
+        return new ClassDef(className.value, superType, ctor, propertyDefs, methods, getters, staticProperties, isAbstract);
       tokens.next();
       
       const staticModifier = peek.is(TokenType.Operator, 'static');

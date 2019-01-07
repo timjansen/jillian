@@ -37,6 +37,11 @@ export default class AnyType extends TypeDescriptor {
     return 'any';
   }
   
+  equals(ctx: Context, other: TypeDescriptor|null): JelBoolean {
+    return JelBoolean.valueOf(other instanceof AnyType);
+  }
+
+  
   serializeToString() : string {
 		return this.serializeType();
 	}

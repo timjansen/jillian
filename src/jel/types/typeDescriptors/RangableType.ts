@@ -46,8 +46,12 @@ export default class RangableType extends TypeDescriptor {
   
   serializeType(): string {
     return `RangableType(${this.types.serializeType()})`;
+  }   
+  
+  equals(ctx: Context, other: TypeDescriptor|null): JelBoolean|Promise<JelBoolean> {
+    return other instanceof RangableType ? TypeDescriptor.equals(ctx, this.types, other.types) : JelBoolean.FALSE;
   }
-    
+ 
   static valueOf(e: JelObject): RangableType {
     return new RangableType(e);
   }

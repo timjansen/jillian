@@ -44,7 +44,11 @@ export default class OptionalType extends TypeDescriptor {
   serializeType(): string {
     return `${this.type}?`;
   }
-    
+  
+  equals(ctx: Context, other: TypeDescriptor|null): JelBoolean|Promise<JelBoolean> {
+    return other instanceof OptionalType ? TypeDescriptor.equals(ctx, this.type, other.type) : JelBoolean.FALSE;
+  }
+  
   static create_jel_mapping = ['type'];
   static create(ctx: Context, ...args: any[]) {
     return new OptionalType(args[0]);

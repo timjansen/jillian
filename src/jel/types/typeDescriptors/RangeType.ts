@@ -38,7 +38,10 @@ export default class RangeType extends TypeDescriptor {
   serializeType(): string {
     return this.types ? `RangeType(${this.types.serializeType()})` : `RangeType()`;
   }
-
+  
+  equals(ctx: Context, other: TypeDescriptor|null): JelBoolean|Promise<JelBoolean> {
+    return other instanceof RangeType ? TypeDescriptor.equals(ctx, this.types, other.types) : JelBoolean.FALSE;
+  }
 
   static create_jel_mapping = ['types'];
   static create(ctx: Context, ...args: any[]) {

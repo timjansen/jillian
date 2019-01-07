@@ -1,6 +1,7 @@
 import JelObject from './JelObject';
 import TypeDescriptor from './types/typeDescriptors/TypeDescriptor';
 import TypeChecker from './types/TypeChecker';
+import JelBoolean from './types/JelBoolean';
 import Context from './Context';
 import Serializer from './Serializer';
 import Util from '../util/Util';
@@ -30,6 +31,10 @@ export default class TypedParameterValue extends JelObject {
     else
       return `${this.name}: ${this.type.serializeType()} = ${Serializer.serialize(this.defaultValue)}`;
 	}
+  
+  compatibleWith(ctx: Context, other: TypedParameterValue): JelBoolean|Promise<JelBoolean> {
+    return this.name == other.name ? TypeDescriptor.equals(ctx, this.type,  other.type) : JelBoolean.FALSE;
+  }
   
   static create_jel_mapping = ['name', 'defaultValue', 'type'];
   static create(ctx: Context, ...args: any[]) {

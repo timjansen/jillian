@@ -199,6 +199,10 @@ export default class List extends JelObject implements SerializablePrimitive {
         return false;
     return true;
 	}
+  
+  hasOnlyWithPromises(f: (a: JelObject|null, i: number)=>JelBoolean | Promise<JelBoolean>): JelBoolean | Promise<JelBoolean> {
+		return Util.processPromiseList(this.elements, (e,i)=>f(e, i), (v, e)=>JelBoolean.toRealBoolean(v) ? undefined : JelBoolean.FALSE, r=>r || JelBoolean.TRUE);
+	}
 
  	firstMatch_jel_mapping: Object;
 	firstMatch(ctx: Context, f0: any): JelObject | null | Promise<JelObject | null> {

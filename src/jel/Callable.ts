@@ -1,5 +1,6 @@
 import Context from './Context';
 import JelObject from './JelObject';
+import BaseTypeRegistry from './BaseTypeRegistry';
 
 /**
  * A type that can be called.
@@ -26,5 +27,6 @@ export default abstract class Callable extends JelObject {
   
   abstract rebind(self: JelObject): Callable;
 
+  abstract getArguments(): any[]|undefined; // returns array of TypedParameterValue, if there is any typing
 }
 

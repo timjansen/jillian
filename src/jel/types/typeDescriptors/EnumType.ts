@@ -35,6 +35,10 @@ export default class EnumType extends TypeDescriptor {
 		return this.serializeType();
 	}
   
+  equals(ctx: Context, other: TypeDescriptor|null): JelBoolean {
+    return JelBoolean.valueOf(other instanceof EnumType && this.enumName == other.enumName);
+  }
+  
   static create_jel_mapping = ['enumRef'];
   static create(ctx: Context, ...args: any[]) {
     return new EnumType(args[0] instanceof Enum ? args[0].distinctName : TypeChecker.realString(args[0], 'enumRef'));

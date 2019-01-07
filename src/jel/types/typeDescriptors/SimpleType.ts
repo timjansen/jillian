@@ -32,6 +32,10 @@ export default class SimpleType extends TypeDescriptor {
   serializeType(): string {  
     return this.type;
   }
+  
+  equals(ctx: Context, other: TypeDescriptor|null): JelBoolean {
+    return JelBoolean.valueOf(other instanceof SimpleType && this.type == other.type);
+  }
 	
   static create_jel_mapping = ['type'];
   static create(ctx: Context, ...args: any[]) {

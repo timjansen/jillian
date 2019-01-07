@@ -45,7 +45,12 @@ export default class ThingType extends TypeDescriptor {
       return 'ThingType()';
     else
       return `ThingType(${Serializer.serialize(this.category)})`;
+  }
   
+  equals(ctx: Context, other: TypeDescriptor|null): JelBoolean|Promise<JelBoolean> {
+    if (other && other.constructor.name == 'ReferenceDispatcherType')
+      return other.equals(ctx, this);
+    return JelBoolean.valueOf(other instanceof ThingType && (this.category ? (other.category!=null && other.category.distinctName==this.category.distinctName) : !other.category));
   }
   
   static create_jel_mapping = {category: 1};

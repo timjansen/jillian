@@ -38,6 +38,10 @@ export default class IntType extends TypeDescriptor {
       return 'int';
   }
   
+  equals(ctx: Context, other: TypeDescriptor|null): JelBoolean|Promise<JelBoolean> {
+    return other instanceof IntType ? (this.range == null ? JelBoolean.valueOf(other.range == null) : (other.range == null ? JelBoolean.FALSE : Runtime.op(ctx, '===', this.range, other.range) as any)) : JelBoolean.FALSE;
+  }
+  
   create_jel_mapping: any;
   create(ctx: Context, rangeOrMin: any, max: any): IntType {
     if (rangeOrMin instanceof Range)

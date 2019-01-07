@@ -32,4 +32,8 @@ export default class DateType extends TypeDescriptor {
   serializeToString() : string {
 		return this.serializeType();
 	}
+    
+  equals(ctx: Context, other: TypeDescriptor): JelBoolean {
+    return JelBoolean.valueOf(other instanceof DateType);
+  }
 }

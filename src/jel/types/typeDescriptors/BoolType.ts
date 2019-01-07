@@ -38,6 +38,10 @@ export default class BoolType extends TypeDescriptor {
 		return this.serializeType();
 	}
 
+  equals(ctx: Context, other: TypeDescriptor|null): JelBoolean {
+    return JelBoolean.valueOf(other instanceof BoolType && this.onlyFullValues == other.onlyFullValues);
+  }
+
   static create_jel_mapping = ['onlyFullValues'];
   static create(ctx: Context, ...args: any[]): any {
     if (TypeChecker.optionalRealBoolean(args[0], 'onlyFullValues'))

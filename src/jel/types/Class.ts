@@ -154,7 +154,8 @@ export default class Class extends PackageContent implements IClass {
 
     this.create_jel_mapping = this.ctorArgList.map(lc=>lc.name);
   }
-  
+
+  // initialize static properties
   protected staticInit(ctx: Context): Promise<Class>|Class {
     if (this.staticContextProperties.empty)
       return this;
@@ -172,6 +173,42 @@ export default class Class extends PackageContent implements IClass {
       this.staticProperties = newProperties; 
       return this; 
     });
+  }
+  
+  protected findSuperMethod(name: string): Callable | undefined {
+    if (this.superType)
+      return this.superType.methods.elements.get(name) as Callable || this.superType.findSuperMethod(name);
+    return undefined;
+  }
+
+  protected checkMethodOverrides(ctx: Context): Promise<never>|undefined {
+    if (!this.superType)
+      return;
+    
+    return Util.waitArray(this.methods.mapToArrayJs((name, callable: Callable)=>{
+      const sm = this.findSuperMethod(name);
+      if (!sm)
+        return;
+
+      const subArgs = callable.getArguments();
+      const superArgs = sm.getArguments();
+      if (!subArgs || !superArgs)
+        return;
+      if (subArgs.length != superArgs.length)
+        throw new Error(`Error overriding method ${name} in ${this.className}: super type method has ${superArgs.length} arguments, but this implementation has only ${subArgs.length}.`);
+      
+      return Util.resolveArray(subArgs.map((arg,i)=>arg.compatibleWith(ctx, superArgs[i])), (argResults: JelBoolean[])=>{
+        const idx = argResults.findIndex(e=>!JelBoolean.toRealBoolean(e));
+        if (idx >= 0)
+          throw new Error(`Error overriding method ${name} in ${this.className}: super class argument ${idx+1} type '${superArgs[idx].toString()}' is incompatible with overriding type '${subArgs[idx].toString()}'.`);
+      });
+    }));
+  }
+
+
+  protected asyncInit(ctx: Context): Promise<Class>|Class {
+    return Util.resolveValue(this.checkMethodOverrides(ctx), 
+                             ()=>this.staticInit(ctx));
   }
 
   member(ctx: Context, name: string, parameters?: Map<string, any>): any {
@@ -254,7 +291,7 @@ export default class Class extends PackageContent implements IClass {
                               TypeChecker.optionalInstance(Dictionary, args[6], 'staticValues')||Dictionary.empty,
                               TypeChecker.optionalInstance(Dictionary, args[7], 'staticInitializer')||Dictionary.empty,
                               TypeChecker.realBoolean(args[8], 'isAbstract', false));
-    return c.staticInit(ctx);
+    return c.asyncInit(ctx);
   }
 }
 

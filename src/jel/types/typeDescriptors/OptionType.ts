@@ -49,6 +49,14 @@ export default class OptionType extends TypeDescriptor {
     return new OptionType(new List(e));
   }
   
+  equals(ctx: Context, other: TypeDescriptor|null): JelBoolean|Promise<JelBoolean> {
+    if (!(other instanceof OptionType && this.options.size == other.options.size))
+      return JelBoolean.FALSE;
+    
+    return this.options.hasOnlyWithPromises((v, i)=>TypeDescriptor.equals(ctx, v as TypeDescriptor, other.options.elements[i]));
+  }
+  
+  
   serializeType(): string {  
     return `OptionType([${this.options.elements.map(option=>option ? option.serializeType() : 'null').join(', ')}])`;
   }

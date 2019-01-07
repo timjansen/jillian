@@ -442,7 +442,7 @@ describe('JEL', function() {
     it('supports with', function() {
       jelAssert.equal('let a=1: with a>0: a', 1);
       jelAssert.equal('let a=1: with a>0, 3>2: a', 1);
-      assert.throws(()=>jelAssert.errorPromise('let a=1: with a>0, a<0: a'));
+      return jelAssert.errorPromise('let a=1: with a>0, a<0: a', 'a < 0');
     });
 
     

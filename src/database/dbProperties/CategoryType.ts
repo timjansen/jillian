@@ -49,6 +49,10 @@ export default class CategoryType extends TypeDescriptor {
   
   }
   
+  equals(ctx: Context, other: TypeDescriptor|null): JelBoolean {
+    return JelBoolean.valueOf(other instanceof CategoryType && (this.superCategory ? (other.superCategory!=null && other.superCategory.distinctName==this.superCategory.distinctName) : !other.superCategory));
+  }
+  
   static create_jel_mapping = {superCategory: 1};
   static create(ctx: Context, ...args: any[]) {
     return new CategoryType(TypeChecker.optionalDbRef(args[0], 'superCategory'));

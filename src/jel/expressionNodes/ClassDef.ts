@@ -16,7 +16,8 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
  */ 
 export default class ClassDef extends JelNode {
   
-  constructor(public name: string, public superName?: JelNode, public ctor?: Lambda, public propertyDefs: TypedParameterDefinition[] = [], public methods: Assignment[] = [], public getters: Assignment[] = [], public staticProperties: Assignment[] = []) {
+  constructor(public name: string, public superName?: JelNode, public ctor?: Lambda, public propertyDefs: TypedParameterDefinition[] = [], public methods: Assignment[] = [], public getters: Assignment[] = [], public staticProperties: Assignment[] = [], 
+              public isAbstract = false) {
 		super();
   }
   
@@ -36,7 +37,8 @@ export default class ClassDef extends JelNode {
                               ClassDef.executeToDictionary(ctx, this.methods),
                               ClassDef.executeToDictionary(ctx, this.getters),
                               ClassDef.executeToDictionary(ctx, staticStaticProperties),
-                              unstaticStaticProperties.length ? BaseTypeRegistry.get('List').valueOf(unstaticStaticProperties).toDictionaryJs((l: Assignment)=>l.name).mapJs((k:string, l: Assignment)=>l.asCallable()) : BaseTypeRegistry.get('Dictionary').empty);
+                              unstaticStaticProperties.length ? BaseTypeRegistry.get('List').valueOf(unstaticStaticProperties).toDictionaryJs((l: Assignment)=>l.name).mapJs((k:string, l: Assignment)=>l.asCallable()) : BaseTypeRegistry.get('Dictionary').empty,
+                              this.isAbstract);
 	}
                               
 

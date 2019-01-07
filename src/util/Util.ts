@@ -127,6 +127,11 @@ export default class Util {
 			}
 	}
 	
+  static waitArray(arr: any[]): any|Promise<any> {
+		if (arr.find(v=>v instanceof Promise))
+			return Promise.all(arr);
+	}
+  
 	/**
 	 * Helper to invoke a function promiseGenerator for every element of an array, in which the function may return a Promise or not.
 	 * promiseProcessor is called when promiseGenerator's return value is available (thus either immediately or when the Promise resolved).

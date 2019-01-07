@@ -34,6 +34,12 @@ export default class UnitValueQuantityType extends TypeDescriptor {
     return `UnitValueQuantityType(${Serializer.serialize(this.quantityCategory)})`;
   }
   
+  equals(ctx: Context, other: TypeDescriptor|null): JelBoolean|Promise<JelBoolean> {
+    if (other && other.constructor.name == 'ReferenceDispatcherType')
+      return other.equals(ctx, this);
+    return JelBoolean.valueOf(other instanceof UnitValueQuantityType && this.quantityCategory.distinctName == other.quantityCategory.distinctName);
+  }
+  
   static create_jel_mapping = {quantityCategory: 1};
   static create(ctx: Context, ...args: any[]) {
     return new UnitValueQuantityType(TypeChecker.dbRef(args[0], 'quantityCategory'));
