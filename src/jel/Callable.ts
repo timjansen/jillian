@@ -6,6 +6,7 @@ import BaseTypeRegistry from './BaseTypeRegistry';
  * A type that can be called.
  */
 export default abstract class Callable extends JelObject {
+  
   /**
    * @param ctx the current Context. May be ignored when a Lambda is called. 
    * @param self a reference to the current instance if a method is called. Otherwise undefined.
@@ -28,5 +29,7 @@ export default abstract class Callable extends JelObject {
   abstract rebind(self: JelObject): Callable;
 
   abstract getArguments(): any[]|undefined; // returns array of TypedParameterValue, if there is any typing
+  abstract getReturnType(): any|undefined;  // TypedParameterValue or undefined
+
 }
 

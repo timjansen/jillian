@@ -117,11 +117,15 @@ tmp.dir(function(err, path) {
       it('allows overriding methods', function() {
         jelAssert.equal(`let superType=class SuperType: constructor(){} incX(x) x+1, subType=class SubType extends superType: constructor(){} incX(x)x+2, sup1=superType(), sub1=subType():
                             [sup1.incX(5), sub1.incX(10)]`, "[6, 12]");
+        jelAssert.equal(`let superType=class SuperType: constructor(){} incX(x) as int: x+1, subType=class SubType extends superType: constructor(){} incX(x) as int: x+2, sup1=superType(), sub1=subType():
+                            [sup1.incX(5), sub1.incX(10)]`, "[6, 12]");
+        
         return Promise.all([
           jelAssert.errorPromise(`let superType=abstract class SuperType: incX(x: int) x+1, subType=class SubType extends superType: constructor(){} incX(x: number)x+2: subType()`, 'number'),
           jelAssert.errorPromise(`let superType=abstract class SuperType: incX(x: int) x+1, subType=class SubType extends superType: constructor(){} incX(ypsilon: int)x+2: subType()`, 'ypsilon'),
           jelAssert.errorPromise(`let superType=abstract class SuperType: incX(a,b,c,d,e,f) a+1, subType=class SubType extends superType: constructor(){} incX(a,b,c,d,e,f,g)a+2: subType()`, '7'),
-          jelAssert.errorPromise(`let superType=abstract class SuperType: incX(x: int) x+1, subType=class SubType extends superType: constructor(){} incX(x: any)x+2: subType()`, 'any')
+          jelAssert.errorPromise(`let superType=abstract class SuperType: incX(x: int) x+1, subType=class SubType extends superType: constructor(){} incX(x: any)x+2: subType()`, 'any'),
+          jelAssert.errorPromise(`let superType=abstract class SuperType: incX(x) as number: x+1, subType=class SubType extends superType: constructor(){} incX(x) as int: x+2: subType()`, 'return type')
           ]);
       });
 

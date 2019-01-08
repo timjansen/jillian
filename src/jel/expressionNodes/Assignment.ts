@@ -26,6 +26,10 @@ class AssignmentCallable extends Callable {
     return undefined;
   }
   
+  getReturnType(): any {
+    return undefined;
+  }
+  
   getSerializationProperties(): Object {
     return [this.assignment];
   }

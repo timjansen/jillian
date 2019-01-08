@@ -101,6 +101,10 @@ export default class LambdaCallable extends Callable implements SerializablePrim
   getArguments(): any[]|undefined {
     return this.argDefs;
   }
+ 
+  getReturnType(): any {
+    return this.returnType;
+  }
   
 	serializeToString() : string {
 		return this.toString();

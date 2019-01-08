@@ -43,6 +43,10 @@ export default class FunctionCallable extends Callable {
   getArguments(): any[]|undefined {
     return undefined;
   }
+  
+  getReturnType(): any {
+    return undefined;
+  }
 
   
 	// converts argmapper from array to object, if needed

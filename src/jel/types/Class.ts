@@ -190,17 +190,31 @@ export default class Class extends PackageContent implements IClass {
       if (!sm)
         return;
 
-      const subArgs = callable.getArguments();
-      const superArgs = sm.getArguments();
-      if (!subArgs || !superArgs)
-        return;
-      if (subArgs.length != superArgs.length)
-        throw new Error(`Error overriding method ${name} in ${this.className}: super type method has ${superArgs.length} arguments, but this implementation has only ${subArgs.length}.`);
-      
-      return Util.resolveArray(subArgs.map((arg,i)=>arg.compatibleWith(ctx, superArgs[i])), (argResults: JelBoolean[])=>{
-        const idx = argResults.findIndex(e=>!JelBoolean.toRealBoolean(e));
-        if (idx >= 0)
-          throw new Error(`Error overriding method ${name} in ${this.className}: super class argument ${idx+1} type '${superArgs[idx].toString()}' is incompatible with overriding type '${subArgs[idx].toString()}'.`);
+      const subRet = callable.getReturnType();
+      const superRet = sm.getReturnType();
+      if ((!!subRet) != (!!superRet)) {
+        if (subRet)
+          throw new Error(`Error overriding method ${name} in ${this.className}: super type method has no return type, but overriding method has '${subRet.toString()}'.`);
+        else
+          throw new Error(`Error overriding method ${name} in ${this.className}: super type method has return type '${superRet.toString()}', but overriding method has no return type.`);
+      }
+
+      return Util.resolveValue(subRet ? subRet.compatibleWith(ctx, superRet) : JelBoolean.TRUE, (retCheck: JelBoolean)=>{
+        if (!retCheck.toRealBoolean())
+          throw new Error(`Error overriding method ${name} in ${this.className}: super type method return type '${superRet.toString()}' is incompatible with overriding type '${subRet.toString()}'.`);
+        
+        const subArgs = callable.getArguments();
+        const superArgs = sm.getArguments();
+        if (!subArgs || !superArgs)
+          return;
+        if (subArgs.length != superArgs.length)
+          throw new Error(`Error overriding method ${name} in ${this.className}: super type method has ${superArgs.length} arguments, but this implementation has only ${subArgs.length}.`);
+
+        return Util.resolveArray(subArgs.map((arg,i)=>arg.compatibleWith(ctx, superArgs[i])), (argResults: JelBoolean[])=>{
+          const idx = argResults.findIndex(e=>!JelBoolean.toRealBoolean(e));
+          if (idx >= 0)
+            throw new Error(`Error overriding method ${name} in ${this.className}: super class argument ${idx+1} type '${superArgs[idx].toString()}' is incompatible with overriding type '${subArgs[idx].toString()}'.`);
+        });
       });
     }));
   }
