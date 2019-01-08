@@ -39,7 +39,6 @@ tmp.dir(function(err, path) {
         jelAssert.equal('SimpleType(Float)', new SimpleType('Float'));
         jelAssert.equal('ComplexType({b: any})', new ComplexType(Dictionary.fromObject({b: AnyType.instance})));
         jelAssert.equal('CategoryType()', new CategoryType());
-        jelAssert.equal('FunctionType(["c", "v"])', new FunctionType(new List([JelString.valueOf("c"), JelString.valueOf("v")])));
         jelAssert.equal('ListType(any)', new ListType(AnyType.instance));
         jelAssert.equal('OptionType([any, null])', new OptionType(new List([AnyType.instance, null])));
         jelAssert.equal('OptionalType(any)', new OptionalType(AnyType.instance));
@@ -105,11 +104,6 @@ tmp.dir(function(err, path) {
         jelAssert.fuzzy('ComplexType({b: number}).checkType({a: 2})', 0);
         jelAssert.fuzzy('ComplexType({b: number}).checkType(2)', 0);
         
-        jelAssert.fuzzy('FunctionType(["c", "v"]).checkType((c,v)=>c+v)', 1);
-        jelAssert.fuzzy('FunctionType(["c", "v"]).checkType((c,o)=>c+v)', 1);
-        jelAssert.fuzzy('FunctionType(["c", "v"]).checkType((c)=>c+v)', 1);
-        jelAssert.fuzzy('FunctionType(["c", "v"]).checkType("eek")', 0);
-        
         jelAssert.fuzzy('ListType(number).checkType([1,2,3])', 1);
         jelAssert.fuzzy('ListType(number).checkType([])', 1);
         jelAssert.fuzzy('ListType(number).checkType([1, "a"])', 0);
@@ -150,9 +144,34 @@ tmp.dir(function(err, path) {
         jelAssert.fuzzy('let e1 = enum AEnum a,b,c: EnumType(e1).checkType(6)', 0);
         jelAssert.fuzzy('let e1 = enum AEnum a,b,c: let e2 = enum BEnum a,b,c: EnumType(e2).checkType(e1.a)', 0);
         jelAssert.fuzzy('let e1 = enum AEnum a,b,c: (e1)?.checkType(e1.a)', 1);
-
       });
 
+      it('checks functions', function() {
+        jelAssert.fuzzy('FunctionType().checkType(()=>1)', 1);
+        jelAssert.fuzzy('FunctionType().checkType((a:int) as any=>1)', 1);
+        jelAssert.fuzzy('function.checkType(()=>1)', 1);
+        jelAssert.fuzzy('function.checkType((a:int) as any=>1)', 1);
+        
+        jelAssert.fuzzy('function(()=>1).checkType(()=>1)', 1);
+        jelAssert.fuzzy('function((c,v)=>1).checkType((c,v)=>55)', 1);
+        jelAssert.fuzzy('function((c,v)=>1).checkType((c,v,x)=>55)', 0);
+        jelAssert.fuzzy('function((c,v,x)=>1).checkType((c,v)=>55)', 0);
+        jelAssert.fuzzy('function((c,v)=>1).checkType((c,x)=>1)', 0);
+        jelAssert.fuzzy('function((c,o) as int=>1).checkType((c,o)=>55)', 1);
+        jelAssert.fuzzy('function((c,o) as int=>1, true).checkType((c,o)=>55)', 1);
+        jelAssert.fuzzy('function((c,o) as int=>1, false).checkType((c,o)=>55)', 0);
+        jelAssert.fuzzy('function((c:int,o:int)=>1, true).checkType((c,o)=>55)', 1);
+        jelAssert.fuzzy('function((c:int,o:int)=>1, false).checkType((c,o)=>55)', 0);
+        jelAssert.fuzzy('function((c:int,o:int) as int=>1, true).checkType((c,o)=>55)', 1);
+        jelAssert.fuzzy('function((c:int,o:int) as int=>1, false).checkType((c,o)=>55)', 0);
+        jelAssert.fuzzy('function((c:int,v:int) as int=>1, true).checkType((c,o)=>55)', 0);
+        jelAssert.fuzzy('function((c:int,v:int) as int=>1, false).checkType((c,o)=>55)', 0);
+        jelAssert.fuzzy('function(()=>1).checkType((c)=>1)', 0);
+        jelAssert.fuzzy('function((c)=>1).checkType(()=>1)', 0);
+        jelAssert.fuzzy('function(()=>1).checkType("eek")', 0);
+        jelAssert.fuzzy('FunctionType(()=>1).checkType("eek")', 0);
+      });
+      
       it('checks categories', function() {
         return JEL.execute(`[Category('CatCategory', @AnimalCategory), Category('AnimalCategory'), Category('DummyCategory')]`, ctx).then(cats=>db.put(ctx, ...cats.elements))
           .then(()=>Promise.all([jelAssert.equalPromise('@CatCategory instanceof CategoryType(@CatCategory)', 'true'),

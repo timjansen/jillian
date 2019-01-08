@@ -31,6 +31,17 @@ export default class TypedParameterValue extends JelObject {
     else
       return `${this.name}: ${this.type.serializeType()} = ${Serializer.serialize(this.defaultValue)}`;
 	}
+
+  static compatibleTypes(ctx: Context, one: TypedParameterValue|null|undefined, other: TypedParameterValue|null|undefined, canOtherBeUntyped = false): JelBoolean|Promise<JelBoolean> {
+    if (!one || !other)
+      return JelBoolean.valueOf((!one && !other) || (!other && canOtherBeUntyped));
+
+    if (!one.type || !other.type)
+      return JelBoolean.valueOf((one.name==other.name) && ((!one.type && !other.type) || (!other.type && canOtherBeUntyped)));
+    
+    return one.compatibleWith(ctx, other);
+  }
+
   
   compatibleWith(ctx: Context, other: TypedParameterValue): JelBoolean|Promise<JelBoolean> {
     return this.name == other.name ? TypeDescriptor.equals(ctx, this.type,  other.type) : JelBoolean.FALSE;

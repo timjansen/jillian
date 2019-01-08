@@ -4,8 +4,8 @@ Category('CalendarElementCategory',
 	instanceProperties = {
 		duration: SimpleType(@UnitValue, {unit: @Day})|@Range, // duration of the element in days, e.g. 1 @Day
     frequency: @CalendarFrequency,
-		isMatch: FunctionType(['date']),        // a function f(date) that returns whether the given date is part of the calendar element
-		matchesInYear: FunctionType(['year']),  // a function f(year) that returns a list of all matching days in the given year
+		isMatch: FunctionType((date: date) as bool=>1),  // a function f(date) that returns whether the given date is part of the calendar element
+		matchesInYear: FunctionType((year: int) as date=>date[]),     // a function f(year) that returns a list of all matching days in the given year
 		first: LocalDate?, // if there was a beginning
 		last: LocalDate?   // if there was a last date
 	}
