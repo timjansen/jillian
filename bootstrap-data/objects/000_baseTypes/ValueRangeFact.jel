@@ -1,0 +1,11 @@
+/**
+ * A Fact that offers a range of possible values instead of the single correct value. Any of the values in the range can be the actual value.
+ */
+ class ValueRangeFact extends Fact
+  /**
+   * The range of possible values.
+   */
+  values: Range
+
+  checkValue(v: any) as bool:
+    v in this.values

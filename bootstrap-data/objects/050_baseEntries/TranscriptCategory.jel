@@ -1,0 +1,6 @@
+Category('TranscriptCategory', properties={}, instanceProperties={
+  media: MediaReference,
+  sentences: Sentence[]
+  
+  // Future: is the transcript complete or partial? which part has been recorded
+})

@@ -107,7 +107,7 @@ export default class Operator extends CachableJelNode {
 				return `(${this.left.toString()} ${this.operator} ${this.right.toString()})`;
 		}
 		else
-			return `${this.operator}(${this.left.toString()})`;
+			return `(${this.operator}${this.left.toString()})`;
 	}
 	
   getSerializationProperties(): Object {

@@ -1,6 +1,0 @@
-Thing('WinterSolstice', @HolidayCategory,
-	properties={
-    month: 12,
-    day: 21
-  }
-)

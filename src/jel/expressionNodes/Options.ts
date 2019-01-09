@@ -39,7 +39,7 @@ export default class Options extends CachableJelNode {
 	}
   
 	toString(): string {
-		return this.options.map(o=>o.toString()).join('|');
+		return '('+this.options.map(o=>o.toString()).join('|')+')';
 	}
   
   getSerializationProperties(): any {

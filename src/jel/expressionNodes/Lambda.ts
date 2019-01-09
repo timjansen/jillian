@@ -61,11 +61,11 @@ export default class Lambda extends CachableJelNode {
 
 	toString(): string {
     if (this.typeCheck && this.typeCheck.type)
-			return `${this.toArgumentString()} as ${this.typeCheck.type.toString()}=>${this.expression.toString()}`;		
+			return `(${this.toArgumentString()} as ${this.typeCheck.type.toString()}=>${this.expression.toString()})`;		
 		else if (this.args.length == 1 && this.args[0].isNameOnly) 
-			return `${this.args[0].name}=>${this.expression.toString()}`;
+			return `(${this.args[0].name}=>${this.expression.toString()})`;
 		else
-			return `${this.toArgumentString()}=>${this.expression.toString()}`;		
+			return `(${this.toArgumentString()}=>${this.expression.toString()})`;		
 	}
 
  	toArgumentString(): string {

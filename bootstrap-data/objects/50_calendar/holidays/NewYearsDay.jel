@@ -1,7 +1,0 @@
-Thing('NewYearsDay', @HolidayCategory,
-	properties={
-    month: 1,
-    day: 1,
-    firstDate: LocalDate(1, 1, 1)
-  }
-)

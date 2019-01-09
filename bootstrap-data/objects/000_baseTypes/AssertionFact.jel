@@ -1,0 +1,13 @@
+/**
+ * AssertionFact is a Fact that does not provide a value, but is a mere assertion with the capability of a given value is true or not, thus limiting the possible values.
+ * It consists of a single function that returns a boolean to indicate whether a value fulfills the assertion or not.
+ * The first argument given to the assertion is always the value to check. It can be any object. 
+ * The assertion may have additional arguments which must correspond to other property names of the same database entry. If the entry has a property of the argument name, it will be
+ * set. Otherwise it is null.
+ * In addition to the Thing's facts, the following argument names are also supported and will be provided if included:
+ *  * currentTime - the time for which the assertion should be validated, as timestamp
+ *  * currentDate - the date/time for which the assertion should be validated, as ZonedDateTime
+ *  * currentPosition - the current position which is being validated, as Geo::ElevatedPosition
+ */
+class AssertionFact extends Fact
+    assertion: function

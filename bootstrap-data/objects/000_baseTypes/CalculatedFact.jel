@@ -1,0 +1,21 @@
+/**
+ * CalculatedFact is a Fact that computes a value, or optionally a range of values, from other properties.
+ * A calculated fact may have arguments which must correspond to other property names of the same database entry. If the entry has a property of the argument name, it will be
+ * set. Otherwise it is null.
+ * In addition to the Thing's facts, the following argument names are also supported and will be provided if included:
+ *  * currentTime - the time for which the assertion should be validated, as timestamp
+ *  * currentDate - the date/time for which the assertion should be validated, as ZonedDateTime
+ *  * currentPosition - the current position which is being validated, as Geo::ElevatedPosition
+ */
+class CalculatedFact extends Fact
+    /**
+     * The function to calculate the fact. See above for description of possible arguments.
+     * Either returns the value itself or, if 'returnsRange' is set, a Range of values.
+     */
+    f: function
+    
+    /**
+     * If true, the fact returns a range of values instead of a single value.
+     */
+    returnsRange: bool = false
+

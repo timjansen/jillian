@@ -46,7 +46,7 @@ export default class EnumDef extends JelNode {
 	}
 
 	toString(): string {
-    return `enum ${this.name}: ${this.values.join(', ')}`;
+    return `(enum ${this.name}: ${this.values.join(', ')})`;
 	}
 	
   getSerializationProperties(): Object {

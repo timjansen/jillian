@@ -37,7 +37,7 @@ export default class DictType extends CachableJelNode {
 	}
 
 	toString(): string {
-		return `${this.left}{}`;
+		return `(${this.left}{})`;
 	}
   
   getSerializationProperties(): any {

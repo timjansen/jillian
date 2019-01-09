@@ -1,0 +1,32 @@
+/**
+ * Describes what the kind of Fact.
+ */
+enum FactTypeEnum:
+  /**
+   * if someone tells a fact without the required context
+   */
+  Hearsay,      
+  /**
+   * if the property is like that by design, e.g. the length of a particular car
+   */
+  Design,       
+  /**
+   * if the property has been measured
+   */
+  Sample,       
+  /**
+   * someone estimated the property or has a theory about it
+   */
+  Estimate,     
+  /**
+   * if the property has been derived from other values
+   */
+  Calculation,  
+  /**
+   * if the property is defined to be like this. E.g. the length of an inch.
+   */
+  Definition,   
+  /**
+   * if this is the setting of a story in an alt reality
+   */
+  Narrative

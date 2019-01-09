@@ -54,6 +54,8 @@ tmp.dir(function(err, path) {
 
         jelAssert.equal('let myTestType=class MyTestType: constructor(x: Float, y: String):{}, m=myTestType(y="foo", x=2): [m.x, m.y]', "[2, 'foo']");
         jelAssert.equal('let myTestType=class MyTestType: x: int constructor():{x: 5}, m=myTestType(): m.x', "5");
+        jelAssert.equal('let myTestType=class MyTestType: x: int = 17 constructor():{}, m=myTestType(): m.x', "17");
+        jelAssert.equal('let myTestType=class MyTestType: x: int = 15 constructor():{x:17}, m=myTestType(): m.x', "17");
 
         return Promise.all([jelAssert.errorPromise('let myTestType=Class("MyTestType", null, (x,y)=>{}, {x: Float, y: String}), m=myTestType("wrong type", "foo"): [m.x, m.y]'),
                             jelAssert.errorPromise('let myTestType=Class("MyTestType", null, (x: Float, y: String)=>{}), m=myTestType("wrong type", "foo"): [m.x, m.y]'),

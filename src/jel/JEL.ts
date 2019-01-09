@@ -717,7 +717,7 @@ export default class JEL {
           if (staticModifier)
             JEL.throwParseException(next, 'You must not set the type of a static property. Only a value is allowed.');
           const typeDef = JEL.parseExpression(tokens, CLASS_PRECEDENCE, classTypeExpressionStop);
-          const value = tokens.peekIs(TokenType.Operator, '=') ? JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop) : undefined;
+          const value = tokens.nextIf(TokenType.Operator, '=') ? JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop) : undefined;
           arg = new TypedParameterDefinition(propertyName, value, typeDef);
         }
         

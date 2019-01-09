@@ -41,7 +41,7 @@ export default class ListType extends CachableJelNode {
 	}
 
 	toString(): string {
-		return `${this.left}[]`;
+		return `(${this.left}[])`;
 	}
   
   getSerializationProperties(): any {

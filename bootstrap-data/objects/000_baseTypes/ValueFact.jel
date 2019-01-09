@@ -1,0 +1,12 @@
+/**
+ * A single, simple value that represents the actual value of the property.
+ */
+class ValueFact extends Fact
+  /**
+   * The value that represents the fact's actual value.
+   */
+  value: any
+
+  checkValue(v: any) as bool:
+    v == this.value
+

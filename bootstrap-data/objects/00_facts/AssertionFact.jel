@@ -1,2 +1,0 @@
-class AssertionFact extends Fact
-    assertion: FunctionType()

@@ -1,2 +1,0 @@
-class CalculatedFact extends Fact
-    f: FunctionType()

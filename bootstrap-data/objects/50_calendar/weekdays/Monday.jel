@@ -1,9 +1,0 @@
-Thing('Monday', @WeekdayCategory,
-	properties={
-    dayOfWeekNumber: 1,
-    order: {
-      predecessor: @Sunday,
-      successor: @Tuesday
-    }
-  }
-)

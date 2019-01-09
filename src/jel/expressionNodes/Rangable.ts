@@ -10,8 +10,8 @@ import Util from '../../util/Util';
  * Represents an rangable value (aka type). Returns a TypeDescriptor.
  *
  * Examples: 
- *  Float~
- *  number~
+ *  Float<>
+ *  number<>
  */
 export default class Rangable extends CachableJelNode {
   constructor(public left: JelNode) {
@@ -37,7 +37,7 @@ export default class Rangable extends CachableJelNode {
 	}
 
 	toString(): string {
-		return `${this.left}~`;
+		return `(${this.left}<>)`;
 	}
   
   getSerializationProperties(): any {

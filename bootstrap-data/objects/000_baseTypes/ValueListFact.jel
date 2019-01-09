@@ -1,0 +1,21 @@
+/**
+ * A Fact that offers more than one possible values. Either one of them could be true, but the source wasn't sure which one. 
+ * Alternatively the Fact can also be configured to list only those that are not true.
+ */
+class ValueListFact extends Fact
+  /**
+   * A list of values, one of those should be the right one.
+   * (unless 'negative' is set, then it this is a list of values that are not the right one)
+   */
+  values: any[]
+  /**
+   * If true, the value list contains values that are not the right one.
+   */
+  negative: bool
+
+  checkValue(v: any) as bool:
+    if this.negative then
+      !(v in this.values) 
+    else 
+      v in this.values
+    
