@@ -114,7 +114,7 @@ export default class LambdaCallable extends Callable implements SerializablePrim
 		if (this.argDefs.length == 1 && this.argDefs[0].isNameOnly && !this.returnType)
 			return `${this.argDefs[0].name}=>${this.expression.toString()}`;
 		else if (this.returnType && this.returnType.type)
-			return `(${this.argDefs.map(ad=>ad.toString()).join(', ')}) as ${this.returnType.type.toString()}=>${this.expression.toString()}`;
+			return `(${this.argDefs.map(ad=>ad.toString()).join(', ')}): ${this.returnType.type.toString()}=>${this.expression.toString()}`;
     else
 			return `(${this.argDefs.map(ad=>ad.toString()).join(', ')})=>${this.expression.toString()}`;
 	}

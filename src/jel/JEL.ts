@@ -118,7 +118,7 @@ const CLASS_EXPRESSION_STOP = {identifier: true, abstract: true, static: true};
 const CLASS_TYPE_EXPRESSION_STOP = {'=': true, identifier: true, abstract: true, static: true};
 
 const EQUAL = {'=': true};
-const COLON = {':': true};
+const LAMBDA = {'=>': true};
 const OPEN_ARGS = {'(': true};
 const CLOSE_ARGS = {')': true};
 
@@ -559,11 +559,11 @@ export default class JEL {
 		}
 	}
   
-  static tryParseAsTypeCheck(tokens: TokenReader, precedence: number, stopOps: any): TypedParameterDefinition | undefined {
-    if (!tokens.nextIf(TokenType.Operator, 'as'))
+  static tryParseLambdaTypeCheck(tokens: TokenReader): TypedParameterDefinition | undefined {
+    if (!tokens.nextIf(TokenType.Operator, ':'))
       return undefined;
     
-    return new TypedParameterDefinition('return value', undefined, JEL.parseExpression(tokens, precedence, stopOps));
+    return new TypedParameterDefinition('return value', undefined, JEL.parseExpression(tokens, 0, LAMBDA));
   }
   
   static tryLambda(tokens: TokenReader, argName: string | null, precedence: number, stopOps: any): Lambda | undefined {
@@ -588,7 +588,7 @@ export default class JEL {
       const args: TypedParameterDefinition[]|undefined = JEL.tryParseTypedParameters(tok, precedence, stopOps);
 			if (!args)
         return undefined;
-      const asCheck = JEL.tryParseAsTypeCheck(tok, precedence, Object.assign({'=>': true}, stopOps));
+      const asCheck = JEL.tryParseLambdaTypeCheck(tok);
       if (!tok.peekIs(TokenType.Operator, '=>'))
         return undefined;
       JEL.checkTypedParameters(args, tok.next());     
@@ -635,7 +635,7 @@ export default class JEL {
         const args = JEL.checkTypedParameters(JEL.tryParseTypedParameters(tokens, CLASS_PRECEDENCE, NO_STOP), next);
         if (args == null)
           JEL.throwParseException(tokens.last(), `Can not parse argument list for constructor`);
-        tokens.nextIf(TokenType.Operator, ':');
+        JEL.nextIsValueOrThrow(tokens, TokenType.Operator, '=>',  "Constructor argument list must be followed by '=>'.");
         ctor = new Lambda(args!, undefined, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
       }
       else if (next.is(TokenType.Identifier, 'get') && tokens.peekIs(TokenType.Identifier)) { // getter
@@ -650,8 +650,8 @@ export default class JEL {
         propertyNames.add(propertyName);
         JEL.expectOp(tokens, OPEN_ARGS, `Expected '()' following declaration of getter`);
         JEL.expectOp(tokens, CLOSE_ARGS, `Expected '()' following declaration of getter. Getters can't take any arguments.`);
-        const asCheck = JEL.tryParseAsTypeCheck(tokens, precedence, COLON);
-        tokens.nextIf(TokenType.Operator, ':');
+        const asCheck = JEL.tryParseLambdaTypeCheck(tokens);
+        JEL.nextIsValueOrThrow(tokens, TokenType.Operator, '=>',  "Getter expression must be preceded by '=>'.");
         getters.push(new Assignment(propertyName, new Lambda([], asCheck, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop))));
       }
       else if ((next.is(TokenType.Identifier, 'op') ||  next.is(TokenType.Identifier, 'singleOp')) && tokens.peekIs(TokenType.Operator) && !tokens.peekIs(TokenType.Operator, '(')) { // ops
@@ -677,8 +677,8 @@ export default class JEL {
         if (args!.length > argsMax)
           JEL.throwParseException(tokens.last(), argsMax == 0 ? `Single operator overload ${methodName} must not take any arguments` : `Too many arguments for operator overload ${methodName}, can have only one.`);
 
-        const asCheck = JEL.tryParseAsTypeCheck(tokens, precedence, COLON);
-        tokens.nextIf(TokenType.Operator, ':');
+        const asCheck = JEL.tryParseLambdaTypeCheck(tokens);
+        JEL.nextIsValueOrThrow(tokens, TokenType.Operator, '=>',  "Operator expression must be preceded by '=>'.");
         methods.push(new Assignment(methodName, new Lambda(args!, asCheck, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop))));
       }
       else if (next.is(TokenType.Identifier) && tokens.nextIf(TokenType.Operator, '(')) {
@@ -690,10 +690,13 @@ export default class JEL {
         const args = JEL.checkTypedParameters(JEL.tryParseTypedParameters(tokens, CLASS_PRECEDENCE, NO_STOP), next);
         if (args == null)
           JEL.throwParseException(tokens.last(), `Can not parse argument list for method ${methodName}`);
-        const asCheck = JEL.tryParseAsTypeCheck(tokens, precedence, COLON);
+        const asCheck = JEL.tryParseLambdaTypeCheck(tokens);
         
         if (!abstractModifier)
-        tokens.nextIf(TokenType.Operator, ':');
+          JEL.nextIsValueOrThrow(tokens, TokenType.Operator, '=>',  "Method expression must be preceded by '=>'.");
+        else if (tokens.peekIs(TokenType.Operator, '=>'))
+          throw new Error("Abstract method must not use lambda operator ('=>')");
+
         const lambda = new Lambda(args!, asCheck, abstractModifier ? new Literal(false) : JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
         if (staticModifier)
           staticProperties.push(new Assignment(methodName, lambda));

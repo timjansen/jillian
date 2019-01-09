@@ -51,5 +51,5 @@ abstract class Fact
    * @param v the value to check
    * @return true if the value is compatible, false otherwise
    */
-  abstract checkValue(v: any) as bool
+  abstract checkValue(v: any): bool
 

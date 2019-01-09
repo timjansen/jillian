@@ -189,7 +189,7 @@ Examples:
 	() => 45      // always returns 45
 	a => a*a      // one argument, returns the square number
 	(a,b) => a+b  // function thats returns the sum of two arguments
-  (a: Number, b: String = "foo") as String => b+a   // Argument types, default value
+  (a: Number, b: String = "foo"): String => b+a   // Argument types, default value
   (a: String?) => if a then a else ""    // Optional type
 	[1, 2, 3].map(e => 2*e)  // returns the list [2, 4, 6]
   
@@ -264,29 +264,29 @@ Classes
 ---------
 The 'class' keyword allows you to set up a class that can be stored in the database:
 
-class Schedule::Single extends Schedule::Entry 
+class Schedule::Single extends Schedule::Entry:
   c: Number
   static PI = 3.14
 
-  constructor(a: number, b: number, c: number): // arguments are automatically stored as properties in the object!
-    super(a, b)+                                // calling super(), which returns a Dictionary of property values to set
-    {sum: a+b+c}                                // return a Dictionary to store additional fields or overwrite argument values
+  constructor(a: number, b: number, c: number) => // arguments are automatically stored as properties in the object!
+    super(a, b)+                                  // calling super(), which returns a Dictionary of property values to set
+    {sum: a+b+c}                                  // return a Dictionary to store additional fields or overwrite argument values
   
-  get x() as number:
+  get x(): number =>
     this.c+2
   
-  add(a, b):
+  add(a, b) =>
     this.c+a+b
 
-  addWithTypes(a: number, b: number) as number: 
+  addWithTypes(a: number, b: number): number =>
     this.c+a+b
 
-  divWithTypes(a: number, b: number) as number: 
+  divWithTypes(a: number, b: number): number =>
     with b!=0:
       a/b
 
 
-  static add(x,y):
+  static add(x,y) =>
     x+y
 
 
@@ -294,7 +294,7 @@ Enums
 --------
 You can define simple enums with the 'enum' operator:
 
-enum FactType
+enum FactType:
   Sample,
   Definition,
   Guess

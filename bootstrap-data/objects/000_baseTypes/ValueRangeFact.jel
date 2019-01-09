@@ -7,5 +7,5 @@
    */
   values: Range
 
-  checkValue(v: any) as bool:
+  checkValue(v: any): bool =>
     v in this.values

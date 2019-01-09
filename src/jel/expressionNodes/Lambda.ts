@@ -61,7 +61,7 @@ export default class Lambda extends CachableJelNode {
 
 	toString(): string {
     if (this.typeCheck && this.typeCheck.type)
-			return `(${this.toArgumentString()} as ${this.typeCheck.type.toString()}=>${this.expression.toString()})`;		
+			return `(${this.toArgumentString()}: ${this.typeCheck.type.toString()}=>${this.expression.toString()})`;		
 		else if (this.args.length == 1 && this.args[0].isNameOnly) 
 			return `(${this.args[0].name}=>${this.expression.toString()})`;
 		else
@@ -70,6 +70,10 @@ export default class Lambda extends CachableJelNode {
 
  	toArgumentString(): string {
 			return `(${this.args.map(a=>a.toString()).join(', ')})`;
+	}
+
+ 	toReturnString(): string {
+			return (this.typeCheck && this.typeCheck.type) ? `:${this.typeCheck.type.toString()}` : '';
 	}
   
   getSerializationProperties(): Object {

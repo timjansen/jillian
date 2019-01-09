@@ -90,10 +90,10 @@ export default class ClassDef extends JelNode {
     this.propertyDefs.forEach(a=>{s+=`    ${a.toString()}\n`});
     this.staticProperties.filter(p=>!(p.expression instanceof Lambda)).forEach(a=>{s+=`    static ${a.toString()}\n`});  
     if (this.ctor)
-      s+= `    constructor${this.ctor.toArgumentString()}:\n        ${this.ctor.expression.toString()}\n\n`;
-    this.getters.forEach(a=>{s+=`    get ${a.name}():\n        ${(a.expression as Lambda).expression.toString()}\n\n`;});
-    this.methods.forEach(a=>{s+=`    ${a.name}${(a.expression as Lambda).toArgumentString()}:\n        ${(a.expression as Lambda).expression.toString()}\n\n`;});
-    this.staticProperties.filter(p=>p.expression instanceof Lambda).forEach(a=>{s+=`    static ${a.name}${(a.expression as Lambda).toArgumentString()}:\n        ${(a.expression as Lambda).expression.toString()}\n\n`;});
+      s+= `    constructor${this.ctor.toArgumentString()} =>\n        ${this.ctor.expression.toString()}\n\n`;
+    this.getters.forEach(a=>{s+=`    get ${a.name}()${(a.expression as Lambda).toReturnString()} =>\n        ${(a.expression as Lambda).expression.toString()}\n\n`;});
+    this.methods.forEach(a=>{s+=`    ${a.name}${(a.expression as Lambda).toArgumentString()}${(a.expression as Lambda).toReturnString()} =>\n        ${(a.expression as Lambda).expression.toString()}\n\n`;});
+    this.staticProperties.filter(p=>p.expression instanceof Lambda).forEach(a=>{s+=`    static ${a.name}${(a.expression as Lambda).toArgumentString()}${(a.expression as Lambda).toReturnString()} =>\n        ${(a.expression as Lambda).expression.toString()}\n\n`;});
     s+= '\n\n';
     return s;
 	}

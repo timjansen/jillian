@@ -13,7 +13,7 @@ class ValueListFact extends Fact
    */
   negative: bool
 
-  checkValue(v: any) as bool:
+  checkValue(v: any): bool =>
     if this.negative then
       !(v in this.values) 
     else 

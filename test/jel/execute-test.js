@@ -534,14 +534,14 @@ describe('JEL', function() {
       jelAssert.equal(new JEL('((a: Float?)=>a)(null)').executeImmediately(DefaultContext.get()), null);
       jelAssert.equal(new JEL('((a: Float?)=>a)()').executeImmediately(DefaultContext.get()), null);
 
-      jelAssert.equal(new JEL('((a: Float?) as Float=>a)(5)').executeImmediately(DefaultContext.get()), 5);
-      jelAssert.equal(new JEL('((a: Float?) as Float?=>a)(null)').executeImmediately(DefaultContext.get()), null);
-      jelAssert.equal(new JEL('((a: Float?) as Float?=>a)()').executeImmediately(DefaultContext.get()), null);
-      jelAssert.equal(new JEL('((a: int[]) as int[]=>a[0])(5)').executeImmediately(DefaultContext.get()), '[5]');
+      jelAssert.equal(new JEL('((a: Float?): Float=>a)(5)').executeImmediately(DefaultContext.get()), 5);
+      jelAssert.equal(new JEL('((a: Float?): Float?=>a)(null)').executeImmediately(DefaultContext.get()), null);
+      jelAssert.equal(new JEL('((a: Float?): Float?=>a)()').executeImmediately(DefaultContext.get()), null);
+      jelAssert.equal(new JEL('((a: int[]): int[]=>a[0])(5)').executeImmediately(DefaultContext.get()), '[5]');
 
      
-      return Promise.all([jelAssert.errorPromise('((a: Float?) as String=>a)(42)'), 
-                          jelAssert.errorPromise('((a: Float?)=>a)("this is a string")'),
+      return Promise.all([jelAssert.errorPromise('((a: Float?): String => a)(42)'), 
+                          jelAssert.errorPromise('((a: Float?) => a)("this is a string")'),
                           jelAssert.errorPromise('((a: PromiseType(number))=>a)("this is a string")'),
                           jelAssert.equalPromise('((a: PromiseType(number))=>a)(5)', 5),
                           jelAssert.equalPromise('((a: PromiseType(number))=>a)(a=5)', 5),

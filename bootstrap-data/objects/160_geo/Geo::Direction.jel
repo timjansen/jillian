@@ -1,7 +1,7 @@
 class Geo::Direction:
   angle: @Degree
 
-  constructor(angle)
+  constructor(angle) =>
     {}
 
   static NORTH = Geo::Direction(0 @Degree)

@@ -148,24 +148,24 @@ tmp.dir(function(err, path) {
 
       it('checks functions', function() {
         jelAssert.fuzzy('FunctionType().checkType(()=>1)', 1);
-        jelAssert.fuzzy('FunctionType().checkType((a:int) as any=>1)', 1);
+        jelAssert.fuzzy('FunctionType().checkType((a:int): any=>1)', 1);
         jelAssert.fuzzy('function.checkType(()=>1)', 1);
-        jelAssert.fuzzy('function.checkType((a:int) as any=>1)', 1);
+        jelAssert.fuzzy('function.checkType((a:int): any=>1)', 1);
         
         jelAssert.fuzzy('function(()=>1).checkType(()=>1)', 1);
         jelAssert.fuzzy('function((c,v)=>1).checkType((c,v)=>55)', 1);
         jelAssert.fuzzy('function((c,v)=>1).checkType((c,v,x)=>55)', 0);
         jelAssert.fuzzy('function((c,v,x)=>1).checkType((c,v)=>55)', 0);
         jelAssert.fuzzy('function((c,v)=>1).checkType((c,x)=>1)', 0);
-        jelAssert.fuzzy('function((c,o) as int=>1).checkType((c,o)=>55)', 1);
-        jelAssert.fuzzy('function((c,o) as int=>1, true).checkType((c,o)=>55)', 1);
-        jelAssert.fuzzy('function((c,o) as int=>1, false).checkType((c,o)=>55)', 0);
+        jelAssert.fuzzy('function((c,o): int=>1).checkType((c,o)=>55)', 1);
+        jelAssert.fuzzy('function((c,o): int=>1, true).checkType((c,o)=>55)', 1);
+        jelAssert.fuzzy('function((c,o): int=>1, false).checkType((c,o)=>55)', 0);
         jelAssert.fuzzy('function((c:int,o:int)=>1, true).checkType((c,o)=>55)', 1);
         jelAssert.fuzzy('function((c:int,o:int)=>1, false).checkType((c,o)=>55)', 0);
-        jelAssert.fuzzy('function((c:int,o:int) as int=>1, true).checkType((c,o)=>55)', 1);
-        jelAssert.fuzzy('function((c:int,o:int) as int=>1, false).checkType((c,o)=>55)', 0);
-        jelAssert.fuzzy('function((c:int,v:int) as int=>1, true).checkType((c,o)=>55)', 0);
-        jelAssert.fuzzy('function((c:int,v:int) as int=>1, false).checkType((c,o)=>55)', 0);
+        jelAssert.fuzzy('function((c:int,o:int): int=>1, true).checkType((c,o)=>55)', 1);
+        jelAssert.fuzzy('function((c:int,o:int): int=>1, false).checkType((c,o)=>55)', 0);
+        jelAssert.fuzzy('function((c:int,v:int): int=>1, true).checkType((c,o)=>55)', 0);
+        jelAssert.fuzzy('function((c:int,v:int): int=>1, false).checkType((c,o)=>55)', 0);
         jelAssert.fuzzy('function(()=>1).checkType((c)=>1)', 0);
         jelAssert.fuzzy('function((c)=>1).checkType(()=>1)', 0);
         jelAssert.fuzzy('function(()=>1).checkType("eek")', 0);
