@@ -1,0 +1,7 @@
+Thing('CincoDeMayo', @HolidayCategory,
+	properties={
+    month: 5,
+    day: 5,
+    firstDate: LocalDate(1863, 5, 5)
+  }
+)

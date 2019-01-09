@@ -1,0 +1,7 @@
+Thing('AllSaintsDay', @HolidayCategory,
+	properties={
+    month: 11,
+    day: 1,
+    firstDate: LocalDate(1, 11, 1)
+  }
+)

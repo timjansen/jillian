@@ -1,0 +1,10 @@
+Thing('June', @MonthCategory,
+	properties={
+    monthNumber: 6,
+    duration: 30 @Day,
+    order: {
+      predecessor: @May,
+      successor: @July
+    }
+  }
+)

@@ -1,0 +1,9 @@
+Thing('LabourDay', @HolidayCategory,
+	properties={
+    month: 9,
+    firstDate: LocalDate(1887, 9, 5),
+    weekDay: @Monday,
+ 		isMatch: (date)=>let d=this.matchesInYear(date.year).first: date == d,
+		matchesInYear: (year)=>if year >= this.firstDate.year then [LocalDate(year, this.month).allDays.nthMatch(1, d=>d.dayOfWeek == 1)] else []
+  }
+)

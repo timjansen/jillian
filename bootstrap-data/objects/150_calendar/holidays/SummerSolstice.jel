@@ -1,0 +1,6 @@
+Thing('SummerSolstice', @HolidayCategory,
+	properties={
+    month: 6,
+    day: 21
+  }
+)
