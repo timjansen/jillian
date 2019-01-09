@@ -1,9 +1,0 @@
-////// Velocity type
-
-// Simple
-3.4   // m/s (accuracy: 0)
-
-// With accuracy and/or unit
-{value: 80, unit: 'kph', accuracy: 1}
-{value: 55, unit: 'mph', accuracy: 1}
-{value: 10, unit: 'knot', accuracy: 1}

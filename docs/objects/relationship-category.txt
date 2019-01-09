@@ -1,9 +1,0 @@
-Object: super class for category, thing, relationship...
-
-Type hierarchy:
-Object
-+ Category
-++ RelationshipCategory
-
-In addition to properties inherited from Category:
-	count - the number of related objects, using variations ('fixed', 'fixedMin', 'fixedMax', 'typical', 'typicalMin', 'typicalMax', 'extremeMin', 'extremeMax')

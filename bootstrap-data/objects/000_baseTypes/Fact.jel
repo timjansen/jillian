@@ -5,6 +5,11 @@
  */
 abstract class Fact
   /**
+   * The owning object of this fact
+   */
+  owner: dbEntry
+  
+  /**
    * The transcript that created this Fact.
    */
   transcript: @TranscriptCategory
@@ -18,7 +23,7 @@ abstract class Fact
    * Who created this Fact? Not always the actual source the information, but rather who fed it into the database.
    * The source can be found in the transcript.
    */
-  creator: Thing
+  creator: dbEntry
   
   /**
    * Describes the kind of Fact (whether it is the definition of the property, a sample, a calculated value...)

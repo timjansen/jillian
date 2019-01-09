@@ -1,3 +1,0 @@
-////// Currency type
-{amount: 299, currency: 'usd'}     // 2.99 USD - amount is always given in smallest defined unit
-{amount: 1, currency: 'eur'}       // 0.01 EUR

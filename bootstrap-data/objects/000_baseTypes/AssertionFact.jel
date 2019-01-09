@@ -10,4 +10,6 @@
  *  * currentPosition - the current position which is being validated, as Geo::ElevatedPosition
  */
 class AssertionFact extends Fact
-    assertion: function
+  assertion: function
+    
+  

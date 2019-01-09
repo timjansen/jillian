@@ -1,9 +1,0 @@
-Object: super class for category, thing, relationship...
-
-Type hierarchy:
-Object
-+ Thing
-
-In addition to properties inherited from Object:
-	category: the ref to the category
-		

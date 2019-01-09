@@ -1,7 +1,7 @@
 JEL Feature by Feature
 ===========================
 
-JEL is a JavaScript-inspired expression language with a functional design. Unlike most simple expression languages, it supports lambda and you can define constants (but no variables). 
+JEL is a TypeScript-inspired expression language with a functional design. 
 
 
 Literals
