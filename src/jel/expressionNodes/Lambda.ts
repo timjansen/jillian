@@ -21,32 +21,28 @@ import Util from '../../util/Util';
  */ 
 export default class Lambda extends CachableJelNode {
  
-  constructor(public args: TypedParameterDefinition[], public typeCheck: TypedParameterDefinition|undefined, public expression: JelNode) {
+  constructor(public args: TypedParameterDefinition[], public returnType: TypedParameterDefinition|undefined, public expression: JelNode) {
 		super();
   }
   
 	// override
   executeUncached(ctx: Context): JelObject|null|Promise<JelObject|null> {
-    if (this.typeCheck) {
-      const eList = [this.typeCheck.execute(ctx)].concat(this.args.map(a=>a.execute(ctx)));
-      return Util.resolveArray(eList, eListResolved=>{
-        return new LambdaCallable(eListResolved.slice(1), this.expression, ctx, "(anonymous lambda)", undefined, undefined, eListResolved[0]);
-      });
+    if (this.returnType) {
+      const eList = [this.returnType.execute(ctx)].concat(this.args.map(a=>a.execute(ctx)));
+      return Util.resolveArray(eList, eListResolved=>new LambdaCallable(eListResolved.slice(1), this.expression, ctx, "(anonymous lambda)", undefined, undefined, eListResolved[0]));
     }
     else
-      return Util.resolveArray(this.args.map(a=>a.execute(ctx)), args=>{
-        return new LambdaCallable(args, this.expression, ctx, "(anonymous lambda)");
-      });
+      return Util.resolveArray(this.args.map(a=>a.execute(ctx)), args=>new LambdaCallable(args, this.expression, ctx, "(anonymous lambda)"));
 	}
 	
   isStaticUncached(ctx: Context): boolean {
-    return !this.args.find(a=>!a.isStatic(ctx)) && (!this.typeCheck || this.typeCheck.isStatic(ctx));
+    return !this.args.find(a=>!a.isStatic(ctx)) && (!this.returnType || this.returnType.isStatic(ctx));
   }
   
   flushCache(): void {
     super.flushCache();
     this.expression.flushCache();
-    if (this.typeCheck) this.typeCheck.flushCache();
+    if (this.returnType) this.returnType.flushCache();
     this.args.forEach(a=>a.flushCache());
   }
   
@@ -54,14 +50,14 @@ export default class Lambda extends CachableJelNode {
   equals(other?: JelNode): boolean {
 		return other instanceof Lambda &&
 			this.expression.equals(other.expression) && 
-      ((this.typeCheck==other.typeCheck) || (!!this.typeCheck && !!other.typeCheck && this.typeCheck.equals(other.typeCheck))) &&
+      ((this.returnType==other.returnType) || (!!this.returnType && !!other.returnType && this.returnType.equals(other.returnType))) &&
       this.args.length == other.args.length && 
       !this.args.find((l, i)=>!l.equals(other.args[i]));
 	}
 
 	toString(): string {
-    if (this.typeCheck && this.typeCheck.type)
-			return `(${this.toArgumentString()}: ${this.typeCheck.type.toString()}=>${this.expression.toString()})`;		
+    if (this.returnType && this.returnType.type)
+			return `(${this.toArgumentString()}: ${this.returnType.type.toString()}=>${this.expression.toString()})`;		
 		else if (this.args.length == 1 && this.args[0].isNameOnly) 
 			return `(${this.args[0].name}=>${this.expression.toString()})`;
 		else
@@ -73,11 +69,11 @@ export default class Lambda extends CachableJelNode {
 	}
 
  	toReturnString(): string {
-			return (this.typeCheck && this.typeCheck.type) ? `:${this.typeCheck.type.toString()}` : '';
+			return (this.returnType && this.returnType.type) ? `:${this.returnType.type.toString()}` : '';
 	}
   
   getSerializationProperties(): Object {
-    return [this.args, this.typeCheck, this.expression];
+    return [this.args, this.returnType, this.expression];
   }
 }
 

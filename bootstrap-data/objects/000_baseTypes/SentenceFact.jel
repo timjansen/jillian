@@ -1,7 +1,0 @@
-/**
- * SentenceFact is a Fact that does not provide any value, but just states something unspecific about the property. For example, "the house has a good size".
- */
-class SentenceFact extends Fact
-  sentence: Sentence
-    
-  

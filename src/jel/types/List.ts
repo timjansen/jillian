@@ -101,11 +101,11 @@ export default class List extends JelObject implements SerializablePrimitive {
 		return v === undefined ? null : v;
 	}
 	
-	get length(): Float {
-		return Float.valueOf(this.elements.length);
+	get length(): number {
+		return this.elements.length;
 	}
-	get size(): Float {
-		return Float.valueOf(this.elements.length);
+	get size(): number {
+		return this.elements.length;
 	}
 	
 	each_jel_mapping: Object;

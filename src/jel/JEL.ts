@@ -21,6 +21,7 @@ import TemplateString from './expressionNodes/TemplateString';
 import Operator from './expressionNodes/Operator';
 import List from './expressionNodes/List';
 import ListType from './expressionNodes/ListType';
+import NativeFunction from './expressionNodes/NativeFunction';
 import DictType from './expressionNodes/DictType';
 import Rangable from './expressionNodes/Rangable';
 import Range from './expressionNodes/Range';
@@ -284,6 +285,7 @@ export default class JEL {
     case 'with':
       const assertions: JelNode[] = JEL.parseListOfExpressions(tokens, WITH_PRECEDENCE, WITH_STOP, ':', "Expected colon after last expression in 'with' assertion");
       return JEL.tryBinaryOps(tokens, new With(assertions, JEL.parseExpression(tokens, WITH_PRECEDENCE, stopOps)), precedence, stopOps);
+    case 'native':
     case 'abstract':
     case 'class':
       return JEL.tryBinaryOps(tokens, JEL.parseClass(tokens, precedence, stopOps), precedence, stopOps);
@@ -600,49 +602,73 @@ export default class JEL {
   
   
   static parseClass(tokens: TokenReader, precedence: number, stopOps: any): ClassDef {
+    const isNative = tokens.last().value == 'native' && !!JEL.nextIsValueOrThrow(tokens, TokenType.Operator, 'class', "Modifier 'native' must be followed by 'class'");
     const isAbstract = tokens.last().value == 'abstract' && !!JEL.nextIsValueOrThrow(tokens, TokenType.Operator, 'class', "Modifier 'abstract' must be followed by 'class'");
+    const classToken = tokens.last();
+
     const classExpressionStop: any = Object.assign(CLASS_EXPRESSION_STOP, stopOps);
     const classTypeExpressionStop: any = Object.assign(CLASS_TYPE_EXPRESSION_STOP, stopOps);
+    
     const className = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier after 'class' declaration");
     const superType: JelNode|undefined = (tokens.peekIs(TokenType.Identifier, 'extends')) ? tokens.next() && JEL.parseExpression(tokens, CLASS_PRECEDENCE, CLASS_EXTENDS_STOP) : undefined;
     
     tokens.nextIf(TokenType.Operator, ':');
     
-    let ctor: Lambda|undefined = undefined;
+    let ctor: Lambda|NativeFunction|undefined = undefined;
     const propertyDefs: TypedParameterDefinition[] = [];
     const methods: Assignment[] = [];
     const getters: Assignment[] = [];
     const staticProperties: Assignment[] = [];
+    const nativeProperties: TypedParameterDefinition[] = [];
+    const staticNativeProperties: TypedParameterDefinition[] = [];
     
     const propertyNames = new Set();
     
     while (true) {
       const peek = tokens.peek();
-      if (!peek || (peek.type == TokenType.Operator && stopOps[peek.value]))
-        return new ClassDef(className.value, superType, ctor, propertyDefs, methods, getters, staticProperties, isAbstract);
+      if (!peek || (peek.type == TokenType.Operator && stopOps[peek.value])) {
+        if (isNative && !ctor)
+          JEL.throwParseException(classToken, `Class ${className.value} is declared as native, but lacks a native constructor.`);
+        return new ClassDef(className.value, superType, ctor, propertyDefs, methods, getters, staticProperties, isAbstract, isNative, nativeProperties, staticNativeProperties);
+      }
       tokens.next();
       
-      const staticModifier = peek.is(TokenType.Operator, 'static');
-      const abstractModifier = peek.is(TokenType.Operator, 'abstract');
-      const next = (staticModifier || abstractModifier) ? tokens.next() : peek;
+      const staticModifier = !!peek.is(TokenType.Operator, 'static');
+      const abstractModifier = !!peek.is(TokenType.Operator, 'abstract');
+      const next0 = (staticModifier || abstractModifier) ? tokens.next() : peek;
+      const nativeModifier = !!next0.is(TokenType.Operator, 'native');
+      if (nativeModifier && abstractModifier)
+        JEL.throwParseException(tokens.last(), `Native modifier can not be combined with abstract modifier.`);
+      const next = nativeModifier ? tokens.next() : next0;
       
       if (next.is(TokenType.Identifier, 'constructor') && tokens.nextIf(TokenType.Operator, '(')) {
+        if (ctor)
+          JEL.throwParseException(next, `Constructor already defined. You can not define two constructors`);
         if (staticModifier)
           JEL.throwParseException(next, `Static constructors are not supported.`);
         if (abstractModifier)
           JEL.throwParseException(next, `Abstract constructors are not supported. You can make the whole class abstract.`);
+        if (isNative && !nativeModifier)
+          JEL.throwParseException(next, `A native class requires a native constructor, but this constructor does not have the native property.`);
+        if (!isNative && nativeModifier)
+          JEL.throwParseException(next, `A native constructor requires a native class, but the class has no 'native' modifier.`);
         
         const args = JEL.checkTypedParameters(JEL.tryParseTypedParameters(tokens, CLASS_PRECEDENCE, NO_STOP), next);
         if (args == null)
           JEL.throwParseException(tokens.last(), `Can not parse argument list for constructor`);
         JEL.nextIsValueOrThrow(tokens, TokenType.Operator, '=>',  "Constructor argument list must be followed by '=>'.");
-        ctor = new Lambda(args!, undefined, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
+        if (nativeModifier)
+          ctor = new NativeFunction('create', className.value, true, args!);
+        else
+          ctor = new Lambda(args!, undefined, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
       }
       else if (next.is(TokenType.Identifier, 'get') && tokens.peekIs(TokenType.Identifier)) { // getter
         if (staticModifier)
           JEL.throwParseException(next, `Static getters are not supported.`);
         if (abstractModifier)
           JEL.throwParseException(next, `Abstract getters are not supported.`);
+        if (nativeModifier)
+          JEL.throwParseException(next, `Native getters can not be declared in JEL. You need to declare them as regular properties.`);
         
         const propertyName = tokens.next().value;
         if (propertyNames.has(propertyName))
@@ -659,6 +685,10 @@ export default class JEL {
           JEL.throwParseException(next, `Operator methods can not be combined with a 'static' modifier.`);
         if (abstractModifier)
           JEL.throwParseException(next, `Operator methods can not be combined with an 'abstract' modifier.`);
+        if (nativeModifier)
+          JEL.throwParseException(next, `Native operators can not be declared in JEL. You need to override the operator methods directly.`);
+        if (isNative)
+          JEL.throwParseException(next, `You can not overload operators with JEL in a native class.`);
         const op = tokens.next().value;
         if (propertyNames.has(op))
           JEL.throwParseException(tokens.last(), `Operator ${op} already declared`);
@@ -690,18 +720,19 @@ export default class JEL {
         const args = JEL.checkTypedParameters(JEL.tryParseTypedParameters(tokens, CLASS_PRECEDENCE, NO_STOP), next);
         if (args == null)
           JEL.throwParseException(tokens.last(), `Can not parse argument list for method ${methodName}`);
-        const asCheck = JEL.tryParseLambdaTypeCheck(tokens);
+        const returnType = JEL.tryParseLambdaTypeCheck(tokens);
         
         if (!abstractModifier)
           JEL.nextIsValueOrThrow(tokens, TokenType.Operator, '=>',  "Method expression must be preceded by '=>'.");
         else if (tokens.peekIs(TokenType.Operator, '=>'))
           throw new Error("Abstract method must not use lambda operator ('=>')");
 
-        const lambda = new Lambda(args!, asCheck, abstractModifier ? new Literal(false) : JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
+        const impl = nativeModifier ?  new NativeFunction(methodName, className.value, staticModifier, args!, returnType) : 
+                new Lambda(args!, returnType, abstractModifier ? new Literal(false) : JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
         if (staticModifier)
-          staticProperties.push(new Assignment(methodName, lambda));
+          staticProperties.push(new Assignment(methodName, impl));
         else
-          methods.push(new Assignment(methodName, lambda));
+          methods.push(new Assignment(methodName, impl));
       }
       else if (next.is(TokenType.Identifier) && (tokens.peekIs(TokenType.Operator, ':') || tokens.peekIs(TokenType.Operator, '='))) {
           if (abstractModifier)
@@ -717,14 +748,22 @@ export default class JEL {
         if (separator.value == '=')
           arg = new TypedParameterDefinition(propertyName, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
         else {
-          if (staticModifier)
-            JEL.throwParseException(next, 'You must not set the type of a static property. Only a value is allowed.');
+          if (staticModifier && !nativeModifier)
+            JEL.throwParseException(next, 'You must not set the type of a static property or declare a static property without a value. Static properties require a value, but must not have an explicit type.');
           const typeDef = JEL.parseExpression(tokens, CLASS_PRECEDENCE, classTypeExpressionStop);
-          const value = tokens.nextIf(TokenType.Operator, '=') ? JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop) : undefined;
-          arg = new TypedParameterDefinition(propertyName, value, typeDef);
+          const defaultValue = tokens.nextIf(TokenType.Operator, '=') ? JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop) : undefined;
+          arg = new TypedParameterDefinition(propertyName, defaultValue, typeDef);
         }
-        
-        if (staticModifier)
+
+        if (nativeModifier) {
+          if (arg.defaultValue)
+            JEL.throwParseException(next, 'A native property must not have a default value.');
+          if (staticModifier)
+            staticNativeProperties.push(arg);
+          else
+            nativeProperties.push(arg);
+        }
+        else if (staticModifier)
           staticProperties.push(new Assignment(arg.name, arg.defaultValue!));
         else
           propertyDefs.push(arg);

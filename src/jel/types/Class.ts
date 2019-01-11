@@ -11,6 +11,7 @@ import JelBoolean from './JelBoolean';
 import TypeChecker from './TypeChecker';
 import JelObject from '../JelObject';
 import LambdaCallable from '../LambdaCallable';
+import NativeCallable from '../NativeCallable';
 import TypedParameterValue from '../TypedParameterValue';
 import IClass from '../IClass';
 import Serializable from '../Serializable';
@@ -86,9 +87,13 @@ GenericJelObject.prototype.reverseOps = JelObject.SWAP_OPS;
 export default class Class extends PackageContent implements IClass {
   JEL_PROPERTIES: Object;
   ctorArgList: TypedParameterValue[]; 
-  propertyTypes: Dictionary;
-  propertyDefaults: Dictionary;
-  staticProperties: Dictionary;
+  propertyTypes: Dictionary;             // name->type
+  propertyDefaults: Dictionary;          // name->value
+  staticProperties: Dictionary;          // name->value
+  nativePropertyTypes: Dictionary;       // name->type
+  staticNativePropertyTypes: Dictionary; // name->type
+  
+  staticPropertyCache: Map<string, JelObject|null> = new Map();
 
   /**
    * Creates a new Class.
@@ -114,9 +119,10 @@ export default class Class extends PackageContent implements IClass {
    *         creating the Class instance and setting the staticProperties. They can access the new Class object using its name and
    *         can use it to create new instances.
    */
-  constructor(public className: string, public superType?: Class, public ctor: LambdaCallable|null = null, public propertyDefs = List.empty,
-               public methods = Dictionary.empty, public getters = Dictionary.empty, public staticConstantProperties = Dictionary.empty,
-               public staticContextProperties = Dictionary.empty, public isAbstract = false) {
+  constructor(public className: string, public superType?: Class, public ctor: LambdaCallable|NativeCallable|null = null, public propertyDefs = List.empty,
+              public methods = Dictionary.empty, public getters = Dictionary.empty, public staticConstantProperties = Dictionary.empty,
+              public staticContextProperties = Dictionary.empty, public isAbstract = false, public nativeClass?: any,
+              public nativeProperties = List.empty, public staticNativeProperties = List.empty) {
     super(className);
    
     if (/^[^A-Z]/.test(className))
@@ -142,7 +148,7 @@ export default class Class extends PackageContent implements IClass {
       if (overridenProperty)
         throw new Error(`Property ${overridenProperty} is already defined in super type ${superType.className}, you must not override it.`);
       
-      this.ctor = ctor && ctor.bindSuper(superType.ctor);
+      this.ctor = (ctor instanceof LambdaCallable && superType.ctor instanceof LambdaCallable) ? ctor.bindSuper(superType.ctor) : ctor;
     }
 
     this.ctorArgList = ctor?ctor.argDefs:[];
@@ -151,8 +157,15 @@ export default class Class extends PackageContent implements IClass {
     this.propertyDefaults = new Dictionary(superType && superType.propertyDefaults).putAll(propertyDefs.elements.map((v)=>[v.name,v.defaultValue]));
     this.methods = new Dictionary(superType && superType.methods).putAll(methods);
     this.staticProperties = staticConstantProperties;
+    this.nativePropertyTypes = new Dictionary(nativeProperties.elements.map((v)=>[v.name,v.type||AnyType.instance]));
+    this.staticNativePropertyTypes = new Dictionary(staticNativeProperties.elements.map((v)=>[v.name,v.type||AnyType.instance]));
 
-    this.create_jel_mapping = this.ctorArgList.map(lc=>lc.name);
+    if (ctor)
+      this.staticPropertyCache.set('create', new NativeCallable(this, ctor.argDefs, ctor.returnType, Class.prototype.create, 'create'));
+    this.staticPropertyCache.set('className', JelString.valueOf(className));
+    this.staticPropertyCache.set('packageName', JelString.valueOf(this.packageName));
+    this.staticPropertyCache.set('superType', superType||null);
+    this.staticPropertyCache.set('methods', methods);
   }
 
   // initialize static properties
@@ -226,24 +239,40 @@ export default class Class extends PackageContent implements IClass {
   }
 
   member(ctx: Context, name: string, parameters?: Map<string, any>): any {
-		if (this.staticProperties.elements.has(name))
-			return this.staticProperties.elements.get(name);
-		else
-      return super.member(ctx, name, parameters);
+    const r = this.staticPropertyCache.get(name);
+    if (r !== undefined)
+      return r;
+
+    const staticV = this.staticProperties.elements.get(name);
+    if (staticV !== undefined) {
+      this.staticPropertyCache.set(name, staticV);
+      return staticV;
+    }
+    
+    const nativeDef = this.staticNativePropertyTypes.elements.get(name) as TypedParameterValue|undefined; 
+    if (nativeDef !== undefined && this.nativeClass) {
+      if (!this.nativeClass[name+'_jel_mapping'])
+        throw new Error(`Can not access native member ${name} in class ${this.className} without a valid ${name}_jel_mapping.`);
+      const v0 = BaseTypeRegistry.mapNativeTypes(this.nativeClass[name]);
+      const v = nativeDef.type ? nativeDef.type.convert(ctx, v0, name) : v0;
+      this.staticPropertyCache.set(name, v);
+      return v;
+    }
+    
+    return super.member(ctx, name, parameters);
 	}
   
-  getSerializationProperties(): any[] {
-    return [this.className, this.superType && new ReferenceHelper(this.superType.distinctName), this.ctor, this.propertyDefs, this.methods, this.getters, this.staticConstantProperties, this.staticContextProperties];
-  }
 
   create_jel_mapping: any; // set in ctor
   create(ctx: Context, ...args: any[]): any {
+    if (this.ctor instanceof NativeCallable)
+        return this.ctor.invoke(ctx, this, ...args);
+ 
     if (this.isAbstract)
       throw new Error(`The class ${this.className} can not be instantiated. Is is declared abstract.`);
     if (!this.ctor)
       throw new Error(`The class ${this.className} can not be instantiated. No constructor defined.`);
     
-
     const props = new Dictionary().putAll(this.propertyDefaults);
     const openChecks: (JelBoolean|Promise<JelBoolean>)[] = [];
     for (let i = 0; i < this.ctorArgList.length; i++) {
@@ -259,7 +288,7 @@ export default class Class extends PackageContent implements IClass {
         if (!resolvedChecks[i].toRealBoolean())
           throw new Error(`Illegal value in argument number ${i+1} for property ${this.ctorArgList[i].name}. Required type is ${this.propertyTypes.elements.get(this.ctorArgList[i].name)}. Value was ${args[i]||this.ctorArgList[i].defaultValue}.`);
    
-      if (this.ctor) {
+      if (this.ctor instanceof LambdaCallable) {
         const ctorReturnProm: any = this.ctor.invoke(ctx, this, ...args);
         
         return Util.resolveValue(ctorReturnProm, (ctorReturn: any)=>{
@@ -280,37 +309,51 @@ export default class Class extends PackageContent implements IClass {
           }
           return Util.resolveArray(typePromises, ()=>{
             props.putAll(ctorReturn);
+            if (props.size < this.propertyDefs.size)
+              this.propertyTypes.eachJs(e=>{
+                if (!props.elements.has(e))
+                  throw new Error(`Property ${e} has not been defined by the constructor and has no default.`);
+              });
             return new GenericJelObject(this, ctx, args, props);
           });
         });
       }
-      return new GenericJelObject(this, ctx, args, props);
+      else
+        return new GenericJelObject(this, ctx, args, props);
     });
   }
-  
-  static create_jel_mapping = ['className', 'superType', 'constructor', 'propertyDefs', 'methods', 'getters', 'staticValues', 'staticInitializer', 'isAbstract'];
+
+  getSerializationProperties(): any[] {
+    return [this.className, this.superType && new ReferenceHelper(this.superType.distinctName), this.ctor, this.propertyDefs, this.methods, this.getters, this.staticConstantProperties, this.staticContextProperties, this.isAbstract, this.nativeClass,
+           this.nativeProperties, this.staticNativeProperties];
+  }
+
+  static create_jel_mapping = ['className', 'superType', 'constructor', 'propertyDefs', 'methods', 'getters', 'staticValues', 'staticInitializer', 'isAbstract', 'nativeClass', 'nativeProperties', 'staticNativeProperties'];
   static create(ctx: Context, ...args: any[]): Class|Promise<Class> {
     if (TypeChecker.isIDbRef(args[1]))
-      return args[1].with(ctx, (t: Class) => Class.create(ctx, args[0], t, args[2], args[3], args[4], args[5], args[6], args[7], args[8]));
+      return args[1].with(ctx, (t: Class) => Class.create(ctx, args[0], t, args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11]));
 
     if (args[3] instanceof Dictionary)
-      return Class.create(ctx, args[0], args[1], args[2], new List(args[3].mapToArrayJs((name: any, type: any)=>new TypedParameterValue(name, null, type))), args[4], args[5], args[6], args[7], args[8]);
+      return Class.create(ctx, args[0], args[1], args[2], new List(args[3].mapToArrayJs((name: any, type: any)=>new TypedParameterValue(name, null, type))), args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11]);
       
     const c = new Class(TypeChecker.realString(args[0], 'className'), 
                               TypeChecker.optionalInstance(Class, args[1], 'superType')||undefined,
-                              TypeChecker.optionalInstance(LambdaCallable, args[2], 'constructor'), 
+                              args[2] instanceof NativeCallable ? args[2] : TypeChecker.optionalInstance(LambdaCallable, args[2], 'constructor'), 
                               TypeChecker.optionalInstance(List, args[3], 'propertyDefs')||List.empty,
                               TypeChecker.optionalInstance(Dictionary, args[4], 'methods')||Dictionary.empty,
                               TypeChecker.optionalInstance(Dictionary, args[5], 'getters')||Dictionary.empty,
                               TypeChecker.optionalInstance(Dictionary, args[6], 'staticValues')||Dictionary.empty,
                               TypeChecker.optionalInstance(Dictionary, args[7], 'staticInitializer')||Dictionary.empty,
-                              TypeChecker.realBoolean(args[8], 'isAbstract', false));
+                              TypeChecker.realBoolean(args[8], 'isAbstract', false),
+                              args[9],
+                              TypeChecker.optionalInstance(List, args[10], 'nativeProperties')||List.empty,
+                              TypeChecker.optionalInstance(List, args[11], 'staticNativeProperties')||List.empty);
     return c.asyncInit(ctx);
   }
 }
 
 Class.prototype.JEL_PROPERTIES = {distinctName: true, className: true, methods: true, operators: true, singleOperators: true, superType: true, getters: true, packageName: true};
-
+Class.prototype.create_jel_mapping = true;
 BaseTypeRegistry.register('Class', Class);
 BaseTypeRegistry.register('GenericJelObject', GenericJelObject);
 

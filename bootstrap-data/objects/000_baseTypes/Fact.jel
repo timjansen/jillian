@@ -7,7 +7,7 @@ abstract class Fact
   /**
    * The owning object of this fact
    */
-  owner: dbEntry
+  owner: any//dbEntry
   
   /**
    * The transcript that created this Fact.
@@ -23,7 +23,7 @@ abstract class Fact
    * Who created this Fact? Not always the actual source the information, but rather who fed it into the database.
    * The source can be found in the transcript.
    */
-  creator: dbEntry
+  creator: any//dbEntry
   
   /**
    * Describes the kind of Fact (whether it is the definition of the property, a sample, a calculated value...)
