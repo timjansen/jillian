@@ -16,7 +16,6 @@ export default class BoolType extends TypeDescriptor {
  	static readonly JEL_PROPERTIES = {fullValues: true};
 
   static readonly instance = new BoolType(false);
-  static readonly fullValues = new BoolType(true);
 
   constructor(public onlyFullValues = false) {
     super();
@@ -28,9 +27,6 @@ export default class BoolType extends TypeDescriptor {
   }
   
   serializeType(): string {
-    if (this.onlyFullValues)
-      return 'BoolType.fullValues';
-    else
       return 'bool';
   }
   
@@ -42,13 +38,6 @@ export default class BoolType extends TypeDescriptor {
     return JelBoolean.valueOf(other instanceof BoolType && this.onlyFullValues == other.onlyFullValues);
   }
 
-  static create_jel_mapping = ['onlyFullValues'];
-  static create(ctx: Context, ...args: any[]): any {
-    if (TypeChecker.optionalRealBoolean(args[0], 'onlyFullValues'))
-      return BoolType.fullValues;
-    else
-      return BoolType.instance;
-  }
 }
 
 
