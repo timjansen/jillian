@@ -23,8 +23,8 @@ import Util from '../../util/Util';
 class GenericJelObject extends JelObject implements Serializable {
   methodCache: Map<string, Callable> = new Map<string, Callable>();
   
-  constructor(public type: Class, ctx: Context, public args: any[], public props: Dictionary) {
-    super(type.className);
+  constructor(clazz: Class, ctx: Context, public args: any[], public props: Dictionary) {
+    super(clazz.className, clazz);
   }
   
   static forbidNull(value: any): JelObject|Promise<JelObject> {
@@ -36,28 +36,28 @@ class GenericJelObject extends JelObject implements Serializable {
   }
   
   op(ctx: Context, operator: string, right: JelObject|null): JelObject|Promise<JelObject> {
-    const callable: Callable|undefined = this.type.methods.elements.get('op'+operator) as any;
+    const callable: Callable|undefined = (this.clazz as Class).methods.elements.get('op'+operator) as any;
     if (callable)
       return GenericJelObject.forbidNull(callable.invoke(ctx, this, right));
     return super.op(ctx, operator, right);
   }
 	
 	opReversed(ctx: Context, operator: string, left: JelObject): JelObject|Promise<JelObject> {
-    const callable: Callable|undefined = this.type.methods.elements.get('opReversed'+operator) as any;
+    const callable: Callable|undefined = (this.clazz as Class).methods.elements.get('opReversed'+operator) as any;
     if (callable)
       return GenericJelObject.forbidNull(callable.invoke(ctx, this, left));
     return super.opReversed(ctx, operator, left);
 	}
   
 	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
-    const callable: Callable|undefined = this.type.methods.elements.get('singleOp'+operator) as any;
+    const callable: Callable|undefined = (this.clazz as Class).methods.elements.get('singleOp'+operator) as any;
     if (callable)
       return GenericJelObject.forbidNull(callable.invoke(ctx, this));
     return super.singleOp(ctx, operator);
 	}
 
 	member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null>|undefined {
-    const getter = this.type.getters.elements.get(name) as Callable;
+    const getter = (this.clazz as Class).getters.elements.get(name) as Callable;
     if (getter)
       return getter.invoke(ctx, this);
     const propsValue = this.props.elements.get(name);
@@ -66,7 +66,7 @@ class GenericJelObject extends JelObject implements Serializable {
     const cachedMethodValue = this.methodCache.get(name);
     if (cachedMethodValue)
       return cachedMethodValue;
-    const methodValue = this.type.methods.elements.get(name);
+    const methodValue = (this.clazz as Class).methods.elements.get(name);
     if (methodValue) {
       const m = (methodValue as Callable).rebind(this);
       this.methodCache.set(name, m);
@@ -265,8 +265,8 @@ export default class Class extends PackageContent implements IClass {
 
   create_jel_mapping: any; // set in ctor
   create(ctx: Context, ...args: any[]): any {
-    if (this.ctor instanceof NativeCallable)
-        return this.ctor.invoke(ctx, this, ...args);
+    if (this.ctor instanceof NativeCallable) 
+      return this.ctor.invoke(ctx, this, ...args);
  
     if (this.isAbstract)
       throw new Error(`The class ${this.className} can not be instantiated. Is is declared abstract.`);

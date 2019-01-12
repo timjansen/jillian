@@ -1,6 +1,7 @@
 import BaseTypeRegistry from './BaseTypeRegistry';
 import Context from './Context';
 import Serializer from './Serializer';
+import IClass from './IClass';
 import {IDbRef, isDbRef} from './IDatabase';
 
 /**
@@ -40,7 +41,7 @@ export default class JelObject {
 	};
 
 	
-	constructor(className?: string) {
+	constructor(className?: string, public clazz?: IClass) {
 		this.jelTypeName = className || this.constructor.name;
 	}
 	
@@ -92,7 +93,14 @@ export default class JelObject {
 	 */ 
 	member_jel_mapping: Object;
 	member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null>|undefined {
-		if (name in this.JEL_PROPERTIES)
+    // TODO: cleanup this method after converting everything to JEL Class!!
+    const c: any = this.clazz;
+    if (c && c.methods) {
+      const m = c.methods.elements.get(name);
+      if (m) 
+        return m;
+    }
+		if ((name in this.JEL_PROPERTIES) || (this as any)[name+'_jel_mapping']===true)        // JEL_PROPERTIES are deprecated, remove when new native is everywhere
 			return BaseTypeRegistry.mapNativeTypes((this as any)[name]);
 		return undefined;
 	}

@@ -91,7 +91,7 @@ export default class Runtime {
       return false;
     
     if (left instanceof BaseTypeRegistry.get('GenericJelObject'))
-      return Runtime.isClassCompatible(ctx, (left as any).type, rightName);      
+      return Runtime.isClassCompatible(ctx, (left as any).clazz, rightName);      
     else 
       return left.getJelType() == rightName;
 	}

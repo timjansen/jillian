@@ -201,8 +201,8 @@ tmp.dir(function(err, path) {
           return a.value - b.value;
         }
         
-        static create(ctx, clazz, a) {
-          return new FullNativeTest(42 + (a||0));
+        static create(ctx, a) {
+          return new FullNativeTest(this, 42 + (a.value||0));
         }
       }
       FullNativeTest.prototype.x_jel_mapping = true;

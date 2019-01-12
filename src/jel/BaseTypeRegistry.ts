@@ -16,7 +16,7 @@ export default class BaseTypeRegistry {
 	}
 	
 	static mapNativeTypes(v: any): any {
-		if (v === undefined)
+		if (v == null)
 			return null;
 
 		const tv = typeof v;
@@ -29,7 +29,7 @@ export default class BaseTypeRegistry {
 		if (typeof v == 'boolean')
 			return BaseTypeRegistry.get('Boolean').valueOf(v);
 		
-		throw new Error('Function returned unsupported type');
+		throw new Error('Function returned unsupported type: '+v.toString());
 	}
 }
 
