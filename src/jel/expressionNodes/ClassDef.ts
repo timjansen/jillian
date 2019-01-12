@@ -18,7 +18,7 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
 export default class ClassDef extends JelNode {
   
   constructor(public name: string, public superName?: JelNode, public ctor?: Lambda|NativeFunction, public propertyDefs: TypedParameterDefinition[] = [], public methods: Assignment[] = [], public getters: Assignment[] = [], public staticProperties: Assignment[] = [], 
-              public isAbstract = false, public isNative = false, public nativeProperties: TypedParameterDefinition[] = [], public staticNativeProperties: TypedParameterDefinition[] = []) {
+              public isAbstract = false, public hasNative = false, public nativeProperties: TypedParameterDefinition[] = [], public staticNativeProperties: TypedParameterDefinition[] = []) {
 		super();
   }
   
@@ -40,7 +40,7 @@ export default class ClassDef extends JelNode {
                               ClassDef.executeToDictionary(ctx, staticStaticProperties),
                               unstaticStaticProperties.length ? BaseTypeRegistry.get('List').valueOf(unstaticStaticProperties).toDictionaryJs((l: Assignment)=>l.name).mapJs((k:string, l: Assignment)=>l.asCallable()) : BaseTypeRegistry.get('Dictionary').empty,
                               this.isAbstract, 
-                              this.isNative ? BaseTypeRegistry.get(this.name) : undefined,
+                              this.hasNative ? BaseTypeRegistry.get(this.name) : undefined,
                               Util.resolveArray(this.nativeProperties.map((p: TypedParameterDefinition)=>p.execute(ctx)), (pl: TypedParameterValue[])=>BaseTypeRegistry.get('List').valueOf(pl)), 
                               Util.resolveArray(this.staticNativeProperties.map((p: TypedParameterDefinition)=>p.execute(ctx)), (pl: TypedParameterValue[])=>BaseTypeRegistry.get('List').valueOf(pl)));
 	}
@@ -74,7 +74,7 @@ export default class ClassDef extends JelNode {
 		return other instanceof ClassDef &&
       this.name == other.name &&
       this.isAbstract == other.isAbstract &&
-      this.isNative == other.isNative &&
+      this.hasNative == other.hasNative &&
       (this.superName === other.superName || (!!this.superName && this.superName.equals(other.superName))) &&
       (this.ctor === other.ctor || (!!this.ctor && this.ctor.equals(other.ctor))) &&
       this.propertyDefs.length == other.propertyDefs.length && 
@@ -92,7 +92,7 @@ export default class ClassDef extends JelNode {
 	}
 
 	toString(): string {
-    let s = `${this.isAbstract ? 'abstract ':''}${this.isNative? 'native ':''}class ${this.name}`
+    let s = `${this.isAbstract ? 'abstract ':''}${this.hasNative? 'native ':''}class ${this.name}`
     if (this.superName)
       s += ` extends ${this.superName.toString()}`;
     s+= ':\n';
@@ -113,7 +113,7 @@ export default class ClassDef extends JelNode {
 	}
 	
   getSerializationProperties(): Object {
-    return [this.name, this.superName, this.propertyDefs, this.methods, this.getters, this.staticProperties, this.isAbstract, this.isNative, this.nativeProperties, this.staticNativeProperties];
+    return [this.name, this.superName, this.propertyDefs, this.methods, this.getters, this.staticProperties, this.isAbstract, this.hasNative, this.nativeProperties, this.staticNativeProperties];
   }
 }
 

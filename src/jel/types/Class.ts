@@ -250,7 +250,7 @@ export default class Class extends PackageContent implements IClass {
     }
     
     const nativeDef = this.staticNativePropertyTypes.elements.get(name) as TypedParameterValue|undefined; 
-    if (nativeDef !== undefined && this.nativeClass) {
+    if (nativeDef !== undefined) {
       if (!this.nativeClass[name+'_jel_mapping'])
         throw new Error(`Can not access native member ${name} in class ${this.className} without a valid ${name}_jel_mapping.`);
       const v0 = BaseTypeRegistry.mapNativeTypes(this.nativeClass[name]);

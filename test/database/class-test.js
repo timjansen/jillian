@@ -7,6 +7,7 @@ const DatabaseContext = require('../../build/database/DatabaseContext.js').defau
 const DbRef = require('../../build/database/DbRef.js').default;
 const Class = require('../../build/jel/types/Class.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
+const BaseTypeRegistry = require('../../build/jel/BaseTypeRegistry.js').default;
 const Serializer = require('../../build/jel/Serializer.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
@@ -164,6 +165,49 @@ tmp.dir(function(err, path) {
                              jelAssert.equalPromise('TupleXY.A', "44"),
                              jelAssert.equalPromise('TupleXY(x=7, y=1) instanceof TupleXY', "true")]));
       });
+      
+      class HybridNativeTest {
+        add(ctx, a,b) {
+          return a.value + b.value;
+        }
+
+        static sub(ctx, a,b) {
+          return a.value - b.value;
+        }
+      }
+      HybridNativeTest.prototype.add_jel_mapping = true;
+      HybridNativeTest.sub_jel_mapping = true;
+      HybridNativeTest.y_jel_mapping = true;
+      HybridNativeTest.y = 100;
+      BaseTypeRegistry.register('HybridNativeTest', HybridNativeTest);
+      
+      it('support hybrid native classes', function() {
+        jelAssert.equal(`let c=(class HybridNativeTest:\n constructor()=>{}\n static native y: int\n native add(a: int, b: int): int\n static native sub(a,b)):
+                          [c.y, c().add(3, 4), c.sub(2, 1)]`, `[100, 7, 1]`);
+      });
+
+      class FullNativeTest {
+        constructor(n) {
+          this.x = n;
+        }
+
+        add(ctx, a,b) {
+          return a.value + b.value;
+        }
+
+        static sub(ctx, a,b) {
+          return a.value - b.value;
+        }
+        
+        static create(ctx, a) {
+          return new FullNativeTest(42 + (a||0));
+        }
+      }
+      FullNativeTest.prototype.add_jel_mapping = true;
+      FullNativeTest.sub_jel_mapping = true;
+      FullNativeTest.y_jel_mapping = true;
+      FullNativeTest.y = 100;
+
       
     });
 
