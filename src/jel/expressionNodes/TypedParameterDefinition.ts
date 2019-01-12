@@ -21,7 +21,7 @@ export default class TypedParameterDefinition extends CachableJelNode implements
     if (!this.defaultValue && !this.type)
       return new TypedParameterValue(this.name, null, null);
     
-    const defaultValue = this.defaultValue ? this.defaultValue.execute(ctx) : null;
+    const defaultValue = this.defaultValue ? this.defaultValue.execute(ctx) : undefined;
     const type = this.type ? this.type.execute(ctx) : null;
     return Util.resolveValues((d: JelNode|null, t: JelNode|null)=>new TypedParameterValue(this.name, d, type && this.typeHelper.convertNullableFromAny(t, this.name)), defaultValue, type);
   }
@@ -45,7 +45,7 @@ export default class TypedParameterDefinition extends CachableJelNode implements
 		if (!(other instanceof TypedParameterDefinition))
 			return false;
 		return this.name == other.name && 
-      (this.defaultValue == other.defaultValue || (!!this.defaultValue && this.defaultValue.equals(other.defaultValue))) &&
+      (this.defaultValue === other.defaultValue || (!!this.defaultValue && this.defaultValue.equals(other.defaultValue))) &&
       (this.type == other.type || (!!this.type && this.type.equals(other.type)));
 	}
   

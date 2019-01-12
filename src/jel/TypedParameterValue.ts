@@ -9,8 +9,10 @@ import Util from '../util/Util';
 
 export default class TypedParameterValue extends JelObject {
   
-  constructor(public name: string, public defaultValue: JelObject|null, public type: TypeDescriptor|null) {
+  constructor(public name: string, public defaultValue: JelObject|null|undefined, public type: TypeDescriptor|null, public defaultValueProvided = true) {
 		super();
+    if (!defaultValueProvided)
+      this.defaultValue = undefined;
   }
    
   get isNameOnly(): boolean {
@@ -18,7 +20,7 @@ export default class TypedParameterValue extends JelObject {
   }
   
   getSerializationProperties(): Object {
-    return [this.name, this.defaultValue, this.type];
+    return [this.name, this.defaultValue, this.type, this.defaultValueProvided];
   }
   
 	toString(): string {
@@ -47,9 +49,9 @@ export default class TypedParameterValue extends JelObject {
     return this.name == other.name ? TypeDescriptor.equals(ctx, this.type,  other.type) : JelBoolean.FALSE;
   }
   
-  static create_jel_mapping = ['name', 'defaultValue', 'type'];
+  static create_jel_mapping = ['name', 'defaultValue', 'type', 'defaultValueProvided'];
   static create(ctx: Context, ...args: any[]) {
-    return new TypedParameterValue(TypeChecker.realString(args[0], 'name'), args[1], TypeChecker.optionalInstance(TypeDescriptor, args[2], 'type'));
+    return new TypedParameterValue(TypeChecker.realString(args[0], 'name'), args[1], TypeChecker.optionalInstance(TypeDescriptor, args[2], 'type'), TypeChecker.realBoolean(args[3], 'defaultValueProvided', true));
   }
    
 }

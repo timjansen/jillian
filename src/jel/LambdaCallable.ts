@@ -15,8 +15,8 @@ export default class LambdaCallable extends Callable implements SerializablePrim
 		super();
   }
 
-  private static setVariable(ctx: Context, newCtx: Context, argDef: TypedParameterValue, value0: JelObject|null): Promise<any>|undefined {
-    const value = value0 || argDef.defaultValue;
+  private static setVariable(ctx: Context, newCtx: Context, argDef: TypedParameterValue, value0: JelObject|null|undefined): Promise<any>|undefined {
+    const value = value0 || argDef.defaultValue || null;
     if (argDef.type) {
       const convertedValue: any = argDef.type.convert(ctx, value, argDef.name);
       if (convertedValue instanceof Promise)
@@ -44,29 +44,36 @@ export default class LambdaCallable extends Callable implements SerializablePrim
           openPromises.push(p);
       }
     });
+
+    let addedObjArgs = 0;
+    for (let i = args.length; i < argDefs.length; i++) {
+      const argDef = argDefs[i];
+      const v = argObj ? argObj.get(argDef.name) : undefined;
+      if (v !== undefined)
+        addedObjArgs++;
+      if (v === undefined && argDef.defaultValue === undefined && argDef.type)
+        throw new Error(`Argument ${argDef.name} has not been provided and is typed without has no default value.`);
+      const p: Promise<any>|undefined = LambdaCallable.setVariable(ctx, newCtx, argDef, v||argDef.defaultValue);
+      if (p)
+        openPromises.push(p);
+    }
     
-		for (let i = args.length; i < argDefs.length; i++) 
-      if (!argObj || !argObj.has(argDefs[i].name)) {
-        const p: Promise<any>|undefined = LambdaCallable.setVariable(ctx, newCtx, argDefs[i], null);
-        if (p)
-          openPromises.push(p);
-      }
-    
-		if (argObj)
-			for (let name of argObj.keys()) {
+    if (argObj && argObj.size < addedObjArgs) {
+      for (let i = 0; i < Math.min(args.length, argDefs.length); i++)
+        if (argObj.has(argDefs[i].name))
+          throw new Error(`Argument ${argDefs[i].name} has been provided twice, once as as regular argument and once as named argument.`);
+      for (let namedArg of argObj.keys()) {
         let found = false;
-        for (let argDef of argDefs) 
-          if (name == argDef.name) {
-            if (newCtx.hasInThisScope(name))
-              throw new Error(`Argument ${name} is set more than once this function call. You must not set them twice.`);
-            const p: Promise<any>|undefined = LambdaCallable.setVariable(ctx, newCtx, argDef, argObj.get(name) || null);
-            if (p)
-              openPromises.push(p);
+        for (let argDef of argDefs)
+          if (argDef.name == namedArg) {
             found = true;
-        }
+            break;
+          }
         if (!found)
-          throw new Error('Can not set unknown named argument ' + name);
-        }
+          throw new Error(`Named argument ${namedArg} not found in method definition.`);
+      }
+    }
+
     newCtx.set('this', self || null);
     newCtx.set('super', superConstructor || undefined);
     if (self instanceof NamedObject && !newCtx.has(self.distinctName))

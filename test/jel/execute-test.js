@@ -532,11 +532,11 @@ describe('JEL', function() {
       jelAssert.equal(new JEL('((a: Float = 1,b: Float=2)=>a+b)(5)').executeImmediately(DefaultContext.get()), 7);
       jelAssert.equal(new JEL('((a: Float?)=>a)(5)').executeImmediately(DefaultContext.get()), 5);
       jelAssert.equal(new JEL('((a: Float?)=>a)(null)').executeImmediately(DefaultContext.get()), null);
-      jelAssert.equal(new JEL('((a: Float?)=>a)()').executeImmediately(DefaultContext.get()), null);
+      jelAssert.equal(new JEL('((a: Float?=null)=>a)()').executeImmediately(DefaultContext.get()), null);
 
       jelAssert.equal(new JEL('((a: Float?): Float=>a)(5)').executeImmediately(DefaultContext.get()), 5);
       jelAssert.equal(new JEL('((a: Float?): Float?=>a)(null)').executeImmediately(DefaultContext.get()), null);
-      jelAssert.equal(new JEL('((a: Float?): Float?=>a)()').executeImmediately(DefaultContext.get()), null);
+      jelAssert.equal(new JEL('((a: Float?=null): Float?=>a)()').executeImmediately(DefaultContext.get()), null);
       jelAssert.equal(new JEL('((a: int[]): int[]=>a[0])(5)').executeImmediately(DefaultContext.get()), '[5]');
 
      
@@ -545,7 +545,6 @@ describe('JEL', function() {
                           jelAssert.errorPromise('((a: PromiseType(number))=>a)("this is a string")'),
                           jelAssert.equalPromise('((a: PromiseType(number))=>a)(5)', 5),
                           jelAssert.equalPromise('((a: PromiseType(number))=>a)(a=5)', 5),
-                          jelAssert.equalPromise('((a: PromiseType(number?))=>a)()', null),
                           jelAssert.equalPromise('((a: PromiseType(number), b: PromiseType(string?), c: PromiseType(any))=>[a,b,c])(7, null, c=6)', '[7,null,6]'),
                           jelAssert.equalPromise('((a: PromiseType(number), b: PromiseType(string?), c: PromiseType(any))=>[a,b,c])(a=7, b="n", c=6)', '[7,"n",6]'),
                           jelAssert.equalPromise('((a: PromiseType(number), b: PromiseType(string?), c: PromiseType(any))=>[a,b,c])(7, "n", 6)', '[7,"n",6]')

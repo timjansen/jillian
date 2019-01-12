@@ -17,6 +17,10 @@ export default class NativeCallable extends Callable implements SerializablePrim
 
   
   private static invoke(ctx: Context, self: JelObject|undefined, argDefs: TypedParameterValue[], returnType: TypedParameterValue|undefined, nativeFunction: Function, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>): JelObject|null|Promise<JelObject|null> {
+
+    if (args.length > argDefs.length)
+      throw new Error(`Expected up to ${argDefs.length} arguments, but got ${args.length}.`);
+
     let allArgs: (JelObject|null)[];
     
 		if (argObj && args.length < argDefs.length) {
@@ -39,10 +43,12 @@ export default class NativeCallable extends Callable implements SerializablePrim
     }
     else
       allArgs = args;
-
+  
     const funcArgs: any[] = [ctx];
     for (let i = 0; i < argDefs.length; i++) {
       const argDef = argDefs[i];
+      if (i >= allArgs.length && argDef.defaultValue === undefined && argDef.type)
+        throw new Error('Argument ${argDef.name} is missing. It is required, as no default value has been provided.');
       const v = allArgs[i] || argDef.defaultValue || null;
       if (argDef.type)
         funcArgs.push(argDef.type.convert(ctx, v, argDef.name));

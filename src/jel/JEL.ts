@@ -657,11 +657,12 @@ export default class JEL {
         const args = JEL.checkTypedParameters(JEL.tryParseTypedParameters(tokens, CLASS_PRECEDENCE, NO_STOP), next);
         if (args == null)
           JEL.throwParseException(tokens.last(), `Can not parse argument list for constructor`);
-        JEL.nextIsValueOrThrow(tokens, TokenType.Operator, '=>',  "Constructor argument list must be followed by '=>'.");
         if (nativeModifier)
           ctor = new NativeFunction('create', className.value, true, args!);
-        else
+        else {
+          JEL.nextIsValueOrThrow(tokens, TokenType.Operator, '=>',  "Constructor argument list must be followed by '=>'.");
           ctor = new Lambda(args!, undefined, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
+        }
       }
       else if (next.is(TokenType.Identifier, 'get') && tokens.peekIs(TokenType.Identifier)) { // getter
         if (staticModifier)

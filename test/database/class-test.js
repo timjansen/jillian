@@ -9,6 +9,7 @@ const Class = require('../../build/jel/types/Class.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
 const BaseTypeRegistry = require('../../build/jel/BaseTypeRegistry.js').default;
 const Serializer = require('../../build/jel/Serializer.js').default;
+const JelObject = require('../../build/jel/JelObject.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const Util = require('../../build/util/Util.js').default;
@@ -181,13 +182,14 @@ tmp.dir(function(err, path) {
       HybridNativeTest.y = 100;
       BaseTypeRegistry.register('HybridNativeTest', HybridNativeTest);
       
-      it('support hybrid native classes', function() {
+      it('supports hybrid native classes', function() {
         jelAssert.equal(`let c=(class HybridNativeTest:\n constructor()=>{}\n static native y: int\n native add(a: int, b: int): int\n static native sub(a,b)):
                           [c.y, c().add(3, 4), c.sub(2, 1)]`, `[100, 7, 1]`);
       });
 
-      class FullNativeTest {
-        constructor(n) {
+      class FullNativeTest extends JelObject {
+        constructor(clazz, n) {
+          super(clazz.className, clazz);
           this.x = n;
         }
 
@@ -199,16 +201,22 @@ tmp.dir(function(err, path) {
           return a.value - b.value;
         }
         
-        static create(ctx, a) {
+        static create(ctx, clazz, a) {
           return new FullNativeTest(42 + (a||0));
         }
       }
+      FullNativeTest.prototype.x_jel_mapping = true;
       FullNativeTest.prototype.add_jel_mapping = true;
       FullNativeTest.sub_jel_mapping = true;
+      FullNativeTest.create_jel_mapping = true;
       FullNativeTest.y_jel_mapping = true;
       FullNativeTest.y = 100;
+      BaseTypeRegistry.register('FullNativeTest', FullNativeTest);
 
-      
+      it('supports fully native classes', function() {
+        jelAssert.equal(`let c=(native class FullNativeTest:\n native constructor(a: int)\n native x: int\n static native y: int\n native add(a: int, b: int): int\n static native sub(a,b)):
+                          [c.y, c(0).add(3, 4), c.sub(2, 1), c(0).x, c(1).x]`, `[100, 7, 1, 42, 43]`);
+      });
     });
 
 	});
