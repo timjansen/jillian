@@ -1,11 +1,11 @@
 import JelObject from '../JelObject';
 import Context from '../Context';
-import Serializable from '../Serializable';
+import SerializablePrimitive from '../SerializablePrimitive';
 
 /**
  * Represents a node in a JEL expression.
  */
-export default abstract class JelNode extends JelObject implements Serializable {
+export default abstract class JelNode extends JelObject implements SerializablePrimitive {
 	// Returns either a value or a Promise for a value!
 	abstract execute(ctx: Context): JelObject|null|Promise<JelObject|null>;
 	
@@ -26,8 +26,7 @@ export default abstract class JelNode extends JelObject implements Serializable 
 			return Promise.resolve(r);
 	}
 	
-	getSerializationProperties(): any {
-    return [];
+  serializeToString(): string {
+    return this.toString();
   }
-
 }

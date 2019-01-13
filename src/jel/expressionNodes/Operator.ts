@@ -109,12 +109,6 @@ export default class Operator extends CachableJelNode {
 		else
 			return `(${this.operator}${this.left.toString()})`;
 	}
-	
-  getSerializationProperties(): Object {
-    if (this.right != null) 
-      return [this.operator, this.left, this.right];
-    else
-      return [this.operator, this.left];
-  }
+
 }
 

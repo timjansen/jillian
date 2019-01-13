@@ -50,9 +50,5 @@ export default class Let extends CachableJelNode {
 	toString(): string {
 		return `let ${this.assignments.map(s=>s.toString()).join(', ')}: ${this.expression.toString()}`;		
 	}
-	
-  getSerializationProperties(): Object {
-    return [this.assignments, this.expression];
-  }
 }
 

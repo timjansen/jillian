@@ -104,9 +104,6 @@ export default class Call extends CachableJelNode {
 
 		return `${this.left}(${this.argList.map(s=>s.toString()).join(', ')}, ${this.namedArgs.map(s=>s.toString()).join(', ')})`;
 	}
-  
-  getSerializationProperties(): Object {
-    return {left: this.left, argList: this.argList, namedArgs: this.namedArgs};
-  }
+
 }
 

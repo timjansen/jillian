@@ -41,10 +41,6 @@ export default class UnitValue extends CachableJelNode {
 	toString(): string {
 		return `(${this.value.toString()} @${this.unit})`;
 	}  
-	
-  getSerializationProperties(): any[] {
-    return [this.value, this.unit];
-  }
 }
 
 

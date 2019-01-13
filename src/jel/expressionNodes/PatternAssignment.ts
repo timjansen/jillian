@@ -58,10 +58,6 @@ export default class PatternAssignment extends CachableJelNode implements Serial
 		}
 		return this.name.equals(other.name) && this.expression.equals(other.expression);
 	}
-  
-  getSerializationProperties(): Object {
-    return {name: this.name, expression: this.expression, meta: this.meta};
-  }
 	
 	toString(separator='='): string {
 		const meta = this.meta ? `${this.meta.map(s=>s.toString()).join(', ')}: ` : '';

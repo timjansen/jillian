@@ -48,10 +48,6 @@ export default class TypedParameterDefinition extends CachableJelNode implements
       (this.defaultValue === other.defaultValue || (!!this.defaultValue && this.defaultValue.equals(other.defaultValue))) &&
       (this.type == other.type || (!!this.type && this.type.equals(other.type)));
 	}
-  
-  getSerializationProperties(): Object {
-    return [this.name, this.defaultValue, this.type];
-  }
 	
 	toString(): string {
     if (!this.defaultValue && !this.type)

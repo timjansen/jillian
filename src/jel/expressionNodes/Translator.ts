@@ -45,9 +45,6 @@ export default class Translator extends CachableJelNode {
   toString(): string {
 		return `Translator(${this.elements.map(s=>s.toString()).join(', ')})`;	
 	}
-	
-  getSerializationProperties(): any[] {
-    return [this.elements];
-  }
+
 }
 

@@ -44,8 +44,4 @@ export default class Variable extends CachableJelNode {
 	toString(): string {
 		return this.name;
 	}
-  
-  getSerializationProperties(): string[] {
-    return [this.name];
-  }
 }

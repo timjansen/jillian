@@ -69,10 +69,6 @@ export default class Literal extends JelNode {
     else
 			return this.value.toString();
 	}  
-	
-  getSerializationProperties(): any[] {
-    return [this.value];
-  }
 }
 
 

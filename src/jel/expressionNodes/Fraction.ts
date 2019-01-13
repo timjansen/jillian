@@ -41,10 +41,6 @@ export default class Fraction extends JelNode {
 	toString(): string {
 		return `(${JSON.stringify(this.value.numerator)}/${JSON.stringify(this.value.denominator)})`;
 	}  
-	
-  getSerializationProperties(): any[] {
-    return [this.value.numerator, this.value.denominator];
-  }
 }
 
 

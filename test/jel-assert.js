@@ -37,7 +37,7 @@ class JelAssert {
 			b0.then(e=>console.log('Equal returned promise: ', e), e=>console.log('Equal returned rejected promise: ', e));
 		assert.equal(Serializer.serialize(a0), Serializer.serialize(b0), c);
 	}
-
+  
 	notEqual(a, b, c) {
 		assert.notEqual(Serializer.serialize(this.exec(a)), Serializer.serialize(this.exec(b)), c);
 	}

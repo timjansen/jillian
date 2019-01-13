@@ -48,9 +48,6 @@ export default class Range extends CachableJelNode {
 	toString(): string {
   	return `(${this.left.toString()}...${this.right.toString()})`;
 	}
-	
-  getSerializationProperties(): Object {
-    return [this.left, this.right];
-  }
+
 }
 

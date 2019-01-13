@@ -14,7 +14,7 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
  *  a instanceof String|Number?
  * 
  */ 
-export default class As extends TypeCheck {
+export default class Instanceof extends TypeCheck {
 	private typeHelper: any;	
 
   constructor(left: JelNode, right: JelNode) {
@@ -29,7 +29,7 @@ export default class As extends TypeCheck {
   
   // overrride
   equals(other?: JelNode): boolean {
-		return other instanceof As &&
+		return other instanceof Instanceof &&
       this.left.equals(other.left) &&
       (!this.right == !other.right) &&
       ((!this.right) || this.right!.equals(other.right));

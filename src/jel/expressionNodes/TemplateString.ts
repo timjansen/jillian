@@ -58,9 +58,5 @@ export default class TemplateString extends CachableJelNode {
       a += `{{${this.expressions[i].toString()}}}${Literal.escapeString(this.stringFragments[i+1])}`;
     return `'${a}'`;
 	}
-  
-  getSerializationProperties(): any {
-    return [this.stringFragments, this.expressions];
-  }
 }
 

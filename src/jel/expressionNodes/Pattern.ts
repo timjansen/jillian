@@ -52,11 +52,6 @@ export default class Pattern extends JelNode {
 	static toString(p: any): string {
 		return '`' + p.patternText.replace(/`/g, '\\`').replace(/\n/g, '\\n') + '`';	
 	}
-	
-	
-  getSerializationProperties(): any[] {
-    return [this.pattern];
-  }
 }
 
 

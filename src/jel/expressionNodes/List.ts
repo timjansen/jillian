@@ -50,8 +50,5 @@ export default class List extends CachableJelNode {
   toString(): string {
 		return `[${this.elements.map(s=>s.toString()).join(', ')}]`;
 	}  
-	
-  getSerializationProperties(): any[] {
-    return [this.elements];
-  }
+
 }

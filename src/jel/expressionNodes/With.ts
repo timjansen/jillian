@@ -56,9 +56,5 @@ export default class With extends CachableJelNode {
 	toString(): string {
 		return `with ${this.assertions.map(s=>s.toString()).join(', ')}: ${this.expression.toString()}`;		
 	}
-	
-  getSerializationProperties(): Object {
-    return [this.assertions, this.expression];
-  }
 }
 

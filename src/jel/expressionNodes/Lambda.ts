@@ -71,9 +71,5 @@ export default class Lambda extends CachableJelNode {
  	toReturnString(): string {
 			return (this.returnType && this.returnType.type) ? `:${this.returnType.type.toString()}` : '';
 	}
-  
-  getSerializationProperties(): Object {
-    return [this.args, this.returnType, this.expression];
-  }
 }
 

@@ -29,8 +29,5 @@ export default abstract class TypeCheck extends CachableJelNode {
     return Util.resolveValues((l: any, r: any)=>this.executeTypeCheck(ctx, l, r), this.left.execute(ctx), this.right.execute(ctx));
   }
 
-  getSerializationProperties(): Object {
-      return [this.left, this.right];
-  }
 }
 

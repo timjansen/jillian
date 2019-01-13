@@ -67,9 +67,6 @@ export default class In extends CachableJelNode {
 	toString(): string {
 		return `(${this.left.toString()} in ${this.right.toString()})`;
 	}
-  
-  getSerializationProperties(): any[] {
-    return [this.left, this.right];
-  }
+ 
 }
 

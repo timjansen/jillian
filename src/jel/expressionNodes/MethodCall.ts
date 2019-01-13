@@ -82,9 +82,5 @@ export default class MethodCall extends CachableJelNode {
 
 		return `${this.left}.${this.name}(${this.argList.map(s=>s.toString()).join(', ')}, ${this.namedArgs.map(s=>s.toString()).join(', ')})`;
 	}
-  
-  getSerializationProperties(): Object {
-    return {left: this.left, name: this.name, argList: this.argList, namedArgs: this.namedArgs};
-  }
 }
 

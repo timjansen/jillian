@@ -69,9 +69,6 @@ export default class Reference extends CachableJelNode {
 		else
 			return `@${this.name}`;	
 	}
-	
-  getSerializationProperties(): any[] {
-    return [this.name, this.parameters];
-  }
+
 }
 

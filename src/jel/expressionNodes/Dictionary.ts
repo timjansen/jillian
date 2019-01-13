@@ -68,9 +68,6 @@ export default class Dictionary extends CachableJelNode {
   toString(): string {
 		return `{${this.elements.map(s=>s.toString(': ')).join(', ')}}`;
 	}
-	
-  getSerializationProperties(): any[] {
-    return [this.elements];
-  }
+
 }
 

@@ -73,9 +73,5 @@ export default class NativeFunction extends CachableJelNode {
  	toReturnString(): string {
 			return (this.returnType && this.returnType.type) ? `:${this.returnType.type.toString()}` : '';
 	}
-  
-  getSerializationProperties(): Object {
-    return [this.name, this.className, this.isStaticClass, this.args, this.returnType];
-  }
 }
 

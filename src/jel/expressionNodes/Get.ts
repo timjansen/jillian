@@ -77,9 +77,5 @@ export default class Get extends CachableJelNode {
 	toString(): string {
 		return `${this.left.toString()}[${this.name.toString()}]`;
 	}
-  
-  getSerializationProperties(): any[] {
-    return [this.left, this.name];
-  }
 }
 

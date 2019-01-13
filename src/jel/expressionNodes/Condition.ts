@@ -52,9 +52,5 @@ export default class Condition extends CachableJelNode {
  	toString(): string {
 		return `if ${this.condition.toString()} then ${this.thenExp.toString()} else ${this.elseExp.toString()}`;
 	}
- 
-	getSerializationProperties(): Object {
-    return {condition: this.condition, thenExp: this.thenExp, elseExp: this.elseExp};
-  }
 }
 
