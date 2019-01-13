@@ -1,5 +1,6 @@
 import JelNode from './JelNode';
 import Assignment from './Assignment';
+import Method from './Method';
 import TypedParameterDefinition from './TypedParameterDefinition';
 import Lambda from './Lambda';
 import NativeFunction from './NativeFunction';
@@ -17,7 +18,7 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
  */ 
 export default class ClassDef extends JelNode {
   
-  constructor(public name: string, public superName?: JelNode, public ctor?: Lambda|NativeFunction, public propertyDefs: TypedParameterDefinition[] = [], public methods: Assignment[] = [], public getters: Assignment[] = [], public staticProperties: Assignment[] = [], 
+  constructor(public name: string, public superName?: JelNode, public ctor?: Lambda|NativeFunction, public propertyDefs: TypedParameterDefinition[] = [], public methods: Method[] = [], public getters: Method[] = [], public staticProperties: Assignment[] = [], 
               public isAbstract = false, public hasNative = false, public nativeProperties: TypedParameterDefinition[] = [], public staticNativeProperties: TypedParameterDefinition[] = []) {
 		super();
   }
@@ -42,7 +43,8 @@ export default class ClassDef extends JelNode {
                               this.isAbstract, 
                               this.hasNative ? BaseTypeRegistry.get(this.name) : undefined,
                               Util.resolveArray(this.nativeProperties.map((p: TypedParameterDefinition)=>p.execute(ctx)), (pl: TypedParameterValue[])=>BaseTypeRegistry.get('List').valueOf(pl)), 
-                              Util.resolveArray(this.staticNativeProperties.map((p: TypedParameterDefinition)=>p.execute(ctx)), (pl: TypedParameterValue[])=>BaseTypeRegistry.get('List').valueOf(pl)));
+                              Util.resolveArray(this.staticNativeProperties.map((p: TypedParameterDefinition)=>p.execute(ctx)), (pl: TypedParameterValue[])=>BaseTypeRegistry.get('List').valueOf(pl)),
+                              BaseTypeRegistry.get('List').valueOf(this.methods.concat(this.getters).filter(e=>e.isOverride).map(m=>BaseTypeRegistry.get('String').valueOf(m.name))));
 	}
 
   static executeToDictionary(ctx: Context, args: Assignment[]): any {
@@ -104,8 +106,8 @@ export default class ClassDef extends JelNode {
       s+= `    native constructor${this.ctor.toArgumentString()}\n`;
     else if (this.ctor)
       s+= `    constructor${this.ctor.toArgumentString()} =>\n        ${this.ctor.expression.toString()}\n\n`;
-    this.getters.forEach(a=>{s+=`    get ${a.name}()${(a.expression as Lambda).toReturnString()} =>\n        ${(a.expression as Lambda).expression.toString()}\n\n`;});
-    this.methods.forEach(a=>{s+=`    ${a.name}${(a.expression as Lambda).toArgumentString()}${(a.expression as Lambda).toReturnString()} =>\n        ${(a.expression as Lambda).expression.toString()}\n\n`;});
+    this.getters.forEach(a=>{s+=`    ${a.isOverride?'override ':''}get ${a.name}()${(a.expression as Lambda).toReturnString()} =>\n        ${(a.expression as Lambda).expression.toString()}\n\n`;});
+    this.methods.forEach(a=>{s+=`    ${a.isOverride?'override ':''}${a.isNative?'native ':''}${a.name}${(a.expression as Lambda).toArgumentString()}${(a.expression as Lambda).toReturnString()} =>\n        ${(a.expression as Lambda).expression.toString()}\n\n`;});
     this.staticProperties.filter(p=>p.expression instanceof Lambda).forEach(a=>{s+=`    static ${a.name}${(a.expression as Lambda).toArgumentString()}${(a.expression as Lambda).toReturnString()} =>\n        ${(a.expression as Lambda).expression.toString()}\n\n`;});
     this.staticNativeProperties.forEach(a=>{s+=`    native ${a.toString()}\n`});
     s+= '\n\n';

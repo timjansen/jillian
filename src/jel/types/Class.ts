@@ -86,12 +86,15 @@ GenericJelObject.prototype.reverseOps = JelObject.SWAP_OPS;
 // Base class for defining instantiable types
 export default class Class extends PackageContent implements IClass {
   JEL_PROPERTIES: Object;
+  methods: Dictionary;                   // all methods, including super types
+  getters: Dictionary;                   // all getters, including super types
   ctorArgList: TypedParameterValue[]; 
   propertyTypes: Dictionary;             // name->type
   propertyDefaults: Dictionary;          // name->value
   staticProperties: Dictionary;          // name->value
   nativePropertyTypes: Dictionary;       // name->type
   staticNativePropertyTypes: Dictionary; // name->type
+  overridingProperties: Set<string>;     // overriden properties/methods
   
   staticPropertyCache: Map<string, JelObject|null> = new Map();
 
@@ -106,33 +109,33 @@ export default class Class extends PackageContent implements IClass {
    *                              property keys as keys and property values as values.
    *                              The argument 'this' is always set to null in the constructor.
    *                              The constructor can access the created class by name and read static properties that are not dynamic (not in staticContextProperties)
-   * @param propertyDefs a List of TypedParameterValues of additional properties. The types defined in propertyDefs wil overwrite those set by super type and constructor.
-   * @param methods a dictionary of string->function definitions for the type methods. The first argument to the functions
+   * @param propertyDefs a List of TypedParameterValues of additional properties. 
+   * @param localMethods a dictionary of string->function definitions for the type methods. The first argument to the functions
    *        must always 'this' and will contain a reference to the type.
    *        To define a binary operator, define a method with the name of the operator prefixed by 'op', like 'op+'.
    *         It will get two arguments 'this' and 'right'. 
    *        To define a unary operator, prefix the operator with 'singleOp'.
    *        For a reverse operator, use the prefix 'opReversed'. The arguments will be 'this' and 'left'.
-   * @param getters defined getter methods for properties
+   * @param localGetters defined getter methods for properties
    * @param staticConstantProperties static values that are simple constants. They will be stored as Class's properties.
    * @param staticContextProperties a Dictionary of Callables that set properties. The Callables are invoked, in unspecified order, after
    *         creating the Class instance and setting the staticProperties. They can access the new Class object using its name and
    *         can use it to create new instances.
    */
   constructor(public className: string, public superType?: Class, public ctor: LambdaCallable|NativeCallable|null = null, public propertyDefs = List.empty,
-              public methods = Dictionary.empty, public getters = Dictionary.empty, public staticConstantProperties = Dictionary.empty,
+              public localMethods = Dictionary.empty, public localGetters = Dictionary.empty, public staticConstantProperties = Dictionary.empty,
               public staticContextProperties = Dictionary.empty, public isAbstract = false, public nativeClass?: any,
-              public nativeProperties = List.empty, public staticNativeProperties = List.empty) {
+              public nativeProperties = List.empty, public staticNativeProperties = List.empty, public overrides = List.empty) {
     super(className);
    
     if (/^[^A-Z]/.test(className))
       throw new Error(`Type name ${className} is not allowed: types must start with a capital letter.`);
 
-    const uncallableMethod = methods.findJs((n: string, e: any)=>!(e instanceof Callable));
+    const uncallableMethod = localMethods.findJs((n: string, e: any)=>!(e instanceof Callable));
     if (uncallableMethod)
       throw new Error(`Method ${uncallableMethod} is not a Callable.`);
 
-    const uncallableGetter = getters.findJs((n: string, e: any)=>!(e instanceof Callable));
+    const uncallableGetter = localGetters.findJs((n: string, e: any)=>!(e instanceof Callable));
     if (uncallableGetter)
       throw new Error(`Getter ${uncallableGetter} is not a Callable.`);
 
@@ -151,13 +154,16 @@ export default class Class extends PackageContent implements IClass {
       this.ctor = (ctor instanceof LambdaCallable && superType.ctor instanceof LambdaCallable) ? ctor.bindSuper(superType.ctor) : ctor;
     }
 
+    this.overridingProperties = new Set(overrides.elements.map(e=>JelString.toRealString(e)));
+    
     this.ctorArgList = ctor?ctor.argDefs:[];
     const ctorProps = new Dictionary(this.ctorArgList.map(lc=>[lc.name, lc.type||AnyType.instance]));
     this.propertyTypes = new Dictionary(superType && superType.propertyTypes).putAll(ctorProps).putAll(propertyDefs.elements.map((v)=>[v.name,v.type||AnyType.instance]));
     this.propertyDefaults = new Dictionary(superType && superType.propertyDefaults).putAll(propertyDefs.elements.map((v)=>[v.name,v.defaultValue]));
-    this.methods = new Dictionary(superType && superType.methods).putAll(methods);
+    this.methods = new Dictionary(superType && superType.methods).putAll(localMethods);
+    this.getters = new Dictionary(superType && superType.getters).putAll(localGetters);
     this.staticProperties = staticConstantProperties;
-    this.nativePropertyTypes = new Dictionary(nativeProperties.elements.map((v)=>[v.name,v.type||AnyType.instance]));
+    this.nativePropertyTypes = new Dictionary(superType && superType.nativePropertyTypes).putAll(nativeProperties.elements.map((v)=>[v.name,v.type||AnyType.instance]));
     this.staticNativePropertyTypes = new Dictionary(staticNativeProperties.elements.map((v)=>[v.name,v.type||AnyType.instance]));
 
     if (ctor)
@@ -165,7 +171,9 @@ export default class Class extends PackageContent implements IClass {
     this.staticPropertyCache.set('className', JelString.valueOf(className));
     this.staticPropertyCache.set('packageName', JelString.valueOf(this.packageName));
     this.staticPropertyCache.set('superType', superType||null);
-    this.staticPropertyCache.set('methods', methods);
+    this.staticPropertyCache.set('methods', this.methods);
+                                 
+    this.checkGetterOverrides();
   }
 
   // initialize static properties
@@ -188,45 +196,70 @@ export default class Class extends PackageContent implements IClass {
     });
   }
   
-  protected findSuperMethod(name: string): Callable | undefined {
-    if (this.superType)
-      return this.superType.methods.elements.get(name) as Callable || this.superType.findSuperMethod(name);
-    return undefined;
+  protected findMethod(name: string): Callable | undefined {
+    return this.methods.elements.get(name) as Callable|undefined;
   }
 
-  protected checkMethodOverrides(ctx: Context): Promise<never>|undefined {
+  protected hasProperty(name: string): boolean {
+    return this.propertyTypes.elements.has(name) || this.propertyDefaults.elements.has(name) || this.getters.elements.has(name) || this.nativePropertyTypes.elements.has(name);
+  }
+
+  protected checkGetterOverrides(): void {
     if (!this.superType)
       return;
+    this.localGetters.eachJs(name=>{
+      if (this.superType!.hasProperty(name)) {
+        if (!this.overridingProperties.has(name))
+          throw new Error(`Error overriding getter ${name} in ${this.className}: Missing 'override' modifier. This is required to override a property.`);
+      }
+      else if (this.overridingProperties.has(name))
+          throw new Error(`Error overriding getter ${name} in ${this.className}: 'override' set, but the parent does not have such a property.`);
+    });
+  }
+
+  
+  protected checkMethodOverrides(ctx: Context): Promise<never>|undefined {
+    if (!this.superType) {
+        if (this.overridingProperties.size)
+          throw new Error(`Class ${this.className} has overriding methods defined, but no super class.`);
+      return;
+    }
     
-    return Util.waitArray(this.methods.mapToArrayJs((name, callable: Callable)=>{
-      const sm = this.findSuperMethod(name);
-      if (!sm)
+    return Util.waitArray(this.localMethods.mapToArrayJs((name, callable: Callable)=>{
+      const sm = this.superType!.findMethod(name);
+      if (!sm) {
+        if (this.overridingProperties.has(name))
+          throw new Error(`Error overriding method ${name}() in ${this.className}: method not found in super type ${this.superType!.className}.`);
         return;
+      }
+
+      if (!this.overridingProperties.has(name))
+        throw new Error(`Error overriding method ${name}() in ${this.className}: overriding method needs an 'override' modifier.`);
 
       const subRet = callable.getReturnType();
       const superRet = sm.getReturnType();
       if ((!!subRet) != (!!superRet)) {
         if (subRet)
-          throw new Error(`Error overriding method ${name} in ${this.className}: super type method has no return type, but overriding method has '${subRet.toString()}'.`);
+          throw new Error(`Error overriding method ${name}() in ${this.className}: super type method has no return type, but overriding method has '${subRet.toString()}'.`);
         else
-          throw new Error(`Error overriding method ${name} in ${this.className}: super type method has return type '${superRet.toString()}', but overriding method has no return type.`);
+          throw new Error(`Error overriding method ${name}() in ${this.className}: super type method has return type '${superRet.toString()}', but overriding method has no return type.`);
       }
 
       return Util.resolveValue(subRet ? subRet.compatibleWith(ctx, superRet) : JelBoolean.TRUE, (retCheck: JelBoolean)=>{
         if (!retCheck.toRealBoolean())
-          throw new Error(`Error overriding method ${name} in ${this.className}: super type method return type '${superRet.toString()}' is incompatible with overriding type '${subRet.toString()}'.`);
+          throw new Error(`Error overriding method ${name}() in ${this.className}: super type method return type '${superRet.toString()}' is incompatible with overriding type '${subRet.toString()}'.`);
         
         const subArgs = callable.getArguments();
         const superArgs = sm.getArguments();
         if (!subArgs || !superArgs)
           return;
         if (subArgs.length != superArgs.length)
-          throw new Error(`Error overriding method ${name} in ${this.className}: super type method has ${superArgs.length} arguments, but this implementation has only ${subArgs.length}.`);
+          throw new Error(`Error overriding method ${name}() in ${this.className}: super type method has ${superArgs.length} arguments, but this implementation has only ${subArgs.length}.`);
 
         return Util.resolveArray(subArgs.map((arg,i)=>arg.compatibleWith(ctx, superArgs[i])), (argResults: JelBoolean[])=>{
           const idx = argResults.findIndex(e=>!JelBoolean.toRealBoolean(e));
           if (idx >= 0)
-            throw new Error(`Error overriding method ${name} in ${this.className}: super class argument ${idx+1} type '${superArgs[idx].toString()}' is incompatible with overriding type '${subArgs[idx].toString()}'.`);
+            throw new Error(`Error overriding method ${name}() in ${this.className}: super class argument ${idx+1} type '${superArgs[idx].toString()}' is incompatible with overriding type '${subArgs[idx].toString()}'.`);
         });
       });
     }));
@@ -324,17 +357,17 @@ export default class Class extends PackageContent implements IClass {
   }
 
   getSerializationProperties(): any[] {
-    return [this.className, this.superType && new ReferenceHelper(this.superType.distinctName), this.ctor, this.propertyDefs, this.methods, this.getters, this.staticConstantProperties, this.staticContextProperties, this.isAbstract, this.nativeClass,
-           this.nativeProperties, this.staticNativeProperties];
+    return [this.className, this.superType && new ReferenceHelper(this.superType.distinctName), this.ctor, this.propertyDefs, this.localMethods, this.getters, this.staticConstantProperties, this.staticContextProperties, this.isAbstract, this.nativeClass,
+           this.nativeProperties, this.staticNativeProperties, this.overrides];
   }
 
-  static create_jel_mapping = ['className', 'superType', 'constructor', 'propertyDefs', 'methods', 'getters', 'staticValues', 'staticInitializer', 'isAbstract', 'nativeClass', 'nativeProperties', 'staticNativeProperties'];
+  static create_jel_mapping = ['className', 'superType', 'constructor', 'propertyDefs', 'methods', 'getters', 'staticValues', 'staticInitializer', 'isAbstract', 'nativeClass', 'nativeProperties', 'staticNativeProperties', 'overrides'];
   static create(ctx: Context, ...args: any[]): Class|Promise<Class> {
     if (TypeChecker.isIDbRef(args[1]))
-      return args[1].with(ctx, (t: Class) => Class.create(ctx, args[0], t, args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11]));
+      return args[1].with(ctx, (t: Class) => Class.create(ctx, args[0], t, args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12]));
 
     if (args[3] instanceof Dictionary)
-      return Class.create(ctx, args[0], args[1], args[2], new List(args[3].mapToArrayJs((name: any, type: any)=>new TypedParameterValue(name, null, type))), args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11]);
+      return Class.create(ctx, args[0], args[1], args[2], new List(args[3].mapToArrayJs((name: any, type: any)=>new TypedParameterValue(name, null, type))), args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12]);
       
     const c = new Class(TypeChecker.realString(args[0], 'className'), 
                               TypeChecker.optionalInstance(Class, args[1], 'superType')||undefined,
@@ -347,7 +380,8 @@ export default class Class extends PackageContent implements IClass {
                               TypeChecker.realBoolean(args[8], 'isAbstract', false),
                               args[9],
                               TypeChecker.optionalInstance(List, args[10], 'nativeProperties')||List.empty,
-                              TypeChecker.optionalInstance(List, args[11], 'staticNativeProperties')||List.empty);
+                              TypeChecker.optionalInstance(List, args[11], 'staticNativeProperties')||List.empty,
+                              TypeChecker.optionalInstance(List, args[12], 'overrides')||List.empty);
     return c.asyncInit(ctx);
   }
 }

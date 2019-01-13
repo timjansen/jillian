@@ -93,14 +93,8 @@ tmp.dir(function(err, path) {
       });
       
       it('supports superTypes', function() {
-        jelAssert.equal(`let superType=Class("SuperType", null, (x: Float, y: Float)=>{}, methods={add: (a, b=1)=>a+b, sub: (a, b=1)=>a-b}),
-                              subType=Class("SubType", superType, (x: Float, y: Float, z: Float)=>{}, methods={add: (a,b=2)=>a+b+10, mul: (a,b=1)=>a*b}),
-                              s1 = superType(4, 6),
-                              s2 = subType(8, 10, 20): 
-                            [s1.x, s1.y, s2.x, s2.y, s2.z, s1.add(5), s1.sub(4), s2.add(6), s2.sub(33), s2.mul(9, 9)]`, "[4, 6, 8, 10, 20, 6, 3, 18, 32, 81]");
-
         jelAssert.equal(`let superType=class SuperType: constructor(x: Float, y: Float)=> {} add(a, b=1)=>a+b sub(a, b=1)=>a-b,
-                              subType=class SubType extends superType: constructor(x: Float, y: Float, z: Float)=> {} add(a,b=2)=>a+b+10 mul(a,b=1)=>a*b,
+                              subType=class SubType extends superType: constructor(x: Float, y: Float, z: Float)=> {} override add(a,b=2)=>a+b+10 mul(a,b=1)=>a*b,
                               s1 = superType(4, 6),
                               s2 = subType(8, 10, 20): 
                             [s1.x, s1.y, s2.x, s2.y, s2.z, s1.add(5), s1.sub(4), s2.add(6), s2.sub(33), s2.mul(9, 9)]`, "[4, 6, 8, 10, 20, 6, 3, 18, 32, 81]");
@@ -113,23 +107,27 @@ tmp.dir(function(err, path) {
       });
       
       it('supports abstract superTypes', function() {
-        jelAssert.equal(`let superType=abstract class SuperType: a=1 constructor(x=1)=>{a:x+5} abstract test(), subType=class SubType extends superType: constructor()=>super(9), sub1=subType():
-                            [sub1.a]`, "[14]");
-        return jelAssert.errorPromise(`let s = abstract class AC: constructor()=>{} : s()`, 'declared abstract');
+        jelAssert.equal(`let superType=abstract class SuperType: a=1 constructor(x=1)=>{a:x+5} abstract test(), subType=class SubType extends superType: constructor()=>super(9) override test()=>1, sub1=subType():
+                            [sub1.a, sub1.test()]`, "[14,1]");
+        return Promise.all([
+          jelAssert.errorPromise(`let s = abstract class AC: constructor()=>{} : s()`, 'declared abstract')   //,
+//          jelAssert.errorPromise(`let superType=abstract class SuperType: a=1 constructor(x=1)=>{a:x+5} abstract test(), subType=class SubType extends superType: constructor()=>super(9): subType()`, 'XX must override')
+        ]);
       });
       
       it('allows overriding methods', function() {
-        jelAssert.equal(`let superType=class SuperType: constructor()=>{} incX(x)=>x+1, subType=class SubType extends superType: constructor()=>{} incX(x)=>x+2, sup1=superType(), sub1=subType():
+        jelAssert.equal(`let superType=class SuperType: constructor()=>{} incX(x)=>x+1, subType=class SubType extends superType: constructor()=>{} override incX(x)=>x+2, sup1=superType(), sub1=subType():
                             [sup1.incX(5), sub1.incX(10)]`, "[6, 12]");
-        jelAssert.equal(`let superType=class SuperType: constructor()=>{} incX(x): int=> x+1, subType=class SubType extends superType: constructor()=>{} incX(x):int=>x+2, sup1=superType(), sub1=subType():
+        jelAssert.equal(`let superType=class SuperType: constructor()=>{} incX(x): int=> x+1, subType=class SubType extends superType: constructor()=>{} override incX(x):int=>x+2, sup1=superType(), sub1=subType():
                             [sup1.incX(5), sub1.incX(10)]`, "[6, 12]");
         
         return Promise.all([
-          jelAssert.errorPromise(`let superType=abstract class SuperType: incX(x: int)=>x+1, subType=class SubType extends superType: constructor()=>{} incX(x: number)=>x+2: subType()`, 'number'),
-          jelAssert.errorPromise(`let superType=abstract class SuperType: incX(x: int)=>x+1, subType=class SubType extends superType: constructor()=>{} incX(ypsilon: int)=>x+2: subType()`, 'ypsilon'),
-          jelAssert.errorPromise(`let superType=abstract class SuperType: incX(a,b,c,d,e,f)=>a+1, subType=class SubType extends superType: constructor()=>{} incX(a,b,c,d,e,f,g)=>a+2: subType()`, '7'),
-          jelAssert.errorPromise(`let superType=abstract class SuperType: incX(x: int)=>x+1, subType=class SubType extends superType: constructor()=>{} incX(x: any)=>x+2: subType()`, 'any'),
-          jelAssert.errorPromise(`let superType=abstract class SuperType: incX(x):number=> x+1, subType=class SubType extends superType: constructor()=>{} incX(x):int=> x+2: subType()`, 'return type')
+          jelAssert.errorPromise(`let superType=abstract class SuperType: incX(x: int)=>x+1, subType=class SubType extends superType: constructor()=>{} override incX(x: number)=>x+2: subType()`, 'number'),
+          jelAssert.errorPromise(`let superType=abstract class SuperType: incX(x: int)=>x+1, subType=class SubType extends superType: constructor()=>{} override incX(ypsilon: int)=>x+2: subType()`, 'ypsilon'),
+          jelAssert.errorPromise(`let superType=abstract class SuperType: incX(a,b,c,d,e,f)=>a+1, subType=class SubType extends superType: constructor()=>{} override incX(a,b,c,d,e,f,g)=>a+2: subType()`, '7'),
+          jelAssert.errorPromise(`let superType=abstract class SuperType: incX(x: int)=>x+1, subType=class SubType extends superType: constructor()=>{} override incX(x: any)=>x+2: subType()`, 'any'),
+          jelAssert.errorPromise(`let superType=abstract class SuperType: incX(x):number=> x+1, subType=class SubType extends superType: constructor()=>{} override incX(x):int=> x+2: subType()`, 'return type'),
+          jelAssert.errorPromise(`let superType=class SuperType: constructor()=>{} incX(x)=>x+1, subType=class SubType extends superType: constructor()=>{} incX(x)=>x+2: subType()`, `method needs an 'override'`)
           ]);
       });
 
@@ -150,6 +148,11 @@ tmp.dir(function(err, path) {
       it('supports getter', function() {
         jelAssert.equal('let myTestType=Class("MyTestType", null, (x: Float, y: Float)=>{}, getters={x: ()=>8, z: ()=>4}), m=myTestType(5, 12): m.x/m.z', "2");
         jelAssert.equal('let myTestType=class MyTestType: constructor(x: Float, y: Float)=>{} get x():Float=>8 get z()=>4, m=myTestType(5, 12): m.x/m.z', "2");
+
+        jelAssert.equal(`let superType=class SuperType: constructor()=>{} get x()=>1, subType=class SubType extends superType: constructor()=>{} override get x()=>42, sup1=superType(), sub1=subType():
+                            [sup1.x, sub1.x]`, "[1, 42]");
+        
+        return jelAssert.errorPromise(`let superType=class SuperType: constructor()=>{} get x()=>1, subType=class SubType extends superType: constructor()=>{} get x()=>2: subType()`, `Missing 'override' modifier`);
       });
 
       it('supports ops', function() {

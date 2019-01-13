@@ -7,5 +7,5 @@
    */
   values: Range
 
-  checkValue(v: any): bool =>
+  override checkValue(v: any): bool =>
     v in this.values

@@ -32,6 +32,7 @@ import Reference from './expressionNodes/Reference';
 import Condition from './expressionNodes/Condition';
 import TypedParameterDefinition from './expressionNodes/TypedParameterDefinition';
 import Assignment from './expressionNodes/Assignment';
+import Method from './expressionNodes/Method';
 import PatternAssignment from './expressionNodes/PatternAssignment';
 import Let from './expressionNodes/Let';
 import With from './expressionNodes/With';
@@ -114,9 +115,9 @@ const IF_STOP = {'then': true};
 const THEN_STOP = {'else': true};
 const LET_STOP = {':': true, ',': true};
 const WITH_STOP = {':': true, ',': true};
-const CLASS_EXTENDS_STOP = {':': true, ',': true, identifier: true, abstract: true, static: true, native: true};
-const CLASS_EXPRESSION_STOP = {identifier: true, abstract: true, static: true, native: true};
-const CLASS_TYPE_EXPRESSION_STOP = {'=': true, identifier: true, abstract: true, static: true, native: true};
+const CLASS_EXTENDS_STOP = {':': true, ',': true, identifier: true, abstract: true, static: true, native: true, override: true};
+const CLASS_EXPRESSION_STOP = {identifier: true, abstract: true, static: true, native: true, override: true};
+const CLASS_TYPE_EXPRESSION_STOP = {'=': true, identifier: true, abstract: true, static: true, native: true, override: true};
 
 const EQUAL = {'=': true};
 const LAMBDA = {'=>': true};
@@ -616,8 +617,8 @@ export default class JEL {
     
     let ctor: Lambda|NativeFunction|undefined = undefined;
     const propertyDefs: TypedParameterDefinition[] = [];
-    const methods: Assignment[] = [];
-    const getters: Assignment[] = [];
+    const methods: Method[] = [];
+    const getters: Method[] = [];
     const staticProperties: Assignment[] = [];
     const nativeProperties: TypedParameterDefinition[] = [];
     const staticNativeProperties: TypedParameterDefinition[] = [];
@@ -635,7 +636,8 @@ export default class JEL {
       
       const staticModifier = !!peek.is(TokenType.Operator, 'static');
       const abstractModifier = !!peek.is(TokenType.Operator, 'abstract');
-      const next0 = (staticModifier || abstractModifier) ? tokens.next() : peek;
+      const overrideModifier = !!peek.is(TokenType.Operator, 'override');
+      const next0 = (staticModifier || abstractModifier || overrideModifier) ? tokens.next() : peek;
       const nativeModifier = !!next0.is(TokenType.Operator, 'native');
       if (nativeModifier && abstractModifier)
         JEL.throwParseException(tokens.last(), `Native modifier can not be combined with abstract modifier.`);
@@ -649,6 +651,8 @@ export default class JEL {
           JEL.throwParseException(next, `Static constructors are not supported.`);
         if (abstractModifier)
           JEL.throwParseException(next, `Abstract constructors are not supported. You can make the whole class abstract.`);
+        if (overrideModifier)
+          JEL.throwParseException(next, `Constructors can not use the 'override' modifier.`);
         if (isNative && !nativeModifier)
           JEL.throwParseException(next, `A native class requires a native constructor, but this constructor does not have the native property.`);
         if (!isNative && nativeModifier)
@@ -680,13 +684,15 @@ export default class JEL {
         JEL.expectOp(tokens, CLOSE_ARGS, `Expected '()' following declaration of getter. Getters can't take any arguments.`);
         const asCheck = JEL.tryParseLambdaTypeCheck(tokens, LAMBDA);
         JEL.nextIsValueOrThrow(tokens, TokenType.Operator, '=>',  "Getter expression must be preceded by '=>'.");
-        getters.push(new Assignment(propertyName, new Lambda([], asCheck, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop))));
+        getters.push(new Method(propertyName, new Lambda([], asCheck, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop)), overrideModifier, nativeModifier));
       }
       else if ((next.is(TokenType.Identifier, 'op') ||  next.is(TokenType.Identifier, 'singleOp')) && tokens.peekIs(TokenType.Operator) && !tokens.peekIs(TokenType.Operator, '(')) { // ops
         if (staticModifier)
           JEL.throwParseException(next, `Operator methods can not be combined with a 'static' modifier.`);
         if (abstractModifier)
           JEL.throwParseException(next, `Operator methods can not be combined with an 'abstract' modifier.`);
+        if (overrideModifier)
+          JEL.throwParseException(next, `Operator methods can not use the 'override' modifier. They will always implicily override.`);
         if (nativeModifier)
           JEL.throwParseException(next, `Native operators can not be declared in JEL. You need to override the operator methods directly.`);
         if (isNative)
@@ -711,12 +717,14 @@ export default class JEL {
 
         const asCheck = JEL.tryParseLambdaTypeCheck(tokens, LAMBDA);
         JEL.nextIsValueOrThrow(tokens, TokenType.Operator, '=>',  "Operator expression must be preceded by '=>'.");
-        methods.push(new Assignment(methodName, new Lambda(args!, asCheck, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop))));
+        methods.push(new Method(methodName, new Lambda(args!, asCheck, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop)), overrideModifier, nativeModifier));
       }
       else if (next.is(TokenType.Identifier) && tokens.nextIf(TokenType.Operator, '(')) {
         const methodName = next.value;
         if (isNative && !nativeModifier)
           JEL.throwParseException(tokens.last(), `Method ${methodName} is a non-native method in a native class. All methods must be native in native classes.`);
+        if (abstractModifier && !isAbstract)
+          JEL.throwParseException(tokens.last(), `Method ${methodName} is abstract in a non-abstract class. Abstract methods are only allowed in classes.`);
         if (propertyNames.has(methodName))
           JEL.throwParseException(tokens.last(), `Method ${methodName} already declared`);
         propertyNames.add(methodName);
@@ -732,16 +740,19 @@ export default class JEL {
 
         const impl = nativeModifier ?  new NativeFunction(methodName, className.value, staticModifier, args!, returnType) : 
                 new Lambda(args!, returnType, abstractModifier ? new Literal(false) : JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
+        const m = new Method(methodName, impl, overrideModifier, nativeModifier);
         if (staticModifier)
-          staticProperties.push(new Assignment(methodName, impl));
+          staticProperties.push(m);
         else
-          methods.push(new Assignment(methodName, impl));
+          methods.push(m);
       }
       else if (next.is(TokenType.Identifier) && (tokens.peekIs(TokenType.Operator, ':') || tokens.peekIs(TokenType.Operator, '='))) {
         const propertyName = next.value;
         if (abstractModifier)
             JEL.throwParseException(next, `Property ${propertyName} is declared abstract. You must not declare a property as abstract.`);
-        if (isNative && !nativeModifier)
+        if (overrideModifier)
+          JEL.throwParseException(next, `Properties can not use the 'override' modifier.`);
+      if (isNative && !nativeModifier)
           JEL.throwParseException(tokens.last(), `Property ${propertyName} is a non-native property in a native class. All properties must be native in native classes.`);
         if (nativeModifier && !isNative && !staticModifier)
           JEL.throwParseException(tokens.last(), `Property ${propertyName} is native in a non-native class. In a non-native class, only static native properties are allowed.`);
@@ -775,6 +786,8 @@ export default class JEL {
         else
           propertyDefs.push(arg);
       }
+      else if (next.is(TokenType.Operator, 'static') || next.is(TokenType.Operator, 'abstract') || next.is(TokenType.Operator, 'override'))
+        JEL.throwParseException(next, `You can not combine the modifiers 'static', 'abstract' and 'override'.`);
       else
         JEL.throwParseException(next, 'Unexpected token in class declaration. Expected an identifier to define a method or property.');
     }

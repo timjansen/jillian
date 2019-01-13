@@ -7,6 +7,6 @@ class ValueFact extends Fact
    */
   value: any
 
-  checkValue(v: any): bool =>
+  override checkValue(v: any): bool =>
     v == this.value
 
