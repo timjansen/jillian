@@ -110,7 +110,7 @@ tmp.dir(function(err, path) {
         jelAssert.equal(`let superType=abstract class SuperType: a=1 constructor(x=1)=>{a:x+5} abstract test(), subType=class SubType extends superType: constructor()=>super(9) override test()=>1, sub1=subType():
                             [sub1.a, sub1.test()]`, "[14,1]");
         return Promise.all([
-          jelAssert.errorPromise(`let s = abstract class AC: constructor()=>{} : s()`, 'declared abstract')   //,
+          jelAssert.errorPromise(`let s = abstract class AC: constructor()=>{} : s()`, 'declared abstract')//,
 //          jelAssert.errorPromise(`let superType=abstract class SuperType: a=1 constructor(x=1)=>{a:x+5} abstract test(), subType=class SubType extends superType: constructor()=>super(9): subType()`, 'XX must override')
         ]);
       });
@@ -152,7 +152,12 @@ tmp.dir(function(err, path) {
         jelAssert.equal(`let superType=class SuperType: constructor()=>{} get x()=>1, subType=class SubType extends superType: constructor()=>{} override get x()=>42, sup1=superType(), sub1=subType():
                             [sup1.x, sub1.x]`, "[1, 42]");
         
-        return jelAssert.errorPromise(`let superType=class SuperType: constructor()=>{} get x()=>1, subType=class SubType extends superType: constructor()=>{} get x()=>2: subType()`, `Missing 'override' modifier`);
+        return Promise.all([
+          jelAssert.errorPromise(`let superType=class SuperType: constructor()=>{} get x()=>1, subType=class SubType extends superType: constructor()=>{} get x()=>2: subType()`, `needs an 'override'`),
+          jelAssert.errorPromise(`let superType=class SuperType: constructor()=>{} get x()=>1, subType=class SubType extends superType: constructor()=>{} override get x(): int=>2: subType()`, `return value: int`),
+          jelAssert.errorPromise(`let superType=class SuperType: constructor()=>{} get x():string=>'foo', subType=class SubType extends superType: constructor()=>{} override get x()=>'bar': subType()`, `overriding getter has no return type`),
+          jelAssert.errorPromise(`let superType=class SuperType: constructor()=>{} get x():string=>'foo', subType=class SubType extends superType: constructor()=>{} override get x(): int=>2: subType()`, `incompatible with overriding type`)
+          ]);
       });
 
       it('supports ops', function() {

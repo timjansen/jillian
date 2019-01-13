@@ -110,7 +110,7 @@ export default class Class extends PackageContent implements IClass {
    *                              The argument 'this' is always set to null in the constructor.
    *                              The constructor can access the created class by name and read static properties that are not dynamic (not in staticContextProperties)
    * @param propertyDefs a List of TypedParameterValues of additional properties. 
-   * @param localMethods a dictionary of string->function definitions for the type methods. The first argument to the functions
+   * @param localMethods a dictionary of string->Callable definitions for the type methods. The first argument to the functions
    *        must always 'this' and will contain a reference to the type.
    *        To define a binary operator, define a method with the name of the operator prefixed by 'op', like 'op+'.
    *         It will get two arguments 'this' and 'right'. 
@@ -175,8 +175,6 @@ export default class Class extends PackageContent implements IClass {
     this.staticPropertyCache.set('packageName', JelString.valueOf(this.packageName));
     this.staticPropertyCache.set('superType', superType||null);
     this.staticPropertyCache.set('methods', this.methods);
-                                 
-    this.checkGetterOverrides();
   }
 
   // initialize static properties
@@ -203,22 +201,52 @@ export default class Class extends PackageContent implements IClass {
     return this.methods.elements.get(name) as Callable|undefined;
   }
 
-  protected hasProperty(name: string): boolean {
-    return this.propertyTypes.elements.has(name) || this.propertyDefaults.elements.has(name) || this.getters.elements.has(name) || this.nativePropertyTypes.elements.has(name);
+  // finds the given property in this type including any super types. null if property exists but is untyped. Undefined if property does not exist.
+  protected findProperty(name: string): TypeDescriptor | null | undefined {
+    const type = this.propertyTypes.elements.get(name) || this.nativePropertyTypes.elements.get(name);
+    if (type)
+      return type as TypeDescriptor;
+    if (this.propertyDefaults.elements.has(name))
+      return AnyType.instance;
+    const getter = this.getters.elements.get(name) as Callable|null|undefined;
+    if (getter)
+      return getter.getReturnType() || null;
+    return;
   }
 
-  protected checkGetterOverrides(): void {
+  
+  protected checkGetterOverrides(ctx: Context): Promise<never>|undefined {
     if (!this.superType)
       return;
-    this.localGetters.eachJs(name=>{
-      if (this.superType!.hasProperty(name)) {
-        if (!this.overridingProperties.has(name))
-          throw new Error(`Error overriding getter ${name} in ${this.className}: Missing 'override' modifier. This is required to override a property.`);
+    
+    return Util.waitArray(this.localGetters.mapToArrayJs((name, callable: Callable)=>{
+      const origType = this.superType!.findProperty(name);
+      if (origType === undefined) {
+        if (this.overridingProperties.has(name))
+          throw new Error(`Error overriding getter ${name}() in ${this.className}: property not found in super type ${this.superType!.className}.`);
+        return;
       }
-      else if (this.overridingProperties.has(name))
-          throw new Error(`Error overriding getter ${name} in ${this.className}: 'override' set, but the parent does not have such a property.`);
-    });
+
+      if (!this.overridingProperties.has(name))
+        throw new Error(`Error overriding getter ${name}() in ${this.className}: overriding getter needs an 'override' modifier.`);
+
+      const ovrdType = callable.getReturnType();
+      if ((!!ovrdType) != (!!origType)) {
+        if (ovrdType)
+          throw new Error(`Error overriding property ${name} in ${this.className}: property has no type, but overriding getter has ${ovrdType.toString()}.`);
+        else
+          throw new Error(`Error overriding property ${name} in ${this.className}: property has return type '${origType!.toString()}', but overriding getter has no return type.`);
+      }
+      if (!ovrdType)
+        return;
+      
+      return Util.resolveValue(ovrdType.compatibleWith(ctx, origType), (retCheck: JelBoolean)=>{
+        if (!retCheck.toRealBoolean())
+          throw new Error(`Error overriding getter ${name}() in ${this.className}: super type getter return type '${origType!.toString()}' is incompatible with overriding type '${ovrdType.toString()}'.`);
+      });
+    }));
   }
+
 
   
   protected checkMethodOverrides(ctx: Context): Promise<never>|undefined {
@@ -270,8 +298,7 @@ export default class Class extends PackageContent implements IClass {
 
 
   protected asyncInit(ctx: Context): Promise<Class>|Class {
-    return Util.resolveValue(this.checkMethodOverrides(ctx), 
-                             ()=>this.staticInit(ctx));
+    return Util.resolveValues(()=>this.staticInit(ctx), this.checkMethodOverrides(ctx), this.checkGetterOverrides(ctx));
   }
 
   member(ctx: Context, name: string, parameters?: Map<string, any>): any {
