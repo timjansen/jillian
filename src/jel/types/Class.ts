@@ -147,9 +147,12 @@ export default class Class extends PackageContent implements IClass {
       throw new Error('You must not overwrite the property "create".')
 
     if (superType) {
-      const overridenProperty = propertyDefs.elements.find((n: string)=>superType.propertyTypes.elements.has(n));
+      const overridenProperty = propertyDefs.elements.find((n: string)=>superType.propertyTypes.elements.has(n) || superType.nativePropertyTypes.elements.has(n));
       if (overridenProperty)
         throw new Error(`Property ${overridenProperty} is already defined in super type ${superType.className}, you must not override it.`);
+      const overridenNativeProperty = nativeProperties.elements.find((n: string)=>superType.propertyTypes.elements.has(n) || superType.nativePropertyTypes.elements.has(n));
+      if (overridenNativeProperty)
+        throw new Error(`Property ${overridenNativeProperty} is already defined in super type ${superType.className}, you must not override it.`);
       
       this.ctor = (ctor instanceof LambdaCallable && superType.ctor instanceof LambdaCallable) ? ctor.bindSuper(superType.ctor) : ctor;
     }
