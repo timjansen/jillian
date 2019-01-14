@@ -1,6 +1,5 @@
 class Geo::Position extends Geo::Coordinate:
-  planet: @PlanetCategory
-  
-  constructor(latitude, longitude, planet = @Earth) =>
+
+  constructor(latitude, longitude, planet: @PlanetCategory = @Earth) =>
     {}
     

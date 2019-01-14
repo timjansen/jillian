@@ -1,5 +1,3 @@
 class Geo::Structure:
-  planet: @PlanetCategory
-
-  constructor(planet) =>
+  constructor(planet: @PlanetCategory) =>
     {}

@@ -1,5 +1,4 @@
 class Geo::ElevatedPosition extends Geo::Position:
-  elevation: @Meter
-  
-  constructor(latitude, longitude, elevation, planet = @Earth) =>
+
+constructor(latitude: number(-180 ... 180), longitude: number(-180 ... 180), elevation: @Meter, planet = @Earth) =>
     {}

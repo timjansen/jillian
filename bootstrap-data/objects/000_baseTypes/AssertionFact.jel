@@ -11,5 +11,5 @@
  */
 class AssertionFact extends Fact
   assertion: function
-    
+  override checkValue(v: any): bool=>true
   

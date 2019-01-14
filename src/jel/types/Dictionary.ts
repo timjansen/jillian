@@ -326,6 +326,16 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 			 f(next.value, this.elements.get(next.value) as JelObject|null, i++);
 		}
 	}
+  
+  duplicateKeysJs(other: Dictionary): string[] {
+		const self = this;
+		let i = 0;
+    const d = [];
+		for (let key of this.elements.keys())
+      if (other.elements.has(key))
+        d.push(key);
+    return d;
+	}
 
   
 	filter_jel_mapping: Object;

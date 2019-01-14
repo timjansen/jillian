@@ -16,10 +16,10 @@ export default class NativeCallable extends Callable implements SerializablePrim
   }
 
   
-  private static invoke(ctx: Context, self: JelObject|undefined, argDefs: TypedParameterValue[], returnType: TypedParameterValue|undefined, nativeFunction: Function, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>): JelObject|null|Promise<JelObject|null> {
+  private static invoke(ctx: Context, name: string, self: JelObject|undefined, argDefs: TypedParameterValue[], returnType: TypedParameterValue|undefined, nativeFunction: Function, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>): JelObject|null|Promise<JelObject|null> {
 
     if (args.length > argDefs.length)
-      throw new Error(`Expected up to ${argDefs.length} arguments, but got ${args.length}.`);
+      throw new Error(`Expected up to ${argDefs.length} arguments, but got ${args.length} for native function ${name}(): ${args.map(s=>s==null?'null':s.toString()).join(', ')}`);
 
     let allArgs: (JelObject|null)[];
     
@@ -36,7 +36,7 @@ export default class NativeCallable extends Callable implements SerializablePrim
         for (let key of argObj.keys()) {
           const idx = argDefs.findIndex(argDef=>key==argDef.name);
           if (idx < 0)
-            throw new Error('Can not set unknown named argument ' + key);
+            throw new Error(`Can not set unknown named argument ${key} in method ${name}()`);
           else if (idx < args.length)
             throw new Error(`Argument ${key} at index ${idx+1} has been specified twice`);
         }
@@ -48,7 +48,7 @@ export default class NativeCallable extends Callable implements SerializablePrim
     for (let i = 0; i < argDefs.length; i++) {
       const argDef = argDefs[i];
       if (i >= allArgs.length && argDef.defaultValue === undefined && argDef.type)
-        throw new Error('Argument ${argDef.name} is missing. It is required, as no default value has been provided.');
+        throw new Error(`Argument ${argDef.name} is missing in invocation of ${name}(). It is required, as no default value has been provided. Provided arguments: ${args.map(s=>s==null?'null':s.toString()).join(', ')}`);
       const v = allArgs[i] || argDef.defaultValue || null;
       if (argDef.type)
         funcArgs.push(argDef.type.convert(ctx, v, argDef.name));
@@ -66,18 +66,18 @@ export default class NativeCallable extends Callable implements SerializablePrim
   }
   
 	invokeWithObject(ctx: Context, self: JelObject|undefined, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>): JelObject|null|Promise<JelObject|null> {   // context will be ignored for lambda. No promise support here, only in Call.
-    return NativeCallable.invoke(ctx, self || this.self, this.argDefs, this.returnType, this.nativeFunction, args, argObj);
+    return NativeCallable.invoke(ctx, this.name, self || this.self, this.argDefs, this.returnType, this.nativeFunction, args, argObj);
 	}
 	
 	invoke(ctx: Context, self: JelObject|undefined, ...args: (JelObject|null)[]): JelObject|null|Promise<JelObject|null> {
-    return NativeCallable.invoke(ctx, self || this.self, this.argDefs, this.returnType, this.nativeFunction, args);
+    return NativeCallable.invoke(ctx, this.name, self || this.self, this.argDefs, this.returnType, this.nativeFunction, args);
 	}
 
   rebind(self: JelObject|undefined): NativeCallable {
     return Object.is(this.self, self) ? this : new NativeCallable(self, this.argDefs, this.returnType, this.nativeFunction, this.name);
   }
 
-  getArguments(): any[]|undefined {
+  getArguments(): any[] {
     return this.argDefs;
   }
  

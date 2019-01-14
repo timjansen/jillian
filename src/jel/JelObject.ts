@@ -95,10 +95,10 @@ export default class JelObject {
 	member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null>|undefined {
     // TODO: cleanup this method after converting everything to JEL Class!!
     const c: any = this.clazz;
-    if (c && c.methods) {
-      const m = c.methods.elements.get(name);
-      if (m) 
-        return m;
+    if (c && c.allMethods) {
+      const m = c.allMethods.elements.get(name) as any;
+      if (m)
+        return m.callable;
     }
 		if ((name in this.JEL_PROPERTIES) || (this as any)[name+'_jel_mapping']===true)        // JEL_PROPERTIES are deprecated, remove when new native is everywhere
 			return BaseTypeRegistry.mapNativeTypes((this as any)[name]);

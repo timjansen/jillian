@@ -1,4 +1,5 @@
 import JelNode from './JelNode';
+import JelObject from '../JelObject';
 import CachableJelNode from './CachableJelNode';
 import Context from '../Context';
 import TypedParameterValue from '../TypedParameterValue';
@@ -11,13 +12,13 @@ import Util from '../../util/Util';
  */
 export default class TypedParameterDefinition extends CachableJelNode implements Serializable {
  	private typeHelper: any;	
-  constructor(public name: string, public defaultValue?: JelNode | undefined, public type?: JelNode | undefined ) {
+  constructor(public name: string, public defaultValue?: JelNode, public type?: JelNode ) {
     super();
     this.typeHelper = BaseTypeRegistry.get('TypeHelper');
   }
 
   // override
-  executeUncached(ctx: Context): TypedParameterValue|Promise<TypedParameterValue> {
+  executeUncached(ctx: Context): JelObject|Promise<JelObject> {
     if (!this.defaultValue && !this.type)
       return new TypedParameterValue(this.name, null, null);
     

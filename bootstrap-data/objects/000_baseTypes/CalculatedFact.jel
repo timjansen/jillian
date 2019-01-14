@@ -19,3 +19,4 @@ class CalculatedFact extends Fact
      */
     returnsRange: bool = false
 
+    override checkValue(v: any): bool=>true

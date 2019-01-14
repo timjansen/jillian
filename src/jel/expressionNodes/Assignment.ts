@@ -3,7 +3,6 @@ import CachableJelNode from './CachableJelNode';
 import JelObject from '../JelObject';
 import Callable from '../Callable';
 import Context from '../Context';
-import Serializable from '../Serializable';
 
 class AssignmentCallable extends Callable {
   constructor(private assignment: Assignment) {  
@@ -22,8 +21,8 @@ class AssignmentCallable extends Callable {
     return this;
   }
   
-  getArguments(): any[]|undefined {
-    return undefined;
+  getArguments(): any[] {
+    return [];
   }
   
   getReturnType(): any {
@@ -39,7 +38,7 @@ class AssignmentCallable extends Callable {
 /**
  * Represents an assignment, which is a helper construct for with and calls.
  */
-export default class Assignment extends CachableJelNode implements Serializable {
+export default class Assignment extends CachableJelNode   {
   constructor(public name: string, public expression: JelNode) {
     super();
   }

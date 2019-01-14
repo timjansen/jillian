@@ -32,51 +32,47 @@ tmp.dir(function(err, path) {
 		describe('Class', function() {
       it('can be created and serialized', function() {
         jelAssert.equal('Class("MyTestType").methods.size', 0);
-        jelAssert.equal('Class("MyTestType", methods={add: ()=>2}).methods.size', 1);
-        jelAssert.equal('Class("MyTestType", null, (x,y)=>{}, {a: Float, b: String}, {add: ()=>this.a+this.b})', 
-                        'Class(className="MyTestType", constructor=(x,y)=>{}, propertyDefs={a: Float, b: String}, methods={add: ()=>this.a+this.b})');
+        jelAssert.equal('Class("MyTestType", methods=[Method("add", ()=>2)]).methods.size', 1);
+        jelAssert.equal('Class("MyTestType", null, false, null, false, (x,y)=>{}, [Property("a", null, Float, false), Property("b", null, string)], [Method("add", ()=>2)], [])', 
+                        'Class(className="MyTestType", isNative=false, ctor=(x,y)=>{}, methods=[Method("add", ()=>2)], staticProperties=[], properties=[Property("a", null, Float, false), Property("b", null, string)], nativeClass=null, isAbstract=false)');
       });
 
       it('can be created using the JEL syntax', function() {
         jelAssert.equal('class MyTestType:', 'Class("MyTestType")');
-        jelAssert.equal('class MyTestType: add()=> 2', 'Class("MyTestType", methods={add: ()=>2})');
-        jelAssert.equal('class MyTestType: constructor(x, y)=> {} a: Float b: String add()=>this.a+this.b', 
-                        'Class("MyTestType", constructor=(x,y)=>{}, propertyDefs={a: SimpleType("Float"), b: SimpleType("String")}, methods={add: ()=>this.a+this.b})');
+        jelAssert.equal('class MyTestType: add()=> 2', 'Class("MyTestType", methods=[Method("add", ()=>2)])');
+        jelAssert.equal('class MyTestType: constructor(x, y)=> {} a: number b: string add()=>this.a+this.b', 
+                        'Class("MyTestType", ctor=(x,y)=>{}, properties=[Property("a", null, number, false), Property("b", null, string, false)], methods=[Method("add", ()=>this.a+this.b)])');
         jelAssert.equal('class MyTestType constructor(x, y)=>{} a: Float b: String add()=>this.a+this.b', 
                         'class MyTestType: constructor(x, y)=>{} a: Float b: String add()=> this.a+this.b');
       });
 
       it('supports properties set in the constructor', function() {
-        jelAssert.equal('let myTestType=Class("MyTestType", null, (x: Float, y: String)=>{}), m=myTestType(5, "foo"): [m.x, m.y]', "[5, 'foo']");
-        jelAssert.equal('let myTestType=Class("MyTestType", null, (x: Float|String, y: Float|String)=>{}), m=myTestType(5, "foo"): [m.x, m.y]', "[5, 'foo']");
-        jelAssert.equal('let myTestType=Class("MyTestType", null, (x: Float, y: String)=>{}), m=myTestType(5, "foo"): [m.x, m.y]', "[5, 'foo']");
-        jelAssert.equal('let myTestType=Class("MyTestType", null, (x: Float, y: Float)=>{z: x+y}, propertyDefs={z: SimpleType("Float")}), m=myTestType(5, 10): [m.x, m.y, m.z]', "[5, 10, 15]");
-        jelAssert.equal('let myTestType=Class("MyTestType", constructor=(x: Float, y: String)=>{x: x+1}), m=myTestType(5, "foo"): [m.x, m.y]', "[6, 'foo']");
-        jelAssert.equal('let myTestType=Class("MyTestType", null, (x: Float, y: String)=>{}), m=myTestType(y="foo", x=2): [m.x, m.y]', "[2, 'foo']");
+        jelAssert.equal('let myTestType=class MyTestType constructor(x: Float|String, y: Float|String)=>{}, m=myTestType(5, "foo"): [m.x, m.y]', "[5, 'foo']");
+        jelAssert.equal('let myTestType=class MyTestType constructor(x: Float, y: String)=>{}, m=myTestType(5, "foo"): [m.x, m.y]', "[5, 'foo']");
 
         jelAssert.equal('let myTestType=class MyTestType: constructor(x: Float, y: String)=>{}, m=myTestType(y="foo", x=2): [m.x, m.y]', "[2, 'foo']");
         jelAssert.equal('let myTestType=class MyTestType: x: int constructor()=>{x: 5}, m=myTestType(): m.x', "5");
         jelAssert.equal('let myTestType=class MyTestType: x: int = 17 constructor()=>{}, m=myTestType(): m.x', "17");
         jelAssert.equal('let myTestType=class MyTestType: x: int = 15 constructor()=>{x:17}, m=myTestType(): m.x', "17");
 
-        return Promise.all([jelAssert.errorPromise('let myTestType=Class("MyTestType", null, (x,y)=>{}, {x: Float, y: String}), m=myTestType("wrong type", "foo"): [m.x, m.y]'),
-                            jelAssert.errorPromise('let myTestType=Class("MyTestType", null, (x: Float, y: String)=>{}), m=myTestType("wrong type", "foo"): [m.x, m.y]'),
-                            jelAssert.errorPromise('let myTestType=Class("MyTestType", null, (x,y)=>{}, {x: Float, y: String}), m=myTestType(): [m.x, m.y]'),
-                            jelAssert.errorPromise('let myTestType=class MyTestType: x: int constructor()=>{x: 0.5}, m=myTestType(): m.x'),
-                           jelAssert.errorPromise('let myTestType=class MyTestType: constructor()=>{x: 0.5}: myTestType()')]);
+        return Promise.all([jelAssert.errorPromise('let myTestType=class MyTestType constructor(x,y)=>{} x: Float y: String, m=myTestType("wrong type", "foo"): [m.x, m.y]', 'redundant local declarations'),
+                            jelAssert.errorPromise('let myTestType=class MyTestType constructor(x: Float, y: String)=>{}, m=myTestType("wrong type", "foo"): [m.x, m.y]', 'type'),
+                            jelAssert.errorPromise('let myTestType=class MyTestType constructor(x: number,y: string)=>{}, m=myTestType(): [m.x, m.y]', 'x is missing'),
+                            jelAssert.errorPromise('let myTestType=class MyTestType: x: int constructor()=>{x: 0.5}, m=myTestType(): m.x', 'int'),
+                            jelAssert.errorPromise('let myTestType=class MyTestType: constructor()=>{x: 0.5}: myTestType()', 'returned undeclared property x')]);
       });
 
       it('supports methods', function() {
-        jelAssert.equal('let myTestType=Class("MyTestType", null, (x: Float, y: Float)=>{}, methods={add: ()=>this.x+this.y}), m=myTestType(5, 12): m.add()', "17");
-        jelAssert.equal('let myTestType=Class("MyTestType", null, (x: Float, y: Float)=>{}, methods={add: (a, b)=>this.x+this.y+a/b}), m=myTestType(5, 12): m.add(20, 4)', "22");
-        jelAssert.equal('let myTestType=Class("MyTestType", null, (x: Float, y: Float)=>{}, methods={add: (a, b)=>this.x+this.y+a/b}), m=myTestType(5, 12): m.add(b=4, a=20)', "22");
-        jelAssert.equal('let myTestType=Class("MyTestType", null, (x: Float, y: Float)=>{}, methods={add: (a=20, b=4)=>this.x+this.y+a/b}), m=myTestType(5, 12): m.add()', "22");
-        jelAssert.equal('let myTestType=Class("MyTestType", null, (x: Float, y: Float)=>{}, methods={add: (a, b)=>this.x+this.y+a/b}), m=myTestType(15, 12), add=m.add: add(b=4, a=20)', "32");
+        jelAssert.equal('let myTestType=class MyTestType constructor(x: Float, y: Float)=>{} add()=>this.x+this.y, m=myTestType(5, 12): m.add()', "17");
+        jelAssert.equal('let myTestType=class MyTestType constructor(x: Float, y: Float)=>{} add(a, b)=>this.x+this.y+a/b, m=myTestType(5, 12): m.add(20, 4)', "22");
+        jelAssert.equal('let myTestType=class MyTestType constructor(x: Float, y: Float)=>{} add(a, b)=>this.x+this.y+a/b, m=myTestType(5, 12): m.add(b=4, a=20)', "22");
+        jelAssert.equal('let myTestType=class MyTestType constructor(x: Float, y: Float)=>{} add(a=20, b=4)=>this.x+this.y+a/b, m=myTestType(5, 12): m.add()', "22");
+        jelAssert.equal('let myTestType=class MyTestType constructor(x: Float, y: Float)=>{} add(a, b)=>this.x+this.y+a/b, m=myTestType(15, 12), add=m.add: add(b=4, a=20)', "32");
 
         jelAssert.equal('let myTestType=class MyTestType: constructor(x: Float, y: Float) => {} add(a, b)=>this.x+this.y+a/b, m=myTestType(15, 12), add=m.add: add(b=4, a=20)', "32");
         jelAssert.equal('let myTestType=class MyTestType: constructor(x: Float, y: Float) => {} add(a, b): Float=>this.x+this.y+a/b, m=myTestType(15, 12), add=m.add: add(b=4, a=20)', "32");
         
-        jelAssert.equal('let myTestType=Class("MyTestType", null, ()=>{}, methods={div: (a, b)=>a/b}), m=myTestType(), div=m.div: m.div(60, 10) + div(40, 10)', "10");
+        jelAssert.equal('let myTestType=class MyTestType constructor()=>{}  div(a, b)=>a/b, m=myTestType(), div=m.div: m.div(60, 10) + div(40, 10)', "10");
       });
 
       it('supports packages', function() {
@@ -110,8 +106,8 @@ tmp.dir(function(err, path) {
         jelAssert.equal(`let superType=abstract class SuperType: a=1 constructor(x=1)=>{a:x+5} abstract test(), subType=class SubType extends superType: constructor()=>super(9) override test()=>1, sub1=subType():
                             [sub1.a, sub1.test()]`, "[14,1]");
         return Promise.all([
-          jelAssert.errorPromise(`let s = abstract class AC: constructor()=>{} : s()`, 'declared abstract')//,
-//          jelAssert.errorPromise(`let superType=abstract class SuperType: a=1 constructor(x=1)=>{a:x+5} abstract test(), subType=class SubType extends superType: constructor()=>super(9): subType()`, 'XX must override')
+          jelAssert.errorPromise(`let s = abstract class AC: constructor()=>{} : s()`, 'declared abstract'),
+          jelAssert.errorPromise(`let superType=abstract class SuperType: a=1 constructor(x=1)=>{a:x+5} abstract test(), subType=class SubType extends superType: constructor()=>super(9): subType()`, 'Missing override')
         ]);
       });
       
@@ -133,11 +129,11 @@ tmp.dir(function(err, path) {
 
       
       it('supports static properties', function() {
-        jelAssert.equal('let myTestType=Class("MyTestType", staticValues={add: (a,b)=>a+b, ft: 42}): myTestType.ft + myTestType.add(1, 2)', "45");
         jelAssert.equal('let myTestType=class MyTestType: static add(a,b):Float=>a+b static ft = 42: myTestType.ft + myTestType.add(1, 2)', "45");
       });
       
       it('supports static properties that use the constructor or other elements', function() {
+        jelAssert.equal('let myTestType=class MyTestType: static a = 1 static b=MyTestType.a+1 static c=MyTestType.b+MyTestType.a: [myTestType.a, myTestType.b, myTestType.c]', "[1, 2, 3]");
         jelAssert.equal('let myTestType=class MyTestType1: static ft = 44 static ft1=MyTestType1.ft+1: myTestType.ft1', "45");
         jelAssert.equal('let myTestType=class MyTestType2: static add(a,b): number=>a+b static ft = MyTestType2.add(1, 3): myTestType.ft', "4");
         jelAssert.equal('let myTestType=class MyTestType3: constructor(a: int)=> {} static ft = MyTestType3(42): myTestType.ft.a', "42");
@@ -146,8 +142,7 @@ tmp.dir(function(err, path) {
       });
       
       it('supports getter', function() {
-        jelAssert.equal('let myTestType=Class("MyTestType", null, (x: Float, y: Float)=>{}, getters={x: ()=>8, z: ()=>4}), m=myTestType(5, 12): m.x/m.z', "2");
-        jelAssert.equal('let myTestType=class MyTestType: constructor(x: Float, y: Float)=>{} get x():Float=>8 get z()=>4, m=myTestType(5, 12): m.x/m.z', "2");
+        jelAssert.equal('let myTestType=class MyTestType: constructor(y: Float)=>{} get x():Float=>8 get z()=>4, m=myTestType(5): m.x/m.z', "2");
 
         jelAssert.equal(`let superType=class SuperType: constructor()=>{} get x()=>1, subType=class SubType extends superType: constructor()=>{} override get x()=>42, sup1=superType(), sub1=subType():
                             [sup1.x, sub1.x]`, "[1, 42]");
@@ -161,8 +156,8 @@ tmp.dir(function(err, path) {
       });
 
       it('supports ops', function() {
-        jelAssert.equal('let myTestType=Class("MyTestType", null, (x: Float)=>{}, methods={"op+": (right)=>myTestType(this.x+right)}), m=myTestType(5): (m+10).x', "15");
-        jelAssert.equal('let myTestType=Class("MyTestType", null, (x: Float)=>{}, methods={"singleOp-": ()=>myTestType(-this.x*2)}), m=myTestType(5): (-m).x', "-10");
+        jelAssert.equal('let myTestType=class MyTestType constructor(x: Float)=>{} op+(right)=>myTestType(this.x+right), m=myTestType(5): (m+10).x', "15");
+        jelAssert.equal('let myTestType=class MyTestType constructor(x: Float)=>{} singleOp-()=>myTestType(-this.x*2), m=myTestType(5): (-m).x', "-10");
         
         jelAssert.equal('let myTestType=class MyTestType: constructor(x: Float)=>{} op+(right)=> myTestType(this.x+right), m=myTestType(5): (m+10).x', "15");
         jelAssert.equal('let myTestType=class MyTestType: constructor(x: Float)=>{} op+(right):Float=> this.x+right, m=myTestType(5): m+10', "15");
@@ -209,8 +204,8 @@ tmp.dir(function(err, path) {
           return a.value - b.value;
         }
         
-        static create(ctx, a) {
-          return new FullNativeTest(this, 42 + (a.value||0));
+        static create(ctx, clazz, a) {
+          return new FullNativeTest(clazz, 42 + (a.value||0));
         }
       }
       FullNativeTest.prototype.x_jel_mapping = true;

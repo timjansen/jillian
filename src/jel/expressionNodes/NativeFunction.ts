@@ -66,6 +66,10 @@ export default class NativeFunction extends CachableJelNode {
 			return `${this.isStaticClass?'static ':''}native ${this.name}${this.toArgumentString()}`;
 	}
 
+  toBodyString(): string {
+    return '';
+  }
+  
  	toArgumentString(): string {
 			return `(${this.args.map(a=>a.toString()).join(', ')})`;
 	}
