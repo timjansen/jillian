@@ -7,6 +7,7 @@ import TypeChecker from '../TypeChecker';
 import JelObject from '../../JelObject';
 import Serializer from '../../Serializer';
 import SerializablePrimitive from '../../SerializablePrimitive';
+import BaseTypeRegistry from '../../BaseTypeRegistry';
 
 
 /**
@@ -39,6 +40,7 @@ export default class BoolType extends TypeDescriptor {
   }
 
 }
+BaseTypeRegistry.register('BoolType', BoolType);
 
 
 

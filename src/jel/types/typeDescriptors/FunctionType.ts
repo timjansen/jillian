@@ -8,6 +8,7 @@ import TypedParameterValue from '../../TypedParameterValue';
 import Serializer from '../../Serializer';
 import JelBoolean from '../JelBoolean';
 import Util from '../../../util/Util';
+import BaseTypeRegistry from '../../BaseTypeRegistry';
 
 /**
  * Declares a property type that is either a JEL function or a method.

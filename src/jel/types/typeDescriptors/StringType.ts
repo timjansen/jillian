@@ -7,6 +7,7 @@ import TypeChecker from '../TypeChecker';
 import JelObject from '../../JelObject';
 import SerializablePrimitive from '../../SerializablePrimitive';
 import JelBoolean from '../JelBoolean';
+import BaseTypeRegistry from '../../BaseTypeRegistry';
 
 
 /**

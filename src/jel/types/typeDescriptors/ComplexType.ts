@@ -8,6 +8,7 @@ import Context from '../../Context';
 import Serializer from '../../Serializer';
 import JelBoolean from '../JelBoolean';
 import Util from '../../../util/Util';
+import BaseTypeRegistry from '../../BaseTypeRegistry';
 
 /**
  * Defines a complex type that has named, typed fields. It is represented as a Dictionary in the DbEntry, but always has the same fields.
@@ -16,11 +17,6 @@ import Util from '../../../util/Util';
 export default class ComplexType extends TypeDescriptor {
   fields: Dictionary; // string->Type
   
-  /** 
-	 * dict string->Type or DbRef or Dictionary or string->List<Type or DbRef or Dictionary> . 
-	 *      List allows you to specify more than one type.
-   *      The List may also contain 'null' as element, if the value is optional and may be null.
-	 */
   constructor(fields: Dictionary) {
     super();
     

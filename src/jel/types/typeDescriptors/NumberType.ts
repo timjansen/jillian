@@ -9,6 +9,7 @@ import JelObject from '../../JelObject';
 import Serializer from '../../Serializer';
 import SerializablePrimitive from '../../SerializablePrimitive';
 import JelBoolean from '../JelBoolean';
+import BaseTypeRegistry from '../../BaseTypeRegistry';
 
 
 /**

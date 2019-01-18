@@ -385,25 +385,30 @@ export default class Class extends PackageContent implements IClass {
   }
 
   getSerializationProperties(): any[] {
-    return [this.className, this.superType && new ReferenceHelper(this.superType.distinctName), this.isAbstract, null, this.isNative, this.ctor, this.properties, this.methods,
+    return [this.className, this.superType && new ReferenceHelper(this.superType.distinctName), this.isAbstract, this.isNative, this.ctor, this.properties, this.methods,
            this.staticProperties];
   }
 
-  static create_jel_mapping = ['className', 'superType', 'isAbstract', 'nativeClass', 'isNative', 'ctor', 'properties', 'methods', 'staticProperties'];
+  static valueOf(ctx: Context, className: string, c: Class, isAbstract: boolean, nativeClass: any, isNative: boolean, ctor: LambdaCallable|NativeCallable|null, properties: List,
+                 methods: List, staticProperties: List): Class|Promise<Class> {
+    const cl = new Class(className, c, isAbstract, nativeClass, isNative, ctor, properties, methods, staticProperties);
+    return cl.asyncInit(ctx);
+  }
+  
+  static create_jel_mapping = ['className', 'superType', 'isAbstract', 'isNative', 'ctor', 'properties', 'methods', 'staticProperties'];
   static create(ctx: Context, ...args: any[]): Class|Promise<Class> {
     if (TypeChecker.isIDbRef(args[1]))
-      return args[1].with(ctx, (t: Class) => Class.create(ctx, args[0], t, args[2], args[3], args[4], args[5], args[6], args[7], args[8])); 
+      return args[1].with(ctx, (t: Class) => Class.create(ctx, args[0], t, args[2], args[3], args[4], args[5], args[6], args[7])); 
     
-    const c = new Class(TypeChecker.realString(args[0], 'className'), 
+    return Class.valueOf(ctx, TypeChecker.realString(args[0], 'className'), 
                               TypeChecker.optionalInstance(Class, args[1], 'superType')||undefined,
                               TypeChecker.realBoolean(args[2], 'isAbstract', false),
-                              args[3],
-                              TypeChecker.realBoolean(args[4], 'isNative', false),
-                              args[5] instanceof NativeCallable ? args[5] : TypeChecker.optionalInstance(LambdaCallable, args[5], 'constructor'), 
-                              TypeChecker.optionalInstance(List, args[6], 'properties')||List.empty,
-                              TypeChecker.optionalInstance(List, args[7], 'methods')||List.empty,
-                              TypeChecker.optionalInstance(List, args[8], 'staticProperties')||List.empty);
-    return c.asyncInit(ctx);
+                              null,
+                              TypeChecker.realBoolean(args[3], 'isNative', false),
+                              args[4] instanceof NativeCallable ? args[4] : TypeChecker.optionalInstance(LambdaCallable, args[4], 'constructor'), 
+                              TypeChecker.optionalInstance(List, args[5], 'properties')||List.empty,
+                              TypeChecker.optionalInstance(List, args[6], 'methods')||List.empty,
+                              TypeChecker.optionalInstance(List, args[7], 'staticProperties')||List.empty);
   }
 }
 

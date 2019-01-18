@@ -28,7 +28,7 @@ export default class ClassDef extends JelNode {
   
 	// override
   execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
-    return Util.resolveValues(BaseTypeRegistry.get('Class').create, 
+    return Util.resolveValues(BaseTypeRegistry.get('Class').valueOf, 
                               ctx, 
                               this.name, 
                               this.superName ? this.superName.execute(ctx) : null, 

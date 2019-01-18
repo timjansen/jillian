@@ -10,6 +10,7 @@ import SerializablePrimitive from '../../SerializablePrimitive';
 import Serializer from '../../Serializer';
 import JelBoolean from '../JelBoolean';
 import TypeChecker from '../TypeChecker';
+import BaseTypeRegistry from '../../BaseTypeRegistry';
 
 
 /**

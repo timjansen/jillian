@@ -7,6 +7,7 @@ import Context from '../../Context';
 import JelObject from '../../JelObject';
 import Serializer from '../../Serializer';
 import JelBoolean from '../JelBoolean';
+import BaseTypeRegistry from '../../BaseTypeRegistry';
 
 
 /**
