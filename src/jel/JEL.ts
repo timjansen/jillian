@@ -128,6 +128,7 @@ const CLOSE_ARGS = {')': true};
 
 const EMPTY_LIST = new List([]);
 const EMPTY_DICT = new Dictionary([]);
+const TRUE_LITERAL = new Literal(true);
 
 export default class JEL {
 	parseTree: JelNode;
@@ -281,7 +282,7 @@ export default class JEL {
       if (tokens.nextIf(TokenType.Operator, 'else'))
         return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, JEL.parseExpression(tokens, IF_PRECEDENCE, stopOps)), precedence, stopOps);
       else
-        return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, new Literal(true)), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, TRUE_LITERAL), precedence, stopOps);
     case 'let':
       const assignments: Assignment[] = JEL.parseParameters(tokens, LET_PRECEDENCE, LET_STOP, ':', "Expected colon or equal sign after expression in 'let' statement,", 'constant');
       return JEL.tryBinaryOps(tokens, new Let(assignments, JEL.parseExpression(tokens, LET_PRECEDENCE, stopOps)), precedence, stopOps);
@@ -364,7 +365,7 @@ export default class JEL {
 							break;
 					}
 					else {
-						metaAssignments.push(new Assignment(name.value, new Literal(true)));
+						metaAssignments.push(new Assignment(name.value, TRUE_LITERAL));
 						if (eq.value == ':')
 							break;
 					}
@@ -662,10 +663,10 @@ export default class JEL {
           JEL.throwParseException(tokens.last(), `Can not parse argument list for constructor`);
         else if (nativeModifier)
           ctor = new NativeFunction('create', className.value, true, [new TypedParameterDefinition('clazz')].concat(args));
-        else {
-          JEL.nextIsValueOrThrow(tokens, TokenType.Operator, '=>',  "Constructor argument list must be followed by '=>'.");
+        else if (tokens.nextIf(TokenType.Operator, '=>'))
           ctor = new Lambda(args!, undefined, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
-        }
+        else
+          ctor = new Lambda(args!, undefined, EMPTY_DICT);
       }
       else if (next.is(TokenType.Identifier, 'get') && tokens.peekIs(TokenType.Identifier)) {
         if (staticModifier)
@@ -738,7 +739,7 @@ export default class JEL {
           throw new Error("Abstract or native methods must not use lambda operator ('=>')");
 
         const impl = nativeModifier ? new NativeFunction(methodName, className.value, staticModifier, args!, returnType) : 
-                new Lambda(args!, returnType, abstractModifier ? new Literal(false) : JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
+                new Lambda(args!, returnType, abstractModifier ? TRUE_LITERAL : JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
         methods.push(new MethodDef(methodName, impl, overrideModifier, nativeModifier, staticModifier, abstractModifier, false));
       }
       else if (next.is(TokenType.Identifier) && (tokens.peekIs(TokenType.Operator, ':') || tokens.peekIs(TokenType.Operator, '='))) {

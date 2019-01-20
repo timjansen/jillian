@@ -51,9 +51,9 @@ export default class LambdaCallable extends Callable implements SerializablePrim
       const v = argObj ? argObj.get(argDef.name) : undefined;
       if (v !== undefined)
         addedObjArgs++;
-      if (v === undefined && argDef.defaultValue === undefined && argDef.type)
-        throw new Error(`Argument ${argDef.name} has not been provided and is typed without has no default value.`);
-      const p: Promise<any>|undefined = LambdaCallable.setVariable(ctx, newCtx, argDef, v||argDef.defaultValue);
+      if (v === undefined && argDef.defaultValue === undefined && !argDef.isNullable(ctx))
+        throw new Error(`Argument ${argDef.name} has not been provided and has no default value.`);
+      const p: Promise<any>|undefined = LambdaCallable.setVariable(ctx, newCtx, argDef, v||argDef.defaultValue||null);
       if (p)
         openPromises.push(p);
     }
