@@ -17,6 +17,7 @@ import Literal from './expressionNodes/Literal';
 import Fraction from './expressionNodes/Fraction';
 import ExpressionPattern from './expressionNodes/Pattern';
 import Variable from './expressionNodes/Variable';
+import VariableOrType from './expressionNodes/VariableOrType';
 import TemplateString from './expressionNodes/TemplateString';
 import Operator from './expressionNodes/Operator';
 import List from './expressionNodes/List';
@@ -170,7 +171,7 @@ export default class JEL {
 	}
 
   
-  static parseExpression(tokens: TokenReader, precedence = 0, stopOps = NO_STOP): JelNode {
+  static parseExpression(tokens: TokenReader, precedence = 0, stopOps = NO_STOP, isTypeDef=false): JelNode {
     const token = JEL.nextOrThrow(tokens, "Unexpected end, expected another token");
     switch (token.type) {
     case TokenType.Literal:
@@ -187,7 +188,7 @@ export default class JEL {
 	      return JEL.tryBinaryOps(tokens, new Fraction((token as FractionToken).numerator, (token as FractionToken).denominator), precedence, stopOps);
     case TokenType.Identifier:
       const lambda = JEL.tryLambda(tokens, token.value, precedence, stopOps);
-      return JEL.tryBinaryOps(tokens, lambda || new Variable(token.value), precedence, stopOps);
+      return JEL.tryBinaryOps(tokens, lambda || (isTypeDef && /^[A-Z]/.test(token.value)? new VariableOrType(token.value) : new Variable(token.value)), precedence, stopOps);
     case TokenType.Pattern:
       return JEL.tryBinaryOps(tokens, new ExpressionPattern(JEL.createPattern(token.value, token)), precedence, stopOps);
     case TokenType.Operator:
@@ -540,7 +541,7 @@ export default class JEL {
 					return args;
       }
 			else if (separator.value == ':') {
-        const typeDef = JEL.parseExpression(tokens, PARENS_PRECEDENCE, LAMBDA_TYPE_STOP);
+        const typeDef = JEL.parseExpression(tokens, PARENS_PRECEDENCE, LAMBDA_TYPE_STOP, true);
 
         const separator2 = JEL.expectOp(tokens, LAMBDA_TYPE_STOP, "Expecting comma, default value or end of lambda arguments")
         if (separator2.value == '=') {
@@ -569,7 +570,7 @@ export default class JEL {
     if (!tokens.nextIf(TokenType.Operator, ':'))
       return undefined;
     
-    return new TypedParameterDefinition('return value', undefined, JEL.parseExpression(tokens, 0, stopOps));
+    return new TypedParameterDefinition('return value', undefined, JEL.parseExpression(tokens, 0, stopOps, true));
   }
   
   static tryLambda(tokens: TokenReader, argName: string | null, precedence: number, stopOps: any): Lambda | undefined {
@@ -764,7 +765,7 @@ export default class JEL {
         else {
           if (staticModifier && !nativeModifier)
             JEL.throwParseException(next, 'You must not set the type of a static property or declare a static property without a value. Static properties require a value, but must not have an explicit type.');
-          typeDef = JEL.parseExpression(tokens, CLASS_PRECEDENCE, classTypeExpressionStop);
+          typeDef = JEL.parseExpression(tokens, CLASS_PRECEDENCE, classTypeExpressionStop, true);
           defaultValue = tokens.nextIf(TokenType.Operator, '=') ? JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop) : undefined;
         }
 

@@ -1,17 +1,18 @@
 import JelNode from './JelNode';
 import CachableJelNode from './CachableJelNode';
 import Context from '../Context';
+import BaseTypeRegistry from '../BaseTypeRegistry';
 import JelObject from '../JelObject';
 
 
 /**
- * Accesses a variable for reading.
+ * Represents either an identifier or a class type.
  *
  * Examples:
  *   counter
  *   myValue
  */
-export default class Variable extends CachableJelNode {
+export default class VariableOrType extends CachableJelNode {
   
   constructor(public name: string) {
     super();
@@ -19,9 +20,20 @@ export default class Variable extends CachableJelNode {
   
   // override
   executeUncached(ctx: Context): JelObject|null|Promise<JelObject|null> {
-    return ctx.get(this.name);
+    try {
+      const v = ctx.get(this.name);
+      if (v instanceof Promise)
+        return v.catch(()=>BaseTypeRegistry.get('SimpleType').valueOf(this.name));
+      return v;
+    }
+    catch(e) {
+      this.staticCache = true;
+      return BaseTypeRegistry.get('SimpleType').valueOf(this.name);
+    }
   }
- 
+
+
+  
   isStaticUncached(ctx: Context): boolean {
     return ctx.hasInStaticScope(this.name);
   }
@@ -32,7 +44,7 @@ export default class Variable extends CachableJelNode {
   
   // overrride
   equals(other?: JelNode): boolean {
-		return other instanceof Variable &&
+		return other instanceof VariableOrType &&
       this.name == other.name;
 	}
 

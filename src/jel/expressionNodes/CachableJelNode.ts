@@ -7,7 +7,7 @@ import Context from '../Context';
  */
 export default abstract class CachableJelNode extends JelNode  {
   private cache: JelObject|null|Promise<JelObject|null>|undefined;
-  private staticCache: boolean|undefined;
+  protected staticCache: boolean|undefined;
   
 	// Returns either a value or a Promise for a value!
 	abstract executeUncached(ctx: Context): JelObject|null|Promise<JelObject|null>;
