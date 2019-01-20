@@ -62,4 +62,5 @@ export default class IntType extends TypeDescriptor {
 IntType.prototype.create_jel_mapping = {range: 1, min: 1, max: 2};
 
 
+BaseTypeRegistry.register('IntType', IntType);
 

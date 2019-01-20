@@ -45,3 +45,4 @@ export default class InRangeType extends TypeDescriptor {
 
 }
 
+BaseTypeRegistry.register('InRangeType', InRangeType);

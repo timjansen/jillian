@@ -38,3 +38,4 @@ export default class DateType extends TypeDescriptor {
     return JelBoolean.valueOf(other instanceof DateType);
   }
 }
+BaseTypeRegistry.register('DateType', DateType);

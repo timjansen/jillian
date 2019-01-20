@@ -29,6 +29,14 @@ export default abstract class TypeDescriptor extends JelObject {
   convert(ctx: Context, value: JelObject|null, fieldName=''): JelObject|null|Promise<JelObject|null> {
     return Util.resolveValue(this.checkType(ctx, value), (b: JelBoolean)=>b.toRealBoolean() ? value : Promise.reject(new Error(`Failed to convert${fieldName?' '+fieldName:''} to ${this.serializeType()}. Value ${value&&value.toString()} is not compatible.`)));
   }
+
+  /**
+   * Checks whether this argument can be null. This is important because if not, a value must provided.
+   */
+  isNullable_jel_mapping: Object;
+  isNullable(ctx: Context): boolean {
+    return false;
+  }
   
   /**
    * Returns true if this TypeDescriptor is identical with the given one.
@@ -42,6 +50,8 @@ export default abstract class TypeDescriptor extends JelObject {
     return a == null ? JelBoolean.valueOf(b == null) : a.equals(ctx, b);
   }
   
+  
+  
   /**
    * A simplified serialization for places that use TypeHelper.convert..().
    */
@@ -50,5 +60,6 @@ export default abstract class TypeDescriptor extends JelObject {
 }
 
 TypeDescriptor.prototype.checkType_jel_mapping = ['value'];
-
+TypeDescriptor.prototype.convert_jel_mapping = ['value', 'fieldMapping'];
+TypeDescriptor.prototype.isNullable_jel_mapping = [];
 

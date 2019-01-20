@@ -31,13 +31,17 @@ export default class SimpleType extends TypeDescriptor {
   }
   
   serializeType(): string {  
-    return this.type;
+    return `SimpleType("${this.type}")`;
   }
   
   equals(ctx: Context, other: TypeDescriptor|null): JelBoolean {
     return JelBoolean.valueOf(other instanceof SimpleType && this.type == other.type);
   }
 	
+  static valueOf(type: string): SimpleType {
+    return new SimpleType(type);
+  }
+  
   static create_jel_mapping = ['type'];
   static create(ctx: Context, ...args: any[]) {
     const type = TypeChecker.isIClass(args[0]) ? args[0].className : TypeChecker.isIDbRef(args[0]) ? args[0].distinctName : TypeChecker.realString(args[0], 'type');
@@ -45,6 +49,7 @@ export default class SimpleType extends TypeDescriptor {
   }
 }
 
+BaseTypeRegistry.register('SimpleType', SimpleType);
 
 
 

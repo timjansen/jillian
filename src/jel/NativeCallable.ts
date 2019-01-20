@@ -47,7 +47,7 @@ export default class NativeCallable extends Callable implements SerializablePrim
     const funcArgs: any[] = [ctx];
     for (let i = 0; i < argDefs.length; i++) {
       const argDef = argDefs[i];
-      if (i >= allArgs.length && argDef.defaultValue === undefined && argDef.type)
+      if (i >= allArgs.length && argDef.defaultValue === undefined && !argDef.isNullable(ctx))
         throw new Error(`Argument ${argDef.name} is missing in invocation of ${name}(). It is required, as no default value has been provided. Provided arguments: ${args.map(s=>s==null?'null':s.toString()).join(', ')}`);
       const v = allArgs[i] || argDef.defaultValue || null;
       if (argDef.type)

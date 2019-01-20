@@ -51,5 +51,6 @@ export default class RangeType extends TypeDescriptor {
 }
 
 
+BaseTypeRegistry.register('RangeType', RangeType);
 
 

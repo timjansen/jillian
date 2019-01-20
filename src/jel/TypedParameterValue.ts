@@ -22,6 +22,10 @@ export default class TypedParameterValue extends JelObject {
   getSerializationProperties(): Object {
     return [this.name, this.defaultValue, this.type, this.defaultValueProvided];
   }
+    
+  isNullable(ctx: Context): boolean {
+    return this.type ? this.type.isNullable(ctx) : true;
+  }
   
 	toString(): string {
     if (this.isNameOnly)

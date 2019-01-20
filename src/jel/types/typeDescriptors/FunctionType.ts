@@ -90,5 +90,6 @@ export default class FunctionType extends TypeDescriptor {
 
 FunctionType.prototype.create_jel_mapping = FunctionType.create_jel_mapping;
 FunctionType.prototype.create = FunctionType.create;
+BaseTypeRegistry.register('FunctionType', FunctionType);
 
 

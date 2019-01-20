@@ -52,6 +52,8 @@ export default class StringType extends TypeDescriptor {
   }
 }
 
+BaseTypeRegistry.register('StringType', StringType);
+
 
 
 

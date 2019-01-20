@@ -366,11 +366,12 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 		return exec();
 	}
 
- 	filterJs(f: (key: string, value: JelObject|null)=>JelObject|null): Dictionary {
+ 	filterJs(f: (key: string, value: JelObject|null)=>boolean): Dictionary {
 		const newDict = new Dictionary(undefined, false, this.defaultValue);
 		for (let key of this.elements.keys()) {
       const value = (this.elements.get(key)||null) as JelObject|null;
-      newDict.elements.set(key, f(key, value));
+      if (f(key, value))
+        newDict.elements.set(key, value);
     }
     return newDict;
 	}

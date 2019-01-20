@@ -38,3 +38,5 @@ export default class TimeType extends TypeDescriptor {
 		return this.serializeType();
 	}
 }
+
+BaseTypeRegistry.register('TimeType', TimeType);

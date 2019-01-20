@@ -28,17 +28,20 @@ export default class ClassDef extends JelNode {
   
 	// override
   execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
-    return Util.resolveValues(BaseTypeRegistry.get('Class').valueOf, 
+    const sctx = new Context(ctx).set(this.name, BaseTypeRegistry.get('SimpleType').valueOf(this.name));
+    const r = Util.resolveValues(BaseTypeRegistry.get('Class').valueOf, 
                               ctx, 
                               this.name, 
-                              this.superName ? this.superName.execute(ctx) : null, 
+                              this.superName ? this.superName.execute(sctx) : null, 
                               this.isAbstract, 
                               this.hasNative ? BaseTypeRegistry.get(this.name) : undefined,
                               this.isNative,
-                              this.ctor ? this.ctor.execute(ctx) : null,
-                              Util.resolveArray(this.propertyDefs.map((d: PropertyDef)=>d.execute(ctx)), (l: any[])=>BaseTypeRegistry.get('List').valueOf(l)),
-                              Util.resolveArray(this.methodDefs.map((d: MethodDef)=>d.execute(ctx)), (l: any[])=>BaseTypeRegistry.get('List').valueOf(l)),
-                              Util.resolveArray(this.staticPropertyDefs.map((d: StaticPropertyDef)=>d.execute(ctx)), (l: any[])=>BaseTypeRegistry.get('List').valueOf(l)));
+                              this.ctor ? this.ctor.execute(sctx) : null,
+                              Util.resolveArray(this.propertyDefs.map((d: PropertyDef)=>d.execute(sctx)), (l: any[])=>BaseTypeRegistry.get('List').valueOf(l)),
+                              Util.resolveArray(this.methodDefs.map((d: MethodDef)=>d.execute(sctx)), (l: any[])=>BaseTypeRegistry.get('List').valueOf(l)),
+                              Util.resolveArray(this.staticPropertyDefs.map((d: StaticPropertyDef)=>d.execute(sctx)), (l: any[])=>BaseTypeRegistry.get('List').valueOf(l)));
+    sctx.set(this.name, r).freeze();
+    return r;
 	}
 
   isStatic(): boolean {

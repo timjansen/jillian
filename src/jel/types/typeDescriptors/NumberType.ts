@@ -59,6 +59,7 @@ export default class NumberType extends TypeDescriptor {
 }
 
 NumberType.prototype.create_jel_mapping = {range: 1, min: 1, max: 2};
+BaseTypeRegistry.register('NumberType', NumberType);
 
 
 

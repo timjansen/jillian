@@ -64,7 +64,7 @@ class GenericJelObject extends JelObject implements Serializable {
     if (getter)
       return getter.callable.invoke(ctx, this);
     const propsValue = this.props.elements.get(name);
-    if (propsValue)
+    if (propsValue !== undefined)
       return propsValue;
     const cachedMethodValue = this.methodCache.get(name);
     if (cachedMethodValue)
@@ -333,10 +333,10 @@ export default class Class extends PackageContent implements IClass {
     if (!this.ctor)
       throw new Error(`The class ${this.className} can not be instantiated. No constructor defined.`);
     
-    const props = new Dictionary().putAll(this.allProperties.mapJs((n:string, v: Property)=>v.defaultValue||null));
+    const props = new Dictionary().putAll(this.allProperties.filterJs((n:string, p: Property)=>p.defaultValue != null || p.isNullable(ctx)).mapJs((n:string, p: Property)=>p.defaultValue||null));
     const openPropValues: (JelObject|null|Promise<JelObject|null>)[] = [];
     for (let i = 0; i < this.ctorArgList.length; i++) {
-      const val = args[i]||this.ctorArgList[i].defaultValue;
+      const val = args[i]||this.ctorArgList[i].defaultValue||null;
       const type = this.ctorArgList[i].type;
       if (type)
         openPropValues.push(type.convert(ctx, val, this.ctorArgList[i].name));

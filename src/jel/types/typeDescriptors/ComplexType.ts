@@ -79,6 +79,7 @@ export default class ComplexType extends TypeDescriptor {
     return new ComplexType(TypeChecker.instance(Dictionary, args[0], 'fields'));
   }
 }
+BaseTypeRegistry.register('ComplexType', ComplexType);
 
 
 

@@ -33,8 +33,8 @@ tmp.dir(function(err, path) {
       it('can be created and serialized', function() {
         jelAssert.equal('Class("MyTestType").methods.size', 0);
         jelAssert.equal('Class("MyTestType", methods=[Method("add", ()=>2)]).methods.size', 1);
-        jelAssert.equal('Class("MyTestType", null, false, null, false, (x,y)=>{}, [Property("a", null, Float, false), Property("b", null, string)], [Method("add", ()=>2)], [])', 
-                        'Class(className="MyTestType", isNative=false, ctor=(x,y)=>{}, methods=[Method("add", ()=>2)], staticProperties=[], properties=[Property("a", null, Float, false), Property("b", null, string)], nativeClass=null, isAbstract=false)');
+        jelAssert.equal('Class("MyTestType", null, false, false, (x,y)=>{}, [Property("a", null, Float, false), Property("b", null, string)], [Method("add", ()=>2)], [])', 
+                        'Class(className="MyTestType", isNative=false, ctor=(x,y)=>{}, methods=[Method("add", ()=>2)], staticProperties=[], properties=[Property("a", null, Float, false), Property("b", null, string)], isAbstract=false)');
       });
 
       it('can be created using the JEL syntax', function() {
@@ -71,6 +71,7 @@ tmp.dir(function(err, path) {
 
         jelAssert.equal('let myTestType=class MyTestType: constructor(x: Float, y: Float) => {} add(a, b)=>this.x+this.y+a/b, m=myTestType(15, 12), add=m.add: add(b=4, a=20)', "32");
         jelAssert.equal('let myTestType=class MyTestType: constructor(x: Float, y: Float) => {} add(a, b): Float=>this.x+this.y+a/b, m=myTestType(15, 12), add=m.add: add(b=4, a=20)', "32");
+        jelAssert.equal('let myTestType=class MyTestType: constructor() => {} add(a: number, b: number?): number =>a + if b==null then 30 else b, m=myTestType(): [m.add(5, 10), m.add(10)]', "[15, 40]");
         
         jelAssert.equal('let myTestType=class MyTestType constructor()=>{}  div(a, b)=>a/b, m=myTestType(), div=m.div: m.div(60, 10) + div(40, 10)', "10");
       });
@@ -130,6 +131,7 @@ tmp.dir(function(err, path) {
       
       it('supports static properties', function() {
         jelAssert.equal('let myTestType=class MyTestType: static add(a,b):Float=>a+b static ft = 42: myTestType.ft + myTestType.add(1, 2)', "45");
+        jelAssert.equal('let myTestType=class MyTestType: static add(a: number,b: number?):number=>a+ if b==null then 100 else b: myTestType.add(1, 2)+myTestType.add(5)', "108");
       });
       
       it('supports static properties that use the constructor or other elements', function() {
@@ -163,6 +165,11 @@ tmp.dir(function(err, path) {
         jelAssert.equal('let myTestType=class MyTestType: constructor(x: Float)=>{} op+(right):Float=> this.x+right, m=myTestType(5): m+10', "15");
       });
 
+      it('can refer to itself as a type', function() {
+        jelAssert.equal('let myTestType=class MyTestType constructor(parent: MyTestType?)=>{} static hasParent(p: MyTestType)=>p.parent!=null, m=myTestType(), n=myTestType(m): [myTestType.hasParent(m), myTestType.hasParent(n)]', "[false,true]");
+        return jelAssert.errorPromise('let myTestType=class MyTestType constructor(parent: MyTestType?)=>{} static hasParent(p: MyTestType)=>p.parent!=null: myTestType(1)', 'to SimpleType("MyTestType")');
+      });
+      
       it('can be loaded from DB and used like a real type', function() {
         return db.put(ctx, new JEL('class TupleXY: constructor(x: Float, y: Float)=>{}  add()=>this.x+this.y static A= 44').executeImmediately(ctx))
           .then(()=>Promise.all([jelAssert.equalPromise('TupleXY(7, 10).add()', "17"),

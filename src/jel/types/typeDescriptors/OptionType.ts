@@ -15,10 +15,12 @@ import JelBoolean from '../JelBoolean';
  */
 export default class OptionType extends TypeDescriptor {
 	options: List; // of TypeDescriptor or null
+  nullable: boolean;
 	
   constructor(options: JelObject|null) {
     super();
 		this.options = new List(options instanceof List ? options.elements.map(e=>TypeHelper.convertNullableFromAny(e, 'list of property types')) : [TypeHelper.convertNullableFromAny(options, 'list of property types')]);
+    this.nullable = this.options.elements.findIndex(l=>l==null||l.isNullable())>=0;
   }
   
   getSerializationProperties(): Object {
@@ -55,7 +57,10 @@ export default class OptionType extends TypeDescriptor {
     
     return this.options.hasOnlyWithPromises((v, i)=>TypeDescriptor.equals(ctx, v as TypeDescriptor, other.options.elements[i]));
   }
-  
+
+  isNullable(ctx: Context): boolean {
+    return this.nullable;
+  }
   
   serializeType(): string {  
     return `OptionType([${this.options.elements.map(option=>option ? option.serializeType() : 'null').join(', ')}])`;

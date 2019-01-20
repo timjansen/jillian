@@ -49,6 +49,10 @@ export default class OptionalType extends TypeDescriptor {
     return other instanceof OptionalType ? TypeDescriptor.equals(ctx, this.type, other.type) : JelBoolean.FALSE;
   }
   
+  isNullable(ctx: Context): boolean {
+    return true;
+  }
+  
   static create_jel_mapping = ['type'];
   static create(ctx: Context, ...args: any[]) {
     return new OptionalType(args[0]);
