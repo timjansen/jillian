@@ -42,8 +42,8 @@ tmp.dir(function(err, path) {
         jelAssert.equal('class MyTestType: add()=> 2', 'Class("MyTestType", methods=[Method("add", ()=>2)])');
         jelAssert.equal('class MyTestType: constructor(x, y)=> {} a: number b: string add()=>this.a+this.b', 
                         'Class("MyTestType", ctor=(x,y)=>{}, properties=[Property("a", number), Property("b", string)], methods=[Method("add", ()=>this.a+this.b)])');
-        jelAssert.equal('class MyTestType constructor(x, y)=>{} a: Float b: String add()=>this.a+this.b', 
-                        'class MyTestType: constructor(x, y)=>{} a: Float b: String add()=> this.a+this.b');
+        jelAssert.equal('class MyTestType constructor(x, y) a: Float b: String c: number add()=>this.a+this.b', 
+                        'class MyTestType: constructor(x, y)=>{} a: Float b: String c: number add()=> this.a+this.b');
       });
 
       it('supports properties set in the constructor', function() {
@@ -158,7 +158,7 @@ tmp.dir(function(err, path) {
         
         return Promise.all([
           jelAssert.errorPromise(`let superType=class SuperType: constructor()=>{} get x()=>1, subType=class SubType extends superType: constructor()=>{} get x()=>2: subType()`, `needs an 'override'`),
-          jelAssert.errorPromise(`let superType=class SuperType: constructor()=>{} get x()=>1, subType=class SubType extends superType: constructor()=>{} override get x(): int=>2: subType()`, `return value: int`),
+          jelAssert.errorPromise(`let superType=class SuperType: constructor()=>{} get x()=>1, subType=class SubType extends superType: constructor()=>{} override get x(): int=>2: subType()`, `return: int`),
           jelAssert.errorPromise(`let superType=class SuperType: constructor()=>{} get x():string=>'foo', subType=class SubType extends superType: constructor()=>{} override get x()=>'bar': subType()`, `overriding getter has no return type`),
           jelAssert.errorPromise(`let superType=class SuperType: constructor()=>{} get x():string=>'foo', subType=class SubType extends superType: constructor()=>{} override get x(): int=>2: subType()`, `incompatible with overriding type`)
           ]);
@@ -181,13 +181,19 @@ tmp.dir(function(err, path) {
       });
 
 
+
       
       it('can be loaded from DB and used like a real type', function() {
-        return db.put(ctx, new JEL('class TupleXY: constructor(x: Float, y: Float)=>{}  add()=>this.x+this.y static A= 44').executeImmediately(ctx))
+        return db.put(ctx, new JEL('class TupleXY: s: int = 49 constructor(x: Float, y: Float)=>{}  add()=>this.x+this.y static A= 44 static f(): int=>55').executeImmediately(ctx))
           .then(()=>Promise.all([jelAssert.equalPromise('TupleXY(7, 10).add()', "17"),
                              jelAssert.equalPromise('TupleXY.A', "44"),
+                             jelAssert.equalPromise('TupleXY(0, 0).s', "49"),
+                             jelAssert.equalPromise('TupleXY.f()', "55"),
+                             jelAssert.equalPromise('TupleXY(10, 19).y', '19'),
                              jelAssert.equalPromise('TupleXY(x=7, y=1) instanceof TupleXY', "true")]));
       });
+      
+      
       
       class HybridNativeTest {
         add(ctx, a,b) {
@@ -209,6 +215,8 @@ tmp.dir(function(err, path) {
                           [c.y, c().add(3, 4), c.sub(2, 1)]`, `[100, 7, 1]`);
       });
 
+      
+      
       class FullNativeTest extends JelObject {
         constructor(clazz, n) {
           super(clazz.className, clazz);

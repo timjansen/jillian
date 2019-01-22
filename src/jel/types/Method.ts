@@ -13,6 +13,13 @@ export default class Method extends JelObject {
   constructor(public name: string, public callable: Callable, public isNative = false, public isStatic = false, public isAbstract = false,
               public isOverride = false, public isGetter = false) {
 		super();
+    
+    if (!/^([a-z_][\w_]*)|((op|singleOp)([\+\-\*\/^%]|=>|===|==|<<=|>>=|>=|<=|>>|<<|>|<|!==|!=))$/.test(name)) { 
+      if (/^(op|singleOp)/.test(name))
+        throw new Error(`Invalid operator in operator overloading method "${name}". This operator can not be overloaded.`);
+      else
+        throw new Error(`Illegal method name "${name}". Method names must follow lower-case identifier rules.`);
+    }
   }
    
   getSerializationProperties(): Object {

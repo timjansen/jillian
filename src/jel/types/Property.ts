@@ -14,6 +14,8 @@ export default class Property extends JelObject {
   
   constructor(public name: string, public type?: TypeDescriptor, public defaultValueGenerator?: LambdaExecutable, public isNative = false) {
 		super();
+    if (!/^[a-zA-Z_][\w_]*$/.test(name))
+      throw new Error(`Illegal property name "${name}". Property names must follow identifier rules.`);
   }
   
   getSerializationProperties(): Object {
@@ -30,14 +32,14 @@ export default class Property extends JelObject {
       return `${prefix}${this.name}`;
     if (!this.type && this.defaultValueGenerator)
       return `${prefix}${this.name} = ${this.defaultValueGenerator.expression.toString()}`;
-    else if (this.type && !this.defaultValueGenerator)
+    else if (this.type && !this.defaultValueGenerator) 
       return `${prefix}${this.name}: ${this.type.serializeType()}`;
     else
       return `${prefix}${this.name}: ${this.type!.serializeType()} = ${this.defaultValueGenerator!.expression.toString()}`;
 	}
 
-  static valueOf(name: string, type?: TypeDescriptor, defaultValueGenerator?: LambdaExecutable, isNative = false): Property {
-    return new Property(name, type, defaultValueGenerator, isNative);
+  static valueOf(name: string, type?: any, defaultValueGenerator?: LambdaExecutable, isNative = false): Property {
+    return new Property(name, TypeHelper.convertNullableFromAny(type, 'type') || undefined, defaultValueGenerator, isNative);
   }
   
   static create_jel_mapping = ['name', 'type', 'defaultValueGenerator', 'isNative'];

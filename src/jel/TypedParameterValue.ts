@@ -12,6 +12,8 @@ export default class TypedParameterValue extends JelObject {
   
   constructor(public name: string, public type?: TypeDescriptor, public defaultValueGenerator?: LambdaExecutable) {
 		super();
+    if (!/^[a-zA-Z_][\w_]*$/.test(name))
+      throw new Error(`Illegal argument "${name}". Argument names must follow identifier rules.`);
   }
    
   get isNameOnly(): boolean {

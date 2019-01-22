@@ -121,11 +121,8 @@ export default class Runtime {
 			else
 				throw new Error(`Property ${name} is not accessible. It would need to be defined in JEL_PROPERTIES.`);
 		}
-		else {
-console.log((obj as any).props);
-console.log(obj.clazz);
+		else 
 			throw new Error(`Can not find member or method ${name} in ${obj.getJelType()}.`);
-    }
   } 
 
 

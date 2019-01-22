@@ -4,6 +4,7 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
 import TypeDescriptor from './typeDescriptors/TypeDescriptor';
 import AnyType from './typeDescriptors/AnyType';
 import TypeHelper from './typeDescriptors/TypeHelper';
+import GenericJelObject from './GenericJelObject';
 import Dictionary from './Dictionary';
 import List from './List';
 import JelString from './JelString';
@@ -17,76 +18,14 @@ import NativeCallable from '../NativeCallable';
 import TypedParameterValue from '../TypedParameterValue';
 import IClass from '../IClass';
 import Serializable from '../Serializable';
+import SerializablePrimitive from '../SerializablePrimitive';
 import Callable from '../Callable';
 import Context from '../Context';
 import StaticContext from '../StaticContext';
 import Util from '../../util/Util';
 
-class GenericJelObject extends JelObject implements Serializable {
-  methodCache: Map<string, Callable> = new Map<string, Callable>();
-  
-  constructor(clazz: Class, public args: any[], public props: Dictionary) {
-    super(clazz.className, clazz);
-  }
-  
-  static forbidNull(value: any): JelObject|Promise<JelObject> {
-    return Util.resolveValue(value, v=>{
-      if (v == null)
-        throw new Error("Operator implementations must not return null");
-      return v;
-    });
-  }
-  
-  op(ctx: Context, operator: string, right: JelObject|null): JelObject|Promise<JelObject> {
-    const m: Method|undefined = (this.clazz as Class).allMethods.elements.get('op'+operator) as any;
-    if (m)
-      return GenericJelObject.forbidNull(m.callable.invoke(ctx, this, right));
-    return super.op(ctx, operator, right);
-  }
-	
-	opReversed(ctx: Context, operator: string, left: JelObject): JelObject|Promise<JelObject> {
-    const m: Method|undefined = (this.clazz as Class).allMethods.elements.get('opReversed'+operator) as any;
-    if (m)
-      return GenericJelObject.forbidNull(m.callable.invoke(ctx, this, left));
-    return super.opReversed(ctx, operator, left);
-	}
-  
-	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
-    const m: Method|undefined = (this.clazz as Class).allMethods.elements.get('singleOp'+operator) as any;
-    if (m)
-      return GenericJelObject.forbidNull(m.callable.invoke(ctx, this));
-    return super.singleOp(ctx, operator);
-	}
-
-	member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null>|undefined {
-    const getter = (this.clazz as Class).allGetters.elements.get(name) as Method;
-    if (getter)
-      return getter.callable.invoke(ctx, this);
-    const propsValue = this.props.elements.get(name);
-    if (propsValue !== undefined)
-      return propsValue;
-    const cachedMethodValue = this.methodCache.get(name);
-    if (cachedMethodValue)
-      return cachedMethodValue;
-    const method = (this.clazz as Class).allMethods.elements.get(name);
-    if (method) {
-      const m = (method as Method).callable.rebind(this);
-      this.methodCache.set(name, m);
-      return m;
-    }
-    return undefined;    
-	}
-  
-  getSerializationProperties(): any[] {
-    return this.args;
-  }
-}
-GenericJelObject.prototype.reverseOps = JelObject.SWAP_OPS;
-
-
-
 // Base class for defining instantiable types
-export default class Class extends PackageContent implements IClass {
+export default class Class extends PackageContent implements IClass, SerializablePrimitive {
   JEL_PROPERTIES: Object;
   private classContext: Context;
   defaultPropValues: Dictionary|Promise<Dictionary>|undefined; 
@@ -130,9 +69,9 @@ export default class Class extends PackageContent implements IClass {
               public staticProperties = List.empty) {      
     super(className);
    
-    if (/^[^A-Z]/.test(className))
-      throw new Error(`Type name ${className} is not allowed: types must start with a capital letter.`);
-
+    if (!/^[A-Z](?:[\w_]|\:\:[a-zA-Z])*$/.test(className))
+      throw new Error(`Illegal class name "${className}". Class names must follow identifier rules and begin with a capital letter.`);
+    
     this.classContext = new Context(ctx).set(className, this).freeze();
     this.ctor = ctor && ctor.bindParentContext(this.classContext);
     const reboundMethods = methods.elements.map(m=>m.bindParentContext(this.classContext));
@@ -156,7 +95,7 @@ export default class Class extends PackageContent implements IClass {
     this.allGetters = superType ? new Dictionary(superType.allGetters).putAll(this.localGetters) : this.localGetters;
 
     if (superType) {
-      const overridenProperty = declaredLocalProps.findJs((n: string)=>superType.has(n));
+      const overridenProperty = declaredLocalProps.findJs((n: string, p: Property)=>superType.has(n));
       if (overridenProperty)
         throw new Error(`Property ${overridenProperty} is already defined in super type ${superType.className}, you must not override it.`);
       
@@ -404,6 +343,20 @@ export default class Class extends PackageContent implements IClass {
   protected asyncInit(): Promise<Class>|Class {
     return Util.resolveValues(()=>this.staticPropertyInit(), this.checkMethodOverrides(), this.checkGetterOverrides());
   }
+  
+	serializeToString(pretty: boolean, indent: number, spaces: string, serializer: (object: any, pretty: boolean, indent: number, spaces: string)=>string): string {
+    const preSpace = spaces.substr(0, indent*2);
+    return `${preSpace}(${this.isNative?'native ':''}${this.isAbstract?'abstract ':''}class ${this.className}${this.superType?' extends '+this.superType.className:''}:\n`+
+        this.staticProperties.elements.map(p=>`${preSpace}  static ${p.toString()}\n`).join('') +
+        (this.staticProperties.size ? '\n':'') + 
+        this.properties.elements.map(p=>`${preSpace}  ${p.toString()}\n`).join('') +
+        (this.properties.size ? '\n':'') + 
+        (this.ctor ? `${preSpace}  ${this.ctor instanceof NativeCallable ? 'native ':''}constructor(${(this.ctor.getArguments()||[]).map(ad=>ad.toString()).join(', ')})${this.ctor instanceof LambdaCallable?' =>\n'+preSpace+'    '+this.ctor.expression.toString()+'\n\n':''}`:'') +
+        this.methods.elements.map(m=>`${preSpace}  ${m.toString()}\n`).join('') +
+        (this.methods.size ? '\n':'') + 
+        ')';
+  }
+
 
   static create_jel_mapping = ['className', 'superType', 'isAbstract', 'isNative', 'ctor', 'properties', 'methods', 'staticProperties'];
   static create(ctx: Context, ...args: any[]): Class|Promise<Class> {

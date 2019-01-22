@@ -90,7 +90,7 @@ const unaryOperators: any = { // op->precedence
   '!': 17
 };
 
-const overloadableOperators: any = {'+': true, '-': true, '*': true, '/': true, '%': true, '==': true, '===': true, '!=': true, '!==': true, '<': true, '<<': true, '<=': true, '<<=': true, '>': true, '>>': true, '>=': true, '>>=': true};
+const overloadableOperators: any = {'+': true, '-': true, '*': true, '/': true, '%': true, '==': true, '===': true, '!=': true, '!==': true, '<': true, '<<': true, '<=': true, '<<=': true, '>': true, '>>': true, '>=': true, '>>=': true, '^': true};
 const overloadableSingleOps: any = {'+': true, '-': true, '!': true};
 
 const IF_PRECEDENCE = 4; 
@@ -569,7 +569,7 @@ export default class JEL {
     if (!tokens.nextIf(TokenType.Operator, ':'))
       return undefined;
     
-    return new TypedParameterDefinition('return value', undefined, JEL.parseExpression(tokens, 0, stopOps, true));
+    return new TypedParameterDefinition('return', undefined, JEL.parseExpression(tokens, 0, stopOps, true));
   }
   
   static tryLambda(tokens: TokenReader, argName: string | null, precedence: number, stopOps: any): Lambda | undefined {
@@ -765,7 +765,7 @@ export default class JEL {
           defaultValue = JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop);
         else {
           if (staticModifier && !nativeModifier)
-            JEL.throwParseException(next, 'You must not set the type of a static property or declare a static property without a value. Static properties require a value, but must not have an explicit type.');
+            JEL.throwParseException(next, 'You must not set the type of a static property or declare a static property with type or without a value. Static properties require a value, but must not have an explicit type. Only native static can use a type.');
           typeDef = JEL.parseExpression(tokens, CLASS_PRECEDENCE, classTypeExpressionStop, true);
           defaultValue = tokens.nextIf(TokenType.Operator, '=') ? JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop) : undefined;
         }
