@@ -25,6 +25,10 @@ export default class Method extends JelObject {
     else
       return `${this.isStatic?'static ':''}${this.isOverride?'override ':''} ${this.isGetter?'get ':''}${this.name}${this.callable.toString()}`;
 	}
+
+  bindParentContext(ctx: Context): Method {
+    return new Method(this.name, this.callable.bindParentContext(ctx), this.isNative, this.isStatic, this.isAbstract, this.isOverride, this.isGetter);
+  }
   
   static valueOf(name: string, callable: Callable, isNative = false, isStatic = false, isAbstract = false, isOverride = false, isGetter = false): Method {
     return new Method(name, callable, isNative, isStatic, isAbstract, isOverride, isGetter);

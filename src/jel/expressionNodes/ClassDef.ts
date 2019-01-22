@@ -2,7 +2,6 @@ import JelNode from './JelNode';
 import Assignment from './Assignment';
 import MethodDef from './MethodDef';
 import PropertyDef from './PropertyDef';
-import StaticPropertyDef from './StaticPropertyDef';
 import TypedParameterDefinition from './TypedParameterDefinition';
 import Lambda from './Lambda';
 import NativeFunction from './NativeFunction';
@@ -21,7 +20,7 @@ export default class ClassDef extends JelNode {
   isNative: boolean;
   
   constructor(public name: string, public superName?: JelNode, public ctor?: Lambda|NativeFunction, public propertyDefs: PropertyDef[] = [], public methodDefs: MethodDef[] = [], 
-               public staticPropertyDefs: StaticPropertyDef[] = [], public isAbstract = false, public hasNative = false) {
+               public staticPropertyDefs: PropertyDef[] = [], public isAbstract = false, public hasNative = false) {
 		super();
     this.isNative = this.ctor instanceof NativeFunction;
   }
@@ -38,7 +37,7 @@ export default class ClassDef extends JelNode {
                               this.ctor ? this.ctor.execute(ctx) : null,
                               Util.resolveArray(this.propertyDefs.map((d: PropertyDef)=>d.execute(ctx)), (l: any[])=>BaseTypeRegistry.get('List').valueOf(l)),
                               Util.resolveArray(this.methodDefs.map((d: MethodDef)=>d.execute(ctx)), (l: any[])=>BaseTypeRegistry.get('List').valueOf(l)),
-                              Util.resolveArray(this.staticPropertyDefs.map((d: StaticPropertyDef)=>d.execute(ctx)), (l: any[])=>BaseTypeRegistry.get('List').valueOf(l)));
+                              Util.resolveArray(this.staticPropertyDefs.map((d: PropertyDef)=>d.execute(ctx)), (l: any[])=>BaseTypeRegistry.get('List').valueOf(l)));
     return r;
 	}
 
@@ -77,7 +76,7 @@ export default class ClassDef extends JelNode {
       s += ` extends ${this.superName.toString()}`;
     s+= ':\n';
     
-    this.staticPropertyDefs.forEach((a: StaticPropertyDef)=>{s+=`    ${a.toString()}\n`});  
+    this.staticPropertyDefs.forEach((a: PropertyDef)=>{s+=`    static ${a.toString()}\n`});  
     s+='\n';
     this.propertyDefs.forEach((a: PropertyDef)=>{s+=`    ${a.toString()}\n`});
     s+='\n';

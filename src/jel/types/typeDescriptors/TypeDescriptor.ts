@@ -46,8 +46,8 @@ export default abstract class TypeDescriptor extends JelObject {
   /**
    * Compares two (nullable) TypeDescriptors.
    */
-  static equals(ctx: Context, a: TypeDescriptor|null, b: TypeDescriptor|null): JelBoolean|Promise<JelBoolean> {
-    return a == null ? JelBoolean.valueOf(b == null) : a.equals(ctx, b);
+  static equals(ctx: Context, a: TypeDescriptor|null|undefined, b: TypeDescriptor|null|undefined): JelBoolean|Promise<JelBoolean> {
+    return a == null ? JelBoolean.valueOf(b == null) : a.equals(ctx, b||null);
   }
   
   

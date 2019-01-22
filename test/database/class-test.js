@@ -33,15 +33,15 @@ tmp.dir(function(err, path) {
       it('can be created and serialized', function() {
         jelAssert.equal('Class("MyTestType").methods.size', 0);
         jelAssert.equal('Class("MyTestType", methods=[Method("add", ()=>2)]).methods.size', 1);
-        jelAssert.equal('Class("MyTestType", null, false, false, (x,y)=>{}, [Property("a", null, Float, false), Property("b", null, string)], [Method("add", ()=>2)], [])', 
-                        'Class(className="MyTestType", isNative=false, ctor=(x,y)=>{}, methods=[Method("add", ()=>2)], staticProperties=[], properties=[Property("a", null, Float, false), Property("b", null, string)], isAbstract=false)');
+        jelAssert.equal('Class("MyTestType", null, false, false, (x,y)=>{}, [Property("a", Float, null, false), Property("b", string, null)], [Method("add", ()=>2)], [])', 
+                        'Class(className="MyTestType", isNative=false, ctor=(x,y)=>{}, methods=[Method("add", ()=>2)], staticProperties=[], properties=[Property("a", Float), Property("b", string)], isAbstract=false)');
       });
 
       it('can be created using the JEL syntax', function() {
         jelAssert.equal('class MyTestType:', 'Class("MyTestType")');
         jelAssert.equal('class MyTestType: add()=> 2', 'Class("MyTestType", methods=[Method("add", ()=>2)])');
         jelAssert.equal('class MyTestType: constructor(x, y)=> {} a: number b: string add()=>this.a+this.b', 
-                        'Class("MyTestType", ctor=(x,y)=>{}, properties=[Property("a", null, number, false), Property("b", null, string, false)], methods=[Method("add", ()=>this.a+this.b)])');
+                        'Class("MyTestType", ctor=(x,y)=>{}, properties=[Property("a", number), Property("b", string)], methods=[Method("add", ()=>this.a+this.b)])');
         jelAssert.equal('class MyTestType constructor(x, y)=>{} a: Float b: String add()=>this.a+this.b', 
                         'class MyTestType: constructor(x, y)=>{} a: Float b: String add()=> this.a+this.b');
       });
@@ -143,6 +143,13 @@ tmp.dir(function(err, path) {
         jelAssert.equal('let myTestType=class MyTestType4: x: int constructor()=> {x: this.X} static X = 100: myTestType().x', "100");
       });
       
+      it('allows access to static properties in all default values', function() {
+        jelAssert.equal('let myTestType=class MyTestType static X=42 x=MyTestType.X constructor() : myTestType().x', "42");
+        jelAssert.equal('let myTestType=class MyTestType static X=42 constructor() ret(i=MyTestType.X)=>i: myTestType().ret()', "42");
+        jelAssert.equal('let myTestType=class MyTestType static X=42 constructor(y=MyTestType.X): myTestType().y', "42");
+        jelAssert.equal('let myTestType=class MyTestType static X=42 static ret(i=MyTestType.X)=>i: myTestType.ret()', "42");
+      });
+      
       it('supports getter', function() {
         jelAssert.equal('let myTestType=class MyTestType: constructor(y: Float)=>{} get x():Float=>8 get z()=>4, m=myTestType(5): m.x/m.z', "2");
 
@@ -165,13 +172,15 @@ tmp.dir(function(err, path) {
         jelAssert.equal('let myTestType=class MyTestType: constructor(x: Float)=>{} op+(right):Float=> this.x+right, m=myTestType(5): m+10', "15");
       });
 
-      it('can refer to itself as a type', function() {
+      it('can refer to itself as a type and supports circular dependencies', function() {
         return Promise.all([
           jelAssert.equalPromise('let myTestType=class MyTestType constructor(parent: MyTestType?)=>{} static hasParent(p: MyTestType)=>p.parent!=null, m=myTestType(), n=myTestType(m): [myTestType.hasParent(m), myTestType.hasParent(n)]', "[false,true]"),
           jelAssert.equalPromise('let a=class A constructor(b: B?), b=class B constructor(c: C), c = class C constructor(a: A?) n="C", x=a(b(c())): x.b.c.n', "'C'"),
           jelAssert.errorPromise('let myTestType=class MyTestType constructor(parent: MyTestType?)=>{} static hasParent(p: MyTestType)=>p.parent!=null: myTestType(1)', 'to SimpleType("MyTestType")')
         ]);
       });
+
+
       
       it('can be loaded from DB and used like a real type', function() {
         return db.put(ctx, new JEL('class TupleXY: constructor(x: Float, y: Float)=>{}  add()=>this.x+this.y static A= 44').executeImmediately(ctx))

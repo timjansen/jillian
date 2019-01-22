@@ -32,10 +32,10 @@ export default class NativeFunction extends CachableJelNode {
    
     if (this.returnType) {
       const eList = [this.returnType.execute(ctx)].concat(this.args.map(a=>a.execute(ctx)));
-      return Util.resolveArray(eList, eListResolved=>new NativeCallable(undefined, eListResolved.slice(1), eListResolved[0], func, this.name));
+      return Util.resolveArray(eList, eListResolved=>new NativeCallable(undefined, eListResolved.slice(1), eListResolved[0], func, ctx, this.name));
     }
     else
-      return Util.resolveArray(this.args.map(a=>a.execute(ctx)), args=>new NativeCallable(undefined, args, undefined, func, this.name));
+      return Util.resolveArray(this.args.map(a=>a.execute(ctx)), args=>new NativeCallable(undefined, args, undefined, func, ctx, this.name));
 	}
 	
   isStaticUncached(ctx: Context): boolean {

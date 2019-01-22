@@ -36,7 +36,7 @@ export default class NativeClass extends JelObject implements IClass, Serializab
     if (m)
       return m;
     
-		if (name in this.ctor.JEL_PROPERTIES)
+		if (this.ctor.JEL_PROPERTIES && (name in this.ctor.JEL_PROPERTIES))
 			return BaseTypeRegistry.mapNativeTypes((this.ctor as any)[name]);
 		return undefined;
 	}

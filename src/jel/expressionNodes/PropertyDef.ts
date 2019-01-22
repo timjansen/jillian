@@ -2,7 +2,7 @@ import JelNode from './JelNode';
 import CachableJelNode from './CachableJelNode';
 import TypedParameterDefinition from './TypedParameterDefinition';
 import JelObject from '../JelObject';
-import Callable from '../Callable';
+import LambdaExecutable from '../LambdaExecutable';
 import Context from '../Context';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import Util from '../../util/Util';
@@ -10,28 +10,25 @@ import Util from '../../util/Util';
 /**
  * Represents a property definition in a class.
  */
-export default class PropertyDef extends TypedParameterDefinition {
-  constructor( name: string, type?: JelNode, defaultValue?: JelNode, public isNative = false) {
-    super(name, defaultValue, type);
+export default class PropertyDef extends CachableJelNode {
+  constructor(public name: string, public type?: JelNode, public defaultValueGenerator?: JelNode, public isNative = false) {
+    super();
   }
 
   // override
   executeUncached(ctx: Context): JelObject|Promise<JelObject> {
-    if (this.defaultValue || this.type)
-      return Util.resolveValues((defaultValue: any, type: any)=>BaseTypeRegistry.get('Property').valueOf(this.name, defaultValue, type, this.isNative), this.defaultValue && this.defaultValue.execute(ctx), this.type && this.type.execute(ctx));
-    else
-      return BaseTypeRegistry.get('Property').valueOf(this.name, null, null, this.isNative);
+    return Util.resolveValue(this.type && this.type.execute(ctx), (type: any)=>BaseTypeRegistry.get('Property').valueOf(this.name, type, this.defaultValueGenerator ? new LambdaExecutable(this.defaultValueGenerator) : undefined, this.isNative), );
   }
   
   isStaticUncached(ctx: Context): boolean {
-    return (this.defaultValue ? this.defaultValue.isStatic(ctx) : true) &&
+    return (this.defaultValueGenerator ? this.defaultValueGenerator.isStatic(ctx) : true) &&
            (this.type ? this.type.isStatic(ctx) : true);
   }
   
   flushCache(): void {
     super.flushCache();
-    if (this.defaultValue)
-      this.defaultValue.flushCache();
+    if (this.defaultValueGenerator)
+      this.defaultValueGenerator.flushCache();
     if (this.type)
       this.type.flushCache();
   }
@@ -41,12 +38,12 @@ export default class PropertyDef extends TypedParameterDefinition {
 		if (!(other instanceof PropertyDef))
 			return false;
 		return this.name == other.name && this.isNative == other.isNative &&
-      (this.defaultValue == other.defaultValue || (this.defaultValue!=null && other.defaultValue!=null && this.defaultValue.equals(other.defaultValue))) &&
+      (this.defaultValueGenerator == other.defaultValueGenerator || (this.defaultValueGenerator!=null && other.defaultValueGenerator!=null && this.defaultValueGenerator.equals(other.defaultValueGenerator))) &&
       (this.type == other.type || (this.type!=null && other.type!=null && this.type.equals(other.type)));
 	}
-  	
+  
 	toString(): string {
-		return `${this.isNative?'native ':''}${this.name}${this.type?': '+this.type.toString():''}${this.defaultValue ? ' = '+this.defaultValue.toString() : ''}`;
+		return `static ${this.isNative?'native ':''}${this.name}${this.type?': '+this.type.toString():''}${this.defaultValueGenerator ? ' = '+this.defaultValueGenerator.toString() : ''}`;
 	}
 }
 

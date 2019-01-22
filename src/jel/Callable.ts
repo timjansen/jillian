@@ -27,6 +27,7 @@ export default abstract class Callable extends JelObject {
 	}
   
   abstract rebind(self: JelObject): Callable;
+  abstract bindParentContext(ctx: Context): Callable;
 
   abstract getArguments(): any[]|undefined; // returns array of TypedParameterValue, if there is any typing
   abstract getReturnType(): any|undefined;  // TypedParameterValue or undefined

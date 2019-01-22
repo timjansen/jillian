@@ -19,6 +19,10 @@ export default class FunctionCallable extends Callable {
   rebind(self: JelObject): FunctionCallable {
     return Object.is(this.self, self) ? this : new FunctionCallable(this.f, this.argMapper, self, this.name);
   }
+  
+  bindParentContext(parentContext: Context): Callable {
+    return this;
+  }
  
   static invoke(ctx: Context, name: string|undefined, self: JelObject|undefined, f: Function, args: (JelObject|null)[], argObj: Map<string,JelObject|null>|undefined, argMapper: Map<string,number>):  JelObject|null|Promise<JelObject|null> {
     const allArgs = ([ctx] as any[]).concat(args);

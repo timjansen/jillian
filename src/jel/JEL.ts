@@ -35,7 +35,6 @@ import TypedParameterDefinition from './expressionNodes/TypedParameterDefinition
 import Assignment from './expressionNodes/Assignment';
 import MethodDef from './expressionNodes/MethodDef';
 import PropertyDef from './expressionNodes/PropertyDef';
-import StaticPropertyDef from './expressionNodes/StaticPropertyDef';
 import PatternAssignment from './expressionNodes/PatternAssignment';
 import Let from './expressionNodes/Let';
 import With from './expressionNodes/With';
@@ -616,13 +615,15 @@ export default class JEL {
     
     const className = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier after 'class' declaration");
     const superType: JelNode|undefined = (tokens.peekIs(TokenType.Identifier, 'extends')) ? tokens.next() && JEL.parseExpression(tokens, CLASS_PRECEDENCE, CLASS_EXTENDS_STOP) : undefined;
+    const selfArgs = [new TypedParameterDefinition(className.value)];
     
     tokens.nextIf(TokenType.Operator, ':');
     
+
     let ctor: Lambda|NativeFunction|undefined = undefined;
     const methods: MethodDef[] = [];
     const properties: PropertyDef[] = [];
-    const staticProperties: StaticPropertyDef[] = [];
+    const staticProperties: PropertyDef[] = [];
     let hasNative = false;
     const propertyNames = new Set();
     
@@ -771,10 +772,8 @@ export default class JEL {
 
         if (nativeModifier && defaultValue)
           JEL.throwParseException(next, 'A native property must not have a default value.');
-        else if (staticModifier)
-          staticProperties.push(new StaticPropertyDef(propertyName, typeDef, defaultValue && new Lambda([new TypedParameterDefinition(className.value)], undefined, defaultValue), nativeModifier));
         else
-          properties.push(new PropertyDef(propertyName, typeDef, defaultValue, nativeModifier));
+          (staticModifier?staticProperties:properties).push(new PropertyDef(propertyName, typeDef, defaultValue, nativeModifier));
       }
       else if (next.is(TokenType.Operator, 'static') || next.is(TokenType.Operator, 'abstract') || next.is(TokenType.Operator, 'override'))
         JEL.throwParseException(next, `You can not combine the modifiers 'static', 'abstract' and 'override'. Only one of them can be used, in front of the 'class' (or 'native') keyword.`);

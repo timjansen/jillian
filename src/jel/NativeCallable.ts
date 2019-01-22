@@ -11,7 +11,7 @@ import Util from '../util/Util';
 
 
 export default class NativeCallable extends Callable implements SerializablePrimitive {
-  constructor(public self: JelObject|undefined, public argDefs: TypedParameterValue[], public returnType: TypedParameterValue|undefined, public nativeFunction: Function, public name: string) {
+  constructor(public self: JelObject|undefined, public argDefs: TypedParameterValue[], public returnType: TypedParameterValue|undefined, public nativeFunction: Function, public parentContext: Context, public name: string) {
 		super();
   }
 
@@ -30,7 +30,7 @@ export default class NativeCallable extends Callable implements SerializablePrim
         const v = argDefs[i].name;
         if (v !== undefined)
           argsFound++;
-        allArgs[i] = argObj.get(v) || null;
+        allArgs[i] = argObj.get(v)||null;
       }
       if (argsFound < argObj.size || argObj.size > argDefs.length-args.length)
         for (let key of argObj.keys()) {
@@ -47,11 +47,12 @@ export default class NativeCallable extends Callable implements SerializablePrim
     const funcArgs: any[] = [ctx];
     for (let i = 0; i < argDefs.length; i++) {
       const argDef = argDefs[i];
-      if (i >= allArgs.length && argDef.defaultValue === undefined && !argDef.isNullable(ctx))
+      if (i >= allArgs.length && argDef.defaultValueGenerator === undefined && !argDef.isNullable(ctx))
         throw new Error(`Argument ${argDef.name} is missing in invocation of ${name}(). It is required, as no default value has been provided. Provided arguments: ${args.map(s=>s==null?'null':s.toString()).join(', ')}`);
-      const v = allArgs[i] || argDef.defaultValue || null;
+      const v = allArgs[i] != null ? allArgs[i] : (argDef.defaultValueGenerator ? argDef.defaultValueGenerator.execute(ctx) : null);
+
       if (argDef.type)
-        funcArgs.push(argDef.type.convert(ctx, v, argDef.name));
+        funcArgs.push(Util.resolveValue(v, v0=>argDef.type!.convert(ctx, v0, argDef.name)));
       else
         funcArgs.push(v);
     }
@@ -66,16 +67,21 @@ export default class NativeCallable extends Callable implements SerializablePrim
   }
   
 	invokeWithObject(ctx: Context, self: JelObject|undefined, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>): JelObject|null|Promise<JelObject|null> {   // context will be ignored for lambda. No promise support here, only in Call.
-    return NativeCallable.invoke(ctx, this.name, self || this.self, this.argDefs, this.returnType, this.nativeFunction, args, argObj);
+    return NativeCallable.invoke(this.parentContext||ctx, this.name, self || this.self, this.argDefs, this.returnType, this.nativeFunction, args, argObj);
 	}
 	
 	invoke(ctx: Context, self: JelObject|undefined, ...args: (JelObject|null)[]): JelObject|null|Promise<JelObject|null> {
-    return NativeCallable.invoke(ctx, this.name, self || this.self, this.argDefs, this.returnType, this.nativeFunction, args);
+    return NativeCallable.invoke(this.parentContext||ctx, this.name, self || this.self, this.argDefs, this.returnType, this.nativeFunction, args);
 	}
 
   rebind(self: JelObject|undefined): NativeCallable {
-    return Object.is(this.self, self) ? this : new NativeCallable(self, this.argDefs, this.returnType, this.nativeFunction, this.name);
+    return Object.is(this.self, self) ? this : new NativeCallable(self, this.argDefs, this.returnType, this.nativeFunction, this.parentContext, this.name);
   }
+  
+  bindParentContext(parentContext: Context): NativeCallable {
+    return new NativeCallable(this.self, this.argDefs, this.returnType, this.nativeFunction, parentContext, this.name);
+  }
+
 
   getArguments(): any[] {
     return this.argDefs;

@@ -16,9 +16,9 @@ export default class LambdaCallable extends Callable implements SerializablePrim
   }
 
   private static setVariable(ctx: Context, newCtx: Context, argDef: TypedParameterValue, value0: JelObject|null|undefined): Promise<any>|undefined {
-    const value = value0 || argDef.defaultValue || null;
+    const value = value0 != null ? value0 : (argDef.defaultValueGenerator ? argDef.defaultValueGenerator.execute(ctx) : null);
     if (argDef.type) {
-      const convertedValue: any = argDef.type.convert(ctx, value, argDef.name);
+      const convertedValue: any = Util.resolveValue(value, v=>argDef.type!.convert(ctx, v, argDef.name));
       if (convertedValue instanceof Promise)
         return convertedValue.then(r=>{
           if (newCtx.hasInThisScope(argDef.name))
@@ -26,10 +26,10 @@ export default class LambdaCallable extends Callable implements SerializablePrim
           newCtx.set(argDef.name, convertedValue);
         });
       newCtx.set(argDef.name, convertedValue);
+      return;
     }
     else
-      newCtx.set(argDef.name, value);
-    return undefined;
+      return Util.resolveValue(value, v=>{newCtx.set(argDef.name, v);});
   }
   
   private static invoke(ctx: Context, self: JelObject|undefined, superConstructor: LambdaCallable|undefined, argDefs: TypedParameterValue[], expression: JelNode, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>, returnType?: TypedParameterValue): JelObject|null|Promise<JelObject|null> {
@@ -51,9 +51,9 @@ export default class LambdaCallable extends Callable implements SerializablePrim
       const v = argObj ? argObj.get(argDef.name) : undefined;
       if (v !== undefined)
         addedObjArgs++;
-      if (v === undefined && argDef.defaultValue === undefined && !argDef.isNullable(ctx))
+      if (!v && !argDef.defaultValueGenerator && !argDef.isNullable(ctx))
         throw new Error(`Argument ${argDef.name} has not been provided and has no default value.`);
-      const p: Promise<any>|undefined = LambdaCallable.setVariable(ctx, newCtx, argDef, v||argDef.defaultValue||null);
+      const p: Promise<any>|undefined = LambdaCallable.setVariable(ctx, newCtx, argDef, v);
       if (p)
         openPromises.push(p);
     }
@@ -104,6 +104,11 @@ export default class LambdaCallable extends Callable implements SerializablePrim
   bindSuper(superConstructor: LambdaCallable|null): LambdaCallable {
     return Object.is(this.superConstructor, superConstructor) ? this : new LambdaCallable(this.argDefs, this.expression, this.parentContext, this.name, this.self, superConstructor||undefined, this.returnType);
   }
+
+  bindParentContext(parentContext: Context): LambdaCallable {
+    return new LambdaCallable(this.argDefs, this.expression, parentContext, this.name, this.self, this.superConstructor, this.returnType);
+  }
+
   
   getArguments(): any[] {
     return this.argDefs;

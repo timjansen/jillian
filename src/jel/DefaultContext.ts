@@ -1,6 +1,7 @@
 import BaseTypeRegistry from './BaseTypeRegistry';
 import Context from './Context';
 import NativeClass from './NativeClass';
+import LambdaExecutable from './LambdaExecutable';
 
 import JelBoolean from './types/JelBoolean';
 import Float from './types/Float';
@@ -22,7 +23,6 @@ import Enum from '../jel/types/Enum';
 import Class from '../jel/types/Class';
 import Method from '../jel/types/Method';
 import Property from '../jel/types/Property';
-import StaticProperty from '../jel/types/StaticProperty';
 
 import Duration from './types/time/Duration';
 import DurationRange from './types/time/DurationRange';
@@ -59,7 +59,7 @@ function c(ctor: any): NativeClass {
 
 const CTX_IDENTIFIERS = {Boolean: c(JelBoolean), Float: c(Float), String: c(JelString), ApproximateNumber: c(ApproximateNumber), Math: c(JelMath), DateType: c(DateType), TimeType: c(TimeType),
                          Range: c(Range), Fraction: c(Fraction), Unit: c(Unit), UnitValue: c(UnitValue), 
-                         Class: c(Class), Enum: c(Enum), Method: c(Method), Property: c(Property), StaticProperty: c(StaticProperty),
+                         Class: c(Class), Enum: c(Enum), Method: c(Method), Property: c(Property), LambdaExecutable: c(LambdaExecutable),
 												 Dictionary: c(Dictionary), List: c(List), Distribution: c(Distribution), DistributionPoint: c(DistributionPoint), Pattern: c(Pattern), Translator: c(Translator), EnumValue: c(EnumValue), 
 												 Duration: c(Duration), DurationRange: c(DurationRange), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 
                          ZonedDate: c(ZonedDate), ZonedDateTime: c(ZonedDateTime),

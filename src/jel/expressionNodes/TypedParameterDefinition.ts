@@ -5,6 +5,7 @@ import Context from '../Context';
 import TypedParameterValue from '../TypedParameterValue';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import Serializable from '../Serializable';
+import LambdaExecutable from '../LambdaExecutable';
 import Util from '../../util/Util';
 
 /**
@@ -20,11 +21,9 @@ export default class TypedParameterDefinition extends CachableJelNode implements
   // override
   executeUncached(ctx: Context): JelObject|Promise<JelObject> {
     if (!this.defaultValue && !this.type)
-      return new TypedParameterValue(this.name, null, null);
+      return new TypedParameterValue(this.name);
     
-    const defaultValue = this.defaultValue ? this.defaultValue.execute(ctx) : undefined;
-    const type = this.type ? this.type.execute(ctx) : null;
-    return Util.resolveValues((d: JelNode|null, t: JelNode|null)=>new TypedParameterValue(this.name, d, type && this.typeHelper.convertNullableFromAny(t, this.name)), defaultValue, type);
+    return Util.resolveValue(this.type ? this.type.execute(ctx) : null, (t: any)=>new TypedParameterValue(this.name, t && this.typeHelper.convertNullableFromAny(t, this.name), this.defaultValue && new LambdaExecutable(this.defaultValue)));
   }
   
   isStaticUncached(ctx: Context): boolean {

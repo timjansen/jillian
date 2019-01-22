@@ -1,4 +1,3 @@
-import FunctionCallable from '../FunctionCallable';
 import JelObject from '../JelObject';
 import Numeric from './Numeric';
 import {IDbRef} from '../IDatabase';
