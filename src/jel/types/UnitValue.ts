@@ -30,7 +30,7 @@ export default class UnitValue extends JelObject implements Numeric {
 	public unit: Unit;
 	
 	constructor(public value: Float | Fraction | ApproximateNumber, unit: IDbRef | Unit | string | JelString) {
-		super();
+		super('UnitValue');
 		this.value = value;
 		this.unit = unit instanceof Unit ? unit : new Unit(unit);
 	}

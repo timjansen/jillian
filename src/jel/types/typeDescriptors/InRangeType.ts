@@ -9,15 +9,21 @@ import Serializer from '../../Serializer';
 import SerializablePrimitive from '../../SerializablePrimitive';
 import JelBoolean from '../JelBoolean';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
+import Class from '../Class';
 
 
 /**
  * Declares a property that is a within the given range. The type doesn't matter, as long as it is in that range.
  */
-export default class InRangeType extends TypeDescriptor {
+export default class InRangeType extends TypeDescriptor  implements SerializablePrimitive {
+  static clazz: Class|undefined;
 
   constructor(public range: Range) {
-    super();
+    super('InRange');
+  }
+  
+  get clazz(): Class {
+    return InRangeType.clazz!;
   }
   
   checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean> {

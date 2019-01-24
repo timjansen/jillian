@@ -11,16 +11,23 @@ import JelObject from '../../jel/JelObject';
 import Serializer from '../../jel/Serializer';
 import Util from '../../util/Util';
 import BaseTypeRegistry from '../../jel/BaseTypeRegistry';
+import Class from '../../jel/types/Class';
 
 
 /**
  * Defines a UnitValue with the given unit.
  */
 export default class UnitValueType extends TypeDescriptor {
+  static clazz: Class|undefined;
 
   constructor(public unit: Unit, public range?: Range) {
-    super();
+    super('UnitValueType');
   }
+  
+  get clazz(): Class {
+    return UnitValueType.clazz!;
+  }
+
   
   checkType(ctx: Context, value: JelObject|null): JelBoolean | Promise<JelBoolean> {
     if (!(value instanceof UnitValue))
@@ -50,7 +57,7 @@ export default class UnitValueType extends TypeDescriptor {
     });
   }
     
-  getSerializationProperties(): Object {
+  getSerializationProperties(): any[] {
     return this.range ? [this.unit, this.range] : [this.unit];
   }
   

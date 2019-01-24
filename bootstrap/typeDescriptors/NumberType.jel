@@ -1,0 +1,14 @@
+/**
+ * NumberType accepts Floats and Fractions, optionally with a Range to limit their values.
+ */
+native class NumberType extends TypeDescriptor:
+  native constructor(range = null)
+  
+  override native checkType(value)
+
+  override native convert(value)
+  
+  override native equals(other)
+  
+  override native serializeToString()
+  

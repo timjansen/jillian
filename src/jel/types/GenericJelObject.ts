@@ -13,10 +13,16 @@ import Context from '../Context';
 import Util from '../../util/Util';
 
 export default class GenericJelObject extends JelObject implements Serializable {
+  private _clazz: Class;
   methodCache: Map<string, Callable> = new Map<string, Callable>();
   
   constructor(clazz: Class, public args: any[], public props: Dictionary) {
-    super(clazz.className, clazz);
+    super(clazz.className);
+    this._clazz = clazz;
+  }
+  
+  get clazz(): Class {
+    return this._clazz;
   }
   
   static forbidNull(value: any): JelObject|Promise<JelObject> {

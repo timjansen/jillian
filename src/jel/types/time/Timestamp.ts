@@ -22,7 +22,7 @@ export default class Timestamp extends TimeDescriptor {
 	
 	
 	constructor(public msSinceEpoch: number, public precisionInMs = 0) {
-		super();
+		super('Timestamp');
 	}
 	
 	private couldBeEqual(other: Timestamp): boolean {

@@ -1,0 +1,11 @@
+/**
+ * AnyType is a simple TypeDescriptor that will match any value (null or not).
+ */
+abstract class TypeDescriptor:
+  abstract checkType(value: any): bool
+  abstract convert(value: any): any
+  
+  abstract equals(other: TypeDescriptor?): bool
+  
+  abstract serializeToString(): string
+  

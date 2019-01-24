@@ -1,0 +1,11 @@
+/**
+ * Represents a class, as declared in JEL with the 'class' keyword. 
+ */ 
+native class Class:
+  native className: string
+  native packageName: string
+  native methods: List
+  native properties: List
+
+              
+  

@@ -12,7 +12,7 @@ import Util from '../../util/Util';
 export default class TemplateNode extends ComplexNode {
 
 	constructor(public template: string, name?: string, public metaFilter?: Set<string>, expression?: JelNode, next?: MultiNode) {
-		super(name, expression, next);
+		super('TemplateNode', name, expression, next);
 	}
 	
 	merge(resultNode: LambdaResultNode): ComplexNode {

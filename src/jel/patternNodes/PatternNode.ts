@@ -13,7 +13,7 @@ export default class PatternNode extends MultiNode {
 	option: PatternNode | undefined;         // if set, the following nodes are optional
 
 	constructor() {
-		super();
+		super('PatternNode');
 	}
 
 	// override

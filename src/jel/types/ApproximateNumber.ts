@@ -20,7 +20,7 @@ const DEQUAL: any = {'<=': '<', '>=': '>'};
 export default class ApproximateNumber extends JelObject implements Numeric {
 
 	constructor(public value: Float | Fraction, public maxError: Float | Fraction = Float.valueOf(0)) {
-		super();
+		super('ApproximateNumber');
 	}
 	
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {

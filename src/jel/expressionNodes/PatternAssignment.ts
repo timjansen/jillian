@@ -12,7 +12,7 @@ const EMPTY_MAP = new Map();
  * Helper class used by Translators to define the translator's elements. Each assignment consists of a Pattern, an expression and 
  * optional meta values.
  */
-export default class PatternAssignment extends CachableJelNode implements Serializable {
+export default class PatternAssignment extends CachableJelNode {
   constructor(public name: any, public expression: JelNode, public meta: Assignment[]|undefined) {
     super();
   }

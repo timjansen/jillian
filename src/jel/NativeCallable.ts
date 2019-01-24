@@ -12,7 +12,7 @@ import Util from '../util/Util';
 
 export default class NativeCallable extends Callable implements SerializablePrimitive {
   constructor(public self: JelObject|undefined, public argDefs: TypedParameterValue[], public returnType: TypedParameterValue|undefined, public nativeFunction: Function, public parentContext: Context, public name: string) {
-		super();
+		super('NativeCallable');
   }
 
   

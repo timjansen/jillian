@@ -9,18 +9,24 @@ import Serializer from '../../Serializer';
 import JelBoolean from '../JelBoolean';
 import Util from '../../../util/Util';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
+import Class from '../Class';
 
 /**
  * Declares a property type that is either a JEL function or a method.
  */
 export default class FunctionType extends TypeDescriptor {
+  static clazz: Class|undefined;
   static readonly instance = new FunctionType();
 
 	/**
 	 * A prototype callable to take the arguments from.
 	 */
   constructor(public prototype?: Callable, public allowUntyped = true) {
-    super();
+    super('FunctionType');
+  }
+  
+  get clazz(): Class {
+    return FunctionType.clazz!;
   }
 
   checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean> {
@@ -46,7 +52,7 @@ export default class FunctionType extends TypeDescriptor {
     });
   }
   
-  getSerializationProperties(): Object {
+  getSerializationProperties(): any[] {
     return [this.prototype, this.allowUntyped];
   }
 

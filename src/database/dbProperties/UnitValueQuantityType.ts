@@ -9,14 +9,21 @@ import Serializer from '../../jel/Serializer';
 import BaseTypeRegistry from '../../jel/BaseTypeRegistry';
 import Category from '../dbObjects/Category';
 import Thing from '../dbObjects/Thing';
+import Class from '../../jel/types/Class';
 
 
 /**
  * Declares a property that is a reference to a UnitValue of a type compatible with the given quantity category.
  */
 export default class UnitValueQuantityType extends TypeDescriptor {
+  static clazz: Class|undefined;
+
   constructor(public quantityCategory: IDbRef) {
-    super();
+    super('UnitValueQuantityType');
+  }
+  
+  get clazz(): Class {
+    return UnitValueQuantityType.clazz!;
   }
 
   checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean> {
@@ -26,7 +33,7 @@ export default class UnitValueQuantityType extends TypeDescriptor {
     return (value as UnitValue).toSimpleType(ctx).withMember(ctx, 'quantityCategory', (quantityCategory: any)=>JelBoolean.valueOf(quantityCategory.distinctName == this.quantityCategory.distinctName));
   }
   
-  getSerializationProperties(): Object {
+  getSerializationProperties(): any[] {
     return [this.quantityCategory];
   }
   

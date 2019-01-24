@@ -8,14 +8,21 @@ import Serializer from '../../jel/Serializer';
 import BaseTypeRegistry from '../../jel/BaseTypeRegistry';
 import Category from '../dbObjects/Category';
 import Thing from '../dbObjects/Thing';
+import Class from '../../jel/types/Class';
 
 
 /**
  * Declares a property that is a reference to a Thing.
  */
 export default class ThingType extends TypeDescriptor {
+  static clazz: Class|undefined;
+
   constructor(public category: IDbRef | null) {
-    super();
+    super('ThingType');
+  }
+  
+  get clazz(): Class {
+    return ThingType.clazz!;
   }
 
   static checkCategory(ctx: Context, checkCat: string, cat: IDbRef): JelBoolean|Promise<JelBoolean> {
@@ -36,7 +43,7 @@ export default class ThingType extends TypeDescriptor {
     return ThingType.checkCategory(ctx, this.category.distinctName, (value as Thing).category);
   }
   
-  getSerializationProperties(): Object {
+  getSerializationProperties(): any[] {
     return [this.category];
   }
   

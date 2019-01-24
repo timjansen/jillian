@@ -12,7 +12,7 @@ export default class Method extends JelObject {
   
   constructor(public name: string, public callable: Callable, public isNative = false, public isStatic = false, public isAbstract = false,
               public isOverride = false, public isGetter = false) {
-		super();
+		super("Method");
     
     if (!/^([a-z_][\w_]*)|((op|singleOp)([\+\-\*\/^%]|=>|===|==|<<=|>>=|>=|<=|>>|<<|>|<|!==|!=))$/.test(name)) { 
       if (/^(op|singleOp)/.test(name))

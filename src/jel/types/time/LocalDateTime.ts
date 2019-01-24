@@ -23,7 +23,7 @@ import Duration from './Duration';
 export default class LocalDateTime extends AbstractDate {
 	
 	constructor(public date: LocalDate, public time: TimeOfDay) {
-		super();
+		super('LocalDateTime');
 		
 		if (date.month == null || date.day == null)
 			throw new Error('A LocalDateTime must not have month or day set to null. Use a LocalDate if you need this.');

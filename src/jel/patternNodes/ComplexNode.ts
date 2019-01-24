@@ -9,8 +9,8 @@ import Util from '../../util/Util';
 
 export default abstract class ComplexNode extends MatchNode {
 
-	constructor(public name?: string, public expression?: JelNode, public next?: MultiNode) {
-		super();
+	constructor(className: string, public name?: string, public expression?: JelNode, public next?: MultiNode) {
+		super(className);
 	}
 	
 	abstract merge(resultNode: LambdaResultNode): ComplexNode;

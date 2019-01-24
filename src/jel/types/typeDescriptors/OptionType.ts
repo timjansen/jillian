@@ -8,22 +8,30 @@ import BaseTypeRegistry from '../../BaseTypeRegistry';
 import Context from '../../Context';
 import JelObject from '../../JelObject';
 import JelBoolean from '../JelBoolean';
+import Class from '../Class';
+import SerializablePrimitive from '../../SerializablePrimitive';
 
 
 /**
  * Declares a property can have more than one type.
  */
 export default class OptionType extends TypeDescriptor {
+  static clazz: Class|undefined;
+
 	options: List; // of TypeDescriptor or null
   nullable: boolean;
 	
   constructor(options: JelObject|null) {
-    super();
+    super('OptionType');
 		this.options = new List(options instanceof List ? options.elements.map(e=>TypeHelper.convertNullableFromAny(e, 'list of property types')) : [TypeHelper.convertNullableFromAny(options, 'list of property types')]);
     this.nullable = this.options.elements.findIndex(l=>l==null||l.isNullable())>=0;
   }
   
-  getSerializationProperties(): Object {
+  get clazz(): Class {
+    return OptionType.clazz!;
+  }
+  
+  getSerializationProperties(): any[] {
     return [this.options];
   }
 	

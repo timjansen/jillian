@@ -25,7 +25,7 @@ const assert = require('assert');
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
 
-const path = 'build/tmp/bootstrap-load';
+const path = 'build/tmp/db-init';
 
 
 const db = new Database(path);

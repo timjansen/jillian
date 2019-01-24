@@ -23,7 +23,7 @@ export default class List extends JelObject implements SerializablePrimitive {
 
 
 	constructor(elements: List|any[]|IterableIterator<any> = []) {
-		super();
+		super("List");
 		this.elements = elements instanceof List ? elements.elements : Array.isArray(elements) ? elements : Array.from(elements);
 	}
 

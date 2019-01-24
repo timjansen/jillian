@@ -1,4 +1,5 @@
 import JelObject from '../../JelObject';
+import NativeJelObject from '../NativeJelObject';
 import Context from '../../Context';
 import JelBoolean from '../JelBoolean';
 import Util from '../../../util/Util';
@@ -6,10 +7,10 @@ import Util from '../../../util/Util';
 /**
  * Abstract prototype to define the type of a value.
  */
-export default abstract class TypeDescriptor extends JelObject {
-  
-  constructor() {
-    super();
+export default abstract class TypeDescriptor extends NativeJelObject {
+
+  constructor(className: string) {
+    super(className);
   }
   
   /**

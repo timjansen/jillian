@@ -8,8 +8,8 @@ export default abstract class MultiNode extends MatchNode {
 	tokenMap: Map<string, MultiNode | undefined> = new Map();  // Map: token (string) -> next node. Undefined is a temporary state in JEL only.
 	complexNodes: ComplexNode[] | undefined;       // Array: list of template or regexp nodes to check
 	
-	constructor() {
-		super();
+	constructor(className: string) {
+		super(className);
 	}
 	
 	// nextNode: either the node, or undefined as a temporary state while building the tree

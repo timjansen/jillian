@@ -9,16 +9,19 @@ import Serializer from '../../Serializer';
 import JelBoolean from '../JelBoolean';
 import Util from '../../../util/Util';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
+import Class from '../Class';
 
 /**
  * Defines a complex type that has named, typed fields. It is represented as a Dictionary in the DbEntry, but always has the same fields.
  * 
  */
 export default class ComplexType extends TypeDescriptor {
+  static clazz: Class|undefined;
+
   fields: Dictionary; // string->Type
   
   constructor(fields: Dictionary) {
-    super();
+    super('ComplexType');
     
     const m = new Map();
     fields.elements.forEach((v, n)=>{
@@ -27,6 +30,10 @@ export default class ComplexType extends TypeDescriptor {
       m.set(n, TypeHelper.convertFromAny(v, 'dictionary value'));
     });
     this.fields = new Dictionary(m);
+  }
+  
+  get clazz(): Class {
+    return ComplexType.clazz!;
   }
   
   checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean> {

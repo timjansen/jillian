@@ -235,11 +235,11 @@ tmp.dir(function(err, path) {
           return new FullNativeTest(clazz, 42 + (a.value||0));
         }
       }
-      FullNativeTest.prototype.x_jel_mapping = true;
+      FullNativeTest.prototype.x_jel_property = true;
       FullNativeTest.prototype.add_jel_mapping = true;
       FullNativeTest.sub_jel_mapping = true;
       FullNativeTest.create_jel_mapping = true;
-      FullNativeTest.y_jel_mapping = true;
+      FullNativeTest.y_jel_property = true;
       FullNativeTest.y = 100;
       BaseTypeRegistry.register('FullNativeTest', FullNativeTest);
 

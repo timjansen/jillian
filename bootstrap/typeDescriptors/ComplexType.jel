@@ -1,0 +1,18 @@
+/**
+ * Defines a complex type that has named, typed fields. It is represented as a Dictionary, but always has the same fields.
+ */
+native class ComplexType extends TypeDescriptor:
+  /**
+   * Creates a new ComplexType with the given fields. 
+   * @param a Dictionary containing the type's fields as keys and their allowed types as values.
+   */
+  native constructor(fields)
+  
+  override native checkType(value)
+
+  override native convert(value)
+  
+  override native equals(other)
+  
+  override native serializeToString()
+  

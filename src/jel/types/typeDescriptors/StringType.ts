@@ -8,19 +8,25 @@ import JelObject from '../../JelObject';
 import SerializablePrimitive from '../../SerializablePrimitive';
 import JelBoolean from '../JelBoolean';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
+import Class from '../Class';
 
 
 /**
  * Declares a property that is a String. By default, empty strings are not allowed.
  */
-export default class StringType extends TypeDescriptor {
+export default class StringType extends TypeDescriptor implements SerializablePrimitive {
+  static clazz: Class|undefined;
  	static readonly JEL_PROPERTIES = {allowEmpty: true};
 
   static readonly instance = new StringType(false);
   static readonly allowEmpty = new StringType(true);
 
   constructor(public allowEmpty = false) {
-    super();
+    super('StringType');
+  }
+  
+  get clazz(): Class {
+    return StringType.clazz!;
   }
   
   // note: constants and types are not checked yet. That would become async.

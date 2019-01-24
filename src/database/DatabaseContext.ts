@@ -35,11 +35,15 @@ const DB_IDENTIFIERS = {DbRef: c(DbRef), DbEntry: c(DbEntry), Category: c(Catego
 export default class DatabaseContext extends Context {
   private cache = new Map<string, PackageContent|undefined>(); // undefined means DB lookup failed
 
-  constructor(parent: Context|null, session: DbSession) {
-    super(parent||DefaultContext.get(), session);
+  constructor(parent: Context|undefined, session: DbSession) {
+    super(parent, session);
     this.setAll(DB_IDENTIFIERS, true);
   }
 
+  static async get(session: DbSession) {
+    return new DatabaseContext(await DefaultContext.get(), session);
+  }
+  
   private getFromDatabase(name: string): JelObject|null|undefined|Promise<JelObject|null|undefined> {
     if (this.cache.has(name)) 
       return this.cache.get(name);

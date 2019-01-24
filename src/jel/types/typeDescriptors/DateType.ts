@@ -9,16 +9,22 @@ import Serializer from '../../Serializer';
 import SerializablePrimitive from '../../SerializablePrimitive';
 import JelBoolean from '../JelBoolean';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
+import Class from '../Class';
 
 
 /**
  * Declares a property that is a LocalDate or ZonedDate.
  */
-export default class DateType extends TypeDescriptor {
+export default class DateType extends TypeDescriptor  implements SerializablePrimitive {
+  static clazz: Class|undefined;
   static readonly instance = new DateType();
 
   constructor() {
-    super();
+    super('DateType');
+  }
+  
+  get clazz(): Class {
+    return DateType.clazz!;
   }
   
   // note: constants and types are not checked yet. That would become async.

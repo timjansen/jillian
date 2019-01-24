@@ -12,7 +12,7 @@ export default class EnumValue extends JelObject {
 	JEL_PROPERTIES: Object = {value: 1, parent: 1};
 	
 	constructor(public value: string, public parent: Enum) {
-		super();
+		super('EnumValue');
 	}
 	
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {

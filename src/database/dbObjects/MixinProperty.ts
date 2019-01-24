@@ -28,7 +28,7 @@ export default class MixinProperty extends DbEntry {
 	 *        that describes min/max lengths and averages.
 	 */
   constructor(distinctName: string, type: TypeDescriptor | DbRef | Dictionary, public categoryProperty: DbRef | null) {
-    super(distinctName, null);
+    super('MixinProperty', distinctName, null);
 		this.type = TypeHelper.convertFromAny(type, 'type');
 		if (!distinctName.match(/^[a-z]/))
 			throw Error('By convention, all MixinProperty names must begin with a lower-case letter. Illegal name: ' + distinctName);

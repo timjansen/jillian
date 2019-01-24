@@ -26,8 +26,8 @@ export default abstract class AbstractDate extends TimeDescriptor {
 	month: number | null;
 	day: number | null;
 	
-	constructor() {
-		super();
+	constructor(className: string) {
+		super(className);
 	}
 	
 	isContinous(): JelBoolean {

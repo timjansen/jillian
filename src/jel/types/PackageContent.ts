@@ -6,8 +6,8 @@ import Dictionary from './Dictionary';
 export default abstract class PackageContent extends NamedObject {
   public packageName: string;
  
-  constructor(distinctName: string) {
-    super(distinctName);
+  constructor(className: string, distinctName: string) {
+    super(className, distinctName);
     this.packageName = distinctName.replace(/::[^:]+$/, '');
   }
 

@@ -25,7 +25,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 	static readonly empty = new Dictionary();
 	
 	constructor(elements?: any, keepMap = false, public defaultValue: JelObject|null = null) {
-		super();
+		super('Dictionary');
 		if (keepMap && elements)
 			this.elements = elements;
 		else {

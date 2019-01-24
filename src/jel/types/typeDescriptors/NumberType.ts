@@ -10,16 +10,22 @@ import Serializer from '../../Serializer';
 import SerializablePrimitive from '../../SerializablePrimitive';
 import JelBoolean from '../JelBoolean';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
+import Class from '../Class';
 
 
 /**
  * Declares a property that is a Float or Fraction representing a number.
  */
-export default class NumberType extends TypeDescriptor {
+export default class NumberType extends TypeDescriptor implements SerializablePrimitive {
+  static clazz: Class|undefined;
   static readonly instance = new NumberType();
 
   constructor(public range?: Range) {
-    super();
+    super('NumberType');
+  }
+  
+  get clazz(): Class {
+    return NumberType.clazz!;
   }
   
   checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean> {

@@ -8,18 +8,24 @@ import JelObject from '../../JelObject';
 import Serializer from '../../Serializer';
 import SerializablePrimitive from '../../SerializablePrimitive';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
+import Class from '../Class';
 
 
 /**
  * Declares a property that is a Boolean. Optionally it only allows full boolean values (false or true) and no fuzzy values in between.
  */
-export default class BoolType extends TypeDescriptor {
+export default class BoolType extends TypeDescriptor implements SerializablePrimitive {
  	static readonly JEL_PROPERTIES = {fullValues: true};
+  static clazz: Class|undefined;
 
   static readonly instance = new BoolType(false);
 
   constructor(public onlyFullValues = false) {
-    super();
+    super('BoolType');
+  }
+  
+  get clazz(): Class {
+    return BoolType.clazz!;
   }
   
   // note: constants and types are not checked yet. That would become async.

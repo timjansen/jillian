@@ -12,8 +12,8 @@ import Util from '../../../util/Util';
  */
 export default abstract class TimeDescriptor extends JelObject {
 	
-	constructor() {
-		super();
+	constructor(className: string) {
+		super(className);
 	}
 
 	getStartTime_jel_mapping: Object;

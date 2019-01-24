@@ -24,7 +24,7 @@ const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
 
 
-const path = 'build/tmp/bootstrap-load';
+const path = 'build/tmp/db-init';
 const db = new Database(path);
 const session = new DbSession(db, DefaultContext.plus({JelPromise: new NativeClass(JelPromise), JelConsole: new NativeClass(JelConsole)}));
 

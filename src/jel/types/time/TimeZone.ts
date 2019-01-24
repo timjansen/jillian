@@ -19,7 +19,7 @@ export default class TimeZone extends JelObject {
 	
 	// tz: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones (e.g. "America/Anchorage" or "UTC")
 	constructor(public tz = "UTC") {
-		super();
+		super('TimeZone');
 	}
 	
 	private getMomentZone(): MomentZone {

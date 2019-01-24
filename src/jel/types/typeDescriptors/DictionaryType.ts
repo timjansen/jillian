@@ -8,6 +8,7 @@ import Context from '../../Context';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
 import JelBoolean from '../JelBoolean';
 import Util from '../../../util/Util';
+import Class from '../Class';
 
 
 
@@ -15,6 +16,7 @@ import Util from '../../../util/Util';
  * Declares a property type that is a Dictionary.
  */
 export default class DictionaryType extends TypeDescriptor {
+  static clazz: Class|undefined;
 	public valueTypes: TypeDescriptor|null;
 	
 	/**
@@ -22,8 +24,12 @@ export default class DictionaryType extends TypeDescriptor {
 	 *              DbRefs will be converted to SimpleTypes. Dictionary into DictionaryType.
 	 */
   constructor(valueTypes: JelObject|null) {
-    super();
+    super('DictionaryType');
 		this.valueTypes = TypeHelper.convertFromAny(valueTypes, 'dictionary values');
+  }
+  
+  get clazz(): Class {
+    return DictionaryType.clazz!;
   }
 
   checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean> {
@@ -62,7 +68,7 @@ export default class DictionaryType extends TypeDescriptor {
   }
 
   
-  getSerializationProperties(): Object {
+  getSerializationProperties(): any[] {
     return [this.valueTypes];
   }
 

@@ -25,7 +25,7 @@ export default class Distribution extends JelObject {
 
 	
   constructor(distributionPoints: List|null, public average: Numeric|null, min: Numeric|null, max: Numeric|null, mean: Numeric|null) {
-    super();
+    super('Distribution');
 		
 		this.points = distributionPoints != null ? distributionPoints.elements.slice() : [];
 

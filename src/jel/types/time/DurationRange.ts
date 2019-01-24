@@ -19,7 +19,7 @@ import TypeChecker from '../TypeChecker';
 export default class DurationRange extends Range {
 	
 	constructor(min: Duration, max: Duration) {
-		super(min, max);
+		super(min, max, 'DurationRange');
 		if (!min || !max)
 			throw new Error('Min and max parameters are both required for a DurationRange)');
 	}

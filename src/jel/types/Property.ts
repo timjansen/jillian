@@ -13,7 +13,7 @@ import Util from '../../util/Util';
 export default class Property extends JelObject {
   
   constructor(public name: string, public type?: TypeDescriptor, public defaultValueGenerator?: LambdaExecutable, public isNative = false) {
-		super();
+		super('Property');
     if (!/^[a-zA-Z_][\w_]*$/.test(name))
       throw new Error(`Illegal property name "${name}". Property names must follow identifier rules.`);
   }

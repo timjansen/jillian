@@ -11,16 +11,23 @@ import Serializer from '../../Serializer';
 import JelBoolean from '../JelBoolean';
 import TypeChecker from '../TypeChecker';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
+import Class from '../Class';
 
 
 /**
  * Declares a property that is a Float or Fraction representing an integer.
  */
-export default class IntType extends TypeDescriptor {
+export default class IntType extends TypeDescriptor  implements SerializablePrimitive {
+  static clazz: Class|undefined;
+
   static readonly instance = new IntType();
 
   constructor(public range?: Range) {
-    super();
+    super('IntType');
+  }
+  
+  get clazz(): Class {
+    return IntType.clazz!;
   }
   
   // note: constants and types are not checked yet. That would become async.

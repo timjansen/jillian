@@ -8,20 +8,27 @@ import BaseTypeRegistry from '../../BaseTypeRegistry';
 import Context from '../../Context';
 import JelObject from '../../JelObject';
 import JelBoolean from '../JelBoolean';
+import Class from '../Class';
+import SerializablePrimitive from '../../SerializablePrimitive';
 
 
 /**
  * Represets a type that can be null. Is a shortcut for OptionType with null
  */
 export default class OptionalType extends TypeDescriptor {
+  static clazz: Class|undefined;
 	type: TypeDescriptor;
 	
   constructor(e: JelObject|null) {
-    super();
+    super('OptionalType');
 		this.type = TypeHelper.convertFromAny(e, 'property types');
   }
   
-  getSerializationProperties(): Object {
+  get clazz(): Class {
+    return OptionalType.clazz!;
+  }
+  
+  getSerializationProperties(): any[] {
     return [this.type];
   }
 	

@@ -67,7 +67,7 @@ export default class Class extends PackageContent implements IClass, Serializabl
               public properties = List.empty,     // list of all Properties
               public methods = List.empty,        // list of all Methods (includes getters)
               public staticProperties = List.empty) {      
-    super(className);
+    super('Class', className);
    
     if (!/^[A-Z](?:[\w_]|\:\:[a-zA-Z])*$/.test(className))
       throw new Error(`Illegal class name "${className}". Class names must follow identifier rules and begin with a capital letter.`);

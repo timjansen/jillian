@@ -66,7 +66,7 @@ export default class Operator extends CachableJelNode {
     return Util.resolveValue(this.left.execute(ctx), left=>this.leftFirstOps(ctx, left));
   }
   
-  private leftFirstOps(ctx: Context, left: JelNode): JelObject|null|Promise<JelObject|null> {
+  private leftFirstOps(ctx: Context, left: JelObject|null): JelObject|null|Promise<JelObject|null> {
     switch (this.operator) {
     case '.':
       return this.readMember(ctx, left);
@@ -79,13 +79,13 @@ export default class Operator extends CachableJelNode {
     }
   }
   
-  private readMember(ctx: Context, left: JelNode): JelObject|null|Promise<JelObject|null> {
+  private readMember(ctx: Context, left: JelObject|null): JelObject|null|Promise<JelObject|null> {
     if (!(this.right instanceof Variable))
         throw new Error('Operator "." must be followed by an identifier');
       return Runtime.member(ctx, left, this.right.name);
   }
   
-  private binaryOp(ctx: Context, left: JelNode, right: JelNode): JelObject|null|Promise<JelObject|null> {
+  private binaryOp(ctx: Context, left: JelObject|null, right: JelObject|null): JelObject|null|Promise<JelObject|null> {
       return Runtime.op(ctx, this.operator, left, right);
   }
     

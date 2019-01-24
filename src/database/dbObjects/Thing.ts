@@ -21,7 +21,7 @@ export default class Thing extends DbEntry {
   JEL_PROPERTIES: Object;
   
   constructor(distinctName: string, category: Category|DbRef, properties?: Dictionary, reality?: DbRef, hashCode?: string) {
-    super(distinctName, reality || undefined, hashCode || undefined, properties || undefined);
+    super('Thing', distinctName, reality || undefined, hashCode || undefined, properties || undefined);
     this.category = category instanceof DbRef ? category : new DbRef(category);
   }
   

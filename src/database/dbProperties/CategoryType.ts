@@ -8,15 +8,21 @@ import JelObject from '../../jel/JelObject';
 import Serializer from '../../jel/Serializer';
 import BaseTypeRegistry from '../../jel/BaseTypeRegistry';
 import Category from '../dbObjects/Category';
+import Class from '../../jel/types/Class';
 
 
 /**
  * Declares a property that is a reference to a Category. 
  */
 export default class CategoryType extends TypeDescriptor {
+  static clazz: Class|undefined;
 
   constructor(public superCategory: IDbRef | null) {
-    super();
+    super('CategoryType');
+  }
+  
+  get clazz(): Class {
+    return CategoryType.clazz!;
   }
 
   checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean> {
@@ -37,7 +43,7 @@ export default class CategoryType extends TypeDescriptor {
     return cat.superCategory.with(ctx, sc=>this.checkType(ctx, sc)) as any;
   }
   
-  getSerializationProperties(): Object {
+  getSerializationProperties(): any[] {
     return [this.superCategory];
   }
   
@@ -46,7 +52,6 @@ export default class CategoryType extends TypeDescriptor {
       return 'CategoryType()';
     else
       return `CategoryType(${Serializer.serialize(this.superCategory)})`;
-  
   }
   
   equals(ctx: Context, other: TypeDescriptor|null): JelBoolean {

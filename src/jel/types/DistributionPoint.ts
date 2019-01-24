@@ -17,7 +17,7 @@ export default class DistributionPoint extends JelObject {
 	 * @param share the relative number of instances that have the given value or lower, given as a value from 0 to 1. 
 	 */
   constructor(public value: Numeric, public share: number) {
-    super();
+    super('DistributionPoint');
   }
 	
 	getSerializationProperties(): any[] {

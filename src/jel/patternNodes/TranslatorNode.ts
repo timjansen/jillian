@@ -10,7 +10,7 @@ export default class TranslatorNode extends MultiNode {
 	results: LambdaResultNode[] | undefined;
 	
 	constructor() {
-		super();
+		super('TranslatorNode');
 	}
 
 	// override

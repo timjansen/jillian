@@ -73,7 +73,7 @@ tmp.dir(function(err, path) {
 			.then(db=>{
 				const session = new DbSession(db);
 				const ctx = session.ctx;
-				const e = new DbEntry('MyFirstEntry');
+				const e = DbEntry.valueOf('MyFirstEntry');
 				assert.equal(e.hashCode.length, 16);
 				return db.put(ctx, e).then(()=>db.get(ctx, 'MyFirstEntry').then(e1=>{
 					assert.equal(e1.constructor.name, 'DbEntry');
@@ -89,7 +89,7 @@ tmp.dir(function(err, path) {
 				const db = new Database(path+'/db5');
 				const session = new DbSession(db);
 				const ctx = session.ctx;
-				const a = new DbEntry('MyOtherEntry');
+				const a = DbEntry.valueOf('MyOtherEntry');
 				return db.put(ctx, a)
 					.then(()=>db.getIfFound(ctx, 'MyOtherEntry').then(a1=>assert.equal(a1.distinctName, 'MyOtherEntry')))
 					.then(()=>db.get(ctx, 'MyFirstEntry').then(e1=>assert.equal(e1.distinctName, 'MyFirstEntry')));
@@ -101,7 +101,7 @@ tmp.dir(function(err, path) {
 						.then(db=>{
 								const session = new DbSession(db);
 								const ctx = session.ctx;
-								const e = new DbEntry('MyEntry');
+								const e = DbEntry.valueOf('MyEntry');
 								return db.put(ctx, e)
 									.then(()=>db.get(ctx, 'MyEntry')
 												.then(e2=>{e2.distinctName='x';return db.put(ctx, e2)})
@@ -116,7 +116,7 @@ tmp.dir(function(err, path) {
 						.then(db=>{
 								const session = new DbSession(db);
 								const ctx = session.ctx;
-								const e = new DbEntry('MyEntry');
+								const e = DbEntry.valueOf('MyEntry');
 								return db.put(ctx, e)
 									.then(()=>db.delete(ctx, e))
 									.then(()=>db.getIfFound(ctx, 'MyEntry'))

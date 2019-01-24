@@ -11,7 +11,7 @@ import Util from '../../util/Util';
 /**
  * Represents an lambda argument, with optional type and default value.
  */
-export default class TypedParameterDefinition extends CachableJelNode implements Serializable {
+export default class TypedParameterDefinition extends CachableJelNode {
  	private typeHelper: any;	
   constructor(public name: string, public defaultValue?: JelNode, public type?: JelNode ) {
     super();

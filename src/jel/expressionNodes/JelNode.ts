@@ -5,7 +5,9 @@ import SerializablePrimitive from '../SerializablePrimitive';
 /**
  * Represents a node in a JEL expression.
  */
-export default abstract class JelNode extends JelObject implements SerializablePrimitive {
+export default abstract class JelNode implements SerializablePrimitive {
+
+  
 	// Returns either a value or a Promise for a value!
 	abstract execute(ctx: Context): JelObject|null|Promise<JelObject|null>;
 	

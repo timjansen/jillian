@@ -8,7 +8,7 @@ export default class Match extends JelObject {
 	// index: the position after the match in the string array
 	// meta: a string->value map of additional meta data
 	constructor(public value: any, public index: number, public meta: Map<string, any> = EMPTY_MAP) {
-		super();
+		super('Match');
 	}
 	
 	JEL_PROPERTIES = {value: true, meta: true};

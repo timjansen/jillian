@@ -12,13 +12,13 @@ describe('DbRef', function() {
 	
 	describe('get()', function() {
 		it('takes DbEntries directly', function() {
-			const dbe = new DbEntry('Test');
+			const dbe = DbEntry.valueOf('Test');
 			const r = new DbRef(dbe);
 			assert.strictEqual(r.get('fakeSession'), dbe);
 		});
 		
 		it('gets a DbEntry without Promise', function() {
-			const dbe = new DbEntry('Test');
+			const dbe = DbEntry.valueOf('Test');
 			const fakeSession = {get: ()=>dbe};
 			const fakeCtx = new Context(undefined, fakeSession);
 			const r = new DbRef('Test', new Map([['a', 4]]));
@@ -27,7 +27,7 @@ describe('DbRef', function() {
 		});
 		
 		it('gets a DbEntry with Promise', function() {
-			const dbe = new DbEntry('Test');
+			const dbe = DbEntry.valueOf('Test');
 			const fakeSession = {get: ()=>Promise.resolve(dbe)};
 			const fakeCtx = new Context(undefined, fakeSession);
 			const r = new DbRef('Test', new Map([['a', 4]]));
@@ -37,7 +37,7 @@ describe('DbRef', function() {
 		
 		it('caches DbEntries', function() {
 			let c = 0;
-			const dbe = new DbEntry('Test');
+			const dbe = DbEntry.valueOf('Test');
 			const fakeSession = {get: function() {c++; return dbe}};
 			const fakeCtx = new Context(undefined, fakeSession);
 			const r = new DbRef('Test');
@@ -51,7 +51,7 @@ describe('DbRef', function() {
 
 	describe('member()', function() {
 		it('passes parameters', function() {
-			const dbe = new DbEntry('Test');
+			const dbe = DbEntry.valueOf('Test');
 			const m = new Map([['a', 1], ['b', 2]]);
 			const r = new DbRef(dbe, m);
 			const ctx = new Context();
@@ -77,13 +77,13 @@ describe('DbRef', function() {
 	
 	describe('with()', function() {
 		it('takes DbEntries directly', function() {
-			const dbe = new DbEntry('Test');
+			const dbe = DbEntry.valueOf('Test');
 			const r = new DbRef(dbe);
 			assert.equal(r.with('fakeSession', r=>assert.strictEqual(r, dbe) || 1), 1);
 		});
 		
 		it('gets a DbEntry from the session cache', function() {
-			const dbe = new DbEntry('Test');
+			const dbe = DbEntry.valueOf('Test');
 			const fakeSession = {get: ()=>dbe};
 			const r = new DbRef('Test', new Map([['a', 4]]));
 			assert.equal(r.with(new Context(undefined, fakeSession), obj=>assert.strictEqual(obj.distinctName, 'Test') || 1), 1);
@@ -93,7 +93,7 @@ describe('DbRef', function() {
 	
 	describe('getAsync()', function() {
 		it('wraps cached entries in a Promise', function() {
-			const dbe = new DbEntry('Test');
+			const dbe = DbEntry.valueOf('Test');
 			const fakeSession = {get: ()=>dbe};
 			const r = new DbRef('Test', new Map([['a', 4]]));
 			const objPromise = r.getAsync(new Context(undefined, fakeSession));

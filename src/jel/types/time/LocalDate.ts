@@ -25,7 +25,7 @@ export default class LocalDate extends AbstractDate {
 	// month: 1-12
 	// day: 1-31
 	constructor(public year: number, public month: number | null = null, public day: number | null = null) {
-		super();
+		super('LocalDate');
 	}
 	
   getStartTime(ctx: Context, timeZone: any): Timestamp {

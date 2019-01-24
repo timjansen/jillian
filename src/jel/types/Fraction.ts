@@ -16,7 +16,7 @@ export default class Fraction extends JelObject implements Numeric {
 	reverseOps: Object;
 	
 	constructor(numerator: number, denominator: number) {
-		super();
+		super('Fraction');
 		if (denominator < 0) {
 			this.numerator = -numerator;
 			this.denominator = -denominator;

@@ -15,10 +15,10 @@ const tifu = require('tifuhash');
 export default class DbEntry extends NamedObject {
   isIDBEntry: boolean;
 	
-  constructor(distinctName: string, public reality?: any, 
+  constructor(className: string, distinctName: string, public reality?: any, 
 							 hashCode: string = tifu.hash(distinctName), 
 							 public properties = new Dictionary()) {
-    super(distinctName, hashCode);
+    super(className, distinctName, hashCode);
   }
   
   // returns a map index_name->{type: 'index-type, always "category" for now', property: 'the name of the property to index', includeParents: 'bool. for categories, if true, index for all parent cats as well'}
@@ -55,9 +55,14 @@ export default class DbEntry extends NamedObject {
     return {distinctName: this.distinctName, reality: this.reality, properties: this.properties};
   }
 
+  static valueOf(distinctName: string, reality?: any, hashCode: string = tifu.hash(distinctName)): DbEntry {
+    return new DbEntry('DbEntry', distinctName, reality, hashCode);
+  }
+
+  
   static create_jel_mapping : Object = {distinctName: 1, reality: 2, hashCode: 3, properties: 4};
   static create(ctx: Context, ...args: any[]): any {
-    return new DbEntry(JelString.toRealString(args[0]), args[1], JelString.toRealString(args[2]), args[3]);
+    return new DbEntry('DbEntry', JelString.toRealString(args[0]), args[1], JelString.toRealString(args[2]), args[3]);
   }
 }
 

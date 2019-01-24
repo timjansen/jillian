@@ -1,7 +1,6 @@
 import BaseTypeRegistry from './BaseTypeRegistry';
 import Context from './Context';
 import Serializer from './Serializer';
-import IClass from './IClass';
 import {IDbRef, isDbRef} from './IDatabase';
 
 /**
@@ -10,7 +9,6 @@ import {IDbRef, isDbRef} from './IDatabase';
 export default class JelObject {
 	reverseOps: Object;
 	JEL_PROPERTIES: Object;
-	jelTypeName: string;
 
 	// ops that can swap the left and right operands
 	static readonly SWAP_OPS: any = {
@@ -41,10 +39,10 @@ export default class JelObject {
 	};
 
 	
-	constructor(className?: string, public clazz?: IClass) {
-		this.jelTypeName = className || this.constructor.name;
+	constructor(public className: string) {
 	}
-	
+ 
+ 
 	/*
 	 * Ops that may be implemented:
 	 * '+', '-', '*', '/', '%': arithmetic
@@ -56,7 +54,7 @@ export default class JelObject {
 	op_jel_mapping: Object;
 	op(ctx: Context, operator: string, right: JelObject|null): JelObject|Promise<JelObject> {
 		if (right != null) {
-			if (right.reverseOps && operator in right.reverseOps && right.jelTypeName != this.jelTypeName)
+			if (right.reverseOps && operator in right.reverseOps && right.className != this.className)
 				return right.opReversed(ctx, operator, this);
 			if (operator in JelObject.INVERTIBLE_OPS)
 				return BaseTypeRegistry.get('Boolean').negate(this.op(ctx, JelObject.INVERTIBLE_OPS[operator], right));
@@ -65,7 +63,7 @@ export default class JelObject {
 			if (operator == '<<')
 				return BaseTypeRegistry.get('Boolean').truest(ctx, this.op(ctx, '>>', right), this.op(ctx, '===', right)).negate();
 		}
-		throw new Error(`Operator "${operator}" is not supported for type "${this.jelTypeName}" as left operand and right operand "${right == null ? 'null' : right.jelTypeName}"`);
+		throw new Error(`Operator "${operator}" is not supported for type "${this.className}" as left operand and right operand "${right == null ? 'null' : right.className}"`);
 	}
 	
 	// To be used if the right-hand side is this type, and the left-hand side is a type unaware of this type.
@@ -76,7 +74,7 @@ export default class JelObject {
 	opReversed(ctx: Context, operator: string, left: JelObject): JelObject|Promise<JelObject> {
 		if (this.reverseOps && operator in this.reverseOps && operator in JelObject.SWAP_OPS)
 			return this.op(ctx, JelObject.SWAP_OPS[operator], left);
-		throw new Error(`Operator "${operator}" is not supported for type "${this.jelTypeName}" (in reversed operation)`);
+		throw new Error(`Operator "${operator}" is not supported for type "${this.className}" (in reversed operation)`);
 	}
 
 	
@@ -85,7 +83,7 @@ export default class JelObject {
 	 */
 	singleOp_jel_mapping: Object;
 	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
-		throw new Error(`Operator "${operator}" is not supported for type "${this.jelTypeName}"`);
+		throw new Error(`Operator "${operator}" is not supported for type "${this.className}"`);
 	}
 
 	/**
@@ -94,7 +92,7 @@ export default class JelObject {
 	member_jel_mapping: Object;
 	member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null>|undefined {
     // TODO: cleanup this method after converting everything to JEL Class!!
-    const c: any = this.clazz;
+    const c: any = (this as any).clazz;
     if (c && c.allMethods) {
       const m = c.allMethods.elements.get(name) as any;
       if (m)
@@ -117,12 +115,12 @@ export default class JelObject {
   
 	toBoolean_jel_mapping: Object;
 	toBoolean(): any { // this is any to avoid the circular dep in TypeScript, but would be FuzzyB
-		throw new Error(`Boolean conversion not supported for type "${this.jelTypeName}"`);
+		throw new Error(`Boolean conversion not supported for type "${this.className}"`);
 	}
 	
 	getJelType_jel_mapping: Object;
 	getJelType(): string {
-		return this.jelTypeName;
+		return this.className;
 	}
 
 	toString(): string {
@@ -130,7 +128,7 @@ export default class JelObject {
 	}
 	
 	getSerializationProperties(): Object|any[] {
-		throw new Error(`getSerializationProperties() not implemented in ${this.jelTypeName}`);
+		throw new Error(`getSerializationProperties() not implemented in ${this.className}`);
 	}
 	
 }

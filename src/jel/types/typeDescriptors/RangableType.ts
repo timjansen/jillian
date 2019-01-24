@@ -8,6 +8,8 @@ import JelObject from '../../JelObject';
 import JelBoolean from '../JelBoolean';
 import Util from '../../../util/Util';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
+import Class from '../Class';
+import SerializablePrimitive from '../../SerializablePrimitive';
 
 
 
@@ -15,14 +17,19 @@ import BaseTypeRegistry from '../../BaseTypeRegistry';
  * Declares a type that either represents a Range of the given types, or just one of the types.
  */
 export default class RangableType extends TypeDescriptor {
+  static clazz: Class|undefined;
 	public types: TypeDescriptor;
 	
 	/**
 	 * types - one or more Types to define the acceptable members types of the range. 
 	 */
   constructor(types: JelObject|null) {
-    super();
+    super('RangableType');
 		this.types = TypeHelper.convertFromAny(types, 'range values');
+  }
+  
+  get clazz(): Class {
+    return RangableType.clazz!;
   }
   
   checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean> {
@@ -40,7 +47,7 @@ export default class RangableType extends TypeDescriptor {
   }
 
   
-  getSerializationProperties(): Object {
+  getSerializationProperties(): any[] {
     return [this.types];
   }
   

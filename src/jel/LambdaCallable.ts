@@ -12,7 +12,7 @@ import Util from '../util/Util';
 export default class LambdaCallable extends Callable implements SerializablePrimitive {
   
   constructor(public argDefs: TypedParameterValue[], public expression: JelNode, public parentContext: Context, public name?: string, public self?: JelObject, public superConstructor?: LambdaCallable, public returnType?: TypedParameterValue) {
-		super();
+		super('LambdaCallable');
   }
 
   private static setVariable(ctx: Context, newCtx: Context, argDef: TypedParameterValue, value0: JelObject|null|undefined): Promise<any>|undefined {

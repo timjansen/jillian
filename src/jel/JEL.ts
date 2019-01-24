@@ -733,7 +733,7 @@ export default class JEL {
         const args = JEL.checkTypedParameters(JEL.tryParseTypedParameters(tokens, CLASS_PRECEDENCE, NO_STOP), next);
         if (args == null)
           JEL.throwParseException(tokens.last(), `Can not parse argument list for method ${methodName}`);
-        const returnType = JEL.tryParseLambdaTypeCheck(tokens, nativeModifier ? CLASS_EXPRESSION_STOP : LAMBDA);
+        const returnType = JEL.tryParseLambdaTypeCheck(tokens, (nativeModifier || abstractModifier) ? CLASS_EXPRESSION_STOP : LAMBDA);
         
         if (!abstractModifier && !nativeModifier)
           JEL.nextIsValueOrThrow(tokens, TokenType.Operator, '=>',  "Method expression must be preceded by '=>'.");

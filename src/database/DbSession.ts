@@ -18,7 +18,7 @@ export default class DbSession implements IDbSession {
 	public ctx: Context;
 	
   constructor(public database: Database, parentCtx?: Context) {
-		this.ctx = new DatabaseContext(parentCtx||null, this);
+		this.ctx = new DatabaseContext(parentCtx, this);
   }
 
 	// implements IDbSession

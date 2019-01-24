@@ -37,7 +37,7 @@ export default class Package extends PackageContent {
    * @param content a list of DbRefs 
    */
   constructor(packageName: string, public content: List = new List()) {
-    super(packageName);
+    super('Package', packageName);
     this.packageContent = createDictionary(packageName, content);
   }
   

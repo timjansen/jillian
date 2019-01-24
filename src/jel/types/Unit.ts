@@ -54,7 +54,7 @@ export default class Unit extends JelObject {
 	private simple: boolean;
 
 	constructor(numeratorUnits: List | IDbRef | JelString | string | Dictionary | Map<string,number>, denominatorUnits?: List | IDbRef | string | JelString) {
-		super();
+		super('Unit');
 		if (numeratorUnits instanceof Map) {
 			this.units = numeratorUnits;
 			this.simple = this.units.size == 1 && this.units.values().next().value == 1  && !denominatorUnits;

@@ -35,7 +35,7 @@ export default class Category extends DbEntry {
 							 instanceProperties = new Dictionary(),
 							 public mixinProperties = new Dictionary(),
 							 reality?: DbRef, hashCode?: string) {
-    super(distinctName, reality, hashCode, properties);
+    super('Category', distinctName, reality, hashCode, properties);
 		if (!distinctName.endsWith('Category'))
 			throw new Error('By convention, all Category names must end with "Category". Illegal name: ' + distinctName);
 

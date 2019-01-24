@@ -12,7 +12,7 @@ export default class FunctionCallable extends Callable {
 	argMapper: Map<string,number>;
 	
 	constructor(public f: Function, argMapper?: Array<string>|Map<string,number>|Object, public self?: JelObject, public name?: string) {
-		super();
+		super('FunctionCallable');
 		this.argMapper = this.convertArgMapper(argMapper);  // map argName -> index. Null if named-argument-methods
 	}
 	

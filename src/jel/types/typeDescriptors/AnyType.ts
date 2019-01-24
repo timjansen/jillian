@@ -2,8 +2,9 @@ import TypeDescriptor from './TypeDescriptor';
 import TypeHelper from './TypeHelper';
 import {IDbRef} from '../../IDatabase';
 import Dictionary from '../../types/Dictionary';
-import List from '../../types/List';
-import TypeChecker from '../../types/TypeChecker';
+import Class from '../Class';
+import List from '../List';
+import TypeChecker from '../TypeChecker';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
 import Context from '../../Context';
 import JelObject from '../../JelObject';
@@ -16,12 +17,17 @@ import JelBoolean from '../JelBoolean';
  */
 export default class AnyType extends TypeDescriptor {
   static readonly instance = new AnyType();
+  static clazz: Class|undefined;
   
   constructor() {
-    super();
+    super('AnyType');
+  }
+
+  get clazz(): Class {
+    return AnyType.clazz!;
   }
   
-  getSerializationProperties(): Object {
+  getSerializationProperties(): any[] {
     return [];
   }
 	
@@ -48,6 +54,7 @@ export default class AnyType extends TypeDescriptor {
   serializeToString() : string {
 		return this.serializeType();
 	}
+
 }
 
 BaseTypeRegistry.register('AnyType', AnyType);

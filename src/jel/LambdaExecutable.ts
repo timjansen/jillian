@@ -16,7 +16,7 @@ import Util from '../util/Util';
 export default class LambdaExecutable extends JelObject implements SerializablePrimitive {
   
   constructor(public expression: JelNode) {
-		super();
+		super('LambdaExecutable');
   }
 
   execute(ctx: Context): JelObject|null|Promise<JelObject|null> {

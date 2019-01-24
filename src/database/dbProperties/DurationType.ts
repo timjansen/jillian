@@ -8,6 +8,7 @@ import Serializer from '../../jel/Serializer';
 import BaseTypeRegistry from '../../jel/BaseTypeRegistry';
 import UnitValueQuantityType from './UnitValueQuantityType';
 import DbRef from '../DbRef';
+import Class from '../../jel/types/Class';
 
 
 
@@ -16,11 +17,16 @@ import DbRef from '../DbRef';
  * Declares a property that is a time.
  */
 export default class DurationType extends TypeDescriptor {
+  static clazz: Class|undefined;
   static readonly instance = new DurationType();
   static readonly timeUV = new UnitValueQuantityType(new DbRef('Time'));
   
   constructor() {
-    super();
+    super('DurationType');
+  }
+  
+  get clazz(): Class {
+    return DurationType.clazz!;
   }
   
   // note: constants and types are not checked yet. That would become async.
@@ -32,6 +38,10 @@ export default class DurationType extends TypeDescriptor {
   
   serializeType(): string {
     return 'duration';
+  }
+  
+  getSerializationProperties(): any[] {
+    return [];
   }
   
   equals(ctx: Context, other: TypeDescriptor|null): JelBoolean {

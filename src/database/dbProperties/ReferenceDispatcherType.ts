@@ -14,6 +14,7 @@ import DbRef from '../DbRef';
 import DbEntry from '../DbEntry';
 import ThingType from './ThingType';
 import UnitValueQuantityType from './UnitValueQuantityType';
+import Class from '../../jel/types/Class';
 
 
 /**
@@ -24,15 +25,20 @@ import UnitValueQuantityType from './UnitValueQuantityType';
  *   - UnitValueQuantityType if the reference is a thing of QuantityCategory
  */
 export default class ReferenceDispatcherType extends TypeDescriptor {
+  static clazz: Class|undefined;
   ref: IDbRef|undefined;
   type: TypeDescriptor|undefined;
   
   constructor(public refOrType: IDbRef|TypeDescriptor) {
-    super();
+    super('ReferenceDispatcherType');
     if (refOrType instanceof TypeDescriptor)
       this.type = refOrType;
     else 
       this.ref = refOrType;     
+  }
+  
+  get clazz(): Class {
+    return ReferenceDispatcherType.clazz!;
   }
 
   dispatch(ctx: Context, action: (type: TypeDescriptor)=>any): any {
@@ -67,7 +73,7 @@ export default class ReferenceDispatcherType extends TypeDescriptor {
     return this.dispatch(ctx, type=>other instanceof ReferenceDispatcherType ? other.dispatch(ctx, otherType=>type.equals(ctx, otherType)) : type.equals(ctx, other));
   }
 
-  getSerializationProperties(): Object {
+  getSerializationProperties(): any[] {
     return [this.type||this.ref];
   }
   

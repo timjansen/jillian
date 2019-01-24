@@ -11,7 +11,7 @@ import TypeChecker from './TypeChecker';
  * Collection of static helper methods.
  */
 export default class Jel extends JelObject {
-  
+
   private static toString(s: any): string {
     if (s == null)
       return 'null';

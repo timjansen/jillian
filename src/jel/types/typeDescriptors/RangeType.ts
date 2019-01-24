@@ -8,6 +8,7 @@ import JelObject from '../../JelObject';
 import JelBoolean from '../JelBoolean';
 import Util from '../../../util/Util';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
+import Class from '../Class';
 
 
 
@@ -15,14 +16,19 @@ import BaseTypeRegistry from '../../BaseTypeRegistry';
  * Declares a property type that is a range.
  */
 export default class RangeType extends TypeDescriptor {
+  static clazz: Class|undefined;
 	public types: TypeDescriptor;
 	
 	/**
 	 * types - one or more Types to define the acceptable members types of the range. 
 	 */
   constructor(types: JelObject|null) {
-    super();
+    super('RangeType');
 		this.types = TypeHelper.convertFromAny(types, 'range values');
+  }
+  
+  get clazz(): Class {
+    return RangeType.clazz!;
   }
   
   checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean> {
@@ -32,7 +38,7 @@ export default class RangeType extends TypeDescriptor {
     return Util.resolveValue(this.types.checkType(ctx, value.min), (r: any)=>r.toRealBoolean() ? this.types.checkType(ctx, value.max) : r);
   }
   
-  getSerializationProperties(): Object {
+  getSerializationProperties(): any[] {
     return [this.types];
   }
   

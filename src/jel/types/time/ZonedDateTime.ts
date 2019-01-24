@@ -22,7 +22,7 @@ import TypeChecker from '../TypeChecker';
 export default class ZonedDateTime extends AbstractDate {
 	
 	constructor(public timeZone: TimeZone, public date: LocalDate, public time: TimeOfDay, public milliseconds = 0) {
-		super();
+		super('ZonedDateTime');
 		if (milliseconds >= 1000 || milliseconds < 0)
 			throw new Error('Milliseconds must be between 0 and 1000.');
 	}

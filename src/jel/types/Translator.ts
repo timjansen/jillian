@@ -20,7 +20,7 @@ export default class Translator extends JelObject {
 	tree: TranslatorNode = new TranslatorNode();
 	
 	constructor() {
-		super();
+		super('Translator');
 	}
 
 	addPattern(pattern: Pattern, value: any, metaMap: Map<string, any>): Translator {

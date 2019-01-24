@@ -8,6 +8,8 @@ import JelObject from '../../JelObject';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
 import JelBoolean from '../JelBoolean';
 import Util from '../../../util/Util';
+import Class from '../Class';
+import SerializablePrimitive from '../../SerializablePrimitive';
 
 
 
@@ -15,6 +17,7 @@ import Util from '../../../util/Util';
  * Declares a property type that is a list.
  */
 export default class ListType extends TypeDescriptor {
+  static clazz: Class|undefined;
 	public types: TypeDescriptor;
 	
 	/**
@@ -22,8 +25,12 @@ export default class ListType extends TypeDescriptor {
 	 *         The List may also contain 'null' as element, if the List can have nulls.
 	 */
   constructor(types: JelObject|null) {
-    super();
+    super('ListType');
 		this.types = TypeHelper.convertFromAny(types, 'list values');
+  }
+  
+  get clazz(): Class {
+    return ListType.clazz!;
   }
   
   checkType(ctx: Context, value: JelObject|null): JelBoolean|Promise<JelBoolean> {
@@ -59,7 +66,7 @@ export default class ListType extends TypeDescriptor {
     return new List([this.types.convert(ctx, value)]);
   }
   
-  getSerializationProperties(): Object {
+  getSerializationProperties(): any[] {
     return [this.types];
   }
   

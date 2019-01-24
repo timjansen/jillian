@@ -19,7 +19,7 @@ export default class TimeOfDay extends JelObject {
 
 	
 	constructor(public hour: number, public minute: number|null = null, public seconds: number|null = null) {
-		super();
+		super('TimeOfDay');
 	}
 	
 	isValid(): boolean {

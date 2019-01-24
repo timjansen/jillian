@@ -21,8 +21,8 @@ export default class Range extends JelObject {
 	
 	JEL_PROPERTIES: Object;
 
-	constructor(public min: JelObject | null, public max: JelObject | null) {
-		super();
+	constructor(public min: JelObject | null, public max: JelObject | null, className?: string) {
+		super(className || 'Range');
 	}
 	
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {

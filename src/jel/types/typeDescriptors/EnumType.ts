@@ -10,14 +10,22 @@ import JelObject from '../../JelObject';
 import Serializer from '../../Serializer';
 import SerializablePrimitive from '../../SerializablePrimitive';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
+import Class from '../Class';
 
 
 /**
  * Declares a property that is a Enum.
  */
-export default class EnumType extends TypeDescriptor {
+export default class EnumType extends TypeDescriptor  implements SerializablePrimitive {
+  static clazz: Class|undefined;
+
+  
   constructor(public enumName: string) {
-    super();
+    super('Enum');
+  }
+  
+  get clazz(): Class {
+    return EnumType.clazz!;
   }
   
   // note: constants and types are not checked yet. That would become async.

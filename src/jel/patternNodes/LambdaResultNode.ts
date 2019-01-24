@@ -7,7 +7,7 @@ import JelNode from '../expressionNodes/JelNode';
 export default class LambdaResultNode extends MatchNode {
 
 	constructor(public expression: JelNode, public meta?: Map<string, any>) {
-		super();
+		super('LambdaResultNode');
 	}
 	
 	private createMatch(result: any, idx: number): Match | Promise<Match> {

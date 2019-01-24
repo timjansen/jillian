@@ -16,7 +16,7 @@ export default class DbRef extends JelObject implements IDbRef, SerializablePrim
 	readonly isIDBRef: boolean = true;
 	
 	constructor(distinctNameOrEntry: string | JelString | NamedObject, public parameters?: Map<string, any>) {
-		super();
+		super('DbRef');
 		if (distinctNameOrEntry instanceof NamedObject) {
 			this.distinctName = distinctNameOrEntry.distinctName;
 			this.cached = distinctNameOrEntry;

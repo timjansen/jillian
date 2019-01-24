@@ -8,6 +8,7 @@ import JelObject from '../../JelObject';
 import Serializer from '../../Serializer';
 import JelBoolean from '../JelBoolean';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
+import Class from '../Class';
 
 
 /**
@@ -17,16 +18,21 @@ import BaseTypeRegistry from '../../BaseTypeRegistry';
  * If it is an enum type, only that enum is allowed.
  */
 export default class SimpleType extends TypeDescriptor {
+  static clazz: Class|undefined;
 
   constructor(public type: string) {
-    super();
+    super('SimpleType');
+  }
+  
+  get clazz(): Class {
+    return SimpleType.clazz!;
   }
   
   checkType(ctx: Context, value: JelObject|null): JelBoolean {
     return JelBoolean.valueOf(Runtime.instanceOf(ctx, value, this.type));
   }
   
-  getSerializationProperties(): Object {
+  getSerializationProperties(): any[] {
     return [this.type];
   }
   

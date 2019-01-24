@@ -15,7 +15,7 @@ export default class DatabaseConfig extends JelObject implements Serializable {
   JEL_PROPERTIES: Object;
   
   constructor(config = new Map<string, JelObject|null>()) {
-    super();
+    super('DatabaseConfig');
     
     this.version = Float.toRealNumber(config.get('version')) || 1;
     this.sizing = Float.toRealNumber(config.get('sizing')) || 10000;

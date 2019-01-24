@@ -18,7 +18,7 @@ export default class Enum extends PackageContent {
 	 * @param values a List of strings with the possible values of the enum.
 	 */
   constructor(distinctName: string, public values: List) {
-    super(distinctName);
+    super('Enum', distinctName);
 
 		if (!distinctName.endsWith('Enum'))
 			throw Error('By convention, all Enum names must end with "Enum". Illegal name: ' + distinctName);

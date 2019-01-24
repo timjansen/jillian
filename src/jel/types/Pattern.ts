@@ -14,7 +14,7 @@ import TypeChecker from './TypeChecker';
 export default class Pattern extends JelObject implements SerializablePrimitive {
 	
 	constructor(public tree: PatternNode, public patternText: string) {
-		super();
+		super("Pattern");
 	}
 	
 	// returns Promise!

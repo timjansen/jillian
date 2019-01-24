@@ -14,7 +14,7 @@ export default class RegExpNode extends ComplexNode {
 	jstring: any;
 	
 	constructor(public regexps: RegExp[], name?: string, expression?: JelNode, next?: MultiNode) {
-		super(name, expression, next);
+		super('RegExpNode', name, expression, next);
 		this.jstring = BaseTypeRegistry.get('String');
 	}
 	

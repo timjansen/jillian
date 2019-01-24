@@ -2,7 +2,7 @@ import Context from '../Context';
 
 export default abstract class MatchNode {
 
-	constructor() {
+	constructor(public className: string) {
 	}
 
 	// returns the either the result or a list of results. Results or list members can be Promises!

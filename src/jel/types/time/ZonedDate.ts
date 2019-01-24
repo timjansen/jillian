@@ -22,7 +22,7 @@ import TypeChecker from '../TypeChecker';
 export default class ZonedDate extends AbstractDate {
 	
 	constructor(public timeZone: TimeZone, public date: LocalDate) {
-		super();
+		super('ZonedDate');
 	}
 
 	get year(): number {

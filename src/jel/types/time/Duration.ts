@@ -48,7 +48,7 @@ export default class Duration extends JelObject {
 	private maxSecs: number;
 	
 	constructor(public readonly years = 0, public readonly months = 0, public readonly days = 0, public readonly hours = 0, public readonly minutes: number = 0, public seconds: number = 0) {
-		super();
+		super('Duration');
 
 		const fixedSecs = this.hours * 3600 + this.minutes * 60 + this.seconds;
 		const minDays = this.days + estimateDaysForMonths(minDaysForMonths, this.months);

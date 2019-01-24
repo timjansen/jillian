@@ -4,7 +4,7 @@ import SerializablePrimitive from '../SerializablePrimitive';
 
 export default class ReferenceHelper extends JelObject implements SerializablePrimitive {
 	constructor(public distinctName: string) {
-		super();
+		super('ReferenceHelper');
 	}
 		
 	serializeToString(pretty: boolean, indent: number, spaces: string) : string | undefined {
