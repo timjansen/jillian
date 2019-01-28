@@ -24,9 +24,16 @@ const Optional = require('../../build/jel/expressionNodes/Optional.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
 
-DefaultContext.get(); // to force init
-
 describe('JEL', function() {
+  let defaultContext, ctx;
+  before(function(){
+    return DefaultContext.get().then(dc=> {
+      defaultContext = dc;
+      ctx = defaultContext;
+      jelAssert.setCtx(ctx);
+    });
+  });
+  
   describe('parseTree', function() {
     
     it('should parse a simple literal', function() {

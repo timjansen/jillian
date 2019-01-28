@@ -1,8 +1,8 @@
 /**
- * AnyType is a simple TypeDescriptor that will match any value (null or not).
+ * SimpleType allows all types that are instances of the given class, including sub-classes.
  */
-native class AnyType extends TypeDescriptor:
-  native constructor()
+native class SimpleType extends TypeDescriptor:
+  native constructor(type: string)
   
   override native checkType(value: any): bool
 

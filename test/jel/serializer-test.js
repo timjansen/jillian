@@ -8,9 +8,16 @@ const Pattern = require('../../build/jel/types/Pattern.js').default;
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
 
-DefaultContext.get(); // force init
 
-describe('jelSerializer', function() {
+describe('Serializer', function() {
+  let defaultContext, ctx;
+  before(function(){
+    return DefaultContext.get().then(dc=> {
+      defaultContext = dc;
+      ctx = defaultContext;
+    });
+  });
+  
   describe('serialize()', function() {
     
     it('should serialize primitives', function() {

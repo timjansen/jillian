@@ -6,9 +6,17 @@ const ApproximateNumber = require('../../build/jel/types/ApproximateNumber.js').
 const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
 const Fraction = require('../../build/jel/types/Fraction.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
-const jelAssert = new JelAssert(DefaultContext.get());
+const jelAssert = new JelAssert();
 
 describe('ApproximateNumber', function() {
+  let ctx;
+  before(function(){
+    return DefaultContext.get().then(dc=> {
+      ctx = dc;
+      jelAssert.setCtx(ctx);
+    });
+  });
+  
 	it('creates and serializes', function() {
 		jelAssert.equal("ApproximateNumber(1, 2)", new ApproximateNumber(1, 2));
 		jelAssert.equal("ApproximateNumber(1, 0)", new ApproximateNumber(1));

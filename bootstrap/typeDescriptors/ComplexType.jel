@@ -4,15 +4,15 @@
 native class ComplexType extends TypeDescriptor:
   /**
    * Creates a new ComplexType with the given fields. 
-   * @param a Dictionary containing the type's fields as keys and their allowed types as values.
+   * @param a Dictionary containing the type's field names as keys and their allowed types as values.
    */
-  native constructor(fields)
+  native constructor(fields: TypeDescriptor{})
   
-  override native checkType(value)
+  override native checkType(value: any): bool
 
-  override native convert(value)
+  override native convert(value: any): any
   
-  override native equals(other)
+  override native equals(other: TypeDescriptor?): bool
   
-  override native serializeToString()
+  override native serializeToString(): string
   

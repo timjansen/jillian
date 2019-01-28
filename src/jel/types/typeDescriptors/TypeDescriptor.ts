@@ -42,6 +42,7 @@ export default abstract class TypeDescriptor extends NativeJelObject {
   /**
    * Returns true if this TypeDescriptor is identical with the given one.
    */
+  equals_jel_mapping: Object;
   abstract equals(ctx: Context, other: TypeDescriptor|null): JelBoolean|Promise<JelBoolean>;
 
   /**
@@ -58,9 +59,19 @@ export default abstract class TypeDescriptor extends NativeJelObject {
    */
   abstract serializeType(): string;
 
+  /**
+   * Serialize to string.
+   */
+  serializeToString_jel_mapping: Object;
+  serializeToString() : string {
+		return this.serializeType();
+	}
+  
 }
 
 TypeDescriptor.prototype.checkType_jel_mapping = ['value'];
 TypeDescriptor.prototype.convert_jel_mapping = ['value', 'fieldMapping'];
+TypeDescriptor.prototype.equals_jel_mapping = true;
+TypeDescriptor.prototype.serializeToString_jel_mapping = true;
 TypeDescriptor.prototype.isNullable_jel_mapping = [];
 

@@ -62,6 +62,12 @@ export default class NumberType extends TypeDescriptor implements SerializablePr
     return (rangeOrMin==null && max == null) ? NumberType.instance : new NumberType(new Range(rangeOrMin, max));
   }
 
+  static create_jel_mapping = true;
+  static create(ctx: Context, ...args: any[]): NumberType {
+    return NumberType.instance.create(ctx, args[0], args[1]);
+  }
+
+  
 }
 
 NumberType.prototype.create_jel_mapping = {range: 1, min: 1, max: 2};

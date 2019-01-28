@@ -6,9 +6,18 @@ const Fraction = require('../../build/jel/types/Fraction.js').default;
 const JelMath = require('../../build/jel/types/Math.js').default;
 const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
-const jelAssert = new JelAssert(DefaultContext.get());
+const jelAssert = new JelAssert();
 
 describe('Fraction', function() {
+  let ctx;
+  before(function(){
+    return DefaultContext.get().then(dc=> {
+      ctx = dc;
+      jelAssert.setCtx(ctx);
+    });
+  });
+  
+  
 	it('creates and serializes', function() {
 		jelAssert.equal(new Fraction(1, 2), "Fraction(1, 2)");
 		jelAssert.notEqual(new Fraction(1, 2), "Fraction(1, 3)");

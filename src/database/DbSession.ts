@@ -14,13 +14,18 @@ export default class DbSession implements IDbSession {
 	readonly isIDBSession: boolean = true;
   cacheByName: Map<string, NamedObject|null> = new Map();   // distinct name -> entry; stores null for entries that have not been found. 
   cacheByHash: Map<string, NamedObject> = new Map();        // hash code -> entry
+  public ctx: DatabaseContext;
   
-	public ctx: Context;
-	
-  constructor(public database: Database, parentCtx?: Context) {
-		this.ctx = new DatabaseContext(parentCtx, this);
+  constructor(public database: Database) {
+    this.ctx = undefined as any;
   }
 
+  static async create(database: Database): Promise<DbSession> {
+    const ds = new DbSession(database);            
+		ds.ctx = await DatabaseContext.get(ds);
+    return ds;
+  }
+  
 	// implements IDbSession
 	createDbRef(distinctNameOrEntry: string | NamedObject, parameters?: Map<string, any>): IDbRef {
 		return new DbRef(distinctNameOrEntry, parameters);

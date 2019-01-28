@@ -1,7 +1,8 @@
 /**
- * AnyType is a simple TypeDescriptor that will match any value (null or not).
+ * DateType allows dates as LocalDate or ZonedDate, without time.
+ * There is usually no need to create new instances. Just use the provided variable 'date' for the default instance.
  */
-native class AnyType extends TypeDescriptor:
+native class DateType extends TypeDescriptor:
   native constructor()
   
   override native checkType(value: any): bool

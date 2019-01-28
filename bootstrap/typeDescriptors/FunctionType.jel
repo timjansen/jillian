@@ -1,0 +1,16 @@
+/**
+ * FunctionType is a TypeDescriptor that allows only functions. Optionally you can provide a lambda expression to use as template for the arguments and return type. 
+ * The body of the lambda is ignored, and it will not be invoked.
+ */
+native class FunctionType extends TypeDescriptor:
+  native constructor(prototype: any, allowUntyped: bool = false) // TODO: make prototype SimpleType('Callable')
+ 
+  override native checkType(value: any): bool
+
+  override native convert(value: any): any
+  
+  override native equals(other: TypeDescriptor?): bool
+  
+  override native serializeToString(): string
+  
+  

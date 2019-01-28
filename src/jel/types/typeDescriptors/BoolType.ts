@@ -44,6 +44,12 @@ export default class BoolType extends TypeDescriptor implements SerializablePrim
   equals(ctx: Context, other: TypeDescriptor|null): JelBoolean {
     return JelBoolean.valueOf(other instanceof BoolType && this.onlyFullValues == other.onlyFullValues);
   }
+  
+  static create_jel_mapping =true;
+  static create(ctx: Context, ...args: any[]) {
+    return BoolType.instance;
+  }
+
 
 }
 BaseTypeRegistry.register('BoolType', BoolType);

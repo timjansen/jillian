@@ -10,9 +10,17 @@ const Fraction = require('../../build/jel/types/Fraction.js').default;
 const UnitValue = require('../../build/jel/types/UnitValue.js').default;
 const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
-const jelAssert = new JelAssert(DefaultContext.get());
+const jelAssert = new JelAssert();
 
 describe('Distribution', function() {
+  let ctx;
+  before(function(){
+    return DefaultContext.get().then(dc=> {
+      ctx = dc;
+      jelAssert.setCtx(ctx);
+    });
+  });
+  
 	it('creates and serializes', function() {
 		jelAssert.equal("Distribution(min=5, max=10)", new Distribution(new List([new DistributionPoint(5, 0), new DistributionPoint(10, 1)])));
 		jelAssert.equal("Distribution(mean=10)", new Distribution(new List([new DistributionPoint(10, 0.5)])));

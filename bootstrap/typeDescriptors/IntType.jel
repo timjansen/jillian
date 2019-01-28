@@ -1,8 +1,8 @@
 /**
- * AnyType is a simple TypeDescriptor that will match any value (null or not).
+ * IntType accepts integer Floats and Fractions, optionally with a Range to limit their values.
  */
-native class AnyType extends TypeDescriptor:
-  native constructor()
+native class IntType extends TypeDescriptor:
+  native constructor(range: SimpleType('Range')?)
   
   override native checkType(value: any): bool
 

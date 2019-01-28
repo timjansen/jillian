@@ -1,0 +1,14 @@
+/**
+ * StringType allows all non-empty strings by default, and empty strings as well if the constructor's argument is true.
+ */
+native class StringType extends TypeDescriptor:
+  native constructor(allowEmpty: bool = false)
+  
+  override native checkType(value: any): bool
+
+  override native convert(value: any): any
+  
+  override native equals(other: TypeDescriptor?): bool
+  
+  override native serializeToString(): string
+  

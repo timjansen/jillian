@@ -11,9 +11,17 @@ const Database = require('../../build/database/Database.js').default;
 const DbSession = require('../../build/database/DbSession.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 
-const jelAssert = new JelAssert(DefaultContext.get());
+const jelAssert = new JelAssert();
 
 describe('EnumValue', function() {
+  let ctx;
+  before(function(){
+    return DefaultContext.get().then(dc=> {
+      ctx = dc;
+      jelAssert.setCtx(ctx);
+    });
+  });
+  
   it('creates and serializes', function() {
     jelAssert.equal(new Enum("SomeEnum", new List(['A', 'B', 'C'])), 'Enum("SomeEnum", ["A", "B", "C"])');
     jelAssert.equal('enum SomeEnum: A, B, C', 'Enum("SomeEnum", ["A", "B", "C"])');

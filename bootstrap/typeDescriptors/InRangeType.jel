@@ -1,8 +1,8 @@
 /**
- * AnyType is a simple TypeDescriptor that will match any value (null or not).
+ * InRangeType allows any type in the given range, no matter what type.
  */
-native class AnyType extends TypeDescriptor:
-  native constructor()
+native class InRangeType extends TypeDescriptor:
+  native constructor(range: SimpleType('Range')?)
   
   override native checkType(value: any): bool
 

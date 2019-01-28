@@ -61,9 +61,12 @@ export default class IntType extends TypeDescriptor  implements SerializablePrim
     return (rangeOrMin==null && max == null) ? IntType.instance : new IntType(new Range(rangeOrMin, max));
   }
   
-  serializeToString() : string {
-		return this.serializeType();
-	}
+ 
+  static create_jel_mapping =true;
+  static create(ctx: Context, ...args: any[]) {
+    return args[0] ? TypeChecker.instance(Range, args[0], 'range') : IntType.instance;
+  }
+
 }
 
 IntType.prototype.create_jel_mapping = {range: 1, min: 1, max: 2};

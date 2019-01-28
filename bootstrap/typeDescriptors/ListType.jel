@@ -1,0 +1,18 @@
+/**
+ * Defines a List whose elements have the given type.
+ */
+native class ListType extends TypeDescriptor:
+  /**
+   * Creates a new ListType with the given element type. 
+   * @param types the type of the elements
+   */
+  native constructor(types: TypeDescriptor)
+  
+  override native checkType(value: any): bool
+
+  override native convert(value: any): any
+  
+  override native equals(other: TypeDescriptor?): bool
+  
+  override native serializeToString(): string
+  

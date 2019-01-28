@@ -1,0 +1,18 @@
+/**
+ * OptionType allows any of the given types
+ */
+native class OptionType extends TypeDescriptor:
+  /**
+   * Creates a new OptionType with the given allowed types. 
+   * @param types the possible types
+   */
+  native constructor(types: TypeDescriptor[])
+  
+  override native checkType(value: any): bool
+
+  override native convert(value: any): any
+  
+  override native equals(other: TypeDescriptor?): bool
+  
+  override native serializeToString(): string
+  

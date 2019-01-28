@@ -1,0 +1,15 @@
+ /**
+ * TimeType allows all date and date time types (LocalDate, ZonedDate, LocalDateTime, ZonedDateTime, Timestamp).
+ * There is usually no need to create new instances. Just use the provided variable 'time' for the default instance.
+ */
+native class TimeType extends TypeDescriptor:
+  native constructor()
+  
+  override native checkType(value: any): bool
+
+  override native convert(value: any): any
+  
+  override native equals(other: TypeDescriptor?): bool
+  
+  override native serializeToString(): string
+  

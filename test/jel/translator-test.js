@@ -14,8 +14,6 @@ const PatternNode = require('../../build/jel/patternNodes/PatternNode.js').defau
 const TranslatorNode = require('../../build/jel/patternNodes/TranslatorNode.js').default;
 const {JelPromise, JelConsole} = require('../jel-assert.js');
 
-const promiseCtx = DefaultContext.plus({JelPromise: new NativeClass(JelPromise), JelConsole: new NativeClass(JelConsole)});
-
 function exec(s) {
   return JEL.parseTree(s).execute(DefaultContext.get());
 }
@@ -32,6 +30,15 @@ function translator(pattern, expression, meta) {
 }
 
 describe('jelTranslators', function() {
+  let promiseCtx, ctx;
+  before(function(){
+    return DefaultContext.get().then(dc=> {
+      ctx = dc;
+      promiseCtx = ctx.plus({JelPromise: new NativeClass(JelPromise), JelConsole: new NativeClass(JelConsole)});
+    });
+  });
+  
+  
   describe('addPattern()', function() {
     
     it('should should build parsing trees', function() {

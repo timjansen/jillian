@@ -2,13 +2,13 @@
  * NumberType accepts Floats and Fractions, optionally with a Range to limit their values.
  */
 native class NumberType extends TypeDescriptor:
-  native constructor(range = null)
+  native constructor(range: SimpleType('Range')?)
   
-  override native checkType(value)
+  override native checkType(value: any): bool
 
-  override native convert(value)
+  override native convert(value: any): any
   
-  override native equals(other)
+  override native equals(other: TypeDescriptor?): bool
   
-  override native serializeToString()
+  override native serializeToString(): string
   

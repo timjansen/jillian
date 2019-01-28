@@ -1,0 +1,18 @@
+/**
+ * OptionalType allows either the given type, or null.
+ */
+native class OptionalType extends TypeDescriptor:
+  /**
+   * Creates a new OptionalType with the given base type. 
+   * @param types the type of the value 
+   */
+  native constructor(type: TypeDescriptor)
+  
+  override native checkType(value: any): bool
+
+  override native convert(value: any): any
+  
+  override native equals(other: TypeDescriptor?): bool
+  
+  override native serializeToString(): string
+  

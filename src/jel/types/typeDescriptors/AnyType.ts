@@ -54,7 +54,11 @@ export default class AnyType extends TypeDescriptor {
   serializeToString() : string {
 		return this.serializeType();
 	}
-
+  
+  static create_jel_mapping =true;
+  static create(ctx: Context, ...args: any[]) {
+    return AnyType.instance;
+  }
 }
 
 BaseTypeRegistry.register('AnyType', AnyType);

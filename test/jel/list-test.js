@@ -16,10 +16,16 @@ const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
 
-const ctx = DefaultContext.plus({JelPromise: new NativeClass(JelPromise), JelConsole: new NativeClass(JelConsole)});
-jelAssert.setCtx(ctx);
-
 describe('jelList', function() {
+  let defaultContext, ctx;
+  before(function(){
+    return DefaultContext.get().then(dc=> {
+      defaultContext = dc;
+      ctx = defaultContext.plus({JelPromise: new NativeClass(JelPromise), JelConsole: new NativeClass(JelConsole)});
+      jelAssert.setCtx(ctx);
+    });
+  });
+  
   describe('constructor()', function() {
     it('creates empty lists', function() {
       assert.deepEqual(new List().elements, []); 
@@ -121,13 +127,13 @@ describe('jelList', function() {
     it('iterates', function() {
       let x = 0;
       const accumulator = new FunctionCallable((ctx, a, i)=>x+=a.value+2*i.value);
-      new JEL('[3, 2, 9].each(accumulator)').executeImmediately(DefaultContext.plus({accumulator}));
+      new JEL('[3, 2, 9].each(accumulator)').executeImmediately(defaultContext.plus({accumulator}));
       assert.equal(x, 20);
     });
     it('iterates with promises', function() {
       let x = 0;
       const accumulator = new FunctionCallable((ctx, a, i)=>Promise.resolve(x+=a.value+2*i.value));
-      return new JEL('[3, 2, 9].each(accumulator)').execute(DefaultContext.plus({accumulator}))
+      return new JEL('[3, 2, 9].each(accumulator)').execute(defaultContext.plus({accumulator}))
 				.then(()=>assert.equal(x, 20));
     });
   });
@@ -258,7 +264,7 @@ describe('jelList', function() {
       X.create_jel_mapping = {x:1};
       X.prototype.JEL_PROPERTIES = {a:1};
 			
-			const je2 = new JelAssert(DefaultContext.plus({X: new NativeClass(X)}));
+			const je2 = new JelAssert(defaultContext.plus({X: new NativeClass(X)}));
 
 			je2.equal('[X(17), X(3), X(11), X(9)].sort(key="a").map(o=>o.a)', new List([3, 9, 11, 17].map(Float.valueOf))); 
       je2.equal('[X(17), X(3), X(11), X(9)].sort(isLess=(a,b)=>a<b, key="a").map(o=>o.a)', new List([3, 9, 11, 17].map(Float.valueOf))); 
@@ -284,7 +290,7 @@ describe('jelList', function() {
       }
       X.create_jel_mapping = {x:1};
 
-			const je2 = new JelAssert(DefaultContext.plus({X: new NativeClass(X)}));
+			const je2 = new JelAssert(defaultContext.plus({X: new NativeClass(X)}));
 			
 			JelPromise.resetRnd();
 			return Promise.all([

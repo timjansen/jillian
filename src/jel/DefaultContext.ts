@@ -65,6 +65,7 @@ function c(ctor: any): NativeClass {
 const BOOT_SCRIPT = [
   {static: {any: AnyType.instance, int: IntType.instance, bool: BoolType.instance, function: FunctionType.instance, number: NumberType.instance, string: StringType.instance, date: DateType.instance, time: TimeType.instance}},
   {jel: 'typeDescriptors/TypeDescriptor.jel'},
+  {jel: 'typeDescriptors/SimpleType.jel', native: SimpleType},
   [
     {jel: 'typeDescriptors/AnyType.jel', native: AnyType},
     {jel: 'typeDescriptors/BoolType.jel', native: BoolType},
@@ -84,8 +85,7 @@ const BOOT_SCRIPT = [
     {jel: 'typeDescriptors/OptionalType.jel', native: OptionalType},
     {jel: 'typeDescriptors/OptionType.jel', native: OptionType},
     {jel: 'typeDescriptors/RangableType.jel', native: RangableType},
-    {jel: 'typeDescriptors/RangeType.jel', native: RangeType},
-    {jel: 'typeDescriptors/SimpleType.jel', native: SimpleType},
+    {jel: 'typeDescriptors/RangeType.jel', native: RangeType}
   ],
   {static: {Boolean: c(JelBoolean), Float: c(Float), String: c(JelString), ApproximateNumber: c(ApproximateNumber), Math: c(JelMath), DateType: c(DateType), TimeType: c(TimeType),
                    Range: c(Range), Fraction: c(Fraction), Unit: c(Unit), UnitValue: c(UnitValue), 
@@ -150,7 +150,12 @@ export default class DefaultContext {
 	}
   
   static async with(f: (ctx: Context)=>any): Promise<any> {
-    return f(await DefaultContext.get());    
+    try {
+      return f(await DefaultContext.get());    
+    }
+    catch (e) {
+      console.log('Aborted DefaultContext.with:', e);
+    }
   }
 }
 

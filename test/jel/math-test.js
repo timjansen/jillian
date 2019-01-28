@@ -16,10 +16,16 @@ const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const {JelAssert, JelPromise, JelConsole, MockSession} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
 
-const ctx = DefaultContext.plus(new MockSession()).plus({JelPromise: new NativeClass(JelPromise), JelConsole: new NativeClass(JelConsole)});
-jelAssert.setCtx(ctx);
-
-describe('jelMath', function() {
+describe('Math', function() {
+  let defaultContext, ctx;
+  before(function(){
+    return DefaultContext.get().then(dc=> {
+      defaultContext = dc;
+      ctx = defaultContext.plus({JelPromise: new NativeClass(JelPromise), JelConsole: new NativeClass(JelConsole)}).plus(new MockSession());
+      jelAssert.setCtx(ctx);
+    });
+  });
+  
 	it('has some basic constants', function() {
 		jelAssert.equal('Math.PI', Math.PI);
 		jelAssert.equal('Math.E', Math.E);

@@ -14,10 +14,19 @@ const Context = require('../../build/jel/Context.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 
 const ctx = DefaultContext.plus({JelPromise: new NativeClass(JelPromise)});
-const jelAssert = new JelAssert(ctx);
+const jelAssert = new JelAssert();
 
 
 describe('jelDictionary', function() {
+  let defaultContext, ctx;
+  before(function(){
+    return DefaultContext.get().then(dc=> {
+      defaultContext = dc;
+      ctx = defaultContext.plus({JelPromise: new NativeClass(JelPromise), JelConsole: new NativeClass(JelConsole)});
+      jelAssert.setCtx(ctx);
+    });
+  });
+  
   describe('constructor()', function() {
     it('creates empty dicts', function() {
       assert.equal(new Dictionary().elements.size, 0); 
