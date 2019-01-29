@@ -43,7 +43,7 @@ export default class InRangeType extends TypeDescriptor  implements Serializable
   }
   
   static create_jel_mapping = ['range'];
-  static create(ctx: Context, clazz: any, ...args: any[]): InRangeType {
+  static create(ctx: Context, ...args: any[]): InRangeType {
     if (!(args[0] instanceof Range))
       throw new Error('InRangeType requires a Range as first argument.');
     return new InRangeType(args[0]);

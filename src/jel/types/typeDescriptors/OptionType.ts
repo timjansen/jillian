@@ -75,7 +75,7 @@ export default class OptionType extends TypeDescriptor {
   }
   
   static create_jel_mapping = ['options'];
-  static create(ctx: Context, clazz: any, ...args: any[]) {
+  static create(ctx: Context, ...args: any[]) {
     return new OptionType(args[0]);
   }
 }

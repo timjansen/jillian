@@ -18,8 +18,8 @@ export default class NativeCallable extends Callable implements SerializablePrim
   
   private static invoke(ctx: Context, name: string, self: JelObject|undefined, argDefs: TypedParameterValue[], returnType: TypedParameterValue|undefined, nativeFunction: Function, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>): JelObject|null|Promise<JelObject|null> {
 
-    if (args.length > argDefs.length)
-      throw new Error(`Expected up to ${argDefs.length} arguments, but got ${args.length} for native function ${name}(): ${args.map(s=>s==null?'null':s.toString()).join(', ')}`);
+    if (args.length > argDefs.length) 
+      throw new Error(`Expected up to ${argDefs.length} arguments, but got ${args.length} for native function ${name}() in ${self?self.className:'(unknown)'}: ${args.map(s=>s==null?'null':Serializer.serialize(s)).join(', ')}`);
 
     let allArgs: (JelObject|null)[];
     

@@ -39,7 +39,7 @@ describe('Class', function() {
     jelAssert.equal('Class("MyTestType").methods.size', 0);
     jelAssert.equal('Class("MyTestType", methods=[Method("add", ()=>2)]).methods.size', 1);
     jelAssert.equal('Class("MyTestType", null, false, false, (x,y)=>{}, [Property("a", Float, null, false), Property("b", string, null)], [Method("add", ()=>2)], [])', 
-                    'Class(className="MyTestType", isNative=false, ctor=(x,y)=>{}, methods=[Method("add", ()=>2)], staticProperties=[], properties=[Property("a", Float), Property("b", string)], isAbstract=false)');
+                    'Class(name="MyTestType", isNative=false, ctor=(x,y)=>{}, methods=[Method("add", ()=>2)], staticProperties=[], properties=[Property("a", Float), Property("b", string)], isAbstract=false)');
   });
 
   it('can be created using the JEL syntax', function() {
@@ -240,7 +240,7 @@ describe('Class', function() {
       return a.value - b.value;
     }
 
-    static create(ctx, clazz, a) {
+    static create(ctx, a) {
       return new FullNativeTest(42 + (a.value||0));
     }
   }

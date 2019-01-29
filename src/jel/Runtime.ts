@@ -64,7 +64,7 @@ export default class Runtime {
 
   // checks whether left is assignable to right
 	static isClassCompatible(ctx: Context, left: any, className: string): boolean {
-    if (left.className == className)
+    if (left.name == className)
       return true;
     else if (left.superType)
       return Runtime.isClassCompatible(ctx, left.superType, className);
@@ -79,14 +79,10 @@ export default class Runtime {
     let rightName: string;
     if (typeof right == 'string')
       rightName = right; 
-    else if (right.getJelType() == 'Class') 
-      rightName = (right as any).className;
-    else if (right.getJelType() == 'NativeClass')
-      rightName = (right as any).className;
+    else if ((right as any).iClass) 
+      rightName = (right as any).name;
 		else if ((right as any).isIDBRef)
-      rightName = (right as any).distinctName; 
-    else if (right.getJelType() == 'String')
-      rightName = (right as any).value;
+      rightName = (right as any).distinctName;
     else
       return false;
     

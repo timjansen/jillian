@@ -52,7 +52,7 @@ export default class DurationType extends TypeDescriptor {
 	}
   
   static create_jel_mapping = true;
-  static create(ctx: Context, clazz: any, ...args: any[]) {
+  static create(ctx: Context, ...args: any[]) {
     return DurationType.instance;
   }
 }

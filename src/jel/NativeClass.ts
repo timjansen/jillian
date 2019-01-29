@@ -12,12 +12,12 @@ import SerializablePrimitive from './SerializablePrimitive';
  */
 export default class NativeClass extends JelObject implements IClass, SerializablePrimitive {
   methods = new Map<string, FunctionCallable>();
-  className: string;
+  name: string;
   iClass: boolean = true;
   
 	constructor(public ctor: any) {
 		super('NativeClass');
-    this.className = ctor.className || ctor.name;
+    this.name = ctor.jelName || ctor.name;
     
     for (let prop in ctor) 
       if (/^\w+_jel_mapping$/.test(prop)) {
@@ -43,12 +43,12 @@ export default class NativeClass extends JelObject implements IClass, Serializab
 	}
 	
  	serializeToString(pretty: boolean, indent: number, spaces: string, serializer: (object: any, pretty: boolean, indent: number, spaces: string)=>string): string | undefined {
-    return this.className;
+    return this.name;
   }
 
   
 	toString(): string {
-		return `NativeClass ${this.className} for ${this.ctor.name}`;
+		return `NativeClass ${this.name} for ${this.ctor.name}`;
 	}
 
 }

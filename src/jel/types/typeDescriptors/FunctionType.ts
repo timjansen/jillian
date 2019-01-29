@@ -87,11 +87,11 @@ export default class FunctionType extends TypeDescriptor {
 
   create_jel_mapping: any[]; 
   create(ctx: Context, ...args: any[])  {
-    return FunctionType.create(ctx, this, ...args);
+    return FunctionType.create(ctx, ...args);
   }
   
   static create_jel_mapping = ['prototype', 'allowUntyped'];
-  static create(ctx: Context, clazz: any, ...args: any[]) {
+  static create(ctx: Context, ...args: any[]) {
     return new FunctionType(TypeChecker.optionalInstance(Callable, args[0], 'prototype') || undefined, TypeChecker.realBoolean(args[1], 'allowUntyped', true));
   }
 }

@@ -664,7 +664,7 @@ export default class JEL {
         if (args == null)
           JEL.throwParseException(tokens.last(), `Can not parse argument list for constructor`);
         else if (nativeModifier)
-          ctor = new NativeFunction('create', className.value, true, [new TypedParameterDefinition('clazz')].concat(args));
+          ctor = new NativeFunction('create', className.value, true, args);
         else if (tokens.nextIf(TokenType.Operator, '=>'))
           ctor = new Lambda(args!, undefined, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop));
         else

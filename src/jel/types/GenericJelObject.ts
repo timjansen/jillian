@@ -17,7 +17,7 @@ export default class GenericJelObject extends JelObject implements Serializable 
   methodCache: Map<string, Callable> = new Map<string, Callable>();
   
   constructor(clazz: Class, public args: any[], public props: Dictionary) {
-    super(clazz.className);
+    super(clazz.name);
     this._clazz = clazz;
   }
   

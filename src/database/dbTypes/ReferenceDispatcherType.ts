@@ -89,7 +89,7 @@ export default class ReferenceDispatcherType extends TypeDescriptor {
   }
   
   static create_jel_mapping = ['ref'];
-  static create(ctx: Context, clazz: any, ...args: any[]) {
+  static create(ctx: Context, ...args: any[]) {
     return new ReferenceDispatcherType(args[0] instanceof TypeDescriptor ? args[0] : TypeChecker.dbRef(args[0], 'ref'));
   }
 }

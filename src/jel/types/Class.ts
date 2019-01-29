@@ -49,7 +49,7 @@ export default class Class extends PackageContent implements IClass, Serializabl
   
   /**
    * Creates a new Class.
-   * @param className the name of the type.
+   * @param name the name of the type.
    * @param superType an optional super type to inherit properties from. Its constructor will be automatically invoked.
    * @param ctor the constructor, or null if this type can not be instantiated. 
    *                              All its argument are also automatically created as properties of the type, and pre-filled
@@ -60,7 +60,8 @@ export default class Class extends PackageContent implements IClass, Serializabl
    *                              The constructor can access the created class by name and read static properties that are not dynamic (not in staticContextProperties)
    */
   constructor(ctx: Context, 
-              public className: string, public superType?: Class, 
+              public name: string, 
+              public superType?: Class, 
               public isAbstract = false, 
               public nativeClass?: any,  // ref to the class that implements native methods and, if isNative is true, is also the JelObject implementation used
               public isNative = false, 
@@ -68,12 +69,12 @@ export default class Class extends PackageContent implements IClass, Serializabl
               public properties = List.empty,     // list of all Properties
               public methods = List.empty,        // list of all Methods (includes getters)
               public staticProperties = List.empty) {      
-    super('Class', className);
+    super('Class', name);
    
-    if (!/^[A-Z](?:[\w_]|\:\:[a-zA-Z])*$/.test(className))
-      throw new Error(`Illegal class name "${className}". Class names must follow identifier rules and begin with a capital letter.`);
+    if (!/^[A-Z](?:[\w_]|\:\:[a-zA-Z])*$/.test(name))
+      throw new Error(`Illegal class name "${name}". Class names must follow identifier rules and begin with a capital letter.`);
     
-    this.classContext = new Context(ctx).set(className, this).freeze();
+    this.classContext = new Context(ctx).set(name, this).freeze();
     this.ctor = ctor && ctor.bindParentContext(this.classContext);
     const reboundMethods = methods.elements.map(m=>m.bindParentContext(this.classContext));
     
@@ -98,7 +99,7 @@ export default class Class extends PackageContent implements IClass, Serializabl
     if (superType) {
       const overridenProperty = declaredLocalProps.findJs((n: string, p: Property)=>superType.has(n));
       if (overridenProperty)
-        throw new Error(`Property ${overridenProperty} is already defined in super type ${superType.className}, you must not override it.`);
+        throw new Error(`Property ${overridenProperty} is already defined in super type ${superType.name}, you must not override it.`);
       
       if (!isAbstract) {
         const missingOverride = superType.allMethods.findJs((n: string, m: Method)=>m.isAbstract && !this.localMethods.elements.has(n));
@@ -110,7 +111,7 @@ export default class Class extends PackageContent implements IClass, Serializabl
     }
     
     if (this.staticMethods.elements.has('create'))
-      throw new Error(`You must not provide the static method create() in ${className}. It is reserved for accessing the constructor.`);
+      throw new Error(`You must not provide the static method create() in ${name}. It is reserved for accessing the constructor.`);
   }
   
   private has(name: string): boolean {
@@ -125,15 +126,15 @@ export default class Class extends PackageContent implements IClass, Serializabl
     return Util.waitArray(this.localGetters.mapToArrayJs((name, method: Method)=>{
       if (!this.superType!.has(name)) {
         if (method.isOverride)
-          throw new Error(`Error overriding getter ${name}() in ${this.className}: property not found in super type ${this.superType!.className}.`);
+          throw new Error(`Error overriding getter ${name}() in ${this.name}: property not found in super type ${this.superType!.name}.`);
         return;
       }
       
       if (this.allMethods.elements.has(name))
-        throw new Error(`Error overriding method ${name}() in ${this.superType!.className} with a getter in ${this.className}: you can only override methods with other methods, not with getters.`);
+        throw new Error(`Error overriding method ${name}() in ${this.superType!.name} with a getter in ${this.name}: you can only override methods with other methods, not with getters.`);
       
       if (!method.isOverride)
-        throw new Error(`Error overriding getter ${name}() in ${this.className}: overriding getter needs an 'override' modifier.`);
+        throw new Error(`Error overriding getter ${name}() in ${this.name}: overriding getter needs an 'override' modifier.`);
 
       const origin = this.superType!.allGetters.elements.get(name) || this.superType!.allProperties.elements.get(name);
       const origType = origin != null ? ((origin instanceof Property) ? origin.type : ((origin as Method).callable && (origin as Method).callable!.getReturnType())) : null;
@@ -141,16 +142,16 @@ export default class Class extends PackageContent implements IClass, Serializabl
       const ovrdType = method.callable.getReturnType();
       if ((!!ovrdType) != (!!origType)) {
         if (ovrdType)
-          throw new Error(`Error overriding property ${name} in ${this.className}: property has no type, but overriding getter has ${ovrdType.toString()}.`);
+          throw new Error(`Error overriding property ${name} in ${this.name}: property has no type, but overriding getter has ${ovrdType.toString()}.`);
         else
-          throw new Error(`Error overriding property ${name} in ${this.className}: property has return type '${origType!.toString()}', but overriding getter has no return type.`);
+          throw new Error(`Error overriding property ${name} in ${this.name}: property has return type '${origType!.toString()}', but overriding getter has no return type.`);
       }
       if (!ovrdType)
         return;
       
       return Util.resolveValue(ovrdType.compatibleWith(this.classContext, origType), (retCheck: JelBoolean)=>{
         if (!retCheck.toRealBoolean())
-          throw new Error(`Error overriding getter ${name}() in ${this.className}: super type getter return type '${origType!.toString()}' is incompatible with overriding type '${ovrdType.toString()}'.`);
+          throw new Error(`Error overriding getter ${name}() in ${this.name}: super type getter return type '${origType!.toString()}' is incompatible with overriding type '${ovrdType.toString()}'.`);
       });
     }));
   }
@@ -159,51 +160,51 @@ export default class Class extends PackageContent implements IClass, Serializabl
   protected checkMethodOverrides(): Promise<never>|undefined {
     if (!this.superType) {
         if (this.localMethods.findJs((n: string,m: Method)=>m.isOverride))
-          throw new Error(`Class ${this.className} has overriding methods defined, but no super class.`);
+          throw new Error(`Class ${this.name} has overriding methods defined, but no super class.`);
       return;
     }
     
     return Util.waitArray(this.localMethods.mapToArrayJs((name, method: Method)=>{
       if (!this.superType!.has(name)) {
         if (method.isOverride)
-          throw new Error(`Error overriding method ${name}() in ${this.className}: method not found in super type ${this.superType!.className}.`);
+          throw new Error(`Error overriding method ${name}() in ${this.name}: method not found in super type ${this.superType!.name}.`);
         return;
       }
 
       if (this.allGetters.elements.has(name))
-        throw new Error(`Error overriding getter '${name}' in ${this.superType!.className} with a method of the same name in ${this.className}: you can only override getters with getters, but not with methods.`);
+        throw new Error(`Error overriding getter '${name}' in ${this.superType!.name} with a method of the same name in ${this.name}: you can only override getters with getters, but not with methods.`);
 
       if (this.allProperties.elements.has(name))
-        throw new Error(`Error overriding property '${name}' in ${this.superType!.className} with a method of the same name in ${this.className}: you can only override properties with getters, but not with methods.`);
+        throw new Error(`Error overriding property '${name}' in ${this.superType!.name} with a method of the same name in ${this.name}: you can only override properties with getters, but not with methods.`);
       
       if (!method.isOverride)
-        throw new Error(`Error overriding method ${name}() in ${this.className}: overriding method needs an 'override' modifier.`);
+        throw new Error(`Error overriding method ${name}() in ${this.name}: overriding method needs an 'override' modifier.`);
 
       const sm = this.superType!.allMethods.elements.get(name) as Method;
       const subRet = method.callable.getReturnType();
       const superRet = sm.callable.getReturnType();
       if ((!!subRet) != (!!superRet)) {
         if (subRet)
-          throw new Error(`Error overriding method ${name}() in ${this.className}: super type method has no return type, but overriding method has '${subRet.toString()}'.`);
+          throw new Error(`Error overriding method ${name}() in ${this.name}: super type method has no return type, but overriding method has '${subRet.toString()}'.`);
         else
-          throw new Error(`Error overriding method ${name}() in ${this.className}: super type method has return type '${superRet.toString()}', but overriding method has no return type.`);
+          throw new Error(`Error overriding method ${name}() in ${this.name}: super type method has return type '${superRet.toString()}', but overriding method has no return type.`);
       }
 
       return Util.resolveValue(subRet ? subRet.compatibleWith(this.classContext, superRet) : JelBoolean.TRUE, (retCheck: JelBoolean)=>{
         if (!retCheck.toRealBoolean())
-          throw new Error(`Error overriding method ${name}() in ${this.className}: super type method return type '${superRet.toString()}' is incompatible with overriding type '${subRet.toString()}'.`);
+          throw new Error(`Error overriding method ${name}() in ${this.name}: super type method return type '${superRet.toString()}' is incompatible with overriding type '${subRet.toString()}'.`);
         
         const subArgs = method.callable.getArguments();
         const superArgs = sm.callable.getArguments();
         if (!subArgs || !superArgs)
           return;
         if (subArgs.length != superArgs.length)
-          throw new Error(`Error overriding method ${name}() in ${this.className}: super type method has ${superArgs.length} arguments, but this implementation has only ${subArgs.length}.`);
+          throw new Error(`Error overriding method ${name}() in ${this.name}: super type method has ${superArgs.length} arguments, but this implementation has only ${subArgs.length}.`);
 
         return Util.resolveArray(subArgs.map((arg,i)=>arg.compatibleWith(this.classContext, superArgs[i])), (argResults: JelBoolean[])=>{
           const idx = argResults.findIndex(e=>!JelBoolean.toRealBoolean(e));
           if (idx >= 0)
-            throw new Error(`Error overriding method ${name}() in ${this.className}: super class argument ${idx+1} type '${superArgs[idx].toString()}' is incompatible with overriding type '${subArgs[idx].toString()}'.`);
+            throw new Error(`Error overriding method ${name}() in ${this.name}: super class argument ${idx+1} type '${superArgs[idx].toString()}' is incompatible with overriding type '${subArgs[idx].toString()}'.`);
         });
       });
     }));
@@ -211,9 +212,9 @@ export default class Class extends PackageContent implements IClass, Serializabl
 
   protected staticPropertyInit(): Promise<Class>|Class {
     if (this.ctor)
-      this.staticPropertyCache.set('create', new NativeCallable(this, this.ctor instanceof NativeCallable ? this.ctor.argDefs.slice(1) : this.ctor.argDefs, this.ctor.returnType, Class.prototype.create, this.classContext, 'create'));
+      this.staticPropertyCache.set('create', new NativeCallable(this, this.ctor.argDefs, this.ctor.returnType, Class.prototype.create, this.classContext, 'create'));
 
-    this.staticPropertyCache.set('className', JelString.valueOf(this.className));
+    this.staticPropertyCache.set('className', JelString.valueOf(this.name));
     this.staticPropertyCache.set('packageName', JelString.valueOf(this.packageName));
     this.staticPropertyCache.set('abstract', JelBoolean.valueOf(this.isAbstract));
     this.staticPropertyCache.set('superType', this.superType||null);
@@ -225,12 +226,12 @@ export default class Class extends PackageContent implements IClass, Serializabl
     
     return Util.processPromiseList(this.staticProperties.elements, (p: Property)=>{
       if (this.staticPropertyCache.has(p.name) || this.staticMethods.elements.has(p.name))
-        throw new Error(`Can not overwrite static property ${p.name} in class ${this.className}. It's defined twice (possibly in a super class).`)
+        throw new Error(`Can not overwrite static property ${p.name} in class ${this.name}. It's defined twice (possibly in a super class).`)
       if (p.isNative) {
         if (!this.nativeClass)
-          throw new Error(`Can not initialize static native property ${p.name} in class ${this.className}. No native class defined.`);
+          throw new Error(`Can not initialize static native property ${p.name} in class ${this.name}. No native class defined.`);
         if (!this.nativeClass[p.name+'_jel_property'])
-          throw new Error(`Can not access native static member ${p.name} in class ${this.className} without a valid ${p.name}_jel_property.`);
+          throw new Error(`Can not access native static member ${p.name} in class ${this.name} without a valid ${p.name}_jel_property.`);
         return Util.resolveValue(BaseTypeRegistry.mapNativeTypes(this.nativeClass[p.name]), v0=>p.type ? p.type.convert(this.classContext, v0, p.name) : v0);
       }
       else if (p.defaultValueGenerator) {
@@ -254,13 +255,13 @@ export default class Class extends PackageContent implements IClass, Serializabl
 
   create_jel_mapping: any; // set in ctor
   create(ctx: Context, ...args: any[]): any {
-    if (this.ctor instanceof NativeCallable) 
-      return this.ctor.invoke(ctx, undefined, this, ...args);
+    if (this.ctor instanceof NativeCallable)
+      return this.ctor.invoke(ctx, this, ...args);
   
     if (this.isAbstract)
-      throw new Error(`The class ${this.className} can not be instantiated. Is is declared abstract.`);
+      throw new Error(`The class ${this.name} can not be instantiated. Is is declared abstract.`);
     if (!this.ctor)
-      throw new Error(`The class ${this.className} can not be instantiated. No constructor defined.`);
+      throw new Error(`The class ${this.name} can not be instantiated. No constructor defined.`);
     
     if (!this.defaultPropValues) {
       const pv = Array.from(this.allProperties.elements.values()).filter((p: Property)=>p.defaultValueGenerator != null || p.isNullable(ctx)) as Property[];
@@ -331,13 +332,13 @@ export default class Class extends PackageContent implements IClass, Serializabl
   }
   
   getSerializationProperties(): any[] {
-    return [this.className, this.superType && new ReferenceHelper(this.superType.distinctName), this.isAbstract, this.isNative, this.ctor, this.properties, this.methods,
+    return [this.name, this.superType && new ReferenceHelper(this.superType.distinctName), this.isAbstract, this.isNative, this.ctor, this.properties, this.methods,
            this.staticProperties];
   }
 
-  static valueOf(ctx: Context, className: string, c: Class, isAbstract: boolean, nativeClass: any, isNative: boolean, ctor: LambdaCallable|NativeCallable|null, properties: List,
+  static valueOf(ctx: Context, name: string, c: Class, isAbstract: boolean, nativeClass: any, isNative: boolean, ctor: LambdaCallable|NativeCallable|null, properties: List,
                  methods: List, staticProperties: List): Class|Promise<Class> {
-    const cl = new Class(ctx, className, c, isAbstract, nativeClass, isNative, ctor, properties, methods, staticProperties);
+    const cl = new Class(ctx, name, c, isAbstract, nativeClass, isNative, ctor, properties, methods, staticProperties);
     return cl.asyncInit();
   }
 
@@ -347,24 +348,24 @@ export default class Class extends PackageContent implements IClass, Serializabl
   
 	serializeToString(pretty: boolean, indent: number, spaces: string, serializer: (object: any, pretty: boolean, indent: number, spaces: string)=>string): string {
     const preSpace = spaces.substr(0, indent*2);
-    return `${preSpace}(${this.isNative?'native ':''}${this.isAbstract?'abstract ':''}class ${this.className}${this.superType?' extends '+this.superType.className:''}:\n`+
+    return `${preSpace}(${this.isNative?'native ':''}${this.isAbstract?'abstract ':''}class ${this.name}${this.superType?' extends '+this.superType.name:''}:\n`+
         this.staticProperties.elements.map(p=>`${preSpace}  static ${p.toString()}\n`).join('') +
         (this.staticProperties.size ? '\n':'') + 
         this.properties.elements.map(p=>`${preSpace}  ${p.toString()}\n`).join('') +
         (this.properties.size ? '\n':'') + 
-        (this.ctor ? `${preSpace}  ${this.ctor instanceof NativeCallable ? 'native ':''}constructor(${(this.ctor.getArguments()||[]).map(ad=>ad.toString()).join(', ')})${this.ctor instanceof LambdaCallable?' =>\n'+preSpace+'    '+this.ctor.expression.toString()+'\n\n':''}`:'') +
+        (this.ctor ? `${preSpace}  ${this.ctor instanceof NativeCallable ? 'native ':''}constructor(${(this.ctor.getArguments()||[]).map(ad=>ad.toString()).join(', ')})${this.ctor instanceof LambdaCallable?' =>\n'+preSpace+'    '+this.ctor.expression.toString()+'\n\n':''}`:'') + '\n' +
         this.methods.elements.map(m=>`${preSpace}  ${m.toString()}\n`).join('') +
         (this.methods.size ? '\n':'') + 
         ')';
   }
 
 
-  static create_jel_mapping = ['className', 'superType', 'isAbstract', 'isNative', 'ctor', 'properties', 'methods', 'staticProperties'];
+  static create_jel_mapping = ['name', 'superType', 'isAbstract', 'isNative', 'ctor', 'properties', 'methods', 'staticProperties'];
   static create(ctx: Context, ...args: any[]): Class|Promise<Class> {
     if (TypeChecker.isIDbRef(args[1]))
       return args[1].with(ctx, (t: Class) => Class.create(ctx, args[0], t, args[2], args[3], args[4], args[5], args[6], args[7])); 
     
-    return Class.valueOf(ctx, TypeChecker.realString(args[0], 'className'), 
+    return Class.valueOf(ctx, TypeChecker.realString(args[0], 'name'), 
                               TypeChecker.optionalInstance(Class, args[1], 'superType')||undefined,
                               TypeChecker.realBoolean(args[2], 'isAbstract', false),
                               null,

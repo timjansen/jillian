@@ -85,7 +85,7 @@ export default class DictionaryType extends TypeDescriptor {
   }
   
   static create_jel_mapping = ['valueTypes'];
-  static create(ctx: Context, clazz: any, ...args: any[]) {
+  static create(ctx: Context, ...args: any[]) {
     return new DictionaryType(args[0]);
   }
 }

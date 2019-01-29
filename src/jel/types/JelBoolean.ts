@@ -48,7 +48,7 @@ export default class JelBoolean extends JelObject implements SerializablePrimiti
 		JelBoolean.NEGATE.set(JelBoolean.TRUE_VALUE, JelBoolean.FALSE);
 	}
 
-	static className = 'Boolean';
+	static jelName = 'Boolean';
   
 	constructor(state: any) { // state can be number | boolean | Float. Any to avoid circular deps
 		super('Boolean');

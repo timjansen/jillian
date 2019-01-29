@@ -111,7 +111,7 @@ export default class DefaultContext {
   }
   
   private static extendContext(ctxObject: any, jelClass: Class): any {
-    ctxObject[jelClass.className] = jelClass;
+    ctxObject[jelClass.name] = jelClass;
     return ctxObject;
   }
 

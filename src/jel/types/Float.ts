@@ -23,7 +23,7 @@ export default class Float extends JelObject implements SerializablePrimitive, N
 		Float.DEFAULT_NUMBERS[NaN] = Float.NAN;
 	}
 	
-  static className = 'Float';
+  static jelName = 'Float';
   
 	constructor(public value: number) {
 		super('Float');

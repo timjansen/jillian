@@ -61,7 +61,7 @@ export default class CategoryType extends TypeDescriptor {
   }
   
   static create_jel_mapping = true;
-  static create(ctx: Context, clazz: any, ...args: any[]) {
+  static create(ctx: Context, ...args: any[]) {
     if (!args[0])
       return new CategoryType();
     return new CategoryType(args[0] instanceof JelString ? args[0].value : TypeChecker.dbRef(args[0], 'superCategory').distinctName);

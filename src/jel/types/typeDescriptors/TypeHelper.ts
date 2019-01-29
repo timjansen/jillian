@@ -24,7 +24,7 @@ export default class TypeHelper {
 	 * @param l a TypeDescriptor or Class or NativeClass or DbRef or Dictionary or List or Range or Enum, or null
 	 * @return the TypeDescriptor
 	 */
-	static convertNullable(l: JelObject, name: string): TypeDescriptor {
+	static convertToTypeDescriptor(l: JelObject, name: string): TypeDescriptor {
     if (l instanceof TypeDescriptor)
       return l;
 		else if (TypeChecker.isIDbRef(l))
@@ -42,19 +42,19 @@ export default class TypeHelper {
     else if (l instanceof Enum)
       return new EnumType(l.distinctName);
 		else if (TypeChecker.isIClass(l))
-			return new SimpleType((l as any).className);
+			return new SimpleType((l as any).name);
   
     throw new Error(`Expected NativeClass or Class or Enum or DbRef or Dictionary or List or Range in ${name}. But it is ` + (l==null?'null.' : `${l.getJelType? l.getJelType() : 'Native: '+l.constructor.name}: ${l}`));
   }
   
   static convertFromAny(l: any, name: string): TypeDescriptor {
-    return TypeHelper.convertNullable(l, name);
+    return TypeHelper.convertToTypeDescriptor(l, name);
   }
 
   static convertNullableFromAny(l: any, name: string): TypeDescriptor | null {
     if (!l)
       return null;
-    return TypeHelper.convertNullable(l, name);
+    return TypeHelper.convertToTypeDescriptor(l, name);
   }
 
 }

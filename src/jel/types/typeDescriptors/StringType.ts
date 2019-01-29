@@ -50,7 +50,7 @@ export default class StringType extends TypeDescriptor implements SerializablePr
   }
   
   static create_jel_mapping = ['allowEmpty'];
-  static create(ctx: Context, clazz: any, ...args: any[]): any {
+  static create(ctx: Context, ...args: any[]): any {
     if (TypeChecker.optionalRealBoolean(args[0], 'allowEmpty'))
       return StringType.allowEmpty;
     else

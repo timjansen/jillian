@@ -48,7 +48,7 @@ export default class UnitValueQuantityType extends TypeDescriptor {
   }
   
   static create_jel_mapping = {quantityCategory: 1};
-  static create(ctx: Context, clazz: any, ...args: any[]) {
+  static create(ctx: Context, ...args: any[]) {
     return new UnitValueQuantityType(TypeChecker.dbRef(args[0], 'quantityCategory'));
   }
 }

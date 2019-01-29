@@ -18,6 +18,7 @@ const JelDictionary = require('../../build/jel/types/Dictionary.js').default;
 const Fraction = require('../../build/jel/types/Fraction.js').default;
 const UnitValue = require('../../build/jel/types/UnitValue.js').default;
 const OptionalType = require('../../build/jel/types/typeDescriptors/OptionalType.js').default;
+const TypeHelper = require('../../build/jel/types/typeDescriptors/TypeHelper.js').default;
 const JelNode = require('../../build/jel/expressionNodes/JelNode.js').default;
 const Literal = require('../../build/jel/expressionNodes/Literal.js').default;
 const Variable = require('../../build/jel/expressionNodes/Variable.js').default;
@@ -68,8 +69,13 @@ describe('JEL', function () {
       assert.equal(new JEL('(Float)?').executeImmediately(ctx).type.type, 'Float');
     });
 
-
-     it('should support instanceof', function() {
+    it('should convert convenience types automatically', function() {
+      assert.equal(TypeHelper.convertNullableFromAny(new JEL('Boolean').executeImmediately(ctx), 'unit test').toString(), 'SimpleType("Boolean")');
+      assert.equal(TypeHelper.convertNullableFromAny(new JEL('String').executeImmediately(ctx), 'unit test').toString(), 'SimpleType("String")');
+      assert.equal(TypeHelper.convertNullableFromAny(new JEL('1...3').executeImmediately(ctx), 'unit test').toString(), 'number(Range(1,3))');
+    });
+    
+     it('should support instanceof', function() {     
       jelAssert.equal("3 instanceof any", "true");
       jelAssert.equal("3 instanceof number", "true");
       jelAssert.equal("null instanceof number", "false");

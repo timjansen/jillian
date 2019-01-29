@@ -17,11 +17,11 @@ export default class Enum extends PackageContent {
 	/**
 	 * @param values a List of strings with the possible values of the enum.
 	 */
-  constructor(distinctName: string, public values: List) {
-    super('Enum', distinctName);
+  constructor(public name: string, public values: List) {
+    super('Enum', name);
 
-		if (!distinctName.endsWith('Enum'))
-			throw Error('By convention, all Enum names must end with "Enum". Illegal name: ' + distinctName);
+		if (!name.endsWith('Enum'))
+			throw Error('By convention, all Enum names must end with "Enum". Illegal name: ' + name);
 
     const d = new Map<string,any>();
 	  values.elements.map(JelString.toRealString).forEach(v=>d.set(v, new EnumValue(v, this)));
@@ -36,12 +36,12 @@ export default class Enum extends PackageContent {
 	}
   
   getSerializationProperties(): Object {
-    return [this.distinctName, this.values, this.valueMap];
+    return [this.name, this.values, this.valueMap];
   }
 
-  static create_jel_mapping = ['distinctName', 'values'];
+  static create_jel_mapping = ['name', 'values'];
   static create(ctx: Context, ...args: any[]) {
-    return new Enum(TypeChecker.realString(args[0], 'distinctName'), 
+    return new Enum(TypeChecker.realString(args[0], 'name'), 
                     TypeChecker.instance(List, args[1], 'values'));
   }
 }

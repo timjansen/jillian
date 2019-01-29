@@ -20,7 +20,6 @@ export default class Instanceof extends TypeCheck {
   constructor(left: JelNode, right: JelNode) {
     super(left, right);
     this.typeHelper = BaseTypeRegistry.get('TypeHelper');
-
   }
 
   executeTypeCheck(ctx: Context, left: JelObject|null, right: JelObject|null): JelObject|Promise<JelObject> {
