@@ -61,7 +61,7 @@ export default class ThingType extends TypeDescriptor {
   }
   
   static create_jel_mapping = {category: 1};
-  static create(ctx: Context, ...args: any[]) {
+  static create(ctx: Context, clazz: any, ...args: any[]) {
     return new ThingType(TypeChecker.optionalDbRef(args[0], 'category'));
   }
 }

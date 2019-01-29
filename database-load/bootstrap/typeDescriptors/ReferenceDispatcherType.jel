@@ -1,0 +1,18 @@
+/**
+ * A helper type to handle references whose target isn't known yet. 
+ * It will act as a 
+ *   - ThingType if the reference is a category
+ *   - UnitValueType if the reference is a thing of UnitOfMeasureCategory
+ *   - UnitValueQuantityType if the reference is a thing of QuantityCategory
+ */
+native class ReferenceDispatcherType extends TypeDescriptor:
+  native constructor(type: any)
+  
+  override native checkType(value: any): bool
+
+  override native convert(value: any): any
+  
+  override native equals(other: TypeDescriptor?): bool
+  
+  override native serializeToString(): string
+  

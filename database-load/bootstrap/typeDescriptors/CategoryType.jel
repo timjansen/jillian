@@ -1,0 +1,18 @@
+/**
+ * A type that allows categories, possibly restricted by super category.
+ */
+native class CategoryType extends TypeDescriptor:
+  /**
+   * Creates a new CategoryType with the given super category
+   * @param superCategory optional a super category to restrict the allowed categories, as reference or string
+   */
+  native constructor(superCategory: any?)
+  
+  override native checkType(value: any): bool
+
+  override native convert(value: any): any
+  
+  override native equals(other: TypeDescriptor?): bool
+  
+  override native serializeToString(): string
+  

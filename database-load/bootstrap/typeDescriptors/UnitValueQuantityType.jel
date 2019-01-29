@@ -1,0 +1,15 @@
+/**
+ * A type that allows unit values of the given unit category.
+ */
+native class UnitValueQuantityType extends TypeDescriptor:
+
+  native constructor(category: CategoryType()) // CategoryType(@UnitOfMeasureCategory))
+  
+  override native checkType(value: any): bool
+
+  override native convert(value: any): any
+  
+  override native equals(other: TypeDescriptor?): bool
+  
+  override native serializeToString(): string
+  

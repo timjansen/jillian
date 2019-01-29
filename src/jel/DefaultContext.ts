@@ -92,8 +92,7 @@ const BOOT_SCRIPT = [
                    Class: c(Class), Enum: c(Enum), Method: c(Method), Property: c(Property), LambdaExecutable: c(LambdaExecutable),
                    Dictionary: c(Dictionary), List: c(List), Distribution: c(Distribution), DistributionPoint: c(DistributionPoint), Pattern: c(Pattern), Translator: c(Translator), EnumValue: c(EnumValue), 
                    Duration: c(Duration), DurationRange: c(DurationRange), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 
-                   ZonedDate: c(ZonedDate), ZonedDateTime: c(ZonedDateTime),
-                   ___IS_DEFAULT_CONTEXT: 'magic123'}}
+                   ZonedDate: c(ZonedDate), ZonedDateTime: c(ZonedDateTime)}}
 ];
 
 export default class DefaultContext {
@@ -101,12 +100,12 @@ export default class DefaultContext {
   static context: Context | Promise<Context> | undefined;
   
 
-  private static async loadClass(ctx: Context, classPath: string): Promise<Class> {
-    return JEL.execute(await fs.readFile(path.join(DefaultContext.BOOTSTRAP_DIR, classPath), {encoding: 'utf-8'}), ctx);
+  private static async loadClass(ctx: Context, basePath: string, classPath: string): Promise<Class> {
+    return JEL.execute(await fs.readFile(path.join(basePath, classPath), {encoding: 'utf-8'}), classPath, ctx);
   }
 
-  private static async loadNativeClass(ctx: Context, classPath: string, nativeClazzImpl: any): Promise<Class> {
-    const jelClass = await DefaultContext.loadClass(ctx, classPath);
+  private static async loadNativeClass(ctx: Context, basePath: string, classPath: string, nativeClazzImpl: any): Promise<Class> {
+    const jelClass = await DefaultContext.loadClass(ctx, basePath, classPath);
     nativeClazzImpl.clazz = jelClass;
     return jelClass;
   }
@@ -116,23 +115,23 @@ export default class DefaultContext {
     return ctxObject;
   }
 
-  private static async load(ctx: Context, desc: any): Promise<any> {
+  private static async load(ctx: Context, dir: string, desc: any): Promise<any> {
     if (desc[0])
-      return (await Promise.all(desc.map((dl: any)=>DefaultContext.load(ctx, dl)))).reduce((a: any,b: any)=>Object.assign(a,b), {});
+      return (await Promise.all(desc.map((dl: any)=>DefaultContext.load(ctx, dir, dl)))).reduce((a: any,b: any)=>Object.assign(a,b), {});
     else if (desc.static)
       return desc.static;
     else if (desc.native)
-      return DefaultContext.extendContext({}, await DefaultContext.loadNativeClass(ctx, desc.jel, desc.native));
+      return DefaultContext.extendContext({}, await DefaultContext.loadNativeClass(ctx, dir, desc.jel, desc.native));
     else
-      return DefaultContext.extendContext({}, await DefaultContext.loadClass(ctx, desc.jel));
+      return DefaultContext.extendContext({}, await DefaultContext.loadClass(ctx, dir, desc.jel));
   }
   
-  private static async createBootContext(): Promise<Context> {
+  static async createBootContext(dir: string, bootScript: any, parentContext?: Context): Promise<Context> {
     const ctxObject: any = {};
-    let ctx = new Context();
-    for (let e of BOOT_SCRIPT) {
-      Object.assign(ctxObject, await DefaultContext.load(ctx, e));
-      ctx = new Context().setAll(ctxObject);
+    let ctx = new Context(parentContext);
+    for (let e of bootScript) {
+      Object.assign(ctxObject, await DefaultContext.load(ctx, dir, e));
+      ctx = new Context(parentContext).setAll(ctxObject, true);
     }
     return ctx;
   }
@@ -141,7 +140,7 @@ export default class DefaultContext {
 	static async get(): Promise<Context> {
     if (DefaultContext.context)
       return DefaultContext.context;
-   	DefaultContext.context = DefaultContext.createBootContext();
+   	DefaultContext.context = DefaultContext.createBootContext(DefaultContext.BOOTSTRAP_DIR, BOOT_SCRIPT);
     return DefaultContext.context;
 	}
 

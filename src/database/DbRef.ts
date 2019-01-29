@@ -132,6 +132,10 @@ export default class DbRef extends JelObject implements IDbRef, SerializablePrim
 		else
 			return (ctx.getSession() as DbSession).getFromDatabase(this.distinctName);
 	}
+  
+  toRef(): DbRef {
+    return this;
+  }
 	
 	get isAvailable(): boolean {
 		return this.cached !== undefined;

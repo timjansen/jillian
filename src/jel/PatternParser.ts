@@ -21,7 +21,7 @@ export default class PatternParser {
 		else if (t.type == TokenType.Template) {
 			const t0 = t as TemplateToken;
 			try {	
-				return targetNode.addTemplateMatch(new TemplateNode(t0.template, t0.name, t0.metaFilter, t0.expression ? JEL.parseTree(t0.expression) : undefined, PatternParser.parsePattern(tok, jelToken, expectStopper)));
+				return targetNode.addTemplateMatch(new TemplateNode(t0.template, t0.name, t0.metaFilter, t0.expression ? JEL.parseTree(t0.expression, jelToken.src) : undefined, PatternParser.parsePattern(tok, jelToken, expectStopper)));
 			}
 			catch (e) {
 				JEL.throwParseException(jelToken, "Can not parse expression ${t.expression} embedded in pattern", e);
@@ -30,7 +30,7 @@ export default class PatternParser {
 		else if (t.type == TokenType.RegExp) {
 			const t0 = t as RegExpToken;
 			const regexps = t0.regexps.map(s=>RegExp(s.replace(/^([^^])/, "^$1").replace(/([^$])$/, "$1$")));
-			return targetNode.addTemplateMatch(new RegExpNode(regexps, t0.name, t0.expression ? JEL.parseTree(t0.expression) : undefined, PatternParser.parsePattern(tok, jelToken, expectStopper)));
+			return targetNode.addTemplateMatch(new RegExpNode(regexps, t0.name, t0.expression ? JEL.parseTree(t0.expression, jelToken.src) : undefined, PatternParser.parsePattern(tok, jelToken, expectStopper)));
 		}
 
 		switch(t.value) {

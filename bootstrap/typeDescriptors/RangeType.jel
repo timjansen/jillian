@@ -4,9 +4,9 @@
 native class RangeType extends TypeDescriptor:
   /**
    * Creates a new RangeType with the given element type. 
-   * @param types the type of the elements
+   * @param types optional the type of the elements
    */
-  native constructor(types: any)
+  native constructor(types: any?)
   
   override native checkType(value: any): bool
 

@@ -14,7 +14,7 @@ import Class from '../../jel/types/Class';
 
 
 /**
- * Declares a property that is a time.
+ * Declares a property that is a duration.
  */
 export default class DurationType extends TypeDescriptor {
   static clazz: Class|undefined;
@@ -50,6 +50,11 @@ export default class DurationType extends TypeDescriptor {
   serializeToString() : string {
 		return this.serializeType();
 	}
+  
+  static create_jel_mapping = true;
+  static create(ctx: Context, clazz: any, ...args: any[]) {
+    return DurationType.instance;
+  }
 }
 
 BaseTypeRegistry.register('DurationType', DurationType);

@@ -79,8 +79,8 @@ describe('Database entries', function() {
           return Promise.all([
             Promise.resolve(cc.member(ctx, 'b')).then(value=>jelAssert.equal(value, 2)),
             Promise.resolve(cc.member(ctx, 'y')).then(value=>jelAssert.equal(value, "'bar'")),
-            JEL.execute('@Cat1Category.a', ctx).then(r=>jelAssert.equal(r, 5)),
-            JEL.execute('@Cat1Category.y', ctx).then(r=>jelAssert.equal(r, "'bar'"))
+            JEL.execute('@Cat1Category.a', '(unit test inline)', ctx).then(r=>jelAssert.equal(r, 5)),
+            JEL.execute('@Cat1Category.y', '(unit test inline)', ctx).then(r=>jelAssert.equal(r, "'bar'"))
             ])
           .then(()=>session.getFromDatabase('Animal1Category'));
         })
@@ -91,8 +91,8 @@ describe('Database entries', function() {
           jelAssert.equal(aa.member(ctx, 'x'), "'foo'");
           jelAssert.equal(aa.member(ctx, 'y'), "'bar'");
           return Promise.all([
-            JEL.execute('@Animal1Category.a', ctx).then(r=>jelAssert.equal(r, 1)),
-            JEL.execute('@Animal1Category.b', ctx).then(r=>jelAssert.equal(r, '2'))
+            JEL.execute('@Animal1Category.a', '(unit test inline)', ctx).then(r=>jelAssert.equal(r, 1)),
+            JEL.execute('@Animal1Category.b', '(unit test inline)', ctx).then(r=>jelAssert.equal(r, '2'))
             ])
         }));
     });
@@ -184,7 +184,7 @@ describe('Database entries', function() {
           assert.ok(!!cc);
           return Promise.all([
             Promise.resolve(cc.member(ctx, 'a')).then(value=>jelAssert.equal(value, 1)),
-            JEL.execute('@HowardTheDuck.a', ctx).then(r=>jelAssert.equal(r, 1)),
+            JEL.execute('@HowardTheDuck.a', '(inline)', ctx).then(r=>jelAssert.equal(r, 1)),
             Promise.resolve(cc.member(ctx, 'b')).then(value=>jelAssert.equal(value, 2)),
             Promise.resolve(cc.member(ctx, 'x')).then(value=>jelAssert.equal(value, "'foo'")),
             Promise.resolve(cc.member(ctx, 'y')).then(value=>jelAssert.equal(value, "'bar'"))

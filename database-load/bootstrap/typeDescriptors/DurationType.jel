@@ -1,0 +1,14 @@
+/**
+ * Allows a duration.
+ */
+native class DurationType extends TypeDescriptor:
+  native constructor()
+  
+  override native checkType(value: any): bool
+
+  override native convert(value: any): any
+  
+  override native equals(other: TypeDescriptor?): bool
+  
+  override native serializeToString(): string
+  

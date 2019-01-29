@@ -54,7 +54,7 @@ export default class Database {
           .catch(e=>DatabaseError.rethrow(`Can not parse configuration "${CONFIG_FILE}" in "${this.dbPath}": ${e.toString()}`, e));
     })
     .then(configTxt=>DefaultContext.get()
-            .then(dctx=>JEL.execute(configTxt, dctx.plus({DatabaseConfig: new NativeClass(DatabaseConfig)})))
+            .then(dctx=>JEL.execute(configTxt, this.dbPath, dctx.plus({DatabaseConfig: new NativeClass(DatabaseConfig)})))
             .catch(e=>DatabaseError.rethrow(`Can not open database. Failed to load configuration "${CONFIG_FILE}" in "${this.dbPath}".`, e)))
     .then(config=>{
           this.config = config;
@@ -75,7 +75,7 @@ export default class Database {
   
   readEntry(ctx: Context, distinctName: string, path: string): Promise<NamedObject | null> {
     return fs.readFile(path, {encoding: 'utf8'})
-    .then(entryTxt=>JEL.execute(entryTxt, ctx))
+    .then(entryTxt=>JEL.execute(entryTxt, `@${distinctName} (${path})`, ctx))
     .catch(e=> {
       if (e.code == 'ENOENT')
         return null;

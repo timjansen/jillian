@@ -1,9 +1,11 @@
+import * as path from 'path';
 import Util from '../util/Util';
 
 import Context from '../jel/Context';
 import JelObject from '../jel/JelObject';
 import DefaultContext from '../jel/DefaultContext';
 import NativeClass from '../jel/NativeClass';
+import {IDbSession} from '../jel/IDatabase';
 
 import Database from './Database';
 import DbSession from './DbSession';
@@ -14,34 +16,50 @@ import Category from './dbObjects/Category';
 import Thing from './dbObjects/Thing';
 import MixinProperty from './dbObjects/MixinProperty';
 import PackageContent from '../jel/types/PackageContent';
-import CategoryType from './dbProperties/CategoryType';
-import ThingType from './dbProperties/ThingType';
-import UnitValueQuantityType from './dbProperties/UnitValueQuantityType';
-import UnitValueType from './dbProperties/UnitValueType';
-import ReferenceDispatcherType from './dbProperties/ReferenceDispatcherType';
-import DurationType from './dbProperties/DurationType';
+import CategoryType from './dbTypes/CategoryType';
+import ThingType from './dbTypes/ThingType';
+import UnitValueQuantityType from './dbTypes/UnitValueQuantityType';
+import UnitValueType from './dbTypes/UnitValueType';
+import ReferenceDispatcherType from './dbTypes/ReferenceDispatcherType';
+import DurationType from './dbTypes/DurationType';
 
 
 function c(ctor: any): NativeClass {
   return new NativeClass(ctor);
 }
 
-const DB_IDENTIFIERS = {DbRef: c(DbRef), DbEntry: c(DbEntry), Category: c(Category), Thing: c(Thing), MixinProperty: c(MixinProperty), 
-                        CategoryType: c(CategoryType), ReferenceDispatcherType: c(ReferenceDispatcherType), ThingType: c(ThingType), UnitValueQuantityType: c(UnitValueQuantityType),
-                        DurationType: c(DurationType), UnitValueType: c(UnitValueType),duration: DurationType.instance,
-												 ___IS_DATABASE_CONTEXT: 'magic123'};
+const DB_IDENTIFIERS = {DbRef: c(DbRef), DbEntry: c(DbEntry), Category: c(Category), Thing: c(Thing), MixinProperty: c(MixinProperty)};
+
+const BOOT_SCRIPT = [
+  {static: {duration: DurationType.instance}},
+  {jel: 'typeDescriptors/CategoryType.jel', native: CategoryType},
+  {jel: 'typeDescriptors/ThingType.jel', native: ThingType},
+  [
+    {jel: 'typeDescriptors/DurationType.jel', native: DurationType},
+    {jel: 'typeDescriptors/ReferenceDispatcherType.jel', native: ReferenceDispatcherType},
+    {jel: 'typeDescriptors/UnitValueQuantityType.jel', native: UnitValueQuantityType},
+    {jel: 'typeDescriptors/UnitValueType.jel', native: UnitValueType}
+  ],
+  {static: DB_IDENTIFIERS}
+];
+
+const BOOTSTRAP_DIR = path.join(__dirname, '../../database-load/bootstrap/');
+
 
 
 export default class DatabaseContext extends Context {
+
   private cache = new Map<string, PackageContent|undefined>(); // undefined means DB lookup failed
 
   constructor(parent: Context|undefined, session: DbSession) {
     super(parent, session);
-    this.setAll(DB_IDENTIFIERS, true);
   }
 
-  static async get(session: DbSession) {
-    return new DatabaseContext(await DefaultContext.get(), session);
+  static async get(session: DbSession): Promise<DatabaseContext> {
+    const dc = await DefaultContext.createBootContext(BOOTSTRAP_DIR, BOOT_SCRIPT, await DefaultContext.get());
+    const ctx = new DatabaseContext(dc, session);
+    ctx.freeze();
+    return ctx;
   }
   
   private getFromDatabase(name: string): JelObject|null|undefined|Promise<JelObject|null|undefined> {

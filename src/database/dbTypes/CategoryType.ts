@@ -1,7 +1,9 @@
 import TypeDescriptor from '../../jel/types/typeDescriptors/TypeDescriptor';
 import {IDbRef} from '../../jel/IDatabase';
+import DbRef from '../DbRef';
 import Dictionary from '../../jel/types/Dictionary';
 import TypeChecker from '../../jel/types/TypeChecker';
+import JelString from '../../jel/types/JelString';
 import JelBoolean from '../../jel/types/JelBoolean';
 import Context from '../../jel/Context';
 import JelObject from '../../jel/JelObject';
@@ -17,7 +19,7 @@ import Class from '../../jel/types/Class';
 export default class CategoryType extends TypeDescriptor {
   static clazz: Class|undefined;
 
-  constructor(public superCategory: IDbRef | null) {
+  constructor(public superCategory?: string) {
     super('CategoryType');
   }
   
@@ -34,11 +36,11 @@ export default class CategoryType extends TypeDescriptor {
       return JelBoolean.TRUE;
 
     const cat: Category = value;
-    if (cat.distinctName == this.superCategory.distinctName)
+    if (cat.distinctName == this.superCategory)
       return JelBoolean.TRUE;
     if (!cat.superCategory)
       return JelBoolean.FALSE;
-    if (cat.superCategory!.distinctName == this.superCategory.distinctName)
+    if (cat.superCategory!.distinctName == this.superCategory)
       return JelBoolean.TRUE;
     return cat.superCategory.with(ctx, sc=>this.checkType(ctx, sc)) as any;
   }
@@ -55,12 +57,14 @@ export default class CategoryType extends TypeDescriptor {
   }
   
   equals(ctx: Context, other: TypeDescriptor|null): JelBoolean {
-    return JelBoolean.valueOf(other instanceof CategoryType && (this.superCategory ? (other.superCategory!=null && other.superCategory.distinctName==this.superCategory.distinctName) : !other.superCategory));
+    return JelBoolean.valueOf(other instanceof CategoryType && (this.superCategory ? (other.superCategory!=null && other.superCategory==this.superCategory) : !other.superCategory));
   }
   
-  static create_jel_mapping = {superCategory: 1};
-  static create(ctx: Context, ...args: any[]) {
-    return new CategoryType(TypeChecker.optionalDbRef(args[0], 'superCategory'));
+  static create_jel_mapping = true;
+  static create(ctx: Context, clazz: any, ...args: any[]) {
+    if (!args[0])
+      return new CategoryType();
+    return new CategoryType(args[0] instanceof JelString ? args[0].value : TypeChecker.dbRef(args[0], 'superCategory').distinctName);
   }
 }
 

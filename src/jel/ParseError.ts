@@ -11,7 +11,7 @@ export default class ParseError extends ChainableError {
 	}
 
 	toString(): string {
-		const base = this.token ? `${this.msg} at line ${this.token.line} col ${this.token.column}\n${JSON.stringify(this.token)}` : `${this.msg}\n(no token for reference)`;
+		const base = this.token ? `${this.msg} at line ${this.token.line} col ${this.token.column} in ${this.token.src}\n${JSON.stringify(this.token)}` : `${this.msg}\n(no token for reference)`;
 		if (this.cause instanceof ParseError)
 			return base + '\n\n' + this.cause.toString;
 		return base;

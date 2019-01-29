@@ -33,6 +33,10 @@ export default class DbEntry extends NamedObject {
 		else
 			return v;
 	}
+  
+  toRef(): DbRef {
+    return new DbRef(this);
+  }
 	
 	// Calls callback with value of member. If it's a DbRef, it's automatically resolved.
 	withMember<T>(ctx: Context, name: string, f: (value: any)=>T): T | Promise<T> {

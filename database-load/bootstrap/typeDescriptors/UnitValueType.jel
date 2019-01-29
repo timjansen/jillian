@@ -1,0 +1,14 @@
+/**
+ * A type that allows unit values of the given unit.
+ */
+native class UnitValueType extends TypeDescriptor:
+  native constructor(category: any, range: RangeType(UnitValue)?) //  category: ThingType(@UnitOfMeasureCategory)|Unit
+  
+  override native checkType(value: any): bool
+
+  override native convert(value: any): any
+  
+  override native equals(other: TypeDescriptor?): bool
+  
+  override native serializeToString(): string
+  

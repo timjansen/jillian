@@ -133,8 +133,8 @@ const TRUE_LITERAL = new Literal(true);
 export default class JEL {
 	parseTree: JelNode;
 	
-  constructor(input: string) {
-    this.parseTree = JEL.parseExpression(Tokenizer.tokenize(input));
+  constructor(input: string, src: string = "(inline)") {
+    this.parseTree = JEL.parseExpression(Tokenizer.tokenize(input, src));
   }
   
   // returns value if available, otherwise promise
@@ -202,7 +202,7 @@ export default class JEL {
   }
 
   static parseTemplateString(tokens: TokenReader, stringToken: Token, precedence: number, stopOps: any): JelNode {
-    const stringTokens = Tokenizer.tokenizeTemplateString(stringToken.line, stringToken.column, stringToken.value);
+    const stringTokens = Tokenizer.tokenizeTemplateString(stringToken.line, stringToken.column, stringToken.src, stringToken.value);
     const fragments = [];
     const expressions = [];
     while (true) {
@@ -841,18 +841,18 @@ export default class JEL {
   }
  
   static createPattern(value: string, jelToken?: Token): any {
-		const t = jelToken || new Token(1, 1, TokenType.Pattern, value);
-    return BaseTypeRegistry.get('Pattern').valueOf(PatternParser.parsePattern(Tokenizer.tokenizePattern(t.line, t.column, value), t)!, value);
+		const t = jelToken || new Token(1, 1, '(anonymous)', TokenType.Pattern, value);
+    return BaseTypeRegistry.get('Pattern').valueOf(PatternParser.parsePattern(Tokenizer.tokenizePattern(t.line, t.column, t.src, value), t)!, value);
   }
   
 	
 
-  static execute(txt: string, ctx: Context): Promise<any> {
-    return new JEL(txt).execute(ctx);
+  static execute(txt: string, src: string, ctx: Context): Promise<any> {
+    return new JEL(txt, src).execute(ctx);
   }
 
-  static parseTree(txt: string): JelNode {
-    return new JEL(txt).parseTree;
+  static parseTree(txt: string, src: string): JelNode {
+    return new JEL(txt, src).parseTree;
   }
 
 }

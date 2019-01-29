@@ -40,7 +40,7 @@ const ctx = new Context();
 jelAssert.setCtx(ctx);
 
 describe('JEL', function() {
-  describe('execute()', function() {
+  describe('execute() without context', function() {
     
     it('should execute a simple literal', function() {
       jelAssert.equal(new JEL('5').executeImmediately(), Float.valueOf(5));
