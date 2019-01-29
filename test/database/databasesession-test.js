@@ -8,7 +8,6 @@ const DbEntry = require('../../build/database/DbEntry.js').default;
 const Category = require('../../build/database/dbObjects/Category.js').default;
 const Thing = require('../../build/database/dbObjects/Thing.js').default;
 const Context = require('../../build/jel/Context.js').default;
-const tmp = require('tmp');
 const assert = require('assert');
 
 const path = 'build/tmp/testdbsessions';

@@ -20,7 +20,6 @@ const UnitValue = require('../../build/jel/types/UnitValue.js').default;
 const ApproximateNumber = require('../../build/jel/types/ApproximateNumber.js').default;
 const Fraction = require('../../build/jel/types/Fraction.js').default;
 const Util = require('../../build/util/Util.js').default;
-const tmp = require('tmp');
 const assert = require('assert');
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 const jelAssert = new JelAssert();

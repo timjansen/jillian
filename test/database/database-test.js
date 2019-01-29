@@ -13,7 +13,6 @@ const Category = require('../../build/database/dbObjects/Category.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const Dictionary = require('../../build/jel/types/Dictionary.js').default;
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
-const tmp = require('tmp');
 const fs = require('fs');
 const assert = require('assert');
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');

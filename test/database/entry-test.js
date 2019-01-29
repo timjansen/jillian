@@ -14,7 +14,6 @@ const Float = require('../../build/jel/types/Float.js').default;
 const JelString = require('../../build/jel/types/JelString.js').default;
 const Dictionary = require('../../build/jel/types/Dictionary.js').default;
 const EnumValue = require('../../build/jel/types/EnumValue.js').default;
-const tmp = require('tmp');
 const assert = require('assert');
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 const jelAssert = new JelAssert(DefaultContext.get());

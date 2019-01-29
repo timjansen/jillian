@@ -20,7 +20,6 @@ const Float = require('../../build/jel/types/Float.js').default;
 const JelString = require('../../build/jel/types/JelString.js').default;
 const Dictionary = require('../../build/jel/types/Dictionary.js').default;
 const List = require('../../build/jel/types/List.js').default;
-const tmp = require('tmp');
 const assert = require('assert');
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
