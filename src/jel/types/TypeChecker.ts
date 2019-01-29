@@ -152,7 +152,7 @@ export default class TypeChecker {
   }
 
   static isIClass(value: any) {
-    return !!(value && value.className);
+    return !!(value && value.iClass);
   }
   
 	static optionalType(typeName: string, value: any, name: string, defaultValue: any = null): any {

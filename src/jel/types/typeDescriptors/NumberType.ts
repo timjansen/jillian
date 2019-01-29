@@ -63,7 +63,7 @@ export default class NumberType extends TypeDescriptor implements SerializablePr
   }
 
   static create_jel_mapping = true;
-  static create(ctx: Context, ...args: any[]): NumberType {
+  static create(ctx: Context, clazz: any, ...args: any[]): NumberType {
     return NumberType.instance.create(ctx, args[0], args[1]);
   }
 

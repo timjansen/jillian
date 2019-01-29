@@ -6,7 +6,7 @@ native class OptionType extends TypeDescriptor:
    * Creates a new OptionType with the given allowed types. 
    * @param types the possible types
    */
-  native constructor(types: TypeDescriptor[])
+  native constructor(types: any[])
   
   override native checkType(value: any): bool
 

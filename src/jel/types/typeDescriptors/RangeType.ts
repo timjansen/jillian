@@ -51,7 +51,7 @@ export default class RangeType extends TypeDescriptor {
   }
 
   static create_jel_mapping = ['types'];
-  static create(ctx: Context, ...args: any[]) {
+  static create(ctx: Context, clazz: any, ...args: any[]) {
     return new RangeType(args[0]);
   }
 }

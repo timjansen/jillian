@@ -45,7 +45,7 @@ export default class DateType extends TypeDescriptor  implements SerializablePri
   }
   
   static create_jel_mapping =true;
-  static create(ctx: Context, ...args: any[]) {
+  static create(ctx: Context, clazz: any, ...args: any[]) {
     return DateType.instance;
   }
 

@@ -13,4 +13,6 @@ native class FunctionType extends TypeDescriptor:
   
   override native serializeToString(): string
   
+  native create(prototype: any, allowUntyped: bool = false) // TODO: make prototype SimpleType('Callable')
+
   

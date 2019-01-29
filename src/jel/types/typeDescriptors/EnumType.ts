@@ -48,7 +48,7 @@ export default class EnumType extends TypeDescriptor  implements SerializablePri
   }
   
   static create_jel_mapping = ['enumRef'];
-  static create(ctx: Context, ...args: any[]) {
+  static create(ctx: Context, clazz: any, ...args: any[]) {
     return new EnumType(args[0] instanceof Enum ? args[0].distinctName : TypeChecker.realString(args[0], 'enumRef'));
   }
 }

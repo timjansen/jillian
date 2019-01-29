@@ -62,8 +62,8 @@ export default class IntType extends TypeDescriptor  implements SerializablePrim
   }
   
  
-  static create_jel_mapping =true;
-  static create(ctx: Context, ...args: any[]) {
+  static create_jel_mapping = true;
+  static create(ctx: Context, clazz: any, ...args: any[]) {
     return args[0] ? TypeChecker.instance(Range, args[0], 'range') : IntType.instance;
   }
 

@@ -49,7 +49,7 @@ export default class SimpleType extends TypeDescriptor {
   }
   
   static create_jel_mapping = ['type'];
-  static create(ctx: Context, ...args: any[]) {
+  static create(ctx: Context, clazz: any, ...args: any[]) {
     const type = TypeChecker.isIClass(args[0]) ? args[0].className : TypeChecker.isIDbRef(args[0]) ? args[0].distinctName : TypeChecker.realString(args[0], 'type');
     return new SimpleType(type);
   }

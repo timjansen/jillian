@@ -44,8 +44,8 @@ export default class TimeType extends TypeDescriptor implements SerializablePrim
 		return this.serializeType();
 	}
   
-  static create_jel_mapping =true;
-  static create(ctx: Context, ...args: any[]) {
+  static create_jel_mapping = true;
+  static create(ctx: Context, clazz: any, ...args: any[]) {
     return TimeType.instance;
   }
 

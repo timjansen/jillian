@@ -2,7 +2,11 @@
  * SimpleType allows all types that are instances of the given class, including sub-classes.
  */
 native class SimpleType extends TypeDescriptor:
-  native constructor(type: string)
+  /**
+   * Creates a new simple type.
+   * @param type the type can be either a string, containing the name of the type, or a Class instance.
+   */
+  native constructor(type: any)
   
   override native checkType(value: any): bool
 

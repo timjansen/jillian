@@ -9,5 +9,6 @@ import Serializer from './Serializer';
  */
 export default interface IClass extends JelObject {
   className: string;
+  iClass: boolean;
 }
 

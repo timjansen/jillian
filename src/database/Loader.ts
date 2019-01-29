@@ -131,27 +131,28 @@ export default class Loader {
 	 * @return a Promise that returns the number of loaded objects
 	 */ 
 	static bootstrapDatabaseObjects(database: Database, dirPath: string, logFunction?: (...args: any[])=>void): Promise<number> {
-    const session = new DbSession(database);
-		let objectCount = 0, dirCount = 0;
-		if (logFunction)
-			logFunction(`Start bootstrapping database at ${database.dbPath} from ${dirPath}`);
-		
-		return (fs as any).readdir(dirPath, {withFileTypes: true}) // TODO: remove any cast when new readdir() signature is in fs-extra
-			.then((files: any[]) => {  // TODO: use fs.Dirent as type here when available for TypeScript
-				const dirs: string[] = files.filter(s=>s.isDirectory()).map(s=>s.name).sort();
-				dirCount = dirs.length;
-				return WorkerPool.run(dirs, (dir: string)=>{
-					const fullDir = path.join(dirPath, dir);
-					if (logFunction)
-						logFunction("Loading database directory " + fullDir); 
-					return Loader.loadDir(session.ctx, fullDir).then(c=>objectCount+=c);
-				}, 1);
-			})
-			.then(()=>{
-				if(logFunction)
-					logFunction(`Bootstrap finished. Successfully loaded ${objectCount} objects from ${dirCount} directories.`);
-				return objectCount;
-			});
+    return DbSession.create(database).then(session=>{
+      let objectCount = 0, dirCount = 0;
+      if (logFunction)
+        logFunction(`Start bootstrapping database at ${database.dbPath} from ${dirPath}`);
+
+      return (fs as any).readdir(dirPath, {withFileTypes: true}) // TODO: remove any cast when new readdir() signature is in fs-extra
+        .then((files: any[]) => {  // TODO: use fs.Dirent as type here when available for TypeScript
+          const dirs: string[] = files.filter(s=>s.isDirectory()).map(s=>s.name).sort();
+          dirCount = dirs.length;
+          return WorkerPool.run(dirs, (dir: string)=>{
+            const fullDir = path.join(dirPath, dir);
+            if (logFunction)
+              logFunction("Loading database directory " + fullDir); 
+            return Loader.loadDir(session.ctx, fullDir).then(c=>objectCount+=c);
+          }, 1);
+        })
+        .then(()=>{
+          if(logFunction)
+            logFunction(`Bootstrap finished. Successfully loaded ${objectCount} objects from ${dirCount} directories.`);
+          return objectCount;
+        });
+    });
 	}
   
   /**

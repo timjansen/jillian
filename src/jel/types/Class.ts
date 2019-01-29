@@ -26,6 +26,7 @@ import Util from '../../util/Util';
 
 // Base class for defining instantiable types
 export default class Class extends PackageContent implements IClass, SerializablePrimitive {
+  iClass: boolean = true;
   JEL_PROPERTIES: Object;
   private classContext: Context;
   defaultPropValues: Dictionary|Promise<Dictionary>|undefined; 
@@ -228,8 +229,8 @@ export default class Class extends PackageContent implements IClass, Serializabl
       if (p.isNative) {
         if (!this.nativeClass)
           throw new Error(`Can not initialize static native property ${p.name} in class ${this.className}. No native class defined.`);
-        if (!this.nativeClass[p.name+'_jel_mapping'])
-          throw new Error(`Can not access native static member ${p.name} in class ${this.className} without a valid ${p.name}_jel_mapping.`);
+        if (!this.nativeClass[p.name+'_jel_property'])
+          throw new Error(`Can not access native static member ${p.name} in class ${this.className} without a valid ${p.name}_jel_property.`);
         return Util.resolveValue(BaseTypeRegistry.mapNativeTypes(this.nativeClass[p.name]), v0=>p.type ? p.type.convert(this.classContext, v0, p.name) : v0);
       }
       else if (p.defaultValueGenerator) {
@@ -255,7 +256,7 @@ export default class Class extends PackageContent implements IClass, Serializabl
   create(ctx: Context, ...args: any[]): any {
     if (this.ctor instanceof NativeCallable) 
       return this.ctor.invoke(ctx, undefined, this, ...args);
- 
+  
     if (this.isAbstract)
       throw new Error(`The class ${this.className} can not be instantiated. Is is declared abstract.`);
     if (!this.ctor)

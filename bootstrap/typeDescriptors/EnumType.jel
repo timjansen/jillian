@@ -6,7 +6,7 @@ native class EnumType extends TypeDescriptor:
    * Creates a new EnumType of the given type. 
    * @param the name of the enum
    */
-  native constructor(name: string)
+  native constructor(name: any)
   
   override native checkType(value: any): bool
 

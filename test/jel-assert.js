@@ -16,9 +16,9 @@ class JelAssert {
 		this.ctx = c;
 	}
 
-	exec(s){
+	exec(s, ctx){
 		if (typeof s == 'string')
-			return new JEL(s).executeImmediately(this.ctx);
+			return new JEL(s).executeImmediately(ctx || this.ctx);
 		return s;
 	}
 
@@ -37,6 +37,17 @@ class JelAssert {
 			b0.then(e=>console.log('Equal returned promise: ', e), e=>console.log('Equal returned rejected promise: ', e));
 		assert.equal(Serializer.serialize(a0), Serializer.serialize(b0), c);
 	}
+
+	equalWithContext(ctx, a, b, c) {
+		const a0 = this.exec(a, ctx);
+		const b0 = this.exec(b, ctx);
+		if (a0 instanceof Promise)
+			a0.then(e=>console.log('Equal returned promise: ', e), e=>console.log('Equal returned rejected promise: ', e));
+		if (b0 instanceof Promise)
+			b0.then(e=>console.log('Equal returned promise: ', e), e=>console.log('Equal returned rejected promise: ', e));
+		assert.equal(Serializer.serialize(a0), Serializer.serialize(b0), c);
+	}
+
   
 	notEqual(a, b, c) {
 		assert.notEqual(Serializer.serialize(this.exec(a)), Serializer.serialize(this.exec(b)), c);

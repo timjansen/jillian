@@ -13,6 +13,7 @@ import SerializablePrimitive from './SerializablePrimitive';
 export default class NativeClass extends JelObject implements IClass, SerializablePrimitive {
   methods = new Map<string, FunctionCallable>();
   className: string;
+  iClass: boolean = true;
   
 	constructor(public ctor: any) {
 		super('NativeClass');
