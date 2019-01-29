@@ -25,12 +25,19 @@ const jelAssert = new JelAssert();
 
 
 const path = 'build/tmp/db-init';
-const db = new Database(path);
-const session = new DbSession(db, DefaultContext.plus({JelPromise: new NativeClass(JelPromise), JelConsole: new NativeClass(JelConsole)}));
-
-jelAssert.setCtx(session.ctx);
 
 describe('Loader', function() {
+  let db, session, ctx;
+  before(function() {
+      db = new Database(path);
+      return DbSession.create(db).then(s=>{
+        session = s;
+        ctx = s.ctx.plus({JelPromise: new NativeClass(JelPromise), JelConsole: new NativeClass(JelConsole)});
+        jelAssert.setCtx(ctx);
+      });
+  });  
+  
+  
   it('loads DB objects', function() {
     return Promise.resolve(session.get('Meter'))
     .then(m=>Promise.resolve(m.member(session.ctx, 'isPrimaryUnit')))

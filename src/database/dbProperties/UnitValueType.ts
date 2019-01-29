@@ -62,7 +62,7 @@ export default class UnitValueType extends TypeDescriptor {
   }
   
   serializeType(): string {  
-    return Serializer.serialize(this);
+    return `UnitValueType(${Serializer.serialize(this.unit)}, ${Serializer.serialize(this.range)})`;
   }
   
   equals(ctx: Context, other: TypeDescriptor|null): JelBoolean|Promise<JelBoolean> {

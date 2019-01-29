@@ -57,7 +57,7 @@ export default class FunctionType extends TypeDescriptor {
   }
 
   serializeType(): string {
-    return Serializer.serialize(this);
+    return `FunctionType(${Serializer.serialize(this.prototype)}, ${this.allowUntyped})`;
   }
   
   equals(ctx: Context, other: TypeDescriptor|null): JelBoolean|Promise<JelBoolean> {
