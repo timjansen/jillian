@@ -3,7 +3,7 @@ Category('WeekdayCategory',
 	properties = {},
 	instanceDefaults = {
     duration: 1 @Day,
-    calendarFrequency: @CalendarFrequencyEnum.WEEKLY,
+    calendarFrequency: CalendarFrequencyEnum.WEEKLY,
     first: null,
     last: null,
 		isMatch: (date)=>date.dayOfWeek==this.dayOfWeekNumber,
@@ -13,6 +13,6 @@ Category('WeekdayCategory',
     dayOfWeekNumber: int
 	},
   mixinProperties = {
-    order: @PropertyTypeEnum.REQUIRED
+    order: PropertyTypeEnum.REQUIRED
   }
 )

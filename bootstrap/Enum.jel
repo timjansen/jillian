@@ -1,0 +1,11 @@
+/**
+ * Represents an enum, as declared in JEL with the 'enum' keyword. 
+ */ 
+native class Enum extends PackageContent:
+  native valueMap: EnumValue{}
+  native constructor(name: string, values: string[])
+  
+
+
+
+  

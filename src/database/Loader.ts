@@ -13,7 +13,7 @@ import Category from './dbObjects/Category';
 import JelObject from '../jel/JelObject';
 import Package from '../jel/types/Package';
 import PackageContent from '../jel/types/PackageContent';
-import NamedObject from '../jel/NamedObject';
+import NamedObject from '../jel/types/NamedObject';
 
 import JEL from '../jel/JEL';
 import Context from '../jel/Context';
@@ -32,8 +32,8 @@ class LoadTracker {
   loaded = new Map<string, NamedObject>(); // a map of all already loaded entries
   beingLoaded = new Map<string, Promise<NamedObject>>(); // a list of Promises (resolved and pending) of all entries that have been started. Are not removed when done!
   
-  constructor(public pool: WorkerPool, entryFiles: string[]) {
-    entryFiles.forEach(file=>this.entries.set(file.replace(/^.*\/|\.jel$/g, ''), file));
+  constructor(public pool: WorkerPool) {
+    
   }
 
   getEntry(ctx: Context, name: string): NamedObject|Promise<NamedObject> {
@@ -53,8 +53,8 @@ class LoadTracker {
         throw new Error(`Failed to read ${name}.`);
       if (!(entry instanceof NamedObject)) 
         throw new Error(`${this.entries.get(name)} does not contain a named object.`);
-      if (name != entry.distinctName)
-        throw new Error(`Expected ${this.entries.get(name)} to contain an object called ${name}, but it was ${entry.distinctName}.`);
+      if (name.replace(/^\d+_/, '') != entry.distinctName)
+        throw new Error(`Expected ${this.entries.get(name)} to contain an object called ${name.replace(/^\d+_/, '')}, but it was ${entry.distinctName}.`);
       
       this.loaded.set(name, entry);
       if (entry instanceof PackageContent)
@@ -65,7 +65,7 @@ class LoadTracker {
     return p;
   }
 	
-  private writePackages(ctx: Context) {
+  writePackages(ctx: Context): Promise<any> {
     const db = (ctx.dbSession as any).database;
     const typeByPackage = new Map<string, PackageContent[]>();
     this.packagesContent.filter(pc=>pc.packageName.includes('::'))
@@ -73,8 +73,11 @@ class LoadTracker {
     return this.pool.runJob(Array.from(typeByPackage.keys()), pkg=>db.exists(pkg).then((e: any)=>e || db.put(ctx, new Package(pkg, new List(typeByPackage.get(pkg) as any)))));
   }
   
-  loadAllEntries(ctx: Context, ): Promise<any> {
-    return this.pool.runJobIgnoreNull(Array.from(this.entries.keys()), name=>this.readEntry(new LoadContext(ctx, this, name), name)).then(()=>this.writePackages(ctx));
+  loadEntries(ctx: Context, entryFiles: string[]): Promise<any> {
+    const entryNames = entryFiles.map(file=>file.replace(/^.*\/|\.jel$/g, ''));
+    for (let i = 0; i < entryFiles.length; i++)
+      this.entries.set(entryNames[i], entryFiles[i]);
+    return this.pool.runJobIgnoreNull(Array.from(entryNames), name=>this.readEntry(new LoadContext(ctx, this, name), name));
   }
 }
 
@@ -188,33 +191,10 @@ export default class Loader {
     }
     return getPathsRecursive(dirPath, recursive).then(r=> {
       const [categoryFiles, entryFiles] = r;
-      return pool.runJobIgnoreNull(categoryFiles, file=>db.readEntry(ctx, file.replace(/^.*\/|\.jel$/g, ''), file) as Promise<Category | null>)
-        .then(categories=> {
-          const providedCats = new Set<string>(categories.map(c=>c.distinctName));
-          const availableCats = new Set<string>(); // set of distinct names
-
-          const MAX_ITERATIONS = 10;
-          function loadCategories(catsToDo: Category[], iterationsLeft: number): Promise<void> {
-            const readyCats = catsToDo.filter(c=>!c.superCategory || availableCats.has(c.superCategory.distinctName));
-            const futureCats = catsToDo.filter(c=>c.superCategory && providedCats.has(c.superCategory.distinctName) && !availableCats.has(c.superCategory.distinctName));
-            const undecidedCats = catsToDo.filter(c=>c.superCategory && !availableCats.has(c.superCategory.distinctName) && !providedCats.has(c.superCategory.distinctName));
-            return pool.runJob(undecidedCats, c=>db.exists(c.superCategory!.distinctName)
-                                      .then((e: any)=>(e ? c : Promise.reject(new DatabaseError(`There is no definition for Category ${c.superCategory!.distinctName}" required as superCategory for ${c.distinctName}`)) as any)))
-              .then((checkedCats: Category[])=> {
-                checkedCats.forEach(c=>availableCats.add(c.distinctName));
-                return db.put(ctx, ...readyCats.concat(checkedCats))
-                  .then(()=>{
-                    readyCats.forEach(c=>availableCats.add(c.distinctName));
-                    return !futureCats.length ? Promise.resolve() : 
-                        iterationsLeft>0 ? loadCategories(futureCats, iterationsLeft-1) : 
-                        Promise.reject(new DatabaseError(`Can not load categories after ${MAX_ITERATIONS} iterations. There appears to be a loop in superCategory relations.\nMissing categories: ${futureCats.slice(0,100).map(a=>a.distinctName).join(' ,')}`))
-                });
-              });
-          }
-
-          const lt = new LoadTracker(pool, entryFiles);
-          return loadCategories(categories, MAX_ITERATIONS).then(()=>lt.loadAllEntries(ctx));
-        })
+      const lt = new LoadTracker(pool);
+      return lt.loadEntries(ctx, categoryFiles.sort())
+        .then(()=>lt.loadEntries(ctx, entryFiles.sort()))
+        .then(()=>lt.writePackages(ctx))
         .then(()=>categoryFiles.length + entryFiles.length);
     });
 	}

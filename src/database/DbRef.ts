@@ -1,21 +1,29 @@
 import JelObject from '../jel/JelObject';
+import NativeJelObject from '../jel/types/NativeJelObject';
 import Context from '../jel/Context';
 import SerializablePrimitive from '../jel/SerializablePrimitive';
+import Class from '../jel/types/Class';
+import Dictionary from '../jel/types/Dictionary';
 import JelBoolean from '../jel/types/JelBoolean';
 import JelString from '../jel/types/JelString';
 import {IDbRef} from '../jel/IDatabase';
-import NamedObject from '../jel/NamedObject';
+import NamedObject from '../jel/types/NamedObject';
 import DbSession from './DbSession';
 import Database from './Database';
 import NotFoundError from './NotFoundError';
+import BaseTypeRegistry from '../jel/BaseTypeRegistry';
 
 
-export default class DbRef extends JelObject implements IDbRef, SerializablePrimitive {
+export default class DbRef extends NativeJelObject implements IDbRef, SerializablePrimitive {
+  distinctName_jel_property: boolean;
+  parameters_jel_property: boolean;
+  
 	distinctName: string;
 	cached: NamedObject | undefined | null;    // stores null for entries that have not been found, undefined if the existance is unknown
 	readonly isIDBRef: boolean = true;
-	
-	constructor(distinctNameOrEntry: string | JelString | NamedObject, public parameters?: Map<string, any>) {
+  static clazz: Class|undefined;
+
+	constructor(distinctNameOrEntry: string | JelString | NamedObject, public parameters?: Dictionary) {
 		super('DbRef');
 		if (distinctNameOrEntry instanceof NamedObject) {
 			this.distinctName = distinctNameOrEntry.distinctName;
@@ -24,6 +32,10 @@ export default class DbRef extends JelObject implements IDbRef, SerializablePrim
 		else
 			this.distinctName = JelString.toRealString(distinctNameOrEntry);
 	}
+  
+  get clazz(): Class {
+    return DbRef.clazz!;
+  }  
 	
 	// returns either NamedObject or Promise! Rejects promise if not found.
 	get(ctx: Context): NamedObject | Promise<NamedObject> {
@@ -77,26 +89,26 @@ export default class DbRef extends JelObject implements IDbRef, SerializablePrim
 			return true;
 		if (this.parameters.size != right.parameters.size)
 			return false;
-		for (let a in this.parameters.keys())
-			if ((!right.parameters.has(a)) || this.parameters.get(a) !== right.parameters.get(a))
+		for (let a in this.parameters.elements.keys())
+			if ((!right.parameters.elements.has(a)) || this.parameters.elements.get(a) !== right.parameters.elements.get(a))
 				return false;
 		return true;
 	}
 
-	private memberInternal(ctx: Context, obj: NamedObject | null, name: string, parameters?: Map<string, any>): any {
+	private memberInternal(ctx: Context, obj: NamedObject | null, name: string, parameters?: Dictionary): any {
 		if (obj === null)
 			return null;
 		else if (parameters && this.parameters)
-			return obj.member(ctx, name, new Map([...this.parameters, ...parameters]) as any);
+			return obj.member(ctx, name, new Map([...this.parameters.elements, ...parameters.elements]) as any);
 		else if (parameters)
-			return obj.member(ctx, name, parameters);
+			return obj.member(ctx, name, parameters.elements);
 		else
-			return obj.member(ctx, name, this.parameters);
+			return obj.member(ctx, name, this.parameters && this.parameters.elements);
 	}
 
 	// Returns the member value with the given name, possibly wrapped in a Promise
 	member(ctx: Context, name: string, parameters?: Map<string, any>): Promise<any> | any {
-		return this.with(ctx, (o: NamedObject) =>this.memberInternal(ctx, o, name, parameters));
+		return this.with(ctx, (o: NamedObject) =>this.memberInternal(ctx, o, name, parameters && new Dictionary(parameters, true)));
 	}
 	
 	op(ctx: Context, operator: string, right: any): any {
@@ -153,12 +165,16 @@ export default class DbRef extends JelObject implements IDbRef, SerializablePrim
 		return Promise.resolve(ref instanceof DbRef ? ref.get(ctx) : ref);
 	}
   
-	static create_jel_mapping = {distinctName: 1, dbEntry: 2, parameters: 3};
+	static create_jel_mapping = true;
 	static create(ctx: Context, ...args: any[]): any {
 		if (args[0] instanceof DbRef)
 			return args[0];
-		return new DbRef(args[0], args[1]);
+		return new DbRef(args[0], args[1] instanceof Map ? args[1] : (args[1] instanceof Dictionary ? args[1] : null));
 	}
 }
 
+DbRef.prototype.distinctName_jel_property = true;
+DbRef.prototype.parameters_jel_property = true;
+
+BaseTypeRegistry.register('DbRef', DbRef);
 

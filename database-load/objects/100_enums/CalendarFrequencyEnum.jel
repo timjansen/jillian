@@ -1,1 +1,2 @@
-Enum('CalendarFrequencyEnum', ['BIYEARLY', 'YEARLY', 'MONTHLY', 'BIWEEKLY', 'WEEKLY', 'DAILY'])
+enum CalendarFrequencyEnum:
+  BIYEARLY, YEARLY, MONTHLY, BIWEEKLY, WEEKLY, DAILY

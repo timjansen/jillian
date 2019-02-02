@@ -2,7 +2,6 @@ import SerializablePrimitive from './SerializablePrimitive';
 import JelNode from './expressionNodes/JelNode';
 import TypedParameterValue from './TypedParameterValue';
 import JelObject from './JelObject';
-import NamedObject from './NamedObject';
 import Context from './Context';
 import Serializer from './Serializer';
 import LambdaCallable from './LambdaCallable';

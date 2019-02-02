@@ -2,6 +2,7 @@ import Category from './Category';
 import DbEntry from '../DbEntry';
 import DbRef from '../DbRef';
 import Context from '../../jel/Context';
+import Class from '../../jel/types/Class';
 import TypeDescriptor from '../../jel/types/typeDescriptors/TypeDescriptor';
 import TypeHelper from '../../jel/types/typeDescriptors/TypeHelper';
 import DbIndexDescriptor from '../DbIndexDescriptor';
@@ -9,14 +10,18 @@ import Dictionary from '../../jel/types/Dictionary';
 import TypeChecker from '../../jel/types/TypeChecker';
 import List from '../../jel/types/List';
 import JelString from '../../jel/types/JelString';
+import BaseTypeRegistry from '../../jel/BaseTypeRegistry';
 
 
 /**
  * Defines a property used by several categories, e.g. @size or @dimensions or @firstName
  */
 export default class MixinProperty extends DbEntry {
-  JEL_PROPERTIES: Object;
-	public type: TypeDescriptor;
+  type_jel_property: boolean;
+  categoryProperty_jel_property: boolean;
+  public type: TypeDescriptor;
+  static clazz: Class|undefined;
+
   
 	/**
 	 * Creates a new instance.
@@ -34,8 +39,12 @@ export default class MixinProperty extends DbEntry {
 			throw Error('By convention, all MixinProperty names must begin with a lower-case letter. Illegal name: ' + distinctName);
   }
   
-  getSerializationProperties(): Object {
-    return {distinctName: this.distinctName, type: this.type};
+  get clazz(): Class {
+    return MixinProperty.clazz!;
+  }  
+  
+  getSerializationProperties(): any[] {
+    return [this.distinctName, this.type, this.categoryProperty];
   }
 
   static create_jel_mapping = {distinctName: 1, type: 2, categoryProperty: 3};
@@ -46,7 +55,10 @@ export default class MixinProperty extends DbEntry {
   }
 }
 
-MixinProperty.prototype.JEL_PROPERTIES = {distinctName: true, type: true, categoryProperty: true};
+MixinProperty.prototype.type_jel_property = true;
+MixinProperty.prototype.categoryProperty_jel_property = true;
 
+
+BaseTypeRegistry.register('MixinProperty', MixinProperty);
 
 

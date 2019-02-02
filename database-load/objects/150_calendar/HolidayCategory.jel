@@ -4,7 +4,7 @@ Category('HolidayCategory',
 	instanceDefaults = {
     duration: 1 @Day,
     durationInYear: (year)=>1 @Day,
-    calendarFrequency: @CalendarFrequencyEnum.YEARLY,
+    calendarFrequency: CalendarFrequencyEnum.YEARLY,
     firstDate: null,
     lastDate: null,
  		isMatch: (date)=>date >= this.firstDate && date.month==this.month && date.day==this.day && (this.firstDate == null || this.firstDate <= date),

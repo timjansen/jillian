@@ -1,4 +1,4 @@
-import NamedObject from '../NamedObject';
+import NamedObject from './NamedObject';
 import Context from '../Context';
 import Dictionary from './Dictionary';
 

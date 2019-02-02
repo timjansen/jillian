@@ -35,18 +35,10 @@ describe('Class', function() {
   });
 
 
-  it('can be created and serialized', function() {
-    jelAssert.equal('Class("MyTestType").methods.size', 0);
-    jelAssert.equal('Class("MyTestType", methods=[Method("add", ()=>2)]).methods.size', 1);
-    jelAssert.equal('Class("MyTestType", null, false, false, (x,y)=>{}, [Property("a", Float, null, false), Property("b", string, null)], [Method("add", ()=>2)], [])', 
-                    'Class(name="MyTestType", isNative=false, ctor=(x,y)=>{}, methods=[Method("add", ()=>2)], staticProperties=[], properties=[Property("a", Float), Property("b", string)], isAbstract=false)');
-  });
-
-  it('can be created using the JEL syntax', function() {
-    jelAssert.equal('class MyTestType:', 'Class("MyTestType")');
-    jelAssert.equal('class MyTestType: add()=> 2', 'Class("MyTestType", methods=[Method("add", ()=>2)])');
+  it('can be created', function() {
+    jelAssert.equal('(class MyTestType: constructor(x, y)=> {} a: number b: string add()=>this.a+this.b).methods.size', '1'); 
     jelAssert.equal('class MyTestType: constructor(x, y)=> {} a: number b: string add()=>this.a+this.b', 
-                    'Class("MyTestType", ctor=(x,y)=>{}, properties=[Property("a", number), Property("b", string)], methods=[Method("add", ()=>this.a+this.b)])');
+                    'class MyTestType: constructor(x, y)=> {} a: number b: string add()=>this.a+this.b');
     jelAssert.equal('class MyTestType constructor(x, y) a: Float b: String c: number add()=>this.a+this.b', 
                     'class MyTestType: constructor(x, y)=>{} a: Float b: String c: number add()=> this.a+this.b');
   });
@@ -82,7 +74,6 @@ describe('Class', function() {
   });
 
   it('supports packages', function() {
-    jelAssert.equal('let myTestType=Class("My::Test::Type"): myTestType.packageName', "'My::Test'");
     jelAssert.equal('let myTestType=class My::Test::Type: : myTestType.packageName', "'My::Test'");
   });
 

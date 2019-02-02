@@ -6,6 +6,7 @@ const DbSession = require('../../build/database/DbSession.js').default;
 const DbRef = require('../../build/database/DbRef.js').default;
 const DbEntry = require('../../build/database/DbEntry.js').default;
 const Context = require('../../build/jel/Context.js').default;
+const Dictionary = require('../../build/jel/types/Dictionary.js').default;
 const assert = require('assert');
 		
 describe('DbRef', function() {
@@ -21,7 +22,7 @@ describe('DbRef', function() {
 			const dbe = DbEntry.valueOf('Test');
 			const fakeSession = {get: ()=>dbe};
 			const fakeCtx = new Context(undefined, fakeSession);
-			const r = new DbRef('Test', new Map([['a', 4]]));
+			const r = new DbRef('Test', new Dictionary(new Map([['a', 4]])));
 			const obj = r.get(fakeCtx);
 			assert.strictEqual(obj.distinctName, 'Test');
 		});
@@ -30,7 +31,7 @@ describe('DbRef', function() {
 			const dbe = DbEntry.valueOf('Test');
 			const fakeSession = {get: ()=>Promise.resolve(dbe)};
 			const fakeCtx = new Context(undefined, fakeSession);
-			const r = new DbRef('Test', new Map([['a', 4]]));
+			const r = new DbRef('Test', new Dictionary(new Map([['a', 4]])));
 			const objPromise = r.get(fakeCtx);
 			return objPromise.then(obj=>{assert.strictEqual(obj.distinctName, 'Test');});
 		});
@@ -52,7 +53,7 @@ describe('DbRef', function() {
 	describe('member()', function() {
 		it('passes parameters', function() {
 			const dbe = DbEntry.valueOf('Test');
-			const m = new Map([['a', 1], ['b', 2]]);
+			const m = new Dictionary(new Map([['a', 1], ['b', 2]]));
 			const r = new DbRef(dbe, m);
 			const ctx = new Context();
 			let success = false;

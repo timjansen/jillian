@@ -11,7 +11,7 @@ import Category from './dbObjects/Category';
 
 import JEL from '../jel/JEL';
 import Context from '../jel/Context';
-import NamedObject from '../jel/NamedObject';
+import NamedObject from '../jel/types/NamedObject';
 import DefaultContext from '../jel/DefaultContext';
 import NativeClass from '../jel/NativeClass';
 import List from '../jel/types/List';

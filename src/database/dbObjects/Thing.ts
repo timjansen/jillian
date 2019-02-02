@@ -3,12 +3,14 @@ import DbEntry from '../DbEntry';
 import DbRef from '../DbRef';
 import DbIndexDescriptor from '../DbIndexDescriptor';
 import Dictionary from '../../jel/types/Dictionary';
+import Class from '../../jel/types/Class';
 import List from '../../jel/types/List';
 import JelString from '../../jel/types/JelString';
 import JelBoolean from '../../jel/types/JelBoolean';
 import TypeChecker from '../../jel/types/TypeChecker';
 import Context from '../../jel/Context';
 import Util from '../../util/Util';
+import BaseTypeRegistry from '../../jel/BaseTypeRegistry';
 
 
 const DB_INDICES = new Map();
@@ -17,13 +19,20 @@ DB_INDICES.set('catEntries', {type: 'category', property: 'category', includePar
 
 // Base class for any kind of physical or immaterial instance of a category
 export default class Thing extends DbEntry {
+  category_jel_property: boolean;
   category: DbRef;
-  JEL_PROPERTIES: Object;
+  static clazz: Class|undefined;
+
   
   constructor(distinctName: string, category: Category|DbRef, properties?: Dictionary, reality?: DbRef, hashCode?: string) {
     super('Thing', distinctName, reality || undefined, hashCode || undefined, properties || undefined);
     this.category = category instanceof DbRef ? category : new DbRef(category);
   }
+  
+  get clazz(): Class {
+    return Thing.clazz!;
+  }  
+
   
   get databaseIndices(): Map<string, DbIndexDescriptor> {
     return DB_INDICES;
@@ -46,8 +55,8 @@ export default class Thing extends DbEntry {
 		return this.category.with(ctx, (c: Category) =>c.isExtending(ctx, category)) as JelBoolean | Promise<JelBoolean>;
 	}
 	
-  getSerializationProperties(): Object {
-    return {distinctName: this.distinctName, reality: this.reality, category: this.category, properties: this.properties};
+  getSerializationProperties(): any[] {
+    return [this.distinctName, this.category, this.properties, this.reality, this.hashCode];
   }
 
   static create_jel_mapping = {distinctName: 1, category: 2, properties: 3, reality: 4, hashCode: 5};
@@ -59,7 +68,8 @@ export default class Thing extends DbEntry {
   }
 }
 
-Thing.prototype.JEL_PROPERTIES = {category: true};
+Thing.prototype.category_jel_property = true;
 Thing.prototype.isA_jel_mapping = {category: 1};
 
+BaseTypeRegistry.register('Thing', Thing);
 

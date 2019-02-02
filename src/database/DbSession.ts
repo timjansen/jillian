@@ -5,7 +5,8 @@ import DbRef from './DbRef';
 import Database from './Database';
 import NotFoundError from './NotFoundError';
 import Context from '../jel/Context';
-import NamedObject from '../jel/NamedObject';
+import Dictionary from '../jel/types/Dictionary';
+import NamedObject from '../jel/types/NamedObject';
 import {IDbRef, IDbSession} from '../jel/IDatabase';
 
 const wp = new WorkerPool();
@@ -14,7 +15,7 @@ export default class DbSession implements IDbSession {
 	readonly isIDBSession: boolean = true;
   cacheByName: Map<string, NamedObject|null> = new Map();   // distinct name -> entry; stores null for entries that have not been found. 
   cacheByHash: Map<string, NamedObject> = new Map();        // hash code -> entry
-  public ctx: DatabaseContext;
+  public ctx: Context;
   
   constructor(public database: Database) {
     this.ctx = undefined as any;
@@ -28,7 +29,7 @@ export default class DbSession implements IDbSession {
   
 	// implements IDbSession
 	createDbRef(distinctNameOrEntry: string | NamedObject, parameters?: Map<string, any>): IDbRef {
-		return new DbRef(distinctNameOrEntry, parameters);
+		return new DbRef(distinctNameOrEntry, new Dictionary(parameters, true));
 	}
 	
   // returns the entry, null if it does not exist, undefined if not in cache

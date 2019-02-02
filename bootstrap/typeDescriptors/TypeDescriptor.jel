@@ -1,5 +1,5 @@
 /**
- * AnyType is a simple TypeDescriptor that will match any value (null or not).
+ * A base class for all type descriptors to check and convert types.
  */
 abstract class TypeDescriptor:
   abstract checkType(value: any): bool

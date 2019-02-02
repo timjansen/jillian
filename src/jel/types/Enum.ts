@@ -2,6 +2,7 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
 import PackageContent from './PackageContent';
 import Context from '../Context';
 import List from './List';
+import Class from './Class';
 import Dictionary from './Dictionary';
 import EnumValue from './EnumValue';
 import JelString from './JelString';
@@ -11,9 +12,12 @@ import TypeChecker from './TypeChecker';
 
 // Base class for enum definitions.
 export default class Enum extends PackageContent {
-  JEL_PROPERTIES: Object;
+  name_jel_property: boolean;
+  values_jel_property: boolean;
+
   public valueMap: Dictionary;
-  
+  static clazz: Class|undefined;
+
 	/**
 	 * @param values a List of strings with the possible values of the enum.
 	 */
@@ -28,6 +32,10 @@ export default class Enum extends PackageContent {
 	  this.valueMap = new Dictionary(d, true);
   }
   
+  get clazz(): Class {
+    return Enum.clazz!;
+  }  
+  
 	member(ctx: Context, name: string, parameters?: Map<string, any>): any {
 		if (this.valueMap.elements.has(name))
 			return this.valueMap.get(ctx, name);
@@ -35,8 +43,8 @@ export default class Enum extends PackageContent {
       return super.member(ctx, name, parameters);
 	}
   
-  getSerializationProperties(): Object {
-    return [this.name, this.values, this.valueMap];
+  getSerializationProperties(): any[] {
+    return [this.name, this.values];
   }
 
   static create_jel_mapping = ['name', 'values'];
@@ -46,7 +54,8 @@ export default class Enum extends PackageContent {
   }
 }
 
-Enum.prototype.JEL_PROPERTIES = {values: true, packageName: true, valueMap: true};
+Enum.prototype.name_jel_property = true;
+Enum.prototype.values_jel_property = true;
 
 BaseTypeRegistry.register('Enum', Enum);
 

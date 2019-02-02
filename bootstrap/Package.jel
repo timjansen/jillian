@@ -1,0 +1,5 @@
+/**
+ * Package is used to organize classes and enums
+ */
+abstract class Package extends PackageContent:
+  

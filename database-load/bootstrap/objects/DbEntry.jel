@@ -1,0 +1,9 @@
+/**
+ * Base type for database entries with properties.
+ */
+native class DbEntry:
+  native constructor(distinctName: string, 
+               reality: any?,               // <<< TODO
+							 hashCode: string?, 
+							 properties: any{} = {})
+               

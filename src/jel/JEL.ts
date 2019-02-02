@@ -629,11 +629,8 @@ export default class JEL {
     
     while (true) {
       const peek = tokens.peek();
-      if (!peek || (peek.type == TokenType.Operator && stopOps[peek.value])) {
-        if (isNative && !ctor)
-          JEL.throwParseException(classToken, `Class ${className.value} is declared as native, but lacks a native constructor.`);
+      if (!peek || (peek.type == TokenType.Operator && stopOps[peek.value])) 
         return new ClassDef(className.value, superType, ctor, properties, methods, staticProperties, isAbstract, hasNative);
-      }
       tokens.next();
       
       const staticModifier = !!peek.is(TokenType.Operator, 'static');

@@ -179,16 +179,19 @@ describe('Types', function() {
   });
 
   it('checks categories', function() {
-    return JEL.execute(`[Category('CatCategory', @AnimalCategory), Category('AnimalCategory'), Category('DummyCategory')]`, '(inline)', ctx).then(cats=>db.put(ctx, ...cats.elements))
-      .then(()=>Promise.all([jelAssert.equalPromise('@CatCategory instanceof CategoryType(@CatCategory)', 'true'),
-                             jelAssert.equalPromise('@CatCategory instanceof CategoryType(@AnimalCategory)', 'true'), 
-                             jelAssert.equalPromise('@AnimalCategory instanceof CategoryType(@AnimalCategory)', 'true'), 
-                             jelAssert.equalPromise('null instanceof CategoryType(@AnimalCategory)', 'false'), 
-                             jelAssert.equalPromise('@DummyCategory instanceof CategoryType(@CatCategory)', 'false')]));
+    return JEL.execute(`[Category('VehicleCategory'), Category('DummyCategory')]`, '(inline)', ctx).then(cats=>db.put(ctx, ...cats.elements))
+      .then(()=>JEL.execute(`[Category('TrainCategory', @VehicleCategory)]`, '(inline)', ctx)).then(cats=>db.put(ctx, ...cats.elements))
+      .then(()=>Promise.all([jelAssert.equalPromise('@TrainCategory instanceof CategoryType(@TrainCategory)', 'true'),
+                             jelAssert.equalPromise('@TrainCategory instanceof CategoryType(@VehicleCategory)', 'true'), 
+                             jelAssert.equalPromise('@VehicleCategory instanceof CategoryType(@VehicleCategory)', 'true'), 
+                             jelAssert.equalPromise('null instanceof CategoryType(@VehicleCategory)', 'false'), 
+                             jelAssert.equalPromise('@DummyCategory instanceof CategoryType(@TrainCategory)', 'false')]));
   });
 
   it('checks things', function() {
-    return JEL.execute(`[Category('CatCategory', @AnimalCategory), Category('AnimalCategory', @LifeformCategory), Category('LifeformCategory'), Category('DummyCategory')]`, '(inline)', ctx).then(cats=>db.put(ctx, ...cats.elements))
+    return JEL.execute(`[Category('LifeformCategory'), Category('Dummy2Category')]`, '(inline)', ctx).then(cats=>db.put(ctx, ...cats.elements))
+      .then(()=>JEL.execute(`Category('AnimalCategory', @LifeformCategory)`, '(inline)', ctx)).then(t=>db.put(ctx, t))
+      .then(()=>JEL.execute(`Category('CatCategory', @AnimalCategory)`, '(inline)', ctx)).then(t=>db.put(ctx, t))
       .then(()=>JEL.execute(`[Thing('GrumpyCat', @CatCategory), Thing('Flipper', @AnimalCategory)]`, '(inline)', ctx)).then(t=>db.put(ctx, ...t.elements))
       .then(()=>Promise.all([jelAssert.equalPromise('@GrumpyCat instanceof @CatCategory', 'true'), 
                             jelAssert.equalPromise('@GrumpyCat instanceof @AnimalCategory', 'true'), 
@@ -197,7 +200,7 @@ describe('Types', function() {
                             jelAssert.equalPromise('null instanceof @AnimalCategory', 'false'), 
                             jelAssert.equalPromise('@Flipper instanceof @AnimalCategory', 'true'), 
                             jelAssert.equalPromise('@Flipper instanceof @CatCategory', 'false'), 
-                            jelAssert.equalPromise('@GrumpyCat instanceof @DummyCategory', 'false')]));
+                            jelAssert.equalPromise('@GrumpyCat instanceof @Dummy2Category', 'false')]));
   });
 
 });

@@ -3,7 +3,7 @@ import JelNode from './expressionNodes/JelNode';
 import TypedParameterValue from './TypedParameterValue';
 import JelObject from './JelObject';
 import BaseTypeRegistry from './BaseTypeRegistry';
-import NamedObject from './NamedObject';
+import NamedObject from './types/NamedObject';
 import Context from './Context';
 import Callable from './Callable';
 import Serializer from './Serializer';

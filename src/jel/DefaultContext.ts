@@ -24,6 +24,7 @@ import Translator from './types/Translator';
 import EnumValue from './types/EnumValue';
 import Enum from '../jel/types/Enum';
 import Class from '../jel/types/Class';
+import Package from '../jel/types/Package';
 import Method from '../jel/types/Method';
 import Property from '../jel/types/Property';
 
@@ -87,18 +88,27 @@ const BOOT_SCRIPT = [
     {jel: 'typeDescriptors/RangableType.jel', native: RangableType},
     {jel: 'typeDescriptors/RangeType.jel', native: RangeType}
   ],
+  {jel: 'NamedObject.jel'},
+  {jel: 'PackageContent.jel'},
+  [
+    {jel: 'Class.jel', native: Class},
+    {jel: 'Enum.jel', native: Enum},
+    {jel: 'Package.jel', native: Package}
+  ],
   {static: {Boolean: c(JelBoolean), Float: c(Float), String: c(JelString), ApproximateNumber: c(ApproximateNumber), Math: c(JelMath), DateType: c(DateType), TimeType: c(TimeType),
                    Range: c(Range), Fraction: c(Fraction), Unit: c(Unit), UnitValue: c(UnitValue), 
-                   Class: c(Class), Enum: c(Enum), Method: c(Method), Property: c(Property), LambdaExecutable: c(LambdaExecutable),
+                   Method: c(Method), Property: c(Property), LambdaExecutable: c(LambdaExecutable),
                    Dictionary: c(Dictionary), List: c(List), Distribution: c(Distribution), DistributionPoint: c(DistributionPoint), Pattern: c(Pattern), Translator: c(Translator), EnumValue: c(EnumValue), 
                    Duration: c(Duration), DurationRange: c(DurationRange), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 
-                   ZonedDate: c(ZonedDate), ZonedDateTime: c(ZonedDateTime)}}
+                   ZonedDate: c(ZonedDate), ZonedDateTime: c(ZonedDateTime),
+                   ___IS_DEFAULT_CONTEXT: 'magic123'}}
 ];
 
 export default class DefaultContext {
   static readonly BOOTSTRAP_DIR = path.join(__dirname, '../../bootstrap/');
   static context: Context | Promise<Context> | undefined;
   
+
 
   private static async loadClass(ctx: Context, basePath: string, classPath: string): Promise<Class> {
     return JEL.execute(await fs.readFile(path.join(basePath, classPath), {encoding: 'utf-8'}), classPath, ctx);

@@ -30,6 +30,7 @@ function createDictionary(packageName: string, content: List): Dictionary {
 export default class Package extends PackageContent {
   JEL_PROPERTIES: Object;
   public packageContent: Dictionary;
+  static clazz: Class|undefined;
 
   /**
    * Creates a new Package.
@@ -40,6 +41,10 @@ export default class Package extends PackageContent {
     super('Package', packageName);
     this.packageContent = createDictionary(packageName, content);
   }
+  
+  get clazz(): Class {
+    return Package.clazz!;
+  } 
   
 	member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null>|undefined {
     const ref: any = this.packageContent.elements.get(name);
@@ -57,7 +62,7 @@ export default class Package extends PackageContent {
     });
 	}
   
-  getSerializationProperties(): Object {
+  getSerializationProperties(): any[] {
     return [this.distinctName, this.content];
   }
 

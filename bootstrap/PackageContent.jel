@@ -1,0 +1,6 @@
+/**
+ * Common super class for types that can be accessed in JEL and can be put into packages, like Classes and Enums.
+ */
+abstract class PackageContent extends NamedObject:
+  packageName: string
+  

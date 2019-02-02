@@ -45,6 +45,7 @@ export default class Class extends PackageContent implements IClass, Serializabl
   ctorArgList: TypedParameterValue[];    // the constructor's arguments
   
   staticPropertyCache: Map<string, JelObject|null> = new Map(); // a cache for static property values
+  static clazz: Class|undefined;
 
   
   /**
@@ -113,6 +114,11 @@ export default class Class extends PackageContent implements IClass, Serializabl
     if (this.staticMethods.elements.has('create'))
       throw new Error(`You must not provide the static method create() in ${name}. It is reserved for accessing the constructor.`);
   }
+  
+  get clazz(): Class {
+    return Class.clazz!;
+  }
+  
   
   private has(name: string): boolean {
     return this.allProperties.elements.has(name) || this.allMethods.elements.has(name) || this.allGetters.elements.has(name);
@@ -362,6 +368,8 @@ export default class Class extends PackageContent implements IClass, Serializabl
 
   static create_jel_mapping = ['name', 'superType', 'isAbstract', 'isNative', 'ctor', 'properties', 'methods', 'staticProperties'];
   static create(ctx: Context, ...args: any[]): Class|Promise<Class> {
+    throw new Error('You can not create new classes using the constructor');
+    /*
     if (TypeChecker.isIDbRef(args[1]))
       return args[1].with(ctx, (t: Class) => Class.create(ctx, args[0], t, args[2], args[3], args[4], args[5], args[6], args[7])); 
     
@@ -374,7 +382,9 @@ export default class Class extends PackageContent implements IClass, Serializabl
                               TypeChecker.optionalInstance(List, args[5], 'properties')||List.empty,
                               TypeChecker.optionalInstance(List, args[6], 'methods')||List.empty,
                               TypeChecker.optionalInstance(List, args[7], 'staticProperties')||List.empty);
+                              */
   }
+ 
 }
 
 Class.prototype.create_jel_mapping = true;

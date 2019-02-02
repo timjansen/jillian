@@ -5,6 +5,7 @@ import TypeHelper from '../../jel/types/typeDescriptors/TypeHelper';
 import DbIndexDescriptor from '../DbIndexDescriptor';
 import Dictionary from '../../jel/types/Dictionary';
 import JelObject from '../../jel/JelObject';
+import Class from '../../jel/types/Class';
 import List from '../../jel/types/List';
 import JelBoolean from '../../jel/types/JelBoolean';
 import JelString from '../../jel/types/JelString';
@@ -12,16 +13,22 @@ import EnumValue from '../../jel/types/EnumValue';
 import TypeChecker from '../../jel/types/TypeChecker';
 import Context from '../../jel/Context';
 import Util from '../../util/Util';
+import BaseTypeRegistry from '../../jel/BaseTypeRegistry';
 
 
 const DB_INDICES: Map<string, DbIndexDescriptor> = new Map();
 DB_INDICES.set('subCategories', {type: 'category', property: 'superCategory', includeParents: true});
 
 export default class Category extends DbEntry {
+  superCategory_jel_property: boolean;
+  instanceProperties_jel_property: boolean;
+  instanceDefaults_jel_property: boolean;
+  mixinProperties_jel_property: boolean;
+  
   superCategory: DbRef | null;
 	instanceProperties = new Dictionary(); // name->List of PropertyType
-  JEL_PROPERTIES: Object;
-  
+  static clazz: Class|undefined;
+
 	/**
 	 * Creates a new Category.
 	 * @param instanceDefaults a dictionary (name->any) of default values for Things of this category. 
@@ -42,6 +49,11 @@ export default class Category extends DbEntry {
     this.superCategory = superCategory ? (superCategory instanceof DbRef ? superCategory : new DbRef(superCategory)) : null; 
 		instanceProperties.elements.forEach((value, key)=>this.instanceProperties.elements.set(key, TypeHelper.convertFromAny(value, key)));
   }
+  
+  get clazz(): Class {
+    return Category.clazz!;
+  }  
+
 
   // returns promise with all matching objects
   getInstances(ctx: Context, filterFunc: (o: DbEntry)=>boolean): Promise<Category[]> {
@@ -90,7 +102,7 @@ export default class Category extends DbEntry {
 		return this.superCategory.distinctName == otherCategory ? JelBoolean.TRUE : (this.superCategory.with(ctx, (s: Category) =>s.isExtending(ctx, otherCategory)) as  JelBoolean | Promise<JelBoolean>);
 	}
 	
-  getSerializationProperties(): Object {
+  getSerializationProperties(): any[] {
 		return [this.distinctName, this.superCategory, this.properties, this.instanceDefaults, this.instanceProperties, this.mixinProperties, this.reality, this.hashCode];
   }
     
@@ -108,7 +120,12 @@ export default class Category extends DbEntry {
   }
 }
 
-Category.prototype.JEL_PROPERTIES = {superCategory: true};
 Category.prototype.isExtending_jel_mapping = {category: 1}
+Category.prototype.superCategory_jel_property = true;
+Category.prototype.instanceProperties_jel_property = true;
+Category.prototype.instanceDefaults_jel_property = true;
+Category.prototype.mixinProperties_jel_property = true;
+
+BaseTypeRegistry.register('Category', Category);
 
 

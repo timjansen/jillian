@@ -1,5 +1,6 @@
 import JelObject from '../jel/JelObject';
-import NamedObject from '../jel/NamedObject';
+import NamedObject from '../jel/types/NamedObject';
+import Class from '../jel/types/Class';
 import Serializable from '../jel/Serializable';
 import Context from '../jel/Context';
 import Dictionary from '../jel/types/Dictionary';
@@ -7,19 +8,28 @@ import DbIndexDescriptor from './DbIndexDescriptor';
 import DbRef from './DbRef';
 import JelString from '../jel/types/JelString';
 import List from '../jel/types/List';
+import BaseTypeRegistry from '../jel/BaseTypeRegistry';
 
 const tifu = require('tifuhash');
 
 // Base class for any kind of physical or immaterial instance of a category
 // Note that all references to other DbEntrys must be stored as a DbRef!!
 export default class DbEntry extends NamedObject {
+  reality_jel_property: boolean;
+  properties_jel_property: boolean;
+  
   isIDBEntry: boolean;
-	
+  static clazz: Class|undefined;
+
   constructor(className: string, distinctName: string, public reality?: any, 
 							 hashCode: string = tifu.hash(distinctName), 
 							 public properties = new Dictionary()) {
     super(className, distinctName, hashCode);
   }
+  
+  get clazz(): Class {
+    return DbEntry.clazz!;
+  }  
   
   // returns a map index_name->{type: 'index-type, always "category" for now', property: 'the name of the property to index', includeParents: 'bool. for categories, if true, index for all parent cats as well'}
   get databaseIndices(): Map<string, DbIndexDescriptor> {
@@ -55,8 +65,8 @@ export default class DbEntry extends NamedObject {
 		return this;
 	}
 	
-  getSerializationProperties(): Object {
-    return {distinctName: this.distinctName, reality: this.reality, properties: this.properties};
+  getSerializationProperties(): any[] {
+    return [this.distinctName, this.reality, this.hashCode, this.properties];
   }
 
   static valueOf(distinctName: string, reality?: any, hashCode: string = tifu.hash(distinctName)): DbEntry {
@@ -71,4 +81,9 @@ export default class DbEntry extends NamedObject {
 }
 
 DbEntry.prototype.isIDBEntry = true;
+DbEntry.prototype.reality_jel_property = true;
+DbEntry.prototype.properties_jel_property = true;
+
+BaseTypeRegistry.register('DbEntry', DbEntry);
+
 

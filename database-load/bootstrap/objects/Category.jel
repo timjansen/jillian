@@ -1,0 +1,13 @@
+/**
+ * A category is a container for things.
+ */
+native class Category extends DbEntry:
+  native constructor(distinctName: string, 
+               superCategory: CategoryType()?,             
+							 properties: any{} = {},
+							 instanceDefaults: any{} = {},
+							 instanceProperties: any{} = {},
+							 mixinProperties: PropertyTypeEnum{} = {},
+               reality: any?,                              // << TODO
+							 hashCode: string?)
+               

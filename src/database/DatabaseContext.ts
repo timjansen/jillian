@@ -28,7 +28,6 @@ function c(ctor: any): NativeClass {
   return new NativeClass(ctor);
 }
 
-const DB_IDENTIFIERS = {DbRef: c(DbRef), DbEntry: c(DbEntry), Category: c(Category), Thing: c(Thing), MixinProperty: c(MixinProperty)};
 
 const BOOT_SCRIPT = [
   {static: {duration: DurationType.instance}},
@@ -40,7 +39,14 @@ const BOOT_SCRIPT = [
     {jel: 'typeDescriptors/UnitValueQuantityType.jel', native: UnitValueQuantityType},
     {jel: 'typeDescriptors/UnitValueType.jel', native: UnitValueType}
   ],
-  {static: DB_IDENTIFIERS}
+  {jel: 'objects/PropertyTypeEnum.jel'},
+  {jel: 'objects/DbEntry.jel', native: DbEntry},
+  {jel: 'objects/Category.jel', native: Category},
+  [
+    {jel: 'objects/DbRef.jel', native: DbRef},
+    {jel: 'objects/MixinProperty.jel', native: MixinProperty},
+    {jel: 'objects/Thing.jel', native: Thing}
+  ]
 ];
 
 const BOOTSTRAP_DIR = path.join(__dirname, '../../database-load/bootstrap/');
@@ -55,9 +61,9 @@ export default class DatabaseContext extends Context {
     super(parent, session);
   }
 
-  static async get(session: DbSession): Promise<DatabaseContext> {
-    const dc = await DefaultContext.createBootContext(BOOTSTRAP_DIR, BOOT_SCRIPT, await DefaultContext.get());
-    const ctx = new DatabaseContext(dc, session);
+  static async get(session: DbSession): Promise<Context> {
+    const dc = new DatabaseContext(await DefaultContext.get(), session);
+    const ctx = await DefaultContext.createBootContext(BOOTSTRAP_DIR, BOOT_SCRIPT, dc);
     ctx.freeze();
     return ctx;
   }

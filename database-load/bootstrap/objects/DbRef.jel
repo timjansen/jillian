@@ -1,0 +1,7 @@
+/**
+ * Describes a reference to another NamedObject (or DbEntry).
+ */
+native class DbRef:
+  native constructor(distinctName: string, parameters: any{} = {})
+               
+

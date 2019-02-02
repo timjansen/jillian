@@ -1,1 +1,4 @@
-Enum('UnitTypeEnum', ['SI', 'IMPERIAL', 'METRIC', 'US', 'OUTDATED', 'OTHER'])
+enum UnitTypeEnum:
+  SI, IMPERIAL, METRIC, US, OUTDATED, OTHER
+
+

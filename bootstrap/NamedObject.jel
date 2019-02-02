@@ -1,0 +1,6 @@
+/**
+ * Common super class for all named types that can be stored in the database.
+ */
+abstract class NamedObject:
+  distinctName: string
+  

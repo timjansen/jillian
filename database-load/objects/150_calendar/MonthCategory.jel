@@ -4,7 +4,7 @@ Category('MonthCategory',
 	instanceDefaults = {
     duration: Range(28 @Day, 31 @Day),
     durationInYear: (year)=>this.duration,
-    calendarFrequency: @CalendarFrequencyEnum.YEARLY,
+    calendarFrequency: CalendarFrequencyEnum.YEARLY,
     first: null,
     last: null,
 		isMatch: (date)=>date.month==this.monthNumber,
@@ -14,6 +14,6 @@ Category('MonthCategory',
     monthNumber: int
 	},
   mixinProperties = {
-    order: @PropertyTypeEnum.REQUIRED
+    order: PropertyTypeEnum.REQUIRED
   }
 )
