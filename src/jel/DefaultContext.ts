@@ -106,10 +106,10 @@ const BOOT_SCRIPT = [
     {jel: 'Range.jel', native: Range},
     {jel: 'List.jel', native: List}
   ],
+  {jel: 'Dictionary.jel', native: Dictionary},
   {jel: 'time/DurationRange.jel', native: DurationRange}, // << TODO: change this after converting Duration
   
-  {static: {Dictionary: c(Dictionary),
-            ApproximateNumber: c(ApproximateNumber), Math: c(JelMath), DateType: c(DateType), TimeType: c(TimeType),
+  {static: {ApproximateNumber: c(ApproximateNumber), Math: c(JelMath), DateType: c(DateType), TimeType: c(TimeType),
             Fraction: c(Fraction), Unit: c(Unit), UnitValue: c(UnitValue), 
             Distribution: c(Distribution), DistributionPoint: c(DistributionPoint), Pattern: c(Pattern), Translator: c(Translator), EnumValue: c(EnumValue), 
             Duration: c(Duration), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 

@@ -13,7 +13,6 @@ const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 
-const ctx = DefaultContext.plus({JelPromise: new NativeClass(JelPromise)});
 const jelAssert = new JelAssert();
 
 
@@ -30,6 +29,7 @@ describe('jelDictionary', function() {
   describe('constructor()', function() {
     it('creates empty dicts', function() {
       assert.equal(new Dictionary().elements.size, 0); 
+      assert.equal(Dictionary.clazz.name, "Dictionary"); 
     });
     it('creates dicts from Maps', function() {
       assert.equal(new Dictionary(new Map([])).size, 0); 
@@ -54,42 +54,43 @@ describe('jelDictionary', function() {
     });
   });
   
-  describe('create()', function() {
+  describe('creation', function() {
     it('creates empty dicts', function() {
-      jelAssert.equal(new JEL('Dictionary()').executeImmediately(ctx).size, 0); 
+      jelAssert.equal(new JEL('{}').executeImmediately(ctx).size, 0); 
     });
     it('creates dicts from lists', function() {
-      jelAssert.equal(new JEL('Dictionary(["t", 8])').executeImmediately(ctx).toObjectDebug(), {t: 8}); 
+      jelAssert.equal(new JEL('{"t": 8}').executeImmediately(ctx).toObjectDebug(), {t: 8}); 
+      jelAssert.equal(new JEL('{"t": 8}').executeImmediately(ctx).clazz.className, "Class"); 
     });
   });
   
   describe('anyKey', function() {
     it('picks a key', function() {
-      jelAssert.equal(new JEL('Dictionary(["t", 8]).anyKey').executeImmediately(ctx), "'t'"); 
+      jelAssert.equal(new JEL('{"t": 8}.anyKey').executeImmediately(ctx), "'t'"); 
     });
   });
   
   
   describe('access', function() {
     it('allows access by string or as member', function() {
-      jelAssert.equal(new JEL('Dictionary(["t", 8])["t"]').executeImmediately(ctx), "8"); 
-      jelAssert.equal(new JEL('Dictionary(["t", 8]).t').executeImmediately(ctx), "8"); 
+      jelAssert.equal(new JEL('{"t": 8}["t"]').executeImmediately(ctx), "8"); 
+      jelAssert.equal(new JEL('{"t": 8}.t').executeImmediately(ctx), "8"); 
     });
   });
 
   describe('size', function() {
     it('returns the size', function() {
-      jelAssert.equal('Dictionary(["v", 3, "b", 9]).size', 2); 
+      jelAssert.equal('{v: 3, "b": 9}.size', 2); 
       jelAssert.equal('{v: 3, d: 1}.size', 2); 
-      jelAssert.equal('Dictionary().size', 0);
+      jelAssert.equal('Dictionary.empty.size', 0);
     });
   });
 
   
   describe('map()', function() {
     it('maps', function() {
-      jelAssert.equalPromise('Dictionary(["v", 3, "b", 9]).map((k,v)=>v+1)', new Dictionary({v: 4, b: 10})); 
-      return jelAssert.equalPromise('Dictionary(["v", 3, "b", 9]).map((k,v)=>JelPromise(v+1))', new Dictionary({v: 4, b: 10})); 
+      jelAssert.equalPromise('{"v": 3, "b": 9}.map((k,v)=>v+1)', new Dictionary({v: 4, b: 10})); 
+      return jelAssert.equalPromise('{"v": 3, "b": 9}.map((k,v)=>JelPromise(v+1))', new Dictionary({v: 4, b: 10})); 
     });
   });
 
@@ -97,13 +98,13 @@ describe('jelDictionary', function() {
     it('iterates', function() {
       let x = '';
       const accumulator = new FunctionCallable((ctx, k, v)=> x+=k+'-'+v+',' );
-      new JEL('Dictionary(["3", 2, "9", 10]).each(accumulator)').executeImmediately(new Context().setAll({Dictionary: new NativeClass(Dictionary), accumulator}));
+      new JEL('{"3": 2, "9": 10}.each(accumulator)').executeImmediately(new Context().setAll({accumulator}));
       assert.equal(x, "3-2,9-10,");
     });
     it('iterates with promises', function() {
       let x = '';
       const accumulator = new FunctionCallable((ctx, k, v)=> Promise.resolve(x+=k+'-'+v+','));
-      return new JEL('Dictionary(["3", 2, "9", 10, "a", 11, "b", 22]).each(accumulator)').execute(new Context(ctx).setAll({accumulator}))
+      return new JEL('{"3": 2, "9": 10, "a": 11, "b": 22}.each(accumulator)').execute(new Context(ctx).setAll({accumulator}))
 				.then(()=>assert.equal(x, "3-2,9-10,a-11,b-22,"));
     });
   });
@@ -159,8 +160,8 @@ describe('jelDictionary', function() {
 
   describe('get()', function() {
     it('gets', function() {
-      assert.equal(new JEL('{a: 2, b: 9}.get("b")').executeImmediately(ctx), 9); 
-      assert.strictEqual(new JEL('{a: 2, b: 9}.get("c")').executeImmediately(ctx), null); 
+      jelAssert.equal('{a: 2, b: 9}.get("b")', "9"); 
+      jelAssert.equal('{a: 2, b: 9}.get("c")', "null"); 
     });
   });
 
@@ -208,10 +209,17 @@ describe('jelDictionary', function() {
   
   
   
-  describe('keys()', function() {
+  describe('keys', function() {
     it('keys', function() {
       assert.deepEqual(new JEL('{}.keys').executeImmediately(ctx).elements, []); 
       assert.deepEqual(new JEL('{a: 2, b: 9}.keys').executeImmediately(ctx).elements, ['a', 'b']); 
+    });
+  });
+
+  describe('isEmpty', function() {
+    it('checks for emptyness', function() {
+      jelAssert.equal('{}.isEmpty', 'true'); 
+      jelAssert.equal('{a: 2, b: 9}.isEmpty', 'false'); 
     });
   });
 

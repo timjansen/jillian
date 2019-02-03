@@ -6,6 +6,8 @@ import Context from '../Context';
 import Float from './Float';
 import JelString from './JelString';
 import List from './List';
+import NativeJelObject from './NativeJelObject';
+import Class from './Class';
 import JelBoolean from './JelBoolean';
 import TypeChecker from './TypeChecker';
 import Callable from '../Callable';
@@ -17,12 +19,18 @@ const LIST_OR_DICTIONARY = ['List', 'Dictionary'];
 /**
  * Dictionary is a map-like type for JEL.
  */
-export default class Dictionary extends JelObject implements SerializablePrimitive {
+export default class Dictionary extends NativeJelObject implements SerializablePrimitive {
 	elements: Map<string, JelObject|null>;
   
+  static clazz: Class|undefined;
+
+  
 	JEL_PROPERTIES: Object;
-	static readonly JEL_PROPERTIES = {empty: true};
+	static readonly empty_jel_property = true;
 	static readonly empty = new Dictionary();
+  
+  defaultValue_jel_property: boolean;
+
 	
 	constructor(elements?: any, keepMap = false, public defaultValue: JelObject|null = null) {
 		super('Dictionary');
@@ -33,6 +41,12 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 			this.putAll(elements);
 		}
 	}
+
+  get clazz(): Class {
+    return Dictionary.clazz!;
+  }
+
+
 	
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (right == null)
@@ -67,36 +81,34 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 	}
 
 	
-	get_jel_mapping: Object;
+	get_jel_mapping: boolean;
 	get(ctx: Context, key0: JelString | string): any {
 		const key = TypeChecker.realString(key0, 'key');
 		const v = this.elements.get(key);
 		return v == undefined ? this.defaultValue : v;
 	}
   
-  withDefault_jel_mapping: Object;
+  withDefault_jel_mapping: boolean;
   withDefault(ctx: Context, defaultValue: JelObject|null): Dictionary {
     if (this.defaultValue === defaultValue)
       return this;
     return new Dictionary(this.elements, true, defaultValue);
   }
   
-  member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|undefined {
-		if (name in this.JEL_PROPERTIES)
-			return BaseTypeRegistry.mapNativeTypes((this as any)[name]);
-    if ((name+'_jel_mapping') in this)
-      return undefined;
-    
+  member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): Promise<JelObject|null>|JelObject|null|undefined {
+    const sm = super.member(ctx, name, parameters);
+    if (sm !== undefined)
+      return sm;
 		return this.elements.get(name);
 	}
 
-	has_jel_mapping: Object;
+	has_jel_mapping: boolean;
 	has(ctx: Context, key0: JelString | string): JelBoolean {
 		const key = TypeChecker.realString(key0, 'key');
 		return JelBoolean.valueOf(this.elements.has(key));
 	}
 
-  set_jel_mapping: Object;
+  set_jel_mapping: boolean;
   set(ctx: Context, key0: any, value: JelObject|null): Dictionary {
 		const key = TypeChecker.realString(key0, 'key');
 		const t = new Dictionary(this, false, this.defaultValue);
@@ -104,18 +116,18 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 		return t;
 	}
 
-  setAll_jel_mapping: Object;
+  setAll_jel_mapping: boolean;
   setAll(ctx: Context, other0: any): Dictionary {
 		const other = TypeChecker.instance(Dictionary, other0,'other');
-    if (other.empty)
+    if (other.isEmpty)
       return this;
-    else if (this.empty)
+    else if (this.isEmpty)
       return other;
     else 
       return new Dictionary(this, false, this.defaultValue).putAll(other);
   }
 
-  delete_jel_mapping: Object;
+  delete_jel_mapping: boolean;
   delete(ctx: Context, key0: any): Dictionary {
 	  const key = TypeChecker.realString(key0, 'key');
     if (!key)
@@ -126,10 +138,10 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
   }
 
   
-  deleteAll_jel_mapping: Object;
+  deleteAll_jel_mapping: boolean;
   deleteAll(ctx: Context, keys0: any): Dictionary {
 	  const keys = TypeChecker.types(['Dictionary', 'List'], keys0, 'keys');
-    if (this.empty || keys.empty)
+    if (this.isEmpty || keys.isEmpty)
       return this;
     const d = new Dictionary(this, false, this.defaultValue);
     if (keys instanceof Dictionary)
@@ -171,6 +183,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 		return this;
 	}
 	
+  anyKey_jel_property: boolean;
 	get anyKey(): string | null {
 		if (this.elements.size)
 			return this.elements.keys().next().value;
@@ -178,19 +191,22 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 			return null;
 	}
 	
+  size_jel_property: boolean;
 	get size(): number {
 		return this.elements.size;
 	}
 
-	get empty(): boolean {
+  isEmpty_jel_property: boolean;
+  get isEmpty(): boolean {
 		return this.elements.size == 0;
 	}
 
+  keys_jel_property: boolean;
 	get keys(): List {
 		return new List(this.elements.keys());
 	}
 
-	each_jel_mapping: Object;
+	each_jel_mapping: boolean;
 	each(ctx: Context, f0: any): Dictionary | Promise<Dictionary> {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		const self = this;
@@ -210,7 +226,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 		return exec();
 	}
 
-	map_jel_mapping: Object;
+	map_jel_mapping: boolean;
 	map(ctx: Context, f0: any): Dictionary | Promise<Dictionary> {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		const self = this;
@@ -259,7 +275,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 		return exec();
 	}
 
-  mapToList_jel_mapping: Object;
+  mapToList_jel_mapping: boolean;
 	mapToList(ctx: Context, f0: any): List | Promise<List> {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		const self = this;
@@ -338,7 +354,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 	}
 
   
-	filter_jel_mapping: Object;
+	filter_jel_mapping: boolean;
 	filter(ctx: Context, f0: any): Dictionary | Promise<Dictionary> {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		const self = this;
@@ -376,7 +392,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
     return newDict;
 	}
   
-	reduce_jel_mapping: Object;
+	reduce_jel_mapping: boolean;
 	reduce(ctx: Context, f0: any, init: any = 0): any {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 
@@ -404,7 +420,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 		return exec();
 	}
 
-	hasAny_jel_mapping: Object;
+	hasAny_jel_mapping: boolean;
 	hasAny(ctx: Context, f0: any): JelBoolean | Promise<JelBoolean> {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		const self = this;
@@ -441,7 +457,7 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 	}
 
   
-	hasOnly_jel_mapping: Object;
+	hasOnly_jel_mapping: boolean;
 	hasOnly(ctx: Context, f0: any): JelBoolean | Promise<JelBoolean> {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 
@@ -534,20 +550,24 @@ export default class Dictionary extends JelObject implements SerializablePrimiti
 }
 
 
-Dictionary.prototype.JEL_PROPERTIES = {size: true, anyKey: true, keys: true, empty: true, defaultValue: true};
-Dictionary.prototype.get_jel_mapping = ['key'];
-Dictionary.prototype.withDefault_jel_mapping = ['defaultValue'];
-Dictionary.prototype.has_jel_mapping = ['key'];
-Dictionary.prototype.set_jel_mapping = ['key', 'value'];
-Dictionary.prototype.setAll_jel_mapping = ['other'];
-Dictionary.prototype.delete_jel_mapping = ['key'];
-Dictionary.prototype.deleteAll_jel_mapping = ['keys'];
-Dictionary.prototype.each_jel_mapping = ['f'];
-Dictionary.prototype.map_jel_mapping = ['f'];
-Dictionary.prototype.mapToList_jel_mapping = ['f'];
-Dictionary.prototype.filter_jel_mapping = ['f'];
-Dictionary.prototype.reduce_jel_mapping = ['f', 'init'];
-Dictionary.prototype.hasAny_jel_mapping = ['f'];
-Dictionary.prototype.hasOnly_jel_mapping = ['f'];
+Dictionary.prototype.size_jel_property = true;
+Dictionary.prototype.anyKey_jel_property = true;
+Dictionary.prototype.keys_jel_property = true;
+Dictionary.prototype.isEmpty_jel_property = true;
+Dictionary.prototype.defaultValue_jel_property = true;
+Dictionary.prototype.get_jel_mapping = true;
+Dictionary.prototype.withDefault_jel_mapping = true;
+Dictionary.prototype.has_jel_mapping = true;
+Dictionary.prototype.set_jel_mapping = true;
+Dictionary.prototype.setAll_jel_mapping = true;
+Dictionary.prototype.delete_jel_mapping = true;
+Dictionary.prototype.deleteAll_jel_mapping = true;
+Dictionary.prototype.each_jel_mapping = true;
+Dictionary.prototype.map_jel_mapping = true;
+Dictionary.prototype.mapToList_jel_mapping = true;
+Dictionary.prototype.filter_jel_mapping = true;
+Dictionary.prototype.reduce_jel_mapping = true;
+Dictionary.prototype.hasAny_jel_mapping = true;
+Dictionary.prototype.hasOnly_jel_mapping = true;
 
 BaseTypeRegistry.register('Dictionary', Dictionary);

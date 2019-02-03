@@ -306,7 +306,7 @@ export default class Class extends PackageContent implements IClass, Serializabl
             throw new Error(`Constructors must return a Dictionary.`);
           const ctorPropValues: any|Promise<any>[] = [];
           const ctorPropsNames = Array.from(ctorReturn.elements.keys());
-          if (!ctorReturn.empty) {
+          if (!ctorReturn.isEmpty) {
             for (let key of ctorPropsNames) {
               const prop: Property|undefined = this.allProperties.elements.get(key) as any;
               if (!prop)
