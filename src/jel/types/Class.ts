@@ -366,7 +366,7 @@ export default class Class extends PackageContent implements IClass, Serializabl
   }
 
 
-  static create_jel_mapping = ['name', 'superType', 'isAbstract', 'isNative', 'ctor', 'properties', 'methods', 'staticProperties'];
+  static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]): Class|Promise<Class> {
     throw new Error('You can not create new classes using the constructor');
     /*
@@ -389,5 +389,4 @@ export default class Class extends PackageContent implements IClass, Serializabl
 
 Class.prototype.create_jel_mapping = true;
 BaseTypeRegistry.register('Class', Class);
-BaseTypeRegistry.register('GenericJelObject', GenericJelObject);
 

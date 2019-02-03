@@ -2,8 +2,10 @@ import Runtime from '../Runtime';
 import JelObject from '../JelObject';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import SerializablePrimitive from '../SerializablePrimitive';
+import NativeJelObject from './NativeJelObject';
 import Context from '../Context';
 import Util from '../../util/Util';
+import Class from './Class';
 import Numeric from './Numeric';
 import JelBoolean from './JelBoolean';
 import TypeChecker from './TypeChecker';
@@ -11,7 +13,7 @@ import TypeChecker from './TypeChecker';
 /**
  * Represents a number.
  */
-export default class Float extends JelObject implements SerializablePrimitive, Numeric {
+export default class Float extends NativeJelObject implements SerializablePrimitive, Numeric {
 	
 	static readonly NAN = new Float(NaN);
 	static readonly DEFAULT_NUMBERS_RANGE = 100;
@@ -25,10 +27,18 @@ export default class Float extends JelObject implements SerializablePrimitive, N
 	
   static jelName = 'Float';
   
+  static clazz: Class|undefined;
+
+  
 	constructor(public value: number) {
 		super('Float');
 	}
-	
+  
+  get clazz(): Class {
+    return Float.clazz!;
+  }
+	  
+  
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (right instanceof Float) {
 			switch (operator) {
@@ -107,7 +117,13 @@ export default class Float extends JelObject implements SerializablePrimitive, N
 	toBoolean(): boolean {
 		return !!this.value;
 	}
+	
+	isInteger_jel_mapping: Object;
+	isInteger(): boolean {
+		return Number.isInteger(this.value);
+	}
 
+  
 	static toFloat(n: any, defaultValue: any = Float.NAN): any {
 		return typeof n == 'number' ? Float.valueOf(n) :(n && (n as any).toFloat) ? (n as any).toFloat() : defaultValue;
 	}
@@ -178,10 +194,11 @@ Float.prototype.reverseOps = {
 	'<=': 1,
 	'<<=': 1,
 };
-Float.prototype.abs_jel_mapping = [];
-Float.prototype.negate_jel_mapping = [];
-Float.prototype.round_jel_mapping = [];
-Float.prototype.trunc_jel_mapping = [];
+Float.prototype.abs_jel_mapping = true;
+Float.prototype.negate_jel_mapping = true;
+Float.prototype.round_jel_mapping = true;
+Float.prototype.trunc_jel_mapping = true;
+Float.prototype.isInteger_jel_mapping = true;
 
 BaseTypeRegistry.register('Float', Float);
 

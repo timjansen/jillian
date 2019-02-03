@@ -4,10 +4,6 @@
 native class Class extends PackageContent:
   native name: string
 
-  native constructor()
-
-
-
   native methods: List
   native properties: List
 
