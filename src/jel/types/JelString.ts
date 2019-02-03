@@ -105,6 +105,7 @@ export default class JelString extends NativeJelObject implements SerializablePr
 		return JSON.stringify(this.value);
 	}
 	
+  toBoolean_jel_mapping: boolean;
 	toBoolean(): JelBoolean {
 		return JelBoolean.valueOf(!!this.value.length);
 	}
@@ -118,6 +119,7 @@ export default class JelString extends NativeJelObject implements SerializablePr
 	}
 }
 
+JelString.prototype.toBoolean_jel_mapping = true;
 JelString.prototype.length_jel_property = true;
 JelString.prototype.trim_jel_mapping = true;
 JelString.prototype.contains_jel_mapping = true;

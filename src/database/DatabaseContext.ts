@@ -62,8 +62,9 @@ export default class DatabaseContext extends Context {
   }
 
   static async get(session: DbSession): Promise<Context> {
-    const dc = new DatabaseContext(await DefaultContext.get(), session);
-    const ctx = await DefaultContext.createBootContext(BOOTSTRAP_DIR, BOOT_SCRIPT, dc);
+    const dc = new DatabaseContext(undefined, session);
+    const defCtx = await DefaultContext.loadDefaultContext(dc);
+    const ctx = await DefaultContext.createBootContext(BOOTSTRAP_DIR, BOOT_SCRIPT, defCtx);
     ctx.freeze();
     return ctx;
   }
@@ -89,7 +90,7 @@ export default class DatabaseContext extends Context {
  	hasInStaticScope(name: string): boolean {
 		if (this.hasInThisScope(name))
       return true;
-    if (this.parent!.has(name))
+    if (this.parent && this.parent.has(name))
       return this.parent!.hasInStaticScope(name);
     return /^[A-Z]/.test(name);
 	}

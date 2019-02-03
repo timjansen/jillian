@@ -1,0 +1,27 @@
+/**
+ * Represents a range between two boundaries. Both boundaries, the upper and the lower, are optional to allow an unlimited range.
+ */ 
+native class Range:
+
+	native constructor(min: any?, max: any?)
+
+  /**
+   * Checks whether the given value is within the boundaries of the range.
+   */
+	native contains(v: any): bool
+
+  /**
+   * Returns the middle between the boundaries, or null if there are no two boundaries.
+   */
+	native middle(): any?
+
+  /**
+   * Returns true if both boundaries are set.
+   */
+	native isFinite(): bool
+
+  /**
+   * Returns true if both boundaries are the same.
+   */
+	native isEmpty(): bool
+

@@ -2,6 +2,8 @@ import Util from '../../util/Util';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import Runtime from '../Runtime';
 import JelObject from '../JelObject';
+import Class from './Class';
+import NativeJelObject from './NativeJelObject';
 import Context from '../Context';
 import Float from './Float';
 import Fraction from './Fraction';
@@ -17,13 +19,20 @@ const RANGE_NUM_OPS: any = {'+': true, '-': true, '*': true, '/': true};
 /**
  * Represents a range of numeric values or time/dates. Ranges can be open-ended by passing a null for the min and/or max.
  */
-export default class Range extends JelObject {
-	
-	JEL_PROPERTIES: Object;
+export default class Range extends NativeJelObject {
+
+  min_jel_property: boolean;
+  max_jel_property: boolean;
+
+  static clazz: Class|undefined;
 
 	constructor(public min: JelObject | null, public max: JelObject | null, className?: string) {
 		super(className || 'Range');
 	}
+  
+  get clazz(): Class {
+    return Range.clazz!;
+  }
 	
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (operator == '!==')
@@ -129,11 +138,12 @@ export default class Range extends JelObject {
 	}
 }
 
-Range.prototype.JEL_PROPERTIES = {min: 1, max: 1};
-Range.prototype.contains_jel_mapping = ['right'];
-Range.prototype.middle_jel_mapping = [];
-Range.prototype.isFinite_jel_mapping = [];
-Range.prototype.isEmpty_jel_mapping = [];
+Range.prototype.min_jel_property = true;
+Range.prototype.max_jel_property = true;
+Range.prototype.contains_jel_mapping = true;
+Range.prototype.middle_jel_mapping = true;
+Range.prototype.isFinite_jel_mapping = true;
+Range.prototype.isEmpty_jel_mapping = true;
 Range.prototype.reverseOps = JelObject.SWAP_OPS;
 
 BaseTypeRegistry.register('Range', Range);

@@ -1,0 +1,6 @@
+/**
+ * Represents a range between two boundaries. Both boundaries, the upper and the lower, are optional to allow an unlimited range.
+ */ 
+native class DurationRange extends Range:
+
+	native constructor(min: any?, max: any?) // TODO: convert any->Duration

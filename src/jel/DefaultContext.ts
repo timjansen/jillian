@@ -98,14 +98,16 @@ const BOOT_SCRIPT = [
   [
     {jel: 'Boolean.jel', native: JelBoolean},
     {jel: 'Float.jel', native: Float},
-    {jel: 'String.jel', native: JelString}
+    {jel: 'String.jel', native: JelString},
+    {jel: 'Range.jel', native: Range}
   ],
+  {jel: 'time/DurationRange.jel', native: DurationRange}, // << TODO: change this after converting Duration
   
-  {static: {String: c(JelString), ApproximateNumber: c(ApproximateNumber), Math: c(JelMath), DateType: c(DateType), TimeType: c(TimeType),
-                   Range: c(Range), Fraction: c(Fraction), Unit: c(Unit), UnitValue: c(UnitValue), 
+  {static: {ApproximateNumber: c(ApproximateNumber), Math: c(JelMath), DateType: c(DateType), TimeType: c(TimeType),
+                   Fraction: c(Fraction), Unit: c(Unit), UnitValue: c(UnitValue), 
                    Method: c(Method), Property: c(Property), LambdaExecutable: c(LambdaExecutable),
                    Dictionary: c(Dictionary), List: c(List), Distribution: c(Distribution), DistributionPoint: c(DistributionPoint), Pattern: c(Pattern), Translator: c(Translator), EnumValue: c(EnumValue), 
-                   Duration: c(Duration), DurationRange: c(DurationRange), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 
+                   Duration: c(Duration), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 
                    ZonedDate: c(ZonedDate), ZonedDateTime: c(ZonedDateTime),
                    ___IS_DEFAULT_CONTEXT: 'magic123'}}
 ];
@@ -152,11 +154,14 @@ export default class DefaultContext {
     return ctx;
   }
 
+  static async loadDefaultContext(parentContext?: Context): Promise<Context> {
+    return DefaultContext.createBootContext(DefaultContext.BOOTSTRAP_DIR, BOOT_SCRIPT, parentContext);
+  }
   
 	static async get(): Promise<Context> {
     if (DefaultContext.context)
       return DefaultContext.context;
-   	DefaultContext.context = DefaultContext.createBootContext(DefaultContext.BOOTSTRAP_DIR, BOOT_SCRIPT);
+   	DefaultContext.context = DefaultContext.loadDefaultContext();
     return DefaultContext.context;
 	}
 

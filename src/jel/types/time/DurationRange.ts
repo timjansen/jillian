@@ -4,6 +4,7 @@ import JelObject from '../../JelObject';
 import Runtime from '../../Runtime';
 import Context from '../../Context';
 import Util from '../../../util/Util';
+import Class from '../Class';
 import Range from '../Range';
 import Float from '../Float';
 import JelBoolean from '../JelBoolean';
@@ -12,18 +13,24 @@ import Duration from './Duration';
 import Fraction from '../Fraction';
 import ApproximateNumber from '../ApproximateNumber';
 import TypeChecker from '../TypeChecker';
+import BaseTypeRegistry from '../../BaseTypeRegistry';
 
 /**
  * A complex, calendar-based duration (simple durations, like year or seconds, can use UnitValue with Range)
  */
 export default class DurationRange extends Range {
-	
+	static clazz: Class|undefined;
+  
 	constructor(min: Duration, max: Duration) {
 		super(min, max, 'DurationRange');
 		if (!min || !max)
 			throw new Error('Min and max parameters are both required for a DurationRange)');
 	}
 	
+  get clazz(): Class {
+    return DurationRange.clazz!;
+  }
+  
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if ((right instanceof Duration) || (right instanceof UnitValue)) {
 			switch (operator) {
@@ -51,7 +58,7 @@ export default class DurationRange extends Range {
 		return super.op(ctx, operator, right);
 	}
 
-	contains_jel_mapping: Object;
+	contains_jel_mapping: boolean;
 	contains(ctx: Context, value: any): JelBoolean {
 		if (value == null)
 			return JelBoolean.valueOf(!this.isFinite());
@@ -71,6 +78,7 @@ export default class DurationRange extends Range {
 
 }
 
-DurationRange.prototype.contains_jel_mapping = ['value'];
+DurationRange.prototype.contains_jel_mapping = true;
 DurationRange.prototype.reverseOps = JelObject.SWAP_OPS;
 
+BaseTypeRegistry.register('DurationRange', DurationRange);

@@ -16,7 +16,6 @@ import Class from '../Class';
  */
 export default class StringType extends TypeDescriptor implements SerializablePrimitive {
   static clazz: Class|undefined;
- 	static readonly JEL_PROPERTIES = {allowEmpty: true};
 
   static readonly instance = new StringType(false);
   static readonly allowEmpty = new StringType(true);
@@ -24,6 +23,7 @@ export default class StringType extends TypeDescriptor implements SerializablePr
   constructor(public allowEmpty = false) {
     super('StringType');
   }
+
   
   get clazz(): Class {
     return StringType.clazz!;

@@ -1,0 +1,34 @@
+/**
+ * Represents a string.
+ */ 
+native class String:
+
+  /**
+   * Returns the number of characters in the string.
+   */ 
+  native length: int(0...null)
+  
+  /**
+   * Returns the string without whitespace at the beginning or end.
+   */
+  native trim(): String
+  
+  /**
+   * Check whether this string contains the given other string.
+   */
+	native contains(s: String): bool
+
+  /**
+   * Returns the character at the given position as a new string. Empty string if out of range.
+   */
+	native get(index: int): String
+
+  /**
+   * Returns the unicode at the given position.
+   */
+	native unicodeAt(index: int): int(0...null)
+  
+  /**
+   * Returns true if the string length is >0, false for an empty string.
+   */
+  native toBoolean(): bool

@@ -1,0 +1,55 @@
+/**
+ * Represents a floating point or integer number.
+ */ 
+native class Float:
+
+
+  /**
+   * Negates the number.
+   */
+  native negate(): Float
+ 
+  /**
+   * Returns the absolute value.
+   */
+	native abs(): Float
+
+  /**
+   * Returns the nearest integer.
+   */
+	native round(): int
+  
+  /**
+   * Truncates the number to become an integer.
+   */
+	native trunc(): int
+
+  /**
+   * Returns true if the number is not 0, false if 0.
+   */
+	native toBoolean(): bool
+
+  /**
+   * Checks whether this number is an integer.
+   */
+	native isInteger(): bool
+
+  /**
+   * Checks whether the given object is an integer.
+   */
+	static native isInteger(n: any): bool
+  
+
+  /**
+   * Checks whether the given object can be represented as a number.
+   */
+	static native isNumeric(n: any): bool
+
+  /**
+   * Checks whether the given object can be represented as a number without losing a unit. Only numbers without unit return true.
+   */
+	static native noUnit(n: any): bool
+
+
+
+  
