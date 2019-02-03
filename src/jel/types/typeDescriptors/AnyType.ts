@@ -13,7 +13,7 @@ import JelBoolean from '../JelBoolean';
 
 
 /**
- * Represets any type, including null.
+ * Represets any type, excluding null.
  */
 export default class AnyType extends TypeDescriptor {
   static readonly instance = new AnyType();
@@ -32,7 +32,7 @@ export default class AnyType extends TypeDescriptor {
   }
 	
   checkType(ctx: Context, value: JelObject|null): JelBoolean {
-    return JelBoolean.TRUE;
+    return value ? JelBoolean.TRUE : JelBoolean.FALSE;
   }
   
   convert(ctx: Context, value: JelObject|null): JelObject|null {
@@ -48,7 +48,7 @@ export default class AnyType extends TypeDescriptor {
   }
 
   isNullable(ctx: Context): boolean {
-    return true;
+    return false;
   }
   
   serializeToString() : string {

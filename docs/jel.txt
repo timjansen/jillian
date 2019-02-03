@@ -163,7 +163,8 @@ Examples:
   a instanceof @AnimalCategory        // true if a is a Thing in the @AnimalCategory
   a instanceof CategoryType(@AnimalCategory) // true if a is a Category derived from @AnimalCategory (or @AnimalCategory itself)
   a instanceof int                    // true if a is a number representing an integer value
-  a instanceof any                    // always true
+  a instanceof any                    // true if a is not null
+  a instanceof any?                   // always true
 
 
 Types

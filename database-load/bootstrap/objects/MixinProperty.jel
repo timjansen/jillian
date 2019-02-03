@@ -3,6 +3,6 @@
  */
 native class MixinProperty extends DbEntry:
   native constructor(distinctName: string, 
-               type: any,                   // TODO: TypeDescriptor or shortcuts
+               type: any?,                   // TODO: TypeDescriptor or shortcuts
 							 category: CategoryType()?)
                

@@ -6,11 +6,11 @@ native class DictionaryType extends TypeDescriptor:
    * Creates a new DictionaryType with the given field type. 
    * @param the type of the values
    */
-  native constructor(fields: any)
+  native constructor(fields: any?)
   
-  override native checkType(value: any): bool
+  override native checkType(value: any?): bool
 
-  override native convert(value: any): any
+  override native convert(value: any?): any?
   
   override native equals(other: TypeDescriptor?): bool
   

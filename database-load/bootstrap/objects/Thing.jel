@@ -4,7 +4,7 @@
 native class Thing extends DbEntry:
   native constructor(distinctName: string, 
                category: CategoryType()?,
-							 properties: any{} = {},
+							 properties: any?{} = {},
                reality: any?,                              // << TODO
 							 hashCode: string?)
                

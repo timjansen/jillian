@@ -8,9 +8,9 @@ native class OptionType extends TypeDescriptor:
    */
   native constructor(types: any[])
   
-  override native checkType(value: any): bool
+  override native checkType(value: any?): bool
 
-  override native convert(value: any): any
+  override native convert(value: any?): any?
   
   override native equals(other: TypeDescriptor?): bool
   

@@ -5,9 +5,9 @@ native class UnitValueQuantityType extends TypeDescriptor:
 
   native constructor(category: CategoryType()) // CategoryType(@UnitOfMeasureCategory))
   
-  override native checkType(value: any): bool
+  override native checkType(value: any?): bool
 
-  override native convert(value: any): any
+  override native convert(value: any?): any?
   
   override native equals(other: TypeDescriptor?): bool
   

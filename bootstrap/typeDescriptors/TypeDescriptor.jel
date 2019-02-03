@@ -2,8 +2,8 @@
  * A base class for all type descriptors to check and convert types.
  */
 abstract class TypeDescriptor:
-  abstract checkType(value: any): bool
-  abstract convert(value: any): any
+  abstract checkType(value: any?): bool
+  abstract convert(value: any?): any?
   
   abstract equals(other: TypeDescriptor?): bool
   

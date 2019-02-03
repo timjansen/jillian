@@ -52,7 +52,8 @@ describe('Types', function() {
 
   it('checks non-db types', function() {
     jelAssert.fuzzy('any.checkType(1)', 1);
-    jelAssert.fuzzy('any.checkType(null)', 1);
+    jelAssert.fuzzy('any?.checkType(null)', 1);
+    jelAssert.fuzzy('any.checkType(null)', 0);
     jelAssert.fuzzy('any.checkType("a")', 1);
 
     jelAssert.fuzzy('string.checkType(1)', 0);
