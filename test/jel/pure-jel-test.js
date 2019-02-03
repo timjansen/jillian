@@ -307,6 +307,16 @@ describe('JEL', function() {
       jelAssert.equal(new JEL('[1, 2, 3, 4][2]').executeImmediately(), 3);
     });
 
+    it('supports accessing characters of strings', function() {
+      jelAssert.equal('"abc"[0]', "'a'");
+      jelAssert.equal('"abc"[2]', "'c'");
+      jelAssert.equal('"abc"[3]', "''");
+      jelAssert.equal('"abc"[-1]', "''");
+      jelAssert.equal('"abc".get(1)', "'b'");
+      jelAssert.equal('"abc".unicodeAt(1)', "98");
+      jelAssert.equal('"abc".unicodeAt(10)', "0");
+    });
+    
     it('supports let', function() {
       jelAssert.equal(new JEL('let a=1: a').executeImmediately(), 1);
       jelAssert.equal(new JEL('let a=1, b=2: a+b').executeImmediately(), 3);

@@ -97,7 +97,8 @@ const BOOT_SCRIPT = [
   ],
   [
     {jel: 'Boolean.jel', native: JelBoolean},
-    {jel: 'Float.jel', native: Float}
+    {jel: 'Float.jel', native: Float},
+    {jel: 'String.jel', native: JelString}
   ],
   
   {static: {String: c(JelString), ApproximateNumber: c(ApproximateNumber), Math: c(JelMath), DateType: c(DateType), TimeType: c(TimeType),

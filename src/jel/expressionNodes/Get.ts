@@ -33,6 +33,13 @@ export default class Get extends CachableJelNode {
 			else
 				throw new Error('Index operator [] on List supports only integers.');
 		}
+    else if (leftCtor == 'JelString') {
+      const i = this.float.toRealNumber(name, null);
+			if (i != null && Number.isInteger(i))
+      	return (left as any).get(ctx, (name as any).value);
+			else
+				throw new Error('Index operator [] on String supports only integers.');
+		}
     else if (leftCtor == 'Dictionary') {
 			if (nameCtor == 'JelString')
       	return (left as any).get(ctx, (name as any).value);
