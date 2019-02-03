@@ -45,10 +45,7 @@ describe('jelList', function() {
   
   describe('create()', function() {
     it('creates empty lists', function() {
-      jelAssert.equal('List()', new List()); 
-    });
-    it('creates lists from other lists', function() {
-      jelAssert.equal('List(List([1,8]))', new List([1,8].map(Float.valueOf))); 
+      jelAssert.equal('[]', new List()); 
     });
     it('is equivalent to the built-in lists', function() {
       jelAssert.equal('[4, 2, 1]', new List([4, 2, 1].map(Float.valueOf))); 

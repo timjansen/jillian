@@ -5,6 +5,8 @@ import Context from '../Context';
 import Runtime from '../Runtime';
 import JelObject from '../JelObject';
 import Float from './Float';
+import NativeJelObject from './NativeJelObject';
+import Class from './Class';
 import JelString from './JelString';
 import JelBoolean from './JelBoolean';
 import Callable from '../Callable';
@@ -13,12 +15,12 @@ import TypeChecker from './TypeChecker';
 /**
  * List is an immutable array-like object that is accessible from JEL.
  */
-export default class List extends JelObject implements SerializablePrimitive {
+export default class List extends NativeJelObject implements SerializablePrimitive {
 	elements: any[]; // list elements, guaranteed to be no Promises
 
-	JEL_PROPERTIES: Object;
+  static clazz: Class|undefined;
 
-	static JEL_PROPERTIES = {empty: 1};
+	static empty_jel_property = true;
 	static empty = new List();
 
 
@@ -26,6 +28,10 @@ export default class List extends JelObject implements SerializablePrimitive {
 		super("List");
 		this.elements = elements instanceof List ? elements.elements : Array.isArray(elements) ? elements : Array.from(elements);
 	}
+  
+  get clazz(): Class {
+    return List.clazz!;
+  }
 
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (right == null)
@@ -91,21 +97,29 @@ export default class List extends JelObject implements SerializablePrimitive {
 		return v == undefined ? null : v;
 	}
 	
+  first_jel_property: boolean;
 	get first(): any {
 		const v = this.elements[0];
 		return v === undefined ? null : v;
 	}
 
+  last_jel_property: boolean;
 	get last(): any {
 		const v = this.elements[this.elements.length-1];
 		return v === undefined ? null : v;
 	}
 	
+  length_jel_property: boolean;
 	get length(): number {
 		return this.elements.length;
 	}
+  size_jel_property: boolean;
 	get size(): number {
 		return this.elements.length;
+	}
+  isEmpty_jel_property: boolean;
+	get isEmpty(): boolean {
+		return !this.elements.length;
 	}
 	
 	each_jel_mapping: Object;
@@ -476,24 +490,29 @@ export default class List extends JelObject implements SerializablePrimitive {
 	}
 }
 
-List.prototype.JEL_PROPERTIES = {first:1, last: 1, length: 1, size: 1};
+List.prototype.first_jel_property = true;
+List.prototype.last_jel_property = true;
+List.prototype.length_jel_property = true;
+List.prototype.size_jel_property = true;
+List.prototype.isEmpty_jel_property = true;
 
-List.prototype.get_jel_mapping = ['index'];
-List.prototype.each_jel_mapping = ['f'];
-List.prototype.map_jel_mapping = ['f'];
-List.prototype.filter_jel_mapping = ['f'];
-List.prototype.reduce_jel_mapping = ['f', 'init'];
-List.prototype.hasAny_jel_mapping = ['f'];
-List.prototype.contains_jel_mapping = ['e'];
-List.prototype.hasOnly_jel_mapping = ['f'];
-List.prototype.firstMatch_jel_mapping = ['f'];
-List.prototype.lastMatch_jel_mapping = ['f'];
-List.prototype.nthMatch_jel_mapping = ['index', 'f'];
-List.prototype.bestMatches_jel_mapping = ['isBetter'];
-List.prototype.sub_jel_mapping = ['start', 'end'];
-List.prototype.sort_jel_mapping = ['isLess', 'key'];
-List.prototype.max_jel_mapping = ['isLess', 'key'];
-List.prototype.min_jel_mapping = ['isLess', 'key'];
+
+List.prototype.get_jel_mapping = true;
+List.prototype.each_jel_mapping = true;
+List.prototype.map_jel_mapping = true;
+List.prototype.filter_jel_mapping = true;
+List.prototype.reduce_jel_mapping = true;
+List.prototype.hasAny_jel_mapping = true;
+List.prototype.contains_jel_mapping = true;
+List.prototype.hasOnly_jel_mapping = true;
+List.prototype.firstMatch_jel_mapping = true;
+List.prototype.lastMatch_jel_mapping = true;
+List.prototype.nthMatch_jel_mapping = true;
+List.prototype.bestMatches_jel_mapping = true;
+List.prototype.sub_jel_mapping = true;
+List.prototype.sort_jel_mapping = true;
+List.prototype.max_jel_mapping = true;
+List.prototype.min_jel_mapping = true;
 
 BaseTypeRegistry.register('List', List);
 		

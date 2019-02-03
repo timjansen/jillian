@@ -44,14 +44,14 @@ export default class TypedParameterValue extends JelObject {
       return JelBoolean.valueOf((!one && !other) || (!other && canOtherBeUntyped));
 
     if (!one.type || !other.type)
-      return JelBoolean.valueOf((one.name==other.name) && ((!one.type && !other.type) || (!other.type && canOtherBeUntyped)));
+      return JelBoolean.valueOf((!one.type && !other.type) || (!other.type && canOtherBeUntyped));
     
     return one.compatibleWith(ctx, other);
   }
 
   
   compatibleWith(ctx: Context, other: TypedParameterValue): JelBoolean|Promise<JelBoolean> {
-    return this.name == other.name ? TypeDescriptor.equals(ctx, this.type,  other.type) : JelBoolean.FALSE;
+    return TypeDescriptor.equals(ctx, this.type,  other.type);
   }
   
   static create_jel_mapping = ['name', 'type', 'defaultValueGenerator'];

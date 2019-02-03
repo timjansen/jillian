@@ -44,10 +44,10 @@ export default class FunctionType extends TypeDescriptor {
       if (!protoArgs || !valueArgs)
         return JelBoolean.TRUE;
 
-      if (protoArgs.length != valueArgs.length)
+      if (protoArgs.length < valueArgs.length)
         return JelBoolean.FALSE;
       
-      return Util.resolveArray(protoArgs.map((arg,i)=>TypedParameterValue.compatibleTypes(ctx, arg, valueArgs[i], this.allowUntyped)), 
+      return Util.resolveArray(protoArgs.map((arg,i)=>i < valueArgs.length ? TypedParameterValue.compatibleTypes(ctx, arg, valueArgs[i], this.allowUntyped) : JelBoolean.TRUE), 
                     (argResults: JelBoolean[])=>JelBoolean.valueOf(argResults.findIndex(e=>!e.toRealBoolean()) < 0));
     });
   }

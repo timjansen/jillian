@@ -103,16 +103,17 @@ const BOOT_SCRIPT = [
     {jel: 'Boolean.jel', native: JelBoolean},
     {jel: 'Float.jel', native: Float},
     {jel: 'String.jel', native: JelString},
-    {jel: 'Range.jel', native: Range}
+    {jel: 'Range.jel', native: Range},
+    {jel: 'List.jel', native: List}
   ],
   {jel: 'time/DurationRange.jel', native: DurationRange}, // << TODO: change this after converting Duration
   
-  {static: {ApproximateNumber: c(ApproximateNumber), Math: c(JelMath), DateType: c(DateType), TimeType: c(TimeType),
-                   Fraction: c(Fraction), Unit: c(Unit), UnitValue: c(UnitValue), 
-                   Dictionary: c(Dictionary), List: c(List), Distribution: c(Distribution), DistributionPoint: c(DistributionPoint), Pattern: c(Pattern), Translator: c(Translator), EnumValue: c(EnumValue), 
-                   Duration: c(Duration), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 
-                   ZonedDate: c(ZonedDate), ZonedDateTime: c(ZonedDateTime),
-                   ___IS_DEFAULT_CONTEXT: 'magic123'}}
+  {static: {Dictionary: c(Dictionary),
+            ApproximateNumber: c(ApproximateNumber), Math: c(JelMath), DateType: c(DateType), TimeType: c(TimeType),
+            Fraction: c(Fraction), Unit: c(Unit), UnitValue: c(UnitValue), 
+            Distribution: c(Distribution), DistributionPoint: c(DistributionPoint), Pattern: c(Pattern), Translator: c(Translator), EnumValue: c(EnumValue), 
+            Duration: c(Duration), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 
+            ZonedDate: c(ZonedDate), ZonedDateTime: c(ZonedDateTime)}}
 ];
 
 export default class DefaultContext {
