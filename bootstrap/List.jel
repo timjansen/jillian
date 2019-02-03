@@ -1,0 +1,138 @@
+/**
+ * Represents a list of values. You can create Lists with the list literal ("[1, 2, 3]").
+ */ 
+native class List:
+
+
+  /**
+   * Returns true if there is at least one element in the list.
+   */
+	native isEmpty: bool
+
+  /**
+   * Returns the number of elements in this list (same as size).
+   */
+	native length: int(0...null)
+
+  /**
+   * Returns the number of elements in this list (same as length).
+   */
+	native size: int(0...null)
+
+  /**
+   * Returns the first element of the list, or null if the list is empty;
+   */
+	native first: any?
+
+  /**
+   * Returns the first element of the list, or null if the list is empty;
+   */
+	native last: any?
+
+  /**
+   * Returns the element with the given index. Null if out of bounds.
+   */ 
+	native get(index: int): any?
+  
+  /**
+   * Calls the given function for each list member and returns a new list containing the return values.
+   */
+  native map(f: function((element: any?, index: int(0...null))=>any?)): List
+
+  /**
+   * Calls the given function for each list member and returns a new list containing only those values for which is returned a true value 
+   * (either a true boolean or any object with a toBoolean() method that converts to true).
+   */
+  native filter(f: function((element: any?, index: int(0...null))=>any?)): List
+	
+  /**
+   * Calls the given function for each list member with the current member as first and the accumulator as second. The accumulator is the given "init" argument
+   * on the first invocation, and the last result on all further invocations.
+   * @return the return value returned by the last callback invocation
+   */
+  native reduce(f: function((element: any?, acc: any?, index: int(0...null))=>any?), init: any?): any?
+
+  /**
+   * Checks whether any list element fulfills the given condition. To do this, it calls the given 
+   * function for each list member until it returns true for any of them.
+   * @return true if the callback function returned true once, false otherwise.
+   */
+  native hasAny(f: function((element: any?, index: int(0...null))=>any?)): bool
+
+  /**
+   * Checks whether all list elements fulfill the given condition. To do this, it calls the given 
+   * function for each list member until it returns false for any of them.
+   * @return false if the callback function returned false once, true otherwise.
+   */
+  native hasOnly(f: function((element: any?, index: int(0...null))=>any?)): bool
+
+  /**
+   * CHecks
+   * @return true if the callback function returned true once, false otherwise.
+   */
+  native contains(element: any?): bool
+
+  /**
+   * Returns the first element that matches the given function.
+   * @return the first element, or null if there is none
+   */
+  native firstMatch(f: function((element: any?, index: int(0...null))=>any?)): any?
+
+  /**
+   * Returns the last element that matches the given function.
+   * @return the last element, or null if there is none
+   */
+  native lastMatch(f: function((element: any?, index: int(0...null))=>any?)): any?
+
+  /**
+   * Returns the nth element that matches the given function.
+   * @param index the 1-based number of the occurrence, so 1 is the first, 2 is the second....
+   * @return the nth element, or null if there is none
+   */
+  native nthMatch(index: int(1...null), f: function((element: any?, index: int(0...null))=>any?)): any?
+
+  /**
+   * Returns the best matching element, given the given comparison function.
+   * @param isBetter a function(a,b) that returns true if a is better than b.
+   * @return the best matches as a list (if several are equal). Empty if the original list was empty.
+   */
+  native bestMatches(isBetter: function((a: any?, b: any?)=>any?)): List
+
+
+  /**
+   * Returns a sublist of this list.
+   * @param start the first index. If negative, it counts backwards from the end. If null, it starts at 0.
+   * @param end the last index. If negative, it counts backwards from the end. If null, it ends at the end of the list.
+   * @return the subset list. 
+   */
+  native sub(start: int?, end: int?): List
+
+
+  
+  /**
+   * Sorts this list and returns a sorted version. 
+   * @param isLess optional: a function(a,b) that returns true if a is less than b. If not specified, the '<' operator is used.
+   * @param key optional: either a property name of a property to use as sort key, or a function getKey(a) that retrieves the key
+   *        to sort for the element.
+   * @return the sorted list
+   */
+  native sort(isLess: function((a: any?, b: any?)=>any?)?, key: string|function((a: any?)=>any?)?): List
+
+  /**
+   * Finds the largest element of this list and returns it.
+   * @param isLess optional: a function(a,b) that returns true if a is less than b. If not specified, the '<' operator is used.
+   * @param key optional: either a property name of a property to use as sort key, or a function getKey(a) that retrieves the key
+   *        to sort for the element.
+   * @return the largest element, or null if the list was empty
+   */
+  native max(isLess: function((a: any?, b: any?)=>any?)?, key: string|function((a: any?)=>any?)?): any?
+
+  /**
+   * Finds the smallest element of this list and returns it.
+   * @param isLess optional: a function(a,b) that returns true if a is less than b. If not specified, the '<' operator is used.
+   * @param key optional: either a property name of a property to use as sort key, or a function getKey(a) that retrieves the key
+   *        to sort for the element.
+   * @return the largest element, or null if the list was empty
+   */
+  native min(isLess: function((a: any?, b: any?)=>any?)?, key: string|function((a: any?)=>any?)?): any?
+

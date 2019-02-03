@@ -1,0 +1,13 @@
+/**
+ * Represents a class method.
+ */ 
+native class Method:
+  native name: string
+  native callable: any  // TODO: Callable
+  native isNative: bool
+  native isStatic: bool
+  native isAbstract: bool
+  native isOverride: bool
+  native isGetter: bool
+              
+  

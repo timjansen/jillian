@@ -1,0 +1,112 @@
+/**
+ * Represents a map of values with strings as keys. You can create Dictionaries with the dictionary literal ("{a: 1, b: 2, c: 3}").
+ */ 
+native class Dictionary:
+
+  /**
+   * An empty Dictionary. Same as {}.
+   */
+  static native empty: any{}
+
+  /**
+   * A default value to be returned when you get() an element that does not exist.
+   */
+  native defaultValue: any?
+
+  /**
+   * Returns a random key of the Dictionary, if not empty.
+   */ 
+	native anyKey: String?
+
+  /**
+   * Returns the number of elements in the Dictionary.
+   */
+	native size: int(0...null)
+
+  /**
+   * Returns true if there are no elements in the Dictionary.
+   */
+  native isEmpty: bool
+  
+  /**
+   * Returns a List of all keys in this Dictionary.
+   */
+	native keys: String[]
+
+
+  /**
+   * Returns the entry with the given key. If there is no such entry, it returns "defaultValue".
+   */
+	native get(key: String): any?
+
+  /**
+   * Returns the same dictionary, but with a different default value.
+  */
+  native withDefault(defaultValue: any?): Dictionary
+  
+  /**
+   * Checks whether the dictionary has the given key.
+   */
+	native has(key: String): bool
+
+  /**
+   * Returns a new Dictionary that has the given key set to the value. 
+   * Note that this is a relatively expensive o(n) operation, depending on the Dictionary size.
+   */
+  native set(key: String, value: any?): Dictionary
+
+  /**
+   * Returns a new Dictionary that has all values of the other Dictionary copied over.
+   */
+  native setAll(other: Dictionary): Dictionary
+  
+
+  /**
+   * Returns a new Dictionary that has the given key removed. 
+   * Note that this is a relatively expensive o(n) operation, depending on the Dictionary size.
+   */
+  native delete(key: String): Dictionary
+
+  
+  /**
+   * Returns a new Dictionary that has all values given values removed. If a Dictionary is given, it will return all its keys from this Dictionary.
+   */
+  native deleteAll(keys: Dictionary|string[]): Dictionary
+
+  /**
+   * Calls the given function for each element of this Dictionary to create a new Dictionary which has the same keys, but uses the values returned
+   * by the function.
+   */
+  native map(f: function((key: String, value: any?, index: int(0...null))=>any?)): Dictionary
+
+  /**
+   * Calls the given function for each element of this Dictionary to create a new List which contains the return values of the function.
+   */
+  native mapToList(f: function((key: String, value: any?, index: int(0...null))=>any?)): List
+
+  /**
+   * Calls the given function for each element of this Dictionary to create a new Dictionary that contains only those values the function returned true for.
+   */
+  native filter(f: function((key: String, value: any?, index: int(0...null))=>any?)): Dictionary
+
+  /**
+   * Calls the given function for each element with the current member's key an value as first and second argument, and the accumulator as third. The accumulator is the given "init" argument
+   * on the first invocation, and the last result on all further invocations.
+   * @return the return value returned by the last callback invocation
+   */
+  native reduce(f: function((key: String, value: any?, acc: any?, index: int(0...null))=>any?), init: any?): any?
+
+  /**
+   * Checks whether any element fulfills the given condition. To do this, it calls the given 
+   * function for each member until it returns true for any of them.
+   * @return true if the callback function returned true once, false otherwise.
+   */
+  native hasAny(f: function((key: String, value: any?, index: int(0...null))=>any?)): bool
+
+  /**
+   * Checks whether all elements fulfill the given condition. To do this, it calls the given 
+   * function for each member until it returns false for any of them.
+   * @return false if the callback function returned false once, true otherwise.
+   */
+  native hasOnly(f: function((key: String, value: any?, index: int(0...null))=>any?)): bool
+  

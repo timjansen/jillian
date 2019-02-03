@@ -110,9 +110,9 @@ Examples:
 	mul(6, 7)
 	obj.print("hello")
 	200 +- 10      // Creates an approximate number with an max error of 10
-  1...10         // Creates a range of 1...10
-  1...*          // Creates a range from 1 to infinity
-  *...6          // Creates a range with a max of 6
+  1...10         // Creates a range of 1...10 (inclusive)
+  >=1            // Creates a range from 1 to infinity
+  <=6            // Creates a range with a max of 6
   a in 1...10    // true if a>=1 and a<=10
   a in [1, 2, 3] // true if a==1, a==2 or a==3
 
@@ -163,6 +163,7 @@ Examples:
   a instanceof @AnimalCategory        // true if a is a Thing in the @AnimalCategory
   a instanceof CategoryType(@AnimalCategory) // true if a is a Category derived from @AnimalCategory (or @AnimalCategory itself)
   a instanceof int                    // true if a is a number representing an integer value
+  a instanceof int(>=0)               // true if a is a positive integer
   a instanceof any                    // true if a is not null
   a instanceof any?                   // always true
 

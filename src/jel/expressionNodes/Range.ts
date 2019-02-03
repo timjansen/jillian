@@ -18,35 +18,53 @@ import Util from '../../util/Util';
 export default class Range extends CachableJelNode {
   private range: any;
   
-  constructor(public left: JelNode, public right: JelNode) {
+  constructor(public left: JelNode|undefined, public right: JelNode|undefined) {
     super();
     this.range = BaseTypeRegistry.get('Range');
   }
 
   // override
   executeUncached(ctx: Context): JelObject|null|Promise<JelObject|null> {
-    return Util.resolveValues((l: any,r: any)=>this.range.valueOf(l, r), this.left.execute(ctx), this.right.execute(ctx));
+    if (this.left) {
+      if (this.right)
+        return Util.resolveValues((l: any,r: any)=>this.range.valueOf(l, r), this.left.execute(ctx), this.right.execute(ctx));
+      else
+        return Util.resolveValue(this.left.execute(ctx), (l: any)=>this.range.valueOf(l, null));
+    }
+    else if (this.right)
+        return Util.resolveValue(this.right.execute(ctx), (r: any)=>this.range.valueOf(null, r));
+    else
+      return this.range.valueOf(null, null);
   }
 
   isStaticUncached(ctx: Context): boolean {
-    return this.left.isStatic(ctx) && this.right.isStatic(ctx);
+    return (this.left == null || this.left.isStatic(ctx)) && (this.right == null || this.right.isStatic(ctx));
   }
   
   flushCache(): void {
     super.flushCache();
-    this.left.flushCache();
-    this.right.flushCache();
+    if (this.left) this.left.flushCache();
+    if (this.right) this.right.flushCache();
   }
   
   // overrride
   equals(other?: JelNode): boolean {
 		return other instanceof Range &&
-      this.left.equals(other.left) &&
-      this.right.equals(other.right);
+      (this.left  ? this.left.equals(other.left) : other.left == null) &&
+      (this.right  ? this.right.equals(other.right) : other.right == null);
 	}
   
 	toString(): string {
-  	return `(${this.left.toString()}...${this.right.toString()})`;
+    if (this.left) {
+      if (this.right)
+      	return `(${this.left.toString()}...${this.right.toString()})`;
+      else
+      	return `(>=${this.left.toString()})`;
+    }
+    else if (this.right)
+     	return `(<=${this.right.toString()})`;
+    else
+      return "(null...null)";
 	}
 
 }

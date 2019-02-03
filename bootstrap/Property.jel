@@ -1,0 +1,11 @@
+/**
+ * Represents a class property.
+ */ 
+native class Property:
+  native name: string
+  native type: TypeDescriptor?
+  native isNative: bool
+  
+  
+  
+  

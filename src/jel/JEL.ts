@@ -78,16 +78,18 @@ const binaryOperators: any = { // op->precedence
   'as': 16,
   'in': 16,
 	'^': 15,
-  '+-': 18, 
-  '...': 24,
+  '+-': 19, 
+  '...': 17,
   '(': 25,
   '[': 25,
   '{': 25
 };
 const unaryOperators: any = { // op->precedence
-  '-': 17,
-  '+': 17,
-  '!': 17
+  '-': 18,
+  '+': 18,
+  '!': 18,
+  '>=': 18,
+  '<=': 18,
 };
 
 const overloadableOperators: any = {'+': true, '-': true, '*': true, '/': true, '%': true, '==': true, '===': true, '!=': true, '!==': true, '<': true, '<<': true, '<=': true, '<<=': true, '>': true, '>>': true, '>=': true, '>>=': true, '^': true};
@@ -242,8 +244,14 @@ export default class JEL {
       else
         return JEL.tryBinaryOps(tokens, node, precedence, stopOps);
     }
-    const operand = JEL.parseExpression(tokens, unaryOperators[operator], stopOps);
-    return JEL.tryBinaryOps(tokens, new Operator(operator, operand), precedence, stopOps);
+    switch (operator) {
+      case ">=":
+        return JEL.tryBinaryOps(tokens, new Range(JEL.parseExpression(tokens, unaryOperators[operator], stopOps), undefined), precedence, stopOps);
+      case "<=":
+        return JEL.tryBinaryOps(tokens, new Range(undefined, JEL.parseExpression(tokens, unaryOperators[operator], stopOps)), precedence, stopOps);
+      default:
+        return JEL.tryBinaryOps(tokens, new Operator(operator, JEL.parseExpression(tokens, unaryOperators[operator], stopOps)), precedence, stopOps);
+    }
   }
   
   static parseOperatorExpression(tokens: TokenReader, operator: string, precedence: number, stopOps: any): JelNode {
@@ -295,8 +303,6 @@ export default class JEL {
       return JEL.tryBinaryOps(tokens, JEL.parseClass(tokens, precedence, stopOps), precedence, stopOps);
     case 'enum':
       return JEL.tryBinaryOps(tokens, JEL.parseEnum(tokens, precedence, stopOps), precedence, stopOps);
-    case '*':
-      return JEL.tryBinaryOps(tokens, new Literal(null), precedence, stopOps);
     default:
       JEL.throwParseException(tokens.last(), "Unexpected token");
     }
