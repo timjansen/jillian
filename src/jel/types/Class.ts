@@ -27,7 +27,6 @@ import Util from '../../util/Util';
 // Base class for defining instantiable types
 export default class Class extends PackageContent implements IClass, SerializablePrimitive {
   iClass: boolean = true;
-  JEL_PROPERTIES: Object;
   private classContext: Context;
   defaultPropValues: Dictionary|Promise<Dictionary>|undefined; 
   

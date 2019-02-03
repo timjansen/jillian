@@ -4,11 +4,24 @@ import TypeDescriptor from './typeDescriptors/TypeDescriptor';
 import TypeChecker from './TypeChecker';
 import Context from '../Context';
 import Serializer from '../Serializer';
+import NativeJelObject from './NativeJelObject';
+import Class from './Class';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import Util from '../../util/Util';
 
 
-export default class Method extends JelObject {
+export default class Method extends NativeJelObject {
+  
+  name_jel_property: boolean;
+  callable_jel_property: boolean;
+  isNative_jel_property: boolean;
+  isStatic_jel_property: boolean;
+  isAbstract_jel_property: boolean;
+  isOverride_jel_property: boolean;
+  isGetter_jel_property: boolean;
+  
+  static clazz: Class|undefined;
+
   
   constructor(public name: string, public callable: Callable, public isNative = false, public isStatic = false, public isAbstract = false,
               public isOverride = false, public isGetter = false) {
@@ -22,7 +35,11 @@ export default class Method extends JelObject {
     }
   }
    
-  getSerializationProperties(): Object {
+  get clazz(): Class {
+    return Method.clazz!;
+  }
+  
+  getSerializationProperties(): any[] {
     return [this.name, this.callable, this.isNative, this.isStatic, this.isAbstract, this.isOverride, this.isGetter];
   }
   
@@ -51,7 +68,16 @@ export default class Method extends JelObject {
                       TypeChecker.realBoolean(args[5], 'isOverride', false),
                       TypeChecker.realBoolean(args[6], 'isGetter', false));
   }
-   
 }
+
+Method.prototype.name_jel_property = true;
+Method.prototype.callable_jel_property = true;
+Method.prototype.isNative_jel_property = true;
+Method.prototype.isStatic_jel_property = true;
+Method.prototype.isAbstract_jel_property = true;
+Method.prototype.isOverride_jel_property = true;
+Method.prototype.isGetter_jel_property = true;
+
+
 
 BaseTypeRegistry.register('Method', Method);

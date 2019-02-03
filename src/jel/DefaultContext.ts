@@ -89,7 +89,11 @@ const BOOT_SCRIPT = [
     {jel: 'typeDescriptors/RangeType.jel', native: RangeType}
   ],
   {jel: 'NamedObject.jel'},
-  {jel: 'PackageContent.jel'},
+  [
+    {jel: 'PackageContent.jel'},
+    {jel: 'Method.jel', native: Method},
+    {jel: 'Property.jel', native: Property}
+  ],
   [
     {jel: 'Class.jel', native: Class},
     {jel: 'Enum.jel', native: Enum},
@@ -105,7 +109,6 @@ const BOOT_SCRIPT = [
   
   {static: {ApproximateNumber: c(ApproximateNumber), Math: c(JelMath), DateType: c(DateType), TimeType: c(TimeType),
                    Fraction: c(Fraction), Unit: c(Unit), UnitValue: c(UnitValue), 
-                   Method: c(Method), Property: c(Property), LambdaExecutable: c(LambdaExecutable),
                    Dictionary: c(Dictionary), List: c(List), Distribution: c(Distribution), DistributionPoint: c(DistributionPoint), Pattern: c(Pattern), Translator: c(Translator), EnumValue: c(EnumValue), 
                    Duration: c(Duration), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 
                    ZonedDate: c(ZonedDate), ZonedDateTime: c(ZonedDateTime),

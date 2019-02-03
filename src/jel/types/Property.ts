@@ -5,20 +5,27 @@ import TypeHelper from './typeDescriptors/TypeHelper';
 import TypeChecker from './TypeChecker';
 import JelBoolean from './JelBoolean';
 import Context from '../Context';
+import NativeJelObject from './NativeJelObject';
+import Class from './Class';
 import Serializer from '../Serializer';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import Util from '../../util/Util';
 
 
 export default class Property extends JelObject {
-  
+  static clazz: Class|undefined;
+
   constructor(public name: string, public type?: TypeDescriptor, public defaultValueGenerator?: LambdaExecutable, public isNative = false) {
 		super('Property');
     if (!/^[a-zA-Z_][\w_]*$/.test(name))
       throw new Error(`Illegal property name "${name}". Property names must follow identifier rules.`);
   }
+   
+  get clazz(): Class {
+    return Property.clazz!;
+  }
   
-  getSerializationProperties(): Object {
+  getSerializationProperties(): any[] {
     return [this.name, this.type||null, this.defaultValueGenerator||null, this.isNative];
   }
   

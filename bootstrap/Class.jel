@@ -4,8 +4,8 @@
 native class Class extends PackageContent:
   native name: string
 
-  native methods: List
-  native properties: List
+  native methods: Method[]
+  native properties: Property[]
 
-              
+  
   
