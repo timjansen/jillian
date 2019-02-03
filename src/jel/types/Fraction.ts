@@ -2,6 +2,8 @@ import JelObject from '../JelObject';
 import Runtime from '../Runtime';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import Context from '../Context';
+import NativeJelObject from './NativeJelObject';
+import Class from './Class';
 import Numeric from './Numeric';
 import Float from './Float';
 import JelBoolean from './JelBoolean';
@@ -10,10 +12,15 @@ import TypeChecker from './TypeChecker';
 /**
  * Represents a fraction.
  */
-export default class Fraction extends JelObject implements Numeric {
+export default class Fraction extends NativeJelObject implements Numeric {
+  numerator_jel_property: boolean;
 	numerator: number;
+  denominator_jel_property: boolean;
 	denominator: number;
 	reverseOps: Object;
+  
+  static clazz: Class|undefined;
+
 	
 	constructor(numerator: number, denominator: number) {
 		super('Fraction');
@@ -28,6 +35,10 @@ export default class Fraction extends JelObject implements Numeric {
 		else 
 			throw Error("Denominator in Fraction must not be 0");
 	}
+  
+  get clazz(): Class {
+    return Fraction.clazz!;
+  }
 	
 	equals(other: Fraction): boolean {
 		return this.numerator === other.numerator && this.denominator === other.denominator;
@@ -249,13 +260,16 @@ export default class Fraction extends JelObject implements Numeric {
 	}
 }
 
+Fraction.prototype.numerator_jel_property = true;
+Fraction.prototype.denominator_jel_property = true;
+
 Fraction.prototype.reverseOps = Object.assign({'-': true, '/': true, '+-': true, '^': true}, JelObject.SWAP_OPS);
-Fraction.prototype.abs_jel_mapping = [];
-Fraction.prototype.negate_jel_mapping = [];
-Fraction.prototype.toFloat_jel_mapping = [];
-Fraction.prototype.simplify_jel_mapping = [];
-Fraction.prototype.round_jel_mapping = [];
-Fraction.prototype.trunc_jel_mapping = [];
+Fraction.prototype.abs_jel_mapping = true;
+Fraction.prototype.negate_jel_mapping = true;
+Fraction.prototype.toFloat_jel_mapping = true;
+Fraction.prototype.simplify_jel_mapping = true;
+Fraction.prototype.round_jel_mapping = true;
+Fraction.prototype.trunc_jel_mapping = true;
 
 
 BaseTypeRegistry.register('Fraction', Fraction);

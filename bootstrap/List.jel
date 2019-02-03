@@ -12,12 +12,12 @@ native class List:
   /**
    * Returns the number of elements in this list (same as size).
    */
-	native length: int(0...null)
+	native length: int(>=0)
 
   /**
    * Returns the number of elements in this list (same as length).
    */
-	native size: int(0...null)
+	native size: int(>=0)
 
   /**
    * Returns the first element of the list, or null if the list is empty;
@@ -37,34 +37,34 @@ native class List:
   /**
    * Calls the given function for each list member and returns a new list containing the return values.
    */
-  native map(f: function((element: any?, index: int(0...null))=>any?)): List
+  native map(f: function((element: any?, index: int(>=0))=>any?)): List
 
   /**
    * Calls the given function for each list member and returns a new list containing only those values for which is returned a true value 
    * (either a true boolean or any object with a toBoolean() method that converts to true).
    */
-  native filter(f: function((element: any?, index: int(0...null))=>any?)): List
+  native filter(f: function((element: any?, index: int(>=0))=>any?)): List
 	
   /**
    * Calls the given function for each list member with the current member as first and the accumulator as second. The accumulator is the given "init" argument
    * on the first invocation, and the last result on all further invocations.
    * @return the return value returned by the last callback invocation
    */
-  native reduce(f: function((element: any?, acc: any?, index: int(0...null))=>any?), init: any?): any?
+  native reduce(f: function((element: any?, acc: any?, index: int(>=0))=>any?), init: any?): any?
 
   /**
    * Checks whether any list element fulfills the given condition. To do this, it calls the given 
    * function for each list member until it returns true for any of them.
    * @return true if the callback function returned true once, false otherwise.
    */
-  native hasAny(f: function((element: any?, index: int(0...null))=>any?)): bool
+  native hasAny(f: function((element: any?, index: int(>=0))=>any?)): bool
 
   /**
    * Checks whether all list elements fulfill the given condition. To do this, it calls the given 
    * function for each list member until it returns false for any of them.
    * @return false if the callback function returned false once, true otherwise.
    */
-  native hasOnly(f: function((element: any?, index: int(0...null))=>any?)): bool
+  native hasOnly(f: function((element: any?, index: int(>=0))=>any?)): bool
 
   /**
    * CHecks
@@ -76,20 +76,20 @@ native class List:
    * Returns the first element that matches the given function.
    * @return the first element, or null if there is none
    */
-  native firstMatch(f: function((element: any?, index: int(0...null))=>any?)): any?
+  native firstMatch(f: function((element: any?, index: int(>=0))=>any?)): any?
 
   /**
    * Returns the last element that matches the given function.
    * @return the last element, or null if there is none
    */
-  native lastMatch(f: function((element: any?, index: int(0...null))=>any?)): any?
+  native lastMatch(f: function((element: any?, index: int(>=0))=>any?)): any?
 
   /**
    * Returns the nth element that matches the given function.
    * @param index the 1-based number of the occurrence, so 1 is the first, 2 is the second....
    * @return the nth element, or null if there is none
    */
-  native nthMatch(index: int(1...null), f: function((element: any?, index: int(0...null))=>any?)): any?
+  native nthMatch(index: int(>=1), f: function((element: any?, index: int(>=0))=>any?)): any?
 
   /**
    * Returns the best matching element, given the given comparison function.

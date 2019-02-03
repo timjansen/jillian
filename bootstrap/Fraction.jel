@@ -1,0 +1,40 @@
+/**
+ * Represents a fraction with numerator and denominator.
+ */ 
+native class Fraction:
+  native constructor(numerator: int, denominator: int)
+
+  /**
+   * Negates the number.
+   */
+  native negate(): Fraction
+ 
+  /**
+   * Returns the absolute value.
+   */
+	native abs(): Fraction
+
+  /**
+   * Returns the nearest integer.
+   */
+	native round(): int
+  
+  /**
+   * Truncates the number to become an integer.
+   */
+	native trunc(): int
+
+  /**
+   * Returns true if the number is not 0, false if 0.
+   */
+	native toBoolean(): bool
+
+  /**
+   * Converts the fraction to a Float.
+   */
+	native toFloat(): Float
+
+
+
+
+  

@@ -21,7 +21,7 @@ native class Dictionary:
   /**
    * Returns the number of elements in the Dictionary.
    */
-	native size: int(0...null)
+	native size: int(>=0)
 
   /**
    * Returns true if there are no elements in the Dictionary.
@@ -77,36 +77,36 @@ native class Dictionary:
    * Calls the given function for each element of this Dictionary to create a new Dictionary which has the same keys, but uses the values returned
    * by the function.
    */
-  native map(f: function((key: String, value: any?, index: int(0...null))=>any?)): Dictionary
+  native map(f: function((key: String, value: any?, index: int(>=0))=>any?)): Dictionary
 
   /**
    * Calls the given function for each element of this Dictionary to create a new List which contains the return values of the function.
    */
-  native mapToList(f: function((key: String, value: any?, index: int(0...null))=>any?)): List
+  native mapToList(f: function((key: String, value: any?, index: int(>=0))=>any?)): List
 
   /**
    * Calls the given function for each element of this Dictionary to create a new Dictionary that contains only those values the function returned true for.
    */
-  native filter(f: function((key: String, value: any?, index: int(0...null))=>any?)): Dictionary
+  native filter(f: function((key: String, value: any?, index: int(>=0))=>any?)): Dictionary
 
   /**
    * Calls the given function for each element with the current member's key an value as first and second argument, and the accumulator as third. The accumulator is the given "init" argument
    * on the first invocation, and the last result on all further invocations.
    * @return the return value returned by the last callback invocation
    */
-  native reduce(f: function((key: String, value: any?, acc: any?, index: int(0...null))=>any?), init: any?): any?
+  native reduce(f: function((key: String, value: any?, acc: any?, index: int(>=0))=>any?), init: any?): any?
 
   /**
    * Checks whether any element fulfills the given condition. To do this, it calls the given 
    * function for each member until it returns true for any of them.
    * @return true if the callback function returned true once, false otherwise.
    */
-  native hasAny(f: function((key: String, value: any?, index: int(0...null))=>any?)): bool
+  native hasAny(f: function((key: String, value: any?, index: int(>=0))=>any?)): bool
 
   /**
    * Checks whether all elements fulfill the given condition. To do this, it calls the given 
    * function for each member until it returns false for any of them.
    * @return false if the callback function returned false once, true otherwise.
    */
-  native hasOnly(f: function((key: String, value: any?, index: int(0...null))=>any?)): bool
+  native hasOnly(f: function((key: String, value: any?, index: int(>=0))=>any?)): bool
   

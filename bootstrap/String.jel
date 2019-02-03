@@ -6,7 +6,7 @@ native class String:
   /**
    * Returns the number of characters in the string.
    */ 
-  native length: int(0...null)
+  native length: int(>=0)
   
   /**
    * Returns the string without whitespace at the beginning or end.
@@ -26,7 +26,7 @@ native class String:
   /**
    * Returns the unicode at the given position.
    */
-	native unicodeAt(index: int): int(0...null)
+	native unicodeAt(index: int): int(>=0)
   
   /**
    * Returns true if the string length is >0, false for an empty string.
