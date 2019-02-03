@@ -1,0 +1,81 @@
+/**
+ * Represents a fuzzy boolean type. It can represent true and false, as 1 and 0, but also values between that.
+ * The literal constants 'true' and 'false' are also returning booleans with the values Boolean(1) and Boolean(0).
+ */ 
+native class Boolean:
+
+	static native FALSE_VALUE: number
+	static native BARELY_FALSE_VALUE: number
+	static native HALF_TRUE_VALUE: number
+	static native BARELY_TRUE_VALUE: number
+	static native TRUE_VALUE: number
+
+	static native FALSE: bool
+	static native BARELY_FALSE: bool
+	static native HALF_TRUE: bool
+	static native BARELY_TRUE: bool
+	static native TRUE: bool
+
+  /**
+   * Creates a new boolean value, with a state between 0 (false) and 1 (true).
+   */
+  native constructor(state: number(0...1))
+
+  /**
+   * Inverts the boolean. This is the equavalent of "Boolean(1-b.state)". true becomes false, and false becomes true.
+   */
+  native negate(): bool
+  
+  /**
+   * Overrides the standard toBoolean() method. Just returns the instance.
+   */
+  native toBoolean(): bool
+  
+  /**
+   * Converts the fuzzy boolean into an absolute boolean. If the boolean's state is trueish (0.5 or higher), it returns true. Otherwise it returns false.
+   */
+  native toAbsoluteBoolean(): bool
+
+  /**
+   * Returns this instance if it is falsish (below 0.5). Otherwise it returns the other instance.
+   */
+  native and(other: bool): bool
+
+ /**
+   * Returns this instance if it is truish (0.5 or higher). Otherwise it returns the other instance.
+   */
+  native or(other: bool): bool
+
+
+  /**
+   * Converts the given value into a boolean. If it is an object, it calls the toBoolean() instance method. 
+   * If it is null, it always returns null.
+   */
+  static native toBoolean(b: any): bool
+
+  /**
+   * Returns "a" if it is falsish (below 0.5). Otherwise it returns "b".
+   */
+  static native and(a: bool, b: bool): bool
+
+  /**
+   * Returns "a" if it is trueish (0.5 and above). Otherwise it returns "b".
+   */
+  static native or(a: bool, b: bool): bool
+
+  /**
+   * Returns the truest of the given booleans.
+   */
+  static native truest(a: bool, b: bool): bool
+
+  /**
+   * Returns the falsest of the given booleans.
+   */
+  static native falsest(a: bool, b: bool): bool
+
+
+
+
+
+
+  

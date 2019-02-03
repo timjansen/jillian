@@ -1,5 +1,7 @@
 import JelObject from '../JelObject';
 import TypeChecker from './TypeChecker';
+import Class from './Class';
+import NativeJelObject from './NativeJelObject';
 import Runtime from '../Runtime';
 import Context from '../Context';
 import BaseTypeRegistry from '../BaseTypeRegistry';
@@ -9,22 +11,33 @@ import Util from '../../util/Util';
 /**
  * Represents a boolean type that has, beside clear true and false, also a notion of 'barely true' and 'barely false'.
  */
-export default class JelBoolean extends JelObject implements SerializablePrimitive {
+export default class JelBoolean extends NativeJelObject implements SerializablePrimitive {
+  state_jel_property: boolean;
 	state: number;
 
-	JEL_PROPERTIES: Object = {state:1};
+  static clazz: Class|undefined;
 	
-	static FALSE_VALUE = 0;
-	static BARELY_FALSE_VALUE = 0.25;
-	static HALF_TRUE_VALUE = 0.5;
-	static BARELY_TRUE_VALUE = 0.75;
-	static TRUE_VALUE = 1;
+	static FALSE_VALUE_jel_property = true;
+  static FALSE_VALUE = 0;
+	static BARELY_FALSE_VALUE_jel_property = true;
+  static BARELY_FALSE_VALUE = 0.25;
+	static HALF_TRUE_VALUE_jel_property = true;
+  static HALF_TRUE_VALUE = 0.5;
+	static BARELY_TRUE_VALUE_jel_property = true;
+  static BARELY_TRUE_VALUE = 0.75;
+	static TRUE_VALUE_jel_property = true;
+  static TRUE_VALUE = 1;
 
-	static FALSE = new JelBoolean(JelBoolean.FALSE_VALUE);
-	static BARELY_FALSE = new JelBoolean(JelBoolean.BARELY_FALSE_VALUE);
-	static HALF_TRUE = new JelBoolean(JelBoolean.HALF_TRUE_VALUE);
-	static BARELY_TRUE = new JelBoolean(JelBoolean.BARELY_TRUE_VALUE);
-	static TRUE = new JelBoolean(JelBoolean.TRUE_VALUE);
+	static FALSE_jel_property = true;
+  static FALSE = new JelBoolean(JelBoolean.FALSE_VALUE);
+	static BARELY_FALSE_jel_property = true;
+  static BARELY_FALSE = new JelBoolean(JelBoolean.BARELY_FALSE_VALUE);
+	static HALF_TRUE_jel_property = true;
+  static HALF_TRUE = new JelBoolean(JelBoolean.HALF_TRUE_VALUE);
+	static BARELY_TRUE_jel_property = true;
+  static BARELY_TRUE = new JelBoolean(JelBoolean.BARELY_TRUE_VALUE);
+	static TRUE_jel_property = true;
+  static TRUE = new JelBoolean(JelBoolean.TRUE_VALUE);
 
 	static PREDEFINED: Map<any, JelBoolean> = new Map();
 	static NEGATE: Map<any, JelBoolean> = new Map();
@@ -59,6 +72,10 @@ export default class JelBoolean extends JelObject implements SerializablePrimiti
 		else
 			this.state = state.value; // a value 0 - 1
 	}
+  
+  get clazz(): Class {
+    return JelBoolean.clazz!;
+  }
 	
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (right instanceof JelBoolean) {
@@ -94,6 +111,7 @@ export default class JelBoolean extends JelObject implements SerializablePrimiti
 			return super.singleOp(ctx, operator);
 	}
 
+	negate_jel_mapping: boolean;
 	negate():JelBoolean {
 		return JelBoolean.NEGATE.get(this.state) || new JelBoolean(JelBoolean.TRUE_VALUE - this.state);
 	}
@@ -102,11 +120,12 @@ export default class JelBoolean extends JelObject implements SerializablePrimiti
 		return [this.state];
 	}
 	
+ 	toBoolean_jel_mapping: boolean;
 	toBoolean(): JelBoolean {
 		return this;
 	}
 
-	toAbsoluteBoolean_jel_mapping: Object;
+	toAbsoluteBoolean_jel_mapping: boolean;
 	toAbsoluteBoolean(): JelBoolean {
 		return JelBoolean.valueOf(this.state >= JelBoolean.HALF_TRUE_VALUE);
 	}
@@ -128,7 +147,8 @@ export default class JelBoolean extends JelObject implements SerializablePrimiti
 		return false;
 	}
 
-	static toBoolean(obj: JelObject|null): any {
+ 	static toBoolean_jel_mapping = true;
+	static toBoolean(ctx: Context, obj: JelObject|null): any {
 		if (obj)
 			return obj.toBoolean();
 		else
@@ -247,9 +267,12 @@ export default class JelBoolean extends JelObject implements SerializablePrimiti
 }
 
 JelBoolean.init();
-JelBoolean.prototype.toAbsoluteBoolean_jel_mapping = [];
-JelBoolean.prototype.or_jel_mapping = ['a'];
-JelBoolean.prototype.and_jel_mapping = ['a'];
+JelBoolean.prototype.toBoolean_jel_mapping = true;
+JelBoolean.prototype.toAbsoluteBoolean_jel_mapping = true;
+JelBoolean.prototype.or_jel_mapping = true;
+JelBoolean.prototype.and_jel_mapping = true;
+JelBoolean.prototype.negate_jel_mapping = true;
+JelBoolean.prototype.state_jel_property = true;
 
 BaseTypeRegistry.register('Boolean', JelBoolean);
 

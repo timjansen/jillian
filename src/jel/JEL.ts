@@ -626,6 +626,7 @@ export default class JEL {
     const staticProperties: PropertyDef[] = [];
     let hasNative = false;
     const propertyNames = new Set();
+    const staticPropertyNames = new Set();
     
     while (true) {
       const peek = tokens.peek();
@@ -721,15 +722,15 @@ export default class JEL {
       else if (next.is(TokenType.Identifier) && tokens.nextIf(TokenType.Operator, '(')) {
         const methodName = next.value;
         if (isNative && !nativeModifier)
-          JEL.throwParseException(tokens.last(), `Method ${methodName} is a non-native method in a native class. All methods must be native in native classes.`);
+          JEL.throwParseException(tokens.last(), `Method ${methodName}() is a non-native method in a native class. All methods must be native in native classes.`);
         if (abstractModifier && !isAbstract)
-          JEL.throwParseException(tokens.last(), `Method ${methodName} is abstract in a non-abstract class. Abstract methods are only allowed in classes.`);
-        if (propertyNames.has(methodName))
-          JEL.throwParseException(tokens.last(), `Method ${methodName} already declared`);
-        propertyNames.add(methodName);
+          JEL.throwParseException(tokens.last(), `Method ${methodName}() is abstract in a non-abstract class. Abstract methods are only allowed in classes.`);
+        if (staticModifier ? staticPropertyNames.has(methodName) : propertyNames.has(methodName))
+          JEL.throwParseException(tokens.last(), `${staticModifier ? 'Static method' : 'Method'} ${methodName}() already declared`);
+        (staticModifier ? staticPropertyNames : propertyNames).add(methodName);
         const args = JEL.checkTypedParameters(JEL.tryParseTypedParameters(tokens, CLASS_PRECEDENCE, NO_STOP), next);
         if (args == null)
-          JEL.throwParseException(tokens.last(), `Can not parse argument list for method ${methodName}`);
+          JEL.throwParseException(tokens.last(), `Can not parse argument list for method ${methodName}()`);
         const returnType = JEL.tryParseLambdaTypeCheck(tokens, (nativeModifier || abstractModifier) ? CLASS_EXPRESSION_STOP : LAMBDA);
         
         if (!abstractModifier && !nativeModifier)
@@ -751,9 +752,9 @@ export default class JEL {
           JEL.throwParseException(tokens.last(), `Property ${propertyName} is a non-native property in a native class. All properties must be native in native classes.`);
         if (nativeModifier && !isNative && !staticModifier)
           JEL.throwParseException(tokens.last(), `Property ${propertyName} is native in a non-native class. In a non-native class, only static native properties are allowed.`);
-        if (propertyNames.has(propertyName))
-          JEL.throwParseException(tokens.last(), `Property ${propertyName} is already declared`);
-        propertyNames.add(propertyName);
+        if (staticModifier ? staticPropertyNames.has(propertyName) : propertyNames.has(propertyName))
+          JEL.throwParseException(tokens.last(), `${staticModifier ? 'Static property' : 'Property'} ${propertyName} is already declared`);
+        (staticModifier ? staticPropertyNames : propertyNames).add(propertyName);
         
         const separator = tokens.next();
         

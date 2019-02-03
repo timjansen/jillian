@@ -95,7 +95,9 @@ const BOOT_SCRIPT = [
     {jel: 'Enum.jel', native: Enum},
     {jel: 'Package.jel', native: Package}
   ],
-  {static: {Boolean: c(JelBoolean), Float: c(Float), String: c(JelString), ApproximateNumber: c(ApproximateNumber), Math: c(JelMath), DateType: c(DateType), TimeType: c(TimeType),
+  {jel: 'Boolean.jel', native: JelBoolean},
+  
+  {static: {Float: c(Float), String: c(JelString), ApproximateNumber: c(ApproximateNumber), Math: c(JelMath), DateType: c(DateType), TimeType: c(TimeType),
                    Range: c(Range), Fraction: c(Fraction), Unit: c(Unit), UnitValue: c(UnitValue), 
                    Method: c(Method), Property: c(Property), LambdaExecutable: c(LambdaExecutable),
                    Dictionary: c(Dictionary), List: c(List), Distribution: c(Distribution), DistributionPoint: c(DistributionPoint), Pattern: c(Pattern), Translator: c(Translator), EnumValue: c(EnumValue), 
