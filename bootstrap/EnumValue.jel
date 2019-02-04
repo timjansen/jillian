@@ -1,0 +1,10 @@
+/**
+ * Represents an enum's value.
+ */ 
+native class EnumValue:
+
+  native value: string
+  native parent: Enum
+
+
+  

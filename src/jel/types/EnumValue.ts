@@ -1,19 +1,33 @@
 import JelObject from '../JelObject';
 import Context from '../Context';
+import BaseTypeRegistry from '../BaseTypeRegistry';
 import Enum from './Enum';
 import JelBoolean from './JelBoolean';
 import JelString from './JelString';
+import NativeJelObject from './NativeJelObject';
+import Class from './Class';
 import TypeChecker from './TypeChecker';
+import Util from '../../util/Util';
 
 /**
  * Represents the value of an Enumeration.
  */
-export default class EnumValue extends JelObject {
-	JEL_PROPERTIES: Object = {value: 1, parent: 1};
+export default class EnumValue extends NativeJelObject {
 	
-	constructor(public value: string, public parent: Enum) {
+  value_jel_property: boolean;
+  parent_jel_property: boolean;
+  
+  static clazz: Class|undefined;
+
+  constructor(public value: string, public parent: Enum) {
 		super('EnumValue');
+    if (!/^[_a-zA-Z][_a-zA-Z0-9]*$/.test(value))
+      throw new Error(`Illegal property value name "${value}", does not follow identifier rules`);
 	}
+  
+  get clazz(): Class {
+    return EnumValue.clazz!;
+  }
 	
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (right instanceof EnumValue) {
@@ -36,12 +50,16 @@ export default class EnumValue extends JelObject {
 		return [this.value, this.parent.distinctName];
 	}
 	
-	
-	static create_jel_mapping = ['value', 'parent'];
-	static create(ctx: Context, ...args: any[]): EnumValue {
-		return new EnumValue(TypeChecker.realString(args[0], 'value'), args[1] instanceof Enum ? args[1] : ctx.get(TypeChecker.realString(args[1], 'parent')));
+  toString(): string {
+    return `${this.parent.distinctName}.${this.value}`;
+  }
+  
+  serializeToString(pretty: boolean, indent: number, spaces: string) : string {
+		return this.toString();
 	}
+
 }
 
-
-
+EnumValue.prototype.value_jel_property = true;
+EnumValue.prototype.parent_jel_property = true;
+BaseTypeRegistry.register('EnumValue', EnumValue);

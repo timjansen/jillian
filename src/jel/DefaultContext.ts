@@ -11,8 +11,6 @@ import Float from './types/Float';
 import JelString from './types/JelString';
 import Fraction from './types/Fraction';
 import ApproximateNumber from './types/ApproximateNumber';
-import Unit from './types/Unit'; // load only, defined in DatabaseContext
-import UnitValue from './types/UnitValue'; // load only, defined in DatabaseContext
 import JelMath from './types/Math';
 import Dictionary from './types/Dictionary';
 import Range from './types/Range';
@@ -101,6 +99,7 @@ const BOOT_SCRIPT = [
   ],
   [
     {jel: 'Boolean.jel', native: JelBoolean},
+    {jel: 'EnumValue.jel', native: EnumValue},
     {jel: 'Float.jel', native: Float},
     {jel: 'String.jel', native: JelString},
     {jel: 'Range.jel', native: Range},
@@ -112,8 +111,8 @@ const BOOT_SCRIPT = [
   ],
   {jel: 'time/DurationRange.jel', native: DurationRange}, // << TODO: DurationRange.jel this after converting Duration
   
-  {static: {ApproximateNumber: c(ApproximateNumber), Math: c(JelMath), DateType: c(DateType), TimeType: c(TimeType),
-            Distribution: c(Distribution), DistributionPoint: c(DistributionPoint), Pattern: c(Pattern), Translator: c(Translator), EnumValue: c(EnumValue), 
+  {static: {ApproximateNumber: c(ApproximateNumber), Math: c(JelMath),
+            Distribution: c(Distribution), DistributionPoint: c(DistributionPoint), Pattern: c(Pattern), Translator: c(Translator), 
             Duration: c(Duration), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 
             ZonedDate: c(ZonedDate), ZonedDateTime: c(ZonedDateTime)}}
 ];
