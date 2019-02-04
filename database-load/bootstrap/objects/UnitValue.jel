@@ -1,0 +1,79 @@
+/**
+ * A number with Unit.
+ */ 
+native class UnitValue:
+  native unit: Unit
+  
+  
+  /**
+   * Creates a new UnitValue. 
+   */
+  native constructor(value: number|ApproximateNumber, 
+                     unitSpec: Unit|string|ThingType('UnitOfMeasureCategory')) 
+
+
+  /**
+   * Checks whether it is possible to convert this value to the given unit.
+   */ 
+	native canConvertTo(target: Unit|ThingType('UnitOfMeasureCategory')): bool
+  
+  /**
+   * Converts this value to the given unit.
+   */
+	native convertTo(target: Unit|ThingType('UnitOfMeasureCategory')): UnitValue
+
+
+  /**
+   * Converts all sub-units in Unit to the primary units (e.g. inch->meter, hp->watt) 
+   */
+	native toPrimaryUnits(): UnitValue
+  
+  
+  /**
+   * Attempts to simplify the UnitValue to the simplest possible type
+   */
+	native simplify(): UnitValue
+  
+  /**
+   * Rounds the UnitValue, optionally to a multiple of the given precision.
+   */
+  native round(precision: number = 1): UnitValue
+  
+  /**
+   * Returns the absolute value.
+   */
+	native abs(): UnitValue
+	
+  /**
+   * Returns the negated value.
+   */
+	native negate(): UnitValue
+
+  /**
+   * Converts the value into a Float.
+   */
+  native toFloat(): Float
+  
+  
+  /**
+   * Truncates the value.
+   */
+	native trunc(): UnitValue
+  
+  /**
+   * True if the unit has just a single numerator and no denominator.
+   */ 
+  native isSimple(): bool
+
+  /**
+   * If is is simple, returns the reference to the unit type. If not, throws an error.
+   */
+	native toUnitReference(): ThingType('UnitOfMeasureCategory')
+
+  /**
+   * Checks whether the unit has the given type.
+   */
+	native isType(unit: string | ThingType('UnitOfMeasureCategory')): bool 
+	
+
+

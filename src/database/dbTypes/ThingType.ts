@@ -2,6 +2,7 @@ import TypeDescriptor from '../../jel/types/typeDescriptors/TypeDescriptor';
 import {IDbRef} from '../../jel/IDatabase';
 import TypeChecker from '../../jel/types/TypeChecker';
 import JelBoolean from '../../jel/types/JelBoolean';
+import JelString from '../../jel/types/JelString';
 import Context from '../../jel/Context';
 import JelObject from '../../jel/JelObject';
 import Serializer from '../../jel/Serializer';
@@ -62,7 +63,7 @@ export default class ThingType extends TypeDescriptor {
   
   static create_jel_mapping = {category: 1};
   static create(ctx: Context, ...args: any[]) {
-    return new ThingType(TypeChecker.optionalDbRef(args[0], 'category'));
+    return new ThingType(args[0] instanceof JelString ? ctx.dbSession!.createDbRef(args[0]) : TypeChecker.optionalDbRef(args[0], 'category'));
   }
 }
 

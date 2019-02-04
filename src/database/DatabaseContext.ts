@@ -22,6 +22,8 @@ import UnitValueQuantityType from './dbTypes/UnitValueQuantityType';
 import UnitValueType from './dbTypes/UnitValueType';
 import ReferenceDispatcherType from './dbTypes/ReferenceDispatcherType';
 import DurationType from './dbTypes/DurationType';
+import Unit from '../jel/types/Unit';
+import UnitValue from '../jel/types/UnitValue';
 
 
 function c(ctor: any): NativeClass {
@@ -30,9 +32,13 @@ function c(ctor: any): NativeClass {
 
 
 const BOOT_SCRIPT = [
-  {static: {duration: DurationType.instance}},
+  {static: {duration: DurationType.instance}}, 
   {jel: 'typeDescriptors/CategoryType.jel', native: CategoryType},
   {jel: 'typeDescriptors/ThingType.jel', native: ThingType},
+  
+  {jel: 'objects/Unit.jel', native: Unit},
+  {jel: 'objects/UnitValue.jel', native: UnitValue},
+
   [
     {jel: 'typeDescriptors/DurationType.jel', native: DurationType},
     {jel: 'typeDescriptors/ReferenceDispatcherType.jel', native: ReferenceDispatcherType},

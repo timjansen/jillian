@@ -7,9 +7,13 @@ import Fraction from './Fraction';
 import ApproximateNumber from './ApproximateNumber';
 import JelString from './JelString';
 import Float from './Float';
+import NativeJelObject from './NativeJelObject';
+import Class from './Class';
 import List from './List';
 import Dictionary from './Dictionary';
 import TypeChecker from './TypeChecker';
+import BaseTypeRegistry from '../BaseTypeRegistry';
+
 
 const NUMERATOR_TYPES = ['List', 'String', 'Dictionary'];
 const DENOMINATOR_TYPES = ['List', 'String', 'Dictionary'];
@@ -47,12 +51,15 @@ function multiplyUnitMap(factor: number, a: Map<string, number>): Map<string, nu
 /**
  * Represents a unit. Supports complex units, like '1/s' or 'm*m*m/kw'.
  */
-export default class Unit extends JelObject {
+export default class Unit extends NativeJelObject {
 	JEL_PROPERTIES: Object;
 	
 	public units = new Map<string,number>();    // distinctName->exponent
 	private simple: boolean;
 
+  static clazz: Class|undefined;
+
+  
 	constructor(numeratorUnits: List | IDbRef | JelString | string | Dictionary | Map<string,number>, denominatorUnits?: List | IDbRef | string | JelString) {
 		super('Unit');
 		if (numeratorUnits instanceof Map) {
@@ -91,6 +98,10 @@ export default class Unit extends JelObject {
 		else if (denominatorUnits)
 			this.units.set((denominatorUnits as IDbRef).distinctName, -1);
 	}
+  
+  get clazz(): Class {
+    return Unit.clazz!;
+  }
 
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (right instanceof Unit) {
@@ -133,10 +144,10 @@ export default class Unit extends JelObject {
 		return this.simple;
 	}
 	
-	toSimpleType_jel_mapping: Object;
-	toSimpleType(ctx: Context): IDbRef {
+	toUnitReference_jel_mapping: Object;
+	toUnitReference(ctx: Context): IDbRef {
 		if (!this.simple)
-			throw new Error(`UnitValue.toSimpleType() can only be called on simple types, not on complex unit ${this.toString()}.`);
+			throw new Error(`UnitValue.toUnitReference() can only be called on simple types, not on complex unit ${this.toString()}.`);
 		return ctx.getSession().createDbRef(this.units.keys().next().value);
 	}
 
@@ -146,7 +157,7 @@ export default class Unit extends JelObject {
 			return false;
 		if (unit instanceof JelString)
 			return this.isType(ctx, unit.value);
-		return this.toSimpleType(ctx).distinctName == (typeof unit == 'string' ? unit : unit.distinctName);
+		return this.toUnitReference(ctx).distinctName == (typeof unit == 'string' ? unit : unit.distinctName);
 	}
 	
 	getSerializationProperties(): any[] {
@@ -165,7 +176,8 @@ export default class Unit extends JelObject {
 }
 
 Unit.prototype.isSimple_jel_mapping = [];
-Unit.prototype.toSimpleType_jel_mapping = [];
+Unit.prototype.toUnitReference_jel_mapping = [];
 Unit.prototype.isType_jel_mapping = ['unit'];
 
+BaseTypeRegistry.register('Unit', Unit);
 

@@ -95,7 +95,7 @@ export default class JelMath extends JelObject {
 		if (x instanceof UnitValue) {
 			if (!x.unit.isSimple())
 				throw new Error('Supports only Radians, Degree, Turn and Gradian as unit, but no complex unit types. Given: ' + x.unit.toString());
-			const	st = x.unit.toSimpleType(ctx).distinctName;
+			const	st = x.unit.toUnitReference(ctx).distinctName;
 			if (!(st in JelMath.unitFactors))
 				throw new Error('Supports only Radians, Degree, Turn and Gradian as unit, but not ' + st);
 			return f(Float.toRealNumber(x.value) / JelMath.unitFactors[st]);

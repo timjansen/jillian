@@ -30,7 +30,7 @@ export default class UnitValueQuantityType extends TypeDescriptor {
     if (!(value instanceof UnitValue && value.isSimple()))
       return JelBoolean.FALSE;
 
-    return (value as UnitValue).toSimpleType(ctx).withMember(ctx, 'quantityCategory', (quantityCategory: any)=>JelBoolean.valueOf(quantityCategory.distinctName == this.quantityCategory.distinctName));
+    return (value as UnitValue).toUnitReference(ctx).withMember(ctx, 'quantityCategory', (quantityCategory: any)=>JelBoolean.valueOf(quantityCategory.distinctName == this.quantityCategory.distinctName));
   }
   
   getSerializationProperties(): any[] {

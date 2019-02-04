@@ -11,8 +11,8 @@ import Float from './types/Float';
 import JelString from './types/JelString';
 import Fraction from './types/Fraction';
 import ApproximateNumber from './types/ApproximateNumber';
-import Unit from './types/Unit';
-import UnitValue from './types/UnitValue';
+import Unit from './types/Unit'; // load only, defined in DatabaseContext
+import UnitValue from './types/UnitValue'; // load only, defined in DatabaseContext
 import JelMath from './types/Math';
 import Dictionary from './types/Dictionary';
 import Range from './types/Range';
@@ -113,7 +113,6 @@ const BOOT_SCRIPT = [
   {jel: 'time/DurationRange.jel', native: DurationRange}, // << TODO: DurationRange.jel this after converting Duration
   
   {static: {ApproximateNumber: c(ApproximateNumber), Math: c(JelMath), DateType: c(DateType), TimeType: c(TimeType),
-            Unit: c(Unit), UnitValue: c(UnitValue), 
             Distribution: c(Distribution), DistributionPoint: c(DistributionPoint), Pattern: c(Pattern), Translator: c(Translator), EnumValue: c(EnumValue), 
             Duration: c(Duration), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 
             ZonedDate: c(ZonedDate), ZonedDateTime: c(ZonedDateTime)}}

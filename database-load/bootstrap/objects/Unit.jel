@@ -1,0 +1,27 @@
+/**
+ * Represents a unit of quantity. Supports simple units (meter, inch..) as well as complex units, like '1/s' or 'm*m*m/kw'.
+ */ 
+native class Unit:
+
+  /**
+   * Creates a new Unit. 
+   */
+  native constructor(numeratorUnits: string | ThingType('UnitOfMeasureCategory') | (string|ThingType('UnitOfMeasureCategory'))[] | int{}, 
+                     denominatorUnits: string | ThingType('UnitOfMeasureCategory') | (string|ThingType('UnitOfMeasureCategory'))[] | null) 
+
+  /**
+   * True if the unit has just a single numerator and no denominator.
+   */ 
+  native isSimple(): bool
+
+  /**
+   * If is is simple, returns the reference to the unit type. If not, throws an error.
+   */
+	native toUnitReference(): ThingType('UnitOfMeasureCategory')
+
+  /**
+   * Checks whether the unit has the given type.
+   */
+	native isType(unit: string | ThingType('UnitOfMeasureCategory')): bool 
+	
+  

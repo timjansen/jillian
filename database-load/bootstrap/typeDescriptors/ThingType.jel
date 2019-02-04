@@ -3,7 +3,7 @@
  */
 native class ThingType extends TypeDescriptor:
 
-  native constructor(category: CategoryType()?)
+  native constructor(category: CategoryType()|string?)
   
   override native checkType(value: any?): bool
 

@@ -50,55 +50,59 @@ describe('Unit & UnitValues', function() {
       assert.deepEqual(new Unit(Util.toMap({Meter: 1, Second: 4, Watt: -1})).units, Util.toMap({Meter: 1, Second: 4, Watt: -1}));
       assert.deepEqual(new Unit(new Dictionary(Util.toMap({Meter: Float.valueOf(1), Second: Float.valueOf(4), Watt: Float.valueOf(-1)}), true)).units, Util.toMap({Meter: 1, Second: 4, Watt: -1}));
 
-      assert.ok(new JEL("Unit(@Meter)").executeImmediately(session.ctx) instanceof Unit);
-      jelAssert.equal("Unit(@Second)", "Unit(@Second)");
-      jelAssert.notEqual("Unit(@Second)", "Unit(@Meter)");
-      jelAssert.equal("1 @Second", "UnitValue(1, @Second)");
+      return Promise.all([jelAssert.equalPromise("1 @Second", "UnitValue(1, @Second)"), 
+                          jelAssert.equalPromise("Unit(@Second)", "Unit(@Second)")]);
     });
 
+    it('has comparison operators', function() {
+      return Promise.all([
+        jelAssert.equalPromise("Unit(@Meter) == Unit('Meter')", "true"),
+        jelAssert.equalPromise("Unit(@Meter) == Unit('Second')", "false"),
+        jelAssert.equalPromise("Unit(@Meter) == Unit('Meter')", "true"),
+        jelAssert.equalPromise("Unit(@Meter) == Unit('Second')", "false"),
+        jelAssert.equalPromise("Unit(@Meter) === Unit('Meter')", "true"),
+        jelAssert.equalPromise("Unit(@Meter) === Unit('Second')", "false"),
+        jelAssert.equalPromise("Unit([@Meter, @Meter]) == Unit('Meter')", "false"),
+        jelAssert.equalPromise("Unit([@Meter, @Meter]) == Unit([@Meter, @Meter])", "true"),
+        jelAssert.equalPromise("Unit([@Meter, @Second]) == Unit(@Meter, @Second)", "false"),
+        jelAssert.equalPromise("Unit([@Meter, @Meter, @Second], [@Watt, @Piece]) == Unit([@Meter, @Meter, @Second], [@Watt, @Piece])", "true"),
+        jelAssert.equalPromise("Unit([@Meter, @Meter, @Second, @Second], [@Watt, @Piece, @Second]) == Unit([@Meter, @Meter, @Second], [@Watt, @Piece])", "true"),
+        jelAssert.equalPromise("Unit([@Meter, @Meter, @Second], [@Watt, @Piece]) == Unit([@Meter, @Meter, @Second], @Watt)", "false"),
+
+        jelAssert.equalPromise("Unit(@Meter) === Unit('Meter')", "true"),
+        jelAssert.equalPromise("Unit(@Meter) === Unit('Second')", "false"),
+        jelAssert.equalPromise("Unit(@Meter) === Unit('Meter')", "true"),
+        jelAssert.equalPromise("Unit(@Meter) === Unit('Second')", "false"),
+        jelAssert.equalPromise("Unit([@Meter, @Meter]) === Unit('Meter')", "false"),
+        jelAssert.equalPromise("Unit([@Meter, @Meter]) === Unit([@Meter, @Meter])", "true"),
+        jelAssert.equalPromise("Unit([@Meter, @Second]) === Unit(@Meter, @Second)", "false"),
+        jelAssert.equalPromise("Unit([@Meter, @Meter, @Second], [@Watt, @Piece]) === Unit([@Meter, @Meter, @Second], [@Watt, @Piece])", "true"),
+        jelAssert.equalPromise("Unit([@Meter, @Meter, @Second, @Second], [@Watt, @Piece, @Second]) === Unit([@Meter, @Meter, @Second], [@Watt, @Piece])", "true"),
+        jelAssert.equalPromise("Unit([@Meter, @Meter, @Second], [@Watt, @Piece]) === Unit([@Meter, @Meter, @Second], @Watt)", "false"),
+
+        jelAssert.equalPromise("Unit(@Meter) != Unit('Meter')", "false"),
+        jelAssert.equalPromise("Unit(@Meter) !== Unit('Second')", "true"),
+        jelAssert.equalPromise("Unit(@Meter) != Unit('Meter')", "false"),
+        jelAssert.equalPromise("Unit(@Meter) !== Unit('Second')", "true"),
+        jelAssert.equalPromise("Unit([@Meter, @Meter]) != Unit('Meter')", "true"),
+        jelAssert.equalPromise("Unit([@Meter, @Meter]) !== Unit([@Meter, @Meter])", "false"),
+        jelAssert.equalPromise("Unit([@Meter, @Second]) != Unit(@Meter, @Second)", "true"),
+        jelAssert.equalPromise("Unit([@Meter, @Meter, @Second], [@Watt, @Piece]) != Unit([@Meter, @Meter, @Second], [@Watt, @Piece])", "false"),
+        jelAssert.equalPromise("Unit([@Meter, @Meter, @Second, @Second], [@Watt, @Piece, @Second]) !== Unit([@Meter, @Meter, @Second], [@Watt, @Piece])", "false"),
+        jelAssert.equalPromise("Unit([@Meter, @Meter, @Second], [@Watt, @Piece]) != Unit([@Meter, @Meter, @Second], @Watt)", "true")
+      ]);
+    });
+    
     it('has operators', function() {
-      jelAssert.fuzzy("Unit(@Meter) == Unit('Meter')", 1);
-      jelAssert.fuzzy("Unit(@Meter) == Unit('Second')", 0);
-      jelAssert.fuzzy("Unit(@Meter) == Unit('Meter')", 1);
-      jelAssert.fuzzy("Unit(@Meter) == Unit('Second')", 0);
-      jelAssert.fuzzy("Unit(@Meter) === Unit('Meter')", 1);
-      jelAssert.fuzzy("Unit(@Meter) === Unit('Second')", 0);
-      jelAssert.fuzzy("Unit([@Meter, @Meter]) == Unit('Meter')", 0);
-      jelAssert.fuzzy("Unit([@Meter, @Meter]) == Unit([@Meter, @Meter])", 1);
-      jelAssert.fuzzy("Unit([@Meter, @Second]) == Unit(@Meter, @Second)", 0);
-      jelAssert.fuzzy("Unit([@Meter, @Meter, @Second], [@Watt, @Pieces]) == Unit([@Meter, @Meter, @Second], [@Watt, @Pieces])", 1);
-      jelAssert.fuzzy("Unit([@Meter, @Meter, @Second, @Second], [@Watt, @Pieces, @Second]) == Unit([@Meter, @Meter, @Second], [@Watt, @Pieces])", 1);
-      jelAssert.fuzzy("Unit([@Meter, @Meter, @Second], [@Watt, @Pieces]) == Unit([@Meter, @Meter, @Second], @Watt)", 0);
-
-      jelAssert.fuzzy("Unit(@Meter) === Unit('Meter')", 1);
-      jelAssert.fuzzy("Unit(@Meter) === Unit('Second')", 0);
-      jelAssert.fuzzy("Unit(@Meter) === Unit('Meter')", 1);
-      jelAssert.fuzzy("Unit(@Meter) === Unit('Second')", 0);
-      jelAssert.fuzzy("Unit([@Meter, @Meter]) === Unit('Meter')", 0);
-      jelAssert.fuzzy("Unit([@Meter, @Meter]) === Unit([@Meter, @Meter])", 1);
-      jelAssert.fuzzy("Unit([@Meter, @Second]) === Unit(@Meter, @Second)", 0);
-      jelAssert.fuzzy("Unit([@Meter, @Meter, @Second], [@Watt, @Pieces]) === Unit([@Meter, @Meter, @Second], [@Watt, @Pieces])", 1);
-      jelAssert.fuzzy("Unit([@Meter, @Meter, @Second, @Second], [@Watt, @Pieces, @Second]) === Unit([@Meter, @Meter, @Second], [@Watt, @Pieces])", 1);
-      jelAssert.fuzzy("Unit([@Meter, @Meter, @Second], [@Watt, @Pieces]) === Unit([@Meter, @Meter, @Second], @Watt)", 0);
-
-      jelAssert.fuzzy("Unit(@Meter) != Unit('Meter')", 0);
-      jelAssert.fuzzy("Unit(@Meter) !== Unit('Second')", 1);
-      jelAssert.fuzzy("Unit(@Meter) != Unit('Meter')", 0);
-      jelAssert.fuzzy("Unit(@Meter) !== Unit('Second')", 1);
-      jelAssert.fuzzy("Unit([@Meter, @Meter]) != Unit('Meter')", 1);
-      jelAssert.fuzzy("Unit([@Meter, @Meter]) !== Unit([@Meter, @Meter])", 0);
-      jelAssert.fuzzy("Unit([@Meter, @Second]) != Unit(@Meter, @Second)", 1);
-      jelAssert.fuzzy("Unit([@Meter, @Meter, @Second], [@Watt, @Pieces]) != Unit([@Meter, @Meter, @Second], [@Watt, @Pieces])", 0);
-      jelAssert.fuzzy("Unit([@Meter, @Meter, @Second, @Second], [@Watt, @Pieces, @Second]) !== Unit([@Meter, @Meter, @Second], [@Watt, @Pieces])", 0);
-      jelAssert.fuzzy("Unit([@Meter, @Meter, @Second], [@Watt, @Pieces]) != Unit([@Meter, @Meter, @Second], @Watt)", 1);
-
-      jelAssert.equal("Unit(@Meter) * Unit('Meter')", "Unit({Meter: 2})");
-      assert.deepEqual(new JEL("Unit([@Meter, @Meter, @Pieces], [@Kilogram]) * Unit(@Watt, [@Liter, @Meter])").executeImmediately(session.ctx).units, Util.toMap({Meter: 1, Pieces: 1, Watt: 1, Liter: -1, Kilogram: -1}));
-      assert.deepEqual(new JEL("Unit([@Meter, @Meter, @Pieces], [@Kilogram]) / Unit(@Watt, [@Liter, @Meter])").executeImmediately(session.ctx).units, Util.toMap({Meter: 3, Pieces: 1, Watt: -1, Liter: 1, Kilogram: -1}));
-
-      jelAssert.equal("Unit(@Meter) * 3", "Unit({Meter: 1})");
-      jelAssert.equal("Unit(@Meter) / 3", "Unit({Meter: 1})");
-      jelAssert.equal("Unit(@Meter) ^ 3", "Unit({Meter: 3})");
+      return Promise.all([
+        jelAssert.equalPromise("Unit(@Meter) * Unit('Meter')", "Unit({Meter: 2})"),
+        jelAssert.equalPromise("Unit(@Meter) * 3", "Unit({Meter: 1})"),
+        jelAssert.equalPromise("Unit(@Meter) / 3", "Unit({Meter: 1})"),
+        jelAssert.equalPromise("Unit(@Meter) ^ 3", "Unit({Meter: 3})"),
+        
+        (new JEL("Unit([@Meter, @Meter, @Piece], [@Kilogram]) * Unit(@Watt, [@Litre, @Meter])").execute(session.ctx)).then(r=>assert.deepEqual(r.units, Util.toMap({Meter: 1, Piece: 1, Watt: 1, Litre: -1, Kilogram: -1}))),
+        (new JEL("Unit([@Meter, @Meter, @Piece], [@Kilogram]) / Unit(@Watt, [@Litre, @Meter])").execute(session.ctx)).then(r=>assert.deepEqual(r.units, Util.toMap({Meter: 3, Piece: 1, Watt: -1, Litre: 1, Kilogram: -1})))
+      ]);
     });
 
     it('supports isSimple()', function() {
@@ -108,9 +112,9 @@ describe('Unit & UnitValues', function() {
       jelAssert.fuzzy("Unit([], @Meter).isSimple()", 0);
     });
 
-    it('supports toSimpleType()', function() {
-      jelAssert.fuzzy("Unit(@Meter).toSimpleType() === @Meter", 1);
-      assert.throws(()=>JEL("Unit([@Meter, @Meter]).toSimpleType()").executeImmediately(session.ctx), Error);
+    it('supports toUnitReference()', function() {
+      jelAssert.fuzzy("Unit(@Meter).toUnitReference() === @Meter", 1);
+      assert.throws(()=>JEL("Unit([@Meter, @Meter]).toUnitReference()").executeImmediately(session.ctx), Error);
     });
 
     it('supports isType()', function() {
@@ -118,6 +122,10 @@ describe('Unit & UnitValues', function() {
       jelAssert.fuzzy("Unit(@Meter).isType('Meter')", 1);
       jelAssert.fuzzy("Unit(@Meter).isType(@Second)", 0);
       jelAssert.fuzzy("Unit(@Meter, 'Second').isType(@Meter)", 0);
+    });
+    
+    it('works with Math', function() {
+   		jelAssert.equal('Math.acos(0.44, @Degree).unit.isType("Degree")', "true");
     });
   });
 
@@ -290,7 +298,14 @@ describe('Unit & UnitValues', function() {
         jelAssert.equalPromise("5 @Kilometer as @Meter", "5000 @Meter"),
         jelAssert.equalPromise("1 @Inch as @Centimeter", "2.54 @Centimeter")
       ]);
-    });			
+    });		
+    
+    it('works with Math', function() {
+      jelAssert.equal('Math.asin(0.63, @Turn).toFloat()', Math.asin(0.63) / 2 / Math.PI);
+      jelAssert.equal('Math.acos(1, @Radian).toFloat()', Math.acos(1));
+      jelAssert.equal('Math.acos(0.44, @Degree).toFloat()', Math.acos(0.44) / 2 / Math.PI * 360);
+      jelAssert.equal('Math.round(Math.atan(0.2, "Gradian").toFloat())', Math.round(Math.atan(0.2) / 2 / Math.PI * 400));	
+    });
 
   });
   

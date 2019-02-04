@@ -8,6 +8,8 @@ import Unit from './Unit';
 import NamedObject from './NamedObject';
 import JelBoolean from './JelBoolean';
 import JelString from './JelString';
+import NativeJelObject from './NativeJelObject';
+import Class from './Class';
 import Float from './Float';
 import Numeric from './Numeric';
 import Dictionary from './Dictionary';
@@ -22,18 +24,25 @@ const VALUE_TYPES = ['Float', 'Fraction', 'ApproximateNumber'];
 const UNIT_TYPES = ['Unit', 'String'];
 
 /**
- * Represents a value with unit and accuracy.
+ * Represents a value with unit.
  */
-export default class UnitValue extends JelObject implements Numeric {
-	JEL_PROPERTIES: Object;
+export default class UnitValue extends NativeJelObject implements Numeric {
+	JEL_PROPERTIES: boolean;
 	
+  public value_jel_property: boolean;
+  public unit_jel_property: boolean;
 	public unit: Unit;
-	
-	constructor(public value: Float | Fraction | ApproximateNumber, unit: IDbRef | Unit | string | JelString) {
+  static clazz: Class|undefined;
+
+  constructor(public value: Float | Fraction | ApproximateNumber, unit: IDbRef | Unit | string | JelString) {
 		super('UnitValue');
 		this.value = value;
 		this.unit = unit instanceof Unit ? unit : new Unit(unit);
 	}
+  
+  get clazz(): Class {
+    return UnitValue.clazz!;
+  }
 
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (right instanceof UnitValue) {
@@ -129,18 +138,18 @@ export default class UnitValue extends JelObject implements Numeric {
 		return super.opReversed(ctx, operator, left);
 	}
 	
-	canConvertTo_jel_mapping: Object;
+	canConvertTo_jel_mapping: boolean;
 	canConvertTo(ctx: Context, target: any): Promise<JelBoolean> | JelBoolean {
     return Util.resolveValueAndError(this.convertTo(ctx, target), ()=>JelBoolean.TRUE, ()=>JelBoolean.FALSE);
   }
   
 	// returns the UnitValue converted to the given value, or returns rejected Promise if conversion not possible
-	convertTo_jel_mapping: Object;
+	convertTo_jel_mapping: boolean;
 	convertTo(ctx: Context, target: any): Promise<UnitValue> | UnitValue {
 		if (target instanceof Unit) {
 			if (!target.isSimple())
 				return Promise.reject(new Error(`UnitValues can only convert to simple Unit types, but not to complex unit ${target.toString()}.`));
-			return this.convertTo(ctx, target.toSimpleType(ctx).distinctName);
+			return this.convertTo(ctx, target.toUnitReference(ctx).distinctName);
 		}
 		else if (typeof target != 'string')
 			return this.convertTo(ctx, TypeChecker.dbRef(target, 'target').distinctName);
@@ -152,7 +161,7 @@ export default class UnitValue extends JelObject implements Numeric {
 	}
 	
 	private convertSimpleTo(ctx: Context, target: string, mustBePrimaryUnit: boolean): Promise<UnitValue> | UnitValue {
-		const simpleUnit: IDbRef = this.unit.toSimpleType(ctx);
+		const simpleUnit: IDbRef = this.unit.toUnitReference(ctx);
 		if (simpleUnit.distinctName == target)
 			return this;
 		
@@ -253,7 +262,7 @@ export default class UnitValue extends JelObject implements Numeric {
 	
 
 	// Converts all sub-units in Unit to the primary units (e.g. inch->meter, hp->watt)
-	toPrimaryUnits_jel_mapping: Object;
+	toPrimaryUnits_jel_mapping: boolean;
 	toPrimaryUnits(ctx: Context): UnitValue | Promise<UnitValue> {
 		let uv: UnitValue = this;
 		const session = ctx.getSession();
@@ -324,37 +333,38 @@ export default class UnitValue extends JelObject implements Numeric {
 	}
 	
 	// attempts to simplify the UnitValue to the simplest possible type
-	simplify_jel_mapping: Object;
+	simplify_jel_mapping: boolean;
 	simplify(ctx: Context): UnitValue | Promise<UnitValue> {
 		if (this.unit.isSimple())
 			return this;
 		return Util.resolveValue(this.trySimplification(ctx, this), t1=>t1 || Util.resolveValue(Util.resolveValue(this.toPrimaryUnits(ctx), t3=>this.trySimplification(ctx, t3)), t2=>t2 || this));
 	}
 	
-	round_jel_mapping: Object;
-	round(ctx: Context, precision: Float = Float.valueOf(1)): UnitValue {
-    if (precision.value == 1)
+	round_jel_mapping: boolean;
+	round(ctx: Context, precision0: Float = Float.valueOf(1)): UnitValue {
+    const precision = TypeChecker.realNumber(precision0, 'precision');
+    if (precision == 1)
 	  	return new UnitValue(this.value.round(ctx), this.unit);
     else
-  		return new UnitValue(Float.valueOf(Math.round(Float.toRealNumber(this.value)*precision.value)/precision.value), this.unit);
+  		return new UnitValue(Float.valueOf(Math.round(Float.toRealNumber(this.value)*precision)/precision), this.unit);
 	}
 	
-	abs_jel_mapping: Object;
+	abs_jel_mapping: boolean;
 	abs(): UnitValue {
 		return new UnitValue(this.value.abs(), this.unit);
 	}
 	
-	negate_jel_mapping: Object;
+	negate_jel_mapping: boolean;
 	negate(): UnitValue {
 		return new UnitValue(this.value.negate(), this.unit);
 	}
 	
-	toFloat_jel_mapping: Object;
+	toFloat_jel_mapping: boolean;
 	toFloat(): Float {
 		return this.value.toFloat();
 	}
   	
-	trunc_jel_mapping: Object;
+	trunc_jel_mapping: boolean;
 	trunc(): UnitValue {
 		return new UnitValue(this.value.trunc() as any, this.unit);
 	}
@@ -367,19 +377,19 @@ export default class UnitValue extends JelObject implements Numeric {
 		return this.value.toString() +' '+this.unit.toString();
 	}
 	
-	isType_jel_mapping: Object;
+	isType_jel_mapping: boolean;
 	isType(ctx: Context, unit: IDbRef | string): boolean {
 		return this.unit.isType(ctx, unit);
 	}
 	
-	isSimple_jel_mapping: Object;
+	isSimple_jel_mapping: boolean;
 	isSimple(): boolean {
 		return this.unit.isSimple();
 	}
 	
-	toSimpleType_jel_mapping: Object;
-	toSimpleType(ctx: Context): IDbRef {
-		return this.unit.toSimpleType(ctx);
+	toUnitReference_jel_mapping: boolean;
+	toUnitReference(ctx: Context): IDbRef {
+		return this.unit.toUnitReference(ctx);
 	}
 
   static valueOf(value: Float | Fraction | ApproximateNumber, unit: IDbRef | Unit | string | JelString): UnitValue {
@@ -400,19 +410,21 @@ export default class UnitValue extends JelObject implements Numeric {
 	}
 }
 
+UnitValue.prototype.value_jel_property = true;
+UnitValue.prototype.unit_jel_property = true;
+
 UnitValue.prototype.reverseOps = Object.assign({'*':1, '/': 1}, JelObject.SWAP_OPS);
-UnitValue.prototype.toFloat_jel_mapping = [];
-UnitValue.prototype.abs_jel_mapping = [];
-UnitValue.prototype.negate_jel_mapping = [];
-UnitValue.prototype.canConvertTo_jel_mapping = ['type'];
-UnitValue.prototype.convertTo_jel_mapping = ['type'];
-UnitValue.prototype.round_jel_mapping = ['precision'];
-UnitValue.prototype.trunc_jel_mapping = [];
-UnitValue.prototype.simplify_jel_mapping = [];
-UnitValue.prototype.isSimple_jel_mapping = [];
-UnitValue.prototype.toSimpleType_jel_mapping = [];
-UnitValue.prototype.toPrimaryUnits_jel_mapping = [];
-UnitValue.prototype.isType_jel_mapping = ['unit'];
-UnitValue.prototype.JEL_PROPERTIES = {value:1, unit:1};
+UnitValue.prototype.toFloat_jel_mapping = true;
+UnitValue.prototype.abs_jel_mapping = true;
+UnitValue.prototype.negate_jel_mapping = true;
+UnitValue.prototype.canConvertTo_jel_mapping = true;
+UnitValue.prototype.convertTo_jel_mapping = true;
+UnitValue.prototype.round_jel_mapping = true;
+UnitValue.prototype.trunc_jel_mapping = true;
+UnitValue.prototype.simplify_jel_mapping = true;
+UnitValue.prototype.isSimple_jel_mapping = true;
+UnitValue.prototype.toUnitReference_jel_mapping = true;
+UnitValue.prototype.toPrimaryUnits_jel_mapping = true;
+UnitValue.prototype.isType_jel_mapping = true;
 
 BaseTypeRegistry.register('UnitValue', UnitValue);
