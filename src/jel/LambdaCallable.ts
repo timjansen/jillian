@@ -79,22 +79,27 @@ export default class LambdaCallable extends Callable implements SerializablePrim
     
     if (varArgPos < argDefs.length) {
       const varArgDef = argDefs[varArgPos];
+      let varArgsP: any;
       if (varArgs.length) {
         if (argObj && argObj.has(varArgDef.name))
             throw new Error(`You can not both provide unnamed varargs and a named argument ${varArgDef.name} for the same List.`);
-        if (varArgDef.type) {
-          const converted = varArgDef.type!.convert(ctx, BaseTypeRegistry.get('List').valueOf(varArgs), varArgDef.name);
-          if (converted instanceof Promise)
-            openPromises.push(Util.resolveValue(converted, l=>newCtx.set(varArgDef.name, l)));
-          else
-            newCtx.set(varArgDef.name, converted);
-        }
-        else
-          newCtx.set(varArgDef.name, BaseTypeRegistry.get('List').valueOf(varArgs));
-      } else if (!argObj || !argObj.has(varArgDef.name))
-        newCtx.set(varArgDef.name, BaseTypeRegistry.get('List').empty);
+        varArgsP = varArgDef.type ? varArgDef.type.convert(ctx, BaseTypeRegistry.get('List').valueOf(varArgs), varArgDef.name) : BaseTypeRegistry.get('List').valueOf(varArgs);
+      } else if (argObj && argObj.has(varArgDef.name)) {
+        const varArgsO = BaseTypeRegistry.get('List').wrap(argObj.get(varArgDef.name));
+        varArgsP = varArgDef.type ? varArgDef.type!.convert(ctx, varArgsO, varArgDef.name) : varArgsO;
+        addedObjArgs++;
+      }
+      else
+        varArgsP = BaseTypeRegistry.get('List').empty;
+      
+      if (varArgsP instanceof Promise)
+       openPromises.push(Util.resolveValue(varArgsP, l=>newCtx.set(varArgDef.name, l)));
+      else
+       newCtx.set(varArgDef.name, varArgsP);
     }
 
+
+    
     if (argObj && argObj.size < addedObjArgs) {
       for (let i = 0; i < Math.min(args.length, argDefs.length); i++)
         if (argObj.has(argDefs[i].name))

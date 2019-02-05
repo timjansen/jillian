@@ -603,7 +603,7 @@ export default class JEL {
 			if (!args)
         return undefined;
       const varArgPos = args.findIndex(a=>a.varArgs);
-      if (varArgPos >= 0 && varArgPos > args.length-1)
+      if (varArgPos >= 0 && varArgPos != args.length-1)
         JEL.throwParseException(tokens.last(), `Varargs are only possible as last argument.`);
       const asCheck = JEL.tryParseLambdaTypeCheck(tok, LAMBDA);
       if (!tok.peekIs(TokenType.Operator, '=>'))

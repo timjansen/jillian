@@ -483,7 +483,16 @@ export default class List extends NativeJelObject implements SerializablePrimiti
  	static valueOf(a: any[]): List {
 		return new List(a);
 	}
-	
+
+ 	static wrap(a: any): List {
+    if (a instanceof List)
+      return a;
+    else if (!a)
+      return List.empty;
+		return new List([a]);
+	}
+
+  
 	static create_jel_mapping = ['elements'];
 	static create(ctx: Context, ...args: any[]): any {
 		return new List(TypeChecker.optionalType('List', args[0], 'elements', []));
