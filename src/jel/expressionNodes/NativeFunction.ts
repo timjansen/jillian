@@ -16,7 +16,7 @@ import Util from '../../util/Util';
  */ 
 export default class NativeFunction extends CachableJelNode {
  
-  constructor(public name: string, public className: string, public isStaticClass: boolean, public args: TypedParameterDefinition[], public returnType?: TypedParameterDefinition) {
+  constructor(public name: string, public className: string, public isStaticClass: boolean, public args: TypedParameterDefinition[], public returnType?: TypedParameterDefinition, public varArg = false) {
 		super();
   }
   
@@ -32,10 +32,10 @@ export default class NativeFunction extends CachableJelNode {
    
     if (this.returnType) {
       const eList = [this.returnType.execute(ctx)].concat(this.args.map(a=>a.execute(ctx)));
-      return Util.resolveArray(eList, eListResolved=>new NativeCallable(undefined, eListResolved.slice(1), eListResolved[0], func, ctx, this.name));
+      return Util.resolveArray(eList, eListResolved=>new NativeCallable(undefined, eListResolved.slice(1), eListResolved[0], func, ctx, this.name, this.varArg));
     }
     else
-      return Util.resolveArray(this.args.map(a=>a.execute(ctx)), args=>new NativeCallable(undefined, args, undefined, func, ctx, this.name));
+      return Util.resolveArray(this.args.map(a=>a.execute(ctx)), args=>new NativeCallable(undefined, args, undefined, func, ctx, this.name, this.varArg));
 	}
 	
   isStaticUncached(ctx: Context): boolean {
@@ -54,6 +54,7 @@ export default class NativeFunction extends CachableJelNode {
 			this.name == other.name && 
 			this.className == other.className && 
 			this.isStaticClass == other.isStaticClass && 
+      this.varArg == other.varArg && 
       ((this.returnType==other.returnType) || (!!this.returnType && !!other.returnType && this.returnType.equals(other.returnType))) &&
       this.args.length == other.args.length && 
       !this.args.find((l, i)=>!l.equals(other.args[i]));

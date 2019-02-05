@@ -2,37 +2,51 @@ import SerializablePrimitive from './SerializablePrimitive';
 import JelNode from './expressionNodes/JelNode';
 import TypedParameterValue from './TypedParameterValue';
 import JelObject from './JelObject';
-import BaseTypeRegistry from './BaseTypeRegistry';
+import ListType from './types/typeDescriptors/ListType';
 import NamedObject from './types/NamedObject';
 import Context from './Context';
 import Callable from './Callable';
 import Serializer from './Serializer';
 import Util from '../util/Util';
+import BaseTypeRegistry from './BaseTypeRegistry';
 
 
 export default class NativeCallable extends Callable implements SerializablePrimitive {
-  constructor(public self: JelObject|undefined, public argDefs: TypedParameterValue[], public returnType: TypedParameterValue|undefined, public nativeFunction: Function, public parentContext: Context, public name: string) {
+  private varArgPos = Number.MAX_SAFE_INTEGER;
+  
+  constructor(public self: JelObject|undefined, public argDefs: TypedParameterValue[], public returnType: TypedParameterValue|undefined, public nativeFunction: Function, public parentContext: Context, public name: string, public varArg = false) {
 		super('NativeCallable');
+    
+    if (this.varArg) {
+      this.varArgPos = argDefs.length-1;
+      const last = argDefs[this.varArgPos];
+      if (last.type && !(last.type instanceof ListType))
+        throw new Error(`Invalid varargs type in method/function ${this.name} argument ${last.name}. If a type is declared, it must be a ListType (e.g. "any[]")`);
+      if (last.defaultValueGenerator)
+        throw new Error(`Invalid varargs in method/function ${this.name} argument ${last.name}. You must not provide a default value. The default is always an empty List.`);
+    }
   }
 
   
-  private static invoke(ctx: Context, name: string, self: JelObject|undefined, argDefs: TypedParameterValue[], returnType: TypedParameterValue|undefined, nativeFunction: Function, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>): JelObject|null|Promise<JelObject|null> {
+  private static invoke(ctx: Context, name: string, self: JelObject|undefined, argDefs: TypedParameterValue[], returnType: TypedParameterValue|undefined, nativeFunction: Function, 
+                         args: (JelObject|null)[], argObj: Map<string,JelObject|null>|undefined, varArgPos: number): JelObject|null|Promise<JelObject|null> {
 
-    if (args.length > argDefs.length) 
+    const varArg = varArgPos<argDefs.length;
+    if (args.length > argDefs.length && varArg) 
       throw new Error(`Expected up to ${argDefs.length} arguments, but got ${args.length} for native function ${name}() in ${self?self.className:'(unknown)'}: ${args.map(s=>s==null?'null':Serializer.serialize(s)).join(', ')}`);
 
     let allArgs: (JelObject|null)[];
     
-		if (argObj && args.length < argDefs.length) {
+    const lastRegularArg = Math.min(argDefs.length, varArgPos);
+		if (argObj && args.length < lastRegularArg) {
       allArgs = args.slice(0)
       let argsFound = 0;
-      for (let i = args.length; i < argDefs.length; i++) { 
+      for (let i = args.length; i < lastRegularArg; i++) { 
         const v = argDefs[i].name;
-        if (v !== undefined)
-          argsFound++;
+        argsFound++;
         allArgs[i] = argObj.get(v)||null;
       }
-      if (argsFound < argObj.size || argObj.size > argDefs.length-args.length)
+      if (argsFound < argObj.size || argObj.size > lastRegularArg-args.length)
         for (let key of argObj.keys()) {
           const idx = argDefs.findIndex(argDef=>key==argDef.name);
           if (idx < 0)
@@ -42,7 +56,18 @@ export default class NativeCallable extends Callable implements SerializablePrim
         }
     }
     else
-      allArgs = args;
+      allArgs = args.splice(0, lastRegularArg);
+
+    if (varArg) {
+      const varArgs = args.slice(lastRegularArg);
+      const namedVarArg = argObj && argObj.get(argDefs[lastRegularArg].name);
+      if (namedVarArg && varArgs.length)
+        throw new Error(`Can not provide varargs both as named object and using unnamed arguments in method ${name}()`);
+      if (namedVarArg)
+        allArgs.push(namedVarArg);
+      else
+        allArgs.push(BaseTypeRegistry.get('List').valueOf(varArgs));
+    }
   
     const funcArgs: any[] = [ctx];
     for (let i = 0; i < argDefs.length; i++) {
@@ -67,19 +92,19 @@ export default class NativeCallable extends Callable implements SerializablePrim
   }
   
 	invokeWithObject(ctx: Context, self: JelObject|undefined, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>): JelObject|null|Promise<JelObject|null> {   // context will be ignored for lambda. No promise support here, only in Call.
-    return NativeCallable.invoke(this.parentContext||ctx, this.name, self || this.self, this.argDefs, this.returnType, this.nativeFunction, args, argObj);
+    return NativeCallable.invoke(this.parentContext||ctx, this.name, self || this.self, this.argDefs, this.returnType, this.nativeFunction, args, argObj, this.varArgPos);
 	}
 	
 	invoke(ctx: Context, self: JelObject|undefined, ...args: (JelObject|null)[]): JelObject|null|Promise<JelObject|null> {
-    return NativeCallable.invoke(this.parentContext||ctx, this.name, self || this.self, this.argDefs, this.returnType, this.nativeFunction, args);
+    return NativeCallable.invoke(this.parentContext||ctx, this.name, self || this.self, this.argDefs, this.returnType, this.nativeFunction, args, undefined, this.varArgPos);
 	}
 
   rebind(self: JelObject|undefined): NativeCallable {
-    return Object.is(this.self, self) ? this : new NativeCallable(self, this.argDefs, this.returnType, this.nativeFunction, this.parentContext, this.name);
+    return Object.is(this.self, self) ? this : new NativeCallable(self, this.argDefs, this.returnType, this.nativeFunction, this.parentContext, this.name, this.varArg);
   }
   
   bindParentContext(parentContext: Context): NativeCallable {
-    return new NativeCallable(this.self, this.argDefs, this.returnType, this.nativeFunction, parentContext, this.name);
+    return new NativeCallable(this.self, this.argDefs, this.returnType, this.nativeFunction, parentContext, this.name, this.varArg);
   }
 
 
@@ -97,10 +122,10 @@ export default class NativeCallable extends Callable implements SerializablePrim
 
 	toString(): string {
 		if (this.argDefs.length == 1 && this.argDefs[0].isNameOnly && !this.returnType)
-			return `${this.argDefs[0].name}=> (native impl)`;
+			return `${this.varArgPos==0 ? '...':''}${this.argDefs[0].name}=> (native impl)`;
 		else if (this.returnType && this.returnType.type)
-			return `(${this.argDefs.map(ad=>ad.toString()).join(', ')}): ${this.returnType.type.toString()}=> (native impl)`;
+			return `(${this.argDefs.map((ad, i)=>(i == this.varArgPos ? '...':'')+ad.toString()).join(', ')}): ${this.returnType.type.toString()}=> (native impl)`;
     else
-			return `(${this.argDefs.map(ad=>ad.toString()).join(', ')})=> (native impl)`;
+			return `(${this.argDefs.map((ad, i)=>(i == this.varArgPos ? '...':'')+ad.toString()).join(', ')})=> (native impl)`;
 	}
 }

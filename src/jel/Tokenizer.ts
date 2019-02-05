@@ -75,7 +75,7 @@ export default class Tokenizer {
       else if (matches[7])
         tokens.push(new Token(line, col, src, TokenType.Literal, Tokenizer.unescape(matches[7].replace(/^.|.$/g, ''))));
       else if (matches[8])
-        throw new Error(`Unsupported token found at line ${line}, column ${col}: "${matches[8]}"`);
+        throw new Error(`Unsupported token found at line ${line}, column ${col} in ${src}: "${matches[8]}"`);
       else if (matches[1]) {
 				const fractionMatch = fractionRE.exec(matches[1]);
 				if (!fractionMatch)

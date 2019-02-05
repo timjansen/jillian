@@ -2,7 +2,9 @@ import SerializablePrimitive from './SerializablePrimitive';
 import JelNode from './expressionNodes/JelNode';
 import TypedParameterValue from './TypedParameterValue';
 import JelObject from './JelObject';
+import BaseTypeRegistry from './BaseTypeRegistry';
 import NamedObject from './types/NamedObject';
+import ListType from './types/typeDescriptors/ListType';
 import Context from './Context';
 import Callable from './Callable';
 import Serializer from './Serializer';
@@ -10,9 +12,20 @@ import Util from '../util/Util';
 
 
 export default class LambdaCallable extends Callable implements SerializablePrimitive {
+  private varArgPos: number = Number.MAX_SAFE_INTEGER;
+
   
-  constructor(public argDefs: TypedParameterValue[], public expression: JelNode, public parentContext: Context, public name?: string, public self?: JelObject, public superConstructor?: LambdaCallable, public returnType?: TypedParameterValue) {
+  constructor(public argDefs: TypedParameterValue[], public expression: JelNode, public parentContext: Context, public name?: string, public self?: JelObject, public superConstructor?: LambdaCallable, public returnType?: TypedParameterValue, public varArg = false) {
 		super('LambdaCallable');
+    
+    if (this.varArg) {
+      this.varArgPos = argDefs.length-1;
+      const last = argDefs[this.varArgPos];
+      if (last.type && !(last.type instanceof ListType))
+        throw new Error(`Invalid varargs type in method/function ${this.name} argument ${last.name}. If a type is declared, it must be a ListType (e.g. "any[]")`);
+      if (last.defaultValueGenerator)
+        throw new Error(`Invalid varargs in method/function ${this.name} argument ${last.name}. You must not provide a default value. The default is always an empty List.`);
+    }
   }
 
   private static setVariable(ctx: Context, newCtx: Context, argDef: TypedParameterValue, value0: JelObject|null|undefined): Promise<any>|undefined {
@@ -32,21 +45,27 @@ export default class LambdaCallable extends Callable implements SerializablePrim
       return Util.resolveValue(value, v=>{newCtx.set(argDef.name, v);});
   }
   
-  private static invoke(ctx: Context, self: JelObject|undefined, superConstructor: LambdaCallable|undefined, argDefs: TypedParameterValue[], expression: JelNode, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>, returnType?: TypedParameterValue): JelObject|null|Promise<JelObject|null> {
+  private static invoke(ctx: Context, self: JelObject|undefined, superConstructor: LambdaCallable|undefined, argDefs: TypedParameterValue[], expression: JelNode, 
+                         args: (JelObject|null)[], argObj: Map<string,JelObject|null>|undefined, returnType: TypedParameterValue|undefined, varArgPos: number): JelObject|null|Promise<JelObject|null> {
 		const newCtx = new Context(ctx);
     const openPromises: any[] = [];
+    const varArgs: (JelObject|null)[] = [];
     
     args.forEach((arg, i) => {
-      const argDef = argDefs[i];
-      if (argDef) {
-        const p: Promise<any>|undefined = LambdaCallable.setVariable(ctx, newCtx, argDef, arg);
-        if (p)
-          openPromises.push(p);
+      if (i >= varArgPos)      
+        varArgs.push(arg);
+      else {
+        const argDef = argDefs[i];
+        if (argDef) {
+          const p: Promise<any>|undefined = LambdaCallable.setVariable(ctx, newCtx, argDef, arg);
+          if (p)
+            openPromises.push(p);
+        }
       }
     });
 
     let addedObjArgs = 0;
-    for (let i = args.length; i < argDefs.length; i++) {
+    for (let i = args.length; i < Math.min(argDefs.length, varArgPos); i++) {
       const argDef = argDefs[i];
       const v = argObj ? argObj.get(argDef.name) : undefined;
       if (v !== undefined)
@@ -58,6 +77,24 @@ export default class LambdaCallable extends Callable implements SerializablePrim
         openPromises.push(p);
     }
     
+    if (varArgPos < argDefs.length) {
+      const varArgDef = argDefs[varArgPos];
+      if (varArgs.length) {
+        if (argObj && argObj.has(varArgDef.name))
+            throw new Error(`You can not both provide unnamed varargs and a named argument ${varArgDef.name} for the same List.`);
+        if (varArgDef.type) {
+          const converted = varArgDef.type!.convert(ctx, BaseTypeRegistry.get('List').valueOf(varArgs), varArgDef.name);
+          if (converted instanceof Promise)
+            openPromises.push(Util.resolveValue(converted, l=>newCtx.set(varArgDef.name, l)));
+          else
+            newCtx.set(varArgDef.name, converted);
+        }
+        else
+          newCtx.set(varArgDef.name, BaseTypeRegistry.get('List').valueOf(varArgs));
+      } else if (!argObj || !argObj.has(varArgDef.name))
+        newCtx.set(varArgDef.name, BaseTypeRegistry.get('List').empty);
+    }
+
     if (argObj && argObj.size < addedObjArgs) {
       for (let i = 0; i < Math.min(args.length, argDefs.length); i++)
         if (argObj.has(argDefs[i].name))
@@ -90,23 +127,23 @@ export default class LambdaCallable extends Callable implements SerializablePrim
   }
   
 	invokeWithObject(ctx: Context, self: JelObject|undefined, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>): JelObject|null|Promise<JelObject|null> {   // context will be ignored for lambda. No promise support here, only in Call.
-    return LambdaCallable.invoke(this.parentContext, self || this.self, this.superConstructor, this.argDefs, this.expression, args, argObj, this.returnType);
+    return LambdaCallable.invoke(this.parentContext, self || this.self, this.superConstructor, this.argDefs, this.expression, args, argObj, this.returnType, this.varArgPos);
 	}
 	
 	invoke(ctx: Context, self: JelObject|undefined, ...args: (JelObject|null)[]): JelObject|null|Promise<JelObject|null> {
-    return LambdaCallable.invoke(this.parentContext, self || this.self, this.superConstructor, this.argDefs, this.expression, args, undefined, this.returnType);
+    return LambdaCallable.invoke(this.parentContext, self || this.self, this.superConstructor, this.argDefs, this.expression, args, undefined, this.returnType, this.varArgPos);
 	}
 
   rebind(self: JelObject|undefined): LambdaCallable {
-    return Object.is(this.self, self) ? this : new LambdaCallable(this.argDefs, this.expression, this.parentContext, this.name, self, this.superConstructor, this.returnType);
+    return Object.is(this.self, self) ? this : new LambdaCallable(this.argDefs, this.expression, this.parentContext, this.name, self, this.superConstructor, this.returnType, this.varArg);
   }
 
   bindSuper(superConstructor: LambdaCallable|null): LambdaCallable {
-    return Object.is(this.superConstructor, superConstructor) ? this : new LambdaCallable(this.argDefs, this.expression, this.parentContext, this.name, this.self, superConstructor||undefined, this.returnType);
+    return Object.is(this.superConstructor, superConstructor) ? this : new LambdaCallable(this.argDefs, this.expression, this.parentContext, this.name, this.self, superConstructor||undefined, this.returnType, this.varArg);
   }
 
   bindParentContext(parentContext: Context): LambdaCallable {
-    return new LambdaCallable(this.argDefs, this.expression, parentContext, this.name, this.self, this.superConstructor, this.returnType);
+    return new LambdaCallable(this.argDefs, this.expression, parentContext, this.name, this.self, this.superConstructor, this.returnType, this.varArg);
   }
 
   
@@ -124,10 +161,10 @@ export default class LambdaCallable extends Callable implements SerializablePrim
 
 	toString(): string {
 		if (this.argDefs.length == 1 && this.argDefs[0].isNameOnly && !this.returnType)
-			return `${this.argDefs[0].name}=>${this.expression.toString()}`;
+			return `${this.varArgPos==0 ? '...':''}${this.argDefs[0].name}=>${this.expression.toString()}`;
 		else if (this.returnType && this.returnType.type)
-			return `(${this.argDefs.map(ad=>ad.toString()).join(', ')}): ${this.returnType.type.toString()}=>${this.expression.toString()}`;
+			return `(${this.argDefs.map((ad, i)=>(i == this.varArgPos ? '...':'')+ad.toString()).join(', ')}): ${this.returnType.type.toString()}=>${this.expression.toString()}`;
     else
-			return `(${this.argDefs.map(ad=>ad.toString()).join(', ')})=>${this.expression.toString()}`;
+			return `(${this.argDefs.map((ad, i)=>(i == this.varArgPos ? '...':'')+ad.toString()).join(', ')})=>${this.expression.toString()}`;
 	}
 }

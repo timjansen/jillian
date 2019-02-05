@@ -1,12 +1,15 @@
 import Runtime from '../Runtime';
 import JelObject from '../JelObject';
 import Context from '../Context';
+import BaseTypeRegistry from '../BaseTypeRegistry';
 import {IDbRef} from '../IDatabase';
 import JelString from './JelString';
 import Float from './Float';
 import Numeric from './Numeric';
 import JelBoolean from './JelBoolean';
 import Fraction from './Fraction';
+import NativeJelObject from './NativeJelObject';
+import Class from './Class';
 import ApproximateNumber from './ApproximateNumber';
 import Unit from './Unit';
 import UnitValue from './UnitValue';
@@ -18,9 +21,18 @@ import TypeChecker from './TypeChecker';
 /**
  * Collection of static method for math.
  */
-export default class JelMath extends JelObject {
-	static readonly JEL_PROPERTIES = {PI: true, E: true, LN2: true, LN10: true, LOG2E: true, LOG10E: true, SQRT1_2: true, SQRT2: true};
+export default class JelMath extends NativeJelObject {
+  static PI_jel_property = true;
+  static E_jel_property = true;
+  static LN2_jel_property = true;
+  static LN10_jel_property = true;
+  static LOG2E_jel_property = true;
+  static LOG10E_jel_property = true;
+  static SQRT1_2_jel_property = true;
+  static SQRT2_jel_property = true;
 
+  static clazz: Class|undefined;
+  
 	static readonly PI = Float.valueOf(Math.PI);
 	static readonly E = Float.valueOf(Math.E);
 	static readonly LN2 = Float.valueOf(Math.LN2);
@@ -45,6 +57,10 @@ export default class JelMath extends JelObject {
 	
 	static jelName = 'Math';
 	
+  get clazz(): Class {
+    return JelMath.clazz!;
+  }
+  
 	private static restoreUnit(original: Numeric, n: number): Float | UnitValue {
 		if (original instanceof UnitValue)
 			return new UnitValue(Float.valueOf(n), original.unit);
@@ -60,17 +76,17 @@ export default class JelMath extends JelObject {
 	}
 	
 	// Returns either number in radians, or converts to the given unit. Must be @Degree, @Radian, @Gradian or @Turn. Defaults to @Radian as plain number.
-	static acos_jel_mapping = ['x', 'unit'];
+	static acos_jel_mapping = true;
 	static acos(ctx: Context, x: any, unit?: IDbRef | JelString): Float | UnitValue {
 		const r = Math.acos(TypeChecker.realNumber(x, 'x'));
 		return unit ? JelMath.convertAngle(r, unit instanceof JelString ? unit.value : unit.distinctName) : Float.valueOf(r);
 	}
-	static asin_jel_mapping = ['x', 'unit'];
+	static asin_jel_mapping = true;
 	static asin(ctx: Context, x: any, unit?: IDbRef | JelString): Float | UnitValue {
 		const r = Math.asin(TypeChecker.realNumber(x, 'x'));
 		return unit ? JelMath.convertAngle(r, unit instanceof JelString ? unit.value : unit.distinctName) : Float.valueOf(r);
 	}
-	static atan_jel_mapping = ['x', 'unit'];
+	static atan_jel_mapping = true;
 	static atan(ctx: Context, x: any, unit?: IDbRef | JelString): Float | UnitValue {
 		const r = Math.atan(TypeChecker.realNumber(x, 'x'));
 		return unit ? JelMath.convertAngle(r, unit instanceof JelString ? unit.value : unit.distinctName) : Float.valueOf(r);
@@ -81,12 +97,12 @@ export default class JelMath extends JelObject {
 		return unit ? JelMath.convertAngle(r, unit instanceof JelString ? unit.value : unit.distinctName) : Float.valueOf(r);
 	}
 
-	static cbrt_jel_mapping = ['x'];
+	static cbrt_jel_mapping = true;
 	static cbrt(ctx: Context, x: any): number {
 		return Math.cbrt(TypeChecker.realNumber(x, 'x'));
 	}
 
-	static ceil_jel_mapping = ['x'];
+	static ceil_jel_mapping = true;
 	static ceil(ctx: Context, x: any): Float | UnitValue {
 			return JelMath.restoreUnit(x, Math.ceil(TypeChecker.realNumber(x, 'x')));
 	}
@@ -103,56 +119,56 @@ export default class JelMath extends JelObject {
 		return f(Float.toRealNumber(x));
 	}
 
-	static cos_jel_mapping = ['x'];
+	static cos_jel_mapping = true;
 	static cos(ctx: Context, x: any): number {
 		return JelMath.trigo(Math.cos, ctx, TypeChecker.numeric(x, 'x'));
 	}
-	static sin_jel_mapping = ['x'];
+	static sin_jel_mapping = true;
 	static sin(ctx: Context, x: any): number {
 		return JelMath.trigo(Math.sin, ctx, TypeChecker.numeric(x, 'x'));
 	}
-	static tan_jel_mapping = ['x'];
+	static tan_jel_mapping = true;
 	static tan(ctx: Context, x: any): number {
 		return JelMath.trigo(Math.tan, ctx, TypeChecker.numeric(x, 'x'));
 	}
 
-	static exp_jel_mapping = ['x'];
+	static exp_jel_mapping = true;
 	static exp(ctx: Context, x: any): number {
 		return Math.exp(TypeChecker.realNumber(x, 'x'));
 	}
-	static expm1_jel_mapping = ['x'];
+	static expm1_jel_mapping = true;
 	static expm1(ctx: Context, x: any): number {
 		return Math.expm1(TypeChecker.realNumber(x, 'x'));
 	}
 	
-	static floor_jel_mapping = ['x'];
+	static floor_jel_mapping = true;
 	static floor(ctx: Context, x: any): Float | UnitValue {
 		return JelMath.restoreUnit(x, Math.floor(TypeChecker.realNumber(x, 'x')));
 	}
 
-	static hypot_jel_mapping = [];
+	static hypot_jel_mapping = true;
 	static hypot(ctx: Context, ...a: any[]): number {
 		return Math.hypot(...a.map(x=>TypeChecker.realNumber(x, 'x')));
 	}
 
-	static delta_jel_mapping = ['x', 'y'];
+	static delta_jel_mapping = true;
 	static delta(ctx: Context, x: any, y: any): Float | UnitValue {
 		return JelMath.restoreUnit(x, Math.abs(TypeChecker.realNumber(x, 'x') - TypeChecker.realNumber(y, 'y')));
 	}
 	
-	static log_jel_mapping = ['x'];
+	static log_jel_mapping = true;
 	static log(ctx: Context, x: any): number {
 		return Math.log(TypeChecker.realNumber(x, 'x'));
 	}
-	static log1p_jel_mapping = ['x'];
+	static log1p_jel_mapping = true;
 	static log1p(ctx: Context, x: any): number {
 		return Math.log1p(TypeChecker.realNumber(x, 'x'));
 	}
-	static log10_jel_mapping = ['x'];
+	static log10_jel_mapping = true;
 	static log10(ctx: Context, x: any): number {
 		return Math.log10(TypeChecker.realNumber(x, 'x'));
 	}
-	static log2_jel_mapping = ['x'];
+	static log2_jel_mapping = true;
 	static log2(ctx: Context, x: any): number {
 		return Math.log2(TypeChecker.realNumber(x, 'x'));
 	}
@@ -177,22 +193,22 @@ export default class JelMath extends JelObject {
 		return f;
 	}
 	
-	static min_jel_mapping = [];
+	static min_jel_mapping = true;
 	static min(ctx: Context, ...a: any[]): Numeric | Promise<Numeric> {
 		return JelMath.best('>', ctx, a);
 	}
 	
-	static max_jel_mapping = [];
+	static max_jel_mapping = true;
 	static max(ctx: Context, ...a: any[]): Numeric | Promise<Numeric> {
 		return JelMath.best('<', ctx, a);
 	}
 	
-	static pow_jel_mapping = ['x', 'y'];
+	static pow_jel_mapping = true;
 	static pow(ctx: Context, x: any, y: any): Numeric {
 		return Float.valueOf(Math.pow(TypeChecker.realNumber(x, 'x'), TypeChecker.realNumber(y, 'y')));
 	}
 
-	static random_jel_mapping = ['min', 'max', 'unit'];
+	static random_jel_mapping = true;
 	static random(ctx: Context, min: any, max: any,	unit?: any): Float | UnitValue {
 		const min0 = TypeChecker.realNumber(min, 'min', 0);
 		const r = Math.random() *  (TypeChecker.realNumber(max, 'max', 1)-min0) + min0;
@@ -202,26 +218,25 @@ export default class JelMath extends JelObject {
 			return Float.valueOf(r);
 	}
 	
-	static round_jel_mapping = ['x'];
+	static round_jel_mapping = true;
 	static round(ctx: Context, x: any): Float | UnitValue {
 		return JelMath.restoreUnit(x, Math.round(TypeChecker.realNumber(x, 'x')));
 	}
 
-	static sign_jel_mapping = ['x'];
+	static sign_jel_mapping = true;
 	static sign(ctx: Context, x: any): number {
 		return Math.sign(TypeChecker.realNumber(x, 'x'));
 	}
 	
-	static sqrt_jel_mapping = ['x'];
+	static sqrt_jel_mapping = true;
 	static sqrt(ctx: Context, x: any): number {
 		return Math.sqrt(TypeChecker.realNumber(x, 'x'));
 	}
 	
-	static trunc_jel_mapping = ['x'];
+	static trunc_jel_mapping = true;
 	static trunc(ctx: Context, x: any): Float | UnitValue {
 		return JelMath.restoreUnit(x, Math.trunc(TypeChecker.realNumber(x, 'x')));
 	}
 }
 
-
-
+BaseTypeRegistry.register('Math', JelMath);

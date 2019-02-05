@@ -21,7 +21,7 @@ import Util from '../../util/Util';
  */ 
 export default class Lambda extends CachableJelNode {
  
-  constructor(public args: TypedParameterDefinition[], public returnType: TypedParameterDefinition|undefined, public expression: JelNode) {
+  constructor(public args: TypedParameterDefinition[], public returnType: TypedParameterDefinition|undefined, public expression: JelNode, public varArg: boolean) {
 		super();
   }
   
@@ -29,10 +29,10 @@ export default class Lambda extends CachableJelNode {
   executeUncached(ctx: Context): JelObject|null|Promise<JelObject|null> {
     if (this.returnType) {
       const eList = [this.returnType.execute(ctx)].concat(this.args.map(a=>a.execute(ctx)));
-      return Util.resolveArray(eList, eListResolved=>new LambdaCallable(eListResolved.slice(1), this.expression, ctx, "(anonymous lambda)", undefined, undefined, eListResolved[0]));
+      return Util.resolveArray(eList, eListResolved=>new LambdaCallable(eListResolved.slice(1), this.expression, ctx, "(anonymous lambda)", undefined, undefined, eListResolved[0], this.varArg));
     }
     else
-      return Util.resolveArray(this.args.map(a=>a.execute(ctx)), args=>new LambdaCallable(args, this.expression, ctx, "(anonymous lambda)"));
+      return Util.resolveArray(this.args.map(a=>a.execute(ctx)), args=>new LambdaCallable(args, this.expression, ctx, "(anonymous lambda)", undefined, undefined, undefined, this.varArg));
 	}
 	
   isStaticUncached(ctx: Context): boolean {
@@ -50,6 +50,7 @@ export default class Lambda extends CachableJelNode {
   equals(other?: JelNode): boolean {
 		return other instanceof Lambda &&
 			this.expression.equals(other.expression) && 
+      this.varArg == other.varArg &&
       ((this.returnType==other.returnType) || (!!this.returnType && !!other.returnType && this.returnType.equals(other.returnType))) &&
       this.args.length == other.args.length && 
       !this.args.find((l, i)=>!l.equals(other.args[i]));

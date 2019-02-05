@@ -305,6 +305,18 @@ describe('Unit & UnitValues', function() {
       jelAssert.equal('Math.acos(1, @Radian).toFloat()', Math.acos(1));
       jelAssert.equal('Math.acos(0.44, @Degree).toFloat()', Math.acos(0.44) / 2 / Math.PI * 360);
       jelAssert.equal('Math.round(Math.atan(0.2, "Gradian").toFloat())', Math.round(Math.atan(0.2) / 2 / Math.PI * 400));	
+      
+      jelAssert.equal('Math.sin(90 @Degree)', Math.sin(Math.PI/2));
+      jelAssert.equal('Math.cos(1 @Radian)', Math.cos(1));
+      jelAssert.equal('Math.cos(0.5 @Turn)', Math.cos(Math.PI));
+      jelAssert.equal('Math.tan(20 @Gradian)', Math.tan(Math.PI/10));
+      
+   		jelAssert.equal('Math.round(7.5 @Watt)', '8 @Watt');
+      jelAssert.equal('Math.floor(Math.random(unit=@Meter))', '0 @Meter');
+      jelAssert.equal('Math.trunc(Math.random(min=3 @Second, max=4 @Second))', '3 @Second');
+      jelAssert.equal('Math.round(Math.random(min=3 @Second, max=7/2 @Second, unit=@Watt))', '3 @Watt');
+
+
     });
 
   });

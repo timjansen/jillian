@@ -13,7 +13,7 @@ import Util from '../../util/Util';
  */
 export default class TypedParameterDefinition extends CachableJelNode {
  	private typeHelper: any;	
-  constructor(public name: string, public defaultValue?: JelNode, public type?: JelNode ) {
+  constructor(public name: string, public defaultValue?: JelNode, public type?: JelNode, public varArgs = false ) {
     super();
     this.typeHelper = BaseTypeRegistry.get('TypeHelper');
   }
@@ -45,19 +45,21 @@ export default class TypedParameterDefinition extends CachableJelNode {
 		if (!(other instanceof TypedParameterDefinition))
 			return false;
 		return this.name == other.name && 
+      this.varArgs == other.varArgs &&
       (this.defaultValue === other.defaultValue || (!!this.defaultValue && this.defaultValue.equals(other.defaultValue))) &&
       (this.type == other.type || (!!this.type && this.type.equals(other.type)));
 	}
 	
 	toString(): string {
+    const vaPrefix = this.varArgs ? '...' : '';
     if (!this.defaultValue && !this.type)
-      return this.name;
+      return vaPrefix+this.name;
     else if (!this.defaultValue)
-  		return `${this.name}: ${this.type!.toString()}`;
+  		return `${vaPrefix}${this.name}: ${this.type!.toString()}`;
     else if (!this.type)
-  		return `${this.name} = ${this.defaultValue!.toString()}`;
+  		return `${vaPrefix}${this.name} = ${this.defaultValue!.toString()}`;
     else
-  		return `${this.name}: ${this.type!.toString()} = ${this.defaultValue!.toString()}`;
+  		return `${vaPrefix}${this.name}: ${this.type!.toString()} = ${this.defaultValue!.toString()}`;
 	}
 }
 
