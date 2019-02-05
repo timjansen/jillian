@@ -336,6 +336,33 @@ describe('JEL', function () {
                          ]);
    });
 
+   it('supports lambda varargs', function() {
+      jelAssert.equal('((...a: int[])=>a)(1,2,3)', '[1,2,3]');
+      jelAssert.equal('((...a: int[])=>a)()', '[]');
+      jelAssert.equal('((...a: int[][])=>a)([1], [5])', '[[1], [5]]');
+      jelAssert.equal('((...a: int[])=>a)(a=[1,2])', '[1, 2]');
+      jelAssert.equal('((...a: int[])=>a)(a=5)', '[5]');
+      jelAssert.equal('((x: number?, y: int?, ...a: int[])=>[x,y,a])(1,2,3,4)', '[1,2,[3, 4]]');
+      jelAssert.equal('((x, y, ...a: int[])=>[x,y,a])(1,2)', '[1,2,[]]');
+      jelAssert.equal('((x: int, y: number, ...a: int[])=>[x,y,a])(1,2, a=[11])', '[1,2,[11]]');
+      jelAssert.equal('((x, y, ...a: int[])=>[x,y,a])(1,2, a=11)', '[1,2,[11]]');
+      jelAssert.equal('((x = 2, y = 5, ...a: int[])=>[x,y,a])()', '[2,5,[]]');
+      jelAssert.equal('((x = 2, y = 5, ...a: int[])=>[x,y,a])(y=3, a=[1, 2])', '[2,3,[1,2]]');
+   });
+    
+   it('catches lambda vararg errors', function() {
+     return Promise.all([
+       jelAssert.errorPromise("((...a: int)=>a)", "must be a ListType"),
+       jelAssert.errorPromise("((...a: int[]?)=>a)", "must be a ListType"),
+       jelAssert.errorPromise("((...a: int[] = [])=>a)", "always an empty List"),
+       jelAssert.errorPromise("((...a: int[] = [1,2])=>a)", "always an empty List"),
+       jelAssert.errorPromise("((...a: string[])=>a)(['boo'])", "not compatible"),
+       jelAssert.errorPromise("((...a: string[])=>a)(1)", "not compatible"),
+       jelAssert.errorPromise("((...a: string[])=>a)(a=1)", "not compatible"),
+       jelAssert.errorPromise("((...a: string[])=>a)('a', 'b', 1, 'c')", "not compatible")
+     ])
+   });
+    
    it('supports promises', function() {
      class A extends JelObject {
        static promise(ctx, value) {
