@@ -175,13 +175,25 @@ export default class Range extends NativeJelObject {
 		return new Range(Float.valueOf(value - accuracy), Float.valueOf(value + accuracy));
 	}
 	
-	static valueOf(min: JelObject|null, max: JelObject|null): Range {
-		return new Range(min, max);
+	static valueOf(min0: any, max0: any, minExclusive0 = false, maxExclusive0 = false): Range {
+    const minIsRange = min0 instanceof Range;
+    const maxIsRange = max0 instanceof Range;
+    const min = minIsRange ? min0.min : (min0 || null);
+    const max = maxIsRange ? max0.max : (max0 || null);
+    const minExclusive = minIsRange ? min0.minExclusive : minExclusive0;
+    const maxExclusive = maxIsRange ? max0.maxExclusive : maxExclusive0;
+		return new Range(min, max, minExclusive, maxExclusive);
 	}
 	
 	static create_jel_mapping = true;
 	static create(ctx: Context, ...args: any[]): Range {
-		return new Range(args[0] || null, args[1] || null, TypeChecker.realBoolean(args[2], 'minExclusive', false), TypeChecker.realBoolean(args[3], 'maxExclusive', false));
+    const minIsRange = args[0] instanceof Range;
+    const maxIsRange = args[1] instanceof Range;
+    const min = minIsRange ? args[0].min : args[0] || null;
+    const max = maxIsRange ? args[1].max : args[1] || null;
+    const minExclusive = minIsRange ? args[0].minExclusive : TypeChecker.realBoolean(args[2], 'minExclusive', false);
+    const maxExclusive = maxIsRange ? args[1].maxExclusive : TypeChecker.realBoolean(args[3], 'maxExclusive', false);
+		return new Range(min, max, minExclusive, maxExclusive);
 	}
 }
 

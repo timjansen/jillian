@@ -21,13 +21,30 @@ describe('Range', function() {
   it('creates and serializes', function() {
     jelAssert.equal(new Range(1, 2), "Range(1, 2)");
     jelAssert.equal("1...2", "Range(1, 2)");
-    jelAssert.equal("<=2", "Range(null, 2)");
-    jelAssert.equal(">=1", "Range(1, null)");
     jelAssert.equal(new Range(new Fraction(1, 2), 2), "Range(Fraction(1, 2), 2)");
     jelAssert.equal("1/2...2", "Range(Fraction(1, 2), 2)");
     jelAssert.equal(new Range(undefined, 5), "Range(null, 5)");
     jelAssert.equal(new Range(-1, undefined), "Range(-1, null)");
     jelAssert.notEqual(new Range(1, 2), "Range(1, 3)");
+
+    jelAssert.equal("<=2", "Range(null, 2)");
+    jelAssert.equal(">=1", "Range(1, null)");
+    jelAssert.equal("<2", "Range(null, 2, false, true)");
+    jelAssert.equal(">1", "Range(1, null, true, false)");
+
+    jelAssert.equal(">=2...<10", "Range(2, 10, false, true)");
+    jelAssert.equal("2...<10", "Range(2, 10, false, true)");
+    jelAssert.equal(">2...<10", "Range(2, 10, true, true)");
+    jelAssert.equal(">2...<=10", "Range(2, 10, true, false)");
+    jelAssert.equal(">=2...<=10", "2...10");
+    jelAssert.equal(">2...10", "Range(2, 10, true, false)");
+    
+    jelAssert.equal("Range(0, 2)", "Range(Range(0, 4), 2)");
+    jelAssert.equal("Range(3, 4)", "Range(3, Range(0, 4))");
+    jelAssert.equal("Range(3, 4, true, false)", "Range(3, Range(0, 4), true, false)");
+    jelAssert.equal("Range(3, 4, true, true)", "Range(3, Range(0, 4, false, true), true, false)");
+    jelAssert.equal("Range(0, 7, true, false)", "Range(Range(0, 4, true, true), 7, false, false)");
+    jelAssert.equal("Range(0, 9, true, true)", "Range(Range(0, 4, true, true), Range(1, 9, true, true))");
   });
 
   it('supports Range<->Range comparisons (inclusive)', function() {

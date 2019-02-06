@@ -90,6 +90,8 @@ const unaryOperators: any = { // op->precedence
   '!': 18,
   '>=': 18,
   '<=': 18,
+  '>': 18,
+  '<': 18
 };
 
 const overloadableOperators: any = {'+': true, '-': true, '*': true, '/': true, '%': true, '==': true, '===': true, '!=': true, '!==': true, '<': true, '<<': true, '<=': true, '<<=': true, '>': true, '>>': true, '>=': true, '>>=': true, '^': true};
@@ -249,6 +251,10 @@ export default class JEL {
         return JEL.tryBinaryOps(tokens, new Range(JEL.parseExpression(tokens, unaryOperators[operator], stopOps), undefined), precedence, stopOps);
       case "<=":
         return JEL.tryBinaryOps(tokens, new Range(undefined, JEL.parseExpression(tokens, unaryOperators[operator], stopOps)), precedence, stopOps);
+      case ">":
+        return JEL.tryBinaryOps(tokens, new Range(JEL.parseExpression(tokens, unaryOperators[operator], stopOps), undefined, true, false), precedence, stopOps);
+      case "<":
+        return JEL.tryBinaryOps(tokens, new Range(undefined, JEL.parseExpression(tokens, unaryOperators[operator], stopOps), false, true), precedence, stopOps);
       default:
         return JEL.tryBinaryOps(tokens, new Operator(operator, JEL.parseExpression(tokens, unaryOperators[operator], stopOps)), precedence, stopOps);
     }

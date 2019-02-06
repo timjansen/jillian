@@ -18,7 +18,7 @@ import Util from '../../util/Util';
 export default class Range extends CachableJelNode {
   private range: any;
   
-  constructor(public left: JelNode|undefined, public right: JelNode|undefined) {
+  constructor(public left: JelNode|undefined, public right: JelNode|undefined, public minExclusive: boolean = false, public maxExclusive: boolean = false) {
     super();
     this.range = BaseTypeRegistry.get('Range');
   }
@@ -27,12 +27,12 @@ export default class Range extends CachableJelNode {
   executeUncached(ctx: Context): JelObject|null|Promise<JelObject|null> {
     if (this.left) {
       if (this.right)
-        return Util.resolveValues((l: any,r: any)=>this.range.valueOf(l, r), this.left.execute(ctx), this.right.execute(ctx));
+        return Util.resolveValues((l: any,r: any)=>this.range.valueOf(l, r, this.minExclusive, this.maxExclusive), this.left.execute(ctx), this.right.execute(ctx));
       else
-        return Util.resolveValue(this.left.execute(ctx), (l: any)=>this.range.valueOf(l, null));
+        return Util.resolveValue(this.left.execute(ctx), (l: any)=>this.range.valueOf(l, null, this.minExclusive, this.maxExclusive));
     }
     else if (this.right)
-        return Util.resolveValue(this.right.execute(ctx), (r: any)=>this.range.valueOf(null, r));
+        return Util.resolveValue(this.right.execute(ctx), (r: any)=>this.range.valueOf(null, r, this.minExclusive, this.maxExclusive));
     else
       return this.range.valueOf(null, null);
   }
@@ -50,6 +50,8 @@ export default class Range extends CachableJelNode {
   // overrride
   equals(other?: JelNode): boolean {
 		return other instanceof Range &&
+      (this.minExclusive == other.minExclusive) &&
+      (this.maxExclusive == other.maxExclusive) &&
       (this.left  ? this.left.equals(other.left) : other.left == null) &&
       (this.right  ? this.right.equals(other.right) : other.right == null);
 	}
@@ -57,12 +59,12 @@ export default class Range extends CachableJelNode {
 	toString(): string {
     if (this.left) {
       if (this.right)
-      	return `(${this.left.toString()}...${this.right.toString()})`;
+      	return `(${this.minExclusive?'>':''}${this.left.toString()}...${this.maxExclusive?'<':''}${this.right.toString()})`;
       else
-      	return `(>=${this.left.toString()})`;
+      	return this.minExclusive ? `(>${this.left.toString()})` : `(>=${this.left.toString()})`;
     }
     else if (this.right)
-     	return `(<=${this.right.toString()})`;
+     	return this.maxExclusive ? `(<${this.right.toString()})` : `(<=${this.right.toString()})`;
     else
       return "(null...null)";
 	}
