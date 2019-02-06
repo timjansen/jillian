@@ -21,9 +21,9 @@ export default class NativeCallable extends Callable implements SerializablePrim
       this.varArgPos = argDefs.length-1;
       const last = argDefs[this.varArgPos];
       if (last.type && !(last.type instanceof ListType))
-        throw new Error(`Invalid varargs type in method/function ${this.name} argument ${last.name}. If a type is declared, it must be a ListType (e.g. "any[]")`);
+        throw new Error(`Invalid varargs type in method/function ${this.name}() argument ${last.name}. If a type is declared, it must be a ListType (e.g. "any[]")`);
       if (last.defaultValueGenerator)
-        throw new Error(`Invalid varargs in method/function ${this.name} argument ${last.name}. You must not provide a default value. The default is always an empty List.`);
+        throw new Error(`Invalid varargs in method/function ${this.name}() argument ${last.name}. You must not provide a default value. The default is always an empty List.`);
     }
   }
 

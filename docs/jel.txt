@@ -194,7 +194,7 @@ Examples:
   (a: Number, b: String = "foo"): String => b+a   // Argument types, default value
   (a: String?) => if a then a else ""    // Optional type
 	[1, 2, 3].map(e => 2*e)  // returns the list [2, 4, 6]
-  
+  (...a: any[])=>a.length  // varargs
 
 
 
@@ -290,6 +290,9 @@ class Schedule::Single extends Schedule::Entry:
 
   static add(x,y) =>
     x+y
+
+  addMany(...a: number[]) =>                       // To create a varargs method, declare the last parameter as array and prepend the name with '...'
+    a.reduce((x, acc)=>x+acc, 0)
 
 
 Enums

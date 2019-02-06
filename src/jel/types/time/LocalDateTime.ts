@@ -75,10 +75,10 @@ export default class LocalDateTime extends AbstractDate {
 			switch(operator) {
 				case '==':
 				case '===':
-					return JelBoolean.and(ctx, this.date.op(ctx, operator, right.date), this.time.op(ctx, operator, right.time));
+					return JelBoolean.andJs(this.date.op(ctx, operator, right.date), this.time.op(ctx, operator, right.time));
 				case '!=':
 				case '!==':
-					return JelBoolean.or(ctx, this.date.op(ctx, operator, right.date), this.time.op(ctx, operator, right.time));
+					return JelBoolean.orJs(this.date.op(ctx, operator, right.date), this.time.op(ctx, operator, right.time));
 
 				case '>':
 				case '>>':
@@ -88,7 +88,7 @@ export default class LocalDateTime extends AbstractDate {
 				case '>>=':
 				case '<=':
 				case '<<=':
-					return JelBoolean.or(ctx, this.date.op(ctx, operator, right.date), JelBoolean.and(ctx, this.date.op(ctx, '==', right.date), this.time.op(ctx, operator, right.time)));
+					return JelBoolean.orJs(this.date.op(ctx, operator, right.date), JelBoolean.andJs(this.date.op(ctx, '==', right.date), this.time.op(ctx, operator, right.time)));
 					
 				case '-':
 					return (this.date.op(ctx, operator, right.date) as any).op(ctx, '+', this.time.op(ctx, operator, right.time));

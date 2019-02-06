@@ -54,14 +54,14 @@ native class Boolean:
   static native toBoolean(b: any): bool
 
   /**
-   * Returns "a" if it is falsish (below 0.5). Otherwise it returns "b".
+   * Returns the first value that is falsish (below 0.5). Otherwise it returns the last value.
    */
-  static native and(a: bool, b: bool): bool
+  static native and(...a: bool[]): bool
 
   /**
-   * Returns "a" if it is trueish (0.5 and above). Otherwise it returns "b".
+   * Returns the first value that is  trueish (0.5 and above). Otherwise it returns the last value.
    */
-  static native or(a: bool, b: bool): bool
+  static native or(...a: bool[]): bool
 
   /**
    * Returns the truest of the given booleans.

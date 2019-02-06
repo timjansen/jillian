@@ -163,7 +163,7 @@ export default class JelBoolean extends NativeJelObject implements SerializableP
 		return this.state == JelBoolean.FALSE_VALUE;
 	}
 	
-	static fourWay_jel_mapping = ['mainValue', 'clearly'];
+	static fourWay_jel_mapping = true;
 	static fourWay(ctx: Context, mainValue0: any, clearly0: any): JelBoolean {
 		const mainValue = TypeChecker.realBoolean(mainValue0, 'mainValue');
 		const clearly = TypeChecker.realBoolean(clearly0, 'clearly');
@@ -171,7 +171,7 @@ export default class JelBoolean extends NativeJelObject implements SerializableP
 			(clearly ? JelBoolean.FALSE : JelBoolean.BARELY_FALSE);
 	}
 
-	static twoPrecision_jel_mapping = ['lowPrecision', 'highPrecision'];
+	static twoPrecision_jel_mapping = true;
 	static twoPrecision(ctx: Context, lowPrecision0: boolean, highPrecision0: boolean): JelBoolean {
 		const lowPrecision = TypeChecker.realBoolean(lowPrecision0, 'lowPrecision');
 		const highPrecision = TypeChecker.realBoolean(highPrecision0, 'highPrecision');
@@ -192,16 +192,20 @@ export default class JelBoolean extends NativeJelObject implements SerializableP
 
 	and_jel_mapping: Object;
 	and(ctx: Context, a: JelBoolean): JelBoolean {
-		return JelBoolean.and(ctx, this, TypeChecker.boolean(a, 'a'));
+		return JelBoolean.andJs(this, TypeChecker.boolean(a, 'a'));
 	}
 
 	or_jel_mapping: Object;
 	or(ctx: Context, a: JelBoolean): JelBoolean {
-		return JelBoolean.or(ctx, this, TypeChecker.boolean(a, 'a'));
+		return JelBoolean.orJs(this, TypeChecker.boolean(a, 'a'));
 	}
 	
-	static and_jel_mapping = [];
-	static and(ctx: Context, ...args: any[]): JelBoolean {
+	static and_jel_mapping = true;
+	static and(ctx: Context, args: any): JelBoolean {
+    return JelBoolean.andJs(...args.elements);
+  }
+
+  static andJs(...args: any[]): JelBoolean {
 		let pos = 1;
 		let r = args[0];
 		while (pos < args.length)
@@ -212,8 +216,12 @@ export default class JelBoolean extends NativeJelObject implements SerializableP
 		return r;	
 	}
 
-	static or_jel_mapping = [];
-	static or(ctx: Context, ...args: any[]): JelBoolean {
+	static or_jel_mapping = true;
+	static or(ctx: Context, args: any): JelBoolean {
+    return JelBoolean.orJs(...args.elements);
+  }
+
+  static orJs(...args: any[]): JelBoolean {
 		let pos = 1;
 		let r = args[0];
 		while (pos < args.length)
@@ -224,13 +232,13 @@ export default class JelBoolean extends NativeJelObject implements SerializableP
 		return r;
 	}
 
-	static truest_jel_mapping = ['a', 'b'];
+	static truest_jel_mapping = true;
 	static truest(ctx: Context, a0: any, b0: any): JelBoolean {
 		const a = TypeChecker.boolean(a0, 'a'), b = TypeChecker.boolean(b0, 'b');
 		return a.state > b.state ? a : b;
 	}
 
-	static falsest_jel_mapping = ['a', 'b'];
+	static falsest_jel_mapping = true;
 	static falsest(ctx: Context, a0: any, b0: any): JelBoolean {
 		const a = TypeChecker.boolean(a0, 'a'), b = TypeChecker.boolean(b0, 'b');
 		return a.state < b.state ? a : b;
@@ -244,11 +252,11 @@ export default class JelBoolean extends NativeJelObject implements SerializableP
 	}
 
 	static andWithPromises(...args: (JelBoolean | Promise<JelBoolean>)[]): JelBoolean | Promise<JelBoolean> {
-			return Util.resolveArray(args, args=>JelBoolean.and(new Context(), ...args));
+			return Util.resolveArray(args, args=>JelBoolean.andJs(...args));
 	}
 
 	static orWithPromises(...args: (JelBoolean | Promise<JelBoolean>)[]): JelBoolean | Promise<JelBoolean> {
-			return Util.resolveArray(args, args=>JelBoolean.or(new Context(), ...args));
+			return Util.resolveArray(args, args=>JelBoolean.orJs(...args));
 	}
 
 	serializeToString(pretty: boolean, indent: number, spaces: string) : string {

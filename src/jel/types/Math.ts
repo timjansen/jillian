@@ -5,6 +5,7 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
 import {IDbRef} from '../IDatabase';
 import JelString from './JelString';
 import Float from './Float';
+import List from './List';
 import Numeric from './Numeric';
 import JelBoolean from './JelBoolean';
 import Fraction from './Fraction';
@@ -147,8 +148,8 @@ export default class JelMath extends NativeJelObject {
 	}
 
 	static hypot_jel_mapping = true;
-	static hypot(ctx: Context, ...a: any[]): number {
-		return Math.hypot(...a.map(x=>TypeChecker.realNumber(x, 'x')));
+	static hypot(ctx: Context, a: List): number {
+		return Math.hypot(...a.elements.map((x: any)=>TypeChecker.realNumber(x, 'x')));
 	}
 
 	static delta_jel_mapping = true;
@@ -194,13 +195,13 @@ export default class JelMath extends NativeJelObject {
 	}
 	
 	static min_jel_mapping = true;
-	static min(ctx: Context, ...a: any[]): Numeric | Promise<Numeric> {
-		return JelMath.best('>', ctx, a);
+	static min(ctx: Context, a: List): Numeric | Promise<Numeric> {
+		return JelMath.best('>', ctx, a.elements);
 	}
 	
 	static max_jel_mapping = true;
-	static max(ctx: Context, ...a: any[]): Numeric | Promise<Numeric> {
-		return JelMath.best('<', ctx, a);
+	static max(ctx: Context, a: List): Numeric | Promise<Numeric> {
+		return JelMath.best('<', ctx, a.elements);
 	}
 	
 	static pow_jel_mapping = true;

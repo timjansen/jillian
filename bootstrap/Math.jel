@@ -1,0 +1,53 @@
+/**
+ * Represents an enum, as declared in JEL with the 'enum' keyword. 
+ */ 
+native class Math:
+  static native PI: Float
+  static native E: Float
+  static native LN2: Float
+  static native LN10: Float
+  static native LOG2E: Float
+  static native LOG10E: Float
+  static native SQRT1_2: Float
+  static native SQRT2: Float
+
+
+  static native acos(x: number | SimpleType("UnitValue"), unit: string | SimpleType('DbRef')?): Float | SimpleType("UnitValue") 
+	static native asin(x: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue"), unit: string | SimpleType('DbRef')?): Float | SimpleType("UnitValue")
+	static native atan(x: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue"), unit: string | SimpleType('DbRef')?): Float | SimpleType("UnitValue")
+	static native atan2(x: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue"), y: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue"), unit: string | SimpleType('DbRef')?): Float | SimpleType("UnitValue")
+
+	static native cbrt(x: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue")): Float
+	static native ceil(x: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue")): Float | SimpleType("UnitValue")
+	static native cos(x: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue")): Float
+	static native sin(x: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue")): Float
+	static native tan(x: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue")): Float
+	static native exp(x: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue")): Float
+	static native expm1(x: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue")): Float
+	static native floor(x: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue")): Float | SimpleType("UnitValue")
+	static native hypot(...a: any[]): Float
+
+	static native delta(x: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue"), y: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue")): Float | SimpleType("UnitValue")
+	static native log(x: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue")): Float
+	static native log1p(x: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue")): Float
+	static native log10(x: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue")): Float
+	static native log2(x: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue")): Float
+
+	static native min(...a: any[]): any
+	
+	static native max(...a: any[]): any
+	static native pow(x: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue"), y: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue")): number | SimpleType("ApproximateNumber") | SimpleType("UnitValue")
+	static native random(min: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue") = 0, max: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue") = 1,	unit: string | SimpleType("Unit") | SimpleType('DbRef')?): Float | SimpleType("UnitValue")
+	
+	static native round(x: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue")): Float | SimpleType("UnitValue") 
+
+	static native sign(x: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue")): Float 
+	
+	static native sqrt(x: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue")): Float 
+	
+	static native trunc(x: number | SimpleType("ApproximateNumber") | SimpleType("UnitValue")): Float | SimpleType("UnitValue") 
+
+
+
+
+  

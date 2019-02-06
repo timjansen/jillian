@@ -83,12 +83,12 @@ describe('JelBoolean', function() {
     jelAssert.equal("Boolean.and(Boolean(0.9), Boolean(0.6))", "Boolean(0.6)");
     jelAssert.equal("Boolean.and(Boolean(0.2), Boolean(0.6))", "Boolean(0.2)");
     jelAssert.equal("Boolean.and(Boolean(0.2), Boolean(0.4))", "Boolean(0.2)");
-/*
+
     jelAssert.equal("Boolean.and(true, true, true, true)", JelBoolean.TRUE);
     jelAssert.equal("Boolean.and(true, true, false, true)", JelBoolean.FALSE);
     jelAssert.equal("Boolean.and(false, false, false, true)", JelBoolean.FALSE);
     jelAssert.equal("Boolean.and(false, false, false, false)", JelBoolean.FALSE);
-*/
+
     jelAssert.equal("Boolean.or(true, true)", JelBoolean.TRUE);
     jelAssert.equal("Boolean.or(true, false)", JelBoolean.TRUE);
     jelAssert.equal("Boolean.or(false, true)", JelBoolean.TRUE);
@@ -96,12 +96,12 @@ describe('JelBoolean', function() {
     jelAssert.equal("Boolean.or(Boolean(0.9), Boolean(0.6))", "Boolean(0.9)");
     jelAssert.equal("Boolean.or(Boolean(0.2), Boolean(0.6))", "Boolean(0.6)");
     jelAssert.equal("Boolean.or(Boolean(0.2), Boolean(0.4))", "Boolean(0.4)");
-/*
+
     jelAssert.equal("Boolean.or(true, true, true, true)", JelBoolean.TRUE);
     jelAssert.equal("Boolean.or(true, true, false, true)", JelBoolean.TRUE);
     jelAssert.equal("Boolean.or(false, false, false, true)", JelBoolean.TRUE);
     jelAssert.equal("Boolean.or(false, false, false, false)", JelBoolean.FALSE);
-*/
+
     jelAssert.equal("Boolean.TRUE.and(true)", JelBoolean.TRUE);
     jelAssert.equal("Boolean.TRUE.and(false)", JelBoolean.FALSE);
     jelAssert.equal("Boolean.FALSE.and(true)", JelBoolean.FALSE);

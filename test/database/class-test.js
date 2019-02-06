@@ -283,9 +283,8 @@ describe('Class', function() {
   BaseTypeRegistry.register('VarargTest', VarargTest);
 
   it('supports varargs', function() {
-    jelAssert.equal(`let c=(class VarargTest:\n static native t2(...a)), c1=c(): c.t2(1, 2, 3)`, `[1, 2, 3]`);
-    jelAssert.equal(`let c=(class VarargTest:\n static native t2(...a)), c1=c(): c.t2(a=[1, 2, 3])`, `[1, 2, 3]`);
-console.log('------------<>');
+    jelAssert.equal(`let c=(class VarargTest:\n constructor()\n static native t2(...a)), c1=c(): c.t2(1, 2, 3)`, `[1, 2, 3]`);
+    jelAssert.equal(`let c=(class VarargTest:\n constructor()\n static native t2(...a)), c1=c(): c.t2(a=[1, 2, 3])`, `[1, 2, 3]`);
     jelAssert.equal(`let c=(class VarargTest:\n constructor()\n native t1(a: int, ...b: int[]): int[]\n static native t2(...a)), c1=c():
                       [c1.t1(5), c1.t1(4, 8), c1.t1(4, 8, 2, 8, 7, 6), c.t2(), c.t2(1), c.t2(5, 1, 3, 0)]`, `[[], [8], [8, 2, 8, 7, 6], [], [1], [5, 1, 3, 0]]`);
     jelAssert.equal(`let c=(class VarargTest:\n constructor()\n native t1(a: int, ...b: int[]): int[]\n static native t2(...a)), c1=c():

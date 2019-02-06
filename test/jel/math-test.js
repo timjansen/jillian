@@ -61,8 +61,8 @@ describe('Math', function() {
 		jelAssert.equal('Math.floor(7.7)', 7);
 		jelAssert.equal('Math.floor(7.7 @Second)', '7 @Second');
 		jelAssert.equal('Math.floor(77/10)', 7);
-//		jelAssert.equal('Math.hypot(5, 12)', 13);
-//		jelAssert.equal('Math.hypot(5/1, 12)', 13);
+		jelAssert.equal('Math.hypot(5, 12)', 13);
+		jelAssert.equal('Math.hypot(5/1, 12)', 13);
 		jelAssert.equal('Math.log(5)', Math.log(5));
 		jelAssert.equal('Math.log1p(5)', Math.log1p(5));
 		jelAssert.equal('Math.log10(5)', Math.log10(5));
@@ -80,8 +80,8 @@ describe('Math', function() {
 		jelAssert.equal('Math.trunc(-1.44)', -1);
 		jelAssert.equal('Math.trunc(-10.77)', -10);
 	});
-/** TODO" with varargs
-	it('has min/max functions', function() {
+
+  it('has min/max functions', function() {
 		jelAssert.equal('Math.min()', 0);
 		jelAssert.equal('Math.min(2)', 2);
 		jelAssert.equal('Math.min(1, 2)', 1);
@@ -92,6 +92,6 @@ describe('Math', function() {
 		jelAssert.equal('Math.max(2, -5, -17, 4)', 4);
 		jelAssert.equal('Math.max(66, 55, -17, 4)', 66);
 	});
-*/
+
 });
 
