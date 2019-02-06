@@ -1,0 +1,42 @@
+/**
+ * Represents an approximate number, thus a number with a known error margin.
+ */ 
+native class ApproximateNumber:
+
+  native constructor(value: number, maxError: number = 0)
+  
+  /**
+   * Negates the number.
+   */
+  native negate(): ApproximateNumber
+ 
+  /**
+   * Returns the absolute value.
+   */
+	native abs(): ApproximateNumber
+
+  /**
+   * Returns the nearest integer.
+   */
+	native round(): ApproximateNumber
+  
+  /**
+   * Truncates the number to become an integer.
+   */
+	native trunc(): ApproximateNumber
+
+  /**
+   * Returns true if the number is not 0, false if 0.
+   */
+	native toBoolean(): bool
+
+  /**
+   * Returns the number as simple Float, ignoring the error.
+   */
+	native toFloat(): Float
+
+  /**
+   * Returns true of the number has an error marging.
+   */
+  native hasError(): bool
+

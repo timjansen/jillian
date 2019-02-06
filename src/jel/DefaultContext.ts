@@ -47,6 +47,7 @@ import IntType from './types/typeDescriptors/IntType';
 import InRangeType from './types/typeDescriptors/InRangeType';
 import ListType from './types/typeDescriptors/ListType';
 import NumberType from './types/typeDescriptors/NumberType';
+import NumericType from './types/typeDescriptors/NumericType';
 import OptionType from './types/typeDescriptors/OptionType';
 import OptionalType from './types/typeDescriptors/OptionalType';
 import RangeType from './types/typeDescriptors/RangeType';
@@ -62,7 +63,9 @@ function c(ctor: any): NativeClass {
 
 
 const BOOT_SCRIPT = [
-  {static: {any: AnyType.instance, int: IntType.instance, bool: BoolType.instance, function: FunctionType.instance, number: NumberType.instance, string: StringType.instance, date: DateType.instance, time: TimeType.instance}},
+  {static: {any: AnyType.instance, int: IntType.instance, bool: BoolType.instance, function: FunctionType.instance, 
+            number: NumberType.instance, numeric: NumericType.instance, string: StringType.instance, 
+            date: DateType.instance, time: TimeType.instance}},
   {jel: 'typeDescriptors/TypeDescriptor.jel'},
   {jel: 'typeDescriptors/SimpleType.jel', native: SimpleType},
   [
@@ -71,6 +74,7 @@ const BOOT_SCRIPT = [
     {jel: 'typeDescriptors/FunctionType.jel', native: FunctionType},
     {jel: 'typeDescriptors/IntType.jel', native: IntType},
     {jel: 'typeDescriptors/NumberType.jel', native: NumberType},
+    {jel: 'typeDescriptors/NumericType.jel', native: NumericType},
     {jel: 'typeDescriptors/StringType.jel', native: StringType},
     {jel: 'typeDescriptors/DateType.jel', native: DateType},
     {jel: 'typeDescriptors/TimeType.jel', native: TimeType},
@@ -109,11 +113,11 @@ const BOOT_SCRIPT = [
     {jel: 'Dictionary.jel', native: Dictionary},
     {jel: 'Fraction.jel', native: Fraction}
   ],
+  {jel: 'ApproximateNumber.jel', native: ApproximateNumber}, 
   {jel: 'Math.jel', native: JelMath}, 
   {jel: 'time/DurationRange.jel', native: DurationRange}, // << TODO: DurationRange.jel this after converting Duration
   
-  {static: {ApproximateNumber: c(ApproximateNumber), 
-            Distribution: c(Distribution), DistributionPoint: c(DistributionPoint), Pattern: c(Pattern), Translator: c(Translator), 
+  {static: {Distribution: c(Distribution), DistributionPoint: c(DistributionPoint), Pattern: c(Pattern), Translator: c(Translator), 
             Duration: c(Duration), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 
             ZonedDate: c(ZonedDate), ZonedDateTime: c(ZonedDateTime)}}
 ];

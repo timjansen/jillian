@@ -432,8 +432,8 @@ describe('JEL', function() {
    it('catches lambda vararg errors', function() {
      return Promise.all([
        jelAssert.errorPromise("((...a, x)=>a)", "as last argument"),
-       jelAssert.errorPromise("((...a, ...b)=>a)", "as last argument"),
-       jelAssert.errorPromise("((...a = [1, 2, 3])=>a)", "default is always an empty List")
+       jelAssert.errorPromise("((...a, ...b)=>a)", "as last argument")
+//       jelAssert.errorPromise("((...a = [1, 2, 3])=>a)", "default is always an empty List")
      ]);
    });
    

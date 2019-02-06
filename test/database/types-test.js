@@ -83,8 +83,16 @@ describe('Types', function() {
     jelAssert.fuzzy('number(2, 3).checkType(2)', 1);
     jelAssert.fuzzy('number(2...3).checkType(2.5)', 1);
     jelAssert.fuzzy('number(2...3).checkType(3)', 1);
-    jelAssert.fuzzy('number(2...3).checkType(4)', 0);
+    jelAssert.fuzzy('number(2...3).checkType(17/8)', 1);
+    jelAssert.fuzzy('number(2...3).checkType(7/8)', 0);
     jelAssert.fuzzy('number(1...10).checkType(4)', 1);
+    
+    jelAssert.fuzzy('numeric.checkType(2)', 1);
+    jelAssert.fuzzy('numeric(2...3).checkType(2.5)', 1);
+    jelAssert.fuzzy('numeric(2...3).checkType(ApproximateNumber(2.4))', 1);
+    jelAssert.fuzzy('numeric(2...3).checkType(17/8)', 1);
+    jelAssert.fuzzy('numeric(2...3).checkType(7/8)', 0);
+    jelAssert.fuzzy('numeric(1...10).checkType(4)', 1);
 
     jelAssert.fuzzy('InRangeType(2...3).checkType(2.5)', 1);
     jelAssert.fuzzy('InRangeType(2...3).checkType(3)', 1);

@@ -2,6 +2,8 @@ import JelObject from '../JelObject';
 import Runtime from '../Runtime';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import Context from '../Context';
+import NativeJelObject from './NativeJelObject';
+import Class from './Class';
 import Fraction from './Fraction';
 import Float from './Float';
 import Numeric from './Numeric';
@@ -17,12 +19,19 @@ const DEQUAL: any = {'<=': '<', '>=': '>'};
 /**
  * Represents a number with given error tolerance.
  */
-export default class ApproximateNumber extends JelObject implements Numeric {
-
+export default class ApproximateNumber extends NativeJelObject implements Numeric {
+  static clazz: Class|undefined;
+  value_jel_mapping: boolean;
+  maxError_jel_mapping: boolean;
+  
 	constructor(public value: Float | Fraction, public maxError: Float | Fraction = Float.valueOf(0)) {
 		super('ApproximateNumber');
 	}
 	
+  get clazz(): Class {
+    return ApproximateNumber.clazz!;
+  }
+  
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (right instanceof ApproximateNumber) {
 			switch (operator) {
@@ -146,27 +155,27 @@ export default class ApproximateNumber extends JelObject implements Numeric {
 			return new ApproximateNumber(Runtime.singleOp(ctx, operator, this.value) as any, this.maxError);
 	}
 
-	abs_jel_mapping: Object;
+	abs_jel_mapping: boolean;
 	abs(): ApproximateNumber {
 		return new ApproximateNumber(this.value.abs(), this.maxError);
 	}
 
-	negate_jel_mapping: Object;
+	negate_jel_mapping: boolean;
 	negate(): ApproximateNumber {
 		return new ApproximateNumber(this.value.negate(), this.maxError);
 	}
   
-	round_jel_mapping: Object;
+	round_jel_mapping: boolean;
 	round(ctx: Context): ApproximateNumber {
 		return new ApproximateNumber(this.value.round(ctx), this.maxError);
 	}
 	
-	trunc_jel_mapping: Object;
+	trunc_jel_mapping: boolean;
 	trunc(): ApproximateNumber {
 		return new ApproximateNumber(this.value.trunc(), this.maxError);
 	}
 	
-	toFloat_jel_mapping: Object;
+	toFloat_jel_mapping: boolean;
 	toFloat(): Float {
 		return Float.toFloat(this.value);
 	}
@@ -175,6 +184,7 @@ export default class ApproximateNumber extends JelObject implements Numeric {
 		return this.value.toRealNumber();
 	}
 	
+	toBoolean_jel_mapping: boolean;
 	toBoolean(): boolean {
 		return this.value.toBoolean();
 	}
@@ -183,7 +193,7 @@ export default class ApproximateNumber extends JelObject implements Numeric {
 		return this.value.toString() + '+-' + this.maxError.toString();
 	}
 	
-	hasError_jel_mapping: Object;
+	hasError_jel_mapping: boolean;
 	hasError(): boolean {
 		return this.maxError instanceof Float ? this.maxError.value != 0 : this.maxError.numerator != 0;
 	}
@@ -212,12 +222,16 @@ export default class ApproximateNumber extends JelObject implements Numeric {
 }
 
 ApproximateNumber.prototype.reverseOps = Object.assign({'-':1, '/': 1, '+-': 1, '^': 1}, JelObject.SWAP_OPS);
-ApproximateNumber.prototype.toFloat_jel_mapping = [];
-ApproximateNumber.prototype.round_jel_mapping = [];
-ApproximateNumber.prototype.trunc_jel_mapping = [];
-ApproximateNumber.prototype.abs_jel_mapping = [];
-ApproximateNumber.prototype.negate_jel_mapping = [];
-ApproximateNumber.prototype.hasError_jel_mapping = [];
+ApproximateNumber.prototype.toFloat_jel_mapping = true;
+ApproximateNumber.prototype.toBoolean_jel_mapping = true;
+ApproximateNumber.prototype.round_jel_mapping = true;
+ApproximateNumber.prototype.trunc_jel_mapping = true;
+ApproximateNumber.prototype.abs_jel_mapping = true;
+ApproximateNumber.prototype.negate_jel_mapping = true;
+ApproximateNumber.prototype.hasError_jel_mapping = true;
+ApproximateNumber.prototype.value_jel_mapping = true;
+ApproximateNumber.prototype.maxError_jel_mapping = true;
+
 
 BaseTypeRegistry.register('ApproximateNumber', ApproximateNumber);
 

@@ -1,0 +1,14 @@
+/**
+ * NumericType accepts Floats, Fractions, ApproximateNumbers and UnitValues, optionally with a Range to limit their values.
+ */
+native class NumericType extends TypeDescriptor:
+  native constructor(range: SimpleType('Range')?)
+  
+  override native checkType(value: any?): bool
+
+  override native convert(value: any?): any?
+  
+  override native equals(other: TypeDescriptor?): bool
+  
+  override native serializeToString(): string
+  

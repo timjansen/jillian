@@ -270,6 +270,10 @@ describe('Unit & UnitValues', function() {
 
     it('can be type-checked', function() {
       return Promise.all([
+        jelAssert.equalPromise("5 @Meter instanceof numeric", "true"),
+        jelAssert.equalPromise("5 @Meter instanceof numeric(1 @Meter ... 10 @Meter)", "true"),
+        jelAssert.equalPromise("5 @Meter instanceof numeric(1 @Meter ... 2 @Meter)", "false"),
+
         jelAssert.equalPromise("5 @Meter instanceof @Meter", "true"),
         jelAssert.equalPromise("5 @Meter instanceof @Centimeter", "true"),
         jelAssert.equalPromise("5 @Meter instanceof @Length", "true"),

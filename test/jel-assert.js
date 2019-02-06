@@ -62,7 +62,7 @@ class JelAssert {
     try {
   		const a0 = this.execPromise(a);
   		return a0.then(v=>{
-        assert.fail(v, c||"expected error / rejected promise");
+        assert.fail("expected error / rejected promise, but got response: " + v);
       }).catch(e=>{
         if (snippet && e instanceof Error && !e.message.includes(snippet))
           assert.fail(`Got error in promise, but without expected text snippet: "${snippet}". Got message: ${e.message}`);
