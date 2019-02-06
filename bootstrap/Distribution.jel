@@ -1,0 +1,15 @@
+/**
+ * This class is used to specify property values when there can be more than one value, especially for categories. 
+ * It can either define min/max/typical values, or handle a large number of data points and interpolate between them.
+ */ 
+native class Distribution:
+
+  native constructor(distributionPoints: DistributionPoint[]?, average: numeric?, min: numeric?, max: numeric?, mean: numeric?)
+
+
+  native add(distributionPoints: DistributionPoint[]?, average: numeric?, min: numeric?, max: numeric?, mean: numeric?): Distribution
+  
+	native getValue(share: number(0...1)): numeric
+
+	native getShare(value: numeric): number(0...1)?
+  

@@ -4,6 +4,8 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
 import {Token} from '../Token';
 import TokenReader from '../TokenReader';
 import SerializablePrimitive from '../SerializablePrimitive';
+import NativeJelObject from './NativeJelObject';
+import Class from './Class';
 import Context from '../Context';
 import JelBoolean from './JelBoolean';
 import JelString from './JelString';
@@ -11,18 +13,26 @@ import PatternNode from '../patternNodes/PatternNode';
 import Util from '../../util/Util';
 import TypeChecker from './TypeChecker';
 
-export default class Pattern extends JelObject implements SerializablePrimitive {
+export default class Pattern extends NativeJelObject implements SerializablePrimitive {
 	
+  static clazz: Class|undefined;
+
+  
 	constructor(public tree: PatternNode, public patternText: string) {
 		super("Pattern");
 	}
 	
+  get clazz(): Class {
+    return Pattern.clazz!;
+  }
+
+  
 	// returns Promise!
 	matchPromise(ctx: Context, inputOrTokens: string | string[]): Promise<JelBoolean> {
 		return Promise.resolve(this.match(ctx, inputOrTokens));
 	}
 
-	match_jel_mapping: Object;
+	match_jel_mapping: boolean;
 	match(ctx: Context, inputOrTokens0: any): JelBoolean | Promise<JelBoolean> {
 		if (inputOrTokens0 instanceof JelString)
 			return this.match(ctx, inputOrTokens0.value);
@@ -62,7 +72,7 @@ export default class Pattern extends JelObject implements SerializablePrimitive 
 	
 }
 
-Pattern.prototype.match_jel_mapping = ['input'];
+Pattern.prototype.match_jel_mapping = true;
 
 BaseTypeRegistry.register('Pattern', Pattern);
 

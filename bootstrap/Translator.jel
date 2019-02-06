@@ -1,0 +1,12 @@
+/**
+ * Represents a translator for Patterns.
+ */ 
+native class Translator:
+
+  
+  /**
+	 * Returns List of Matches with properties 'value' and 'meta', or a Promise thereof
+	 * @param metaFilter an optional set of meta values that must be present in the results
+   */
+	native match(input: string, metaFilter: List?): List
+  

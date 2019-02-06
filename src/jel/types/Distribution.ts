@@ -11,6 +11,9 @@ import UnitValue from './UnitValue';
 import Float from './Float';
 import Fraction from './Fraction';
 import TypeChecker from './TypeChecker';
+import NativeJelObject from './NativeJelObject';
+import Class from './Class';
+import BaseTypeRegistry from '../BaseTypeRegistry';
 
 const INVERSE_OP = {'<': '>', '<=': '>=', '>': '<', '>=': '<='};
 
@@ -18,10 +21,14 @@ const INVERSE_OP = {'<': '>', '<=': '>=', '>': '<', '>=': '<='};
  * This class is used to specify property values when there can be more than one value, especially for categories. 
  * It can either define min/max/typical values, or handle a large number of data points and interpolate between them.
  */
-export default class Distribution extends JelObject {
+export default class Distribution extends NativeJelObject {
+  public points_jel_property: boolean;
 	public points: DistributionPoint[];
-	
-	JEL_PROPERTIES: Object;
+
+  average_jel_property: boolean;
+
+  
+  static clazz: Class|undefined;
 
 	
   constructor(distributionPoints: List|null, public average: Numeric|null, min: Numeric|null, max: Numeric|null, mean: Numeric|null) {
@@ -41,8 +48,12 @@ export default class Distribution extends JelObject {
 		
 		this.points.sort((a: DistributionPoint, b: DistributionPoint)=> a.share-b.share);
   }
+  
+  get clazz(): Class {
+    return Distribution.clazz!;
+  }
 	
-	add_jel_mapping: Object;
+	add_jel_mapping: boolean;
 	add(ctx: Context, distributionPoints?: List, average?: Numeric, min?: Numeric, max?: Numeric, mean?: Numeric): Distribution {
 		
 		const np = new Map<number, DistributionPoint>(this.points.map(p=>[p.share, p] as any));
@@ -58,22 +69,22 @@ export default class Distribution extends JelObject {
 		return new Distribution(new List(np.values()), average != null ? average : this.average, null, null, null);
 	}
 	
-	mean_jel_mapping: Object;
+	mean_jel_mapping: boolean;
 	mean(ctx: Context): Numeric {
 		return this.getValue(ctx, 0.5);
 	}
 
-	max_jel_mapping: Object;
+	max_jel_mapping: boolean;
 	max(ctx: Context): Numeric {
 		return this.getValue(ctx, 1);
 	}
 
-	min_jel_mapping: Object;
+	min_jel_mapping: boolean;
 	min(ctx: Context): Numeric {
 		return this.getValue(ctx, 0);
 	}
 
-	getValue_jel_mapping: Object;
+	getValue_jel_mapping: boolean;
 	getValue(ctx: Context, share: any): Numeric {
 		const share0 = Math.max(0, Math.min(1, TypeChecker.realNumber(share, 'share')));
 		let ri = 0;
@@ -103,7 +114,7 @@ export default class Distribution extends JelObject {
 		return Runtime.op(ctx, '+', Runtime.op(ctx, '/', Runtime.op(ctx, '*', Runtime.op(ctx, '-', rp.value, lp.value) as any, Runtime.op(ctx, '-', Float.valueOf(share0), lpShare) as any) as any, Runtime.op(ctx, '-', rpShare, lpShare) as any) as any, lp.value) as any;
 	}
 
-	getShare_jel_mapping: Object;
+	getShare_jel_mapping: boolean;
 	getShare(ctx: Context, value0: any): Promise<Float>|Float|null {
 		const value = TypeChecker.numeric(value0, 'value');
 		if (this.points.length == 1) 
@@ -221,7 +232,7 @@ export default class Distribution extends JelObject {
 		return [this.points, this.average];
 	}
 
-	static create_jel_mapping = ['distributionPoints', 'average', 'min', 'max', 'mean'];
+	static create_jel_mapping = true;
 	static create(ctx: Context, ...args: any[]): Distribution {
 		return new Distribution(TypeChecker.optionalType('List', args[0], 'distributionPoints'), 
 														TypeChecker.optionalNumeric(args[1], 'average'), TypeChecker.optionalNumeric(args[2], 'min'), 
@@ -229,11 +240,14 @@ export default class Distribution extends JelObject {
 	}  
 }
 
+Distribution.prototype.average_jel_property = true;
+Distribution.prototype.points_jel_property = true;
 
-Distribution.prototype.JEL_PROPERTIES = {average: 1, points: 1};
-Distribution.prototype.mean_jel_mapping = {};
-Distribution.prototype.min_jel_mapping = {};
-Distribution.prototype.max_jel_mapping = {};
-Distribution.prototype.getValue_jel_mapping = {share: 1};
-Distribution.prototype.getShare_jel_mapping = {value: 1};
-Distribution.prototype.add_jel_mapping = {distributionPoints: 1, average: 2, min: 3, max: 4, mean: 5 };
+Distribution.prototype.mean_jel_mapping = true;
+Distribution.prototype.min_jel_mapping = true;
+Distribution.prototype.max_jel_mapping = true;
+Distribution.prototype.getValue_jel_mapping = true;
+Distribution.prototype.getShare_jel_mapping = true;
+Distribution.prototype.add_jel_mapping = true;
+
+BaseTypeRegistry.register('Distribution', Distribution);

@@ -1,0 +1,9 @@
+/**
+ * Represents a text matching pattern.
+ */ 
+native class Pattern:
+
+  /**
+   * Checks whether the given input string matches the pattern.
+   */
+	native match(input: string): bool

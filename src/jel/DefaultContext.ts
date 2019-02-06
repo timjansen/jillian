@@ -66,8 +66,16 @@ const BOOT_SCRIPT = [
   {static: {any: AnyType.instance, int: IntType.instance, bool: BoolType.instance, function: FunctionType.instance, 
             number: NumberType.instance, numeric: NumericType.instance, string: StringType.instance, 
             date: DateType.instance, time: TimeType.instance}},
-  {jel: 'typeDescriptors/TypeDescriptor.jel'},
-  {jel: 'typeDescriptors/SimpleType.jel', native: SimpleType},
+  [
+    {jel: 'typeDescriptors/TypeDescriptor.jel'},
+    {jel: 'NamedObject.jel'},
+  ],
+  [
+    {jel: 'typeDescriptors/SimpleType.jel', native: SimpleType},
+    {jel: 'PackageContent.jel'},
+    {jel: 'Property.jel', native: Property},
+    {jel: 'Method.jel', native: Method}
+  ],
   [
     {jel: 'typeDescriptors/AnyType.jel', native: AnyType},
     {jel: 'typeDescriptors/BoolType.jel', native: BoolType},
@@ -90,12 +98,6 @@ const BOOT_SCRIPT = [
     {jel: 'typeDescriptors/RangableType.jel', native: RangableType},
     {jel: 'typeDescriptors/RangeType.jel', native: RangeType}
   ],
-  {jel: 'NamedObject.jel'},
-  [
-    {jel: 'PackageContent.jel'},
-    {jel: 'Method.jel', native: Method},
-    {jel: 'Property.jel', native: Property}
-  ],
   [
     {jel: 'Class.jel', native: Class},
     {jel: 'Enum.jel', native: Enum},
@@ -111,14 +113,19 @@ const BOOT_SCRIPT = [
   ],
   [
     {jel: 'Dictionary.jel', native: Dictionary},
-    {jel: 'Fraction.jel', native: Fraction}
+    {jel: 'Fraction.jel', native: Fraction},
+    {jel: 'DistributionPoint.jel', native: DistributionPoint}, 
+    {jel: 'Pattern.jel', native: Pattern}
   ],
-  {jel: 'ApproximateNumber.jel', native: ApproximateNumber}, 
+  [
+    {jel: 'Distribution.jel', native: Distribution},
+    {jel: 'ApproximateNumber.jel', native: ApproximateNumber},
+    {jel: 'Translator.jel', native: Translator}
+  ],
   {jel: 'Math.jel', native: JelMath}, 
   {jel: 'time/DurationRange.jel', native: DurationRange}, // << TODO: DurationRange.jel this after converting Duration
   
-  {static: {Distribution: c(Distribution), DistributionPoint: c(DistributionPoint), Pattern: c(Pattern), Translator: c(Translator), 
-            Duration: c(Duration), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 
+  {static: {Duration: c(Duration), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 
             ZonedDate: c(ZonedDate), ZonedDateTime: c(ZonedDateTime)}}
 ];
 

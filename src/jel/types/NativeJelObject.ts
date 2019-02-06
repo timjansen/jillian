@@ -30,6 +30,8 @@ export default abstract class NativeJelObject extends JelObject implements Seria
       const t: any = this;
       if (t[`${name}_jel_property`])
         return BaseTypeRegistry.mapNativeTypes(t[name]);
+      else if (t[`${name}_jel_mapping`])
+        return BaseTypeRegistry.mapNativeTypes(t[name](ctx));
       else if (name in t)
         throw new Error(`Native property ${name} in ${this.className} does noes have required ${name}_jel_property. Not accessible.`);
     }

@@ -25,7 +25,6 @@ export default class Dictionary extends NativeJelObject implements SerializableP
   static clazz: Class|undefined;
 
   
-	JEL_PROPERTIES: Object;
 	static readonly empty_jel_property = true;
 	static readonly empty = new Dictionary();
   

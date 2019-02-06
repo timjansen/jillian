@@ -5,6 +5,8 @@ import JelObject from '../JelObject';
 import Callable from '../Callable';
 import Context from '../Context';
 import BaseTypeRegistry from '../BaseTypeRegistry';
+import NativeJelObject from './NativeJelObject';
+import Class from './Class';
 
 import JelString from './JelString';
 import List from './List';
@@ -16,13 +18,19 @@ import TranslatorNode from '../patternNodes/TranslatorNode';
 import LambdaResultNode from '../patternNodes/LambdaResultNode';
 import StaticResultNode from '../patternNodes/LambdaResultNode';
 
-export default class Translator extends JelObject {
+export default class Translator extends NativeJelObject {
 	tree: TranslatorNode = new TranslatorNode();
-	
+  static clazz: Class|undefined;
+
+  
 	constructor() {
 		super('Translator');
 	}
 
+  get clazz(): Class {
+    return Translator.clazz!;
+  }
+  
 	addPattern(pattern: Pattern, value: any, metaMap: Map<string, any>): Translator {
 		pattern.tree.merge(this.tree, new LambdaResultNode(value, metaMap));
 		return this;
@@ -36,15 +44,17 @@ export default class Translator extends JelObject {
 	
 	// Returns List of Matches with properties 'value' and 'meta', or a Promise thereof
 	// metaFilter is an optional set of meta values that must be present in the results
-	match_jel_mapping: Object;
-	match(ctx: Context, input: JelString | string | string[], metaFilter?: Set<string>): List | Promise<List> { // TODO: make Set<string> JEL compatible
+	match_jel_mapping: boolean;
+	match(ctx: Context, input: JelString | string | string[], metaFilter?: Set<string>|List|null): List | Promise<List> { 
 		if (input instanceof JelString)
 			return this.match(ctx, input.value, metaFilter);
+    if (metaFilter instanceof List)
+      return this.match(ctx, input, new Set<string>(metaFilter.elements));
 		if (typeof input == 'string') {
 			const trimmed = input.trim();
 			return this.match(ctx, trimmed ? trimmed.split(/\s+/g) : [], metaFilter);
 		}
-		const m = this.matchAtPosition(ctx, input, 0, metaFilter, false);
+		const m = this.matchAtPosition(ctx, input, 0, metaFilter || undefined, false);
 		if (m instanceof Promise || (Array.isArray(m) && Util.hasRecursive(m, p=>p instanceof Promise)))
 			return Util.simplifyPromiseArray(m).then(a=>new List(a));
 		else 
@@ -64,7 +74,7 @@ export default class Translator extends JelObject {
 	}
 }
 
-Translator.prototype.match_jel_mapping = ['input'];
+Translator.prototype.match_jel_mapping = true;
 BaseTypeRegistry.register('Translator', Translator);
 
 

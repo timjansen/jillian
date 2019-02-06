@@ -1,0 +1,6 @@
+/**
+ * A data point for Distribution.
+ */ 
+native class DistributionPoint:
+
+  native constructor(value: numeric, share: number(0...1))
