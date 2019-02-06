@@ -23,10 +23,14 @@ export default class Range extends NativeJelObject {
 
   min_jel_property: boolean;
   max_jel_property: boolean;
+  minExclusive_jel_property: boolean;
+  maxExclusive_jel_property: boolean;
+  minInt_jel_property: boolean;
+  maxInt_jel_property: boolean;
 
   static clazz: Class|undefined;
 
-	constructor(public min: JelObject | null, public max: JelObject | null, className?: string) {
+	constructor(public min: JelObject | null, public max: JelObject | null, public minExclusive = false, public maxExclusive = false, className?: string) {
 		super(className || 'Range');
 	}
   
@@ -94,11 +98,55 @@ export default class Range extends NativeJelObject {
 		return super.op(ctx, operator, right);
 	}
 	
+  get minInt(): number|null {
+    if (this.max == null) {
+      if (!TypeChecker.isNumeric(this.min))
+        return null;
+      const min = TypeChecker.realNumber(this.min, 'min', 0);
+      const ceiled = Math.ceil(min);
+      return this.minExclusive && ceiled==min ? ceiled+1 : ceiled;
+    }
+    
+    if (!(TypeChecker.isNumeric(this.min) && TypeChecker.isNumeric(this.max)))
+      return null;
+    const min = TypeChecker.realNumber(this.min, 'min', 0);
+    const max = TypeChecker.realNumber(this.max, 'max', 0);
+    const ceiled = Math.ceil(min);
+    const ceiledEx = this.minExclusive && ceiled==min ? ceiled+1 : ceiled;
+    if (this.minExclusive ? ceiledEx >= max : ceiledEx > max)
+      return null;
+    else
+      return ceiledEx;
+    
+  }
+
+  get maxInt(): number|null {
+    if (this.min == null) {
+      if (!TypeChecker.isNumeric(this.max))
+        return null;
+      const max = TypeChecker.realNumber(this.max, 'max', 0);
+      const floored = Math.floor(max);
+      return this.maxExclusive && floored==max ? floored-1 : floored;
+    }
+
+    if (!(TypeChecker.isNumeric(this.min) && TypeChecker.isNumeric(this.max)))
+      return null;
+    const min = TypeChecker.realNumber(this.min, 'min', 0);
+    const max = TypeChecker.realNumber(this.max, 'max', 0);
+    const floored = Math.floor(max);
+    const flooredEx = this.maxExclusive && floored==max ? floored-1 : floored;
+    if (this.minExclusive ? flooredEx <= min : flooredEx < min)
+      return null;
+    else
+      return flooredEx;
+  }
+   
 	contains_jel_mapping: Object;
 	contains(ctx: Context, right: JelObject | null): JelBoolean | Promise<JelBoolean> {
 		if (right == null)
 			return JelBoolean.valueOf(!this.isFinite());
-		return JelBoolean.andWithPromises(this.min == null ? JelBoolean.TRUE : Runtime.op(ctx, '<=', this.min, right) as JelBoolean, this.max == null ? JelBoolean.TRUE : Runtime.op(ctx, '>=', this.max, right) as JelBoolean);
+		return JelBoolean.andWithPromises(this.min == null ? JelBoolean.TRUE : Runtime.op(ctx, this.minExclusive ? '<' : '<=', this.min, right) as JelBoolean, 
+                                      this.max == null ? JelBoolean.TRUE : Runtime.op(ctx, this.maxExclusive ? '>' : '>=', this.max, right) as JelBoolean);
 	}
 
 	middle_jel_mapping: Object;
@@ -119,9 +167,8 @@ export default class Range extends NativeJelObject {
 		return !this.min && !this.max && Runtime.op(ctx, '===', this.min, this.max);
 	}
 
-  
 	getSerializationProperties(): any[] {
-		return [this.min, this.max];
+		return this.minExclusive || this.maxExclusive ? [this.min, this.max, this.minExclusive, this.maxExclusive] : [this.min, this.max];
 	}
 	
 	static withAccuracy(value: number, accuracy: number): Range {
@@ -132,14 +179,18 @@ export default class Range extends NativeJelObject {
 		return new Range(min, max);
 	}
 	
-	static create_jel_mapping = ['min', 'max'];
+	static create_jel_mapping = true;
 	static create(ctx: Context, ...args: any[]): Range {
-		return new Range(args[0] != null ? args[0] : null, args[1] != null ? args[1] : null);
+		return new Range(args[0] || null, args[1] || null, TypeChecker.realBoolean(args[2], 'minExclusive', false), TypeChecker.realBoolean(args[3], 'maxExclusive', false));
 	}
 }
 
 Range.prototype.min_jel_property = true;
 Range.prototype.max_jel_property = true;
+Range.prototype.minExclusive_jel_property = true;
+Range.prototype.maxExclusive_jel_property = true;
+Range.prototype.minInt_jel_property = true;
+Range.prototype.maxInt_jel_property = true;
 Range.prototype.contains_jel_mapping = true;
 Range.prototype.middle_jel_mapping = true;
 Range.prototype.isFinite_jel_mapping = true;

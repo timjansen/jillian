@@ -21,8 +21,8 @@ import BaseTypeRegistry from '../../BaseTypeRegistry';
 export default class DurationRange extends Range {
 	static clazz: Class|undefined;
   
-	constructor(min: Duration, max: Duration) {
-		super(min, max, 'DurationRange');
+	constructor(min: Duration, max: Duration, minExclusive = false, maxExclusive = false) {
+		super(min, max, minExclusive, maxExclusive, 'DurationRange');
 		if (!min || !max)
 			throw new Error('Min and max parameters are both required for a DurationRange)');
 	}
@@ -71,7 +71,7 @@ export default class DurationRange extends Range {
 		return [this.min, this.max];
 	}
 	
-	static create_jel_mapping = ['min', 'max'];
+	static create_jel_mapping = true;
 	static create(ctx: Context, ...args: any[]): DurationRange {
 		return new DurationRange(TypeChecker.instance(Duration, args[0], 'min'), TypeChecker.instance(Duration, args[1], 'max'));
 	}

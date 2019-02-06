@@ -48,6 +48,15 @@ export default class TypeChecker {
 			return BaseTypeRegistry.get('Float').valueOf(value);
 		return TypeChecker.throwArgumentError(value, name, 'numeric');
 	}
+  
+  	
+	static isNumeric(value: any): boolean {
+		if (value == null)
+			return false;
+		
+		const typeName: string = value.getJelType ? value.getJelType() : '';
+		return (typeName == 'Float' || typeName == 'Fraction' || typeName == 'ApproximateNumber' || typeName == 'UnitValue');
+	}
 
 	static numeric(value: any, name: string, defaultValue?: Numeric): Numeric {
 		return TypeChecker.notNull(TypeChecker.optionalNumeric(value, name, defaultValue), name);

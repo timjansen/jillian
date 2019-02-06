@@ -2,8 +2,16 @@
  * Represents a range between two boundaries. Both boundaries, the upper and the lower, are optional to allow an unlimited range.
  */ 
 native class Range:
+  /**
+   * The smallest integer in the range. Null if there is no integer, or the boundaries are not numeric.
+   */ 
+  native minInt: int?
+  /**
+   * The largest integer in the range. Null if there is no integer, or the boundaries are not numeric.
+   */ 
+  native maxInt: int?
 
-	native constructor(min: any?, max: any?)
+	native constructor(min: any?, max: any?, minExclusive: bool = false, maxExclusive: bool = false)
 
   /**
    * Checks whether the given value is within the boundaries of the range.

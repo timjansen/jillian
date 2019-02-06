@@ -30,7 +30,7 @@ describe('Range', function() {
     jelAssert.notEqual(new Range(1, 2), "Range(1, 3)");
   });
 
-  it('supports Range<->Range comparisons', function() {
+  it('supports Range<->Range comparisons (inclusive)', function() {
     jelAssert.equal(JelBoolean.TRUE, "Range(1, 4) == Range(1, 4)");
     jelAssert.equal(JelBoolean.TRUE, "1...4 == Range(1, 4)");
     jelAssert.equal(JelBoolean.TRUE, "Range(1, 4) === Range(1, 4)");
@@ -193,5 +193,48 @@ describe('Range', function() {
     jelAssert.equal(new Range(new Fraction(1, 2), new Fraction(5, 2)), "Range(1, 3) - Fraction(1, 2)");
     jelAssert.equal(new Range(4, 16), "2 * Range(1, 4) * 2");
     jelAssert.equal(new Range(3, 5), "2 + Range(1, 3)");
+  });
+  
+  it('supports Range<->Range comparisons (exclusive)', function() {
+    jelAssert.equal(JelBoolean.FALSE, "Range(1, 4, true, true) == Range(1, 4, true, true)");
+    jelAssert.equal(JelBoolean.TRUE, "Range(1, 4, true, true) === Range(1, 4, true, true)");
+    jelAssert.equal(JelBoolean.TRUE, "Range(1, 6, true, true) == 5");
+    jelAssert.equal(JelBoolean.FALSE, "Range(1, 6, true, true) == 1");
+    jelAssert.equal(JelBoolean.FALSE, "Range(1, 6, true, true) == 6");
+  });
+
+  it('supports maxInt/minInt', function() {
+    jelAssert.equal("Range(1, 6).minInt", '1');
+    jelAssert.equal("Range(1, 6).maxInt", '6');
+    jelAssert.equal("Range(1.1, 6.1).minInt", '2');
+    jelAssert.equal("Range(1.1, 6.1).maxInt", '6');
+    jelAssert.equal("Range(-6.5, -2.5).minInt", '-6');
+    jelAssert.equal("Range(-6.5, -2.5).maxInt", '-3');
+    jelAssert.equal("Range(1.1, 1.9).minInt", 'null');
+    jelAssert.equal("Range(-1.8, -1.1).maxInt", 'null');
+    jelAssert.equal("Range(-1.8, -1).maxInt", '-1');
+
+    jelAssert.equal("Range(1, 6, true, true).minInt", '2');
+    jelAssert.equal("Range(1, 6, true, true).maxInt", '5');
+    jelAssert.equal("Range(1.1, 6.1, true, true).minInt", '2');
+    jelAssert.equal("Range(1.1, 6.1, true, true).maxInt", '6');
+    jelAssert.equal("Range(-6.5, -2.5, true, true).minInt", '-6');
+    jelAssert.equal("Range(-6.5, -2.5, true, true).maxInt", '-3');
+    jelAssert.equal("Range(1.1, 1.9, true, true).minInt", 'null');
+    jelAssert.equal("Range(-1.8, -1.1, true, true).maxInt", 'null');
+    jelAssert.equal("Range(-1.8, -1, true, true).maxInt", 'null');
+
+    jelAssert.equal("Range(1, 6, true, false).minInt", '2');
+    jelAssert.equal("Range(1, 6, true, false).maxInt", '6');
+    jelAssert.equal("Range(1, 6, false, true).minInt", '1');
+    jelAssert.equal("Range(1, 6, false, true).maxInt", '5');
+
+    jelAssert.equal("Range(1, null, true, false).minInt", '2');
+    jelAssert.equal("Range(1, null).minInt", '1');
+    jelAssert.equal("Range(1, null).maxInt", 'null');
+    jelAssert.equal("Range(null, 8, true, true).minInt", 'null');
+    jelAssert.equal("Range(null, 8).minInt", 'null');
+    jelAssert.equal("Range(null, 8).maxInt", '8');
+    jelAssert.equal("Range(null, 8, true, true).maxInt", '7');
   });
 });
