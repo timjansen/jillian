@@ -32,12 +32,13 @@ export default class NativeCallable extends Callable implements SerializablePrim
                          args: (JelObject|null)[], argObj: Map<string,JelObject|null>|undefined, varArgPos: number): JelObject|null|Promise<JelObject|null> {
 
     const varArg = varArgPos<argDefs.length;
-    if (args.length > argDefs.length && varArg) 
+    if (args.length > argDefs.length && !varArg) 
       throw new Error(`Expected up to ${argDefs.length} arguments, but got ${args.length} for native function ${name}() in ${self?self.className:'(unknown)'}: ${args.map(s=>s==null?'null':Serializer.serialize(s)).join(', ')}`);
 
     let allArgs: (JelObject|null)[];
     
     const lastRegularArg = Math.min(argDefs.length, varArgPos);
+    
 		if (argObj && args.length < lastRegularArg) {
       allArgs = args.slice(0)
       let argsFound = 0;
@@ -56,15 +57,16 @@ export default class NativeCallable extends Callable implements SerializablePrim
         }
     }
     else
-      allArgs = args.splice(0, lastRegularArg);
+      allArgs = args.slice(0, lastRegularArg);
 
     if (varArg) {
       const varArgs = args.slice(lastRegularArg);
       const namedVarArg = argObj && argObj.get(argDefs[lastRegularArg].name);
+
       if (namedVarArg && varArgs.length)
         throw new Error(`Can not provide varargs both as named object and using unnamed arguments in method ${name}()`);
       if (namedVarArg)
-        allArgs.push(namedVarArg);
+        allArgs.push(BaseTypeRegistry.get('List').wrap(namedVarArg));
       else
         allArgs.push(BaseTypeRegistry.get('List').valueOf(varArgs));
     }

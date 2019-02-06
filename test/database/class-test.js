@@ -73,6 +73,21 @@ describe('Class', function() {
     jelAssert.equal('let myTestType=class MyTestType constructor()=>{}  div(a, b)=>a/b, m=myTestType(), div=m.div: m.div(60, 10) + div(40, 10)', "10");
   });
 
+  it('supports vararg methods', function() {
+    jelAssert.equal('let myTestType=class MyTestType constructor() test(a, ...b)=>[a, b], m=myTestType(): m.test(5, 12)', "[5, [12]]");
+    jelAssert.equal('let myTestType=class MyTestType constructor() test(a, ...b)=>[a, b], m=myTestType(): m.test(5)', "[5, []]");
+    jelAssert.equal('let myTestType=class MyTestType constructor() test(a, ...b: int[])=>[a, b], m=myTestType(): m.test(5, 1, 2)', "[5, [1, 2]]");
+  
+    jelAssert.equal('let myTestType=class MyTestType constructor() test(a: int?, ...b: int[])=>[a, b], m=myTestType(): m.test(b=[6, 3])', "[null, [6, 3]]");
+    
+    jelAssert.equal('let myTestType=class MyTestType constructor() static test(...b: int[])=>b: myTestType.test()', "[]");
+    jelAssert.equal('let myTestType=class MyTestType constructor() static test(...b: int[])=>b: myTestType.test(1, 2)', "[1, 2]");
+    jelAssert.equal('let myTestType=class MyTestType constructor() static test(...b: int[])=>b: myTestType.test(b=[])', "[]");
+    jelAssert.equal('let myTestType=class MyTestType constructor() static test(...b: int[])=>b: myTestType.test(b=[6, 2])', "[6, 2]");
+
+    return jelAssert.errorPromise('let myTestType=class MyTestType constructor() static test(...b, a)=>b: myTestType.test(1, 2)', 'only supported for the last argument');
+  });
+ 
   it('supports packages', function() {
     jelAssert.equal('let myTestType=class My::Test::Type: : myTestType.packageName', "'My::Test'");
   });
@@ -252,4 +267,29 @@ describe('Class', function() {
     
     jelAssert.equalWithContext(newCtx, `[FullNativeTest.y, FullNativeTest(0).add(3, 4), FullNativeTest.sub(2, 1), FullNativeTest(0).x, FullNativeTest(1).x]`, `[100, 7, 1, 42, 43]`);
   });
+  
+  
+  class VarargTest {
+    t1(ctx, a, b) {
+      return b;
+    }
+
+    static t2(ctx, a) {
+      return a;
+    }
+  }
+  VarargTest.prototype.t1_jel_mapping = true;
+  VarargTest.t2_jel_mapping = true;
+  BaseTypeRegistry.register('VarargTest', VarargTest);
+
+  it('supports varargs', function() {
+    jelAssert.equal(`let c=(class VarargTest:\n static native t2(...a)), c1=c(): c.t2(1, 2, 3)`, `[1, 2, 3]`);
+    jelAssert.equal(`let c=(class VarargTest:\n static native t2(...a)), c1=c(): c.t2(a=[1, 2, 3])`, `[1, 2, 3]`);
+console.log('------------<>');
+    jelAssert.equal(`let c=(class VarargTest:\n constructor()\n native t1(a: int, ...b: int[]): int[]\n static native t2(...a)), c1=c():
+                      [c1.t1(5), c1.t1(4, 8), c1.t1(4, 8, 2, 8, 7, 6), c.t2(), c.t2(1), c.t2(5, 1, 3, 0)]`, `[[], [8], [8, 2, 8, 7, 6], [], [1], [5, 1, 3, 0]]`);
+    jelAssert.equal(`let c=(class VarargTest:\n constructor()\n native t1(a: int, ...b: int[]): int[]\n static native t2(...a)), c1=c():
+                      [c1.t1(5, b=[]), c1.t1(a=4, b=[8]), c1.t1(a=4, b=[8, 2, 9, 9, 2]), c.t2(a=[]), c.t2(a=[1]), c.t2(a=[5, 1, 3, 0]), c.t2(a=9)]`, `[[], [8], [8, 2, 9, 9, 2], [], [1], [5, 1, 3, 0], [9]]`);
+  });
+
 });
