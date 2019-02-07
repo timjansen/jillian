@@ -12,6 +12,9 @@ import LocalDate from './LocalDate';
 import TimeOfDay from './TimeOfDay';
 import TypeChecker from '../TypeChecker';
 import Util from '../../../util/Util';
+import NativeJelObject from '../NativeJelObject';
+import Class from '../Class';
+import BaseTypeRegistry from '../../BaseTypeRegistry';
 import * as moment from 'moment-timezone';
 import Moment = moment.Moment;
 
@@ -19,12 +22,17 @@ import Moment = moment.Moment;
  * Represents a timestamp, relative to epoch.
  */
 export default class Timestamp extends TimeDescriptor {
-	
+  static clazz: Class|undefined;
+
 	
 	constructor(public msSinceEpoch: number, public precisionInMs = 0) {
 		super('Timestamp');
 	}
-	
+  
+	 get clazz(): Class {
+    return Timestamp.clazz!;
+  }
+  
 	private couldBeEqual(other: Timestamp): boolean {
 		return Math.abs(this.msSinceEpoch - other.msSinceEpoch) <= (this.precisionInMs + other.precisionInMs);
 	}
@@ -126,24 +134,20 @@ export default class Timestamp extends TimeDescriptor {
 		return JelBoolean.TRUE;
 	}
 
-	toNumber_jel_mapping: Object;
 	toNumber(): number {
 		return this.msSinceEpoch;
 	}
 	
-	toZonedDateTime_jel_mapping: Object;
 	toZonedDateTime(ctx: Context, timeZone: any): ZonedDateTime {
 		const m = moment(this.msSinceEpoch).tz(TypeChecker.instance(TimeZone, timeZone, 'timeZone').tz);
 		return new ZonedDateTime(timeZone, new LocalDate(m.year(), m.month()+1, m.date()), new TimeOfDay(m.hour(), m.minute(), m.second()), m.milliseconds());
 	}
 
-	toLocalDateTime_jel_mapping: Object;
 	toLocalDateTime(ctx: Context, timeZone: any): LocalDateTime {
 		const m = moment(this.msSinceEpoch).tz(TypeChecker.instance(TimeZone, timeZone, 'timeZone').tz);
 		return new LocalDateTime(new LocalDate(m.year(), m.month()+1, m.date()), new TimeOfDay(m.hour(), m.minute(), m.second()));
 	}
 	
-	toLocalDate_jel_mapping: Object;
 	toLocalDate(ctx: Context, timeZone: any): LocalDate {
 		const m = moment(this.msSinceEpoch).tz(TypeChecker.instance(TimeZone, timeZone, 'tz').tz);
 		return new LocalDate(m.year(), m.month()+1, m.date());
@@ -161,18 +165,21 @@ export default class Timestamp extends TimeDescriptor {
 		return new Timestamp(m.valueOf());
 	}
 	
-	static create_jel_mapping = ['msSinceEpoch', 'precisionInMs'];
+	static create_jel_mapping = true;
 	static create(ctx: Context, ...args: any[]): any {
 		return new Timestamp(TypeChecker.realNumber(args[0], 'msSinceEpoch'), TypeChecker.realNumber(args[1], 'precisionInMs', 0));
 	}
 }
 
-Timestamp.prototype.JEL_PROPERTIES = {msSinceEpoch:1, precisionInMs:1};
-Timestamp.prototype.reverseOps = {'-':1, '+': 1};
+const p: any = Timestamp.prototype;
+p.msSinceEpoch_jel_property = true;
+p.precisionInMs_jel_property = true;
+p.reverseOps = {'-':1, '+': 1};
 
-Timestamp.prototype.toNumber_jel_mapping = [];
-Timestamp.prototype.toZonedDateTime_jel_mapping = ['timeZone'];
-Timestamp.prototype.toLocalDateTime_jel_mapping = ['timeZone'];
-Timestamp.prototype.toLocalDate_jel_mapping = ['timeZone'];
+p.toNumber_jel_mapping = true;
+p.toZonedDateTime_jel_mapping = true;
+p.toLocalDateTime_jel_mapping = true;
+p.toLocalDate_jel_mapping = true;
 
+BaseTypeRegistry.register('Timestamp', Timestamp);
 

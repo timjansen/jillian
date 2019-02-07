@@ -3,4 +3,4 @@
  */ 
 native class DurationRange extends Range:
 
-	native constructor(min: any?, max: any?) // TODO: convert any->Duration
+	native constructor(min, max)

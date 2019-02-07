@@ -11,13 +11,13 @@ import Util from '../../util/Util';
  * Represents a property definition in a class.
  */
 export default class PropertyDef extends CachableJelNode {
-  constructor(public name: string, public type?: JelNode, public defaultValueGenerator?: JelNode, public isNative = false) {
+  constructor(public name: string, public type?: JelNode, public defaultValueGenerator?: JelNode, public isNative = false, public isOverride = false, public isAbstract = false) {
     super();
   }
 
   // override
   executeUncached(ctx: Context): JelObject|Promise<JelObject> {
-    return Util.resolveValue(this.type && this.type.execute(ctx), (type: any)=>BaseTypeRegistry.get('Property').valueOf(this.name, type, this.defaultValueGenerator ? new LambdaExecutable(this.defaultValueGenerator) : undefined, this.isNative), );
+    return Util.resolveValue(this.type && this.type.execute(ctx), (type: any)=>BaseTypeRegistry.get('Property').valueOf(this.name, type, this.defaultValueGenerator ? new LambdaExecutable(this.defaultValueGenerator) : undefined, this.isNative, this.isOverride, this.isAbstract), );
   }
   
   isStaticUncached(ctx: Context): boolean {
@@ -37,13 +37,13 @@ export default class PropertyDef extends CachableJelNode {
   equals(other?: JelNode): boolean {
 		if (!(other instanceof PropertyDef))
 			return false;
-		return this.name == other.name && this.isNative == other.isNative &&
+		return this.name == other.name && this.isNative == other.isNative && this.isAbstract == other.isAbstract &&this.isOverride == other.isOverride &&
       (this.defaultValueGenerator == other.defaultValueGenerator || (this.defaultValueGenerator!=null && other.defaultValueGenerator!=null && this.defaultValueGenerator.equals(other.defaultValueGenerator))) &&
       (this.type == other.type || (this.type!=null && other.type!=null && this.type.equals(other.type)));
 	}
   
 	toString(): string {
-		return `static ${this.isNative?'native ':''}${this.name}${this.type?': '+this.type.toString():''}${this.defaultValueGenerator ? ' = '+this.defaultValueGenerator.toString() : ''}`;
+		return `static ${this.isNative?'native ':''}${this.isAbstract?'abstract ':''}${this.isOverride?'override ':''}${this.name}${this.type?': '+this.type.toString():''}${this.defaultValueGenerator ? ' = '+this.defaultValueGenerator.toString() : ''}`;
 	}
 }
 

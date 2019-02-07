@@ -7,20 +7,29 @@ import JelBoolean from '../JelBoolean';
 import UnitValue from '../UnitValue';
 import Duration from './Duration';
 import TypeChecker from '../TypeChecker';
+import NativeJelObject from '../NativeJelObject';
+import Class from '../Class';
+import BaseTypeRegistry from '../../BaseTypeRegistry';
 
 /**
  * Represents a time of day.
  */
-export default class TimeOfDay extends JelObject {
+export default class TimeOfDay extends NativeJelObject {
+  static clazz: Class|undefined;
+
+  static MIDNIGHT_jel_property = true;
 	static readonly MIDNIGHT = new TimeOfDay(0, 0, 0);
+  static NOON_jel_property = true;
 	static readonly NOON = new TimeOfDay(12, 0, 0);
 
-	JEL_PROPERTIES: Object;
 
-	
 	constructor(public hour: number, public minute: number|null = null, public seconds: number|null = null) {
 		super('TimeOfDay');
 	}
+  
+  get clazz(): Class {
+    return TimeOfDay.clazz!;
+  }
 	
 	isValid(): boolean {
 		return (this.hour >= 0 && this.hour <= 23) && 
@@ -90,7 +99,7 @@ export default class TimeOfDay extends JelObject {
 		return [this.hour, this.minute, this.seconds];
 	}
 	
-	static create_jel_mapping = ['hour', 'minute', 'seconds'];
+	static create_jel_mapping = true;
 	static create(ctx: Context, ...args: any[]): any {
 		const td = new TimeOfDay(TypeChecker.realNumber(args[0], 'hour', 0), TypeChecker.optionalRealNumber(args[1], 'minute'), TypeChecker.optionalRealNumber(args[2], 'seconds'));
 		if (!td.isValid())
@@ -100,6 +109,11 @@ export default class TimeOfDay extends JelObject {
 
 }
 
-TimeOfDay.prototype.JEL_PROPERTIES = {hour:1, minute:1, seconds: 1};
-TimeOfDay.prototype.reverseOps = {'+':1, '-': 1};
+const p: any = TimeOfDay.prototype;
+p.hour_jel_property = true;
+p.minute_jel_property = true;
+p.seconds_jel_property = true;
+p.reverseOps = {'+':1, '-': 1};
+
+BaseTypeRegistry.register('TimeOfDay', TimeOfDay);
 

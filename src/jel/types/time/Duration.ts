@@ -8,10 +8,14 @@ import Dictionary from '../Dictionary';
 import Float from '../Float';
 import Unit from '../Unit';
 import UnitValue from '../UnitValue';
+import List from '../List';
 import JelBoolean from '../JelBoolean';
 import Fraction from '../Fraction';
 import ApproximateNumber from '../ApproximateNumber';
 import TypeChecker from '../TypeChecker';
+import NativeJelObject from '../NativeJelObject';
+import Class from '../Class';
+import BaseTypeRegistry from '../../BaseTypeRegistry';
 
 // minimum/maximum length of x months
 const minDaysForMonths = [0, 28, 28+31, 28+31+30, 28+31+30+31, 28+31+30+31+30, 28+31+30+31+30+31, 28+31+30+31+30+31+31, 28+31+30+31+30+31+31+30, 28+31+30+31+30+31+31+30+31, 28+31+30+31+30+31+31+30+31+30, 28+31+30+31+30+31+31+30+31+30+31, 365]; 
@@ -42,7 +46,9 @@ function estimateDaysForMonths(minMaxTable: number[], months: number): number {
 /**
  * A complex, calendar-based duration (simple durations, like year or seconds, can use UnitValue)
  */
-export default class Duration extends JelObject {
+export default class Duration extends NativeJelObject {
+  static clazz: Class|undefined;
+
 	private typicalSecs: number;
 	private minSecs: number;
 	private maxSecs: number;
@@ -65,6 +71,10 @@ export default class Duration extends JelObject {
 		const typicalDays = this.days + estimateMinDaysForYears(this.years) + Math.ceil((estimateDaysForMonths(minDaysForMonths, this.months)+estimateDaysForMonths(maxDaysForMonths, this.months))/2);
 		this.typicalSecs = fixedSecs + typicalDays * 24 * 3600; 
 	}
+  
+  get clazz(): Class {
+    return Duration.clazz!;
+  }
 	
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (right instanceof Duration) {
@@ -174,18 +184,18 @@ export default class Duration extends JelObject {
 		return new Duration(-this.years, -this.months, -this.days, -this.hours, -this.minutes, -this.seconds).simplify();
 	}
 	
-	toEstimatedSeconds_jel_mapping: any;
+	toEstimatedSeconds_jel_mapping: boolean;
 	toEstimatedSeconds(ctx: Context): UnitValue {
 		return new UnitValue(ApproximateNumber.createIfError(this.typicalSecs, Math.max(Math.abs(this.typicalSecs - this.minSecs), Math.abs(this.maxSecs - this.typicalSecs))), 'Second'); 
 	}
 	
-	fullDays_jel_mapping: any;
+	fullDays_jel_mapping: boolean;
 	fullDays(): Duration {
 		const dDays = Math.floor((this.hours + this.minutes / 60 + this.seconds / 3600) / 24);
 		return new Duration(this.years, this.months, this.days + dDays);
 	}
 	
-	simplify_jel_mapping: any;
+	simplify_jel_mapping: boolean;
 	simplify(): Duration {
 		const allSecs = this.seconds + this.minutes*60 + this.hours * 3600 + this.days * 3600 * 24;
 		const days = Math.trunc(allSecs / (3600*24));
@@ -210,7 +220,7 @@ export default class Duration extends JelObject {
 		if (x instanceof Duration)
 			return x;
 		if (x instanceof UnitValue)
-			return Duration.create(ctx, x);
+			return Duration.fromUnitValue(ctx, x);
 		throw new Error('Unsupported value, only Duration and second-convertible UnitValues supported');
 	}
 
@@ -226,16 +236,16 @@ export default class Duration extends JelObject {
 	 return l;
 	}
 
-	static min_jel_mapping = {};
-	static min(ctx: Context, ...a: any[]): Duration {
-			return Duration.minMax(ctx, '>', a);
+	static min_jel_mapping = true;
+	static min(ctx: Context, a: List): Duration {
+			return Duration.minMax(ctx, '>', a.elements);
 	}
-	static max_jel_mapping = {};
-	static max(ctx: Context, ...a: any[]): Duration {
-			return Duration.minMax(ctx, '<', a);
+	static max_jel_mapping = true;
+	static max(ctx: Context, a: List): Duration {
+			return Duration.minMax(ctx, '<', a.elements);
 	}
 	
-	abs_jel_mapping: Object;
+	abs_jel_mapping: boolean;
 	abs(): Duration {
 		return new Duration(Math.abs(this.years), Math.abs(this.months), Math.abs(this.days), Math.abs(this.hours), Math.abs(this.minutes), Math.abs(this.seconds));
 	}
@@ -250,42 +260,52 @@ export default class Duration extends JelObject {
 	toString(): string {
 		return `Duration(years=${this.years} months=${this.months} days=${this.days} hours=${this.hours} minutes=${this.minutes} seconds=${this.seconds})`;
 	}
-	
-	// create either with years/months/days/hours/minutes/seconds, or a UnitValue
-	static create_jel_mapping = {'unit':1, 'years':1, 'months':2, 'days':3, 'hours':4, 'minutes':5, 'seconds':6};
-	static create(ctx: Context, ...args: any[]): any {
-		if (args[0] instanceof UnitValue) {
-			const uv = args[0];
-      if (Float.isInteger(ctx, uv)) {
-        if (uv.isType(ctx, 'Year'))
-          return new Duration(Float.toRealNumber(uv));
-        else if (uv.isType(ctx, 'Month'))
-          return new Duration(0, Float.toRealNumber(uv));
-        else if (uv.isType(ctx, 'Week'))
-          return new Duration(0, 0, Float.toRealNumber(uv)*7);
-        else if (uv.isType(ctx, 'Day'))
-          return new Duration(0, 0, Float.toRealNumber(uv));
-        else if (uv.isType(ctx, 'Hour'))
-          return new Duration(0, 0, 0, Float.toRealNumber(uv));
-        else if (uv.isType(ctx, 'Minute'))
-          return new Duration(0, 0, 0, 0, Float.toRealNumber(uv));
-      }
-      if (uv.isType(ctx, 'Second'))
-          return new Duration(0, 0, 0, 0, 0, Float.toRealNumber(uv));
-      else 
-  			return Util.resolveValue(uv.convertTo(ctx, 'Second'), r=>new Duration(0, 0, 0, 0, 0, Float.toRealNumber(r)).simplify());
-		}
 
+	static fromUnitValue_jel_mapping = true;
+	static fromUnitValue(ctx: Context, value: any): any {
+    const uv = TypeChecker.instance(UnitValue, value, 'value');
+    if (Float.isInteger(ctx, uv)) {
+      if (uv.isType(ctx, 'Year'))
+        return new Duration(Float.toRealNumber(uv));
+      else if (uv.isType(ctx, 'Month'))
+        return new Duration(0, Float.toRealNumber(uv));
+      else if (uv.isType(ctx, 'Week'))
+        return new Duration(0, 0, Float.toRealNumber(uv)*7);
+      else if (uv.isType(ctx, 'Day'))
+        return new Duration(0, 0, Float.toRealNumber(uv));
+      else if (uv.isType(ctx, 'Hour'))
+        return new Duration(0, 0, 0, Float.toRealNumber(uv));
+      else if (uv.isType(ctx, 'Minute'))
+        return new Duration(0, 0, 0, 0, Float.toRealNumber(uv));
+    }
+    if (uv.isType(ctx, 'Second'))
+        return new Duration(0, 0, 0, 0, 0, Float.toRealNumber(uv));
+    else 
+      return Util.resolveValue(uv.convertTo(ctx, 'Second'), r=>new Duration(0, 0, 0, 0, 0, Float.toRealNumber(r)).simplify());
+  }
+  
+	// create either with years/months/days/hours/minutes/seconds, or a UnitValue
+	static create_jel_mapping = true;
+	static create(ctx: Context, ...args: any[]): any {
 		return new Duration(TypeChecker.realNumber(args[0], 'years', 0), TypeChecker.realNumber(args[1], 'months', 0), TypeChecker.realNumber(args[2], 'days', 0), 
 												TypeChecker.realNumber(args[3], 'hours', 0), TypeChecker.realNumber(args[4], 'minutes', 0), TypeChecker.realNumber(args[5], 'seconds', 0));
 	}
 
 }
 
-Duration.prototype.reverseOps = JelObject.SWAP_OPS;
-Duration.prototype.abs_jel_mapping = [];
-Duration.prototype.fullDays_jel_mapping = [];
-Duration.prototype.simplify_jel_mapping = [];
-Duration.prototype.toEstimatedSeconds_jel_mapping = [];
+const p: any = Duration.prototype;
+p.years_jel_property = true;
+p.months_jel_property = true;
+p.days_jel_property = true;
+p.hours_jel_property = true;
+p.minutes_jel_property = true;
+p.seconds_jel_property = true;
+p.reverseOps = JelObject.SWAP_OPS;
+p.negate_jel_mapping = true;
+p.abs_jel_mapping = true;
+p.fullDays_jel_mapping = true;
+p.simplify_jel_mapping = true;
+p.toEstimatedSeconds_jel_mapping = true;
 
+BaseTypeRegistry.register('Duration', Duration);
 

@@ -656,8 +656,10 @@ export default class JEL {
       const overrideModifier = !!peek.is(TokenType.Operator, 'override');
       const next0 = (staticModifier || abstractModifier || overrideModifier) ? tokens.next() : peek;
       const nativeModifier = !!next0.is(TokenType.Operator, 'native');
-      if (nativeModifier && abstractModifier)
-        JEL.throwParseException(tokens.last(), `Native modifier can not be combined with abstract modifier.`);
+      if (abstractModifier && (nativeModifier || overrideModifier))
+        JEL.throwParseException(tokens.last(), `Native and/or override modifiers can not be combined with abstract modifier.`);
+      if (abstractModifier && !isAbstract)
+        JEL.throwParseException(tokens.last(), `Abstract members are only allowed in abstract classes.`);
       hasNative = hasNative || nativeModifier;
       const next = nativeModifier ? tokens.next() : next0;
       
@@ -744,8 +746,6 @@ export default class JEL {
         const methodName = next.value;
         if (isNative && !nativeModifier)
           JEL.throwParseException(tokens.last(), `Method ${methodName}() is a non-native method in a native class. All methods must be native in native classes.`);
-        if (abstractModifier && !isAbstract)
-          JEL.throwParseException(tokens.last(), `Method ${methodName}() is abstract in a non-abstract class. Abstract methods are only allowed in classes.`);
         if (staticModifier ? staticPropertyNames.has(methodName) : propertyNames.has(methodName))
           JEL.throwParseException(tokens.last(), `${staticModifier ? 'Static method' : 'Method'} ${methodName}() already declared`);
         (staticModifier ? staticPropertyNames : propertyNames).add(methodName);
@@ -768,11 +768,7 @@ export default class JEL {
       }
       else if (next.is(TokenType.Identifier) && (tokens.peekIs(TokenType.Operator, ':') || tokens.peekIs(TokenType.Operator, '='))) {
         const propertyName = next.value;
-        if (abstractModifier)
-            JEL.throwParseException(next, `Property ${propertyName} is declared abstract. You must not declare a property as abstract.`);
-        if (overrideModifier)
-          JEL.throwParseException(next, `Properties can not use the 'override' modifier.`);
-      if (isNative && !nativeModifier)
+        if (isNative && !nativeModifier)
           JEL.throwParseException(tokens.last(), `Property ${propertyName} is a non-native property in a native class. All properties must be native in native classes.`);
         if (nativeModifier && !isNative && !staticModifier)
           JEL.throwParseException(tokens.last(), `Property ${propertyName} is native in a non-native class. In a non-native class, only static native properties are allowed.`);
@@ -794,11 +790,13 @@ export default class JEL {
 
         if (nativeModifier && defaultValue)
           JEL.throwParseException(next, 'A native property must not have a default value.');
+        else if (abstractModifier && defaultValue)
+          JEL.throwParseException(next, 'An abstract property must not have a default value.');
         else
-          (staticModifier?staticProperties:properties).push(new PropertyDef(propertyName, typeDef, defaultValue, nativeModifier));
+          (staticModifier?staticProperties:properties).push(new PropertyDef(propertyName, typeDef, defaultValue, nativeModifier, overrideModifier, abstractModifier));
       }
       else if (next.is(TokenType.Operator, 'static') || next.is(TokenType.Operator, 'abstract') || next.is(TokenType.Operator, 'override'))
-        JEL.throwParseException(next, `You can not combine the modifiers 'static', 'abstract' and 'override'. Only one of them can be used, in front of the 'class' (or 'native') keyword.`);
+        JEL.throwParseException(next, `Wrong modifier order. 'static' must always be first, and 'native' must be the last modifier.`);
       else
         JEL.throwParseException(next, 'Unexpected token in class declaration. Expected an identifier to define a method or property.');
     }

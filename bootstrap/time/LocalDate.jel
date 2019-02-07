@@ -1,0 +1,38 @@
+/**
+ * Describes a simple date, year/month/date, without timezone. Month and day are optional, so it can also describe a whole month or year.
+ */
+native class LocalDate extends AbstractDate:
+
+  native constructor(year, month, day)
+
+	native toLocalDateTime(time: TimeOfDay = TimeOfDay.MIDNIGHT): LocalDateTime
+  
+	override native getStartTime(defaultTimeZone: SimpleType('TimeZone')): Timestamp
+	override native getEndTime(defaultTimeZone: SimpleType('TimeZone')): Timestamp
+	override native isContinous(): bool
+
+	
+	override native isBefore(time: Timestamp, defaultTimeZone: SimpleType('TimeZone')): bool
+	override native isAfter(time: Timestamp, defaultTimeZone: SimpleType('TimeZone')): bool
+
+  override native contains(time: Timestamp, defaultTimeZone: SimpleType('TimeZone')): bool
+  
+  
+
+  override native leapYear: bool
+  override native numberOfDays: SimpleType('UnitValue')
+  override native dayOfYear: int
+  override native dayOfWeek: int
+	override native isoWeek: int
+	override native isoWeeksInYear: int
+	override native quarter: int
+	override native century: int
+	override native millenium: int
+  override native allDays: AbstractDate[]
+	override native diff(otherDate: AbstractDate, type: string | SimpleType('DbRef')): SimpleType('UnitValue')
+	
+
+  
+
+  
+  

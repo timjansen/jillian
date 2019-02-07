@@ -1,0 +1,22 @@
+/**
+ * Describes a simple date, year/month/date, without timezone. Month and day are optional, so it can also describe a whole month or year.
+ */
+native class Timestamp extends TimeDescriptor:
+
+  native constructor(msSinceEpoch: int, precisionInMs: int = 0)
+
+	override native getStartTime(defaultTimeZone: SimpleType('TimeZone')): Timestamp
+	override native getEndTime(defaultTimeZone: SimpleType('TimeZone')): Timestamp
+	override native isContinous(): bool
+
+	
+	override native isBefore(time: Timestamp, defaultTimeZone: SimpleType('TimeZone')): bool
+	override native isAfter(time: Timestamp, defaultTimeZone: SimpleType('TimeZone')): bool
+
+  override native contains(time: Timestamp, defaultTimeZone: SimpleType('TimeZone')): bool
+  
+  native toNumber(): int
+  
+  native toZonedDateTime(timeZone: SimpleType('TimeZone')): ZonedDateTime 
+	native toLocalDateTime(timeZone: SimpleType('TimeZone')): LocalDateTime
+	native toLocalDate(timeZone: SimpleType('TimeZone')): LocalDate 

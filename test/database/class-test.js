@@ -102,7 +102,7 @@ describe('Class', function() {
 
   it('supports superTypes', function() {
     jelAssert.equal(`let superType=class SuperType: constructor(x: Float, y: Float)=> {} add(a, b=1)=>a+b sub(a, b=1)=>a-b,
-                          subType=class SubType extends superType: constructor(x: Float, y: Float, z: Float)=> {} override add(a,b=2)=>a+b+10 mul(a,b=1)=>a*b,
+                          subType=class SubType extends superType: constructor(x, y, z)=> {} override add(a,b=2)=>a+b+10 mul(a,b=1)=>a*b,
                           s1 = superType(4, 6),
                           s2 = subType(8, 10, 20): 
                         [s1.x, s1.y, s2.x, s2.y, s2.z, s1.add(5), s1.sub(4), s2.add(6), s2.sub(33), s2.mul(9, 9)]`, "[4, 6, 8, 10, 20, 6, 3, 18, 32, 81]");

@@ -1,0 +1,16 @@
+/**
+ * A common base class for classes that describe a period in time.
+ */
+abstract class TimeDescriptor:
+
+	abstract getStartTime(defaultTimeZone: SimpleType('TimeZone')): SimpleType('Timestamp')
+	abstract getEndTime(defaultTimeZone: SimpleType('TimeZone')): SimpleType('Timestamp')
+	abstract isContinous(): bool
+
+	
+	abstract isBefore(time: SimpleType('Timestamp'), defaultTimeZone: SimpleType('TimeZone')): bool
+	abstract isAfter(time: SimpleType('Timestamp'), defaultTimeZone: SimpleType('TimeZone')): bool
+
+  abstract contains(time: SimpleType('Timestamp'), defaultTimeZone: SimpleType('TimeZone')): bool
+  
+  

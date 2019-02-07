@@ -1,0 +1,52 @@
+/**
+ * A common base class for classes that describe a calendar date.
+ */
+abstract class AbstractDate extends TimeDescriptor:
+
+
+  abstract year: int
+  abstract month: int?
+  abstract day: int?
+
+
+  abstract leapYear: bool
+  abstract numberOfDays: SimpleType('UnitValue')
+  abstract dayOfYear: int
+  
+  /**
+   * Sunday==0, Saturday==6
+   */
+  abstract dayOfWeek: int
+
+	/**
+   * iso number of the week
+   */
+	abstract isoWeek: int
+
+	/**
+   * iso week number of the year
+   */
+	abstract isoWeeksInYear: int
+  
+	abstract quarter: int
+
+	/**
+   * number of century, e.g. 20 for 1900-1999, 21 for 2000-2100
+   */
+	abstract century: int
+
+	/** 
+   * number of millenium, e.g. 2 for 1000-1999, 3 for 2000-2199
+   */
+	abstract millenium: int
+
+  /**
+   * returns a list of all days as LocalDate in the given year. Makes more sense if day and possibly month are null.
+   */
+  abstract allDays: AbstractDate[]
+  
+	abstract diff(otherDate: AbstractDate, type0: string | SimpleType('DbRef')): SimpleType('UnitValue')
+	
+
+
+

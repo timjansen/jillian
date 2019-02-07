@@ -15,6 +15,8 @@ import TimeOfDay from './TimeOfDay';
 import TimeDescriptor from './TimeDescriptor';
 import Duration from './Duration';
 import TypeChecker from '../TypeChecker';
+import NativeJelObject from '../NativeJelObject';
+import Class from '../Class';
 
 /**
  * Represents a year, month or day
@@ -22,6 +24,21 @@ import TypeChecker from '../TypeChecker';
 export default abstract class AbstractDate extends TimeDescriptor {
 	private static readonly MONTHS_MAX_DURATION = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 	private static readonly JEL_TO_MOMENT_TYPES: any = {Year: 'years', Month: 'months', Day: 'days', Hour: 'hours', Minute: 'minutes', Second: 'seconds'};
+  
+  year_jel_property: boolean;
+  month_jel_property: boolean;
+  day_jel_property: boolean;
+  dayOfYear_jel_property: boolean;
+  dayOfWeek_jel_property: boolean;
+  isoWeek_jel_property: boolean;
+  isoWeeksInYear_jel_property: boolean;
+  quarter_jel_property: boolean;
+  century_jel_property: boolean;
+  millenium_jel_property: boolean;
+  allDays_jel_property: boolean;
+  leapYear_jel_property: boolean;
+  numberOfDays_jel_property: boolean;
+  
 	year: number;
 	month: number | null;
 	day: number | null;
@@ -90,7 +107,7 @@ export default abstract class AbstractDate extends TimeDescriptor {
   // returns a list of all days as LocalDate in the given year. Makes more sense if day and possibly month are null.
   get allDays(): List {
     if (this.day != null)
-      return new List([this.year, this.month, this.day]);
+      return new List([this.toDate(this.year, this.month||1, this.day)]);
 
     const dl = [];
     if (this.month == null) {
@@ -108,7 +125,7 @@ export default abstract class AbstractDate extends TimeDescriptor {
     return new List(dl);
   }
   
-	diff_jel_mapping: Object;
+	diff_jel_mapping: boolean;
 	diff(ctx: Context, otherDate0: any, type0: any): UnitValue | Promise<UnitValue> {
 		const otherDate: AbstractDate = TypeChecker.instance(AbstractDate, otherDate0, "otherDate");
 		const type: string = (typeof type0 == 'string') ? type0 : TypeChecker.dbRef(type0, "type").distinctName;
@@ -129,6 +146,18 @@ export default abstract class AbstractDate extends TimeDescriptor {
 
 }
 
-AbstractDate.prototype.JEL_PROPERTIES = {year:1, month:1, day: 1, dayOfYear: 1, dayOfWeek: 1, isoWeek: 1, isoWeeksInYear: 1, quarter: 1, century: 1, millenium: 1, allDays: 1, leapYear: 1, numberOfDays: 1};
-AbstractDate.prototype.diff_jel_mapping = ['otherDate', 'type'];
+AbstractDate.prototype.year_jel_property = true;
+AbstractDate.prototype.month_jel_property = true;
+AbstractDate.prototype.day_jel_property = true;
+AbstractDate.prototype.dayOfYear_jel_property = true;
+AbstractDate.prototype.dayOfWeek_jel_property = true;
+AbstractDate.prototype.isoWeek_jel_property = true;
+AbstractDate.prototype.isoWeeksInYear_jel_property = true;
+AbstractDate.prototype.quarter_jel_property = true;
+AbstractDate.prototype.century_jel_property = true;
+AbstractDate.prototype.millenium_jel_property = true;
+AbstractDate.prototype.allDays_jel_property = true;
+AbstractDate.prototype.leapYear_jel_property = true;
+AbstractDate.prototype.numberOfDays_jel_property = true;
+AbstractDate.prototype.diff_jel_mapping = true;
 

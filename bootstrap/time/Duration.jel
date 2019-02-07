@@ -1,0 +1,24 @@
+/**
+ * A complex, calendar-based duration (simple durations, like year or seconds, can use UnitValue)
+ */
+native class Duration:
+  native year: int
+
+  native constructor(years: number = 0, months: number = 0, days: number = 0, hours: number = 0, minutes: number = 0, seconds: number = 0)
+  static native fromUnitValue(value: SimpleType('UnitValue')): Duration
+
+  native negate(): Duration
+  
+	
+	native toEstimatedSeconds(): UnitValue
+
+  native fullDays(): Duration
+    
+	native simplify(): Duration
+  
+	static native min(...a: (SimpleType('Duration')|SimpleType('UnitValue'))[]): Duration
+	static native max(...a: (SimpleType('Duration')|SimpleType('UnitValue'))[]): Duration
+  
+	native abs(): Duration
+  
+  

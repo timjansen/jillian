@@ -1,3 +1,3 @@
 class Geo::Structure:
-  constructor(planet: @PlanetCategory) =>
+  constructor(planet: SimpleType('DbRef')) =>
     {}

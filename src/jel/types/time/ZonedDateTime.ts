@@ -15,17 +15,26 @@ import Duration from './Duration';
 import UnitValue from '../UnitValue';
 import JelBoolean from '../JelBoolean';
 import TypeChecker from '../TypeChecker';
+import NativeJelObject from '../NativeJelObject';
+import Class from '../Class';
+import BaseTypeRegistry from '../../BaseTypeRegistry';
 
 /**
  * Represents a date.
  */
 export default class ZonedDateTime extends AbstractDate {
-	
+  static clazz: Class|undefined;
+
+
 	constructor(public timeZone: TimeZone, public date: LocalDate, public time: TimeOfDay, public milliseconds = 0) {
 		super('ZonedDateTime');
 		if (milliseconds >= 1000 || milliseconds < 0)
 			throw new Error('Milliseconds must be between 0 and 1000.');
 	}
+  
+  get clazz(): Class {
+    return ZonedDateTime.clazz!;
+  }
 	
 	get year(): number {
 		return this.date.year;
@@ -153,23 +162,36 @@ export default class ZonedDateTime extends AbstractDate {
 	getSerializationProperties(): any[] {
 		return [this.timeZone, this.date, this.time, this.milliseconds];
 	}
-	
-	static create_jel_mapping = {timeZone: 1, date: 2, time: 3, year: 2, month: 3, day: 4, hour: 5, minute: 6, seconds: 7, milliseconds: 8};
+
+  static fromLocalDate_jel_mapping = true;
+	static fromLocalDate(ctx: Context, timeZone: any, date: any, time: any, milliseconds: any): ZonedDateTime {
+		return new ZonedDateTime(TypeChecker.instance(TimeZone, timeZone, 'timeZone'), TypeChecker.instance(LocalDate, date, 'date'), TypeChecker.instance(TimeOfDay, time, 'time'), TypeChecker.realNumber(milliseconds, 'milliseconds', 0));
+  }
+
+  static fromZonedDate_jel_mapping = true;
+	static fromZonedDate(ctx: Context, date: any, time: any, milliseconds: any): ZonedDateTime {
+		return new ZonedDateTime(TypeChecker.instance(ZonedDate, date, 'date').timeZone, TypeChecker.instance(ZonedDate, date, 'date').date, TypeChecker.instance(TimeOfDay, time, 'time'), TypeChecker.realNumber(milliseconds, 'milliseconds', 0));
+  }
+
+  
+	static create_jel_mapping = true;
 	static create(ctx: Context, ...args: any[]): any {
-		if (args[0] instanceof ZonedDate)
-			return new ZonedDateTime(args[0].timeZone, args[0].date, TypeChecker.instance(TimeOfDay, args[1], 'time'), TypeChecker.realNumber(args[7]||args[2], 'milliseconds', 0));
-		else if (args[1] instanceof LocalDate)
-			return new ZonedDateTime(TypeChecker.instance(TimeZone, args[0], 'timeZone'), TypeChecker.instance(LocalDate, args[1], 'date'), TypeChecker.instance(TimeOfDay, args[2], 'time'), TypeChecker.realNumber(args[7]||args[3], 'milliseconds', 0));
-		else
-			return new ZonedDateTime(TypeChecker.instance(TimeZone, args[0], 'timeZone'), LocalDate.create(ctx, args[1], args[2], args[3]), TimeOfDay.create(ctx, args[4], args[5], args[6]), TypeChecker.realNumber(args[7], 'milliseconds', 0));
+		return new ZonedDateTime(TypeChecker.instance(TimeZone, args[0], 'timeZone'), LocalDate.create(ctx, args[1], args[2], args[3]), TimeOfDay.create(ctx, args[4], args[5], args[6]), TypeChecker.realNumber(args[7], 'milliseconds', 0));
 	}
 }
 
-ZonedDateTime.prototype.reverseOps = JelObject.SWAP_OPS;
-ZonedDateTime.prototype.JEL_PROPERTIES = Object.assign({time: 1, date: 1, timeZone: 1, hour:1, minute: 1, seconds:1}, AbstractDate.prototype.JEL_PROPERTIES);
-ZonedDateTime.prototype.toZonedDate_jel_mapping = [];
-ZonedDateTime.prototype.toLocalDateTime_jel_mapping = [];
-ZonedDateTime.prototype.toTimestamp_jel_mapping = [];
-ZonedDateTime.prototype.toUTC_jel_mapping = [];
-ZonedDateTime.prototype.withTimeZone_jel_mapping = ['timeZone'];
+const p: any = ZonedDateTime.prototype;
+p.reverseOps = JelObject.SWAP_OPS;
+p.time_jel_property = true;
+p.date_jel_property = true;
+p.timeZone_jel_property = true;
+p.hour_jel_property = true;
+p.minute_jel_property = true;
+p.seconds_jel_property = true;
+p.toZonedDate_jel_mapping = true;
+p.toLocalDateTime_jel_mapping = true;
+p.toTimestamp_jel_mapping = true;
+p.toUTC_jel_mapping = true;
+p.withTimeZone_jel_mapping = true;
 
+BaseTypeRegistry.register('ZonedDateTime', ZonedDateTime);

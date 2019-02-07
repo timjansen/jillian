@@ -1,0 +1,38 @@
+/**
+ * Describes a date with timezone and without time.
+ */
+native class ZonedDate extends AbstractDate:
+  native constructor(timeZone: TimeZone, year, month, day)
+  static native fromLocalDate(timeZone: TimeZone, zonedDate: LocalDate)
+
+	native toZonedDateTime(time: TimeOfDay = TimeOfDay.MIDNIGHT): SimpleType('ZonedDateTime')
+	native toUTC(): ZonedDate
+	native withTimeZone(timeZone: TimeZone): ZonedDate
+  
+	override native getStartTime(defaultTimeZone: SimpleType('TimeZone')): Timestamp
+	override native getEndTime(defaultTimeZone: SimpleType('TimeZone')): Timestamp
+	override native isContinous(): bool
+
+	
+	override native isBefore(time: Timestamp, defaultTimeZone: SimpleType('TimeZone')): bool
+	override native isAfter(time: Timestamp, defaultTimeZone: SimpleType('TimeZone')): bool
+
+  override native contains(time: Timestamp, defaultTimeZone: SimpleType('TimeZone')): bool
+  
+  
+
+  override native leapYear: bool
+  override native numberOfDays: SimpleType('UnitValue')
+  override native dayOfYear: int
+  override native dayOfWeek: int
+	override native isoWeek: int
+	override native isoWeeksInYear: int
+	override native quarter: int
+	override native century: int
+	override native millenium: int
+  override native allDays: AbstractDate[]
+	override native diff(otherDate: AbstractDate, type: string | SimpleType('DbRef')): SimpleType('UnitValue')
+	
+
+
+  

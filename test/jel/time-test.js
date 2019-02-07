@@ -355,7 +355,7 @@ describe('Time', function() {
   describe('LocalDateTime', function() {
     it('creates and serializes', function() {
       jelAssert.equal('LocalDateTime(year=2013, month=5, day=2, hour=3)', new LocalDateTime(new LocalDate(2013, 5, 2), new TimeOfDay(3)));
-      jelAssert.equal('LocalDateTime(LocalDate(1999, 1, 20), TimeOfDay(13, 4, 5))', new LocalDateTime(new LocalDate(1999, 1, 20), new TimeOfDay(13, 4, 5)));	
+      jelAssert.equal('LocalDateTime.fromDate(LocalDate(1999, 1, 20), TimeOfDay(13, 4, 5))', new LocalDateTime(new LocalDate(1999, 1, 20), new TimeOfDay(13, 4, 5)));	
     });
 
     it('supports operators', function() {
@@ -412,7 +412,7 @@ describe('Time', function() {
   describe('ZonedDate', function() {
     it('creates and serializes', function() {
       jelAssert.equal('ZonedDate(TimeZone.UTC, year=2013, month=5, day=2)', new ZonedDate(new TimeZone(), new LocalDate(2013, 5, 2)));
-      jelAssert.equal('ZonedDate(TimeZone.UTC, LocalDate(2013, 5, 2))', new ZonedDate(new TimeZone(), new LocalDate(2013, 5, 2)));
+      jelAssert.equal('ZonedDate.fromLocalDate(TimeZone.UTC, LocalDate(2013, 5, 2))', new ZonedDate(new TimeZone(), new LocalDate(2013, 5, 2)));
       jelAssert.equal('ZonedDate(TimeZone("America/Los_Angeles"), 1999, 1, 20)', new ZonedDate(new TimeZone("America/Los_Angeles"), new LocalDate(1999, 1, 20)));
     });
 
@@ -504,8 +504,8 @@ describe('Time', function() {
     it('creates and serializes', function() {
       jelAssert.equal('ZonedDateTime(TimeZone.UTC, 2013, 5, 2, 3)', new ZonedDateTime(new TimeZone(), new LocalDate(2013, 5, 2), new TimeOfDay(3)));
       jelAssert.equal('ZonedDateTime(TimeZone.UTC, year=2013, month=5, day=2, hour=3)', new ZonedDateTime(new TimeZone(), new LocalDate(2013, 5, 2), new TimeOfDay(3)));
-      jelAssert.equal('ZonedDateTime(TimeZone.UTC, LocalDate(1999, 1, 20), TimeOfDay(13, 4, 5))', new ZonedDateTime(new TimeZone(), new LocalDate(1999, 1, 20), new TimeOfDay(13, 4, 5)));	
-      jelAssert.equal('ZonedDateTime(ZonedDate(TimeZone.UTC, 1999, 1, 20), TimeOfDay(13, 4, 5))', new ZonedDateTime(new TimeZone(), new LocalDate(1999, 1, 20), new TimeOfDay(13, 4, 5)));	
+      jelAssert.equal('ZonedDateTime.fromLocalDate(TimeZone.UTC, LocalDate(1999, 1, 20), TimeOfDay(13, 4, 5))', new ZonedDateTime(new TimeZone(), new LocalDate(1999, 1, 20), new TimeOfDay(13, 4, 5)));	
+      jelAssert.equal('ZonedDateTime.fromZonedDate(ZonedDate(TimeZone.UTC, 1999, 1, 20), TimeOfDay(13, 4, 5))', new ZonedDateTime(new TimeZone(), new LocalDate(1999, 1, 20), new TimeOfDay(13, 4, 5)));	
     });
 
     it('supports operators', function() {

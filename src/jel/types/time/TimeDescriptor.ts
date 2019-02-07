@@ -5,28 +5,31 @@ import TimeZone from './TimeZone';
 import JelBoolean from '../JelBoolean';
 import TypeChecker from '../TypeChecker';
 import Util from '../../../util/Util';
+import NativeJelObject from '../NativeJelObject';
+import Class from '../Class';
+import BaseTypeRegistry from '../../BaseTypeRegistry';
 
 
 /**
  * Abstract base class that represents a time period.
  */
-export default abstract class TimeDescriptor extends JelObject {
+export default abstract class TimeDescriptor extends NativeJelObject {
 	
 	constructor(className: string) {
 		super(className);
 	}
 
-	getStartTime_jel_mapping: Object;
+	getStartTime_jel_mapping: boolean;
 	abstract getStartTime(ctx: Context, defaultTimeZone: any): Timestamp|Promise<Timestamp|undefined>|undefined;
 
-	getEndTime_jel_mapping: Object;
+	getEndTime_jel_mapping: boolean;
 	abstract getEndTime(ctx: Context, defaultTimeZone: any): Timestamp|Promise<Timestamp|undefined>|undefined;
 
-	isContinous_jel_mapping: Object;
+	isContinous_jel_mapping: boolean;
 	abstract isContinous(): JelBoolean;
 
 	
-	isBefore_jel_mapping: Object;
+	isBefore_jel_mapping: boolean;
 	isBefore(ctx: Context, time0: any, defaultTimeZone0: any): JelBoolean|Promise<JelBoolean> {
 		const time: Timestamp = TypeChecker.instance(Timestamp, time0, 'time');
 		const defaultTimeZone: TimeZone = TypeChecker.instance(TimeZone, defaultTimeZone0, 'defaultTimeZone');
@@ -38,7 +41,7 @@ export default abstract class TimeDescriptor extends JelObject {
 			return JelBoolean.valueOf((t0 != undefined) && (t0.msSinceEpoch < time.msSinceEpoch));
 	}
 	
-	isAfter_jel_mapping: Object;
+	isAfter_jel_mapping: boolean;
 	isAfter(ctx: Context, time0: any, defaultTimeZone0: any): JelBoolean|Promise<JelBoolean> {
 		const time: Timestamp = TypeChecker.instance(Timestamp, time0, 'time');
 		const defaultTimeZone: TimeZone = TypeChecker.instance(TimeZone, defaultTimeZone0, 'defaultTimeZone');
@@ -51,7 +54,7 @@ export default abstract class TimeDescriptor extends JelObject {
 	}
 	
 	// override if TimeDescriptor is not continous
-	contains_jel_mapping: Object;
+	contains_jel_mapping: boolean;
 	contains(ctx: Context, time0: any, defaultTimeZone0: any): JelBoolean|Promise<JelBoolean> {
 		const time: Timestamp = TypeChecker.instance(Timestamp, time0, 'time');
 		const defaultTimeZone: TimeZone = TypeChecker.instance(TimeZone, defaultTimeZone0, 'defaultTimeZone');
@@ -64,10 +67,10 @@ export default abstract class TimeDescriptor extends JelObject {
 	
 }
 
-TimeDescriptor.prototype.getStartTime_jel_mapping = ['defaultTimeZone'];
-TimeDescriptor.prototype.getEndTime_jel_mapping = ['defaultTimeZone'];
-TimeDescriptor.prototype.isBefore_jel_mapping = ['time', 'defaultTimeZone'];
-TimeDescriptor.prototype.isAfter_jel_mapping = ['time', 'defaultTimeZone'];
-TimeDescriptor.prototype.isContinous_jel_mapping = [];
-TimeDescriptor.prototype.contains_jel_mapping = ['time', 'defaultTimeZone'];
+TimeDescriptor.prototype.getStartTime_jel_mapping = true;
+TimeDescriptor.prototype.getEndTime_jel_mapping = true;
+TimeDescriptor.prototype.isBefore_jel_mapping = true;
+TimeDescriptor.prototype.isAfter_jel_mapping = true;
+TimeDescriptor.prototype.isContinous_jel_mapping = true;
+TimeDescriptor.prototype.contains_jel_mapping = true;
 

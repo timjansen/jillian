@@ -4,6 +4,9 @@ import JelString from '../JelString';
 import Timestamp from './Timestamp';
 import JelBoolean from '../JelBoolean';
 import TypeChecker from '../TypeChecker';
+import NativeJelObject from '../NativeJelObject';
+import Class from '../Class';
+import BaseTypeRegistry from '../../BaseTypeRegistry';
 
 import * as moment from 'moment-timezone';
 import MomentZone = moment.MomentZone;
@@ -11,28 +14,34 @@ import MomentZone = moment.MomentZone;
 /**
  * Represents a time zone. 
  */
-export default class TimeZone extends JelObject {
-	static UTC = new TimeZone();
-	static JEL_PROPERTIES: Object = {UTC: 1};
+export default class TimeZone extends NativeJelObject {
+  static clazz: Class|undefined;
 
-	JEL_PROPERTIES: Object;
-	
+  static UTC_jel_property = true;
+	static UTC = new TimeZone();
+
+  tz_jel_property: boolean;
+
 	// tz: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones (e.g. "America/Anchorage" or "UTC")
 	constructor(public tz = "UTC") {
 		super('TimeZone');
 	}
+  
+  get clazz(): Class {
+    return TimeZone.clazz!;
+  }
 	
 	private getMomentZone(): MomentZone {
 		return moment.tz.zone(this.tz);
 	}
 	
-	isDST_jel_mapping: Object;
+	isDST_jel_mapping: boolean;
 	isDST(ctx: Context, time: Timestamp): JelBoolean {
 		return JelBoolean.valueOf(time.toMoment().tz(this.tz).isDST());
 	}
 	
 	// returns offset in minutes
-	getOffset_jel_mapping: Object;
+	getOffset_jel_mapping: boolean;
 	getOffset(ctx: Context, time: Timestamp): number {
 		return this.getMomentZone().utcOffset(time.msSinceEpoch);
 	}
@@ -70,6 +79,9 @@ export default class TimeZone extends JelObject {
 	}
 }
 
-TimeZone.prototype.JEL_PROPERTIES = {'tz': true};
-TimeZone.prototype.isDST_jel_mapping = ['time'];
-TimeZone.prototype.getOffset_jel_mapping = ['time'];
+TimeZone.prototype.tz_jel_property = true;
+TimeZone.prototype.isDST_jel_mapping = true;
+TimeZone.prototype.getOffset_jel_mapping = true;
+
+BaseTypeRegistry.register('TimeZone', TimeZone);
+

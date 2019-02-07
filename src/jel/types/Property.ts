@@ -15,7 +15,7 @@ import Util from '../../util/Util';
 export default class Property extends JelObject {
   static clazz: Class|undefined;
 
-  constructor(public name: string, public type?: TypeDescriptor, public defaultValueGenerator?: LambdaExecutable, public isNative = false) {
+  constructor(public name: string, public type?: TypeDescriptor, public defaultValueGenerator?: LambdaExecutable, public isNative = false, public isOverride = false, public isAbstract = false) {
 		super('Property');
     if (!/^[a-zA-Z_][\w_]*$/.test(name))
       throw new Error(`Illegal property name "${name}". Property names must follow identifier rules.`);
@@ -26,7 +26,7 @@ export default class Property extends JelObject {
   }
   
   getSerializationProperties(): any[] {
-    return [this.name, this.type||null, this.defaultValueGenerator||null, this.isNative];
+    return [this.name, this.type||null, this.defaultValueGenerator||null, this.isNative, this.isOverride, this.isAbstract];
   }
   
   isNullable(ctx: Context): boolean {
@@ -34,7 +34,7 @@ export default class Property extends JelObject {
   }
   
 	toString(): string {
-    const prefix = this.isNative ? 'native ' : '';
+    const prefix = `${this.isOverride ? 'override ' : ''}${this.isNative ? 'native ' : ''}${this.isAbstract ? 'abstract ' : ''}`;
     if (!this.type && !this.defaultValueGenerator)
       return `${prefix}${this.name}`;
     if (!this.type && this.defaultValueGenerator)
@@ -45,16 +45,18 @@ export default class Property extends JelObject {
       return `${prefix}${this.name}: ${this.type!.serializeType()} = ${this.defaultValueGenerator!.expression.toString()}`;
 	}
 
-  static valueOf(name: string, type?: any, defaultValueGenerator?: LambdaExecutable, isNative = false): Property {
-    return new Property(name, TypeHelper.convertNullableFromAny(type, 'type') || undefined, defaultValueGenerator, isNative);
+  static valueOf(name: string, type?: any, defaultValueGenerator?: LambdaExecutable, isNative = false, isOverride = false, isAbstract = false): Property {
+    return new Property(name, TypeHelper.convertNullableFromAny(type, 'type') || undefined, defaultValueGenerator, isNative, isOverride, isAbstract);
   }
   
-  static create_jel_mapping = ['name', 'type', 'defaultValueGenerator', 'isNative'];
+  static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]) {
     return new Property(TypeChecker.realString(args[0], 'name'),  
                               TypeHelper.convertNullableFromAny(args[1], 'type') || undefined, 
                               TypeChecker.optionalInstance(LambdaExecutable, args[2], 'defaultValueGenerator') || undefined,
-                              TypeChecker.realBoolean(args[3], 'isNative', false));
+                              TypeChecker.realBoolean(args[3], 'isNative', false),
+                              TypeChecker.realBoolean(args[4], 'isOverride', false),
+                              TypeChecker.realBoolean(args[5], 'isAbstract', false));
   }
    
 }

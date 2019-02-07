@@ -58,7 +58,7 @@ export default class Method extends NativeJelObject {
     return new Method(name, callable, isNative, isStatic, isAbstract, isOverride, isGetter);
   }
   
-  static create_jel_mapping = ['name', 'callable', 'isNative', 'isStatic', 'isAbstract', 'isOverride', 'isGetter'];
+  static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]) {
     return new Method(TypeChecker.realString(args[0], 'name'), 
                       TypeChecker.instance(Callable, args[1], 'callable'), 

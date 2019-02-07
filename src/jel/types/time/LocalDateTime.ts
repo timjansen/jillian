@@ -15,12 +15,17 @@ import ZonedDate from './ZonedDate';
 import ZonedDateTime from './ZonedDateTime';
 import Timestamp from './Timestamp';
 import Duration from './Duration';
+import NativeJelObject from '../NativeJelObject';
+import Class from '../Class';
+import BaseTypeRegistry from '../../BaseTypeRegistry';
 
 
 /**
  * Represents a date.
  */
 export default class LocalDateTime extends AbstractDate {
+  static clazz: Class|undefined;
+
 	
 	constructor(public date: LocalDate, public time: TimeOfDay) {
 		super('LocalDateTime');
@@ -28,6 +33,10 @@ export default class LocalDateTime extends AbstractDate {
 		if (date.month == null || date.day == null)
 			throw new Error('A LocalDateTime must not have month or day set to null. Use a LocalDate if you need this.');
 	}
+  
+  get clazz(): Class {
+    return LocalDateTime.clazz!;
+  }
 	
 	get year(): number {
 		return this.date.year;
@@ -134,18 +143,15 @@ export default class LocalDateTime extends AbstractDate {
 		return super.op(ctx, operator, right);
 	}
 	
-	toZonedDate_jel_mapping: Object;
 	toZonedDate(ctx: Context, timeZone: any): ZonedDate {
 		return new ZonedDate(TypeChecker.instance(TimeZone, timeZone, 'timeZone'), this.date);
 	}
 
 	
-	toZonedDateTime_jel_mapping: Object;
 	toZonedDateTime(ctx: Context, timeZone: any): ZonedDateTime {
 		return new ZonedDateTime(TypeChecker.instance(TimeZone, timeZone, 'timeZone'), this.date, this.time);
 	}
 
-	toTimestamp_jel_mapping: Object;
 	toTimestamp(ctx: Context, timeZone: any): Timestamp {
 		return this.getStartTime(ctx, TypeChecker.instance(TimeZone, timeZone, 'timeZone'));
 	}
@@ -154,18 +160,27 @@ export default class LocalDateTime extends AbstractDate {
 		return [this.date, this.time];
 	}
 
-	static create_jel_mapping = {date: 1, time: 2, year: 1, month: 2, day: 3, hour: 4, minute: 5, seconds: 6};
+	static fromDate_jel_mapping = true;
+	static fromDate(ctx: Context, date: any, time: any): any {
+			return new LocalDateTime(TypeChecker.instance(LocalDate, date, 'date'), TypeChecker.instance(TimeOfDay, time, 'time'));
+	}
+  
+	static create_jel_mapping = true;
 	static create(ctx: Context, ...args: any[]): any {
-		if (args[0] instanceof LocalDate)
-			return new LocalDateTime(args[0], TypeChecker.instance(TimeOfDay, args[1], 'time'));
-		else 
 			return new LocalDateTime(new LocalDate(TypeChecker.realNumber(args[0], 'year'), TypeChecker.realNumber(args[1], 'month'), TypeChecker.realNumber(args[2], 'day')), 
-															new TimeOfDay(TypeChecker.realNumber(args[3], 'hour'), TypeChecker.optionalRealNumber(args[4], 'minute'), TypeChecker.optionalRealNumber(args[5], 'seconds')));
+															 new TimeOfDay(TypeChecker.realNumber(args[3], 'hour'), TypeChecker.optionalRealNumber(args[4], 'minute'), TypeChecker.optionalRealNumber(args[5], 'seconds')));
 	}
 }
 
-LocalDateTime.prototype.JEL_PROPERTIES = Object.assign({time: 1, date: 1, hour:1, minute: 1, seconds:1}, AbstractDate.prototype.JEL_PROPERTIES);
-LocalDateTime.prototype.reverseOps = {'+': 1};
-LocalDateTime.prototype.toZonedDate_jel_mapping = ['timeZone'];
-LocalDateTime.prototype.toZonedDateTime_jel_mapping = ['timeZone'];
-LocalDateTime.prototype.toTimestamp_jel_mapping = ['timeZone'];
+const p: any = LocalDateTime.prototype;
+p.time_jel_property = true;
+p.date_jel_property = true;
+p.hour_jel_property = true;
+p.minute_jel_property = true;
+p.seconds_jel_property = true;
+p.reverseOps = {'+': 1};
+p.toZonedDate_jel_mapping = true;
+p.toZonedDateTime_jel_mapping = true;
+p.toTimestamp_jel_mapping = true;
+
+BaseTypeRegistry.register('LocalDateTime', LocalDateTime);

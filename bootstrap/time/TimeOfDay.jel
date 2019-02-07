@@ -1,0 +1,8 @@
+/**
+ * Describes a time of day.
+ */
+native class TimeOfDay:
+  static native MIDNIGHT: TimeOfDay
+  static native NOON: TimeOfDay
+  
+  native constructor(hour: int, minute: int?, seconds: int?)

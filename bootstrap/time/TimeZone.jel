@@ -1,0 +1,13 @@
+/**
+ * Describes a time zone.
+ */
+native class TimeZone:
+  static native UTC: TimeZone
+
+  native constructor(tz: string = "UTC")
+  
+  native isDST(time: SimpleType('Timestamp')): bool
+  native getOffset(time: SimpleType('Timestamp')): int
+
+
+

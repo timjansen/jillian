@@ -109,24 +109,33 @@ const BOOT_SCRIPT = [
     {jel: 'Float.jel', native: Float},
     {jel: 'String.jel', native: JelString},
     {jel: 'Range.jel', native: Range},
-    {jel: 'List.jel', native: List}
+    {jel: 'List.jel', native: List},
+    {jel: 'time/Duration.jel', native: Duration},
+    {jel: 'time/TimeOfDay.jel', native: TimeOfDay},
+    {jel: 'time/TimeDescriptor.jel'},
+    {jel: 'time/TimeZone.jel', native: TimeZone}
   ],
   [
     {jel: 'Dictionary.jel', native: Dictionary},
     {jel: 'Fraction.jel', native: Fraction},
     {jel: 'DistributionPoint.jel', native: DistributionPoint}, 
-    {jel: 'Pattern.jel', native: Pattern}
+    {jel: 'Pattern.jel', native: Pattern},
+    {jel: 'time/AbstractDate.jel'},
+    {jel: 'time/DurationRange.jel', native: DurationRange},
+    {jel: 'time/Timestamp.jel', native: Timestamp}
   ],
   [
     {jel: 'Distribution.jel', native: Distribution},
     {jel: 'ApproximateNumber.jel', native: ApproximateNumber},
-    {jel: 'Translator.jel', native: Translator}
+    {jel: 'Translator.jel', native: Translator},
+    {jel: 'time/LocalDate.jel', native: LocalDate}
   ],
-  {jel: 'Math.jel', native: JelMath}, 
-  {jel: 'time/DurationRange.jel', native: DurationRange}, // << TODO: DurationRange.jel this after converting Duration
-  
-  {static: {Duration: c(Duration), Timestamp: c(Timestamp), TimeZone: c(TimeZone), TimeOfDay: c(TimeOfDay), LocalDate: c(LocalDate), LocalDateTime: c(LocalDateTime), 
-            ZonedDate: c(ZonedDate), ZonedDateTime: c(ZonedDateTime)}}
+  [
+    {jel: 'Math.jel', native: JelMath}, 
+    {jel: 'time/LocalDateTime.jel', native: LocalDateTime},
+    {jel: 'time/ZonedDate.jel', native: ZonedDate},
+    {jel: 'time/ZonedDateTime.jel', native: ZonedDateTime}
+  ]
 ];
 
 export default class DefaultContext {

@@ -25,10 +25,10 @@ export default class NativeFunction extends CachableJelNode {
     const clazz: any = BaseTypeRegistry.get(this.className);
     const impl: any = this.isStaticClass ? clazz : clazz.prototype;
     if (!impl[this.name + '_jel_mapping'])
-      throw new Error(`Native method ${this.name} in class ${this.className} does not have the required ${this.name}_jel_mapping property in the implementation class.`);
+      throw new Error(`Native method ${this.name}() in class ${this.className} does not have the required ${this.name}_jel_mapping property in the implementation class.`);
     const func = impl[this.name];
     if (!func)
-      throw new Error(`Native method ${this.name} in class ${this.className} has a ${this.name}_jel_mapping, but no implementation.`);
+      throw new Error(`Native method ${this.name}() in class ${this.className} has a ${this.name}_jel_mapping, but no implementation.`);
    
     if (this.returnType) {
       const eList = [this.returnType.execute(ctx)].concat(this.args.map(a=>a.execute(ctx)));

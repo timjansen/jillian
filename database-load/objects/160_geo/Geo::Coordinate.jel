@@ -1,4 +1,4 @@
 class Geo::Coordinate:
-  constructor(latitude: number(-180...180), longitude: number(-180...180)) =>
+  constructor(latitude, longitude) =>
     {}
     

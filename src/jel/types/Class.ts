@@ -35,6 +35,7 @@ export default class Class extends PackageContent implements IClass, Serializabl
   allMethodCallables: Dictionary;        // name->Callable
   allGetters: Dictionary;                // name->Method, all getters, including super types
 
+  ctorProperties: Dictionary;              // name->Property for properties defined in the constructor
   localProperties: Dictionary;             // name->Property, including super types
   localMethods: Dictionary;                // name->Method, all methods, including super types
   localGetters: Dictionary;                // name->Method, all getters, including super types
@@ -79,14 +80,19 @@ export default class Class extends PackageContent implements IClass, Serializabl
     const reboundMethods = methods.elements.map(m=>m.bindParentContext(this.classContext));
     
     this.ctorArgList = ctor?ctor.argDefs:[];
-    const ctorProps = new Dictionary(this.ctorArgList.map(lc=>[lc.name, new Property(lc.name, lc.type, lc.defaultValueGenerator)]));
+    this.ctorProperties = new Dictionary(this.ctorArgList.map(lc=>{
+      const override = superType && superType.allProperties.elements.has(lc.name);
+      if (lc.type && override)
+        throw new Error(`Class ${name}'s constructor is overriding ${superType!.name}'s property '${lc.name}'. It must not specify any type, as the type is inherited from the super class.`);
+      return [lc.name, new Property(lc.name, override ? (superType!.allProperties.elements.get(lc.name) as Property).type : lc.type, lc.defaultValueGenerator, isNative, override)];
+    }));
     const getterProps = new Dictionary(reboundMethods.filter(e=>e.isGetter && !e.isStatic).map(e=>[e.name, new Property(e.name)]));
     const declaredLocalProps = new Dictionary(properties.elements.map((e: Property)=>[e.name, e]));
-    const duplicateProperties = new Set(getterProps.duplicateKeysJs(declaredLocalProps).concat(getterProps.duplicateKeysJs(ctorProps)).concat(ctorProps.duplicateKeysJs(declaredLocalProps)));
+    const duplicateProperties = new Set(getterProps.duplicateKeysJs(declaredLocalProps).concat(getterProps.duplicateKeysJs(this.ctorProperties)).concat(this.ctorProperties.duplicateKeysJs(declaredLocalProps)));
     if (duplicateProperties.size)
-      throw new Error('One or more properties have redundant local declarations, either as normal properties, constructor arguments or as getter: '+Array.from(duplicateProperties).join(', '));
+      throw new Error(`One or more properties have redundant local declarations in ${name}, either as normal properties, constructor arguments or as getter: `+Array.from(duplicateProperties).join(', '));
       
-    this.localProperties  = ctorProps.putAll(declaredLocalProps);
+    this.localProperties  = new Dictionary(this.ctorProperties).putAll(declaredLocalProps);
     this.allProperties = superType ? new Dictionary(superType.allProperties).putAll(this.localProperties) : this.localProperties;
     
     this.localMethods = new Dictionary(reboundMethods.filter(e=>!e.isStatic && !e.isGetter).map(e=>[e.name, e]));
@@ -97,14 +103,16 @@ export default class Class extends PackageContent implements IClass, Serializabl
     this.allGetters = superType ? new Dictionary(superType.allGetters).putAll(this.localGetters) : this.localGetters;
 
     if (superType) {
-      const overridenProperty = declaredLocalProps.findJs((n: string, p: Property)=>superType.has(n));
-      if (overridenProperty)
-        throw new Error(`Property ${overridenProperty} is already defined in super type ${superType.name}, you must not override it.`);
-      
       if (!isAbstract) {
-        const missingOverride = superType.allMethods.findJs((n: string, m: Method)=>m.isAbstract && !this.localMethods.elements.has(n));
-        if (missingOverride)
-          throw new Error(`Missing override for abstract method ${missingOverride}(). Classes need to override all abstract methods, unless they are abstract themselves.`);
+        const missingMethodOverride = superType.allMethods.findJs((n: string, m: Method)=>m.isAbstract && !this.localMethods.elements.has(n));
+        if (missingMethodOverride)
+          throw new Error(`Missing override for abstract method ${missingMethodOverride}() in ${name}. Classes need to override all abstract methods, unless they are abstract themselves.`);
+
+        const missingPropertyOverride = superType.allProperties.findJs((n: string, p: Property)=>p.isAbstract && 
+                                                                       !((this.localProperties.elements.has(n) && !(this.localProperties.elements.get(n) as any).isAbstract) || 
+                                                                         (this.localGetters.elements.has(n) && !(this.localGetters.elements.get(n) as any).isAbstract)));
+        if (missingPropertyOverride)
+          throw new Error(`Missing override for abstract property '${missingPropertyOverride}' in ${name}. Classes need to override all abstract properties, unless they are abstract themselves.`);
       }
       
       this.ctor = (ctor instanceof LambdaCallable && superType.ctor instanceof LambdaCallable) ? ctor.bindSuper(superType.ctor) : ctor;
@@ -123,6 +131,53 @@ export default class Class extends PackageContent implements IClass, Serializabl
     return this.allProperties.elements.has(name) || this.allMethods.elements.has(name) || this.allGetters.elements.has(name);
   }
   
+  protected checkPropertyOverrides(): Promise<never>|undefined {
+    if (!this.superType)
+      return;
+     
+    return Util.waitArray(this.localProperties.mapToArrayJs((name, property: Property)=>{
+      if (!this.superType!.has(name)) {
+        if (property.isOverride)
+          throw new Error(`Error overriding property '${name}' in ${this.name}: property not found in super type ${this.superType!.name}.`);
+        return;
+      }
+      
+      if (this.allGetters.elements.has(name))
+        throw new Error(`Error overriding getter ${name}() in ${this.superType!.name} with a property in ${this.name}: you can only override getters with other getters, not with plain properties.`);
+
+      if (this.allMethods.elements.has(name))
+        throw new Error(`Error overriding method ${name}() in ${this.superType!.name} with a property in ${this.name}: you can only override methods with other methods, not with properties.`);
+
+      const origin = this.superType!.allProperties.elements.get(name) as Property|undefined;
+      
+      if (!origin)
+        throw new Error(`Something went wrong. Super class claims to have a member '${name}, but it's neither getter, method nor property.`);
+
+      if (!origin.isAbstract && !this.ctorProperties.elements.has(name))
+        throw new Error(`Error overriding property '${name}' in ${this.name}: you can only override 'abstract' properties.`);
+      
+      if (!property.isOverride)
+        throw new Error(`Error overriding property '${name}' in ${this.name}: overriding property needs an 'override' modifier.`);
+      
+      const origType = origin.type;
+      const ovrdType = property.type;
+
+      if ((!!ovrdType) != (!!origType)) {
+        if (ovrdType)
+          throw new Error(`Error overriding property '${name}' in ${this.name}: property has no type, but overriding property has ${ovrdType.toString()}.`);
+        else
+          throw new Error(`Error overriding property '${name}' in ${this.name}: property has return type '${origType!.toString()}', but overriding property has no return type.`);
+      }
+      if (!ovrdType)
+        return;
+      
+      return Util.resolveValue(TypeDescriptor.equals(this.classContext, ovrdType, origType), (retCheck: JelBoolean)=>{
+        if (!retCheck.toRealBoolean())
+          throw new Error(`Error overriding property '${name}' in ${this.name}: super type property type '${origType!.toString()}' is incompatible with overriding type '${ovrdType.toString()}'.`);
+      });
+    }));
+  }
+
  
   protected checkGetterOverrides(): Promise<never>|undefined {
     if (!this.superType)
@@ -348,7 +403,7 @@ export default class Class extends PackageContent implements IClass, Serializabl
   }
 
   protected asyncInit(): Promise<Class>|Class {
-    return Util.resolveValues(()=>this.staticPropertyInit(), this.checkMethodOverrides(), this.checkGetterOverrides());
+    return Util.resolveValues(()=>this.staticPropertyInit(), this.checkMethodOverrides(), this.checkGetterOverrides(), this.checkPropertyOverrides());
   }
   
 	serializeToString(pretty: boolean, indent: number, spaces: string, serializer: (object: any, pretty: boolean, indent: number, spaces: string)=>string): string {
