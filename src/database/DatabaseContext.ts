@@ -4,7 +4,6 @@ import Util from '../util/Util';
 import Context from '../jel/Context';
 import JelObject from '../jel/JelObject';
 import DefaultContext from '../jel/DefaultContext';
-import NativeClass from '../jel/NativeClass';
 import {IDbSession} from '../jel/IDatabase';
 
 import Database from './Database';
@@ -26,9 +25,6 @@ import Unit from '../jel/types/Unit';
 import UnitValue from '../jel/types/UnitValue';
 
 
-function c(ctor: any): NativeClass {
-  return new NativeClass(ctor);
-}
 
 
 const BOOT_SCRIPT = [

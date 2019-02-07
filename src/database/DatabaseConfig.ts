@@ -12,7 +12,6 @@ export default class DatabaseConfig extends JelObject implements Serializable {
   sizing: number;
   prettyPrint: boolean;
 
-  JEL_PROPERTIES: Object;
   
   constructor(config = new Map<string, JelObject|null>()) {
     super('DatabaseConfig');
@@ -36,5 +35,4 @@ export default class DatabaseConfig extends JelObject implements Serializable {
   }
 }
 
-DatabaseConfig.prototype.JEL_PROPERTIES = {version: 1, sizing: 1, prettyPrint: 1};
 

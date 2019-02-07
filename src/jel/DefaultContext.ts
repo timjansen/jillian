@@ -3,7 +3,6 @@ import * as path from 'path';
 
 import BaseTypeRegistry from './BaseTypeRegistry';
 import Context from './Context';
-import NativeClass from './NativeClass';
 import LambdaExecutable from './LambdaExecutable';
 
 import JelBoolean from './types/JelBoolean';
@@ -56,10 +55,6 @@ import SimpleType from './types/typeDescriptors/SimpleType';
 import StringType from './types/typeDescriptors/StringType';
 import TimeType from './types/typeDescriptors/TimeType';
 import JEL from './JEL';
-
-function c(ctor: any): NativeClass {
-  return new NativeClass(ctor);
-}
 
 
 const BOOT_SCRIPT = [
