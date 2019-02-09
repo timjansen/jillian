@@ -8,7 +8,6 @@ const JelString = require('../../build/jel/types/JelString.js').default;
 const List = require('../../build/jel/types/List.js').default;
 const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
 const Dictionary = require('../../build/jel/types/Dictionary.js').default;
-const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const {plus, JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 
@@ -91,21 +90,6 @@ describe('jelDictionary', function() {
     it('maps', function() {
       jelAssert.equalPromise('{"v": 3, "b": 9}.map((k,v)=>v+1)', new Dictionary({v: 4, b: 10})); 
       return jelAssert.equalPromise('{"v": 3, "b": 9}.map((k,v)=>JelPromise(v+1))', new Dictionary({v: 4, b: 10})); 
-    });
-  });
-
-  describe('each()', function() {
-    it('iterates', function() {
-      let x = '';
-      const accumulator = new FunctionCallable((ctx, k, v)=> x+=k+'-'+v+',' );
-      new JEL('{"3": 2, "9": 10}.each(accumulator)').executeImmediately(new Context().setAll({accumulator}));
-      assert.equal(x, "3-2,9-10,");
-    });
-    it('iterates with promises', function() {
-      let x = '';
-      const accumulator = new FunctionCallable((ctx, k, v)=> Promise.resolve(x+=k+'-'+v+','));
-      return new JEL('{"3": 2, "9": 10, "a": 11, "b": 22}.each(accumulator)').execute(new Context(ctx).setAll({accumulator}))
-				.then(()=>assert.equal(x, "3-2,9-10,a-11,b-22,"));
     });
   });
 

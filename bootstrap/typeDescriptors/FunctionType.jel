@@ -3,7 +3,7 @@
  * The body of the lambda is ignored, and it will not be invoked.
  */
 native class FunctionType extends TypeDescriptor:
-  native constructor(prototype: any?, allowUntyped: bool = false) // TODO: make prototype SimpleType('Callable')
+  native constructor(prototype: function?, allowUntyped: bool = false)
  
   override native checkType(value: any?): bool
 
@@ -13,6 +13,6 @@ native class FunctionType extends TypeDescriptor:
   
   override native serializeToString(): string
   
-  native create(prototype: any?, allowUntyped: bool = false) // TODO: make prototype SimpleType('Callable')
+  native create(prototype: function?, allowUntyped: bool = false) 
 
   

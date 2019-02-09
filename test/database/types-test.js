@@ -68,9 +68,9 @@ describe('Types', function() {
     jelAssert.fuzzy('int.checkType(15/5)', 1);
     jelAssert.fuzzy('int.checkType(15/4)', 0);
 
-    jelAssert.fuzzy('int(2, 3).checkType(2)', 1);
-    jelAssert.fuzzy('int(2, 3).checkType(3)', 1);
-    jelAssert.fuzzy('int(2, 3).checkType(4)', 0);
+    jelAssert.fuzzy('int(2...3).checkType(2)', 1);
+    jelAssert.fuzzy('int(2...3).checkType(3)', 1);
+    jelAssert.fuzzy('int(2...3).checkType(4)', 0);
     jelAssert.fuzzy('int(1...10).checkType(4)', 1);
 
     jelAssert.fuzzy('number.checkType(1)', 1);
@@ -80,7 +80,7 @@ describe('Types', function() {
     jelAssert.fuzzy('number.checkType(15/5)', 1);
     jelAssert.fuzzy('number.checkType(15/4)', 1);
 
-    jelAssert.fuzzy('number(2, 3).checkType(2)', 1);
+    jelAssert.fuzzy('number(2...3).checkType(2)', 1);
     jelAssert.fuzzy('number(2...3).checkType(2.5)', 1);
     jelAssert.fuzzy('number(2...3).checkType(3)', 1);
     jelAssert.fuzzy('number(2...3).checkType(17/8)', 1);

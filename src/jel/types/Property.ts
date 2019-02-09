@@ -12,7 +12,7 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
 import Util from '../../util/Util';
 
 
-export default class Property extends JelObject {
+export default class Property extends NativeJelObject {
   static clazz: Class|undefined;
 
   constructor(public name: string, public type?: TypeDescriptor, public defaultValueGenerator?: LambdaExecutable, public isNative = false, public isOverride = false, public isAbstract = false) {

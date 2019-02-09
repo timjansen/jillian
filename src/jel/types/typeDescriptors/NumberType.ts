@@ -70,7 +70,7 @@ export default class NumberType extends TypeDescriptor implements SerializablePr
   
 }
 
-NumberType.prototype.create_jel_mapping = {range: 1, min: 1, max: 2};
+NumberType.prototype.create_jel_mapping = true;
 BaseTypeRegistry.register('NumberType', NumberType);
 
 

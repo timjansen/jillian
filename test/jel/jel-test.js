@@ -7,7 +7,6 @@ const Context = require('../../build/jel/Context.js').default;
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const BaseTypeRegistry = require('../../build/jel/BaseTypeRegistry.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
-const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const Callable = require('../../build/jel/Callable.js').default;
 const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
 const JelObject = require('../../build/jel/JelObject.js').default;

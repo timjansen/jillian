@@ -4,7 +4,6 @@ require('source-map-support').install();
 const assert = require('assert');
 
 const Context = require('../../build/jel/Context.js').default;
-const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const BaseTypeRegistry = require('../../build/jel/BaseTypeRegistry.js').default;
 const Callable = require('../../build/jel/Callable.js').default;
 const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
@@ -363,23 +362,6 @@ describe('JEL', function() {
       return jelAssert.errorPromise('let a=1: with a>0, a<0: a', 'a < 0');
     });
 
-    
-   it('supports calls', function() {
-      function f(ctx, a=Float.valueOf(1), b=Float.valueOf(2)) { 
-        return a.value + b.value + (this && this.c.value || 5);
-      }
-      const fc1 = new FunctionCallable(f, {a:Float.valueOf(1), b:Float.valueOf(2)}, {c:Float.valueOf(7)});
-      const fc2 = new FunctionCallable(f, {a:Float.valueOf(1), b:Float.valueOf(2)});
-      jelAssert.equal(new JEL('f()').executeImmediately(new Context().setAll({f:fc1})), 10);
-      jelAssert.equal(new JEL('f()').executeImmediately(new Context().setAll({f:fc2})), 8);
-      jelAssert.equal(new JEL('f(10)').executeImmediately(new Context().setAll({f:fc1})), 19);
-      jelAssert.equal(new JEL('f(10, 100)').executeImmediately(new Context().setAll({f:fc1})), 117);
-      jelAssert.equal(new JEL('f(10, 100, 1000)').executeImmediately(new Context().setAll({f:fc1})), 117);
-      jelAssert.equal(new JEL('f(b=100, a=10)').executeImmediately(new Context().setAll({f:fc1})), 117);
-      jelAssert.equal(new JEL('f(b=100)').executeImmediately(new Context().setAll({f:fc1})), 108);
-      jelAssert.equal(new JEL('f(10, b=100)').executeImmediately(new Context().setAll({f:fc1})), 117);
-      jelAssert.equal(new JEL('f(10, b=100)').executeImmediately(new Context().setAll({f:fc2})), 115);
-   });
     
    it('supports constructors and static methods', function() {
       const clsCtx = new Context().plus({any: AnyType.instance});

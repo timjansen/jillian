@@ -12,3 +12,4 @@ native class IntType extends TypeDescriptor:
   
   override native serializeToString(): string
   
+  native create(range: SimpleType('Range')?): IntType

@@ -12,3 +12,4 @@ native class NumberType extends TypeDescriptor:
   
   override native serializeToString(): string
   
+  native create(range: SimpleType('Range')?): NumberType

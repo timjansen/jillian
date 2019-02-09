@@ -11,4 +11,6 @@ native class NumericType extends TypeDescriptor:
   override native equals(other: TypeDescriptor?): bool
   
   override native serializeToString(): string
-  
+
+  native create(range: SimpleType('Range')?): NumericType
+

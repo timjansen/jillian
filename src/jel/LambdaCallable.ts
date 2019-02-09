@@ -9,9 +9,11 @@ import Context from './Context';
 import Callable from './Callable';
 import Serializer from './Serializer';
 import Util from '../util/Util';
-
+import Class from './types/Class';
 
 export default class LambdaCallable extends Callable implements SerializablePrimitive {
+  static clazz: Class|undefined;
+
   private varArgPos: number = Number.MAX_SAFE_INTEGER;
 
   
@@ -27,7 +29,11 @@ export default class LambdaCallable extends Callable implements SerializablePrim
         throw new Error(`Invalid varargs in method/function ${this.name} argument ${last.name}. You must not provide a default value. The default is always an empty List.`);
     }
   }
-
+  
+  get clazz(): Class {
+    return LambdaCallable.clazz!;
+  }
+  
   private static setVariable(ctx: Context, newCtx: Context, argDef: TypedParameterValue, value0: JelObject|null|undefined): Promise<any>|undefined {
     const value = value0 != null ? value0 : (argDef.defaultValueGenerator ? argDef.defaultValueGenerator.execute(ctx) : null);
     if (argDef.type) {
@@ -173,3 +179,5 @@ export default class LambdaCallable extends Callable implements SerializablePrim
 			return `(${this.argDefs.map((ad, i)=>(i == this.varArgPos ? '...':'')+ad.toString()).join(', ')})=>${this.expression.toString()}`;
 	}
 }
+
+BaseTypeRegistry.register('LambdaCallable', LambdaCallable);

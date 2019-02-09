@@ -1,0 +1,11 @@
+native class TypedParameterValue:
+ 
+  native constructor(name: string, type: TypeDescriptor?, defaultValueGenerator: LambdaExecutable?)
+   
+  native isNameOnly: bool
+  native isNullable: bool
+
+  static native compatibleTypes(one: TypedParameterValue?, other: TypedParameterValue?, canOtherBeUntyped: bool = false): bool
+
+  
+  native compatibleWith(other: TypedParameterValue): bool

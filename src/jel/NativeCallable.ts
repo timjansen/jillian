@@ -9,9 +9,12 @@ import Callable from './Callable';
 import Serializer from './Serializer';
 import Util from '../util/Util';
 import BaseTypeRegistry from './BaseTypeRegistry';
+import Class from './types/Class';
 
 
 export default class NativeCallable extends Callable implements SerializablePrimitive {
+  static clazz: Class|undefined;
+
   private varArgPos = Number.MAX_SAFE_INTEGER;
   
   constructor(public self: JelObject|undefined, public argDefs: TypedParameterValue[], public returnType: TypedParameterValue|undefined, public nativeFunction: Function, public parentContext: Context, public name: string, public varArg = false) {
@@ -27,6 +30,9 @@ export default class NativeCallable extends Callable implements SerializablePrim
     }
   }
 
+  get clazz(): Class {
+    return NativeCallable.clazz!;
+  }
   
   private static invoke(ctx: Context, name: string, self: JelObject|undefined, argDefs: TypedParameterValue[], returnType: TypedParameterValue|undefined, nativeFunction: Function, 
                          args: (JelObject|null)[], argObj: Map<string,JelObject|null>|undefined, varArgPos: number): JelObject|null|Promise<JelObject|null> {
@@ -131,3 +137,5 @@ export default class NativeCallable extends Callable implements SerializablePrim
 			return `(${this.argDefs.map((ad, i)=>(i == this.varArgPos ? '...':'')+ad.toString()).join(', ')})=> (native impl)`;
 	}
 }
+
+BaseTypeRegistry.register('NativeCallable', NativeCallable);

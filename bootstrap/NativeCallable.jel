@@ -1,0 +1,4 @@
+native class NativeCallable:
+
+  native getArguments(): any[]?
+  native getReturnType(): any? 

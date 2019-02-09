@@ -1,11 +1,12 @@
 import Context from './Context';
 import JelObject from './JelObject';
+import NativeJelObject from './types/NativeJelObject';
 import BaseTypeRegistry from './BaseTypeRegistry';
 
 /**
  * A type that can be called.
  */
-export default abstract class Callable extends JelObject {
+export default abstract class Callable extends NativeJelObject {
   
   /**
    * @param ctx the current Context. May be ignored when a Lambda is called. 
@@ -34,3 +35,9 @@ export default abstract class Callable extends JelObject {
 
 }
 
+const p: any = Callable.prototype;
+p.invoke_jel_mapping = true;
+p.getArguments_jel_mapping = true;
+p.getReturnType_jel_mapping = true;
+
+BaseTypeRegistry.register('Callable', Callable);

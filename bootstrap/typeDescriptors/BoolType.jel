@@ -11,3 +11,5 @@ native class BoolType extends TypeDescriptor:
   override native equals(other: TypeDescriptor?): bool
   
   override native serializeToString(): string
+  
+  

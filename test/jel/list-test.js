@@ -13,7 +13,6 @@ const JelString = require('../../build/jel/types/JelString.js').default;
 const Float = require('../../build/jel/types/Float.js').default;
 const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
 const ApproximateNumber = require('../../build/jel/types/ApproximateNumber.js').default;
-const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const {plus, JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
 
@@ -123,20 +122,6 @@ describe('jelList', function() {
     });
   });
 
-  describe('each()', function() {
-    it('iterates', function() {
-      let x = 0;
-      const accumulator = new FunctionCallable((ctx, a, i)=>x+=a.value+2*i.value);
-      new JEL('[3, 2, 9].each(accumulator)').executeImmediately(defaultContext.plus({accumulator}));
-      assert.equal(x, 20);
-    });
-    it('iterates with promises', function() {
-      let x = 0;
-      const accumulator = new FunctionCallable((ctx, a, i)=>Promise.resolve(x+=a.value+2*i.value));
-      return new JEL('[3, 2, 9].each(accumulator)').execute(defaultContext.plus({accumulator}))
-				.then(()=>assert.equal(x, 20));
-    });
-  });
 
   describe('reduce()', function() {
     it('reduces', function() {

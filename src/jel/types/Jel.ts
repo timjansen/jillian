@@ -3,15 +3,23 @@ import Runtime from '../Runtime';
 import Callable from '../Callable';
 import Context from '../Context';
 import JelString from './JelString';
+import List from './List';
 import TypeChecker from './TypeChecker';
-
+import NativeJelObject from './NativeJelObject';
+import Class from './Class';
+import BaseTypeRegistry from '../BaseTypeRegistry';
 
 
 /**
  * Collection of static helper methods.
  */
-export default class Jel extends JelObject {
-
+export default class Jel extends NativeJelObject {
+  static clazz: Class|undefined;
+  
+  get clazz(): Class {
+    return Jel.clazz!
+  }
+  
   private static toString(s: any): string {
     if (s == null)
       return 'null';
@@ -32,9 +40,9 @@ export default class Jel extends JelObject {
     return s;
   }
   
-	static throw_jel_mapping = ['msg'];
-	static throw(ctx: Context, ...args: (JelObject|null)[]): Promise<Error> {
-		return Promise.reject(new Error(Jel.buildMessage(ctx, args, args.length)));
+	static throw_jel_mapping = true;
+	static throw(ctx: Context, args: List): Promise<Error> {
+		return Promise.reject(new Error(Jel.buildMessage(ctx, args.elements, args.length)));
 	}
   
   private static genericLog(ctx: Context, args: (JelObject|null)[], logger: (a: string)=>void): any {
@@ -47,30 +55,30 @@ export default class Jel extends JelObject {
       logger(Jel.buildMessage(ctx, args, args.length));
   }
   
-  static log_jel_mapping = ['msg'];
-	static log(ctx: Context, ...args: (JelObject|null)[]): any {
-    return Jel.genericLog(ctx, args, m=>console.log(m));
+  static log_jel_mapping = true
+	static log(ctx: Context, args: List): any {
+    return Jel.genericLog(ctx, args.elements, m=>console.log(m));
 	}
 
-  static error_jel_mapping = ['msg'];
-	static error(ctx: Context, ...args: (JelObject|null)[]): any {
-    return Jel.genericLog(ctx, args, m=>console.error(m));
+  static error_jel_mapping = true
+	static error(ctx: Context, args: List): any {
+    return Jel.genericLog(ctx, args.elements, m=>console.error(m));
 	}
   
-  static same_jel_mapping = ['left', 'right'];
+  static same_jel_mapping = true;
 	static same(ctx: Context, left: JelObject|null, right: JelObject|null): boolean {
     return Object.is(left, right);
 	}
 
-  static sameType_jel_mapping = ['left', 'right'];
+  static sameType_jel_mapping = true;
 	static sameType(ctx: Context, left: JelObject|null, right: JelObject|null): boolean {
     if (left == null)
       return right == null;
     return right != null && left.getJelType() == right.getJelType();
 	}
-
-  
+ 
 }
 
+BaseTypeRegistry.register('Jel', Jel);
 
 

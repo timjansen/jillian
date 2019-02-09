@@ -6,6 +6,8 @@ native class LocalDate extends AbstractDate:
   native constructor(year, month, day)
 
 	native toLocalDateTime(time: TimeOfDay = TimeOfDay.MIDNIGHT): LocalDateTime
+	native toZonedDate(timeZone: SimpleType('TimeZone')): SimpleType('ZonedDate')
+	native toZonedDateTime(timeZone: SimpleType('TimeZone'), time: TimeOfDay = TimeOfDay.MIDNIGHT): SimpleType('ZonedDateTime')
   
 	override native getStartTime(defaultTimeZone: SimpleType('TimeZone')): Timestamp
 	override native getEndTime(defaultTimeZone: SimpleType('TimeZone')): Timestamp

@@ -1,0 +1,5 @@
+native class LambdaExecutable:
+  
+  native constructor(func: function)
+  native execute(): any?
+

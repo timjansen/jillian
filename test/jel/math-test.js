@@ -11,7 +11,6 @@ const Fraction = require('../../build/jel/types/Fraction.js').default;
 const UnitValue = require('../../build/jel/types/UnitValue.js').default;
 const Unit = require('../../build/jel/types/Unit.js').default;
 const ApproximateNumber = require('../../build/jel/types/ApproximateNumber.js').default;
-const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const {plus, JelAssert, JelPromise, JelConsole, MockSession} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
 

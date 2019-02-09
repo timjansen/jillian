@@ -1,5 +1,4 @@
 import BaseTypeRegistry from './BaseTypeRegistry';
-import FunctionCallable from './FunctionCallable';
 import JelObject from './JelObject';
 import Context from './Context';
 import Callable from './Callable';
@@ -92,37 +91,7 @@ export default class Runtime {
       return left.getJelType() == rightName;
 	}
   
-  static getNativeMethod(rebind: boolean, obj: JelObject, name: string) {
-    let functionMap = instanceFunctionCache.get(obj.getJelType());
-    if (functionMap) {
-      const cachedImpl = functionMap.get(name);
-      if (cachedImpl)
-        return rebind ? cachedImpl.rebind(obj) : cachedImpl;
-    }
-    else {
-      functionMap = new Map<string,Callable>();
-      instanceFunctionCache.set(obj.getJelType(), functionMap);
-    }
-    
-		const argMapper = (obj as any)[`${name}_jel_mapping`];
-		if (argMapper) {
-			const newCallable = new FunctionCallable((obj as any)[name], argMapper, obj, name);
-      functionMap.set(name, newCallable);
-			return newCallable;
-		}
-
-		if (name in obj) { 
-			if (typeof (obj as any)[name] == 'function')
-				throw new Error(`Method ${name} is not callable in JEL. It would need a _jel_mapping.`);
-			else
-				throw new Error(`Property ${name} is not accessible. It would need to be defined in JEL_PROPERTIES.`);
-		}
-		else 
-			throw new Error(`Can not find member or method ${name} in ${obj.getJelType()}.`);
-  } 
-
-
- 	static callMethod(ctx: Context, obj: JelObject|null, name: string, args: any[], argObj?: any): JelObject|null|Promise<JelObject|null> {
+  static callMethod(ctx: Context, obj: JelObject|null, name: string, args: any[], argObj?: any): JelObject|null|Promise<JelObject|null> {
     if (!obj)
       throw new Error("Can't call method on null."); 
     const value = obj.member(ctx, name);
@@ -132,9 +101,11 @@ export default class Runtime {
           throw new Error(`Can not call method ${name}, not a Callable member. Value: ${resolvedValue}`);
         return resolvedValue.invokeWithObject(ctx, obj, args, argObj);
       });
-    else
-      return Runtime.getNativeMethod(false, obj, name).invokeWithObject(ctx, obj, args, argObj);
-	}
+    else if (name in obj) 
+			throw new Error(`Can not find member or method ${name} in ${obj.getJelType()}. Missing mapping.`);
+		else 
+			throw new Error(`Can not find member or method ${name} in ${obj.getJelType()}.`);
+  }
 
   
 	static member(ctx: Context, obj: JelObject|null, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null> {
@@ -144,8 +115,10 @@ export default class Runtime {
     const value = obj.member(ctx, name, parameters);
     if (value !== undefined)
       return value instanceof Callable ? value.rebind(obj) : value;
-    else
-      return Runtime.getNativeMethod(true, obj, name);
+    else if (name in obj) 
+			throw new Error(`Can not find member or method ${name} in ${obj.getJelType()}. Missing mapping.`);
+		else 
+			throw new Error(`Can not find member or method ${name} in ${obj.getJelType()}.`);
 	}
 
 	

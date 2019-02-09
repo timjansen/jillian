@@ -4,7 +4,12 @@ import * as path from 'path';
 import BaseTypeRegistry from './BaseTypeRegistry';
 import Context from './Context';
 import LambdaExecutable from './LambdaExecutable';
+import TypedParameterValue from './TypedParameterValue';
+import Callable from './Callable';
+import NativeCallable from './NativeCallable';
+import LambdaCallable from './LambdaCallable';
 
+import ReferenceHelper from './types/ReferenceHelper';
 import JelBoolean from './types/JelBoolean';
 import Float from './types/Float';
 import JelString from './types/JelString';
@@ -14,6 +19,7 @@ import JelMath from './types/Math';
 import Dictionary from './types/Dictionary';
 import Range from './types/Range';
 import List from './types/List';
+import Jel from './types/Jel';
 import DistributionPoint from './types/DistributionPoint';
 import Distribution from './types/Distribution';
 import Pattern from './types/Pattern';
@@ -65,13 +71,20 @@ const BOOT_SCRIPT = [
   [
     {jel: 'typeDescriptors/TypeDescriptor.jel'},
     {jel: 'NamedObject.jel'},
-    {jel: 'Match.jel', native: Match}
+    {jel: 'Match.jel', native: Match},
+    {jel: 'Jel.jel', native: Jel},
+    {jel: 'Callable.jel', native: Callable},
+    {jel: 'LambdaExecutable.jel', native: LambdaExecutable},
+    {jel: 'ReferenceHelper.jel', native: ReferenceHelper}
   ],
   [
     {jel: 'typeDescriptors/SimpleType.jel', native: SimpleType},
     {jel: 'PackageContent.jel'},
     {jel: 'Property.jel', native: Property},
-    {jel: 'Method.jel', native: Method}
+    {jel: 'Method.jel', native: Method},
+    {jel: 'TypedParameterValue.jel', native: TypedParameterValue},
+    {jel: 'LambdaCallable.jel', native: LambdaCallable},
+    {jel: 'NativeCallable.jel', native: NativeCallable}
   ],
   [
     {jel: 'typeDescriptors/AnyType.jel', native: AnyType},
