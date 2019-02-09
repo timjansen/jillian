@@ -5,12 +5,13 @@ const assert = require('assert');
 
 const Context = require('../../build/jel/Context.js').default;
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
+const BaseTypeRegistry = require('../../build/jel/BaseTypeRegistry.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
-const NativeClass = require('../../build/jel/NativeClass.js').default;
 const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
 const Callable = require('../../build/jel/Callable.js').default;
 const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
 const JelObject = require('../../build/jel/JelObject.js').default;
+const NativeJelObject = require('../../build/jel/types/NativeJelObject.js').default;
 const JelString = require('../../build/jel/types/JelString.js').default;
 const Float = require('../../build/jel/types/Float.js').default;
 const JelList = require('../../build/jel/types/List.js').default;
@@ -31,7 +32,7 @@ const Let = require('../../build/jel/expressionNodes/Let.js').default;
 const Lambda = require('../../build/jel/expressionNodes/Lambda.js').default;
 const Call = require('../../build/jel/expressionNodes/Call.js').default;
 
-const {JelAssert, JelPromise, JelConsole, MockSession, PromiseType} = require('../jel-assert.js');
+const {plus, JelAssert, JelPromise, JelConsole, MockSession, PromiseType} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
 
 describe('JEL', function () {
@@ -39,8 +40,10 @@ describe('JEL', function () {
   before(function(){
     return DefaultContext.get().then(dc=> {
       defaultContext = dc;
-      ctx = defaultContext.plus({JelPromise: new NativeClass(JelPromise), JelConsole: new NativeClass(JelConsole), PromiseType: new NativeClass(PromiseType)}).plus(new MockSession());
-      jelAssert.setCtx(ctx);
+      return plus(dc).then(c=> {
+        ctx = c.plus(new MockSession());
+        jelAssert.setCtx(ctx);
+      });    
     });
   });
   
@@ -207,73 +210,6 @@ describe('JEL', function () {
      ]);
     });
 
-    it('should access member fields of JelObjects', function() {
-      class A extends JelObject {
-        constructor() {
-          super();
-          this.x = 3;
-          this.y = "foo";
-        }
-      }
-      A.prototype.JEL_PROPERTIES = {x:1,y:1};
-
-      jelAssert.equal(new JEL('a.x').executeImmediately(new Context().setAll({a:new A()})), 3);
-      jelAssert.equal(new JEL('(a).y').executeImmediately(new Context().setAll({a:new A()})), "'foo'");
-      jelAssert.equal(new JEL('(a)["y"]').executeImmediately(new Context().setAll({a:new A()})), "'foo'");
-      assert.throws(()=>new JEL('(a).z').executeImmediately(new Context().setAll({a:new A()})));
-      assert.throws(()=>new JEL('(a) . 5').executeImmediately(new Context().setAll({a:new A()})));
-      assert.throws(()=>new JEL('(a)."x"').executeImmediately(new Context().setAll({a:new A()})));
-
-      class B extends JelObject {
-        constructor(ref) {
-          super();
-          this.ref = ref;
-        }
-      }
-      B.prototype.JEL_PROPERTIES = {ref:1};
-
-      jelAssert.equal(new JEL('b.ref').executeImmediately(new Context().setAll({b: new B(Float.valueOf(5))})), 5);
-      jelAssert.equal(new JEL('b.ref.ref.ref').executeImmediately(new Context().setAll({b: new B(new B(new B(Float.valueOf(7))))})), 7);
-   });
-
-   it('should access methods of JelObjects', function() {
-      class A extends JelObject {
-        constructor(a = Float.valueOf(2), b = Float.valueOf(5)) {
-          super();
-          this.x = a;
-          this.y = b;
-        }
-        static create(ctx, a = Float.valueOf(2), b = Float.valueOf(5)) {
-          return new A(a, b);
-        }
-        getX() {
-          return this.x;
-        }
-        calc(ctx, a, b, c, d, e) {
-          return a.value + 2*b.value + 3*c.value + 4*d.value + 5*e.value;
-        }
-      }
-      A.create_jel_mapping = {a:1, b:2};
-      A.prototype.getX_jel_mapping = {};
-      A.prototype.calc_jel_mapping = {a:1,b:2,c:3,d:4,e:5};
-
-      const create = new Callable(A.create, A.create_jel_mapping);
-      assert(new JEL('a.getX').executeImmediately(defaultContext.plus({a:new A()})) instanceof Callable);
-      jelAssert.equal(new JEL('a.getX()').executeImmediately(defaultContext.plus({a:new A()})), 2);
-      const ctx = defaultContext.plus({A: new NativeClass(A)});
-      assert(new JEL('A()').executeImmediately(ctx) instanceof A);
-      jelAssert.equal(new JEL('A().getX()').executeImmediately(ctx), 2);
-      jelAssert.equal(new JEL('A()["getX"]()').executeImmediately(ctx), 2);
-      jelAssert.equal(new JEL('A(a=55).getX()').executeImmediately(ctx), 55);
-      jelAssert.equal(new JEL('A(55).getX()').executeImmediately(ctx), 55);
-      jelAssert.equal(new JEL('A(b=77,a=55).getX()').executeImmediately(ctx), 55);
-      jelAssert.equal(new JEL('A().calc(3, 2, 1, 100, 1000)').executeImmediately(ctx), 3+4+3+400+5000);
-      jelAssert.equal(new JEL('A().calc(b= 2, c= 1, e= 1000, d= 100, a=3)').executeImmediately(ctx), 3+4+3+400+5000);
-      jelAssert.equal(new JEL('A().calc(3, 2, c=1, e=1000, d=100)').executeImmediately(ctx), 3+4+3+400+5000);
-      jelAssert.equal(new JEL('A(A(50).getX).getX()()').executeImmediately(ctx), 50);
-    });
-
-
   it('supports list literals using the regular syntax [] with promises', function() {
     return new JEL('[JelPromise(2), 0, JelPromise.resolve(8), JelPromise(9), JelPromise.resolve(7), 5]').execute(ctx).then(r=> assert.deepEqual(r.elements, [2, 0, 8, 9, 7, 5].map(Float.valueOf)));
   });
@@ -364,26 +300,32 @@ describe('JEL', function () {
    });
     
    it('supports promises', function() {
-     class A extends JelObject {
-       static promise(ctx, value) {
-         return new Promise((resolve)=>setTimeout(()=>resolve(value), 1));
-       }
+     let clsA
 
+     class A extends NativeJelObject {
+      static promise(ctx, value) {
+       return new Promise((resolve)=>setTimeout(()=>resolve(value), 1));
+      }
+      get clazz() {
+        return clsA;
+      }
      }
-     A.promise_jel_mapping = ['value'];
+     A.promise_jel_mapping = true;
      A.x = 42;
-     A.JEL_PROPERTIES = {x:1};
-
+     A.x_jel_property = true;
+     BaseTypeRegistry.register('A', A);
+     clsA = new JEL('native class A: static native promise(value) static native x: any').executeImmediately(ctx);
+     
      const l = [];
-     const ctx = new Context().setAll({A: new NativeClass(A)});
-     l.push(JEL.execute('A.promise(3)+4', '(unit test)', ctx).then(v=>assert.equal(v, 7)));
-     l.push(JEL.execute('3+A.promise(4)', '(unit test)', ctx).then(v=>assert.equal(v, 7)));
-     l.push(JEL.execute('A.promise(3)+A.promise(4)', '(unit test)', ctx).then(v=>assert.equal(v, 7)));
-     l.push(JEL.execute('A.promise(A.x)+A.promise(A.x)', '(unit test)', ctx).then(v=>assert.equal(v, 84)));
-     l.push(JEL.execute('A.promise(A)[A.promise("x")]', '(unit test)', ctx).then(v=>assert.equal(v, 42)));
-     l.push(JEL.execute('A.promise(A).promise(A.promise(3))', '(unit test)', ctx).then(v=>assert.equal(v, 3)));
-     l.push(JEL.execute('if (!A.promise(0)) then A.promise(4) else 5', '(unit test)', ctx).then(v=>assert.equal(v, 4)));
-     l.push(JEL.execute('((a,b,c,d,e)=>a+4*b+5*c+30*d+100*e)(A.promise(2), 5, A.promise(1), d=A.promise(10), e=1)', '(unit test)', ctx).then(v=>assert.equal(v, 427)));
+     const ctxPlusA = new Context().setAll({A: clsA});
+     l.push(JEL.execute('A.promise(3)+4', '(unit test)', ctxPlusA).then(v=>assert.equal(v, 7)));
+     l.push(JEL.execute('3+A.promise(4)', '(unit test)', ctxPlusA).then(v=>assert.equal(v, 7)));
+     l.push(JEL.execute('A.promise(3)+A.promise(4)', '(unit test)', ctxPlusA).then(v=>assert.equal(v, 7)));
+     l.push(JEL.execute('A.promise(A.x)+A.promise(A.x)', '(unit test)', ctxPlusA).then(v=>assert.equal(v, 84)));
+     l.push(JEL.execute('A.promise(A)[A.promise("x")]', '(unit test)', ctxPlusA).then(v=>assert.equal(v, 42)));
+     l.push(JEL.execute('A.promise(A).promise(A.promise(3))', '(unit test)', ctxPlusA).then(v=>assert.equal(v, 3)));
+     l.push(JEL.execute('if (!A.promise(0)) then A.promise(4) else 5', '(unit test)', ctxPlusA).then(v=>assert.equal(v, 4)));
+     l.push(JEL.execute('((a,b,c,d,e)=>a+4*b+5*c+30*d+100*e)(A.promise(2), 5, A.promise(1), d=A.promise(10), e=1)', '(unit test)', ctxPlusA).then(v=>assert.equal(v, 427)));
 
      return Promise.all(l);
    });

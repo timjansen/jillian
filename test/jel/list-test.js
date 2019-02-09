@@ -2,18 +2,19 @@
 
 require('source-map-support').install();
 const assert = require('assert');
-const NativeClass = require('../../build/jel/NativeClass.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
+const BaseTypeRegistry = require('../../build/jel/BaseTypeRegistry.js').default;
 const JelObject = require('../../build/jel/JelObject.js').default;
+const NativeJelObject = require('../../build/jel/types/NativeJelObject.js').default;
 const List = require('../../build/jel/types/List.js').default;
 const JelString = require('../../build/jel/types/JelString.js').default;
 const Float = require('../../build/jel/types/Float.js').default;
 const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
 const ApproximateNumber = require('../../build/jel/types/ApproximateNumber.js').default;
 const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
-const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
+const {plus, JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
 
 describe('jelList', function() {
@@ -21,8 +22,10 @@ describe('jelList', function() {
   before(function(){
     return DefaultContext.get().then(dc=> {
       defaultContext = dc;
-      ctx = defaultContext.plus({JelPromise: new NativeClass(JelPromise), JelConsole: new NativeClass(JelConsole)});
-      jelAssert.setCtx(ctx);
+      return plus(dc).then(c=> {
+        ctx = c;
+        jelAssert.setCtx(ctx);
+      });    
     });
   });
   
@@ -249,7 +252,9 @@ describe('jelList', function() {
       jelAssert.equal("['foo', 'blabla', 'bar', 'blablabla'].sort((a,b)=>a.length>b.length)", new List(['blablabla', 'blabla', 'foo', 'bar'].map(JelString.valueOf))); 
     });
     it('sorts by string key', function() {
-      class X extends JelObject {
+      let clsX;
+
+      class X extends NativeJelObject {
      	  constructor(x) {
 					super();
 				  this.a = x;
@@ -257,11 +262,16 @@ describe('jelList', function() {
         static create(ctx, x) {
           return new X(x);
         }
+        get clazz() {
+          return clsX;
+        }
       }
-      X.create_jel_mapping = {x:1};
-      X.prototype.JEL_PROPERTIES = {a:1};
+      X.create_jel_mapping = true;
+      X.prototype.a_jel_property = true;
+      BaseTypeRegistry.register('X', X);
+      clsX = new JEL('native class X: native constructor(x) native a: any').executeImmediately(ctx);
 			
-			const je2 = new JelAssert(defaultContext.plus({X: new NativeClass(X)}));
+			const je2 = new JelAssert(defaultContext.plus({X: clsX}));
 
 			je2.equal('[X(17), X(3), X(11), X(9)].sort(key="a").map(o=>o.a)', new List([3, 9, 11, 17].map(Float.valueOf))); 
       je2.equal('[X(17), X(3), X(11), X(9)].sort(isLess=(a,b)=>a<b, key="a").map(o=>o.a)', new List([3, 9, 11, 17].map(Float.valueOf))); 
@@ -272,7 +282,9 @@ describe('jelList', function() {
       jelAssert.equal('[{a: "xxxx"}, {a: "xx"}, {a: "x"}, {a: "xxxxxx"}].sort(isLess=(a,b)=>a.length<b.length, key=o=>o.get("a")).map(o=>o.get("a"))', new List(["x", "xx", "xxxx", "xxxxxx"].map(JelString.valueOf))); 
     });
     it('handles Promises in the comparator', function() {
-      class X extends JelObject {
+      let clsX;
+
+      class X extends NativeJelObject {
      	  constructor(x) {
 					super();
 				  this.a = x;
@@ -284,10 +296,16 @@ describe('jelList', function() {
 				static create(ctx, x) {
           return new X(x);
         }
+        
+        get clazz() {
+          return clsX;
+        }
       }
-      X.create_jel_mapping = {x:1};
-
-			const je2 = new JelAssert(defaultContext.plus({X: new NativeClass(X)}));
+      X.create_jel_mapping = true;
+      BaseTypeRegistry.register('X', X);
+      clsX = new JEL('native class X: native constructor(x) native a: any').executeImmediately(ctx);
+      
+			const je2 = new JelAssert(defaultContext.plus({X: clsX}));
 			
 			JelPromise.resetRnd();
 			return Promise.all([
@@ -328,7 +346,9 @@ describe('jelList', function() {
       jelAssert.equal("['foo', 'blabla', 'bar', 'blablabla'].max((a,b)=>a.length<b.length)", '"blablabla"');
     });
     it('finds by string key', function() {
-      class X extends JelObject {
+      const clsX = new JEL('native class X: native constructor(x) native a: any').executeImmediately(ctx);
+
+      class X extends NativeJelObject {
      	  constructor(x) {
 					super();
 				  this.a = x;
@@ -339,12 +359,16 @@ describe('jelList', function() {
         static create(ctx, x) {
           return new X(x);
         }
+        
+        get clazz() {
+          return clsX;
+        }
       }
       X.create_jel_mapping = {x:1};
       X.prototype.JEL_PROPERTIES = {a:1};
 			
 			JelPromise.resetRnd();
-			const je2 = new JelAssert(new Context(ctx).setAll({X: new NativeClass(X)}));
+			const je2 = new JelAssert(new Context(ctx).setAll({X: clsX}));
 
 			return Promise.all([
 				je2.equalPromise('[X(17), X(3), X(11), X(9)].min(key="a").a', 3),
@@ -353,6 +377,7 @@ describe('jelList', function() {
 				je2.equalPromise('[X(17), X(3), X(11), X(9)].max(isLess=(a,b)=>JelPromise(a<b), key="a").a', 17) 
 			]);
     });
+    
     it('find by key function', function() {
       jelAssert.equal('[{a: 17}, {a: 3}, {a: 11}, {a: 9}].min(key=o=>o.get("a")).get("a")', 3); 
       jelAssert.equal('[{a: 17}, {a: 3}, {a: 11}, {a: 9}].max(key=o=>o.get("a")).get("a")', 17); 

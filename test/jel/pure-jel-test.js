@@ -4,8 +4,8 @@ require('source-map-support').install();
 const assert = require('assert');
 
 const Context = require('../../build/jel/Context.js').default;
-const NativeClass = require('../../build/jel/NativeClass.js').default;
 const FunctionCallable = require('../../build/jel/FunctionCallable.js').default;
+const BaseTypeRegistry = require('../../build/jel/BaseTypeRegistry.js').default;
 const Callable = require('../../build/jel/Callable.js').default;
 const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
 const JelObject = require('../../build/jel/JelObject.js').default;
@@ -17,7 +17,9 @@ const Fraction = require('../../build/jel/types/Fraction.js').default;
 const UnitValue = require('../../build/jel/types/UnitValue.js').default;
 const Pattern = require('../../build/jel/types/Pattern.js').default;
 const Translator = require('../../build/jel/types/Translator.js').default;
+const AnyType = require('../../build/jel/types/typeDescriptors/AnyType.js').default;
 const GenericJelObject = require('../../build/jel/types/GenericJelObject.js').default;
+const NativeJelObject = require('../../build/jel/types/NativeJelObject.js').default;
 const OptionalType = require('../../build/jel/types/typeDescriptors/OptionalType.js').default;
 const JelNode = require('../../build/jel/expressionNodes/JelNode.js').default;
 const Literal = require('../../build/jel/expressionNodes/Literal.js').default;
@@ -32,7 +34,7 @@ const Lambda = require('../../build/jel/expressionNodes/Lambda.js').default;
 const Call = require('../../build/jel/expressionNodes/Call.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
 
-const {JelAssert, JelPromise, JelConsole, MockSession, PromiseType} = require('../jel-assert.js');
+const {plus, JelAssert, MockSession} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
 
 
@@ -160,14 +162,26 @@ describe('JEL', function() {
     
  		
     it('should access member fields of JelObjects', function() {
-      class A extends JelObject {
+      const clsCtx = new Context().plus({any: AnyType.instance});
+      let clsA;
+      class A extends NativeJelObject {
         constructor() {
           super();
           this.x = 3;
           this.y = "foo";
         }
+        get clazz() {
+          return clsA;
+        }
+        static create(ctx) {
+          return new A();
+        }
       }
-      A.prototype.JEL_PROPERTIES = {x:1,y:1};
+      A.create_jel_mapping = true;
+      A.prototype.x_jel_property = true;
+      A.prototype.y_jel_property = true;
+      BaseTypeRegistry.register('A', A);
+      clsA = new JEL('native class A: native x: any native y: any').executeImmediately(clsCtx);
       
       jelAssert.equal(new JEL('a.x').executeImmediately(new Context().setAll({a:new A()})), 3);
       jelAssert.equal(new JEL('(a).y').executeImmediately(new Context().setAll({a:new A()})), "'foo'");
@@ -176,20 +190,33 @@ describe('JEL', function() {
       assert.throws(()=>new JEL('(a) . 5').executeImmediately(new Context().setAll({a:new A()})));
       assert.throws(()=>new JEL('(a)."x"').executeImmediately(new Context().setAll({a:new A()})));
       
-      class B extends JelObject {
+      let clsB;
+      class B extends NativeJelObject {
         constructor(ref) {
           super();
           this.ref = ref;
         }
+        get clazz() {
+          return clsB;
+        }
+        static create(ctx) {
+          return new B();
+        }
       }
-      B.prototype.JEL_PROPERTIES = {ref:1};
+      B.create_jel_mapping = true;
+      B.prototype.ref_jel_property = true;
+      BaseTypeRegistry.register('B', B);
+      clsB = new JEL('native class B: native constructor() native ref: any').executeImmediately(clsCtx);
       
       jelAssert.equal(new JEL('b.ref').executeImmediately(new Context().setAll({b: new B(Float.valueOf(5))})), 5);
       jelAssert.equal(new JEL('b.ref.ref.ref').executeImmediately(new Context().setAll({b: new B(new B(new B(Float.valueOf(7))))})), 7);
    });
 
-   it('should access methods of JelObjects', function() {
-      class A extends JelObject {
+   it('should access methods of NativeJelObjects', function() {
+      const clsCtx = new Context().plus({any: AnyType.instance});
+      let clsA;
+
+      class A extends NativeJelObject {
         constructor(a = Float.valueOf(2), b = Float.valueOf(5)) {
           super();
           this.x = a;
@@ -204,15 +231,20 @@ describe('JEL', function() {
         calc(ctx, a, b, c, d, e) {
           return a.value + 2*b.value + 3*c.value + 4*d.value + 5*e.value;
         }
+        get clazz() {
+          return clsA;
+        }
       }
-      A.create_jel_mapping = {a:1, b:2};
-      A.prototype.getX_jel_mapping = {};
-      A.prototype.calc_jel_mapping = {a:1,b:2,c:3,d:4,e:5};
-     
+      A.create_jel_mapping = true;
+      A.prototype.getX_jel_mapping = true;
+      A.prototype.calc_jel_mapping = true;
+      BaseTypeRegistry.register('A', A);
+      clsA = new JEL('native class A: native constructor(a=2, b=5) native x: any native y: any native getX() native calc(a,b,c,d,e)').executeImmediately(clsCtx);
+
       const create = new Callable(A.create, A.create_jel_mapping);
       assert(new JEL('a.getX').executeImmediately(new Context().plus({a:new A()})) instanceof Callable);
       jelAssert.equal(new JEL('a.getX()').executeImmediately(new Context().plus({a:new A()})), 2);
-      const ctx = new Context().plus({A: new NativeClass(A)});
+      const ctx = new Context().plus({A: clsA});
       assert(new JEL('A()').executeImmediately(ctx) instanceof A);
       jelAssert.equal(new JEL('A().getX()').executeImmediately(ctx), 2);
       jelAssert.equal(new JEL('A()["getX"]()').executeImmediately(ctx), 2);
@@ -350,6 +382,9 @@ describe('JEL', function() {
    });
     
    it('supports constructors and static methods', function() {
+      const clsCtx = new Context().plus({any: AnyType.instance});
+      let clsA;
+
       class A extends JelObject {
         constructor(a = Float.valueOf(2), b = Float.valueOf(5)) {
           super();
@@ -366,11 +401,13 @@ describe('JEL', function() {
           return a.value + 2*b.value;
         }
       }
-      A.create_jel_mapping = {a:1, b:2};
-      A.pic_jel_mapping = [];
-      A.add2_jel_mapping = ['a','b'];
+      A.create_jel_mapping = true;
+      A.pic_jel_mapping = true;
+      A.add2_jel_mapping = true;
+      BaseTypeRegistry.register('A', A);
+      clsA = new JEL('native class A: native constructor(a=2, b=5) static native pic() static native add2(a=3, b=7)').executeImmediately(clsCtx);
      
-      const ctx = new Context().setAll({A: new NativeClass(A)});
+      const ctx = new Context().setAll({A: clsA});
       assert.equal(new JEL('A()').executeImmediately(ctx).x, 2);
       assert.equal(new JEL('A()').executeImmediately(ctx).y, 5);
       assert.equal(new JEL('A(7,8)').executeImmediately(ctx).x, 7);

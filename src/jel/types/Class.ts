@@ -16,7 +16,6 @@ import Property from './Property';
 import LambdaCallable from '../LambdaCallable';
 import NativeCallable from '../NativeCallable';
 import TypedParameterValue from '../TypedParameterValue';
-import IClass from '../IClass';
 import Serializable from '../Serializable';
 import SerializablePrimitive from '../SerializablePrimitive';
 import Callable from '../Callable';
@@ -25,8 +24,7 @@ import StaticContext from '../StaticContext';
 import Util from '../../util/Util';
 
 // Base class for defining instantiable types
-export default class Class extends PackageContent implements IClass, SerializablePrimitive {
-  iClass: boolean = true;
+export default class Class extends PackageContent implements SerializablePrimitive {
   private classContext: Context;
   defaultPropValues: Dictionary|Promise<Dictionary>|undefined; 
   

@@ -10,6 +10,7 @@ import BaseTypeRegistry from '../../BaseTypeRegistry';
 import Range from '../Range';
 import Float from '../Float';
 import Enum from '../Enum';
+import Class from '../Class';
 import Fraction from '../Fraction';
 import UnitValue from '../UnitValue';
 import Dictionary from '../Dictionary';
@@ -21,7 +22,7 @@ export default class TypeHelper {
  	/**
 	 * Converts Class, Enum, DbRefs, List, Range or Dictionary into a TypeDescriptor. It wraps the DbRef into a ReferenceDispatcherType, and the
 	 * Dictionary in a ComplexType. Lists become OptionTypes. Ranges become InRangeTypes. Enums become EnumType. TypeDescriptors are just returned as-is.
-	 * @param l a TypeDescriptor or Class or NativeClass or DbRef or Dictionary or List or Range or Enum, or null
+	 * @param l a TypeDescriptor or Class or DbRef or Dictionary or List or Range or Enum, or null
 	 * @return the TypeDescriptor
 	 */
 	static convertToTypeDescriptor(l: JelObject, name: string): TypeDescriptor {
@@ -41,10 +42,10 @@ export default class TypeHelper {
     }
     else if (l instanceof Enum)
       return new EnumType(l.distinctName);
-		else if (TypeChecker.isIClass(l))
+		else if (l instanceof Class)
 			return new SimpleType((l as any).name);
   
-    throw new Error(`Expected NativeClass or Class or Enum or DbRef or Dictionary or List or Range in ${name}. But it is ` + (l==null?'null.' : `${l.getJelType? l.getJelType() : 'Native: '+l.constructor.name}: ${l}`));
+    throw new Error(`Expected Class or Enum or DbRef or Dictionary or List or Range in ${name}. But it is ` + (l==null?'null.' : `${l.getJelType? l.getJelType() : 'Native: '+l.constructor.name}: ${l}`));
   }
   
   static convertFromAny(l: any, name: string): TypeDescriptor {

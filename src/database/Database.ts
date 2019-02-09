@@ -13,7 +13,6 @@ import JEL from '../jel/JEL';
 import Context from '../jel/Context';
 import NamedObject from '../jel/types/NamedObject';
 import DefaultContext from '../jel/DefaultContext';
-import NativeClass from '../jel/NativeClass';
 import List from '../jel/types/List';
 import Runtime from '../jel/Runtime';
 import serializer from '../jel/Serializer';
@@ -23,6 +22,7 @@ import tifu = require('tifuhash');
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
+const BOOTSTRAP_CONFIG_DIR = path.join(__dirname, '../../database-load/bootstrap/');
 const CONFIG_FILE = '/dbconfig.jel';
 const DATA_DIR = '/data/';
 
@@ -54,7 +54,8 @@ export default class Database {
           .catch(e=>DatabaseError.rethrow(`Can not parse configuration "${CONFIG_FILE}" in "${this.dbPath}": ${e.toString()}`, e));
     })
     .then(configTxt=>DefaultContext.get()
-            .then(dctx=>JEL.execute(configTxt, this.dbPath, dctx.plus({DatabaseConfig: new NativeClass(DatabaseConfig)})))
+            .then(ctx=>DefaultContext.createBootContext(BOOTSTRAP_CONFIG_DIR, [{jel: 'DatabaseConfig.jel', native: DatabaseConfig}], ctx))
+            .then(dctx=>JEL.execute(configTxt, this.dbPath, dctx))
             .catch(e=>DatabaseError.rethrow(`Can not open database. Failed to load configuration "${CONFIG_FILE}" in "${this.dbPath}".`, e)))
     .then(config=>{
           this.config = config;

@@ -9,7 +9,6 @@ const Loader = require('../../build/database/Loader.js').default;
 const DbSession = require('../../build/database/DbSession.js').default;
 const DbRef = require('../../build/database/DbRef.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
-const NativeClass = require('../../build/jel/NativeClass.js').default;
 const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const Context = require('../../build/jel/Context.js').default;
 const List = require('../../build/jel/types/List.js').default;
@@ -20,7 +19,7 @@ const ApproximateNumber = require('../../build/jel/types/ApproximateNumber.js').
 const Fraction = require('../../build/jel/types/Fraction.js').default;
 const Util = require('../../build/util/Util.js').default;
 const assert = require('assert');
-const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
+const {plus, JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
 
 
@@ -32,8 +31,10 @@ describe('Loader', function() {
       db = new Database(path);
       return DbSession.create(db).then(s=>{
         session = s;
-        ctx = s.ctx.plus({JelPromise: new NativeClass(JelPromise), JelConsole: new NativeClass(JelConsole)});
-        jelAssert.setCtx(ctx);
+        return plus(s.ctx).then(c=> {
+          ctx = c;
+          jelAssert.setCtx(ctx);
+        });
       });
   });  
   

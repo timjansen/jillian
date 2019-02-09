@@ -1,0 +1,7 @@
+native class DatabaseConfig:
+  native version: number
+  native sizing: number
+  native prettyPrint: bool
+
+  native constructor(config: any{})
+  

@@ -4,6 +4,8 @@ const assert = require('assert');
 const Serializer = require('../build/jel/Serializer.js').default;
 const JEL = require('../build/jel/JEL.js').default; 
 const JelObject = require('../build/jel/JelObject.js').default; 
+const BaseTypeRegistry = require('../build/jel/BaseTypeRegistry.js').default; 
+const NativeJelObject = require('../build/jel/types/NativeJelObject.js').default; 
 const JelBoolean = require('../build/jel/types/JelBoolean.js').default; 
 const TypeDescriptor = require('../build/jel/types/typeDescriptors/TypeDescriptor.js').default;
 
@@ -106,7 +108,7 @@ class JelAssert {
 
 let next = 0;
 
-class JelPromise extends JelObject {
+class JelPromise extends NativeJelObject {
 	static resetRnd() {
 		next = 0;
 	}
@@ -125,19 +127,26 @@ class JelPromise extends JelObject {
 	static resolve(ctx, value) {
 		return Promise.resolve(value);
 	}
+  get clazz() {
+    return JelPromise.clazz;
+  }
 }
-JelPromise.create_jel_mapping = ['value'];
-JelPromise.resolve_jel_mapping = ['value'];
-JelPromise.rnd_jel_mapping = ['value'];
+JelPromise.create_jel_mapping = true;
+JelPromise.resolve_jel_mapping = true;
+JelPromise.rnd_jel_mapping = true;
+BaseTypeRegistry.register('JelPromise', JelPromise);
 
-class JelConsole extends JelObject {
+class JelConsole extends NativeJelObject {
 	static create(ctx, firstValue, ...values) {
 		console.log('JelConsole: ', firstValue, ...values);
 		return firstValue;
 	}
+  get clazz() {
+    return JelConsole.clazz;
+  }
 }
-JelConsole.create_jel_mapping = ['value'];
-
+JelConsole.create_jel_mapping = true;
+BaseTypeRegistry.register('JelConsole', JelConsole);
 
 class MockSession {
 	createDbRef(distinctName, params) {
@@ -164,13 +173,30 @@ class PromiseType extends TypeDescriptor {
   serializeType() {
     return `${this.type}??`;
   }
+  
+  get clazz() {
+    return PromiseType.clazz;
+  }
 
   static create(ctx, ...args) {
     return new PromiseType(args[0]);
   }
 }
-PromiseType.create_jel_mapping = ['type'];
+PromiseType.create_jel_mapping = true;
+BaseTypeRegistry.register('PromiseType', PromiseType);
 
+function plus(ctx) {
+  return JEL.execute(`{
+  JelPromise: (native class JelPromise: native constructor(value) static native rnd(value) static native resolve(value)),
+  JelConsole: (native class JelConsole: native constructor(firstValue, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)),
+  PromiseType: (native class PromiseType: native constructor(e))
+}`, `jel-assert.js inline`, ctx).then(r=>{
+    JelPromise.clazz = r.elements.get('JelPromise');
+    JelConsole.clazz = r.elements.get('JelConsole');
+    PromiseType.clazz = r.elements.get('PromiseType');
+    return ctx.plus({JelPromise: r.elements.get('JelPromise'), JelConsole: r.elements.get('JelConsole'), PromiseType: r.elements.get('PromiseType')});
+  });
+}
 
-module.exports = {JelAssert, JelPromise, JelConsole, MockSession, PromiseType};
+module.exports = {JelAssert, MockSession, plus, JelPromise};
 

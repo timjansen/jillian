@@ -42,7 +42,7 @@ export default abstract class NativeJelObject extends JelObject implements Seria
     return undefined;    
 	}
   
-  getSerializationProperties(): any[] {
+  getSerializationProperties(): any {
     throw new Error(`You need to override getSerializationProperties() in ${this.className}`);
   }
 }
