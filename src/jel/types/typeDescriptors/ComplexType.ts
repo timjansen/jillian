@@ -25,7 +25,7 @@ export default class ComplexType extends TypeDescriptor {
     
     const m = new Map();
     fields.elements.forEach((v, n)=>{
-      if ((Dictionary.empty as any)[n+'_jel_mapping'] || (Dictionary.empty.JEL_PROPERTIES as any)[n])
+      if ((Dictionary.empty as any)[n+'_jel_mapping'] || (Dictionary.empty as any)[n+'_jel_property'])
         throw new Error(`Illegal field name ${n}, you must not use any name that's defined in Dictionary.`);
       m.set(n, TypeHelper.convertFromAny(v, 'dictionary value'));
     });

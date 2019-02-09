@@ -1,0 +1,7 @@
+/**
+ * Represents a Pattern Match
+ */ 
+native class Match:
+  native value: any
+  native index: int
+  native meta: any{}

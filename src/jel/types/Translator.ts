@@ -10,6 +10,7 @@ import Class from './Class';
 
 import JelString from './JelString';
 import List from './List';
+import Dictionary from './Dictionary';
 import Pattern from './Pattern';
 
 import Util from '../../util/Util';
@@ -31,7 +32,7 @@ export default class Translator extends NativeJelObject {
     return Translator.clazz!;
   }
   
-	addPattern(pattern: Pattern, value: any, metaMap: Map<string, any>): Translator {
+	addPattern(pattern: Pattern, value: any, metaMap: Dictionary): Translator {
 		pattern.tree.merge(this.tree, new LambdaResultNode(value, metaMap));
 		return this;
 	}

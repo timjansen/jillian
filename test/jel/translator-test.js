@@ -17,11 +17,11 @@ function exec(s) {
   return JEL.parseTree(s).execute(DefaultContext.get());
 }
 
-function createMap(obj) {
+function createDictionary(obj) {
   const m = new Map();
   for (let k in obj) 
     m.set(k, obj[k]);
-  return m;
+  return new Dictionary(m);
 }
 
 function translator(pattern, expression, meta) {
@@ -54,11 +54,11 @@ describe('jelTranslators', function() {
     });
 
     it('should support meta data', function() {
-      assert.equal(translator(JEL.createPattern(`abc`), JEL.parseTree('2'), createMap({x: true}))
+      assert.equal(translator(JEL.createPattern(`abc`), JEL.parseTree('2'), createDictionary({x: true}))
                                    .toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=true})])}))");
-      assert.equal(translator(JEL.createPattern(`abc`), JEL.parseTree('2'), createMap({x: true, y: true, z: true}))
+      assert.equal(translator(JEL.createPattern(`abc`), JEL.parseTree('2'), createDictionary({x: true, y: true, z: true}))
                                    .toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=true, y=true, z=true})])}))");
-      assert.equal(translator(JEL.createPattern(`abc`), JEL.parseTree('2'), createMap({x: true, y: 1, zzz: "bla"}))
+      assert.equal(translator(JEL.createPattern(`abc`), JEL.parseTree('2'), createDictionary({x: true, y: 1, zzz: "bla"}))
                                    .toString(), "Translator(TranslatorNode(tokens={abc: TranslatorNode(tokens={} results=[LambdaResultNode(2, meta={x=true, y=1, zzz=\"bla\"})])}))");
     });
     
@@ -123,20 +123,20 @@ describe('jelTranslators', function() {
 
     it('should support meta', function() {
       const ctx = DefaultContext.get();
-      const t1 = new Translator().addPattern(JEL.createPattern(`abc`), JEL.parseTree('2'), createMap({x: true}));
+      const t1 = new Translator().addPattern(JEL.createPattern(`abc`), JEL.parseTree('2'), createDictionary({x: true}));
       assert.equal(t1.match(ctx, "abc").length, 1);
       assert.equal(t1.match(ctx, "abc", new Set()).length, 1);
       assert.equal(t1.match(ctx, "abc", new Set('x')).length, 1);
       assert.equal(t1.match(ctx, "abc", new Set('x')).get(ctx, 0).value, 2);
-      assert.equal(t1.match(ctx, "abc", new Set('x')).get(ctx, 0).meta.get('x'), true);
+      assert.equal(t1.match(ctx, "abc", new Set('x')).get(ctx, 0).meta.elements.get('x'), true);
       assert.equal(t1.match(ctx, "abc", new Set('y')).length, 0);
       assert.equal(t1.match(ctx, "abcd", new Set('x')).length, 0);
 
       
-      const t2 = new Translator().addPattern(JEL.createPattern(`abc`), JEL.parseTree('1'), createMap({x: true}))
-                                 .addPattern(JEL.createPattern(`abc`), JEL.parseTree('2'), createMap({y: true}))
-                                 .addPattern(JEL.createPattern(`xyz`), JEL.parseTree('3'), createMap({x: true, y: true}))
-                                 .addPattern(JEL.createPattern(`xyz`), JEL.parseTree('4'), createMap({x: true, z: true}));
+      const t2 = new Translator().addPattern(JEL.createPattern(`abc`), JEL.parseTree('1'), createDictionary({x: true}))
+                                 .addPattern(JEL.createPattern(`abc`), JEL.parseTree('2'), createDictionary({y: true}))
+                                 .addPattern(JEL.createPattern(`xyz`), JEL.parseTree('3'), createDictionary({x: true, y: true}))
+                                 .addPattern(JEL.createPattern(`xyz`), JEL.parseTree('4'), createDictionary({x: true, z: true}));
       assert.equal(t2.match(ctx, "abc").length, 2);
       assert.equal(t2.match(ctx, "abc", new Set()).length, 2);
       assert.equal(t2.match(ctx, "abc", new Set('x')).length, 1);
@@ -144,8 +144,8 @@ describe('jelTranslators', function() {
       assert.equal(t2.match(ctx, "abc", new Set('x')).get(ctx, 0).value, 1);
       assert.equal(t2.match(ctx, "abc", new Set('y')).get(ctx, 0).value, 2);
       assert.equal(t2.match(ctx, "abc", new Set(['x', 'y'])).length, 0);
-      assert.equal(t2.match(ctx, "abc", new Set('y')).get(ctx, 0).meta.get('y'), true);
-      assert.equal(t2.match(ctx, "abc", new Set('y')).get(ctx, 0).meta.has('x'), false);
+      assert.equal(t2.match(ctx, "abc", new Set('y')).get(ctx, 0).meta.elements.get('y'), true);
+      assert.equal(t2.match(ctx, "abc", new Set('y')).get(ctx, 0).meta.elements.has('x'), false);
       
       assert.equal(t2.match(ctx, "xyz", new Set('x')).length, 2);
       assert.equal(t2.match(ctx, "xyz", new Set(['x', 'y'])).length, 1);

@@ -42,9 +42,6 @@ export default class JelBoolean extends NativeJelObject implements SerializableP
 	static PREDEFINED: Map<any, JelBoolean> = new Map();
 	static NEGATE: Map<any, JelBoolean> = new Map();
 	
-	static JEL_PROPERTIES: Object = {FALSE_VALUE: 1, BARELY_FALSE_VALUE:1, HALF_TRUE_VALUE:1, BARELY_TRUE_VALUE:1, TRUE_VALUE:1,
-																	FALSE:1, BARELY_FALSE:1, HALF_TRUE:1, BARELY_TRUE:1, TRUE:1};
-	
 	static init() {
 		JelBoolean.PREDEFINED.set(JelBoolean.TRUE_VALUE, JelBoolean.TRUE);
 		JelBoolean.PREDEFINED.set(JelBoolean.BARELY_TRUE_VALUE, JelBoolean.BARELY_TRUE);

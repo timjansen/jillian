@@ -52,8 +52,7 @@ function multiplyUnitMap(factor: number, a: Map<string, number>): Map<string, nu
  * Represents a unit. Supports complex units, like '1/s' or 'm*m*m/kw'.
  */
 export default class Unit extends NativeJelObject {
-	JEL_PROPERTIES: Object;
-	
+
 	public units = new Map<string,number>();    // distinctName->exponent
 	private simple: boolean;
 

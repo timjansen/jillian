@@ -8,7 +8,6 @@ import {IDbRef, isDbRef} from './IDatabase';
  */
 export default class JelObject {
 	reverseOps: Object;
-	JEL_PROPERTIES: Object;
 
 	// ops that can swap the left and right operands
 	static readonly SWAP_OPS: any = {
@@ -91,15 +90,6 @@ export default class JelObject {
 	 */ 
 	member_jel_mapping: Object;
 	member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null>|undefined {
-    // TODO: cleanup this method after converting everything to JEL Class!!
-    const c: any = (this as any).clazz;
-    if (c && c.allMethods) {
-      const m = c.allMethods.elements.get(name) as any;
-      if (m)
-        return m.callable;
-    }
-		if ((name in this.JEL_PROPERTIES) || (this as any)[name+'_jel_mapping']===true)        // JEL_PROPERTIES are deprecated, remove when new native is everywhere
-			return BaseTypeRegistry.mapNativeTypes((this as any)[name]);
 		return undefined;
 	}
   
@@ -133,12 +123,11 @@ export default class JelObject {
 	
 }
 
-JelObject.prototype.JEL_PROPERTIES = {};
 JelObject.prototype.reverseOps = {};
 
-JelObject.prototype.op_jel_mapping = ['operator', 'right'];
-JelObject.prototype.opReversed_jel_mapping = ['operator', 'left'];
-JelObject.prototype.singleOp_jel_mapping = ['operator'];
-JelObject.prototype.toBoolean_jel_mapping = [];
-JelObject.prototype.getJelType_jel_mapping = [];
+JelObject.prototype.op_jel_mapping = true;
+JelObject.prototype.opReversed_jel_mapping = true;
+JelObject.prototype.singleOp_jel_mapping = true;
+JelObject.prototype.toBoolean_jel_mapping = true;
+JelObject.prototype.getJelType_jel_mapping = true;
 

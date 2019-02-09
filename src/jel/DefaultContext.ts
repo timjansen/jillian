@@ -18,6 +18,7 @@ import DistributionPoint from './types/DistributionPoint';
 import Distribution from './types/Distribution';
 import Pattern from './types/Pattern';
 import Translator from './types/Translator';
+import Match from './patternNodes/Match';
 import EnumValue from './types/EnumValue';
 import Enum from '../jel/types/Enum';
 import Class from '../jel/types/Class';
@@ -64,6 +65,7 @@ const BOOT_SCRIPT = [
   [
     {jel: 'typeDescriptors/TypeDescriptor.jel'},
     {jel: 'NamedObject.jel'},
+    {jel: 'Match.jel', native: Match}
   ],
   [
     {jel: 'typeDescriptors/SimpleType.jel', native: SimpleType},

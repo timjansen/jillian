@@ -27,8 +27,6 @@ const UNIT_TYPES = ['Unit', 'String'];
  * Represents a value with unit.
  */
 export default class UnitValue extends NativeJelObject implements Numeric {
-	JEL_PROPERTIES: boolean;
-	
   public value_jel_property: boolean;
   public unit_jel_property: boolean;
 	public unit: Unit;

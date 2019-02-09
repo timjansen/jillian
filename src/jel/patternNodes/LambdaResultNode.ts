@@ -1,12 +1,13 @@
 import Match from './Match';
 import MatchNode from './MatchNode';
 import Context from '../Context';
+import Dictionary from '../types/Dictionary';
 import Serializer from '../Serializer';
 import JelNode from '../expressionNodes/JelNode';
 
 export default class LambdaResultNode extends MatchNode {
 
-	constructor(public expression: JelNode, public meta?: Map<string, any>) {
+	constructor(public expression: JelNode, public meta?: Dictionary) {
 		super('LambdaResultNode');
 	}
 	
@@ -23,7 +24,7 @@ export default class LambdaResultNode extends MatchNode {
 			if (!this.meta || metaFilter.size > this.meta.size)
 				return;
 			for (const key of metaFilter.values())
-				if (!this.meta.has(key))
+				if (!this.meta.elements.has(key))
 					return;
 		}
 		return this.createMatch(this.expression.execute(ctx), idx);
@@ -32,7 +33,7 @@ export default class LambdaResultNode extends MatchNode {
 	// override
 	toString(): string {
 		if (this.meta && this.meta.size) {
-			return `LambdaResultNode(${this.expression}, meta={${Array.from(this.meta.keys()).map(k=>`${k}=${this.meta?Serializer.serialize(this.meta.get(k)):''}`).join(', ')}})`;
+			return `LambdaResultNode(${this.expression}, meta={${Array.from(this.meta.elements.keys()).map(k=>`${k}=${this.meta?Serializer.serialize(this.meta.elements.get(k)):''}`).join(', ')}})`;
 		}
 		else
 			return `LambdaResultNode(${this.expression})`;

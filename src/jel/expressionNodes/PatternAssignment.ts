@@ -5,8 +5,9 @@ import Assignment from './Assignment';
 import JelObject from '../JelObject';
 import Context from '../Context';
 import Serializable from '../Serializable';
+import BaseTypeRegistry from '../BaseTypeRegistry';
 
-const EMPTY_MAP = new Map();
+
 
 /**
  * Helper class used by Translators to define the translator's elements. Each assignment consists of a Pattern, an expression and 
@@ -33,13 +34,13 @@ export default class PatternAssignment extends CachableJelNode {
       this.meta.forEach(a=>a.flushCache());
   }
   
-	getMetaData(ctx: Context): Map<string, any> {
+	getMetaData(ctx: Context): any { // returns Dictionary
 		if (!this.meta)
-			return EMPTY_MAP;
+			return BaseTypeRegistry.get('Dictionary').empty;
 		
 		const m = new Map();
 		this.meta.forEach(e=>m.set(e.name, e.execute(ctx)));
-		return m;
+		return BaseTypeRegistry.get('Dictionary').valueOf(m, true);
 	}
 	
   // override

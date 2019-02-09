@@ -28,7 +28,6 @@ function createDictionary(packageName: string, content: List): Dictionary {
 
 // Defines a package of Classes and Enums
 export default class Package extends PackageContent {
-  JEL_PROPERTIES: Object;
   public packageContent: Dictionary;
   static clazz: Class|undefined;
 
@@ -75,6 +74,9 @@ export default class Package extends PackageContent {
   }
 }
 
-Package.prototype.JEL_PROPERTIES = {packageName: true, content: true};
+const p: any = Package.prototype;
+p.packageName_jel_property = true
+p.content_jel_property = true;
+
 
 

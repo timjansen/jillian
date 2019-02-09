@@ -13,8 +13,6 @@ import TypeChecker from './TypeChecker';
  * Represents a string.
  */
 export default class JelString extends NativeJelObject implements SerializablePrimitive {
-	JEL_PROPERTIES: Object;
-	
 	static readonly EMPTY = new JelString("");
   
   static clazz: Class|undefined;
