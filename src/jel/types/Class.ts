@@ -309,6 +309,10 @@ export default class Class extends PackageContent implements SerializablePrimiti
   member(ctx: Context, name: string, parameters?: Map<string, any>): any {
     return this.staticPropertyCache.get(name);
 	}
+  method(ctx: Context, name: string): Callable|undefined {
+    const c = this.staticPropertyCache.get(name);
+    return c instanceof Callable ? c : undefined;
+	}
   
 
   create_jel_mapping: any; // set in ctor

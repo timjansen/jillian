@@ -144,7 +144,7 @@ export default class Float extends NativeJelObject implements SerializablePrimit
 
   static noUnit_jel_mapping = ['n'];
 	static noUnit(ctx: Context, n: JelObject|null): boolean {
-		return n && (n as any).toFloat && n.getJelType() != 'UnitValue';
+		return n && (n as any).toFloat && n.className != 'UnitValue';
 	}
 
 	static toOptionalRealNumber(n: any, defaultValue: number|null = null): number | null {

@@ -51,13 +51,13 @@ export default class Package extends PackageContent {
       return undefined;
     
     if (!TypeChecker.isIDbRef(ref))
-      throw new Error(`Unsupported property in ${name}. Requires DbRef, but it is ${ref.getJelType()}.`);
+      throw new Error(`Unsupported property in ${name}. Requires DbRef, but it is ${ref.className}.`);
     
 		return ref.with(ctx, (type: any)=>{
       if (type instanceof Class || type instanceof Enum || type instanceof Package)
         return type;
       else
-        throw new Error(`Can not resolve package member ${name}. Package, Class or Enum required, but it has the type ${type && type.getJelType()}.`);
+        throw new Error(`Can not resolve package member ${name}. Package, Class or Enum required, but it has the type ${type && type.className}.`);
     });
 	}
   

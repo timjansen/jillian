@@ -88,23 +88,27 @@ export default class Runtime {
     if (left instanceof BaseTypeRegistry.get('GenericJelObject'))
       return Runtime.isClassCompatible(ctx, (left as any).clazz, rightName);      
     else 
-      return left.getJelType() == rightName;
+      return left.className == rightName;
 	}
   
   static callMethod(ctx: Context, obj: JelObject|null, name: string, args: any[], argObj?: any): JelObject|null|Promise<JelObject|null> {
     if (!obj)
       throw new Error("Can't call method on null."); 
-    const value = obj.member(ctx, name);
-    if (value)
-     return Util.resolveValue(value, resolvedValue=>{
-        if (!(resolvedValue instanceof Callable))
-          throw new Error(`Can not call method ${name}, not a Callable member. Value: ${resolvedValue}`);
-        return resolvedValue.invokeWithObject(ctx, obj, args, argObj);
-      });
-    else if (name in obj) 
-			throw new Error(`Can not find member or method ${name} in ${obj.getJelType()}. Missing mapping.`);
-		else 
-			throw new Error(`Can not find member or method ${name} in ${obj.getJelType()}.`);
+
+    const m = obj.method(ctx, name);
+    if (m)
+      return m.invokeWithObject(ctx, obj, args, argObj);
+
+    return Util.resolveValue(Runtime.member(ctx, obj, name), m=>{
+      if (m instanceof Callable)
+        return m.invokeWithObject(ctx, obj, args, argObj);
+      else if (m)
+        throw new Error(`${name} in ${obj.className} is not a method that can be called, but appears to be a different type of property.`);
+      else if (name in obj) 
+        throw new Error(`Can not find method ${name} in ${obj.className}. Not declared in class.`);
+      else 
+        throw new Error(`Can not find method ${name} in ${obj.className}.`);
+    });
   }
 
   
@@ -114,11 +118,11 @@ export default class Runtime {
     
     const value = obj.member(ctx, name, parameters);
     if (value !== undefined)
-      return value instanceof Callable ? value.rebind(obj) : value;
+      return value;
     else if (name in obj) 
-			throw new Error(`Can not find member or method ${name} in ${obj.getJelType()}. Missing mapping.`);
+			throw new Error(`Can not find member ${name} in ${obj.className}. Not declared in class.`);
 		else 
-			throw new Error(`Can not find member or method ${name} in ${obj.getJelType()}.`);
+			throw new Error(`Can not find member ${name} in ${obj.className}.`);
 	}
 
 	

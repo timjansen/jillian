@@ -41,7 +41,7 @@ export default abstract class NativeJelObject extends JelObject implements Seria
       return (method as Method).callable.rebind(this);
     return undefined;    
 	}
-  
+   
   getSerializationProperties(): any {
     throw new Error(`You need to override getSerializationProperties() in ${this.className}`);
   }

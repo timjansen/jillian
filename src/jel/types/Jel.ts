@@ -74,7 +74,7 @@ export default class Jel extends NativeJelObject {
 	static sameType(ctx: Context, left: JelObject|null, right: JelObject|null): boolean {
     if (left == null)
       return right == null;
-    return right != null && left.getJelType() == right.getJelType();
+    return right != null && left.className == right.className;
 	}
  
 }

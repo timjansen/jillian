@@ -16,11 +16,11 @@ export default class TypeChecker {
 			throw new Error(`Required argument ${name} missing.`);
 		if (value === null)
 			throw new Error(`Required argument ${name} missing or null.`);
-		if (value.getJelType) {
+		if (value.className) {
 			if (type)
-				throw new Error(`Required argument ${name} has wrong type. ${name} must be ${type}. But I got a ${value.getJelType()}: ${value.toString()}.`);
+				throw new Error(`Required argument ${name} has wrong type. ${name} must be ${type}. But I got a ${value.className}: ${value.toString()}.`);
 			else
-				throw new Error(`Required argument ${name} has wrong type. Instead it had type ${value.getJelType}.`);
+				throw new Error(`Required argument ${name} has wrong type. Instead it had type ${value.className}.`);
 		}
 		else {
 			if (type)
@@ -41,7 +41,7 @@ export default class TypeChecker {
 		if (value == null)
 			return defaultValue;
 		
-		const typeName: string = value.getJelType ? value.getJelType() : '';
+		const typeName: string = value.className || '';
 		if (typeName == 'Float' || typeName == 'Fraction' || typeName == 'ApproximateNumber' || typeName == 'UnitValue')
 			return value;
 		if (typeof value == 'number')
@@ -54,7 +54,7 @@ export default class TypeChecker {
 		if (value == null)
 			return false;
 		
-		const typeName: string = value.getJelType ? value.getJelType() : '';
+		const typeName: string = value.className || '';
 		return (typeName == 'Float' || typeName == 'Fraction' || typeName == 'ApproximateNumber' || typeName == 'UnitValue');
 	}
 
@@ -66,7 +66,7 @@ export default class TypeChecker {
 		if (value == null)
 			return defaultValue;
 		
-		const typeName: string = value.getJelType ? value.getJelType() : '';
+		const typeName: string = value.className || '';
 		if (typeName == 'Float' || typeName == 'Fraction' || typeName == 'ApproximateNumber' || typeName == 'UnitValue')
 			return value.toRealNumber();
 		if (typeof value == 'number')
@@ -82,7 +82,7 @@ export default class TypeChecker {
 		if (value == null)
 			return defaultValue;
 		
-		const typeName: string = value.getJelType ? value.getJelType() : '';
+		const typeName: string = value.className || '';
 		if (typeName == 'Boolean')
 			return value;
 		if (typeof value == 'boolean')
@@ -98,7 +98,7 @@ export default class TypeChecker {
 		if (value == null)
 			return defaultValue;
 		
-		const typeName: string = value.getJelType ? value.getJelType() : '';
+		const typeName: string = value.className || '';
 		if (typeName == 'Boolean')
 			return value.toRealBoolean();
 		if (typeof value == 'boolean')
@@ -115,7 +115,7 @@ export default class TypeChecker {
 		if (value == null)
 			return defaultValue;
 		
-		const typeName: string = value.getJelType ? value.getJelType() : '';
+		const typeName: string = value.className || '';
 		if (typeName == 'String')
 			return value;
 		if (typeof value == 'string')
@@ -131,7 +131,7 @@ export default class TypeChecker {
 		if (value == null)
 			return defaultValue;
 		
-		const typeName: string = value.getJelType ? value.getJelType() : '';
+		const typeName: string = value.className || '';
 		if (typeName == 'String')
 			return value.value;
 		if (typeof value == 'string')
@@ -164,7 +164,7 @@ export default class TypeChecker {
 		if (value == null)
 			return defaultValue;
 		
-		if (typeName == (value.getJelType ? value.getJelType() : ''))
+		if (typeName == (value.className || ''))
 			return value;
 		return TypeChecker.throwArgumentError(value, name, typeName);
 	}
@@ -177,7 +177,7 @@ export default class TypeChecker {
 		if (value == null)
 			return defaultValue;
 		
-		const actualTypeName: string =  value.getJelType ? value.getJelType() : '';
+		const actualTypeName: string =  value.className || '';
 		for (let tn of typeNames)
 			if (tn == actualTypeName)
 				return value;
@@ -205,7 +205,7 @@ export default class TypeChecker {
 		if (value == null)
 			return BaseTypeRegistry.get('List').empty;
 		
-		if ((value.getJelType ? value.getJelType() : '') == 'List') {
+		if ((value.className || '') == 'List') {
       for (let s of value.elements)
         TypeChecker.string(s, name);
       return value;

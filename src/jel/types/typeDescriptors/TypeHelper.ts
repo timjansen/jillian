@@ -45,7 +45,7 @@ export default class TypeHelper {
 		else if (l instanceof Class)
 			return new SimpleType((l as any).name);
   
-    throw new Error(`Expected Class or Enum or DbRef or Dictionary or List or Range in ${name}. But it is ` + (l==null?'null.' : `${l.getJelType? l.getJelType() : 'Native: '+l.constructor.name}: ${l}`));
+    throw new Error(`Expected Class or Enum or DbRef or Dictionary or List or Range in ${name}. But it is ` + (l==null?'null.' : `${l.className? l.className : 'Native: '+l.constructor.name}: ${l}`));
   }
   
   static convertFromAny(l: any, name: string): TypeDescriptor {

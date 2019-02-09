@@ -14,7 +14,6 @@ import Util from '../../util/Util';
 
 export default class GenericJelObject extends JelObject implements Serializable {
   private _clazz: Class;
-  methodCache: Map<string, Callable> = new Map<string, Callable>();
   
   constructor(clazz: Class, public args: any[], public props: Dictionary) {
     super(clazz.name);
@@ -61,18 +60,13 @@ export default class GenericJelObject extends JelObject implements Serializable 
     const propsValue = this.props.elements.get(name);
     if (propsValue !== undefined)
       return propsValue;
-    const cachedMethodValue = this.methodCache.get(name);
-    if (cachedMethodValue)
-      return cachedMethodValue;
     const method = (this.clazz as Class).allMethods.elements.get(name);
-    if (method) {
-      const m = (method as Method).callable.rebind(this);
-      this.methodCache.set(name, m);
-      return m;
-    }
+    if (method)
+      return (method as Method).callable.rebind(this);
     return undefined;    
 	}
   
+ 
   getSerializationProperties(): any[] {
     return this.args;
   }
