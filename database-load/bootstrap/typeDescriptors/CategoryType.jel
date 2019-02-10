@@ -16,3 +16,4 @@ native class CategoryType extends TypeDescriptor:
   
   override native serializeToString(): string
   
+  native create(superCategory: any?): CategoryType

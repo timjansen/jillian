@@ -17,8 +17,9 @@ import Class from '../../jel/types/Class';
  */
 export default class ThingType extends TypeDescriptor {
   static clazz: Class|undefined;
+  static instance = new ThingType();
 
-  constructor(public category: IDbRef | null) {
+  constructor(public category?: IDbRef) {
     super('ThingType');
   }
   
@@ -50,7 +51,7 @@ export default class ThingType extends TypeDescriptor {
   
   serializeType(): string {  
     if (!this.category)
-      return 'ThingType()';
+      return 'thing';
     else
       return `ThingType(${Serializer.serialize(this.category)})`;
   }
@@ -61,11 +62,21 @@ export default class ThingType extends TypeDescriptor {
     return JelBoolean.valueOf(other instanceof ThingType && (this.category ? (other.category!=null && other.category.distinctName==this.category.distinctName) : !other.category));
   }
   
+  create(ctx: Context, ...args: any[]) {
+    return ThingType.create(ctx, ...args);
+  }
+  
   static create_jel_mapping = {category: 1};
   static create(ctx: Context, ...args: any[]) {
+    if (!args[0])
+      return ThingType.instance;
     return new ThingType(args[0] instanceof JelString ? ctx.dbSession!.createDbRef(args[0]) : TypeChecker.optionalDbRef(args[0], 'category'));
   }
 }
+
+
+const p: any = ThingType.prototype;
+p.create_jel_mapping = true;
 
 BaseTypeRegistry.register('ThingType', ThingType);
 

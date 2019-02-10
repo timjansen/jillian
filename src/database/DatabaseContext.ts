@@ -28,7 +28,7 @@ import UnitValue from '../jel/types/UnitValue';
 
 
 const BOOT_SCRIPT = [
-  {static: {duration: DurationType.instance}}, 
+  {static: {duration: DurationType.instance, category: CategoryType.instance, thing: ThingType.instance}}, 
   {jel: 'typeDescriptors/CategoryType.jel', native: CategoryType},
   {jel: 'typeDescriptors/ThingType.jel', native: ThingType},
   
