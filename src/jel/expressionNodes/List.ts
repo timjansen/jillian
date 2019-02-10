@@ -4,6 +4,7 @@ import Context from '../Context';
 import JelObject from '../JelObject';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
 
 /**
  * Represents a List literal, like in JavaScript.
@@ -16,8 +17,8 @@ import Util from '../../util/Util';
 export default class List extends CachableJelNode {
   private list: any;
 
-  constructor(public elements: JelNode[]) {
-    super();
+  constructor(position: SourcePosition, public elements: JelNode[]) {
+    super(position);
     this.list = BaseTypeRegistry.get('List');
   }
 

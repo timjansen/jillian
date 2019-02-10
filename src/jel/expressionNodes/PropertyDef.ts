@@ -6,13 +6,14 @@ import LambdaExecutable from '../LambdaExecutable';
 import Context from '../Context';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
 
 /**
  * Represents a property definition in a class.
  */
 export default class PropertyDef extends CachableJelNode {
-  constructor(public name: string, public type?: JelNode, public defaultValueGenerator?: JelNode, public isNative = false, public isOverride = false, public isAbstract = false) {
-    super();
+  constructor(position: SourcePosition, public name: string, public type?: JelNode, public defaultValueGenerator?: JelNode, public isNative = false, public isOverride = false, public isAbstract = false) {
+    super(position);
   }
 
   // override

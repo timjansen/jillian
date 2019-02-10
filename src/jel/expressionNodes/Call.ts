@@ -6,6 +6,8 @@ import Runtime from '../Runtime';
 import Callable from '../Callable';
 import Context from '../Context';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
+
 
 function resolveValueObj(f: (e: Map<string,JelObject|null>|undefined)=>JelObject|null|Promise<JelObject|null>, assignments: Assignment[], values: (JelObject|null|Promise<JelObject|null>)[]): JelObject|null|Promise<JelObject|null> {
 	if (!assignments.length)
@@ -34,8 +36,8 @@ function resolveValueObj(f: (e: Map<string,JelObject|null>|undefined)=>JelObject
  *     (()=>4)()                     // calling lambda, returns 4
  */
 export default class Call extends CachableJelNode {
-  constructor(public left: JelNode, public argList: JelNode[]  = [], public namedArgs: Assignment[] = []) {
-    super();
+  constructor(position: SourcePosition, public left: JelNode, public argList: JelNode[]  = [], public namedArgs: Assignment[] = []) {
+    super(position);
   }
   
   private callCallable(ctx: Context, callable: Callable): JelObject|null|Promise<JelObject|null> {

@@ -3,6 +3,7 @@ import CachableJelNode from './CachableJelNode';
 import Context from '../Context';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import JelObject from '../JelObject';
+import SourcePosition from '../SourcePosition';
 
 
 /**
@@ -14,8 +15,8 @@ import JelObject from '../JelObject';
  */
 export default class VariableOrType extends CachableJelNode {
   
-  constructor(public name: string) {
-    super();
+  constructor(position: SourcePosition, public name: string) {
+    super(position);
   }
   
   // override

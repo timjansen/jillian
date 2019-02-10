@@ -3,6 +3,7 @@ import Context from '../Context';
 import JelObject from '../JelObject';
 import Util from '../../util/Util';
 import BaseTypeRegistry from '../BaseTypeRegistry';
+import SourcePosition from '../SourcePosition';
 
 /**
  * Represents a word matching pattern.
@@ -23,12 +24,12 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
  *  `{{date: /[0-9]+/ /[0-9]+/ /[0-9]+/ }}`                       // Three REs, to match three words. Also returns list.
  */
 export default class Pattern extends JelNode {
-  constructor(public pattern: any) {
-    super();
+  constructor(position: SourcePosition, public pattern: any) {
+    super(position);
   }
   
   // override
-  execute(ctx: Context): JelObject {
+  executeImpl(ctx: Context): JelObject {
     return this.pattern;
   }
   

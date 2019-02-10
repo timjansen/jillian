@@ -4,6 +4,7 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
 import JelObject from '../JelObject';
 import Context from '../Context';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
 
 /**
  * Represents an 'As'
@@ -16,8 +17,8 @@ import Util from '../../util/Util';
 export default class As extends TypeCheck {
 	private typeHelper: any;	
   
-  constructor(left: JelNode, right: JelNode, public extraMessage?: string) {
-    super(left, right);
+  constructor(token: SourcePosition, left: JelNode, right: JelNode, public extraMessage?: string) {
+    super(token, left, right);
     this.typeHelper = BaseTypeRegistry.get('TypeHelper');
   }
 

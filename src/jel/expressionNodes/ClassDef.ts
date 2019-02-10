@@ -10,6 +10,7 @@ import Context from '../Context';
 import TypedParameterValue from '../TypedParameterValue';
 import Util from '../../util/Util';
 import BaseTypeRegistry from '../BaseTypeRegistry';
+import SourcePosition from '../SourcePosition';
 
 
 /**
@@ -19,14 +20,14 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
 export default class ClassDef extends JelNode {
   isNative: boolean;
   
-  constructor(public name: string, public superName?: JelNode, public ctor?: Lambda|NativeFunction, public propertyDefs: PropertyDef[] = [], public methodDefs: MethodDef[] = [], 
+  constructor(position: SourcePosition, public name: string, public superName?: JelNode, public ctor?: Lambda|NativeFunction, public propertyDefs: PropertyDef[] = [], public methodDefs: MethodDef[] = [], 
                public staticPropertyDefs: PropertyDef[] = [], public isAbstract = false, public hasNative = false) {
-		super();
+		super(position);
     this.isNative = this.ctor instanceof NativeFunction;
   }
   
 	// override
-  execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
+  executeImpl(ctx: Context): JelObject|null|Promise<JelObject|null> {
     const r = Util.resolveValues(BaseTypeRegistry.get('Class').valueOf, 
                               ctx, 
                               this.name, 

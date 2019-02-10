@@ -3,14 +3,15 @@ import CachableJelNode from './CachableJelNode';
 import JelObject from '../JelObject';
 import Callable from '../Callable';
 import Context from '../Context';
+import SourcePosition from '../SourcePosition';
 
 
 /**
  * Represents an assignment, which is a helper construct for with and calls.
  */
 export default class Assignment extends CachableJelNode   {
-  constructor(public name: string, public expression: JelNode) {
-    super();
+  constructor(position: SourcePosition, public name: string, public expression: JelNode) {
+    super(position);
   }
 
   // override

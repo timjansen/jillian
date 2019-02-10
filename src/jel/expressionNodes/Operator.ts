@@ -6,6 +6,7 @@ import JelObject from '../JelObject';
 import Runtime from '../Runtime';
 import Context from '../Context';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
 
 /**
  * Represents a standard operator. Will evaluate both left and right, except for the operators '.', '||' and '&&' which will evaluate only the
@@ -32,8 +33,8 @@ import Util from '../../util/Util';
  */ 
 export default class Operator extends CachableJelNode {
 		
-  constructor(public operator: string, public left: JelNode, public right?: JelNode) {
-    super();
+  constructor(position: SourcePosition, public operator: string, public left: JelNode, public right?: JelNode) {
+    super(position);
   }
 
   // override
@@ -47,9 +48,9 @@ export default class Operator extends CachableJelNode {
     default:
       if (this.right == null)
         return this.evaluateLeftFirstOp(ctx);
-        
+
       return Util.resolveValues((l: any,r: any)=>Runtime.op(ctx, this.operator, l, r), this.left.execute(ctx), this.right.execute(ctx));
-		}
+    }
   }
 
   isStaticUncached(ctx: Context): boolean {

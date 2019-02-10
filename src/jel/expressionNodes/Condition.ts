@@ -4,6 +4,7 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
 import JelObject from '../JelObject';
 import Context from '../Context';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
 
 
 /**
@@ -14,8 +15,8 @@ import Util from '../../util/Util';
  *     if c instanceof @Cat then c instanceof @Animal
  */
 export default class Condition extends CachableJelNode {
-  constructor(public condition: JelNode, public thenExp: JelNode, public elseExp: JelNode) {
-    super();
+  constructor(position: SourcePosition, public condition: JelNode, public thenExp: JelNode, public elseExp: JelNode) {
+    super(position);
   }
   
   // override

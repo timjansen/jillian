@@ -20,6 +20,7 @@ import Util from '../../util/Util';
 import TypeChecker from './TypeChecker';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 
+
 const VALUE_TYPES = ['Float', 'Fraction', 'ApproximateNumber'];
 const UNIT_TYPES = ['Unit', 'String'];
 

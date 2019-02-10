@@ -5,6 +5,7 @@ import Context from '../Context';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import JelObject from '../JelObject';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
 
 
 /**
@@ -16,8 +17,8 @@ import Util from '../../util/Util';
  */
 export default class With extends CachableJelNode {
   bool: any;
-  constructor(public assertions: JelNode[], public expression: JelNode) {
-    super();
+  constructor(position: SourcePosition, public assertions: JelNode[], public expression: JelNode) {
+    super(position);
     this.bool = BaseTypeRegistry.get('Boolean');
   }
   

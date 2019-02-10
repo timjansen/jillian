@@ -7,14 +7,15 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
 import Serializable from '../Serializable';
 import LambdaExecutable from '../LambdaExecutable';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
 
 /**
  * Represents an lambda argument, with optional type and default value.
  */
 export default class TypedParameterDefinition extends CachableJelNode {
- 	private typeHelper: any;	
-  constructor(public name: string, public defaultValue?: JelNode, public type?: JelNode, public varArgs = false ) {
-    super();
+ 	private typeHelper: any;
+  constructor(position: SourcePosition, public name: string, public defaultValue?: JelNode, public type?: JelNode, public varArgs = false ) {
+    super(position);
     this.typeHelper = BaseTypeRegistry.get('TypeHelper');
   }
 

@@ -13,6 +13,7 @@ import PatternNode from '../patternNodes/PatternNode';
 import Util from '../../util/Util';
 import TypeChecker from './TypeChecker';
 
+
 export default class Pattern extends NativeJelObject implements SerializablePrimitive {
 	
   static clazz: Class|undefined;

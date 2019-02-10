@@ -6,6 +6,7 @@ import JelObject from '../JelObject';
 import Runtime from '../Runtime';
 import Context from '../Context';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
 
 /**
  * Represents a range operator (...). 
@@ -18,8 +19,8 @@ import Util from '../../util/Util';
 export default class Range extends CachableJelNode {
   private range: any;
   
-  constructor(public left: JelNode|undefined, public right: JelNode|undefined, public minExclusive: boolean = false, public maxExclusive: boolean = false) {
-    super();
+  constructor(position: SourcePosition, public left: JelNode|undefined, public right: JelNode|undefined, public minExclusive: boolean = false, public maxExclusive: boolean = false) {
+    super(position);
     this.range = BaseTypeRegistry.get('Range');
   }
 

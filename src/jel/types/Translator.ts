@@ -19,6 +19,7 @@ import TranslatorNode from '../patternNodes/TranslatorNode';
 import LambdaResultNode from '../patternNodes/LambdaResultNode';
 import StaticResultNode from '../patternNodes/LambdaResultNode';
 
+
 export default class Translator extends NativeJelObject {
 	tree: TranslatorNode = new TranslatorNode();
   static clazz: Class|undefined;

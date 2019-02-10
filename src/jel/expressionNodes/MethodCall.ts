@@ -5,6 +5,7 @@ import JelObject from '../JelObject';
 import Runtime from '../Runtime';
 import Context from '../Context';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
 
 function resolveValueObj(f: (e: Map<string,JelObject|null>|undefined)=>JelObject|null|Promise<JelObject|null>, assignments: Assignment[], values: (JelObject|null|Promise<JelObject|null>)[]): JelObject|null|Promise<JelObject|null> {
 	if (!assignments.length)
@@ -31,8 +32,8 @@ function resolveValueObj(f: (e: Map<string,JelObject|null>|undefined)=>JelObject
  *     list.sort(key = a=>a.name)
  */
 export default class MethodCall extends CachableJelNode {
-  constructor(public left: JelNode, public name: string, public argList: JelNode[]  = [], public namedArgs: Assignment[] = []) {
-    super();
+  constructor(position: SourcePosition, public left: JelNode, public name: string, public argList: JelNode[]  = [], public namedArgs: Assignment[] = []) {
+    super(position);
   }
   
   

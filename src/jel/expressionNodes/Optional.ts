@@ -4,6 +4,7 @@ import JelObject from '../JelObject';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import Context from '../Context';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
 
 /**
  * Represents an optional value (aka type). Returns a TypeDescriptor.
@@ -13,8 +14,8 @@ import Util from '../../util/Util';
  *  string?
  */
 export default class Optional extends CachableJelNode {
-  constructor(public left: JelNode) {
-    super();
+  constructor(position: SourcePosition, public left: JelNode) {
+    super(position);
   }
   
   // override

@@ -5,6 +5,7 @@ import JelObject from '../JelObject';
 import Context from '../Context';
 import Util from '../../util/Util';
 import BaseTypeRegistry from '../BaseTypeRegistry';
+import SourcePosition from '../SourcePosition';
 
 
 /**
@@ -20,8 +21,8 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
  */
 export default class Dictionary extends CachableJelNode {
   private dictionary: any;
-  constructor(public elements: Assignment[] = []) {
-    super();
+  constructor(token: SourcePosition, public elements: Assignment[] = []) {
+    super(token);
     this.dictionary = BaseTypeRegistry.get('Dictionary');
   }
 

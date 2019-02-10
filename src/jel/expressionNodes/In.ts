@@ -5,6 +5,7 @@ import Runtime from '../Runtime';
 import Context from '../Context';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
 
 /**
  * Checks whether the left operand is part of the right-hand range or collection.
@@ -15,8 +16,8 @@ import Util from '../../util/Util';
  */
 export default class In extends CachableJelNode {
   falseBool: any;
-  constructor(public left: JelNode, public right: JelNode) {
-    super();
+  constructor(position: SourcePosition, public left: JelNode, public right: JelNode) {
+    super(position);
     this.falseBool = BaseTypeRegistry.get('Boolean').FALSE;
   }
   

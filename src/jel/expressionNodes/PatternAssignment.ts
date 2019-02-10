@@ -6,6 +6,7 @@ import JelObject from '../JelObject';
 import Context from '../Context';
 import Serializable from '../Serializable';
 import BaseTypeRegistry from '../BaseTypeRegistry';
+import SourcePosition from '../SourcePosition';
 
 
 
@@ -14,8 +15,8 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
  * optional meta values.
  */
 export default class PatternAssignment extends CachableJelNode {
-  constructor(public name: any, public expression: JelNode, public meta: Assignment[]|undefined) {
-    super();
+  constructor(position: SourcePosition, public name: any, public expression: JelNode, public meta: Assignment[]|undefined) {
+    super(position);
   }
 
   // override

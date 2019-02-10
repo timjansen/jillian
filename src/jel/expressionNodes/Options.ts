@@ -4,6 +4,7 @@ import JelObject from '../JelObject';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import Context from '../Context';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
 
 /**
  * Represents an set of type options. Returns a OptionType.
@@ -13,8 +14,8 @@ import Util from '../../util/Util';
  *  @Length|@Size|null
  */
 export default class Options extends CachableJelNode {
-  constructor(public options: JelNode[]) {
-    super();
+  constructor(position: SourcePosition, public options: JelNode[]) {
+    super(position);
   }
   
   // override

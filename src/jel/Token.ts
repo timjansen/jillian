@@ -1,3 +1,4 @@
+import SourcePosition from './SourcePosition'
 
 export const enum TokenType {
 	Operator = 1,        // for JEL expressions
@@ -15,10 +16,10 @@ export const enum TokenType {
   Expression
 }
 
-export class Token {
+export class Token implements SourcePosition {
 	constructor(public line: number, public column: number, public src: string, public type: TokenType, public value: any) {
 	}
-	
+  
   is(type: TokenType, value?: any): Token|undefined {
     return (this.type == type && (value == null || this.value == value)) ? this : undefined;
   }

@@ -4,6 +4,7 @@ import PatternAssignment from './PatternAssignment';
 import JelObject from '../JelObject';
 import Context from '../Context';
 import BaseTypeRegistry from '../BaseTypeRegistry';
+import SourcePosition from '../SourcePosition';
 
 /**
  * Represents a translator that maps Patterns onto expressions, with optional meta values.
@@ -15,8 +16,8 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
  *		verb: `run` => Running()}}
  */
 export default class Translator extends CachableJelNode {
-  constructor(public elements: PatternAssignment[] = []) {
-    super();
+  constructor(position: SourcePosition, public elements: PatternAssignment[] = []) {
+    super(position);
   }
 
   // override

@@ -5,6 +5,7 @@ import JelObject from '../JelObject';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import Context from '../Context';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
 
 /**
  * Represents a template string ('this will be executed: {{1+2+3}} done').
@@ -15,8 +16,8 @@ import Util from '../../util/Util';
 export default class TemplateString extends CachableJelNode {
   string: any;
   // ctor must be called with expressions.length>0 and stringFragments.length==expressions.length+1, so there are interleaved string-expression-string-expression-string...
-  constructor(public stringFragments: string[], public expressions: JelNode[]) {
-    super();
+  constructor(position: SourcePosition, public stringFragments: string[], public expressions: JelNode[]) {
+    super(position);
     if (stringFragments.length != expressions.length+1)
       throw new Error('Invalid number of stringFragments for the expressions.');
     this.string = BaseTypeRegistry.get('String');

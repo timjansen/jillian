@@ -4,6 +4,7 @@ import JelObject from '../JelObject';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import Context from '../Context';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
 
 /**
  * Represents an dictionary type. Returns a TypeDescriptor.
@@ -13,8 +14,8 @@ import Util from '../../util/Util';
  *  @Meter{}
  */
 export default class DictType extends CachableJelNode {
-  constructor(public left: JelNode) {
-    super();
+  constructor(position: SourcePosition, public left: JelNode) {
+    super(position);
   }
   
   // override

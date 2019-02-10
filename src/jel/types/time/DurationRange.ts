@@ -14,6 +14,8 @@ import Fraction from '../Fraction';
 import ApproximateNumber from '../ApproximateNumber';
 import TypeChecker from '../TypeChecker';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
+import SourcePosition from '../../SourcePosition';
+import RuntimeError from '../../RuntimeError';
 
 /**
  * A complex, calendar-based duration (simple durations, like year or seconds, can use UnitValue with Range)

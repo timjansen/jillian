@@ -3,6 +3,7 @@ import JelObject from '../JelObject';
 import Context from '../Context';
 import Util from '../../util/Util';
 import BaseTypeRegistry from '../BaseTypeRegistry';
+import SourcePosition from '../SourcePosition';
 
 
 /**
@@ -15,12 +16,12 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
 export default class EnumDef extends JelNode {
   value: JelObject|undefined;
   
-  constructor(public name: string, public values: string[]) {
-		super();
+  constructor(position: SourcePosition, public name: string, public values: string[]) {
+		super(position);
   }
   
 	// override
-  execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
+  executeImpl(ctx: Context): JelObject|null|Promise<JelObject|null> {
     if (this.value)
       return this.value;
     const str = BaseTypeRegistry.get('String');

@@ -12,7 +12,6 @@ import JelObject from '../JelObject';
 import Context from '../Context';
 import Util from '../../util/Util';
 
-
 const listTypeChecker = new ListType(new OptionType(new List([new SimpleType('Package'), new SimpleType('Class'), new SimpleType('Enum')])));
 
 function createDictionary(packageName: string, content: List): Dictionary {

@@ -10,6 +10,7 @@ import Class from './Class';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 
 
+
 /**
  * Collection of static helper methods.
  */

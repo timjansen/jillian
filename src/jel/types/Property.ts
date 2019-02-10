@@ -12,6 +12,7 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
 import Util from '../../util/Util';
 
 
+
 export default class Property extends NativeJelObject {
   static clazz: Class|undefined;
 

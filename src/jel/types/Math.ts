@@ -17,8 +17,6 @@ import UnitValue from './UnitValue';
 import TypeChecker from './TypeChecker';
 
 
-
-
 /**
  * Collection of static method for math.
  */

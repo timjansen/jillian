@@ -5,6 +5,7 @@ import Context from '../Context';
 import JelObject from '../JelObject';
 import {IDbRef, IDbSession} from '../IDatabase';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
 
 
 function resolveValueMap(ctx: Context, assignments: Assignment[]): Map<string, any>|Promise<Map<string, any>> {
@@ -25,8 +26,8 @@ function resolveValueMap(ctx: Context, assignments: Assignment[]): Map<string, a
  */
 export default class Reference extends CachableJelNode {
 	public ref: IDbRef | Promise<IDbRef> | undefined;
-  constructor(public name: string, public parameters: Assignment[] = []) {
-    super();
+  constructor(position: SourcePosition, public name: string, public parameters: Assignment[] = []) {
+    super(position);
   }
   
   // override

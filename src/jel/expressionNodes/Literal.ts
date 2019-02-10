@@ -2,6 +2,7 @@ import JelNode from './JelNode';
 import Context from '../Context';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import JelObject from '../JelObject';
+import SourcePosition from '../SourcePosition';
 
 
 /**
@@ -23,8 +24,8 @@ import JelObject from '../JelObject';
  */
 export default class Literal extends JelNode {
 	public value: any;
-	constructor(value: any) {
-    super();
+	constructor(position: SourcePosition, value: any) {
+    super(position);
 		if (value === true || value === false)
 			this.value = BaseTypeRegistry.get('Boolean').valueOf(value);
 		else if (value == null)
@@ -38,7 +39,7 @@ export default class Literal extends JelNode {
   }
 
   // override
-  execute(ctx: Context): JelObject|null {
+  executeImpl(ctx: Context): JelObject|null {
     return this.value;
   }
   

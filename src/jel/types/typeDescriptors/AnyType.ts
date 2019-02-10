@@ -12,6 +12,7 @@ import SerializablePrimitive from '../../SerializablePrimitive';
 import JelBoolean from '../JelBoolean';
 
 
+
 /**
  * Represets any type, excluding null.
  */

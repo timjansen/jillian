@@ -5,6 +5,7 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
 import Callable from '../Callable';
 import Context from '../Context';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
 
 /**
  * Represents an rangable value (aka type). Returns a TypeDescriptor.
@@ -14,8 +15,8 @@ import Util from '../../util/Util';
  *  number<>
  */
 export default class Rangable extends CachableJelNode {
-  constructor(public left: JelNode) {
-    super();
+  constructor(position: SourcePosition, public left: JelNode) {
+    super(position);
   }
   
   executeUncached(ctx: Context): JelObject {

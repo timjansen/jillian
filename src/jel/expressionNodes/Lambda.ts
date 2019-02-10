@@ -6,6 +6,7 @@ import JelObject from '../JelObject';
 import Context from '../Context';
 import LambdaCallable from '../LambdaCallable';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
 
 
 /**
@@ -21,8 +22,8 @@ import Util from '../../util/Util';
  */ 
 export default class Lambda extends CachableJelNode {
  
-  constructor(public args: TypedParameterDefinition[], public returnType: TypedParameterDefinition|undefined, public expression: JelNode, public varArg: boolean) {
-		super();
+  constructor(position: SourcePosition, public args: TypedParameterDefinition[], public returnType: TypedParameterDefinition|undefined, public expression: JelNode, public varArg: boolean) {
+		super(position);
   }
   
 	// override

@@ -95,6 +95,19 @@ export default class Util {
 			}
 	}
 
+ 	static handleError(generator: ()=>any, err: (e: any)=>any): any {
+		try {
+      const value: any = generator();
+  		if (value instanceof Promise)
+			  return value.catch(e=>{throw err(e);});
+		  else 
+        return value;
+			}
+			catch (e) {
+				throw err(e);
+			}
+	}
+  
 	static resolveValues(f: Function, ...values: any[]): any {
 		if (!values.length) 
 			try {

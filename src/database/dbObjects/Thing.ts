@@ -13,6 +13,7 @@ import Util from '../../util/Util';
 import BaseTypeRegistry from '../../jel/BaseTypeRegistry';
 
 
+
 const DB_INDICES = new Map();
 DB_INDICES.set('catEntries', {type: 'category', property: 'category', includeParents: true});
 

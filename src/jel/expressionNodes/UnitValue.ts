@@ -3,6 +3,7 @@ import CachableJelNode from './CachableJelNode';
 import Context from '../Context';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import JelObject from '../JelObject';
+import SourcePosition from '../SourcePosition';
 
 /**
  * Represents a Unit Value
@@ -12,8 +13,8 @@ import JelObject from '../JelObject';
  *   3/4 @Inch
  */
 export default class UnitValue extends CachableJelNode {
-	constructor(public value: JelNode, public unit: string) {
-    super();
+	constructor(position: SourcePosition, public value: JelNode, public unit: string) {
+    super(position);
   }
 
   // override

@@ -8,13 +8,14 @@ import CachableJelNode from './CachableJelNode';
 import Serializable from '../Serializable';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
 
 /**
  * Represents a method in a class.
  */
 export default class MethodDef extends CachableJelNode {
-  constructor(public name: string, public expression: Lambda|NativeFunction, public isOverride: boolean, public isNative: boolean, public isStaticMethod: boolean, public isAbstract: boolean, public isGetter: boolean) {
-    super();
+  constructor(position: SourcePosition, public name: string, public expression: Lambda|NativeFunction, public isOverride: boolean, public isNative: boolean, public isStaticMethod: boolean, public isAbstract: boolean, public isGetter: boolean) {
+    super(position);
   }
   
   // override

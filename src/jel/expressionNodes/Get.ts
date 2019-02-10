@@ -5,6 +5,7 @@ import Runtime from '../Runtime';
 import Context from '../Context';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
 
 /**
  * Accesses a member of an object for reading. Please note that this node is only used for accessing using '[]', not using '.'.
@@ -15,8 +16,8 @@ import Util from '../../util/Util';
  */
 export default class Get extends CachableJelNode {
   float: any;
-  constructor(public left: JelNode, public name: JelNode) {
-    super();
+  constructor(position: SourcePosition, public left: JelNode, public name: JelNode) {
+    super(position);
     this.float = BaseTypeRegistry.get('Float');
   }
   

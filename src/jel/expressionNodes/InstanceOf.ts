@@ -4,6 +4,7 @@ import JelObject from '../JelObject';
 import Context from '../Context';
 import Util from '../../util/Util';
 import BaseTypeRegistry from '../BaseTypeRegistry';
+import SourcePosition from '../SourcePosition';
 
 /**
  * Represents an 'instanceof'
@@ -17,8 +18,8 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
 export default class Instanceof extends TypeCheck {
 	private typeHelper: any;	
 
-  constructor(left: JelNode, right: JelNode) {
-    super(left, right);
+  constructor(position: SourcePosition, left: JelNode, right: JelNode) {
+    super(position, left, right);
     this.typeHelper = BaseTypeRegistry.get('TypeHelper');
   }
 

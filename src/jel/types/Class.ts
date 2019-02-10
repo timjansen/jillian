@@ -23,6 +23,7 @@ import Context from '../Context';
 import StaticContext from '../StaticContext';
 import Util from '../../util/Util';
 
+
 // Base class for defining instantiable types
 export default class Class extends PackageContent implements SerializablePrimitive {
   private classContext: Context;

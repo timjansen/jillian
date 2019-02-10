@@ -130,9 +130,10 @@ const LAMBDA = {'=>': true};
 const OPEN_ARGS = {'(': true};
 const CLOSE_ARGS = {')': true};
 
-const EMPTY_LIST = new List([]);
-const EMPTY_DICT = new Dictionary([]);
-const TRUE_LITERAL = new Literal(true);
+const DUMMY_TOKEN = new Token(0, 0, '(you should never see this)', TokenType.Literal, null);
+const EMPTY_LIST = new List(DUMMY_TOKEN, []);
+const EMPTY_DICT = new Dictionary(DUMMY_TOKEN, []);
+const TRUE_LITERAL = new Literal(DUMMY_TOKEN, true);
 
 export default class JEL {
 	parseTree: JelNode;
@@ -179,21 +180,21 @@ export default class JEL {
     switch (token.type) {
     case TokenType.Literal:
 			if (typeof token.value == 'number' && tokens.peekIs(TokenType.Operator, '@'))
-				return JEL.parseUnitValue(tokens, new Literal(token.value), precedence, stopOps);
+				return JEL.parseUnitValue(tokens, new Literal(token, token.value), precedence, stopOps);
 			else
-	      return JEL.tryBinaryOps(tokens, new Literal(token.value), precedence, stopOps);
+	      return JEL.tryBinaryOps(tokens, new Literal(token, token.value), precedence, stopOps);
     case TokenType.TemplateString:
         return JEL.parseTemplateString(tokens, token, precedence, stopOps);
     case TokenType.Fraction:
 			if (tokens.peekIs(TokenType.Operator, '@'))
-				return JEL.parseUnitValue(tokens, new Fraction((token as FractionToken).numerator, (token as FractionToken).denominator), precedence, stopOps);
+				return JEL.parseUnitValue(tokens, new Fraction(token, (token as FractionToken).numerator, (token as FractionToken).denominator), precedence, stopOps);
 			else
-	      return JEL.tryBinaryOps(tokens, new Fraction((token as FractionToken).numerator, (token as FractionToken).denominator), precedence, stopOps);
+	      return JEL.tryBinaryOps(tokens, new Fraction(token, (token as FractionToken).numerator, (token as FractionToken).denominator), precedence, stopOps);
     case TokenType.Identifier:
       const lambda = JEL.tryLambda(tokens, token.value, precedence, stopOps);
-      return JEL.tryBinaryOps(tokens, lambda || (isTypeDef && /^[A-Z]/.test(token.value)? new VariableOrType(token.value) : new Variable(token.value)), precedence, stopOps);
+      return JEL.tryBinaryOps(tokens, lambda || (isTypeDef && /^[A-Z]/.test(token.value)? new VariableOrType(token, token.value) : new Variable(token, token.value)), precedence, stopOps);
     case TokenType.Pattern:
-      return JEL.tryBinaryOps(tokens, new ExpressionPattern(JEL.createPattern(token.value, token)), precedence, stopOps);
+      return JEL.tryBinaryOps(tokens, new ExpressionPattern(token, JEL.createPattern(token.value, token)), precedence, stopOps);
     case TokenType.Operator:
       if (unaryOperators[token.value]) 
         return JEL.parseUnaryOperator(tokens, token.value, precedence, stopOps);
@@ -226,20 +227,20 @@ export default class JEL {
     }
     
     if (!expressions.length)
-      return JEL.tryBinaryOps(tokens, new Literal(fragments.join('')), precedence, stopOps);
+      return JEL.tryBinaryOps(tokens, new Literal(tokens.last(), fragments.join('')), precedence, stopOps);
     
     if (fragments.length == expressions.length)
       fragments.push('');
 
-    return JEL.tryBinaryOps(tokens, new TemplateString(fragments, expressions), precedence, stopOps);
+    return JEL.tryBinaryOps(tokens, new TemplateString(tokens.last(), fragments, expressions), precedence, stopOps);
   }
 
   
   static parseUnaryOperator(tokens: TokenReader, operator: string, precedence: number, stopOps: any): JelNode {
     if ((operator == '-' || operator == '+') && ((tokens.peekIs(TokenType.Literal) && typeof tokens.peek().value == 'number')  || tokens.peekIs(TokenType.Fraction))) {
       const number = tokens.next();
-      const node = number.type == TokenType.Literal ? new Literal(operator == '-' ? -number.value : number.value) : 
-        new Fraction((number as FractionToken).numerator * (operator == '-' ? -1 : 1), (number as FractionToken).denominator);
+      const node = number.type == TokenType.Literal ? new Literal(number, operator == '-' ? -number.value : number.value) : 
+        new Fraction(number, (number as FractionToken).numerator * (operator == '-' ? -1 : 1), (number as FractionToken).denominator);
 
       if (tokens.peekIs(TokenType.Operator, '@'))
         return JEL.parseUnitValue(tokens, node, precedence, stopOps);
@@ -248,19 +249,20 @@ export default class JEL {
     }
     switch (operator) {
       case ">=":
-        return JEL.tryBinaryOps(tokens, new Range(JEL.parseExpression(tokens, unaryOperators[operator], stopOps), undefined), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, new Range(tokens.last(), JEL.parseExpression(tokens, unaryOperators[operator], stopOps), undefined), precedence, stopOps);
       case "<=":
-        return JEL.tryBinaryOps(tokens, new Range(undefined, JEL.parseExpression(tokens, unaryOperators[operator], stopOps)), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, new Range(tokens.last(), undefined, JEL.parseExpression(tokens, unaryOperators[operator], stopOps)), precedence, stopOps);
       case ">":
-        return JEL.tryBinaryOps(tokens, new Range(JEL.parseExpression(tokens, unaryOperators[operator], stopOps), undefined, true, false), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, new Range(tokens.last(), JEL.parseExpression(tokens, unaryOperators[operator], stopOps), undefined, true, false), precedence, stopOps);
       case "<":
-        return JEL.tryBinaryOps(tokens, new Range(undefined, JEL.parseExpression(tokens, unaryOperators[operator], stopOps), false, true), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, new Range(tokens.last(), undefined, JEL.parseExpression(tokens, unaryOperators[operator], stopOps), false, true), precedence, stopOps);
       default:
-        return JEL.tryBinaryOps(tokens, new Operator(operator, JEL.parseExpression(tokens, unaryOperators[operator], stopOps)), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, new Operator(tokens.last(),  operator, JEL.parseExpression(tokens, unaryOperators[operator], stopOps)), precedence, stopOps);
     }
   }
   
   static parseOperatorExpression(tokens: TokenReader, operator: string, precedence: number, stopOps: any): JelNode {
+    const firstToken = tokens.last();
     switch (operator) {
     case '(':
       const lambda = JEL.tryLambda(tokens, null, precedence, stopOps);
@@ -285,24 +287,24 @@ export default class JEL {
       const t2 = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier after '@' for reference.");
       if (tokens.nextIf(TokenType.Operator, '(')) {
         const assignments: Assignment[] = JEL.parseParameters(tokens, PARENS_PRECEDENCE, PARAMETER_STOP, ')', "Expected comma or closing parens", 'parameter');
-        return JEL.tryBinaryOps(tokens, new Reference(t2.value, assignments), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, new Reference(t2, t2.value, assignments), precedence, stopOps);
       }
       else
-        return JEL.tryBinaryOps(tokens, new Reference(t2.value), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, new Reference(t2, t2.value), precedence, stopOps);
     case 'if':
       const cond = JEL.parseExpression(tokens, IF_PRECEDENCE, IF_STOP);
       JEL.expectOp(tokens, IF_STOP, "Expected 'then'");
       const thenV = JEL.parseExpression(tokens, IF_PRECEDENCE, THEN_STOP);
       if (tokens.nextIf(TokenType.Operator, 'else'))
-        return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, JEL.parseExpression(tokens, IF_PRECEDENCE, stopOps)), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, new Condition(firstToken, cond, thenV, JEL.parseExpression(tokens, IF_PRECEDENCE, stopOps)), precedence, stopOps);
       else
-        return JEL.tryBinaryOps(tokens, new Condition(cond, thenV, TRUE_LITERAL), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, new Condition(firstToken, cond, thenV, TRUE_LITERAL), precedence, stopOps);
     case 'let':
       const assignments: Assignment[] = JEL.parseParameters(tokens, LET_PRECEDENCE, LET_STOP, ':', "Expected colon or equal sign after expression in 'let' statement,", 'constant');
-      return JEL.tryBinaryOps(tokens, new Let(assignments, JEL.parseExpression(tokens, LET_PRECEDENCE, stopOps)), precedence, stopOps);
+      return JEL.tryBinaryOps(tokens, new Let(firstToken, assignments, JEL.parseExpression(tokens, LET_PRECEDENCE, stopOps)), precedence, stopOps);
     case 'with':
       const assertions: JelNode[] = JEL.parseListOfExpressions(tokens, WITH_PRECEDENCE, WITH_STOP, ':', "Expected colon after last expression in 'with' assertion");
-      return JEL.tryBinaryOps(tokens, new With(assertions, JEL.parseExpression(tokens, WITH_PRECEDENCE, stopOps)), precedence, stopOps);
+      return JEL.tryBinaryOps(tokens, new With(firstToken, assertions, JEL.parseExpression(tokens, WITH_PRECEDENCE, stopOps)), precedence, stopOps);
     case 'native':
     case 'abstract':
     case 'class':
@@ -310,12 +312,13 @@ export default class JEL {
     case 'enum':
       return JEL.tryBinaryOps(tokens, JEL.parseEnum(tokens, precedence, stopOps), precedence, stopOps);
     default:
-      JEL.throwParseException(tokens.last(), "Unexpected token");
+      JEL.throwParseException(firstToken, "Unexpected token");
     }
 		return undefined as any; // this is a dummy return to make Typescript happy
   }
   
 	static parseDictionary(tokens: TokenReader, precedence: number, stopOps: any): JelNode {
+    const firstToken = tokens.peek();
 		if (tokens.nextIf(TokenType.Operator, '}'))
 			return JEL.tryBinaryOps(tokens, EMPTY_DICT, precedence, stopOps);
 
@@ -331,24 +334,24 @@ export default class JEL {
 
 			const separator = JEL.expectOp(tokens, DICT_KEY_STOP, "Expected ':', ',' or '}' in Dictionary.");
 			if (separator.value == ':') {
-				assignments.push(new Assignment(name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, DICT_VALUE_STOP)));
+				assignments.push(new Assignment(separator, name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, DICT_VALUE_STOP)));
 
 				if (JEL.expectOp(tokens, DICT_VALUE_STOP, "Expecting comma or end of dictionary").value == '}')
-					return JEL.tryBinaryOps(tokens, new Dictionary(assignments), precedence, stopOps);
+					return JEL.tryBinaryOps(tokens, new Dictionary(firstToken, assignments), precedence, stopOps);
 			}
 			else { // short notation {a}
 				if (name.type != TokenType.Identifier)
 					JEL.throwParseException(separator, "Dictionary entries require a value, unless an identifier is used in the short notation;");
-				assignments.push(new Assignment(name.value, new Variable(name.value)));
+				assignments.push(new Assignment(name, name.value, new Variable(name, name.value)));
 				if (separator.value == '}')
-					return JEL.tryBinaryOps(tokens, new Dictionary(assignments), precedence, stopOps);
+					return JEL.tryBinaryOps(tokens, new Dictionary(firstToken, assignments), precedence, stopOps);
 			 }
 		}
 	}
 	
 	static parseTranslator(tokens: TokenReader, precedence: number, stopOps: any): JelNode {
 		if (tokens.nextIf(TokenType.Operator, '}'))
-			return JEL.tryBinaryOps(tokens, new Translator(), precedence, stopOps);
+			return JEL.tryBinaryOps(tokens, new Translator(tokens.last()), precedence, stopOps);
 
 		const assignments: PatternAssignment[] = [];
 
@@ -370,14 +373,14 @@ export default class JEL {
 						const expression = JEL.parseExpression(tokens, PARENS_PRECEDENCE, TRANSLATOR_META_VALUE_STOP);
 						if (!expression)
 							JEL.throwParseException(eq, "Expression ended unexpectedly.");
-						metaAssignments.push(new Assignment(name.value, expression));
+						metaAssignments.push(new Assignment(eq, name.value, expression));
 
 						const terminator = JEL.expectOp(tokens, TRANSLATOR_META_VALUE_STOP, "Expected colon or comma after expression in translator.");
 						if (terminator.value == ':')
 							break;
 					}
 					else {
-						metaAssignments.push(new Assignment(name.value, TRUE_LITERAL));
+						metaAssignments.push(new Assignment(name, name.value, TRUE_LITERAL));
 						if (eq.value == ':')
 							break;
 					}
@@ -390,23 +393,24 @@ export default class JEL {
 
 			JEL.expectOp(tokens, TRANSLATOR_PATTERN_STOP, "Expected '=>' in Translator.");
 
-			assignments.push(new PatternAssignment(keyPattern, JEL.parseExpression(tokens, precedence, TRANSLATOR_LAMBDA_STOP), metaAssignments));
+			assignments.push(new PatternAssignment(pattern, keyPattern, JEL.parseExpression(tokens, precedence, TRANSLATOR_LAMBDA_STOP), metaAssignments));
 
 			if (JEL.expectOp(tokens, TRANSLATOR_LAMBDA_STOP, "Expecting comma or end of translator").value == '}') {
-				return JEL.tryBinaryOps(tokens, new Translator(assignments), precedence, stopOps);
+				return JEL.tryBinaryOps(tokens, new Translator(pattern, assignments), precedence, stopOps);
 			}
 		}
 	}
 	
 	static parseUnitValue(tokens: TokenReader, content: JelNode, precedence: number, stopOps: any) {
-		tokens.next();
+		const t1 = tokens.next();
 		
 		const t2 = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier after '@' for reference / unit value.");
-		return JEL.tryBinaryOps(tokens, new UnitValue(content, t2.value), precedence, stopOps);
+		return JEL.tryBinaryOps(tokens, new UnitValue(t1, content, t2.value), precedence, stopOps);
 	}
 
 	
 	static parseList(tokens: TokenReader, precedence: number, stopOps: any): JelNode {
+    const firstToken = tokens.last();
 		const possibleEOL = tokens.peek();
 		if (!possibleEOL)
 			JEL.throwParseException(tokens.last(), "Unexpexted end, list not closed");
@@ -419,7 +423,7 @@ export default class JEL {
 		while (true) {
 			list.push(JEL.parseExpression(tokens, PARENS_PRECEDENCE, LIST_ENTRY_STOP));
 			if (JEL.expectOp(tokens, LIST_ENTRY_STOP, "Expecting comma or end of list").value == ']')
-				return JEL.tryBinaryOps(tokens, new List(list), precedence, stopOps);
+				return JEL.tryBinaryOps(tokens, new List(firstToken, list), precedence, stopOps);
 		}
 	}
   
@@ -443,7 +447,7 @@ export default class JEL {
 			const expression = JEL.parseExpression(tokens, precedence, stop);
 			if (!expression)
 				JEL.throwParseException(eq, "Expression ended unexpectedly.");
-			assignments.push(new Assignment(name.value, expression));
+			assignments.push(new Assignment(eq, name.value, expression));
 			const terminatorToken = JEL.expectOp(tokens, stop, errorNoEnd);
 			if (terminatorToken.value == terminator)
 				return assignments;
@@ -486,29 +490,29 @@ export default class JEL {
       case '[': 
         return JEL.tryBinaryOps(tokens, JEL.parseGet(tokens, left), precedence, stopOps);
       case 'instanceof': 
-        return JEL.tryBinaryOps(tokens, new InstanceOf(left, JEL.parseExpression(tokens, binaryOperators['instanceof'] as number, stopOps)), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, new InstanceOf(binOpToken, left, JEL.parseExpression(tokens, binaryOperators['instanceof'] as number, stopOps)), precedence, stopOps);
       case 'as': 
-        return JEL.tryBinaryOps(tokens, new As(left, JEL.parseExpression(tokens, binaryOperators['as'] as number, stopOps)), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, new As(binOpToken, left, JEL.parseExpression(tokens, binaryOperators['as'] as number, stopOps)), precedence, stopOps);
       case 'in': 
-        return JEL.tryBinaryOps(tokens, new In(left, JEL.parseExpression(tokens, binaryOperators['in'] as number, stopOps)), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, new In(binOpToken, left, JEL.parseExpression(tokens, binaryOperators['in'] as number, stopOps)), precedence, stopOps);
       case '...':
-        return JEL.tryBinaryOps(tokens, new Range(left, JEL.parseExpression(tokens, binaryOperators['...'] as number, stopOps)), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, new Range(binOpToken, left, JEL.parseExpression(tokens, binaryOperators['...'] as number, stopOps)), precedence, stopOps);
       case '?':
-        return JEL.tryBinaryOps(tokens, new Optional(left), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, new Optional(binOpToken, left), precedence, stopOps);
       case '[]':
-        return JEL.tryBinaryOps(tokens, new ListType(left), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, new ListType(binOpToken, left), precedence, stopOps);
       case '{}':
-        return JEL.tryBinaryOps(tokens, new DictType(left), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, new DictType(binOpToken, left), precedence, stopOps);
       case '<>':
-        return JEL.tryBinaryOps(tokens, new Rangable(left), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, new Rangable(binOpToken, left), precedence, stopOps);
       case '|': 
         const elements: JelNode[] = [left, JEL.parseExpression(tokens, binaryOperators[binOpToken.value] as number, stopOps)];
         while (tokens.hasNext(2) && tokens.nextIf(TokenType.Operator, binOpToken.value))
           elements.push(JEL.parseExpression(tokens, binaryOperators[binOpToken.value] as number, stopOps));
 
-        return JEL.tryBinaryOps(tokens, new Options(elements), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, new Options(binOpToken, elements), precedence, stopOps);
       default:
-        return JEL.tryBinaryOps(tokens, new Operator(binOpToken.value, left, JEL.parseExpression(tokens, binaryOperators[binOpToken.value] as number, stopOps)), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, new Operator(binOpToken, binOpToken.value, left, JEL.parseExpression(tokens, binaryOperators[binOpToken.value] as number, stopOps)), precedence, stopOps);
     }
   }
 
@@ -549,7 +553,7 @@ export default class JEL {
         return undefined;
 
  			if (separator.value == '=') {
-        args.push(new TypedParameterDefinition(name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, LAMBDA_VALUE_STOP), undefined, !!varArg));
+        args.push(new TypedParameterDefinition(separator, name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, LAMBDA_VALUE_STOP), undefined, !!varArg));
 				if (JEL.expectOp(tokens, LAMBDA_VALUE_STOP, "Expecting comma or end of lambda arguments").value == ')')
 					return args;
       }
@@ -558,19 +562,19 @@ export default class JEL {
 
         const separator2 = JEL.expectOp(tokens, LAMBDA_TYPE_STOP, "Expecting comma, default value or end of lambda arguments")
         if (separator2.value == '=') {
-          args.push(new TypedParameterDefinition(name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, LAMBDA_VALUE_STOP), typeDef, !!varArg));
+          args.push(new TypedParameterDefinition(separator2, name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, LAMBDA_VALUE_STOP), typeDef, !!varArg));
           const separator3 = JEL.expectOp(tokens, LAMBDA_VALUE_STOP, "Expecting command or end of lambda arguments");
           if (separator3.value == ')')
             return args;
         }
         else {
-          args.push(new TypedParameterDefinition(name.value, undefined, typeDef, !!varArg));
+          args.push(new TypedParameterDefinition(separator2, name.value, undefined, typeDef, !!varArg));
           if (separator2.value == ')')
             return args;
         }
 			}
 			else if (separator.value == ',' || separator.value == ')') {
-				args.push(new TypedParameterDefinition(name.value, undefined, undefined, !!varArg));
+				args.push(new TypedParameterDefinition(separator, name.value, undefined, undefined, !!varArg));
 				if (separator.value == ')')
 					return args;
 			}
@@ -583,7 +587,7 @@ export default class JEL {
     if (!tokens.nextIf(TokenType.Operator, ':'))
       return undefined;
     
-    return new TypedParameterDefinition('return', undefined, JEL.parseExpression(tokens, 0, stopOps, true));
+    return new TypedParameterDefinition(tokens.last(), 'return', undefined, JEL.parseExpression(tokens, 0, stopOps, true));
   }
   
   static tryLambda(tokens: TokenReader, argName: string | null, precedence: number, stopOps: any): Lambda | undefined {
@@ -599,7 +603,7 @@ export default class JEL {
 				JEL.throwParseException(tokens.last(), `The arguments 'this' and 'super' must not be defined explicitly.`);
       
       TokenReader.copyInto(tok, tokens);
-      return new Lambda([new TypedParameterDefinition(argName)], undefined, JEL.parseExpression(tokens, precedence, stopOps), false);
+      return new Lambda(tokens.peek(), [new TypedParameterDefinition(tok.last(), argName)], undefined, JEL.parseExpression(tokens, precedence, stopOps), false);
     }
     else {
       if (!tok.hasNext())
@@ -617,7 +621,7 @@ export default class JEL {
       JEL.checkTypedParameters(args, tok.next());     
       
       TokenReader.copyInto(tok, tokens);
-      return new Lambda(args, asCheck, JEL.parseExpression(tokens, precedence, stopOps), varArgPos >= 0);
+      return new Lambda(tokens.peek(), args, asCheck, JEL.parseExpression(tokens, precedence, stopOps), varArgPos >= 0);
     }
   }
   
@@ -632,7 +636,7 @@ export default class JEL {
     
     const className = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier after 'class' declaration");
     const superType: JelNode|undefined = (tokens.peekIs(TokenType.Identifier, 'extends')) ? tokens.next() && JEL.parseExpression(tokens, CLASS_PRECEDENCE, CLASS_EXTENDS_STOP) : undefined;
-    const selfArgs = [new TypedParameterDefinition(className.value)];
+    const selfArgs = [new TypedParameterDefinition(classToken, className.value)];
     
     tokens.nextIf(TokenType.Operator, ':');
     
@@ -648,7 +652,7 @@ export default class JEL {
     while (true) {
       const peek = tokens.peek();
       if (!peek || (peek.type == TokenType.Operator && stopOps[peek.value])) 
-        return new ClassDef(className.value, superType, ctor, properties, methods, staticProperties, isAbstract, hasNative);
+        return new ClassDef(classToken, className.value, superType, ctor, properties, methods, staticProperties, isAbstract, hasNative);
       tokens.next();
       
       const staticModifier = !!peek.is(TokenType.Operator, 'static');
@@ -683,11 +687,11 @@ export default class JEL {
         else if (args.find(a=>a.varArgs))
           JEL.throwParseException(tokens.last(), `Constructors do not support varargs.`);
         else if (nativeModifier)
-          ctor = new NativeFunction('create', className.value, true, args);
+          ctor = new NativeFunction(peek, 'create', className.value, true, args);
         else if (tokens.nextIf(TokenType.Operator, '=>'))
-          ctor = new Lambda(args!, undefined, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop), false);
+          ctor = new Lambda(peek, args!, undefined, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop), false);
         else
-          ctor = new Lambda(args!, undefined, EMPTY_DICT, false);
+          ctor = new Lambda(peek, args!, undefined, EMPTY_DICT, false);
       }
       else if (next.is(TokenType.Identifier, 'get') && tokens.peekIs(TokenType.Identifier)) {
         if (staticModifier)
@@ -705,7 +709,7 @@ export default class JEL {
         JEL.expectOp(tokens, CLOSE_ARGS, `Expected '()' following declaration of getter. Getters can't take any arguments.`);
         const asCheck = JEL.tryParseLambdaTypeCheck(tokens, LAMBDA);
         JEL.nextIsValueOrThrow(tokens, TokenType.Operator, '=>',  "Getter expression must be preceded by '=>'.");
-        methods.push(new MethodDef(propertyName, new Lambda([], asCheck, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop), false), overrideModifier, nativeModifier, false, false, true));
+        methods.push(new MethodDef(peek, propertyName, new Lambda(peek, [], asCheck, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop), false), overrideModifier, nativeModifier, false, false, true));
       }
       else if ((next.is(TokenType.Identifier, 'op') ||  next.is(TokenType.Identifier, 'singleOp')) && tokens.peekIs(TokenType.Operator) && !tokens.peekIs(TokenType.Operator, '(')) {
         if (staticModifier)
@@ -739,8 +743,8 @@ export default class JEL {
           JEL.throwParseException(tokens.last(), argsMax == 0 ? `Single operator overload ${methodName} must not take any arguments` : `Too many arguments for operator overload ${methodName}, can have only one.`);
 
         const asCheck = JEL.tryParseLambdaTypeCheck(tokens, LAMBDA);
-        JEL.nextIsValueOrThrow(tokens, TokenType.Operator, '=>',  "Operator expression must be preceded by '=>'.");
-        methods.push(new MethodDef(methodName, new Lambda(args!, asCheck, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop), false), overrideModifier, nativeModifier, false, false, false));
+        const lambdaToken = JEL.nextIsValueOrThrow(tokens, TokenType.Operator, '=>',  "Operator expression must be preceded by '=>'.");
+        methods.push(new MethodDef(peek, methodName, new Lambda(lambdaToken, args!, asCheck, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop), false), overrideModifier, nativeModifier, false, false, false));
       }
       else if (next.is(TokenType.Identifier) && tokens.nextIf(TokenType.Operator, '(')) {
         const methodName = next.value;
@@ -762,9 +766,9 @@ export default class JEL {
         else if (tokens.peekIs(TokenType.Operator, '=>'))
           throw new Error("Abstract or native methods must not use lambda operator ('=>')");
 
-        const impl = nativeModifier ? new NativeFunction(methodName, className.value, staticModifier, args!, returnType, varArgPos>=0) : 
-                new Lambda(args!, returnType, abstractModifier ? TRUE_LITERAL : JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop), varArgPos>=0);
-        methods.push(new MethodDef(methodName, impl, overrideModifier, nativeModifier, staticModifier, abstractModifier, false));
+        const impl = nativeModifier ? new NativeFunction(peek, methodName, className.value, staticModifier, args!, returnType, varArgPos>=0) : 
+                new Lambda(tokens.peek(), args!, returnType, abstractModifier ? TRUE_LITERAL : JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop), varArgPos>=0);
+        methods.push(new MethodDef(peek, methodName, impl, overrideModifier, nativeModifier, staticModifier, abstractModifier, false));
       }
       else if (next.is(TokenType.Identifier) && (tokens.peekIs(TokenType.Operator, ':') || tokens.peekIs(TokenType.Operator, '='))) {
         const propertyName = next.value;
@@ -793,7 +797,7 @@ export default class JEL {
         else if (abstractModifier && defaultValue)
           JEL.throwParseException(next, 'An abstract property must not have a default value.');
         else
-          (staticModifier?staticProperties:properties).push(new PropertyDef(propertyName, typeDef, defaultValue, nativeModifier, overrideModifier, abstractModifier));
+          (staticModifier?staticProperties:properties).push(new PropertyDef(peek, propertyName, typeDef, defaultValue, nativeModifier, overrideModifier, abstractModifier));
       }
       else if (next.is(TokenType.Operator, 'static') || next.is(TokenType.Operator, 'abstract') || next.is(TokenType.Operator, 'override'))
         JEL.throwParseException(next, `Wrong modifier order. 'static' must always be first, and 'native' must be the last modifier.`);
@@ -811,23 +815,24 @@ export default class JEL {
       const peek = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier in enum");
       values.push(peek.value);
       if (!tokens.nextIf(TokenType.Operator, ','))
-        return new EnumDef(enumName.value, values);
+        return new EnumDef(enumName, enumName.value, values);
     }
   }
 
   
   static parseCall(tokens: TokenReader, left: JelNode, methodName?: string): JelNode {
     const argList: JelNode[] = [];
+    const firstToken = tokens.last();
 
     if (tokens.nextIf(TokenType.Operator, ')')) 
-        return methodName ? new MethodCall(left, methodName, argList) : new Call(left, argList);
+        return methodName ? new MethodCall(firstToken, left, methodName, argList) : new Call(firstToken, left, argList);
     
     while (!(tokens.peekIs(TokenType.Identifier) && tokens.peekIs(TokenType.Operator, '=', 1))) {
       argList.push(JEL.parseExpression(tokens, PARENS_PRECEDENCE, PARAMETER_STOP));
       
       const separator = JEL.expectOp(tokens, PARAMETER_STOP, "Expected ')' or ','");
       if (separator.value == ')')
-        return methodName ? new MethodCall(left, methodName, argList) : new Call(left, argList);
+        return methodName ? new MethodCall(firstToken, left, methodName, argList) : new Call(firstToken,left, argList);
     }
  
     const argNames = new Set();           // for tracking dupes
@@ -836,21 +841,21 @@ export default class JEL {
       const name = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier for named argument");
       if (argNames.has(name.value))
         JEL.throwParseException(name, `Duplicate name ${name.value} in named arguments`);
-      JEL.expectOp(tokens, EQUAL, "Expected equal sign after identifier for named argument");
+      const equalToken = JEL.expectOp(tokens, EQUAL, "Expected equal sign after identifier for named argument");
       argNames.add(name.value);
-      namedArgs.push(new Assignment(name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, PARAMETER_STOP)));
+      namedArgs.push(new Assignment(equalToken, name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, PARAMETER_STOP)));
 
       const next = JEL.expectOp(tokens, PARAMETER_STOP, "Expected ')' or '='");
       if (next.value == ')')
         break;
     }
-    return methodName ? new MethodCall(left, methodName, argList, namedArgs) : new Call(left, argList, namedArgs);
+    return methodName ? new MethodCall(firstToken, left, methodName, argList, namedArgs) : new Call(firstToken, left, argList, namedArgs);
   }
   
   static parseGet(tokens: TokenReader, left: JelNode): Get {
     const nameExp = JEL.parseExpression(tokens, PARENS_PRECEDENCE, SQUARE_BRACE_STOP);
     JEL.expectOp(tokens, SQUARE_BRACE_STOP, "Closing square bracket");
-    return new Get(left, nameExp);
+    return new Get(tokens.last(), left, nameExp);
   }
   
   static expectOp(tokens: TokenReader, allowedTypes: any, msg?: string): Token {

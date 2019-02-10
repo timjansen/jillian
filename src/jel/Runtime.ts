@@ -29,18 +29,18 @@ export default class Runtime {
 	 * Executes the given operator on any non-promise type.
 	 */
 	static op(ctx: Context, operator: string, left: any, right: any): JelObject|Promise<JelObject> {
-		if (left == null || right == null) {
-			if (operator == '==' || operator == '===')
-				return BaseTypeRegistry.get('Boolean').valueOf(left === right);
-			else if (operator == '!=' || operator == '!==')
-				return BaseTypeRegistry.get('Boolean').valueOf(left !== right);
-			else if (operator in RELATIONAL_OPS)
-				return BaseTypeRegistry.get('Boolean').FALSE;
-			else
-				throw new Error(`Operator ${operator} does not support null values.`);
-		}
-		else 
-			return left.op(ctx, operator, right);
+    if (left == null || right == null) {
+      if (operator == '==' || operator == '===')
+        return BaseTypeRegistry.get('Boolean').valueOf(left === right);
+      else if (operator == '!=' || operator == '!==')
+        return BaseTypeRegistry.get('Boolean').valueOf(left !== right);
+      else if (operator in RELATIONAL_OPS)
+        return BaseTypeRegistry.get('Boolean').FALSE;
+      else
+        throw new Error(`Operator ${operator} does not support null values.`);
+    }
+    else 
+      return left.op(ctx, operator, right);
 	}
 	
 	// op version with promises to simplify calculations
@@ -50,11 +50,11 @@ export default class Runtime {
 
 	
 	static singleOp(ctx: Context, operator: string, left: any): JelObject|Promise<JelObject> {
-		if (left instanceof JelObject)
-			return left.singleOp(ctx, operator);
-		else if (left == null)
-			return left; 
-		throw new Error(`Operator "${operator}" is not supported for primitive types`);
+    if (left instanceof JelObject)
+      return left.singleOp(ctx, operator);
+    else if (left == null)
+      return left; 
+    throw new Error(`Operator "${operator}" is not supported for primitive types`);
 	}
 
 	static singleOpWithPromise(ctx: Context, operator: string, left: JelObject | Promise<JelObject>): JelObject | Promise<JelObject> {
@@ -94,7 +94,7 @@ export default class Runtime {
   static callMethod(ctx: Context, obj: JelObject|null, name: string, args: any[], argObj?: any): JelObject|null|Promise<JelObject|null> {
     if (!obj)
       throw new Error("Can't call method on null."); 
-
+    
     const m = obj.method(ctx, name);
     if (m)
       return m.invokeWithObject(obj, args, argObj);
@@ -115,16 +115,15 @@ export default class Runtime {
 	static member(ctx: Context, obj: JelObject|null, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null> {
     if (!obj)
       throw new Error(`Can't get member ${name} of null.`);
-    
+
     const value = obj.member(ctx, name, parameters);
     if (value !== undefined)
       return value;
     else if (name in obj) 
-			throw new Error(`Can not find member ${name} in ${obj.className}. Not declared in class.`);
-		else 
-			throw new Error(`Can not find member ${name} in ${obj.className}.`);
+      throw new Error(`Can not find member ${name} in ${obj.className}. Not declared in class.`);
+    else 
+      throw new Error(`Can not find member ${name} in ${obj.className}.`);
 	}
-
 	
 }
 

@@ -3,14 +3,15 @@ import CachableJelNode from './CachableJelNode';
 import JelObject from '../JelObject';
 import Context from '../Context';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
 
 /**
  * Common node for 'as' and 'instanceof'
  */ 
 export default abstract class TypeCheck extends CachableJelNode {
 	
-  constructor(public left: JelNode, public right: JelNode) {
-    super();
+  constructor(position: SourcePosition, public left: JelNode, public right: JelNode) {
+    super(position);
   }
 
   abstract executeTypeCheck(ctx: Context, left: JelObject|null, right: JelObject|null): JelObject|null|Promise<JelObject|null>;

@@ -18,6 +18,8 @@ import Duration from './Duration';
 import NativeJelObject from '../NativeJelObject';
 import Class from '../Class';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
+import SourcePosition from '../../SourcePosition';
+import RuntimeError from '../../RuntimeError';
 
 
 /**

@@ -6,6 +6,7 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
 import Context from '../Context';
 import NativeCallable from '../NativeCallable';
 import Util from '../../util/Util';
+import SourcePosition from '../SourcePosition';
 
 
 /**
@@ -16,8 +17,8 @@ import Util from '../../util/Util';
  */ 
 export default class NativeFunction extends CachableJelNode {
  
-  constructor(public name: string, public className: string, public isStaticClass: boolean, public args: TypedParameterDefinition[], public returnType?: TypedParameterDefinition, public varArg = false) {
-		super();
+  constructor(position: SourcePosition, public name: string, public className: string, public isStaticClass: boolean, public args: TypedParameterDefinition[], public returnType?: TypedParameterDefinition, public varArg = false) {
+		super(position);
   }
   
 	// override

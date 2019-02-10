@@ -12,7 +12,6 @@ import UnitValue from './UnitValue';
 import ApproximateNumber from './ApproximateNumber';
 import JelBoolean from './JelBoolean';
 import TypeChecker from './TypeChecker';
-
 const RANGE_NUM_OPS: any = {'+': true, '-': true, '*': true, '/': true};
 
 

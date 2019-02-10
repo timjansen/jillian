@@ -2,6 +2,7 @@ import JelNode from './JelNode';
 import Context from '../Context';
 import JelObject from '../JelObject';
 import BaseTypeRegistry from '../BaseTypeRegistry';
+import SourcePosition from '../SourcePosition';
 
 /**
  * Represents a Fraction literal.
@@ -15,13 +16,13 @@ export default class Fraction extends JelNode {
 
 	value: any;
 	
-	constructor(a: number, b: number) {
-    super();
+	constructor(position: SourcePosition, a: number, b: number) {
+    super(position);
 		this.value = BaseTypeRegistry.get('Fraction').valueOf(a, b);
   }
 
   // override
-  execute(ctx: Context): JelObject {
+  executeImpl(ctx: Context): JelObject {
     return this.value;
   }
   

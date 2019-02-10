@@ -3,6 +3,7 @@ import CachableJelNode from './CachableJelNode';
 import Assignment from './Assignment';
 import Context from '../Context';
 import JelObject from '../JelObject';
+import SourcePosition from '../SourcePosition';
 
 
 /**
@@ -13,8 +14,8 @@ import JelObject from '../JelObject';
  *   let x=1, y=x+2, z=y*3: z*4   // returns 36
  */
 export default class Let extends CachableJelNode {
-  constructor(public assignments: Assignment[], public expression: JelNode) {
-    super();
+  constructor(position: SourcePosition, public assignments: Assignment[], public expression: JelNode) {
+    super(position);
   }
   
   // override
