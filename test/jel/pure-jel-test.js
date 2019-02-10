@@ -455,9 +455,6 @@ describe('JEL', function() {
      ]);
    });
 
-   it('returns the position in error messages', function() {
-     return jelAssert.errorPromise(`"aaaa"+\n"bb"+\n\n         (null.test())+ "ddd" \n\n+"d"`, "(inline):4 col 20");
-   });
 
     
   });

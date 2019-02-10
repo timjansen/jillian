@@ -3,9 +3,9 @@
  * A calculated fact may have arguments which must correspond to other property names of the same database entry. If the entry has a property of the argument name, it will be
  * set. Otherwise it is null.
  * In addition to the Thing's facts, the following argument names are also supported and will be provided if included:
- *  * currentTime - the time for which the assertion should be validated, as timestamp
- *  * currentDate - the date/time for which the assertion should be validated, as ZonedDateTime
- *  * currentPosition - the current position which is being validated, as Geo::ElevatedPosition
+ *  - currentTime: the time for which the assertion should be validated, as timestamp
+ *  - currentDate: the date/time for which the assertion should be validated, as ZonedDateTime
+ *  - currentLocation: the current location which is being validated, as Geo::ElevatedPosition
  */
 class CalculatedFact extends Fact
     /**

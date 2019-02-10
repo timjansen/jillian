@@ -7,7 +7,7 @@ abstract class Fact
   /**
    * The owning object of this fact
    */
-  owner: any  //dbEntry
+  owner: thing
   
   /**
    * The transcript that created this Fact.
@@ -20,10 +20,10 @@ abstract class Fact
   transscriptSentence: int<>
   
   /**
-   * Who created this Fact? Not always the actual source the information, but rather who fed it into the database.
+   * Who created this Fact? Not always the actual source of the information, but rather who fed it into the database.
    * The source can be found in the transcript.
    */
-  creator: any  //dbEntry
+  creator: thing
   
   /**
    * Describes the kind of Fact (whether it is the definition of the property, a sample, a calculated value...)
@@ -34,7 +34,7 @@ abstract class Fact
    * Rates the trustworthyness of the information on a scale from 0 (lowest) to 100 (highest). This will eventually be a computed value
    * based on transcript and other factors.
    */ 
-  trustLevel: 0...100        // 100 is fact by root, estimate would be 10... 
+  trustLevel: number(0...100)        // 100 is fact by root, estimate would be 10... 
   
   /**
    * The reality on which the property is based. This allows different properties in different realities.

@@ -1,7 +1,7 @@
 import Category from './Category';
-import DbEntry from '../DbEntry';
 import DbRef from '../DbRef';
 import Context from '../../jel/Context';
+import NamedObject from '../../jel/types/NamedObject';
 import Class from '../../jel/types/Class';
 import TypeDescriptor from '../../jel/types/typeDescriptors/TypeDescriptor';
 import TypeHelper from '../../jel/types/typeDescriptors/TypeHelper';
@@ -16,7 +16,7 @@ import BaseTypeRegistry from '../../jel/BaseTypeRegistry';
 /**
  * Defines a property used by several categories, e.g. @size or @dimensions or @firstName
  */
-export default class MixinProperty extends DbEntry {
+export default class MixinProperty extends NamedObject {
   type_jel_property: boolean;
   categoryProperty_jel_property: boolean;
   public type: TypeDescriptor;
@@ -32,8 +32,8 @@ export default class MixinProperty extends DbEntry {
 	 *        length of a Thing may be related to a category-level property @lengthDistribution
 	 *        that describes min/max lengths and averages.
 	 */
-  constructor(distinctName: string, type: TypeDescriptor | DbRef | Dictionary, public categoryProperty: DbRef | null) {
-    super('MixinProperty', distinctName, null);
+  constructor(distinctName: string, type: any, public categoryProperty: DbRef | null) {
+    super('MixinProperty', distinctName);
 		this.type = TypeHelper.convertFromAny(type, 'type');
 		if (!distinctName.match(/^[a-z]/))
 			throw Error('By convention, all MixinProperty names must begin with a lower-case letter. Illegal name: ' + distinctName);
