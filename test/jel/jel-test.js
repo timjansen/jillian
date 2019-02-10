@@ -227,18 +227,18 @@ describe('JEL', function () {
 
    it('supports lambda', function() {
       assert(new JEL('a=>1').executeImmediately(new Context()) instanceof Callable);
-      jelAssert.equal(new JEL('a=>55').executeImmediately(new Context()).invokeWithObject(defaultContext, null, []), 55);
-      jelAssert.equal(new JEL('x=>x').executeImmediately(defaultContext).invokeWithObject(defaultContext, null, [Float.valueOf(66)]), 66);
-      jelAssert.equal(new JEL('x=>x').executeImmediately(defaultContext).invokeWithObject(defaultContext, Float.valueOf(42), [Float.valueOf(66)]), 66);
-      jelAssert.equal(new JEL('x=>x').executeImmediately(defaultContext).invoke(defaultContext, Float.valueOf(66)), null);
-      jelAssert.equal(new JEL('x=>x').executeImmediately(defaultContext).invokeWithObject(defaultContext, null, [], new Map(Object.entries({x:Float.valueOf(66)}))), 66);
-      jelAssert.equal(new JEL('x=>x').executeImmediately(defaultContext).invokeWithObject(defaultContext, Float.valueOf(42), [], new Map(Object.entries({x:Float.valueOf(66)}))), 66);
-      jelAssert.equal(new JEL('(a,b)=>a+b').executeImmediately(defaultContext).invokeWithObject(defaultContext, null, [], new Map(Object.entries({a:Float.valueOf(40),b:Float.valueOf(2)}))), 42);
-      jelAssert.equal(new JEL('(a,b)=>a+b').executeImmediately(defaultContext).invokeWithObject(defaultContext, null, [Float.valueOf(40)], new Map(Object.entries({b:Float.valueOf(2)}))), 42);
-      jelAssert.equal(new JEL('(a,b)=>b').executeImmediately(defaultContext).invokeWithObject(defaultContext, null, []), null);
+      jelAssert.equal(new JEL('a=>55').executeImmediately(new Context()).invokeWithObject(null, []), 55);
+      jelAssert.equal(new JEL('x=>x').executeImmediately(defaultContext).invokeWithObject(null, [Float.valueOf(66)]), 66);
+      jelAssert.equal(new JEL('x=>x').executeImmediately(defaultContext).invokeWithObject(Float.valueOf(42), [Float.valueOf(66)]), 66);
+      jelAssert.equal(new JEL('x=>x').executeImmediately(defaultContext).invoke(Float.valueOf(66)), null);
+      jelAssert.equal(new JEL('x=>x').executeImmediately(defaultContext).invokeWithObject(null, [], new Map(Object.entries({x:Float.valueOf(66)}))), 66);
+      jelAssert.equal(new JEL('x=>x').executeImmediately(defaultContext).invokeWithObject(Float.valueOf(42), [], new Map(Object.entries({x:Float.valueOf(66)}))), 66);
+      jelAssert.equal(new JEL('(a,b)=>a+b').executeImmediately(defaultContext).invokeWithObject(null, [], new Map(Object.entries({a:Float.valueOf(40),b:Float.valueOf(2)}))), 42);
+      jelAssert.equal(new JEL('(a,b)=>a+b').executeImmediately(defaultContext).invokeWithObject(null, [Float.valueOf(40)], new Map(Object.entries({b:Float.valueOf(2)}))), 42);
+      jelAssert.equal(new JEL('(a,b)=>b').executeImmediately(defaultContext).invokeWithObject(null, []), null);
 
-      jelAssert.equal(new JEL('()=>this').executeImmediately(defaultContext).invokeWithObject(defaultContext, Float.valueOf(42), []), 42);
-      jelAssert.equal(new JEL('(x)=>this+x').executeImmediately(defaultContext).invokeWithObject(defaultContext, Float.valueOf(42), [Float.valueOf(66)]), 108);
+      jelAssert.equal(new JEL('()=>this').executeImmediately(defaultContext).invokeWithObject(Float.valueOf(42), []), 42);
+      jelAssert.equal(new JEL('(x)=>this+x').executeImmediately(defaultContext).invokeWithObject(Float.valueOf(42), [Float.valueOf(66)]), 108);
 
       jelAssert.equal(new JEL('(x=>x)(66)').executeImmediately(defaultContext), 66);
       jelAssert.equal(new JEL('(x=>x)(x=66)').executeImmediately(defaultContext), 66);

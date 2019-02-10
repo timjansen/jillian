@@ -216,7 +216,7 @@ export default class Dictionary extends NativeJelObject implements SerializableP
 				const next = it.next();
 				if (next.done)
 					return self;
-				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, Float.valueOf(i));
+				const r = f.invoke(undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, Float.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(exec);
@@ -237,7 +237,7 @@ export default class Dictionary extends NativeJelObject implements SerializableP
 				const next = it.next();
 				if (next.done)
 					return newDict;
-				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, Float.valueOf(i));
+				const r = f.invoke(undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, Float.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> {
@@ -286,7 +286,7 @@ export default class Dictionary extends NativeJelObject implements SerializableP
 				const next = it.next();
 				if (next.done)
 					return l;
-				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, Float.valueOf(i));
+				const r = f.invoke(undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, Float.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> {
@@ -366,7 +366,7 @@ export default class Dictionary extends NativeJelObject implements SerializableP
 				if (next.done)
 					return newDict;
 				const thisValue = self.elements.get(next.value) as JelObject;
-				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), thisValue, Float.valueOf(i));
+				const r = f.invoke(undefined, JelString.valueOf(next.value), thisValue, Float.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> {
@@ -404,7 +404,7 @@ export default class Dictionary extends NativeJelObject implements SerializableP
 				const next = it.next();
 				if (next.done)
 					return result;
-				const r = f.invoke(ctx, undefined, result, JelString.valueOf(next.value), self.elements.get(next.value) || null, Float.valueOf(i));
+				const r = f.invoke(undefined, result, JelString.valueOf(next.value), self.elements.get(next.value) || null, Float.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> {
@@ -430,7 +430,7 @@ export default class Dictionary extends NativeJelObject implements SerializableP
 				const next = it.next();
 				if (next.done)
 					return JelBoolean.FALSE;
-				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, Float.valueOf(i));
+				const r = f.invoke(undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, Float.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> JelBoolean.toRealBoolean(v) ? JelBoolean.TRUE : exec());
@@ -468,7 +468,7 @@ export default class Dictionary extends NativeJelObject implements SerializableP
 				const next = it.next();
 				if (next.done)
 					return JelBoolean.TRUE;
-				const r = f.invoke(ctx, undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, Float.valueOf(i));
+				const r = f.invoke(undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, Float.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(v=> JelBoolean.toRealBoolean(v) ? exec() : JelBoolean.FALSE);

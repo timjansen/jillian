@@ -49,7 +49,7 @@ export default class Jel extends NativeJelObject {
     if (args[args.length-1] instanceof Callable) {
       const msg = Jel.buildMessage(ctx, args, args.length-1);
       logger(msg);
-      return (args[args.length-1] as Callable).invoke(ctx, undefined, JelString.valueOf(msg));
+      return (args[args.length-1] as Callable).invoke(undefined, JelString.valueOf(msg));
     }
     else
       logger(Jel.buildMessage(ctx, args, args.length));

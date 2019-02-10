@@ -15,7 +15,7 @@ export default abstract class Callable extends NativeJelObject {
    * @param argObj a map of named arguments
    * @return the return value, may be a Promise 
    */
-	abstract invokeWithObject(ctx: Context, self: JelObject | undefined, args: (JelObject|null)[], argObj?: Map<String, JelObject|null>): JelObject|null|Promise<JelObject|null>;
+	abstract invokeWithObject(self: JelObject | undefined, args: (JelObject|null)[], argObj?: Map<String, JelObject|null>): JelObject|null|Promise<JelObject|null>;
 	
   /**
    * @param ctx the current Context. May be ignored when a Lambda is called. 
@@ -23,8 +23,8 @@ export default abstract class Callable extends NativeJelObject {
    * @param args unnamed arguments
    * @return the return value, may be a Promise
    */
-	invoke(ctx: Context, self?: JelObject, ...args: (JelObject|null)[]): JelObject|null|Promise<JelObject|null> {
-		return this.invokeWithObject(ctx, self, args);
+	invoke(self?: JelObject, ...args: (JelObject|null)[]): JelObject|null|Promise<JelObject|null> {
+		return this.invokeWithObject(self, args);
 	}
   
   abstract rebind(self: JelObject): Callable;

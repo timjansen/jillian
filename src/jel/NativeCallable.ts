@@ -99,12 +99,12 @@ export default class NativeCallable extends Callable implements SerializablePrim
     });
   }
   
-	invokeWithObject(ctx: Context, self: JelObject|undefined, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>): JelObject|null|Promise<JelObject|null> {   // context will be ignored for lambda. No promise support here, only in Call.
-    return NativeCallable.invoke(this.parentContext||ctx, this.name, self || this.self, this.argDefs, this.returnType, this.nativeFunction, args, argObj, this.varArgPos);
+	invokeWithObject(self: JelObject|undefined, args: (JelObject|null)[], argObj?: Map<string,JelObject|null>): JelObject|null|Promise<JelObject|null> {   // context will be ignored for lambda. No promise support here, only in Call.
+    return NativeCallable.invoke(this.parentContext, this.name, self || this.self, this.argDefs, this.returnType, this.nativeFunction, args, argObj, this.varArgPos);
 	}
 	
-	invoke(ctx: Context, self: JelObject|undefined, ...args: (JelObject|null)[]): JelObject|null|Promise<JelObject|null> {
-    return NativeCallable.invoke(this.parentContext||ctx, this.name, self || this.self, this.argDefs, this.returnType, this.nativeFunction, args, undefined, this.varArgPos);
+	invoke(self: JelObject|undefined, ...args: (JelObject|null)[]): JelObject|null|Promise<JelObject|null> {
+    return NativeCallable.invoke(this.parentContext, this.name, self || this.self, this.argDefs, this.returnType, this.nativeFunction, args, undefined, this.varArgPos);
 	}
 
   rebind(self: JelObject|undefined): NativeCallable {

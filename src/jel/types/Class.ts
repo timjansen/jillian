@@ -318,7 +318,7 @@ export default class Class extends PackageContent implements SerializablePrimiti
   create_jel_mapping: any; // set in ctor
   create(ctx: Context, ...args: any[]): any {
     if (this.ctor instanceof NativeCallable)
-      return this.ctor.invoke(ctx, this, ...args);
+      return this.ctor.invoke(this, ...args);
   
     if (this.isAbstract)
       throw new Error(`The class ${this.name} can not be instantiated. Is is declared abstract.`);
@@ -358,7 +358,7 @@ export default class Class extends PackageContent implements SerializablePrimiti
         props.elements.set(this.ctorArgList[i].name, resolvedPropValues[i]);
    
       if (this.ctor instanceof LambdaCallable) {
-        return Util.resolveValue(this.ctor.invoke(this.classContext, this, ...args), (ctorReturn: any)=>{
+        return Util.resolveValue(this.ctor.invoke(this, ...args), (ctorReturn: any)=>{
           if (!(ctorReturn instanceof Dictionary))
             throw new Error(`Constructors must return a Dictionary.`);
           const ctorPropValues: any|Promise<any>[] = [];

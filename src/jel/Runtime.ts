@@ -97,11 +97,11 @@ export default class Runtime {
 
     const m = obj.method(ctx, name);
     if (m)
-      return m.invokeWithObject(ctx, obj, args, argObj);
+      return m.invokeWithObject(obj, args, argObj);
 
     return Util.resolveValue(Runtime.member(ctx, obj, name), m=>{
       if (m instanceof Callable)
-        return m.invokeWithObject(ctx, obj, args, argObj);
+        return m.invokeWithObject(obj, args, argObj);
       else if (m)
         throw new Error(`${name} in ${obj.className} is not a method that can be called, but appears to be a different type of property.`);
       else if (name in obj) 

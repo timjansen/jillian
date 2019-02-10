@@ -35,28 +35,28 @@ export default class GenericJelObject extends JelObject implements Serializable 
   op(ctx: Context, operator: string, right: JelObject|null): JelObject|Promise<JelObject> {
     const m: Method|undefined = (this.clazz as Class).allMethods.elements.get('op'+operator) as any;
     if (m)
-      return GenericJelObject.forbidNull(m.callable.invoke(ctx, this, right));
+      return GenericJelObject.forbidNull(m.callable.invoke(this, right));
     return super.op(ctx, operator, right);
   }
 	
 	opReversed(ctx: Context, operator: string, left: JelObject): JelObject|Promise<JelObject> {
     const m: Method|undefined = (this.clazz as Class).allMethods.elements.get('opReversed'+operator) as any;
     if (m)
-      return GenericJelObject.forbidNull(m.callable.invoke(ctx, this, left));
+      return GenericJelObject.forbidNull(m.callable.invoke(this, left));
     return super.opReversed(ctx, operator, left);
 	}
   
 	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
     const m: Method|undefined = (this.clazz as Class).allMethods.elements.get('singleOp'+operator) as any;
     if (m)
-      return GenericJelObject.forbidNull(m.callable.invoke(ctx, this));
+      return GenericJelObject.forbidNull(m.callable.invoke(this));
     return super.singleOp(ctx, operator);
 	}
 
 	member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null>|undefined {
     const getter = (this.clazz as Class).allGetters.elements.get(name) as Method;
     if (getter)
-      return getter.callable.invoke(ctx, this);
+      return getter.callable.invoke(this);
     const propsValue = this.props.elements.get(name);
     if (propsValue !== undefined)
       return propsValue;

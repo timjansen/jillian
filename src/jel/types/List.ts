@@ -130,7 +130,7 @@ export default class List extends NativeJelObject implements SerializablePrimiti
 		const len = this.elements.length;
 		function exec(): Promise<List> | List {
 			while (i < len) {
-				const r = f.invoke(ctx, undefined, self.elements[i], Float.valueOf(i));
+				const r = f.invoke(undefined, self.elements[i], Float.valueOf(i));
 				i++;
 				if (r instanceof Promise)
 					return r.then(exec);
@@ -144,7 +144,7 @@ export default class List extends NativeJelObject implements SerializablePrimiti
 	map(ctx: Context, f0: any): List | Promise<List> {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		const newList: any[] = [];
-		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, undefined, e, Float.valueOf(i)), v=>{newList.push(v);}, ()=>new List(newList));
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(undefined, e, Float.valueOf(i)), v=>{newList.push(v);}, ()=>new List(newList));
 	}
 
 	filter_jel_mapping: Object;
@@ -152,7 +152,7 @@ export default class List extends NativeJelObject implements SerializablePrimiti
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		const newList: any[] = [];
 
-		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, undefined, e, Float.valueOf(i)), (v, e)=> {
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(undefined, e, Float.valueOf(i)), (v, e)=> {
 			if (JelBoolean.toRealBoolean(v))
 				newList.push(e);
 		}, ()=>new List(newList));
@@ -163,13 +163,13 @@ export default class List extends NativeJelObject implements SerializablePrimiti
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		let result: any = init;
 		
-		return Util.processPromiseList(this.elements, (v,i)=>f.invoke(ctx, undefined, v, result, Float.valueOf(i)), v=>{result=v;}, ()=>result);
+		return Util.processPromiseList(this.elements, (v,i)=>f.invoke(undefined, v, result, Float.valueOf(i)), v=>{result=v;}, ()=>result);
 	}
 
 	hasAny_jel_mapping: Object;
 	hasAny(ctx: Context, f0: any): JelBoolean | Promise<JelBoolean> {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
-		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, undefined, e, Float.valueOf(i)), (v, e)=>JelBoolean.toRealBoolean(v) ? JelBoolean.TRUE : undefined, r=>r || JelBoolean.FALSE);
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(undefined, e, Float.valueOf(i)), (v, e)=>JelBoolean.toRealBoolean(v) ? JelBoolean.TRUE : undefined, r=>r || JelBoolean.FALSE);
 	}
 
  	contains_jel_mapping: Object;
@@ -204,7 +204,7 @@ export default class List extends NativeJelObject implements SerializablePrimiti
 	hasOnly_jel_mapping: Object;
 	hasOnly(ctx: Context, f0: any): JelBoolean | Promise<JelBoolean> {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
-		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, undefined, e, Float.valueOf(i)), (v, e)=>JelBoolean.toRealBoolean(v) ? undefined : JelBoolean.FALSE, r=>r || JelBoolean.TRUE);
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(undefined, e, Float.valueOf(i)), (v, e)=>JelBoolean.toRealBoolean(v) ? undefined : JelBoolean.FALSE, r=>r || JelBoolean.TRUE);
 	}
 
 	hasOnlyJs(f: (a: JelObject|null, i: number)=>boolean): boolean {
@@ -236,7 +236,7 @@ export default class List extends NativeJelObject implements SerializablePrimiti
       throw new Error('Index must not be 0. nthMatch is not 0-based.');
     const absIndex = Math.abs(index);
     let matchCount = 0;
-		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(ctx, undefined, e, Float.valueOf(i)), (v, e)=>{
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(undefined, e, Float.valueOf(i)), (v, e)=>{
       if (JelBoolean.toRealBoolean(v)) {
         if (++matchCount == absIndex)
           return e;
@@ -260,7 +260,7 @@ export default class List extends NativeJelObject implements SerializablePrimiti
 		const len = this.elements.length;
 		
 		function check1Passed(e: any): undefined | Promise<any> {
-			const check2 = isBetter.invoke(ctx, undefined, e, l[0]);
+			const check2 = isBetter.invoke(undefined, e, l[0]);
 			if (check2 instanceof Promise) 
 				return check2.then(v=>JelBoolean.toRealBoolean(v) ? l.splice(0, self.elements.length, e) : l.push(e))
 			else if (JelBoolean.toRealBoolean(check2))
@@ -272,7 +272,7 @@ export default class List extends NativeJelObject implements SerializablePrimiti
 		function exec(): any[] | Promise<any[]> {
 			while (i < len) {
 				const e = self.elements[i++];
-				const check1 = isBetter.invoke(ctx, undefined, l[0], e);
+				const check1 = isBetter.invoke(undefined, l[0], e);
 				if (check1 instanceof Promise) 
 					return check1.then((v: any) => {
 						if (!JelBoolean.toRealBoolean(v)) {
@@ -381,7 +381,7 @@ export default class List extends NativeJelObject implements SerializablePrimiti
 		if (key instanceof JelString) {
 			if (isLess) 
 				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>
-					List.toPromisedRealBoolean(ctx, Util.resolveValues((a: any, b: any)=>isLess.invoke(ctx, undefined, a, b), Runtime.member(ctx, a0, key.value), Runtime.member(ctx, b0, key.value)))
+					List.toPromisedRealBoolean(ctx, Util.resolveValues((a: any, b: any)=>isLess.invoke(undefined, a, b), Runtime.member(ctx, a0, key.value), Runtime.member(ctx, b0, key.value)))
 				);
 			else
 				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>
@@ -391,15 +391,15 @@ export default class List extends NativeJelObject implements SerializablePrimiti
 		else if (key instanceof Callable) {
 			if (isLess) 
 				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>
-					List.toPromisedRealBoolean(ctx, Util.resolveValues((a: any, b: any)=>isLess.invoke(ctx, undefined, a, b), key.invoke(ctx, undefined, a0), key.invoke(ctx, undefined, b0)))
+					List.toPromisedRealBoolean(ctx, Util.resolveValues((a: any, b: any)=>isLess.invoke(undefined, a, b), key.invoke(undefined, a0), key.invoke(undefined, b0)))
 				);
 			else
 				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>
-					List.toPromisedRealBoolean(ctx, Util.resolveValues((a: any, b: any)=>Runtime.op(ctx, '<', a, b), key.invoke(ctx, undefined, a0), key.invoke(ctx, undefined, b0)))
+					List.toPromisedRealBoolean(ctx, Util.resolveValues((a: any, b: any)=>Runtime.op(ctx, '<', a, b), key.invoke(undefined, a0), key.invoke(undefined, b0)))
 				);
 		}
 		else if (isLess)
-			r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>List.toPromisedRealBoolean(ctx, isLess.invoke(ctx, undefined, a0, b0)));
+			r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>List.toPromisedRealBoolean(ctx, isLess.invoke(undefined, a0, b0)));
 		else
 			r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>List.toPromisedRealBoolean(ctx, Runtime.op(ctx, '<', a0, b0) as JelBoolean));
 
@@ -436,18 +436,18 @@ export default class List extends NativeJelObject implements SerializablePrimiti
 	private minMax(ctx: Context, isMax: boolean, isLess: Callable|null, key: JelString | Callable | null): any {
 		if (key instanceof JelString) {
 			if (isLess) 
-				return this.findBest((a0: any, b0: any)=>Util.resolveValues((a: any, b: any)=>List.toPromisedBoolean(ctx, isLess.invoke(ctx, undefined, a, b)), Runtime.member(ctx, a0, key.value), Runtime.member(ctx, b0, key.value)), isMax);
+				return this.findBest((a0: any, b0: any)=>Util.resolveValues((a: any, b: any)=>List.toPromisedBoolean(ctx, isLess.invoke(undefined, a, b)), Runtime.member(ctx, a0, key.value), Runtime.member(ctx, b0, key.value)), isMax);
 			else
 				return this.findBest((a0: any, b0: any)=>Util.resolveValues((a: any, b: any)=>Runtime.op(ctx, '<', a, b), Runtime.member(ctx, a0, key.value), Runtime.member(ctx, b0, key.value)), isMax);
 		}
 		else if (key instanceof Callable) {
 			if (isLess) 
-				return this.findBest((a0: any, b0: any)=>Util.resolveValues((a: any, b: any)=>List.toPromisedBoolean(ctx, isLess.invoke(ctx, undefined, a, b)), key.invoke(ctx, undefined, a0), key.invoke(ctx, undefined, b0)), isMax);
+				return this.findBest((a0: any, b0: any)=>Util.resolveValues((a: any, b: any)=>List.toPromisedBoolean(ctx, isLess.invoke(undefined, a, b)), key.invoke(undefined, a0), key.invoke(undefined, b0)), isMax);
 			else
-				return this.findBest((a0: any, b0: any)=>Util.resolveValues((a: any, b: any)=>Runtime.op(ctx, '<', a, b), key.invoke(ctx, undefined, a0), key.invoke(ctx, undefined, b0)), isMax);
+				return this.findBest((a0: any, b0: any)=>Util.resolveValues((a: any, b: any)=>Runtime.op(ctx, '<', a, b), key.invoke(undefined, a0), key.invoke(undefined, b0)), isMax);
 		}
 		else if (isLess)
-				return this.findBest((a0: any, b0: any)=>List.toPromisedBoolean(ctx, isLess.invoke(ctx, undefined, a0, b0)), isMax);
+				return this.findBest((a0: any, b0: any)=>List.toPromisedBoolean(ctx, isLess.invoke(undefined, a0, b0)), isMax);
 		else
 				return this.findBest((a0: any, b0: any)=>Runtime.op(ctx, '<', a0, b0) as any, isMax);
 	}
