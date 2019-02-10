@@ -3,6 +3,10 @@
  * It can either define min/max/typical values, or handle a large number of data points and interpolate between them.
  */ 
 native class Distribution:
+  /**
+   * Min/max as range.
+   */
+  native range: RangeType(numeric)
 
   native constructor(distributionPoints: DistributionPoint[]?, average: numeric?, min: numeric?, max: numeric?, mean: numeric?)
 

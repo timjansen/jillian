@@ -36,8 +36,8 @@ export default class DbEntry extends NamedObject {
     return new Map();
   }
   
-	member(ctx: Context, name: string, parameters?: Map<string, any>): any {
-		const v = super.member(ctx, name, parameters);
+	member(ctx: Context, name: string): any {
+		const v = super.member(ctx, name);
 		if (v === undefined && this.properties.elements.has(name))
 			return this.properties.get(ctx, name);
 		else

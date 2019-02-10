@@ -112,11 +112,11 @@ export default class Runtime {
   }
 
   
-	static member(ctx: Context, obj: JelObject|null, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null> {
+	static member(ctx: Context, obj: JelObject|null, name: string): JelObject|null|Promise<JelObject|null> {
     if (!obj)
       throw new Error(`Can't get member ${name} of null.`);
 
-    const value = obj.member(ctx, name, parameters);
+    const value = obj.member(ctx, name);
     if (value !== undefined)
       return value;
     else if (name in obj) 

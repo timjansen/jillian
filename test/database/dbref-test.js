@@ -50,32 +50,6 @@ describe('DbRef', function() {
 		});
 	});
 
-	describe('member()', function() {
-		it('passes parameters', function() {
-			const dbe = DbEntry.valueOf('Test');
-			const m = new Dictionary(new Map([['a', 1], ['b', 2]]));
-			const r = new DbRef(dbe, m);
-			const ctx = new Context();
-			let success = false;
-			
-			dbe.member = function(ctx, name, params) { success =  name  == 'test' && params.get('a') == 1 && params.get('b') == 2; return 9};
-			assert.equal(r.member(ctx, 'test'), 9);
-			assert.ok(success);
-			
-			success = false;
-			dbe.member = function(ctx, name, params) { success =  name  == 'test2' && params.get('a') == 5 && params.get('b') == 2 && params.get('c') == 6; return 10};
-			assert.equal(r.member(ctx, 'test2', new Map([['a', 5], ['c', 6]])), 10);
-			assert.ok(success);
-
-			success = false;
-			const r0 = new DbRef(dbe);
-			dbe.member = function(ctx, name, params) { success =  name  == 'test2' && params.get('a') == 5 && params.get('c') == 6; return 11};
-			assert.equal(r0.member(ctx, 'test2', new Map([['a', 5], ['c', 6]])), 11);
-			assert.ok(success);
-		});
-	});
-
-	
 	describe('with()', function() {
 		it('takes DbEntries directly', function() {
 			const dbe = DbEntry.valueOf('Test');

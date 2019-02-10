@@ -95,20 +95,16 @@ export default class DbRef extends NativeJelObject implements IDbRef, Serializab
 		return true;
 	}
 
-	private memberInternal(ctx: Context, obj: NamedObject | null, name: string, parameters?: Dictionary): any {
+	private memberInternal(ctx: Context, obj: NamedObject | null, name: string): any {
 		if (obj === null)
 			return null;
-		else if (parameters && this.parameters)
-			return obj.member(ctx, name, new Map([...this.parameters.elements, ...parameters.elements]) as any);
-		else if (parameters)
-			return obj.member(ctx, name, parameters.elements);
-		else
-			return obj.member(ctx, name, this.parameters && this.parameters.elements);
+		else 
+			return obj.member(ctx, name);
 	}
 
 	// Returns the member value with the given name, possibly wrapped in a Promise
-	member(ctx: Context, name: string, parameters?: Map<string, any>): Promise<any> | any {
-		return this.with(ctx, (o: NamedObject) =>this.memberInternal(ctx, o, name, parameters && new Dictionary(parameters, true)));
+	member(ctx: Context, name: string): Promise<any> | any {
+		return this.with(ctx, (o: NamedObject) =>this.memberInternal(ctx, o, name));
 	}
 	
 	op(ctx: Context, operator: string, right: any): any {

@@ -64,20 +64,20 @@ export default class Category extends DbEntry {
     return DB_INDICES;
   }
 	
-	member(ctx: Context, name: string, parameters?: Map<string, any>): any {
-		const v = super.member(ctx, name, parameters);
+	member(ctx: Context, name: string): any {
+		const v = super.member(ctx, name);
 		if (v === undefined && this.superCategory)
-			return Util.resolveValue(this.superCategory.get(ctx), (c: any)=>c.member(ctx, name, parameters));
+			return Util.resolveValue(this.superCategory.get(ctx), (c: any)=>c.member(ctx, name));
 		else
 			return v;
 	}
 
-	instanceDefault(ctx: Context, name: string, parameters?: Map<string, any>): any {
+	instanceDefault(ctx: Context, name: string): any {
 		if (this.instanceDefaults.elements.has(name)) {
 			return this.instanceDefaults.elements.get(name);
 		}
 		else if (this.superCategory)
-			return Util.resolveValue(this.superCategory.get(ctx), (c: any)=>c.instanceDefault(ctx, name, parameters));
+			return Util.resolveValue(this.superCategory.get(ctx), (c: any)=>c.instanceDefault(ctx, name));
 		else
 			return null;
 	}

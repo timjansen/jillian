@@ -307,7 +307,7 @@ export default class Class extends PackageContent implements SerializablePrimiti
     }, ()=>this);
   }
 
-  member(ctx: Context, name: string, parameters?: Map<string, any>): any {
+  member(ctx: Context, name: string): any {
     return this.staticPropertyCache.get(name);
 	}
   method(ctx: Context, name: string): Callable|undefined {

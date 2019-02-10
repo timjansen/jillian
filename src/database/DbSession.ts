@@ -28,8 +28,8 @@ export default class DbSession implements IDbSession {
   }
   
 	// implements IDbSession
-	createDbRef(distinctNameOrEntry: string | NamedObject, parameters?: Map<string, any>): IDbRef {
-		return new DbRef(distinctNameOrEntry, new Dictionary(parameters, true));
+	createDbRef(distinctNameOrEntry: string | NamedObject): IDbRef {
+		return new DbRef(distinctNameOrEntry);
 	}
 	
   // returns the entry, null if it does not exist, undefined if not in cache

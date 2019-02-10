@@ -1,0 +1,12 @@
+/**
+ * A Fact that offers a distribution of possible values
+ */
+ class ValueDistributionFact extends Fact
+  /**
+   * The range of possible values.
+   */
+  values: Distribution
+
+  override checkValue(v: any): bool =>
+    v in this.values.range
+

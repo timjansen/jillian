@@ -23,7 +23,7 @@ export default abstract class NativeJelObject extends JelObject implements Seria
   
   abstract get clazz(): Class;
     
-	member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null>|undefined {
+	member(ctx: Context, name: string): JelObject|null|Promise<JelObject|null>|undefined {
     const c = (this.clazz as Class);
 
     if (c.allProperties.elements.has(name)) {

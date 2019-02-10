@@ -39,10 +39,10 @@ export default class Thing extends DbEntry {
     return DB_INDICES;
   }
   
-	member(ctx: Context, name: string, parameters?: Map<string, any>): any {
-		const v = super.member(ctx, name, parameters);
+	member(ctx: Context, name: string): any {
+		const v = super.member(ctx, name);
 		if (v === undefined)
-			return Util.resolveValue(this.category.get(ctx), (c: any)=>c.instanceDefault(ctx, name, parameters));
+			return Util.resolveValue(this.category.get(ctx), (c: any)=>c.instanceDefault(ctx, name));
 		else
 			return v;
 	}

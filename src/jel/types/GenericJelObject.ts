@@ -53,7 +53,7 @@ export default class GenericJelObject extends JelObject implements Serializable 
     return super.singleOp(ctx, operator);
 	}
 
-	member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null>|undefined {
+	member(ctx: Context, name: string): JelObject|null|Promise<JelObject|null>|undefined {
     const getter = (this.clazz as Class).allGetters.elements.get(name) as Method;
     if (getter)
       return getter.callable.invoke(this);

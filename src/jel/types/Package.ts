@@ -44,7 +44,7 @@ export default class Package extends PackageContent {
     return Package.clazz!;
   } 
   
-	member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null>|undefined {
+	member(ctx: Context, name: string): JelObject|null|Promise<JelObject|null>|undefined {
     const ref: any = this.packageContent.elements.get(name);
     if (!ref)
       return undefined;

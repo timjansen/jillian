@@ -88,7 +88,7 @@ export default abstract class JelObject {
 	/**
 	 * Returns the value of the member, or undefined if there is no member of this name in the object.
 	 */ 
-	abstract member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): JelObject|null|Promise<JelObject|null>|undefined;
+	abstract member(ctx: Context, name: string): JelObject|null|Promise<JelObject|null>|undefined;
 
  	/**
 	 * Returns the value of the method, or undefined if there is no method of this name in the object.

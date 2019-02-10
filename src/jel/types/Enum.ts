@@ -36,11 +36,11 @@ export default class Enum extends PackageContent {
     return Enum.clazz!;
   }  
   
-	member(ctx: Context, name: string, parameters?: Map<string, any>): any {
+	member(ctx: Context, name: string): any {
 		if (this.valueMap.elements.has(name))
 			return this.valueMap.get(ctx, name);
     else
-      return super.member(ctx, name, parameters);
+      return super.member(ctx, name);
 	}
   
   getSerializationProperties(): any[] {

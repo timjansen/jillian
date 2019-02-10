@@ -94,8 +94,8 @@ export default class Dictionary extends NativeJelObject implements SerializableP
     return new Dictionary(this.elements, true, defaultValue);
   }
   
-  member(ctx: Context, name: string, parameters?: Map<string, JelObject|null>): Promise<JelObject|null>|JelObject|null|undefined {
-    const sm = super.member(ctx, name, parameters);
+  member(ctx: Context, name: string): Promise<JelObject|null>|JelObject|null|undefined {
+    const sm = super.member(ctx, name);
     if (sm !== undefined)
       return sm;
 		return this.elements.get(name);

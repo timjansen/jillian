@@ -11,7 +11,7 @@ export interface IDbRef {
 	with<T>(ctx: Context, f: (obj: any)=>T): Promise<T> | T;
 	withMember<T>(ctx: Context, name: string, f: (v: any)=>T): Promise<T> | T;
 	get(ctx: Context): Promise<any> | any;
-	member(ctx: Context, name: string, parameters?: Map<string, any>): Promise<any> | any;
+	member(ctx: Context, name: string): Promise<any> | any;
 }
 
 export interface IDbSession {

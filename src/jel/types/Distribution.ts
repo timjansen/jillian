@@ -3,6 +3,7 @@ import JelObject from '../JelObject';
 import Runtime from '../Runtime';
 import Context from '../Context';
 import List from './List';
+import Range from './Range';
 import DistributionPoint from './DistributionPoint';
 import ApproximateNumber from './ApproximateNumber';
 import Numeric from './Numeric';
@@ -83,6 +84,12 @@ export default class Distribution extends NativeJelObject {
 	min(ctx: Context): Numeric {
 		return this.getValue(ctx, 0);
 	}
+  
+	range_jel_mapping: boolean;
+	range(ctx: Context): Range {
+		return new Range(this.min(ctx) as any, this.max(ctx) as any);
+	}
+  
 
 	getValue_jel_mapping: boolean;
 	getValue(ctx: Context, share: any): Numeric {
@@ -246,6 +253,7 @@ Distribution.prototype.points_jel_property = true;
 Distribution.prototype.mean_jel_mapping = true;
 Distribution.prototype.min_jel_mapping = true;
 Distribution.prototype.max_jel_mapping = true;
+Distribution.prototype.range_jel_mapping = true;
 Distribution.prototype.getValue_jel_mapping = true;
 Distribution.prototype.getShare_jel_mapping = true;
 Distribution.prototype.add_jel_mapping = true;
