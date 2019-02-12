@@ -219,7 +219,7 @@ describe('jelList', function() {
     it('sorts by default sorter', function() {
       jelAssert.equal('[3, 2, 9, 5].sort()', new List([2, 3, 5, 9].map(Float.valueOf))); 
       jelAssert.equal('[1, 2, 3, 4].sort()', new List([1, 2, 3, 4].map(Float.valueOf))); 
-      jelAssert.equal('[4, 3, 2, 1].sort()', new List([1, 2, 3, 4].map(Float.valueOf))); 
+      jelAssert.equal('[4, 3, 2, 1].sort(desc=true)', new List([4, 3, 2, 1].map(Float.valueOf))); 
       jelAssert.equal('[1, 2, 3, 4, 5].sort()', new List([1, 2, 3, 4, 5].map(Float.valueOf))); 
       jelAssert.equal('[5, 1, 2, 3, 4].sort()', new List([1, 2, 3, 4, 5].map(Float.valueOf))); 
       jelAssert.equal('[5, 4, 3, 2, 1].sort()', new List([1, 2, 3, 4, 5].map(Float.valueOf))); 
@@ -229,12 +229,14 @@ describe('jelList', function() {
       jelAssert.equal('[1, 3, 3, 5, 9, 9].sort()', new List([1, 3, 3, 5, 9, 9].map(Float.valueOf))); 
       jelAssert.equal('[1, 4, 3, 6, 3, 7, 8, 2, 5, 9, 9].sort()', new List([1, 2, 3, 3, 4, 5, 6, 7, 8, 9, 9].map(Float.valueOf))); 
       jelAssert.equal('[100, 3, 33, 5, 7, 3, 6, 8, 9, 4, 3, 5, 6, 99, 33, 66, 77, 88, 99, 9].sort()', new List([3, 3, 3, 4, 5, 5, 6, 6, 7, 8, 9, 9, 33, 33, 66, 77, 88, 99, 99, 100].map(Float.valueOf))); 
+      jelAssert.equal('[3, 2, 9, 5].sort(desc=true)', new List([9, 5, 3, 2].map(Float.valueOf))); 
     });
     it('sorts by lambda', function() {
       jelAssert.equal('[3, 2, 9, 5].sort((a,b)=>a<b)', new List([2, 3, 5, 9].map(Float.valueOf))); 
       jelAssert.equal('[9, 2, 3, 5].sort((a,b)=>a<b)', new List([2, 3, 5, 9].map(Float.valueOf))); 
       jelAssert.equal('[1, 3, 3, 5, 9, 9].sort((a,b)=>a<b)', new List([1, 3, 3, 5, 9, 9].map(Float.valueOf))); 
       jelAssert.equal("['foo', 'blabla', 'bar', 'blablabla'].sort((a,b)=>a.length>b.length)", new List(['blablabla', 'blabla', 'foo', 'bar'].map(JelString.valueOf))); 
+      jelAssert.equal('[3, 2, 9, 5].sort((a,b)=>a<b, desc=true)', new List([9, 5, 3, 2].map(Float.valueOf))); 
     });
     it('sorts by string key', function() {
       let clsX;
@@ -260,10 +262,12 @@ describe('jelList', function() {
 
 			je2.equal('[X(17), X(3), X(11), X(9)].sort(key="a").map(o=>o.a)', new List([3, 9, 11, 17].map(Float.valueOf))); 
       je2.equal('[X(17), X(3), X(11), X(9)].sort(isLess=(a,b)=>a<b, key="a").map(o=>o.a)', new List([3, 9, 11, 17].map(Float.valueOf))); 
+      je2.equal('[X(17), X(3), X(11), X(9)].sort(isLess=(a,b)=>a<b, key="a", desc=true).map(o=>o.a)', new List([17, 11, 9, 3].map(Float.valueOf))); 
     });
     it('sorts by key function', function() {
       jelAssert.equal('[{a: 17}, {a: 3}, {a: 11}, {a: 9}].sort(key=o=>o.get("a")).map(o=>o.get("a"))', new List([3, 9, 11, 17].map(Float.valueOf))); 
-      jelAssert.equal('[{a: 17}, {a: 3}, {a: 11}, {a: 9}].sort((a,b)=>a<b, key=o=>o.get("a")).map(o=>o.get("a"))', new List([3, 9, 11, 17].map(Float.valueOf))); 
+      jelAssert.equal('[{a: 17}, {a: 3}, {a: 11}, {a: 9}].sort((a,b)=>a<b, key=o=>o.get("a"), desc=false).map(o=>o.get("a"))', new List([3, 9, 11, 17].map(Float.valueOf))); 
+      jelAssert.equal('[{a: 17}, {a: 3}, {a: 11}, {a: 9}].sort((a,b)=>a<b, key=o=>o.get("a"), desc=true).map(o=>o.get("a"))', new List([17, 11, 9, 3].map(Float.valueOf))); 
       jelAssert.equal('[{a: "xxxx"}, {a: "xx"}, {a: "x"}, {a: "xxxxxx"}].sort(isLess=(a,b)=>a.length<b.length, key=o=>o.get("a")).map(o=>o.get("a"))', new List(["x", "xx", "xxxx", "xxxxxx"].map(JelString.valueOf))); 
     });
     it('handles Promises in the comparator', function() {
@@ -404,5 +408,34 @@ describe('jelList', function() {
     });
   });
 
+  describe('subLen()', function() {
+    it('handles small lists', function() {
+      jelAssert.equal('[].subLen(0, 100)', new List([]));
+      jelAssert.equal('[].subLen(-2, 5)', new List([]));
+      jelAssert.equal('[].subLen(0)', new List([]));
+      jelAssert.equal('[1].subLen(0,100)', new List([1].map(Float.valueOf)));
+      jelAssert.equal('[1].subLen(-1,5)', new List([1].map(Float.valueOf)));
+      jelAssert.equal('[1].subLen(-1)', new List([1].map(Float.valueOf)));
+      jelAssert.equal('[1].subLen(-1, 1)', new List([1].map(Float.valueOf)));
+      jelAssert.equal('[1].subLen(0, 0)', new List([]));
+    });
+    it('allows flexible params', function() {
+      jelAssert.equal('[3, 2, 9, 5].subLen(0, 5)', new List([3, 2, 9, 5].map(Float.valueOf)));
+      jelAssert.equal('[9, 2, 3, 5].subLen(0)', new List([9, 2, 3, 5].map(Float.valueOf)));
+      jelAssert.equal('[9, 2, 3, 5].subLen(length=3)', new List([9, 2, 3].map(Float.valueOf)));
+      jelAssert.equal('[1, 3, 3, 5, 9, 9].subLen(-3, 100)', new List([5, 9, 9].map(Float.valueOf)));
+      jelAssert.equal('[1, 3, 3, 5, 9, 9].subLen(-3, 2)', new List([5, 9].map(Float.valueOf)));
+    });
+    it('creates smaller lists', function() {
+      jelAssert.equal('[3, 2, 9, 5].subLen(1)', new List([2, 9, 5].map(Float.valueOf)));
+      jelAssert.equal('[3, 2, 9, 5].subLen(2)', new List([9, 5].map(Float.valueOf)));
+      jelAssert.equal('[3, 2, 9, 5].subLen(-2)', new List([9, 5].map(Float.valueOf)));
+      jelAssert.equal('[3, 2, 9, 5].subLen(1, 2)', new List([2, 9].map(Float.valueOf)));
+      jelAssert.equal('[3, 2, 9, 5].subLen(1, 3)', new List([2, 9, 5].map(Float.valueOf)));
+      jelAssert.equal('[9, 2, 3, 5].subLen(-3, 1)', new List([2].map(Float.valueOf)));
+    });
+  });
+
+  
 });
 

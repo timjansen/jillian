@@ -3,7 +3,26 @@
  */
 native class DbEntry:
   native constructor(distinctName: string, 
-               reality: any?,               // <<< TODO
-							 hashCode: string?, 
-							 properties: any?{} = {})
+               facts: FactList{} = {},
+               reality: thing?,               // <<< TODO
+							 hashCode: string?)
                
+               
+private evalFactCondition(fact: Fact): bool => true  // TODO
+
+getBestFacts(name: string, currentTime: time, reality: any?, metaProperties: any{}?, max: int(>=0)?): Fact[] =>
+  let fl = this.facts.get(name):
+    if !fl then 
+      []
+    else
+      fl.getBestFacts(filter = f=>(if f.startTime then f.startTime <= currentTime) &&
+                                  (if f.endTime then f.endTime > currentTime) && 
+                                  (if reality then reality == f.reality) &&
+                                  this.evalFactCondition(f),
+                     max = max)
+
+
+getBestValues(name: string, currentTime: time, reality: any, metaProperties: any{}?, max: int(>=0)?): FactResult[] => []
+
+getBestValue(name: string, currentTime: time, reality: any, metaProperties: any{}?): FactResult? => null
+

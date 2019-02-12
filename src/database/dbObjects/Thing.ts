@@ -25,8 +25,8 @@ export default class Thing extends DbEntry {
   static clazz: Class|undefined;
 
   
-  constructor(distinctName: string, category: Category|DbRef, properties?: Dictionary, reality?: DbRef, hashCode?: string) {
-    super('Thing', distinctName, reality || undefined, hashCode || undefined, properties || undefined);
+  constructor(distinctName: string, category: Category|DbRef, facts?: Dictionary, reality?: DbRef, hashCode?: string) {
+    super('Thing', distinctName, facts, reality, hashCode);
     this.category = category instanceof DbRef ? category : new DbRef(category);
   }
   
@@ -39,14 +39,6 @@ export default class Thing extends DbEntry {
     return DB_INDICES;
   }
   
-	member(ctx: Context, name: string): any {
-		const v = super.member(ctx, name);
-		if (v === undefined)
-			return Util.resolveValue(this.category.get(ctx), (c: any)=>c.instanceDefault(ctx, name));
-		else
-			return v;
-	}
-	
 	isA_jel_mapping: Object;
 	isA(ctx: Context, category: string | DbRef): JelBoolean | Promise<JelBoolean> {
 		if (category instanceof DbRef)
@@ -57,14 +49,14 @@ export default class Thing extends DbEntry {
 	}
 	
   getSerializationProperties(): any[] {
-    return [this.distinctName, this.category, this.properties, this.reality, this.hashCode];
+    return [this.distinctName, this.category, this.facts, this.reality, this.hashCode];
   }
 
-  static create_jel_mapping = {distinctName: 1, category: 2, properties: 3, reality: 4, hashCode: 5};
+  static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]) {
     return new Thing(TypeChecker.realString(args[0], 'distinctName'), 
                      args[1] instanceof DbRef ? args[1] : TypeChecker.instance(Category, args[1], 'category'), 
-                     TypeChecker.optionalInstance(Dictionary, args[2], 'properties')||undefined, (TypeChecker.optionalDbRef(args[3], 'reality')||undefined) as any, 
+                     TypeChecker.instance(Dictionary, args[2], 'facts', Dictionary.empty), (TypeChecker.optionalDbRef(args[3], 'reality')||undefined) as any, 
                      TypeChecker.optionalRealString(args[4], 'hashCode')||undefined);
   }
 }

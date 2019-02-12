@@ -121,14 +121,16 @@ const IF_STOP = {'then': true};
 const THEN_STOP = {'else': true};
 const LET_STOP = {':': true, ',': true};
 const WITH_STOP = {':': true, ',': true};
-const CLASS_EXTENDS_STOP = {':': true, ',': true, identifier: true, abstract: true, static: true, native: true, override: true};
-const CLASS_EXPRESSION_STOP = {identifier: true, abstract: true, static: true, native: true, override: true};
-const CLASS_TYPE_EXPRESSION_STOP = {'=': true, identifier: true, abstract: true, static: true, native: true, override: true};
+const CLASS_EXTENDS_STOP = {':': true, ',': true, identifier: true, abstract: true, static: true, native: true, override: true, private: true};
+const CLASS_EXPRESSION_STOP = {identifier: true, abstract: true, static: true, native: true, override: true, private: true};
+const CLASS_TYPE_EXPRESSION_STOP = {'=': true, identifier: true, abstract: true, static: true, native: true, override: true, private: true};
 
 const EQUAL = {'=': true};
 const LAMBDA = {'=>': true};
 const OPEN_ARGS = {'(': true};
 const CLOSE_ARGS = {')': true};
+
+const CLASS_MEMBER_MODIFIERS: any = {abstract: true, native: true, override: true, private: true, static: true};
 
 const DUMMY_TOKEN = new Token(0, 0, '(you should never see this)', TokenType.Literal, null);
 const EMPTY_LIST = new List(DUMMY_TOKEN, []);
@@ -294,7 +296,8 @@ export default class JEL {
     case 'if':
       const cond = JEL.parseExpression(tokens, IF_PRECEDENCE, IF_STOP);
       JEL.expectOp(tokens, IF_STOP, "Expected 'then'");
-      const thenV = JEL.parseExpression(tokens, IF_PRECEDENCE, THEN_STOP);
+      const allStop = Object.assign({}, THEN_STOP, stopOps);
+      const thenV = JEL.parseExpression(tokens, IF_PRECEDENCE, allStop);
       if (tokens.nextIf(TokenType.Operator, 'else'))
         return JEL.tryBinaryOps(tokens, new Condition(firstToken, cond, thenV, JEL.parseExpression(tokens, IF_PRECEDENCE, stopOps)), precedence, stopOps);
       else
@@ -631,8 +634,8 @@ export default class JEL {
     const isAbstract = tokens.last().value == 'abstract' && !!JEL.nextIsValueOrThrow(tokens, TokenType.Operator, 'class', "Modifier 'abstract' must be followed by 'class'");
     const classToken = tokens.last();
 
-    const classExpressionStop: any = Object.assign(CLASS_EXPRESSION_STOP, stopOps);
-    const classTypeExpressionStop: any = Object.assign(CLASS_TYPE_EXPRESSION_STOP, stopOps);
+    const classExpressionStop: any = Object.assign({}, CLASS_EXPRESSION_STOP, stopOps);
+    const classTypeExpressionStop: any = Object.assign({}, CLASS_TYPE_EXPRESSION_STOP, stopOps);
     
     const className = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier after 'class' declaration");
     const superType: JelNode|undefined = (tokens.peekIs(TokenType.Identifier, 'extends')) ? tokens.next() && JEL.parseExpression(tokens, CLASS_PRECEDENCE, CLASS_EXTENDS_STOP) : undefined;
@@ -653,20 +656,33 @@ export default class JEL {
       const peek = tokens.peek();
       if (!peek || (peek.type == TokenType.Operator && stopOps[peek.value])) 
         return new ClassDef(classToken, className.value, superType, ctor, properties, methods, staticProperties, isAbstract, hasNative);
-      tokens.next();
+
+      const modifiers = new Set();
+      let p: Token = tokens.next();
+      while (p && p.is(TokenType.Operator) && CLASS_MEMBER_MODIFIERS[p.value]) {
+        if (modifiers.has(p.value))
+          JEL.throwParseException(p, `Duplicate modifier ${p.value}.`);
+        else
+          modifiers.add(p.value);
+        p = tokens.next();
+      }
+
+      if (!p)
+        JEL.throwParseException(tokens.last(), `Unexpected end of file. Expected member after modifier.`);
+
+      const abstractModifier = modifiers.has('abstract'), nativeModifier = modifiers.has('native'), staticModifier = modifiers.has('static'), 
+            overrideModifier = modifiers.has('override'), privateModifier = modifiers.has('private');
       
-      const staticModifier = !!peek.is(TokenType.Operator, 'static');
-      const abstractModifier = !!peek.is(TokenType.Operator, 'abstract');
-      const overrideModifier = !!peek.is(TokenType.Operator, 'override');
-      const next0 = (staticModifier || abstractModifier || overrideModifier) ? tokens.next() : peek;
-      const nativeModifier = !!next0.is(TokenType.Operator, 'native');
       if (abstractModifier && (nativeModifier || overrideModifier))
         JEL.throwParseException(tokens.last(), `Native and/or override modifiers can not be combined with abstract modifier.`);
+      if (privateModifier && (overrideModifier || abstractModifier))
+        JEL.throwParseException(tokens.last(), `Private modifier can not be combined with override or abstract.`);
       if (abstractModifier && !isAbstract)
         JEL.throwParseException(tokens.last(), `Abstract members are only allowed in abstract classes.`);
       hasNative = hasNative || nativeModifier;
-      const next = nativeModifier ? tokens.next() : next0;
       
+      const next: Token = p;
+     
       if (next.is(TokenType.Identifier, 'constructor') && tokens.nextIf(TokenType.Operator, '(')) {
         if (ctor)
           JEL.throwParseException(next, `Constructor already defined. You can not define two constructors`);
@@ -684,10 +700,10 @@ export default class JEL {
         const args = JEL.checkTypedParameters(JEL.tryParseTypedParameters(tokens, CLASS_PRECEDENCE, NO_STOP), next);
         if (args == null)
           JEL.throwParseException(tokens.last(), `Can not parse argument list for constructor`);
-        else if (args.find(a=>a.varArgs))
+        else if (args!.find(a=>a.varArgs))
           JEL.throwParseException(tokens.last(), `Constructors do not support varargs.`);
         else if (nativeModifier)
-          ctor = new NativeFunction(peek, 'create', className.value, true, args);
+          ctor = new NativeFunction(peek, 'create', className.value, true, args!);
         else if (tokens.nextIf(TokenType.Operator, '=>'))
           ctor = new Lambda(peek, args!, undefined, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop), false);
         else
@@ -736,7 +752,7 @@ export default class JEL {
         const args = JEL.checkTypedParameters(JEL.tryParseTypedParameters(tokens, CLASS_PRECEDENCE, NO_STOP), next);
         if (args == null)
           JEL.throwParseException(tokens.last(), `Can not parse argument list for operator overload ${methodName}`);
-        else if (args.find(a=>a.varArgs))
+        else if (args!.find(a=>a.varArgs))
           JEL.throwParseException(tokens.last(), `Operators do not support varargs.`);
         const argsMax = next.value == 'op' ? 1 : 0;
         if (args!.length > argsMax)
@@ -748,16 +764,14 @@ export default class JEL {
       }
       else if (next.is(TokenType.Identifier) && tokens.nextIf(TokenType.Operator, '(')) {
         const methodName = next.value;
-        if (isNative && !nativeModifier)
-          JEL.throwParseException(tokens.last(), `Method ${methodName}() is a non-native method in a native class. All methods must be native in native classes.`);
         if (staticModifier ? staticPropertyNames.has(methodName) : propertyNames.has(methodName))
           JEL.throwParseException(tokens.last(), `${staticModifier ? 'Static method' : 'Method'} ${methodName}() already declared`);
         (staticModifier ? staticPropertyNames : propertyNames).add(methodName);
         const args = JEL.checkTypedParameters(JEL.tryParseTypedParameters(tokens, CLASS_PRECEDENCE, NO_STOP), next);
-        const varArgPos = args ? args.findIndex(a=>a.varArgs) : -1;
+        const varArgPos = args ? args!.findIndex(a=>a.varArgs) : -1;
         if (args == null)
           JEL.throwParseException(tokens.last(), `Can not parse argument list for method ${methodName}()`);
-        else if (varArgPos >= 0 && args.findIndex(a=>a.varArgs) < args.length-1)
+        else if (varArgPos >= 0 && args!.findIndex(a=>a.varArgs) < args!.length-1)
           JEL.throwParseException(tokens.last(), `Varargs are only supported for the last argument.`);
         const returnType = JEL.tryParseLambdaTypeCheck(tokens, (nativeModifier || abstractModifier) ? CLASS_EXPRESSION_STOP : LAMBDA);
         
@@ -772,8 +786,6 @@ export default class JEL {
       }
       else if (next.is(TokenType.Identifier) && (tokens.peekIs(TokenType.Operator, ':') || tokens.peekIs(TokenType.Operator, '='))) {
         const propertyName = next.value;
-        if (isNative && !nativeModifier)
-          JEL.throwParseException(tokens.last(), `Property ${propertyName} is a non-native property in a native class. All properties must be native in native classes.`);
         if (nativeModifier && !isNative && !staticModifier)
           JEL.throwParseException(tokens.last(), `Property ${propertyName} is native in a non-native class. In a non-native class, only static native properties are allowed.`);
         if (staticModifier ? staticPropertyNames.has(propertyName) : propertyNames.has(propertyName))
@@ -799,8 +811,6 @@ export default class JEL {
         else
           (staticModifier?staticProperties:properties).push(new PropertyDef(peek, propertyName, typeDef, defaultValue, nativeModifier, overrideModifier, abstractModifier));
       }
-      else if (next.is(TokenType.Operator, 'static') || next.is(TokenType.Operator, 'abstract') || next.is(TokenType.Operator, 'override'))
-        JEL.throwParseException(next, `Wrong modifier order. 'static' must always be first, and 'native' must be the last modifier.`);
       else
         JEL.throwParseException(next, 'Unexpected token in class declaration. Expected an identifier to define a method or property.');
     }

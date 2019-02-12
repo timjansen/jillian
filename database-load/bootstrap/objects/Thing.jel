@@ -2,12 +2,12 @@
  * A Thing is a DbEntry that is a member of a category.
  */
 native class Thing extends DbEntry:
+               
   native constructor(distinctName, 
-               category: CategoryType()?,
-							 properties,
-               reality,                              // << TODO
+               category: category?,
+               facts = {},
+               reality,
 							 hashCode)
                
-
-  native isA(category: string|CategoryType()): bool
+  native isA(category: string|category): bool
   

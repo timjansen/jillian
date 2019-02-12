@@ -304,6 +304,15 @@ export default class List extends NativeJelObject implements SerializablePrimiti
 																				end == null ? this.elements.length : end >= 0 ? end : this.elements.length + end));
 	}
 
+	subLen_jel_mapping: Object;
+	subLen(ctx: Context, start0?: any, len0?: any) {
+		const start = TypeChecker.realNumber(start0, 'start', 0);
+		const len = TypeChecker.optionalRealNumber(len0, 'length');
+    const s = start >= 0 ? start : this.elements.length + start;
+    return new List(this.elements.slice(s, len == null ? this.elements.length : s+len));
+  }
+
+  
 	private partition(ctx: Context, l: any[], start: number, end: number, isLess: (a: any, b: any)=>boolean|Promise<boolean>): number | Promise<number> {
 		function swap(a: number, b: number): void {
 			const tmp = l[a];
@@ -365,45 +374,45 @@ export default class List extends NativeJelObject implements SerializablePrimiti
 		else
 			return JelBoolean.toBoolean(ctx, b);
 	}
-	
+
+  
 	// isLess(a, b) checks whether a<b . If a==b or a>b, is must return false. If a==b, then !isLess(a,b)&&!isLess(b,a)
 	// key is either the string of a property name, or a function key(a) that return the key for a.
 	sort_jel_mapping: Object;
-	sort(ctx: Context, isLess0?: any, key0?: any): List | Promise<List> {
+	sort(ctx: Context, isLess0?: any, key0?: any, desc0?: any): List | Promise<List> {
 		const isLess: Callable | null = TypeChecker.optionalInstance(Callable, isLess0, 'isLess');
 		const key: JelString | Callable = key0 instanceof JelString ? key0 : TypeChecker.optionalInstance(Callable, key0, 'key');
-
+		const desc: boolean = TypeChecker.realBoolean(desc0, 'desc', false);
+  
 		if (this.elements.length < 2)
 			return this;
 
 		const l: any[] = Array.prototype.slice.call(this.elements);
 		let r: undefined | Promise<any> = undefined;
 		if (key instanceof JelString) {
-			if (isLess) 
-				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>
-					List.toPromisedRealBoolean(ctx, Util.resolveValues((a: any, b: any)=>isLess.invoke(undefined, a, b), Runtime.member(ctx, a0, key.value), Runtime.member(ctx, b0, key.value)))
-				);
+			if (isLess) {
+        const cmp = desc ? (a: any, b: any)=>isLess.invoke(undefined, b, a) : (a: any, b: any)=>isLess.invoke(undefined, a, b);
+        r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>List.toPromisedRealBoolean(ctx, Util.resolveValues(cmp, Runtime.member(ctx, a0, key.value), Runtime.member(ctx, b0, key.value))));
+      }
 			else
-				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>
-					List.toPromisedRealBoolean(ctx, Util.resolveValues((a: any, b: any)=>Runtime.op(ctx, '<', a, b), Runtime.member(ctx, a0, key.value), Runtime.member(ctx, b0, key.value)))
-				);
+				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>List.toPromisedRealBoolean(ctx, Util.resolveValues((a: any, b: any)=>Runtime.op(ctx, desc ? '>' : '<', a, b), Runtime.member(ctx, a0, key.value), Runtime.member(ctx, b0, key.value))));
 		}
-		else if (key instanceof Callable) {
-			if (isLess) 
-				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>
-					List.toPromisedRealBoolean(ctx, Util.resolveValues((a: any, b: any)=>isLess.invoke(undefined, a, b), key.invoke(undefined, a0), key.invoke(undefined, b0)))
-				);
+		else if (key instanceof Callable) { 
+			if (isLess) {
+        const cmp = desc ? (a: any, b: any)=>isLess.invoke(undefined, b, a) : (a: any, b: any)=>isLess.invoke(undefined, a, b);
+				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>List.toPromisedRealBoolean(ctx, Util.resolveValues(cmp, key.invoke(undefined, a0), key.invoke(undefined, b0))));
+      }
 			else
-				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>
-					List.toPromisedRealBoolean(ctx, Util.resolveValues((a: any, b: any)=>Runtime.op(ctx, '<', a, b), key.invoke(undefined, a0), key.invoke(undefined, b0)))
-				);
+				r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>List.toPromisedRealBoolean(ctx, Util.resolveValues((a: any, b: any)=>Runtime.op(ctx, desc ? '>' : '<', a, b), key.invoke(undefined, a0), key.invoke(undefined, b0))));
 		}
-		else if (isLess)
-			r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>List.toPromisedRealBoolean(ctx, isLess.invoke(undefined, a0, b0)));
+		else if (isLess) {
+     const cmp = desc ? (a: any, b: any)=>List.toPromisedRealBoolean(ctx, isLess.invoke(undefined, b, a)) : (a: any, b: any)=>List.toPromisedRealBoolean(ctx, isLess.invoke(undefined, a, b));
+			r = this.quickSort(ctx, l, 0, l.length-1, cmp);
+    }
 		else
-			r = this.quickSort(ctx, l, 0, l.length-1, (a0: any, b0: any)=>List.toPromisedRealBoolean(ctx, Runtime.op(ctx, '<', a0, b0) as JelBoolean));
+			r = this.quickSort(ctx, l, 0, l.length-1, (a: any, b: any)=>List.toPromisedRealBoolean(ctx, Runtime.op(ctx, desc ? '>' : '<', a, b) as JelBoolean));
 
-		return Util.resolveValue(r, ()=>new List(l));
+    return Util.resolveValue(r, ()=>new List(l));
 	}
 
 	private findBest(isBetter: (a: any, b: any)=>JelBoolean|Promise<JelBoolean>, inverse: boolean): any {
@@ -519,6 +528,7 @@ List.prototype.lastMatch_jel_mapping = true;
 List.prototype.nthMatch_jel_mapping = true;
 List.prototype.bestMatches_jel_mapping = true;
 List.prototype.sub_jel_mapping = true;
+List.prototype.subLen_jel_mapping = true;
 List.prototype.sort_jel_mapping = true;
 List.prototype.max_jel_mapping = true;
 List.prototype.min_jel_mapping = true;

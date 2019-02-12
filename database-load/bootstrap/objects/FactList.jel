@@ -1,0 +1,16 @@
+class FactList
+  static FilterFunc = function((element: any?, index: int(>=0))=>any?, true)
+
+  bestFact: int  // index of the best valid fact in the list as shortcut
+  facts: Fact[]
+
+  getBestFacts(filter: FilterFunc?, max: int(>=0)?): Fact[] =>
+    let filtered = if filter then this.facts.filter(filter) else this.facts,
+        sorted = filtered.sort(key='trustLevel', desc=true):
+          sorted.subLen(length=max)
+            
+
+  getBestFact(filter: FilterFunc?): Fact? =>
+    let filtered = if filter then this.facts.filter(filter) else this.facts:
+        filtered.max(key='trustLevel')
+

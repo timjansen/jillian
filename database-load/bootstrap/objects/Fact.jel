@@ -49,10 +49,15 @@ abstract class Fact
   /**
    * The time when the property value described by this Fact ends to be true.
    */
-  endTime: time?             // the time the Fact ends
+  endTime: time?             // the time the Fact ends, exclusive
 
   /**
-   * A precondition for the fact to be true. Something like 'children grow, but only until the age of 18' could be added here as 'this.age<18'...
+   * A list of properties that must be available in the object in order to get a result.
+   */
+  get dependencies(): string[] => []
+
+  /**
+   * A precondition for the fact to be true. Something like 'children grow, but only until the age of 18' could be added here as 'age=>age<18'...
    */
   precondition: function?
 

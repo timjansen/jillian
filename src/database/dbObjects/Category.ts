@@ -21,33 +21,29 @@ DB_INDICES.set('subCategories', {type: 'category', property: 'superCategory', in
 
 export default class Category extends DbEntry {
   superCategory_jel_property: boolean;
-  instanceProperties_jel_property: boolean;
-  instanceDefaults_jel_property: boolean;
-  mixinProperties_jel_property: boolean;
+  factTypes_jel_property: boolean;
+  factDefaults_jel_property: boolean;
   
   superCategory: DbRef | null;
-	instanceProperties = new Dictionary(); // name->List of PropertyType
   static clazz: Class|undefined;
 
 	/**
 	 * Creates a new Category.
-	 * @param instanceDefaults a dictionary (name->any) of default values for Things of this category. 
-	 * @param instanceProperties a dictionary (name->list of PropertyType) to define category properties.
+	 * @param factTypes a dictionary (name->type definition) to define the facts' base types.
 	 *                           Allows shortcuts, see TypeHelper.
-	 * @param mixinProperties a dictionary (name->EnumValue of @PropertyTypeEnum) to define required and optional mixin 
-	 *    properties for Things.
+	 * @param instanceDefaults a dictionary (name->any) of root default values. Be careful with those and use sparingly, as these are root knowledge.
 	 */
-  constructor(distinctName: string, superCategory?: Category|DbRef, properties?: Dictionary, 
-							 public instanceDefaults = new Dictionary(),
-							 instanceProperties = new Dictionary(),
-							 public mixinProperties = new Dictionary(),
-							 reality?: DbRef, hashCode?: string) {
-    super('Category', distinctName, reality, hashCode, properties);
-		if (!distinctName.endsWith('Category'))
+  constructor(distinctName: string,
+              superCategory?: DbRef|Category,
+							public factTypes = new Dictionary(),
+							public factDefaults = new Dictionary(),
+              public reality?: DbRef) {
+    super('Category', distinctName);
+
+    if (!distinctName.endsWith('Category'))
 			throw new Error('By convention, all Category names must end with "Category". Illegal name: ' + distinctName);
 
     this.superCategory = superCategory ? (superCategory instanceof DbRef ? superCategory : new DbRef(superCategory)) : null; 
-		instanceProperties.elements.forEach((value, key)=>this.instanceProperties.elements.set(key, TypeHelper.convertFromAny(value, key)));
   }
   
   get clazz(): Class {
@@ -64,32 +60,6 @@ export default class Category extends DbEntry {
     return DB_INDICES;
   }
 	
-	member(ctx: Context, name: string): any {
-		const v = super.member(ctx, name);
-		if (v === undefined && this.superCategory)
-			return Util.resolveValue(this.superCategory.get(ctx), (c: any)=>c.member(ctx, name));
-		else
-			return v;
-	}
-
-	instanceDefault(ctx: Context, name: string): any {
-		if (this.instanceDefaults.elements.has(name)) {
-			return this.instanceDefaults.elements.get(name);
-		}
-		else if (this.superCategory)
-			return Util.resolveValue(this.superCategory.get(ctx), (c: any)=>c.instanceDefault(ctx, name));
-		else
-			return null;
-	}
-
-	instanceProperty(ctx: Context, name: string): EnumValue | Promise<EnumValue> | null {
-		if (this.instanceProperties.elements.has(name))
-			return this.instanceProperties.elements.get(name) as EnumValue | Promise<EnumValue>;
-		else if (this.superCategory)
-			return Util.resolveValue(this.superCategory.get(ctx), (c: any)=>c.instanceProperty(ctx, name));
-		else
-			return null;
-	}
 
 	isExtending_jel_mapping: Object;
 	isExtending(ctx: Context, otherCategory: string | JelString | DbRef): JelBoolean | Promise<JelBoolean> {
@@ -103,28 +73,20 @@ export default class Category extends DbEntry {
 	}
 	
   getSerializationProperties(): any[] {
-		return [this.distinctName, this.superCategory, this.properties, this.instanceDefaults, this.instanceProperties, this.mixinProperties, this.reality, this.hashCode];
+		return [this.distinctName, this.superCategory, this.factTypes, this.factDefaults, this.reality, this.hashCode];
   }
     
-  static create_jel_mapping = {distinctName: 1, superCategory: 2, properties: 3, 
-															 instanceDefaults: 4, instanceProperties: 5, mixinProperties: 6, 
-															 reality: 7, hashCode: 8};
+  static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]): any {
-    return new Category(TypeChecker.realString(args[0], 'distinctName'), args[1] instanceof DbRef ? args[1] : TypeChecker.optionalInstance(Category, args[1], 'superCategory') || undefined, 
-                        TypeChecker.optionalInstance(Dictionary, args[2], 'properties')||undefined, 
-                        TypeChecker.optionalInstance(Dictionary, args[3], 'instanceDefaults')||undefined, 
-                        TypeChecker.optionalInstance(Dictionary, args[4], 'instanceProperties')||undefined, 
-                        TypeChecker.optionalInstance(Dictionary, args[5], 'mixinProperties')||undefined, 
-                        TypeChecker.optionalDbRef(args[6], 'reality') as any||undefined, 
-                        TypeChecker.optionalRealString(args[7], 'hashCode')||undefined);
+    return new Category(TypeChecker.realString(args[0], 'distinctName'), TypeChecker.optionalInstance(DbRef, args[1], 'superCategory') || undefined, TypeChecker.instance(Dictionary, args[2], 'factTypes', Dictionary.empty), 
+                       TypeChecker.instance(Dictionary, args[3], 'factDefaults', Dictionary.empty), (TypeChecker.optionalDbRef(args[4], 'reality')||undefined) as any);
   }
 }
 
 Category.prototype.isExtending_jel_mapping = {category: 1}
 Category.prototype.superCategory_jel_property = true;
-Category.prototype.instanceProperties_jel_property = true;
-Category.prototype.instanceDefaults_jel_property = true;
-Category.prototype.mixinProperties_jel_property = true;
+Category.prototype.factTypes_jel_property = true;
+Category.prototype.factDefaults_jel_property = true;
 
 BaseTypeRegistry.register('Category', Category);
 

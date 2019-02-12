@@ -1,0 +1,14 @@
+/**
+ * The result from evaluating a Fact. It contains the (possibly computed) value of the property, the input parameters and a reference to the Fact that is the source of the data.
+ * The result may be a single value, but could also be a Range or Distribution.
+ */
+class FactResult
+  /**
+   * @param Fact The Fact that is the source of the data.
+   * @param value the (possibly computed) value. 
+   */
+  constructor(fact: SimpleType('Fact'), value: any) 
+  
+  
+
+  

@@ -3,6 +3,7 @@
  * The body of the lambda is ignored, and it will not be invoked.
  */
 native class FunctionType extends TypeDescriptor:
+
   native constructor(prototype: function?, allowUntyped: bool = false)
  
   override native checkType(value: any?): bool

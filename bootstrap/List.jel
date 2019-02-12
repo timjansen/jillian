@@ -3,7 +3,6 @@
  */ 
 native class List:
 
-
   /**
    * Returns true if there is at least one element in the list.
    */
@@ -100,23 +99,30 @@ native class List:
 
 
   /**
-   * Returns a sublist of this list.
+   * Returns a sublist of this list, using two indexes. See also subLen().
    * @param start the first index. If negative, it counts backwards from the end. If null, it starts at 0.
    * @param end the last index. If negative, it counts backwards from the end. If null, it ends at the end of the list.
    * @return the subset list. 
    */
   native sub(start: int?, end: int?): List
 
-
-  
   /**
-   * Sorts this list and returns a sorted version. 
+   * Returns a sublist of this list, with the specified length. See also sub().
+   * @param start the first index. If negative, it counts backwards from the end. If null, it starts at 0.
+   * @param length optional: the maximum number of elements to return. Returns everything if not set.
+   * @return the subset list. 
+   */
+  native subLen(start: int = 0, length: int(>=0)?): List
+
+  /**
+   * Sorts this list and returns a sorted version, ascending by default.
    * @param isLess optional: a function(a,b) that returns true if a is less than b. If not specified, the '<' operator is used.
    * @param key optional: either a property name of a property to use as sort key, or a function getKey(a) that retrieves the key
    *        to sort for the element.
+   * @param desc optional: if true, sorts in descending order. Default is ascending.
    * @return the sorted list
    */
-  native sort(isLess: function((a: any?, b: any?)=>any?)?, key: string|function((a: any?)=>any?)?): List
+  native sort(isLess: function((a: any?, b: any?)=>any?)?, key: string|function((a: any?)=>any?)?, desc: bool = false): List
 
   /**
    * Finds the largest element of this list and returns it.

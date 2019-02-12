@@ -3,11 +3,8 @@
  */
 native class Category extends DbEntry:
   native constructor(distinctName, 
-               superCategory: CategoryType()?,             
-							 properties = {},
-							 instanceDefaults: any?{} = {},
-							 instanceProperties: any?{} = {},
-							 mixinProperties: PropertyTypeEnum{} = {},
-               reality,                              // << TODO
-							 hashCode)
+               superCategory: category?,
+               factTypes: any{} = {},
+               factDefaults: any{} = {},
+               reality)
                

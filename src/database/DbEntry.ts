@@ -8,22 +8,25 @@ import DbIndexDescriptor from './DbIndexDescriptor';
 import DbRef from './DbRef';
 import JelString from '../jel/types/JelString';
 import List from '../jel/types/List';
+import TypeChecker from '../jel/types/TypeChecker';
 import BaseTypeRegistry from '../jel/BaseTypeRegistry';
 
 const tifu = require('tifuhash');
 
-// Base class for any kind of physical or immaterial instance of a category
-// Note that all references to other DbEntrys must be stored as a DbRef!!
+/**
+ * A base class for database entries that support Facts.
+ */
 export default class DbEntry extends NamedObject {
   reality_jel_property: boolean;
-  properties_jel_property: boolean;
+  facts_jel_property: boolean;
   
   isIDBEntry: boolean;
   static clazz: Class|undefined;
 
-  constructor(className: string, distinctName: string, public reality?: any, 
-							 hashCode: string = tifu.hash(distinctName), 
-							 public properties = new Dictionary()) {
+  constructor(className: string, distinctName: string,
+							public facts = new Dictionary(),
+              public reality?: DbRef,
+              hashCode: string = tifu.hash(distinctName)) {
     super(className, distinctName, hashCode);
   }
   
@@ -35,14 +38,6 @@ export default class DbEntry extends NamedObject {
   get databaseIndices(): Map<string, DbIndexDescriptor> {
     return new Map();
   }
-  
-	member(ctx: Context, name: string): any {
-		const v = super.member(ctx, name);
-		if (v === undefined && this.properties.elements.has(name))
-			return this.properties.get(ctx, name);
-		else
-			return v;
-	}
   
   toRef(): DbRef {
     return new DbRef(this);
@@ -59,30 +54,25 @@ export default class DbEntry extends NamedObject {
 			return f(v);
 	}
 		
-	// sets a property
-  set(ctx: Context, name: string, value: JelObject|null): DbEntry {
-		this.properties = this.properties.set(ctx, name, value);
-		return this;
-	}
-	
   getSerializationProperties(): any[] {
-    return [this.distinctName, this.reality, this.hashCode, this.properties];
+    return [this.distinctName, this.facts, this.reality, this.hashCode];
   }
 
-  static valueOf(distinctName: string, reality?: any, hashCode: string = tifu.hash(distinctName)): DbEntry {
-    return new DbEntry('DbEntry', distinctName, reality, hashCode);
+  static valueOf(distinctName: string, facts: Dictionary = Dictionary.empty, reality?: DbRef, hashCode: string = tifu.hash(distinctName)): DbEntry {
+    return new DbEntry('DbEntry', distinctName, facts, reality, hashCode);
   }
 
   
-  static create_jel_mapping : Object = {distinctName: 1, reality: 2, hashCode: 3, properties: 4};
+  static create_jel_mapping : Object = true;
   static create(ctx: Context, ...args: any[]): any {
-    return new DbEntry('DbEntry', JelString.toRealString(args[0]), args[1], JelString.toRealString(args[2]), args[3]);
+    return new DbEntry('DbEntry', TypeChecker.realString(args[0], 'distinctName'), TypeChecker.instance(Dictionary, args[1], 'facts'), 
+                       (TypeChecker.optionalDbRef(args[2], 'reality')||undefined) as any, TypeChecker.optionalRealString(args[3], 'hashCode')||undefined);
   }
 }
 
 DbEntry.prototype.isIDBEntry = true;
 DbEntry.prototype.reality_jel_property = true;
-DbEntry.prototype.properties_jel_property = true;
+DbEntry.prototype.facts_jel_property = true;
 
 BaseTypeRegistry.register('DbEntry', DbEntry);
 

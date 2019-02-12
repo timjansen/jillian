@@ -41,7 +41,13 @@ const BOOT_SCRIPT = [
     {jel: 'typeDescriptors/UnitValueQuantityType.jel', native: UnitValueQuantityType},
     {jel: 'typeDescriptors/UnitValueType.jel', native: UnitValueType}
   ],
-  {jel: 'objects/PropertyTypeEnum.jel'},
+  [
+    {jel: 'objects/FactRelationshipEnum.jel'},
+    {jel: 'objects/FactTypeEnum.jel'},
+    {jel: 'objects/PropertyTypeEnum.jel'},
+  ],
+  {jel: 'objects/Fact.jel'},
+  {jel: 'objects/FactList.jel'},
   {jel: 'objects/DbEntry.jel', native: DbEntry},
   {jel: 'objects/Category.jel', native: Category},
   [

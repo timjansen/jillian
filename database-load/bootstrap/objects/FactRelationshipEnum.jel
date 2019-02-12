@@ -1,0 +1,39 @@
+/**
+ * Describes the type of relationship between a 'source' property and a 'target' property.
+ */
+enum FactRelationshipEnum:
+  /**
+   * A linear relationship, so if the source changes by a factor 'n', the target will as well
+   */
+  PROPORTIONAL,  
+  /**
+   * An inverse proportional relationship, so if the source changes by a factor 'n', the target will change by 1/n
+   */
+  INVERSE_PROPORTIONAL,  
+  /**
+   * An absolute relationship, so if the source increased by 'n' points, the target will by 'n*x', with x being unknown
+   */
+  ABSOLUTE,  
+  /**
+   * An absolute relationship, so if the source increased by 'n' points, the target will by '-n*x', with x being unknown
+   */
+  INVERSE_ABSOLUTE,  
+  /**
+   * An unknown, exponential relationship. If the source increases, the target will as well. There is no upper limit for the target.
+   */
+  EXPONENTIAL,  
+  /**
+   * An unknown, logarithmic relationship. If the source increases, the target will as well, but there appears to be an upper limit for the target.
+   */
+  LOGARITHMIC,
+  INVERSE_EXPONENTIAL,  
+  INVERSE_LOGARITHMIC,
+  /**
+   * Direct relationship is unknown, but if the source increases, the target will as well.
+   */
+  UNKNOWN,
+  /**
+   * Direct relationship is unknown, but if the source increases, the target will decrease.
+   */
+  INVERSE_UNKNOWN
+  
