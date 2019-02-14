@@ -48,9 +48,20 @@ class Set:
 
 
   /**
-   * Returns the entry with the given key. If there is no such entry, it returns "defaultValue".
+   * Returns true if this Set contains the given value(s).
    */
-	has(key: String): bool => this.values.has(key)
+	has(values: Set|String|String[]): bool => 
+    if (values instanceof String) then
+      this.values.has(values)
+    else
+      values.hasOnly(v=>this.values.has(v))
+
+
+  /**
+   * Returns a set that contains all common elements.
+   */
+	findCommon(values: Set): Set => 
+    this.filter(v=>values.has(v))
 
 
   /**

@@ -53,12 +53,12 @@ export default class LambdaCallable extends Callable implements SerializablePrim
   
   private static invoke(ctx: Context, self: JelObject|undefined, superConstructor: LambdaCallable|undefined, argDefs: TypedParameterValue[], expression: JelNode, 
                          args: (JelObject|null)[], argObj: Map<string,JelObject|null>|undefined, returnType: TypedParameterValue|undefined, varArgPos: number): JelObject|null|Promise<JelObject|null> {
-		const newCtx = new Context(ctx);
+    const newCtx = new Context(ctx);
     const openPromises: any[] = [];
     const varArgs: (JelObject|null)[] = [];
     
     args.forEach((arg, i) => {
-      if (i >= varArgPos)      
+      if (i >= varArgPos)
         varArgs.push(arg);
       else {
         const argDef = argDefs[i];

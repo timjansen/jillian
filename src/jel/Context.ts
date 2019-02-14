@@ -18,6 +18,8 @@ export default class Context {
 		this.dbSession = dbSession || (parent && parent.dbSession);
 		this.translationDict = translationDict || (parent && parent.translationDict) || BaseTypeRegistry.get('Dictionary').create();
 		this.frame = new Map();
+    if (!this.parent)
+      this.frame.set('this', "(dummy this)");
 		this.frozen = false;
     this.staticScope = false;
 	}

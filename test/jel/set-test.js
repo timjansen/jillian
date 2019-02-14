@@ -59,6 +59,16 @@ describe('Set', function() {
     it('has has()', function() {
         jelAssert.equal('Set.of("foo", "bar").has("bar")', 'true'); 
         jelAssert.equal('Set.of("foo", "bar").has("nope")', 'false');
+
+        jelAssert.equal('Set.of("foo", "bar").has(Set.of("bar", "foo"))', 'true'); 
+        jelAssert.equal('Set.of("foo", "bar").has(Set.of("bar", "foo", "woo"))', 'false'); 
+        jelAssert.equal('Set.of("foo", "bar", "woo").has(Set.of("bar", "foo"))', 'true'); 
+        jelAssert.equal('Set.of("foo", "bar", "blip").has(Set.of("bar", "foo", "woo"))', 'false');
+
+        jelAssert.equal('Set.of("foo", "bar").has(["bar", "foo"])', 'true'); 
+        jelAssert.equal('Set.of("foo", "bar").has(["bar", "foo", "woo"])', 'false'); 
+        jelAssert.equal('Set.of("foo", "bar", "woo").has(["bar", "foo"])', 'true'); 
+        jelAssert.equal('Set.of("foo", "bar", "blip").has(["bar", "foo", "woo"])', 'false');
     });
     
     it('has add()', function() {

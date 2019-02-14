@@ -44,7 +44,7 @@ export default class Call extends CachableJelNode {
     const args = this.argList.map(a=>a.execute(ctx));
     if (this.namedArgs.length) {
       const argObjValues = this.namedArgs.map(a=>a.execute(ctx));
-      return resolveValueObj(objArgs=>Util.resolveArray(args, (listArgs: (JelObject|null)[])=>callable.invokeWithObject( undefined, listArgs, objArgs)), this.namedArgs, argObjValues);
+      return resolveValueObj(objArgs=>Util.resolveArray(args, (listArgs: (JelObject|null)[])=>callable.invokeWithObject(undefined, listArgs, objArgs)), this.namedArgs, argObjValues);
     }
     else
       return Util.resolveArray(args, (listArgs: (JelObject|null)[])=>callable.invokeWithObject( undefined, listArgs));
