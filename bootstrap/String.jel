@@ -19,6 +19,16 @@ native class String:
 	native contains(s: String): bool
 
   /**
+   * Check whether this string starts with the given other string.
+   */
+	native startsWith(s: String): bool
+
+  /**
+   * Check whether this string ends with the given other string.
+   */
+	native endsWith(s: String): bool
+
+  /**
    * Returns the character at the given position as a new string. Empty string if out of range.
    */
 	native get(index: int): String

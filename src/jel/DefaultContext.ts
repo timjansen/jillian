@@ -138,7 +138,8 @@ const BOOT_SCRIPT = [
     {jel: 'Distribution.jel', native: Distribution},
     {jel: 'ApproximateNumber.jel', native: ApproximateNumber},
     {jel: 'Translator.jel', native: Translator},
-    {jel: 'time/LocalDate.jel', native: LocalDate}
+    {jel: 'time/LocalDate.jel', native: LocalDate},
+    {jel: 'Set.jel'}
   ],
   [
     {jel: 'Math.jel', native: JelMath}, 

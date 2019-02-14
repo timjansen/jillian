@@ -104,6 +104,23 @@ describe('jelList', function() {
     });
   });
 
+  describe('add()', function() {
+    it('adds a single element', function() {
+      jelAssert.equal('[1, 3, 2, 9].add(100)', '[1, 3, 2, 9, 100]'); 
+      jelAssert.equal('[].add(32).add(null).add("foo")', '[32, null, "foo"]');
+      jelAssert.equal('[].add(32).add([null]).add(["foo", 33])', '[32, [null], ["foo", 33]]');
+    });
+  });
+
+  describe('addAll()', function() {
+    it('adds many elements', function() {
+      jelAssert.equal('[1, 3, 2, 9].addAll([])', '[1, 3, 2, 9]'); 
+      jelAssert.equal('[1, 3, 2, 9].addAll([100])', '[1, 3, 2, 9, 100]'); 
+      jelAssert.equal('[].addAll([1, 2, 3])', '[1, 2, 3]'); 
+      jelAssert.equal('[].addAll([32]).addAll([null]).addAll(["foo"]).addAll([]).addAll([1, 2, 3])', '[32, null, "foo", 1, 2, 3]');
+    });
+  });
+
   describe('map()', function() {
     it('maps', function() {
       jelAssert.equal('[3, 2, 9].map((a,i)=>a+i)', new List([3, 3, 11].map(Float.valueOf))); 
@@ -113,6 +130,14 @@ describe('jelList', function() {
     });
   });
 
+  describe('filterNull()', function() {
+    it('filters', function() {
+      jelAssert.equal('[3, null, null, 2, 9, null, 5, 2].filterNull()', '[3, 2, 9, 5, 2]'); 
+      jelAssert.equal('[null, null].filterNull()', '[]'); 
+      jelAssert.equal('[].filterNull()', '[]'); 
+    });
+  });
+  
   describe('filter()', function() {
     it('filters', function() {
       jelAssert.equal('[3, 2, 9, 5, 2].filter((a,i)=>a>=3)', new List([3, 9, 5].map(Float.valueOf))); 

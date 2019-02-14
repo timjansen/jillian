@@ -34,6 +34,16 @@ native class List:
 	native get(index: int): any?
   
   /**
+   * Returns this list with the given element appended to the end.
+   */ 
+	native add(value: any?): List
+  
+  /**
+   * Returns this list with the given elements appended to the end.
+   */ 
+	native addAll(value: List): List
+  
+  /**
    * Calls the given function for each list member and returns a new list containing the return values.
    */
   native map(f: function((element: any?, index: int(>=0))=>any?)): List
@@ -43,6 +53,11 @@ native class List:
    * (either a true boolean or any object with a toBoolean() method that converts to true).
    */
   native filter(f: function((element: any?, index: int(>=0))=>any?)): List
+	
+  /**
+   * Returns a new list that contains the same elements except null elements, which will be removed.
+   */
+  native filterNull(): any[]
 	
   /**
    * Calls the given function for each list member with the current member as first and the accumulator as second. The accumulator is the given "init" argument

@@ -33,6 +33,12 @@ native class Dictionary:
    */
 	native keys: String[]
 
+  /**
+   * Creates a dictionary from an array, setting all the values to the given default.
+   * @param keys the keys of the dictionary
+   * @param value the value for all keys
+   */
+  static native fromArray(keys: String[], value: any = true)
 
   /**
    * Returns the entry with the given key. If there is no such entry, it returns "defaultValue".

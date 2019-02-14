@@ -39,6 +39,18 @@ export default class JelString extends NativeJelObject implements SerializablePr
 				case '!=': 
 				case '!==': 
 					return JelBoolean.valueOf(this.value !== right.value);
+				case '>': 
+				case '>>': 
+          return JelBoolean.valueOf(this.value > right.value);
+				case '<':
+        case '<<': 
+					return JelBoolean.valueOf(this.value < right.value);
+				case '>=': 
+				case '>==': 
+          return JelBoolean.valueOf(this.value >= right.value);        
+				case '<=': 
+				case '<==': 
+					return JelBoolean.valueOf(this.value <= right.value);
 			};
 		}
 		else {
@@ -64,6 +76,18 @@ export default class JelString extends NativeJelObject implements SerializablePr
 	contains(ctx: Context, s0: any): boolean {
     const s = TypeChecker.realString(s0, 's');
 		return this.value.includes(s);
+	}
+  
+  startsWith_jel_mapping: boolean;
+	startsWith(ctx: Context, s0: any): boolean {
+    const s = TypeChecker.realString(s0, 's');
+		return this.value.startsWith(s);
+	}
+  
+  endsWith_jel_mapping: boolean;
+	endsWith(ctx: Context, s0: any): boolean {
+    const s = TypeChecker.realString(s0, 's');
+		return this.value.endsWith(s);
 	}
   
   get_jel_mapping: boolean;
@@ -121,6 +145,8 @@ JelString.prototype.toBoolean_jel_mapping = true;
 JelString.prototype.length_jel_property = true;
 JelString.prototype.trim_jel_mapping = true;
 JelString.prototype.contains_jel_mapping = true;
+JelString.prototype.startsWith_jel_mapping = true;
+JelString.prototype.endsWith_jel_mapping = true;
 JelString.prototype.get_jel_mapping = true;
 JelString.prototype.unicodeAt_jel_mapping = true;
 

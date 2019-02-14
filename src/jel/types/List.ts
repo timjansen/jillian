@@ -157,7 +157,13 @@ export default class List extends NativeJelObject implements SerializablePrimiti
 				newList.push(e);
 		}, ()=>new List(newList));
 	}
-	
+
+	filterNull_jel_mapping: Object;
+	filterNull(ctx: Context): Promise<List> | List {
+    return List.valueOf(this.elements.filter(e=>e!=null)); 
+	}
+
+  
 	reduce_jel_mapping: Object;
 	reduce(ctx: Context, f0: any, init: any): Promise<any> | any {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
@@ -312,6 +318,19 @@ export default class List extends NativeJelObject implements SerializablePrimiti
     return new List(this.elements.slice(s, len == null ? this.elements.length : s+len));
   }
 
+  add_jel_mapping: Object;
+	add(ctx: Context, value: any) {
+    const p = this.elements.concat();
+    p.push(value);
+    return new List(p);
+  }
+  
+  
+  addAll_jel_mapping: Object;
+	addAll(ctx: Context, list0: any) {
+    const list = TypeChecker.instance(List, list0, 'list');
+    return new List(this.elements.concat(list.elements));
+  }
   
 	private partition(ctx: Context, l: any[], start: number, end: number, isLess: (a: any, b: any)=>boolean|Promise<boolean>): number | Promise<number> {
 		function swap(a: number, b: number): void {
@@ -490,7 +509,7 @@ export default class List extends NativeJelObject implements SerializablePrimiti
 	}
   
  	static valueOf(a: any[]): List {
-		return new List(a);
+		return a.length == 0 ? List.empty : new List(a);
 	}
 
  	static wrap(a: any): List {
@@ -516,9 +535,12 @@ List.prototype.isEmpty_jel_property = true;
 
 
 List.prototype.get_jel_mapping = true;
+List.prototype.add_jel_mapping = true;
+List.prototype.addAll_jel_mapping = true;
 List.prototype.each_jel_mapping = true;
 List.prototype.map_jel_mapping = true;
 List.prototype.filter_jel_mapping = true;
+List.prototype.filterNull_jel_mapping = true;
 List.prototype.reduce_jel_mapping = true;
 List.prototype.hasAny_jel_mapping = true;
 List.prototype.contains_jel_mapping = true;

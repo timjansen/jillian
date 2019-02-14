@@ -84,7 +84,13 @@ describe('jelDictionary', function() {
       jelAssert.equal('Dictionary.empty.size', 0);
     });
   });
-
+  
+  describe('fromArray()', function() {
+    it('creates', function() {
+      jelAssert.equalPromise('Dictionary.fromArray(["v", "b"])', '{v: true, b: true}'); 
+      jelAssert.equalPromise('Dictionary.fromArray(["v", "b"], 10)', '{v: 10, b: 10}'); 
+    });
+  });
   
   describe('map()', function() {
     it('maps', function() {
@@ -196,7 +202,7 @@ describe('jelDictionary', function() {
   describe('keys', function() {
     it('keys', function() {
       assert.deepEqual(new JEL('{}.keys').executeImmediately(ctx).elements, []); 
-      assert.deepEqual(new JEL('{a: 2, b: 9}.keys').executeImmediately(ctx).elements, ['a', 'b']); 
+      assert.deepEqual(new JEL('{a: 2, b: 9}.keys').executeImmediately(ctx).elements.map(e=>e.value), ['a', 'b']); 
     });
   });
 

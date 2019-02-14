@@ -37,7 +37,7 @@ export default class Lambda extends CachableJelNode {
 	}
 	
   isStaticUncached(ctx: Context): boolean {
-    return !this.args.find(a=>!a.isStatic(ctx)) && (!this.returnType || this.returnType.isStatic(ctx));
+    return this.expression.isStatic(ctx) && !this.args.find(a=>!a.isStatic(ctx)) && (!this.returnType || this.returnType.isStatic(ctx));
   }
   
   flushCache(): void {

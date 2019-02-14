@@ -1,0 +1,147 @@
+/**
+ * Represents an unordered collection of strings. 
+ */ 
+class Set:
+  /**
+   * An empty Set.
+   */
+  static empty = Set.of()
+
+  /**
+   * Returns the number of elements in the Set.
+   */
+	size: int(>=0)
+
+  /**
+   * Returns true if there are no elements in the Set.
+   */
+  isEmpty: bool
+
+  /**
+   * The backend for the data
+   */
+  private values: Dictionary
+
+
+  /**
+   * Creates a new Set from either a string list, or a Dictionary's keys.
+   */
+  constructor(init: String[]|Dictionary) =>
+    let values = if init instanceof Dictionary then init else Dictionary.fromArray(init):
+      {
+        values,
+        size: values.size,
+        isEmpty: values.isEmpty
+      }
+
+
+  /**
+   * Creates a new Set using varargs.
+   */
+  static of(...args: String[]): Set => Set(args)
+
+
+  /**
+   * Converts the set to a list (with undefined order).
+   */
+  toList(): String[] => this.values.keys
+
+
+  /**
+   * Returns the entry with the given key. If there is no such entry, it returns "defaultValue".
+   */
+	has(key: String): bool => this.values.has(key)
+
+
+  /**
+   * Returns a new Set with the given additional value.
+   * Note that this is a relatively expensive o(n) operation, depending on the Dictionary size.
+   */
+  add(value: String): Set => 
+    if this.values.has(value) then
+      this
+    else
+      Set(this.values.set(value, true))
+
+
+  /**
+   * Returns a new Set with the given additional values.
+   * Note that this is a relatively expensive o(n) operation, depending on the Dictionary size.
+   */
+  addAll(values: Set|String[]): Set => 
+    if values instanceof Set then
+      Set(this.values.setAll(values.values))
+    else
+      Set(this.toList().addAll(values))
+
+
+  /**
+   * Returns a new Set that has the given value removed. 
+   * Note that this is a relatively expensive o(n) operation, depending on the Dictionary size.
+   */
+  delete(value: String): Set =>
+    if this.values.has(value) then
+      Set(this.values.delete(value)) 
+    else
+      this
+  
+  /**
+   * Returns a new Set that has all values given values removed. If a Dictionary is given, it will return all its keys from this Dictionary.
+   */
+  deleteAll(values: Set|Dictionary|string[]): Set => 
+    if values instanceof Set then
+      this.deleteAll(values.values)
+    else
+      Set(this.values.deleteAll(values)) 
+
+
+  /**
+   * Calls the given function for each element of this Set to create a new Set contains all the keys returned by the map function. Duplicate keys will be automatically removed.
+   * Nulls will be ignored. 
+   */
+  map(f: function((value: String, index: int(>=0))=>String?)): Set =>
+    Set(this.values.mapToList((k, v, i)=>f(k, i)).filterNull())
+
+
+
+  /**
+   * Calls the given function for each element of this Set to create a new List which contains the return values of the function.
+   */
+  mapToList(f: function((value: String, index: int(>=0))=>any?)): List =>
+    this.values.mapToList((k, v, i)=>f(k, i))
+
+
+  /**
+   * Calls the given function for each element of this Dictionary to create a new Dictionary that contains only those values the function returned true for.
+   */
+  filter(f: function((key: String, value: any?, index: int(>=0))=>any?)): Set =>
+    Set(this.values.filter((k,v,i)=>f(k,i)))
+
+
+  /**
+   * Calls the given function for each element with the value as first argument, and the accumulator as second. The accumulator is the given "init" argument
+   * on the first invocation, and the last result on all further invocations.
+   * @return the return value returned by the last callback invocation
+   */
+  reduce(f: function((acc: any?, value: String, index: int(>=0))=>any?), init: any?): any? =>
+    this.values.reduce((accf, k, v, i) => f(accf, k, i), init)
+
+
+  /**
+   * Checks whether any element fulfills the given condition. To do this, it calls the given 
+   * function for each member until it returns true for any of them.
+   * @return true if the callback function returned true once, false otherwise.
+   */
+  hasAny(f: function((value: any?, index: int(>=0))=>any?)): bool =>
+    this.values.hasAny((k,v, i)=>f(k, i))
+
+
+  /**
+   * Checks whether all elements fulfill the given condition. To do this, it calls the given 
+   * function for each member until it returns false for any of them.
+   * @return false if the callback function returned false once, true otherwise.
+   */
+  hasOnly(f: function((value: any?, index: int(>=0))=>any?)): bool =>
+    this.values.hasOnly((k,v, i)=>f(k, i))
+
+  

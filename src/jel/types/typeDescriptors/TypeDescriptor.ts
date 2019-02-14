@@ -28,7 +28,7 @@ export default abstract class TypeDescriptor extends NativeJelObject {
    */
   convert_jel_mapping: Object;
   convert(ctx: Context, value: JelObject|null, fieldName=''): JelObject|null|Promise<JelObject|null> {
-    return Util.resolveValue(this.checkType(ctx, value), (b: JelBoolean)=>b.toRealBoolean() ? value : Promise.reject(new Error(`Failed to convert${fieldName?" '"+fieldName+"'":''} to ${this.serializeType()}. Value ${value&&value.toString()} is not compatible.`)));
+    return Util.resolveValue(this.checkType(ctx, value), (b: JelBoolean)=>b.toRealBoolean() ? value : Promise.reject(new Error(`Failed to convert${fieldName?" '"+fieldName+"'":''} to ${this.serializeType()}. Value ${value&&value.toString()} with type ${value&&value.className} is not compatible.`)));
   }
 
   /**

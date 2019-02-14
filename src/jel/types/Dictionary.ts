@@ -44,7 +44,14 @@ export default class Dictionary extends NativeJelObject implements SerializableP
   get clazz(): Class {
     return Dictionary.clazz!;
   }
-
+  
+  static fromArray_jel_mapping = true;
+  static fromArray(ctx: Context, keys: List, value: any) {
+    const d = new Map();
+    for (let key of keys.elements) 
+      d.set(TypeChecker.realString(key, 'keys'), value);
+    return new Dictionary(d, true);
+  }
 
 	
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
@@ -202,7 +209,7 @@ export default class Dictionary extends NativeJelObject implements SerializableP
 
   keys_jel_property: boolean;
 	get keys(): List {
-		return new List(this.elements.keys());
+		return new List(Array.from(this.elements.keys()).map(e=>JelString.valueOf(e)));
 	}
 
 	each_jel_mapping: boolean;
