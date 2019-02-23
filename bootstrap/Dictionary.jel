@@ -62,9 +62,9 @@ native class Dictionary:
   native set(key: String, value: any?): Dictionary
 
   /**
-   * Returns a new Dictionary that has all values of the other Dictionary copied over.
+   * Returns a new Dictionary that has all values of the other Dictionary copied over the current entries.
    */
-  native setAll(other: Dictionary): Dictionary
+  native setAll(other: Dictionary?): Dictionary
   
 
   /**

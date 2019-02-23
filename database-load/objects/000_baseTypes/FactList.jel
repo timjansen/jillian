@@ -1,5 +1,0 @@
-class FactList
-  bestFact: int  // index of the best valid fact in the list as shortcut
-  facts: Fact[]
-
-  

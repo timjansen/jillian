@@ -5,6 +5,6 @@ native class Category extends DbEntry:
   native constructor(distinctName, 
                superCategory: category?,
                factTypes: any{} = {},
-               factDefaults: any{} = {},
+               facts = {},
                reality)
                

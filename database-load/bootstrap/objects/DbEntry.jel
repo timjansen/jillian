@@ -7,10 +7,21 @@ native class DbEntry:
                reality: thing?,               // <<< TODO
 							 hashCode: string?)
                
-               
-private evalFactCondition(fact: Fact): bool => true  // TODO
-
-getBestFacts(name: string, currentTime: time, reality: any?, metaProperties: any{}?, max: int(>=0)?): Fact[] =>
+ 
+// evaluate dependencies
+private getDependencies(fact: Fact, currentTime: time, reality: any, metaProperties: any{}?, excludedProperties: Set?): any{}? => 
+  if fact.dependencies.isEmpty then Set.empty
+  if excludedProperties && !fact.dependencies.findCommon(excludedProperties).isEmpty then null
+    
+  let r = fact.dependencies.mapToDictionary(prop=>this.getBestSingleValue(prop, time, reality, metaProperties, excludedProperties=fact.dependencies.setAll(excludedProperties))):
+    if r.hasAny((k,v)=>v==null) then null else r
+  
+// evaluate condition
+private checkPrecondition(fact: Fact, deps: any{}): bool => 
+  if fact.precondition then fact.precondition.call(deps)
+  
+  
+getBestFacts(name: string, currentTime: time, reality: any?, metaProperties: any{}?, max: int(>=0)?, excludedProperties: Set?): Fact[] =>
   let fl = this.facts.get(name):
     if !fl then 
       []
@@ -18,11 +29,27 @@ getBestFacts(name: string, currentTime: time, reality: any?, metaProperties: any
       fl.getBestFacts(filter = f=>(if f.startTime then f.startTime <= currentTime) &&
                                   (if f.endTime then f.endTime > currentTime) && 
                                   (if reality then reality == f.reality) &&
-                                  this.evalFactCondition(f),
+                                  (
+                                    let deps = this.getDependencies(f):
+                                      deps != null && this.checkPrecondition(f, deps)
+                                  ),
                      max = max)
 
 
-getBestValues(name: string, currentTime: time, reality: any, metaProperties: any{}?, max: int(>=0)?): FactResult[] => []
+getBestValues(name: string, currentTime: time, reality: any, metaProperties: any{}?, max: int(>=0)?, excludedProperties: Set?): FactResult[] =>
+  this.getBestFacts(name, currentTime, reality, metaProperties, null, excludedProperties)
+    .map(f=>let r = f.getValue(this.getDependencies(f, currentTime, reality, metaProperties, excludedProperties)):
+      if r != null then FactResult(f, r) else null)
+    .filterNull()
+    .subLen(length=max)
 
-getBestValue(name: string, currentTime: time, reality: any, metaProperties: any{}?): FactResult? => null
+getBestValue(name: string, currentTime: time, reality: any, metaProperties: any{}?, excludedProperties: Set?): FactResult? => 
+  this.getBestValues(name, currentTime, reality, metaProperties, 1, excludedProperties)[0]
+
+getBestSingleValue(name: string, currentTime: time, reality: any, metaProperties: any{}?, excludedProperties: Set?): FactResult? => null
+  this.getBestFacts(name, currentTime, reality, metaProperties, null, excludedProperties)
+    .map(f=>let r = f.getSingleValue(this.getDependencies(f, currentTime, reality, metaProperties, excludedProperties)):
+      if r != null then FactResult(f, r) else null)
+    .filterNull()
+    .subLen(length=max)
 

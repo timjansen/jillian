@@ -148,13 +148,17 @@ export default class List extends NativeJelObject implements SerializablePrimiti
 	}
 
 	filter_jel_mapping: Object;
-	filter(ctx: Context, f0: any): Promise<List> | List {
+	filter(ctx: Context, f0: any, max0: any): Promise<List> | List {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
+		const max: number|null = TypeChecker.optionalRealNumber(max0, 'max');
 		const newList: any[] = [];
 
 		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(undefined, e, Float.valueOf(i)), (v, e)=> {
-			if (JelBoolean.toRealBoolean(v))
+			if (JelBoolean.toRealBoolean(v) && (max==null || newList.length < max))
 				newList.push(e);
+
+      if (max != null && newList.length >= max)
+        return false;
 		}, ()=>new List(newList));
 	}
 

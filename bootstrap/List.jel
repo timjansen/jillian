@@ -51,8 +51,10 @@ native class List:
   /**
    * Calls the given function for each list member and returns a new list containing only those values for which is returned a true value 
    * (either a true boolean or any object with a toBoolean() method that converts to true).
+   * @param f the filter function
+   * @param max optional: the maximum number of results
    */
-  native filter(f: function((element: any?, index: int(>=0))=>any?)): List
+  native filter(f: function((element: any?, index: int(>=0))=>any?), max: int(>=0)?): List
 	
   /**
    * Returns a new list that contains the same elements except null elements, which will be removed.

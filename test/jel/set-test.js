@@ -121,6 +121,10 @@ describe('Set', function() {
         jelAssert.equal('Set.of("foo", "bar", "bla", "blup", "meow").mapToList(s=>if s.startsWith("b") then null else s+"!").sort()', '["foo!", "meow!", null, null, null]'); 
     });
     
+    it('has mapToDictionary()', function() {
+        jelAssert.equal('Set.of("foo", "bar").mapToDictionary(s=>s+"!")', '{foo: "foo!", bar: "bar!"}'); 
+    });
+    
     it('has filter()', function() {
         jelAssert.equal('Set.of("foo", "bar", "bla", "blup", "meow").filter(s=>!s.startsWith("b")).toList().sort()', '["foo", "meow"]'); 
     });

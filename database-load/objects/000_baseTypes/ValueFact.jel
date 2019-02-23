@@ -3,10 +3,13 @@
  */
 class ValueFact extends Fact
   /**
-   * The value that represents the fact's actual value.
+   * @param values The value that represents the fact's actual value.
    */
-  value: any
+  constructor(value: any)
 
-  override checkValue(v: any): bool =>
-    v == this.value
+  override checkValue(v: any, dependencies: any{}): bool => v == this.value
 
+  override getValue(dependencies: any{}): any? => this.value
+  
+  override getSingleValue(dependencies: any{}): any? => this.value
+    

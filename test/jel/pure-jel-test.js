@@ -287,6 +287,19 @@ describe('JEL', function() {
       assert.equal(new JEL('if false then 7').executeImmediately().state, 1);
     });
 
+        
+   it('supports conditions with implicit else', function() {
+      jelAssert.equal(new JEL('if true then 1 let a = 7: a').executeImmediately(), 1);
+      jelAssert.equal(new JEL('if false then 1 let a = 7: a').executeImmediately(), 7);
+      jelAssert.equal(new JEL('if true then 1 with 1<2: 7').executeImmediately(), 1);
+      jelAssert.equal(new JEL('if false then 1 with 1<2: 7').executeImmediately(), 7);
+      jelAssert.equal(new JEL('if true then 1 if true then 2 else 3').executeImmediately(), 1);
+      jelAssert.equal(new JEL('if false then 1 if true then 2 else 3').executeImmediately(), 2);
+      jelAssert.equal(new JEL('if false then 1 if false then 2 else 3').executeImmediately(), 3);
+      jelAssert.equal(new JEL('if false then 1 if false then 2 if false then 3 if false then 4 else 5').executeImmediately(), 5);
+    });
+
+    
     it('supports list literals using the regular syntax []', function() {
       assert(new JEL('[]').executeImmediately() instanceof JelList);
       assert.deepEqual(new JEL('[]').executeImmediately().elements, []);

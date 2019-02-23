@@ -142,6 +142,11 @@ describe('jelList', function() {
     it('filters', function() {
       jelAssert.equal('[3, 2, 9, 5, 2].filter((a,i)=>a>=3)', new List([3, 9, 5].map(Float.valueOf))); 
     });
+    it('filters with limit', function() {
+      jelAssert.equal('[3, 2, 9, 5, 2].filter((a,i)=>a>2, 100)', new List([3, 9, 5].map(Float.valueOf))); 
+      jelAssert.equal('[3, 2, 9, 5, 2].filter((a,i)=>a>2, 2)', new List([3, 9].map(Float.valueOf))); 
+      jelAssert.equal('[3, 2, 9, 5, 2].filter((a,i)=>a>2, 0)', new List([].map(Float.valueOf))); 
+    });
     it('filters promises', function() {
       return jelAssert.equalPromise('[7, 3, 2, 7, 5, 3, 6, 9, 8, 1, 2, 11, 23].filter((a,i)=>if i%2==0 then a>3 else JelPromise(a>3))', new List([7, 7, 5, 6, 9, 8, 11, 23].map(Float.valueOf))); 
     });

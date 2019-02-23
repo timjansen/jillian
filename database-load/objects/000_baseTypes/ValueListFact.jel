@@ -4,18 +4,21 @@
  */
 class ValueListFact extends Fact
   /**
-   * A list of values, one of those should be the right one.
+   * @param values A list of values, one of those should be the right one.
    * (unless 'negative' is set, then it this is a list of values that are not the right one)
+   * @param negative If true, the value list contains values that are not the right one.
    */
-  values: any[]
-  /**
-   * If true, the value list contains values that are not the right one.
-   */
-  negative: bool
+  constructor(values: any[], negative: bool = false)
 
-  override checkValue(v: any): bool =>
+  override checkValue(v: any, dependencies: any{}): bool =>
     if this.negative then
       !(v in this.values) 
     else 
       v in this.values
-    
+ 
+  override getValue(dependencies: any{}): any? => if this.negative then null else this.values
+
+  override getSingleValue(dependencies: any{}): any? => null
+ 
+ 
+ 

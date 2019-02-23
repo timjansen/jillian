@@ -33,11 +33,17 @@ export default abstract class Callable extends NativeJelObject {
   abstract getArguments(): any[]|undefined; // returns array of TypedParameterValue, if there is any typing
   abstract getReturnType(): any|undefined;  // TypedParameterValue or undefined
 
+  // callable via Jel
+  call(ctx: Context, objArgs: any): any {
+    return this.invokeWithObject(undefined, [], objArgs.elements);
+  }
+
 }
 
 const p: any = Callable.prototype;
 p.invoke_jel_mapping = true;
 p.getArguments_jel_mapping = true;
 p.getReturnType_jel_mapping = true;
+p.call_jel_mapping = true;
 
 BaseTypeRegistry.register('Callable', Callable);

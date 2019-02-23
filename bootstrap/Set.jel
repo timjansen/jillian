@@ -48,7 +48,7 @@ class Set:
 
 
   /**
-   * Returns true if this Set contains the given value(s).
+   * Returns true if this Set contains all the given value(s).
    */
 	has(values: Set|String|String[]): bool => 
     if (values instanceof String) then
@@ -79,11 +79,13 @@ class Set:
    * Returns a new Set with the given additional values.
    * Note that this is a relatively expensive o(n) operation, depending on the Dictionary size.
    */
-  addAll(values: Set|String[]): Set => 
+  addAll(values: Set|String[]?): Set => 
     if values instanceof Set then
       Set(this.values.setAll(values.values))
-    else
+    if values != null then
       Set(this.toList().addAll(values))
+    else
+      this
 
 
   /**
@@ -114,13 +116,18 @@ class Set:
     Set(this.values.mapToList((k, v, i)=>f(k, i)).filterNull())
 
 
-
   /**
    * Calls the given function for each element of this Set to create a new List which contains the return values of the function.
    */
   mapToList(f: function((value: String, index: int(>=0))=>any?)): List =>
     this.values.mapToList((k, v, i)=>f(k, i))
 
+
+  /**
+   * Calls the given function for each element of this Set to create a new Dictionary which contains this Set as keys and the return values of the function as values.
+   */
+  mapToDictionary(f: function((value: String, index: int(>=0))=>any?)): Dictionary =>
+    if this.isEmpty then {} else this.values.map((k, v, i)=>f(k, i))
 
   /**
    * Calls the given function for each element of this Dictionary to create a new Dictionary that contains only those values the function returned true for.

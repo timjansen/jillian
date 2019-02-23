@@ -118,7 +118,7 @@ const TRANSLATOR_PATTERN_STOP = {'=>': true};
 const TRANSLATOR_LAMBDA_STOP = {',': true, '}': true};
 const PARAMETER_STOP: any = {')': true, ',': true};
 const IF_STOP = {'then': true};
-const THEN_STOP = {'else': true};
+const THEN_STOP: any = {'else': true, 'let': true, 'with': true, 'if': true, 'class': true, 'enum': true, abstract: true, static: true, native: true, override: true, private: true};
 const LET_STOP = {':': true, ',': true};
 const WITH_STOP = {':': true, ',': true};
 const CLASS_EXTENDS_STOP = {':': true, ',': true, identifier: true, abstract: true, static: true, native: true, override: true, private: true};
@@ -298,7 +298,7 @@ export default class JEL {
       JEL.expectOp(tokens, IF_STOP, "Expected 'then'");
       const allStop = Object.assign({}, THEN_STOP, stopOps);
       const thenV = JEL.parseExpression(tokens, IF_PRECEDENCE, allStop);
-      if (tokens.nextIf(TokenType.Operator, 'else'))
+      if (tokens.peekIs(TokenType.Operator) && (tokens.nextIf(TokenType.Operator, 'else') || THEN_STOP[tokens.peek().value]))
         return JEL.tryBinaryOps(tokens, new Condition(firstToken, cond, thenV, JEL.parseExpression(tokens, IF_PRECEDENCE, stopOps)), precedence, stopOps);
       else
         return JEL.tryBinaryOps(tokens, new Condition(firstToken, cond, thenV, TRUE_LITERAL), precedence, stopOps);
@@ -446,7 +446,7 @@ export default class JEL {
 			const name = JEL.nextIsOrThrow(tokens, TokenType.Identifier, `Expected identifier for ${errorParamName}.`);
 			if (/(^_$)|::/.test(name.value))
 				JEL.throwParseException(name || tokens.last(), `Illegal name ${name.value}, a ${errorParamName} must not contain a double-colon ('::') or be the underscore.`);
-			const eq = JEL.expectOp(tokens, EQUAL, "Expected equal sign after variable name.");
+			const eq = JEL.expectOp(tokens, EQUAL, `Expected equal sign after variable name.` + (tokens.peek().value == ':' ? ' Type annotations are not allowed here.': ''));
 			const expression = JEL.parseExpression(tokens, precedence, stop);
 			if (!expression)
 				JEL.throwParseException(eq, "Expression ended unexpectedly.");

@@ -3,10 +3,14 @@
  */
  class ValueDistributionFact extends Fact
   /**
-   * The range of possible values.
+   * @param values The range of possible values.
    */
-  values: Distribution
+  constructor(values: Distribution)
 
-  override checkValue(v: any): bool =>
+  override checkValue(v: any, dependencies: any{}): bool =>
     v in this.values.range
 
+  override getValue(dependencies: any{}): any? => this.values
+  
+  override getSingleValue(dependencies: any{}): any? => if this.values.min == this.values.max then this.values.min else null
+  

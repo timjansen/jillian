@@ -1,4 +1,10 @@
 abstract class Callable:
 
-  abstract getArguments(): any[]?
-  abstract getReturnType(): any? 
+  abstract getArguments(): TypedParameterValue[]?
+  abstract getReturnType(): TypedParameterValue? 
+
+  /**
+   * Invokes the given callable, with the parameters taken from the object. All other arguments are null.
+   * The context of the callable ('this') will always be null.
+   */
+  abstract call(argObj: any?{}): any?
