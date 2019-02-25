@@ -1,9 +1,7 @@
 class FactList
   static FilterFunc = function((element: any?, index: int(>=0))=>any?, true)
 
-  bestFact: int  // index of the best valid fact in the list as shortcut
-  facts: Fact[]
-
+  constructor(facts: Fact[])
 
   getBestFacts(filter: FilterFunc?, max: int(>=0)?): Fact[] =>
     let sorted = this.facts.sort(key='trustLevel', desc=true):
@@ -11,7 +9,7 @@ class FactList
       else if max != null then sorted.subLen(length=max)
       else sorted
 
-getBestFact(filter: FilterFunc?): Fact? =>
-    let filtered = if filter then this.facts.filter(filter) else this.facts:
-        filtered.max(key='trustLevel')
+  getBestFact(filter: FilterFunc?): Fact? =>
+      let filtered = if filter then this.facts.filter(filter) else this.facts:
+          filtered.max(key='trustLevel')
 

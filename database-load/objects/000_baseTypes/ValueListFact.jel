@@ -8,7 +8,7 @@ class ValueListFact extends Fact
    * (unless 'negative' is set, then it this is a list of values that are not the right one)
    * @param negative If true, the value list contains values that are not the right one.
    */
-  constructor(values: any[], negative: bool = false)
+  constructor(values: any[], negative: bool = false, owner, transcript, transscriptSentence, creator, type, trustLevel, reality, startTime, endTime, precondition)
 
   override checkValue(v: any, dependencies: any{}): bool =>
     if this.negative then

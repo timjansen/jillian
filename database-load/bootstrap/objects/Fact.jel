@@ -52,14 +52,14 @@ abstract class Fact
   endTime: time?             // the time the Fact ends, exclusive
 
   /**
-   * A list of properties that must be available in the object in order to get a result.
-   */
-  get dependencies(): Set => Set.empty
-
-  /**
    * A precondition for the fact to be true. Something like 'children grow, but only until the age of 18' could be added here as 'age=>age<18'...
    */
   precondition: function?
+
+  /**
+   * A list of properties that must be available in the object in order to get a result.
+   */
+  get dependencies(): Set => Set.empty
 
   /**
    * Checks whether the given value for the property is either the same value or compatible with the fact's value.

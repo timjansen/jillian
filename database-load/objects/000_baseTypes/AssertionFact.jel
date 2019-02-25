@@ -8,16 +8,16 @@
  *  * currentDate - the date/time for which the assertion should be validated, as ZonedDateTime
  *  * currentLocation - the current location which is being validated, as Geo::ElevatedPosition
  */
-class AssertionFact extends Fact
+class AssertionFact extends FunctionFact
   firstArgName: string
 
-  override checkValue(v: any, dependencies: any{}): bool => this.assertion.call(dependencies.set(this.firstArgName, v))
+  override checkValue(v: any, dependencies: any{}): bool => this.func.call(dependencies.set(this.firstArgName, v))
   override getValue(dependencies: any{}): any? => null
   override getSingleValue(dependencies: any{}): any? => null
   
-  constructor(assertion: function) => 
+  constructor(func, owner, transcript, transscriptSentence, creator, type, trustLevel, reality, startTime, endTime, precondition) => 
     {
-      firstArgName: assertion.getArguments().first.name
+      firstArgName: func.getArguments().first.name
     }
     
   

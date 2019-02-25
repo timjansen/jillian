@@ -6,16 +6,15 @@
  *  - currentDate: the date/time for which the assertion should be validated, as ZonedDateTime
  *  - currentLocation: the current location which is being validated, as Geo::ElevatedPosition
  */
-class CalculatedFact extends Fact
+class CalculatedFact extends FunctionFact
   /**
    * The function to calculate the fact. See above for description of possible arguments.
    */
-  constructor(f: function)
+  constructor(func, owner, transcript, transscriptSentence, creator, type, trustLevel, reality, startTime, endTime, precondition)
 
-  override checkValue(v: any, dependencies: any{}): bool =>  == this.f.call(dependencies) == v
+  override checkValue(v: any, dependencies: any{}): bool =>  == this.func.call(dependencies) == v
   
-  override getValue(dependencies: any{}): any? => this.f.call(dependencies)
+  override getValue(dependencies: any{}): any? => this.func.call(dependencies)
   
   override getSingleValue(dependencies: any{}): any? => this.getValue(dependencies)
-  
   

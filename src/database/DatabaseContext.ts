@@ -54,7 +54,7 @@ const BOOT_SCRIPT = [
     {jel: 'objects/DbRef.jel', native: DbRef},
     {jel: 'objects/MixinProperty.jel', native: MixinProperty},
     {jel: 'objects/Thing.jel', native: Thing}
-  ]
+  ],
 ];
 
 const BOOTSTRAP_DIR = path.join(__dirname, '../../database-load/bootstrap/');

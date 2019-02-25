@@ -1,8 +1,0 @@
-/**
- * Helper for handling facts
- */
-class FactHelper
-  /**
-   * Creates a Dictionary of root facts.
-   */
-  static createRootFacts(dict: any{}): Fact{}

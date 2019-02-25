@@ -1,0 +1,7 @@
+/**
+ * A Fact that needs to evalute a function.
+ */
+abstract class Fact
+  func: function
+  
+  override get dependencies(): Set => this.func.getArguments().map(t=>t.name)
