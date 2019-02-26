@@ -1,4 +1,5 @@
 Thing('Force', @QuantityCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		primaryUnit: @Newton
-})
+}))
+

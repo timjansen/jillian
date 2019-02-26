@@ -49,11 +49,11 @@ import As from './expressionNodes/As';
 import InstanceOf from './expressionNodes/InstanceOf';
 
 const binaryOperators: any = { // op->precedence
+  '.': 50,
   '?': 40,
   '<>': 40,
   '[]': 40,
   '{}': 40,
-  '.': 30,
 	'|': 20,  // must be higher than instanceof/as, but lower than ?/[]/{}/()
   '==': 10,
   '<': 11,

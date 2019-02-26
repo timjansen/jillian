@@ -189,6 +189,7 @@ export default class Loader {
       )
       .catch(e=>DatabaseError.rethrow(`Failed to read directory "${dir}"`, e));
     }
+    
     return getPathsRecursive(dirPath, recursive).then(r=> {
       const [categoryFiles, entryFiles] = r;
       const lt = new LoadTracker(pool);

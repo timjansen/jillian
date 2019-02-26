@@ -1,4 +1,4 @@
 Thing('Pieces', @QuantityCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		primaryUnit: @Piece
-})
+}))

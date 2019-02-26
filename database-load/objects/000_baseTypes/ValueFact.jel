@@ -5,7 +5,7 @@ class ValueFact extends Fact
   /**
    * @param values The value that represents the fact's actual value.
    */
-  constructor(value: any, owner, transcript, transscriptSentence, creator, type, trustLevel, reality, startTime, endTime, precondition)
+  constructor(value: any, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition)
 
   override checkValue(v: any, dependencies: any{}): bool => v == this.value
 

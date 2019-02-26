@@ -1,5 +1,5 @@
 Thing('Kelvin', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Temperature,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.SI,
@@ -7,6 +7,6 @@ Thing('Kelvin', @UnitOfMeasureCategory,
 			DegreeCelsius: {f: x=>x-273.15},
 			DegreeFahrenheit: {f: x=>x*Fraction(9, 5) - 459.67}
 		}
-})
+}))
 
 

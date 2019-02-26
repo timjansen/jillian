@@ -155,9 +155,9 @@ describe('database', function() {
         assert.equal(5, n);
         return db.get(ctx, 'AThing2');
       })
-      .then(at2=>jelAssert.equal("'at2'", at2.member(ctx, 'who')) || at2.category.get(ctx))
+      .then(at2=>{assert.equal("MySubSubCategory", at2.category.distinctName); return at2.category.get(ctx);})
       .then(cat=>assert.equal("MySubSubCategory", cat.distinctName) || cat)
-      .then(cat=>jelAssert.equal("'SubSub'", cat.member(ctx, 'cat')) );
+      .then(cat=>assert.equal(null, cat.superCategory));
     }));
   });
 });

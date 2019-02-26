@@ -1,3 +1,4 @@
+import Util from '../util/Util';
 import JelObject from '../jel/JelObject';
 import NamedObject from '../jel/types/NamedObject';
 import Class from '../jel/types/Class';
@@ -7,6 +8,7 @@ import Dictionary from '../jel/types/Dictionary';
 import DbIndexDescriptor from './DbIndexDescriptor';
 import DbRef from './DbRef';
 import JelString from '../jel/types/JelString';
+import Timestamp from '../jel/types/time/Timestamp';
 import List from '../jel/types/List';
 import TypeChecker from '../jel/types/TypeChecker';
 import BaseTypeRegistry from '../jel/BaseTypeRegistry';
@@ -53,7 +55,30 @@ export default class DbEntry extends NamedObject {
 		else
 			return f(v);
 	}
-		
+  
+	member(ctx: Context, name: string): JelObject|null|Promise<JelObject|null>|undefined {
+    const r = super.member(ctx, name);
+    if (r !== undefined)
+      return r;
+    return Util.resolveValue(this.getFactValue(ctx, name), v=>v==null?undefined:v);
+	}
+
+  getFactValue(ctx: Context, name: string, t: Timestamp = Timestamp.ZERO_TIME): Promise<JelObject|null>|JelObject|null {
+    return this.withMember(ctx, 'getBestValue', callable=>Util.resolveValue(callable.invoke(this, JelString.valueOf(name), t), (factResult: any)=>factResult && factResult.member(ctx, 'value')));
+  }
+
+  	// Calls callback with value of member. If it's a DbRef, it's automatically resolved.
+	withFact<T>(ctx: Context, name: string, f: (value: any)=>T): T | Promise<T> {
+		const v = this.getFactValue(ctx, name);
+		if (v instanceof DbRef)
+			return v.with(ctx, f);
+		else if (v instanceof Promise)
+			return v.then(val=>val instanceof DbRef ? val.with(ctx, f) : f(val));
+		else
+			return f(v);
+	}
+
+  
   getSerializationProperties(): any[] {
     return [this.distinctName, this.facts, this.reality, this.hashCode];
   }

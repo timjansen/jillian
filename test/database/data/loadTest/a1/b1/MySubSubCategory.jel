@@ -1,1 +1,1 @@
-Category('MySubSubCategory', properties={cat: 'SubSub'})
+Category('MySubSubCategory')

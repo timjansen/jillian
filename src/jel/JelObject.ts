@@ -42,7 +42,7 @@ export default abstract class JelObject {
 	constructor(public className: string) {
 	}
  
-   abstract get clazz(): any;
+  abstract get clazz(): any;
 
 	/*
 	 * Ops that may be implemented:
@@ -82,6 +82,9 @@ export default abstract class JelObject {
 	 * Ops that may be implemented: '+', '-', '!'
 	 */
 	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {
+    if (operator == '!')
+      return BaseTypeRegistry.get('Boolean').FALSE;
+
 		throw new Error(`Operator "${operator}" is not supported for type "${this.className}"`);
 	}
 
@@ -111,8 +114,8 @@ export default abstract class JelObject {
 	}
   
 	// JEL
-	toBoolean(): any { // this is any to avoid the circular dep in TypeScript, but would be FuzzyB
-		throw new Error(`Boolean conversion not supported for type "${this.className}"`);
+	toBoolean(): any {
+		return true;
 	}
 
 	toString(): string {

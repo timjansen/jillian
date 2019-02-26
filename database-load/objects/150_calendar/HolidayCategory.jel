@@ -1,7 +1,6 @@
 Category('HolidayCategory',
   superCategory=@CalendarElementCategory,
-	properties = {},
-	instanceDefaults = {
+	facts=FactHelper.createRootFacts({
     duration: 1 @Day,
     durationInYear: (year)=>1 @Day,
     calendarFrequency: CalendarFrequencyEnum.YEARLY,
@@ -9,8 +8,8 @@ Category('HolidayCategory',
     lastDate: null,
  		isMatch: (date)=>date >= this.firstDate && date.month==this.month && date.day==this.day && (this.firstDate == null || this.firstDate <= date),
 		matchesInYear: (year)=>if (this.firstDate == null || year >= this.firstDate.year) then [LocalDate(year, this.month, this.day)] else []
-  },
-	instanceProperties = {
+  }),
+	factTypes = {
    month: int<>,   // range if it can be in more than one month
    day: int?,               // null if not always on the same day
    weekDay: @WeekdayCategory?   // null if it is not a fixed weekday

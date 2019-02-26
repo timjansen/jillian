@@ -27,12 +27,8 @@ export default class MixinProperty extends NamedObject {
 	 * Creates a new instance.
 	 * @param distinctName the mixin property name. Must start with lower-case letter.
 	 * @param type the TypeDescriptor that describes the allowed values. 
-	 * @param categoryProperty if this is a property for Thing instances, this allows linking
-	 *        to a category-based properties. For example, a property @length to describe the 
-	 *        length of a Thing may be related to a category-level property @lengthDistribution
-	 *        that describes min/max lengths and averages.
 	 */
-  constructor(distinctName: string, type: any, public categoryProperty: DbRef | null) {
+  constructor(distinctName: string, type: any) {
     super('MixinProperty', distinctName);
 		this.type = TypeHelper.convertFromAny(type, 'type');
 		if (!distinctName.match(/^[a-z]/))
@@ -44,19 +40,17 @@ export default class MixinProperty extends NamedObject {
   }  
   
   getSerializationProperties(): any[] {
-    return [this.distinctName, this.type, this.categoryProperty];
+    return [this.distinctName, this.type];
   }
 
-  static create_jel_mapping = {distinctName: 1, type: 2, categoryProperty: 3};
+  static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]) {
     return new MixinProperty(TypeChecker.realString(args[0], 'distinctName'), 
-                             (args[1] instanceof TypeDescriptor || args[1] instanceof Dictionary) ? args[1] : (TypeChecker.dbRef(args[1], 'type') as DbRef), 
-                             TypeChecker.optionalDbRef(args[2], 'categoryProperty') as DbRef|null);
+                             (args[1] instanceof TypeDescriptor || args[1] instanceof Dictionary) ? args[1] : (TypeChecker.dbRef(args[1], 'type') as DbRef));
   }
 }
 
 MixinProperty.prototype.type_jel_property = true;
-MixinProperty.prototype.categoryProperty_jel_property = true;
 
 
 BaseTypeRegistry.register('MixinProperty', MixinProperty);

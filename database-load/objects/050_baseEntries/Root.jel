@@ -1,2 +1,2 @@
-Thing('Root')
+Thing('Root', @PersonCategory)
   

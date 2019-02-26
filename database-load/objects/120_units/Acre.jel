@@ -1,5 +1,5 @@
 Thing('Acre', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Length,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.OTHER,
@@ -7,6 +7,6 @@ Thing('Acre', @UnitOfMeasureCategory,
 		convertsTo: {
 			SquareMeter: {factor: 1/0.000247105}
 		}
-})
+}))
 
 

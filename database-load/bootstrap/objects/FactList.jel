@@ -1,15 +1,13 @@
 class FactList
-  static FilterFunc = function((element: any?, index: int(>=0))=>any?, true)
-
   constructor(facts: Fact[])
 
-  getBestFacts(filter: FilterFunc?, max: int(>=0)?): Fact[] =>
+  getBestFacts(filter: function((element: any?, index: int(>=0))=>any?)?, max: int(>=0)?): Fact[] =>
     let sorted = this.facts.sort(key='trustLevel', desc=true):
       if filter then sorted.filter(filter, max) 
       else if max != null then sorted.subLen(length=max)
       else sorted
 
-  getBestFact(filter: FilterFunc?): Fact? =>
+  getBestFact(filter: function((element: any?, index: int(>=0))=>any?)?): Fact? =>
       let filtered = if filter then this.facts.filter(filter) else this.facts:
           filtered.max(key='trustLevel')
 

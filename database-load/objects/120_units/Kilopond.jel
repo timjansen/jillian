@@ -1,11 +1,11 @@
 Thing('Kilopond', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Force,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.OTHER,
 		convertsTo: {
 			Newton: {factor: 1/9.806650}
 		}
-})
+}))
 
 

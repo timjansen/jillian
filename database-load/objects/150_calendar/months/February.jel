@@ -1,5 +1,5 @@
 Thing('February', @MonthCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
     monthNumber: 2,
     duration: Range(28 @Day, 29 @Day),
     durationInYear: (year)=>if LocalDate(year).leapYear then 29 else 28,
@@ -8,4 +8,4 @@ Thing('February', @MonthCategory,
       successor: @March
     }
   }
-)
+))

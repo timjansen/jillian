@@ -1,8 +1,8 @@
 Thing('Pentecost', @HolidayCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
     month: Range(5, 6),
     weekDay: @Sunday,
   	isMatch: (date)=>@Easter.isMatch(date - 49 @Day),
 		matchesInYear: year=>@Easter.matchesInYear(year).map(d=>d+49 @Day)
   }
-)
+))

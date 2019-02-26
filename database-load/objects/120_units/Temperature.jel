@@ -1,5 +1,5 @@
 Thing('Temperature', @QuantityCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		primaryUnit: @DegreeCelsius,
 		imperialUnit: @DegreeFahrenheit
-})
+}))

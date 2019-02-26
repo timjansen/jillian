@@ -23,6 +23,7 @@ export default class Category extends DbEntry {
   superCategory_jel_property: boolean;
   factTypes_jel_property: boolean;
   factDefaults_jel_property: boolean;
+  mixins_jel_property: boolean;
   
   superCategory: DbRef | null;
   static clazz: Class|undefined;
@@ -37,6 +38,7 @@ export default class Category extends DbEntry {
               superCategory?: DbRef|Category,
 							public factTypes = new Dictionary(),
 							public factDefaults = new Dictionary(),
+              public mixins = new List(),
               public reality?: DbRef) {
     super('Category', distinctName);
 
@@ -73,13 +75,17 @@ export default class Category extends DbEntry {
 	}
 	
   getSerializationProperties(): any[] {
-		return [this.distinctName, this.superCategory, this.factTypes, this.factDefaults, this.reality, this.hashCode];
+		return [this.distinctName, this.superCategory, this.factTypes, this.factDefaults, this.mixins, this.reality];
   }
     
   static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]): any {
-    return new Category(TypeChecker.realString(args[0], 'distinctName'), TypeChecker.optionalInstance(DbRef, args[1], 'superCategory') || undefined, TypeChecker.instance(Dictionary, args[2], 'factTypes', Dictionary.empty), 
-                       TypeChecker.instance(Dictionary, args[3], 'factDefaults', Dictionary.empty), (TypeChecker.optionalDbRef(args[4], 'reality')||undefined) as any);
+    return new Category(TypeChecker.realString(args[0], 'distinctName'), 
+                        TypeChecker.optionalInstance(DbRef, args[1], 'superCategory') || undefined, 
+                        TypeChecker.instance(Dictionary, args[2], 'factTypes', Dictionary.empty), 
+                        TypeChecker.instance(Dictionary, args[3], 'factDefaults', Dictionary.empty), 
+                        TypeChecker.instance(List, args[4], 'mixins', List.empty), 
+                        (TypeChecker.optionalDbRef(args[5], 'reality')||undefined) as any);
   }
 }
 
@@ -87,6 +93,7 @@ Category.prototype.isExtending_jel_mapping = {category: 1}
 Category.prototype.superCategory_jel_property = true;
 Category.prototype.factTypes_jel_property = true;
 Category.prototype.factDefaults_jel_property = true;
+Category.prototype.mixins_jel_property = true;
 
 BaseTypeRegistry.register('Category', Category);
 

@@ -1,5 +1,5 @@
 Thing('Energy', @QuantityCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		primaryUnit: @Joule,
 		imperialUnit: @Kilocalorie
-})
+}))

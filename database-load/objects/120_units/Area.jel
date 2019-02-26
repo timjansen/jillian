@@ -1,5 +1,5 @@
 Thing('Area', @QuantityCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		primaryUnit: @SquareMeter,
 		imperialUnit: @SquareFoot
-})
+}))

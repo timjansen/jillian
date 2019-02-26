@@ -1,9 +1,9 @@
 Thing('Monday', @WeekdayCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
     dayOfWeekNumber: 1,
     order: {
       predecessor: @Sunday,
       successor: @Tuesday
     }
   }
-)
+))

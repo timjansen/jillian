@@ -21,7 +21,7 @@ export default class FunctionType extends TypeDescriptor {
 	/**
 	 * A prototype callable to take the arguments from.
 	 */
-  constructor(public prototype?: Callable, public forbidUntyped = true) {
+  constructor(public prototype?: Callable, public requireExactTypes = false) {
     super('FunctionType');
   }
   
@@ -35,7 +35,7 @@ export default class FunctionType extends TypeDescriptor {
     if (!this.prototype)
       return JelBoolean.TRUE;
     
-    return Util.resolveValue(TypedParameterValue.compatibleTypes(ctx, this.prototype.getReturnType(), value.getReturnType(), !this.forbidUntyped), (retCheck: JelBoolean)=>{
+    return Util.resolveValue(TypedParameterValue.compatibleTypes(ctx, this.prototype.getReturnType(), value.getReturnType(), !this.requireExactTypes), (retCheck: JelBoolean)=>{
       if (!retCheck.toRealBoolean())
         return JelBoolean.FALSE;
 
@@ -47,21 +47,21 @@ export default class FunctionType extends TypeDescriptor {
       if (protoArgs.length < valueArgs.length)
         return JelBoolean.FALSE;
       
-      return Util.resolveArray(protoArgs.map((arg,i)=>i < valueArgs.length ? TypedParameterValue.compatibleTypes(ctx, arg, valueArgs[i], !this.forbidUntyped) : JelBoolean.TRUE), 
+      return Util.resolveArray(protoArgs.map((arg,i)=>i < valueArgs.length ? TypedParameterValue.compatibleTypes(ctx, arg, valueArgs[i], !this.requireExactTypes) : JelBoolean.TRUE), 
                     (argResults: JelBoolean[])=>JelBoolean.valueOf(argResults.findIndex(e=>!e.toRealBoolean()) < 0));
     });
   }
   
   getSerializationProperties(): any[] {
-    return [this.prototype, this.forbidUntyped];
+    return [this.prototype, this.requireExactTypes];
   }
 
   serializeType(): string {
-    return `FunctionType(${Serializer.serialize(this.prototype)}, ${this.forbidUntyped})`;
+    return this.requireExactTypes ? `FunctionType(${Serializer.serialize(this.prototype)}, ${this.requireExactTypes})` : `FunctionType(${Serializer.serialize(this.prototype)})`;
   }
   
   equals(ctx: Context, other: TypeDescriptor|null): JelBoolean|Promise<JelBoolean> {
-    if (!(other instanceof FunctionType && this.forbidUntyped == other.forbidUntyped))
+    if (!(other instanceof FunctionType && this.requireExactTypes == other.requireExactTypes))
       return JelBoolean.FALSE;
     if (this.prototype == other.prototype)
       return JelBoolean.TRUE;
@@ -85,14 +85,14 @@ export default class FunctionType extends TypeDescriptor {
     });   
   }
 
-  create_jel_mapping: any[]; 
+  create_jel_mapping: boolean; 
   create(ctx: Context, ...args: any[])  {
     return FunctionType.create(ctx, ...args);
   }
   
-  static create_jel_mapping = ['prototype', 'forbidUntyped'];
+  static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]) {
-    return new FunctionType(TypeChecker.optionalInstance(Callable, args[0], 'prototype') || undefined, TypeChecker.realBoolean(args[1], 'forbidUntyped', true));
+    return new FunctionType(TypeChecker.optionalInstance(Callable, args[0], 'prototype') || undefined, TypeChecker.realBoolean(args[1], 'requireExactTypes', false));
   }
 }
 

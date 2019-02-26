@@ -1,5 +1,5 @@
 Thing('Kilometer', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Length,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.SI,
@@ -9,6 +9,6 @@ Thing('Kilometer', @UnitOfMeasureCategory,
 			Meter: {factor: 1e3}
 		},
 		usedBy: [@KilometerPerHour, @SquareKilometer, @CubicKilometer]
-})
+}))
 
 

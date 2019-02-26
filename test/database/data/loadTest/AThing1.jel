@@ -1,1 +1,1 @@
-Thing('AThing1', @MyCategory, {a: 1})
+Thing('AThing1', @MyCategory)

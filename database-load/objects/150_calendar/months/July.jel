@@ -1,5 +1,5 @@
 Thing('July', @MonthCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
     monthNumber: 7,
     duration: 31 @Day,
     order: {
@@ -7,4 +7,4 @@ Thing('July', @MonthCategory,
       successor: @August
     }
   }
-)
+))

@@ -52,9 +52,9 @@ export default class Runtime {
 	static singleOp(ctx: Context, operator: string, left: any): JelObject|Promise<JelObject> {
     if (left instanceof JelObject)
       return left.singleOp(ctx, operator);
-    else if (left == null)
-      return left; 
-    throw new Error(`Operator "${operator}" is not supported for primitive types`);
+    else if (operator == '!')
+      return BaseTypeRegistry.get('Boolean').TRUE;
+    throw new Error(`Operator "${operator}" can not be used with null values`);
 	}
 
 	static singleOpWithPromise(ctx: Context, operator: string, left: JelObject | Promise<JelObject>): JelObject | Promise<JelObject> {
@@ -107,7 +107,7 @@ export default class Runtime {
       else if (name in obj) 
         throw new Error(`Can not find method ${name} in ${obj.className}. Not declared in class.`);
       else 
-        throw new Error(`Can not find method ${name} in ${obj.className}.`);
+        throw new Error(`Can not find method ${name} in ${obj.className} ${(obj as any).isIDBRef ? '@' : ''}${(obj as any).distinctName || ''}.`);
     });
   }
 
@@ -122,7 +122,7 @@ export default class Runtime {
     else if (name in obj) 
       throw new Error(`Can not find member ${name} in ${obj.className}. Not declared in class.`);
     else 
-      throw new Error(`Can not find member ${name} in ${obj.className}.`);
+      throw new Error(`Can not find member ${name} in ${obj.className} ${(obj as any).isIDBRef ? '@' : ''}${(obj as any).distinctName || ''}.`);
 	}
 	
 }

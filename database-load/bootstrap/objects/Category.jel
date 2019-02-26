@@ -6,5 +6,6 @@ native class Category extends DbEntry:
                superCategory: category?,
                factTypes: any{} = {},
                facts = {},
+               mixins: string[] = [],
                reality)
                

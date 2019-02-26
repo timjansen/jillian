@@ -1,5 +1,5 @@
 Thing('MetricTon', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Mass,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.SI,
@@ -7,4 +7,4 @@ Thing('MetricTon', @UnitOfMeasureCategory,
 		convertsTo: {
 			Kilogram: {factor: 1000}
 		}
-})
+}))

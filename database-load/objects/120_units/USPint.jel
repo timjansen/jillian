@@ -1,5 +1,5 @@
 Thing('USPint', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Volume,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.US,
@@ -13,7 +13,7 @@ Thing('USPint', @UnitOfMeasureCategory,
 			USGallon: {factor: Fraction(1, 8)},
 			OilBarrel: {factor: Fraction(1, 42*8)}
 		}
-})
+}))
 
 
 

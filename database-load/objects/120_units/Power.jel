@@ -1,4 +1,4 @@
 Thing('Power', @QuantityCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		primaryUnit: @Watt 
-})
+}))

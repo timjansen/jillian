@@ -1,5 +1,5 @@
 Thing('Inch', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Length,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.IMPERIAL,
@@ -10,6 +10,6 @@ Thing('Inch', @UnitOfMeasureCategory,
 			Yard: {factor: 36}
 		},
 		usedBy: [@CubicInch, @SquareInch]
-})
+}))
 
 

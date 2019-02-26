@@ -10,9 +10,9 @@ class CalculatedFact extends FunctionFact
   /**
    * The function to calculate the fact. See above for description of possible arguments.
    */
-  constructor(func, owner, transcript, transscriptSentence, creator, type, trustLevel, reality, startTime, endTime, precondition)
+  constructor(func, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition)
 
-  override checkValue(v: any, dependencies: any{}): bool =>  == this.func.call(dependencies) == v
+  override checkValue(v: any, dependencies: any{}): bool => this.func.call(dependencies) == v
   
   override getValue(dependencies: any{}): any? => this.func.call(dependencies)
   

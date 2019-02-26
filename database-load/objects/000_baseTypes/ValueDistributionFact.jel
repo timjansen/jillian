@@ -5,7 +5,7 @@
   /**
    * @param values The range of possible values.
    */
-  constructor(values: Distribution, owner, transcript, transscriptSentence, creator, type, trustLevel, reality, startTime, endTime, precondition)
+  constructor(values: Distribution, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition)
 
   override checkValue(v: any, dependencies: any{}): bool =>
     v in this.values.range

@@ -1,9 +1,9 @@
 Thing('Piece', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Piece,
 		isPrimaryUnit: true,
 		type: UnitTypeEnum.OTHER,
 		convertsTo: {
 			Dozen: {factor: Fraction(1, 12)}
 		}
-})
+}))

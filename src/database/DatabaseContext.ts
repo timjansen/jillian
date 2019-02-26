@@ -46,11 +46,15 @@ const BOOT_SCRIPT = [
     {jel: 'objects/FactTypeEnum.jel'},
     {jel: 'objects/PropertyTypeEnum.jel'},
   ],
-  {jel: 'objects/Fact.jel'},
+  [
+    {jel: 'objects/Fact.jel'},
+    {jel: 'objects/FactResult.jel'}
+  ],
   {jel: 'objects/FactList.jel'},
   {jel: 'objects/DbEntry.jel', native: DbEntry},
   {jel: 'objects/Category.jel', native: Category},
   [
+    {jel: 'objects/FunctionFact.jel'},
     {jel: 'objects/DbRef.jel', native: DbRef},
     {jel: 'objects/MixinProperty.jel', native: MixinProperty},
     {jel: 'objects/Thing.jel', native: Thing}
@@ -96,7 +100,7 @@ export default class DatabaseContext extends Context {
   }
   
  	hasInStaticScope(name: string): boolean {
-		if (this.hasInThisScope(name))
+		if (this.cache.has(name))
       return true;
     if (this.parent && this.parent.has(name))
       return this.parent!.hasInStaticScope(name);

@@ -1,5 +1,5 @@
 Thing('Minute', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Time,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.METRIC,
@@ -15,6 +15,6 @@ Thing('Minute', @UnitOfMeasureCategory,
 			Nanosecond: {factor: 60*1e9}
 		},
 		usedBy: [@RotationsPerMinute]
-})
+}))
 
 

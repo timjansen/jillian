@@ -1,5 +1,5 @@
 Thing('Degree', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Angle,
 		isPrimaryUnit: true,
 		type: UnitTypeEnum.OTHER,
@@ -10,6 +10,6 @@ Thing('Degree', @UnitOfMeasureCategory,
 			Radian: {factor: 2*Math.PI/360},
 			Gradian: {factor: Fraction(400, 360)}
 		}
-})
+}))
 
 

@@ -1,5 +1,5 @@
 Thing('CubicMeter', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Volume,
 		isPrimaryUnit: true,
 		type: @UnitTypeEnum.SI,
@@ -26,6 +26,6 @@ Thing('CubicMeter', @UnitOfMeasureCategory,
 			OilBarrel: {factor: 33814.022558919/(42*128)}
 		},
 		createFrom: [Unit({Meter: 3}), Unit({Meter: 1, SquareMeter: 1})]
-})
+}))
 
 

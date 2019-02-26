@@ -1,5 +1,5 @@
 Thing('Easter', @HolidayCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
     month: Range(3, 4),
     weekDay: @Sunday,
     firstDate: LocalDate(1583, 3, 21), // gregorian calendar
@@ -16,4 +16,4 @@ Thing('Easter', @HolidayCategory,
       month = d + 3:
         [LocalDate(year, month, day)]
   }
-)
+))

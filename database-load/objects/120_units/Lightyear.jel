@@ -1,5 +1,5 @@
 Thing('Lightyear', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Length,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.METRIC,
@@ -7,6 +7,6 @@ Thing('Lightyear', @UnitOfMeasureCategory,
 		convertsTo: {
 			Meter: {factor: 9.461e15}
 		}
-})
+}))
 
 

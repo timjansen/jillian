@@ -1,1 +1,1 @@
-Thing('AThing2', @MySubSubCategory, properties={who: 'at2'})
+Thing('AThing2', @MySubSubCategory)

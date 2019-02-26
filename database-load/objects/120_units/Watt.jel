@@ -1,5 +1,5 @@
 Thing('Watt', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Power,
 		isPrimaryUnit: true,
 		type: UnitTypeEnum.SI,
@@ -16,7 +16,6 @@ Thing('Watt', @UnitOfMeasureCategory,
 		},
 		createFrom: [Unit({Kilogram: 1, Meter: 2, Second: -3}), Unit({Joule: 1, Second: -1}), Unit({Newton: 1, Meter: 1, Second: -1}), Unit({Kilogram: 1, SquareMeter: 1, Second: -3})],
 		usedBy: [@Joule, @Newton]
-
-})
+}))
 
 

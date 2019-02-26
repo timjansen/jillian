@@ -1,9 +1,9 @@
 Thing('CyberMonday', @HolidayCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
     month: 11,
     weekDay: @Monday,
     firstDate: LocalDate(2005, 11, 28),
   	isMatch: (date)=>@Thanksgiving.isMatch(date - 4 @Day),
 		matchesInYear: (year)=>@Thanksgiving.matchesInYear(year).map(d=>d+4 @Day)
   }
-)
+))

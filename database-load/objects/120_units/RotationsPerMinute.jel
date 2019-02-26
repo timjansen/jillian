@@ -1,11 +1,11 @@
 Thing('RotationsPerMinute', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @RotationalSpeed,
 		isPrimaryUnit: true,
 		type: UnitTypeEnum.METRIC,
 		convertsTo: {
 		},
 		createFrom: [Unit({Turn: 1, Minute: -1})]
-})
+}))
 
 

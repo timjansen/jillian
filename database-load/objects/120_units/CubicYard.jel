@@ -1,5 +1,5 @@
 Thing('CubicYard', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Volume,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.IMPERIAL,
@@ -10,6 +10,6 @@ Thing('CubicYard', @UnitOfMeasureCategory,
 			CubicFeet: {factor: 3^3}
 		},
 		createFrom: [Unit({Yard: 3}), Unit({Yard: 1, SquareYard: 1})]
-})
+}))
 
 

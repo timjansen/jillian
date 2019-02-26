@@ -1,5 +1,4 @@
 class Geo::Position extends Geo::Coordinate:
 
-  constructor(latitude, longitude, planet: SimpleType('DbRef') = @Earth) =>
-    {}
-    
+  constructor(latitude, longitude, planet: thing= @Earth)
+  

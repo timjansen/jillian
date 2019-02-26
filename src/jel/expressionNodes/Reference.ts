@@ -48,7 +48,7 @@ export default class Reference extends CachableJelNode {
   }
   
   isStaticUncached(ctx: Context): boolean {
-    return true;
+    return false;
   }
   
   flushCache(): void {

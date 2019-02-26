@@ -1,9 +1,9 @@
 Thing('MemorialDay', @HolidayCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
     month: 1,
     firstDate: LocalDate(1971, 1, 18),
     weekDay: @Monday,
  		isMatch: (date)=>let memday=this.matchesInYear(date.year).first: date == memday,
 		matchesInYear: (year)=>if year >= this.firstDate.year then [LocalDate(year, this.month).allDays.lastMatch(d=>d.dayOfWeek == 1)] else []
   }
-)
+))

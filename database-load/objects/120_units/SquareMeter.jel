@@ -1,5 +1,5 @@
 Thing('SquareMeter', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Area,
 		isPrimaryUnit: true,
 		type: UnitTypeEnum.SI,
@@ -22,6 +22,6 @@ Thing('SquareMeter', @UnitOfMeasureCategory,
 		},
 		createFrom: [Unit({Meter: 2})],
 		usedBy: [@CubicMeter]
-})
+}))
 
 

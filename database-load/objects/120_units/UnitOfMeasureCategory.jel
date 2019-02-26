@@ -4,9 +4,7 @@
  * to handle Promises when accessing a member.
  */
 Category('UnitOfMeasureCategory', 
-	properties={}, 
-	instanceDefaults={}, 
-	instanceProperties={
+	factTypes = {
 		quantityCategory: @QuantityCategory,
 		isPrimaryUnit: bool,
 		type: @UnitTypeEnum, 

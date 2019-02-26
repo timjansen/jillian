@@ -1,5 +1,5 @@
 Thing('Velocity', @QuantityCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		primaryUnit: @MeterPerSecond,
 		imperialUnit: @MilesPerHour
-})
+}))

@@ -6,8 +6,8 @@ native class Thing extends DbEntry:
   native constructor(distinctName, 
                category: category?,
                facts = {},
-               reality,
-							 hashCode)
+               reality = null,
+							 hashCode = null)
                
   native isA(category: string|category): bool
   

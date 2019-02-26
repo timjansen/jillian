@@ -1,5 +1,5 @@
 Thing('Kilogram', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Mass,
 		isPrimaryUnit: true,
 		type: UnitTypeEnum.SI,
@@ -16,6 +16,6 @@ Thing('Kilogram', @UnitOfMeasureCategory,
 			ImperialTon: {factor: 0.00110231}
 		},
 		usedBy: [@Joule, @Newton, @Watt]
-})
+}))
 
 

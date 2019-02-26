@@ -1,5 +1,5 @@
 Thing('USFluidOunce', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Volume,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.US,
@@ -13,6 +13,6 @@ Thing('USFluidOunce', @UnitOfMeasureCategory,
 			USGallon: {factor: Fraction(1, 128)},
 			OilBarrel: {factor: Fraction(1, 42*128)}
 		}
-})
+}))
 
 

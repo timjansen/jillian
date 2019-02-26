@@ -1,10 +1,6 @@
 Category('QuantityCategory', 
-	properties={
-	}, 
-	instanceDefaults={
-	},
-	instanceProperties={
+	facts=FactHelper.createRootFacts({
 		primaryUnit: @UnitOfMeasureCategory,
 		imperialUnit: @UnitOfMeasureCategory?
 	}
-)
+))

@@ -1,4 +1,3 @@
 class Geo::Coordinate:
-  constructor(latitude, longitude) =>
-    {}
-    
+  constructor(latitude, longitude)
+  

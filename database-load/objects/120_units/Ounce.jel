@@ -1,5 +1,5 @@
 Thing('Ounce', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Mass,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.IMPERIAL,
@@ -10,4 +10,4 @@ Thing('Ounce', @UnitOfMeasureCategory,
 			Stone: {factor: Fraction(1, 14*16)},
 			ImperialTon: {factor: Fraction(1, 2000*16)}
 		}
-})
+}))

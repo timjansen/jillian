@@ -1,1 +1,1 @@
-Category('MyCategory', properties={cat: 'My'})
+Category('MyCategory')

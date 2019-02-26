@@ -1,7 +1,5 @@
 Category('CalendarElementCategory',
-	properties = {},
-	instanceDefaults = {},
-	instanceProperties = {
+	factTypes = {
 		duration: UnitValueType(@Day)<>, // duration of the element in days, e.g. 1 @Day
     frequency: @CalendarFrequency,
 		isMatch: FunctionType((date: date): bool=>1),  // a function f(date) that returns whether the given date is part of the calendar element

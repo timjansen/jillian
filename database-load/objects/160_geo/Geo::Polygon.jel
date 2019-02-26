@@ -1,5 +1,4 @@
 class Geo::Polygon extends Geo::Structure
   
-  constructor(points: Geo::Coordinate[], planet = @Earth) =>
-    {}
-    
+  constructor(points: Geo::Coordinate[], planet = @Earth) 
+  

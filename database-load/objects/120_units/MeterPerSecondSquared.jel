@@ -1,8 +1,8 @@
 Thing('MeterPerSecondSquared', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Acceleration,
 		isPrimaryUnit: true,
 		type: UnitTypeEnum.SI,
 		convertsTo: {StandardGravity: {f: v=>v/9.80665, factor: 1/9.80665}},
 		createFrom: [Unit({Meter: 1, Second: -2}), Unit({MeterPerSecond: 1, Second: -1})]
-})
+}))

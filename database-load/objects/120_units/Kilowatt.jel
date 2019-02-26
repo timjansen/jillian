@@ -1,5 +1,5 @@
 Thing('Kilowatt', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Power,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.METRIC,
@@ -12,6 +12,6 @@ Thing('Kilowatt', @UnitOfMeasureCategory,
 			Gigawatt: {factor: Fraction(1, 1e9)},
 			Terawatt: {factor: Fraction(1, 1e12)}
 		}
-})
+}))
 
 

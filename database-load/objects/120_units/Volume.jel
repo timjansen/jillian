@@ -1,5 +1,5 @@
 Thing('Volume', @QuantityCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		primaryUnit: @CubicMeter,
 		imperialUnit: @CubicInch
-})
+}))

@@ -1,4 +1,4 @@
 Thing('Angle', @QuantityCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		primaryUnit: @Degree
-})
+}))

@@ -1,19 +1,14 @@
 Category('MonthCategory',
   superCategory=@CalendarElementCategory,
-	properties = {},
-	instanceDefaults = {
+	facts=FactHelper.createRootFacts({
     duration: Range(28 @Day, 31 @Day),
     durationInYear: (year)=>this.duration,
     calendarFrequency: CalendarFrequencyEnum.YEARLY,
-    first: null,
-    last: null,
 		isMatch: (date)=>date.month==this.monthNumber,
 		matchesInYear: (year)=>[LocalDate(year, this.monthNumber)]
-  },
-	instanceProperties = {
+  }),
+	factTypes = {
     monthNumber: int
 	},
-  mixinProperties = {
-    order: PropertyTypeEnum.REQUIRED
-  }
+  mixins = ['order']
 )

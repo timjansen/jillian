@@ -1,5 +1,5 @@
 Thing('Day', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Time,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.METRIC,
@@ -13,6 +13,6 @@ Thing('Day', @UnitOfMeasureCategory,
 			Week: {factor: Fraction(1, 7)},
 			Year: {factor: Fraction(1, 365)}
 		}
-})
+}))
 
 

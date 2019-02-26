@@ -66,6 +66,11 @@ export default class GenericJelObject extends JelObject implements Serializable 
     return undefined;    
 	}
   
+  // Calls callback with value of member.
+	withMember<T>(ctx: Context, name: string, f: (value: any)=>T): T | Promise<T> {
+		return Util.resolveValue(this.member(ctx, name), f);
+	}
+  
  
   getSerializationProperties(): any[] {
     return this.args;

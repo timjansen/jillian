@@ -1,8 +1,8 @@
 Thing('ColumbusDay', @HolidayCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
     month: 10,
     firstDate: LocalDate(1492, 10, 12),
  		isMatch: (date)=>let cday=this.matchesInYear(date.year).first: date == cday,
 		matchesInYear: (year)=>if year >= this.firstDate.year then [LocalDate(year, this.month).allDays.nthMatch(2, d=>d.dayOfWeek == 1)] else []
   }
-)
+))

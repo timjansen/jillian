@@ -1,7 +1,7 @@
 Thing('CincoDeMayo', @HolidayCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
     month: 5,
     day: 5,
     firstDate: LocalDate(1863, 5, 5)
   }
-)
+))

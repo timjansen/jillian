@@ -1,5 +1,5 @@
 Thing('Centimeter', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Length,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.SI,
@@ -9,6 +9,6 @@ Thing('Centimeter', @UnitOfMeasureCategory,
 			Meter: {factor: Fraction(1, 100)}
 		},
 		usedBy: [@CubicCentimeter, @SquareCentimeter]
-})
+}))
 
 

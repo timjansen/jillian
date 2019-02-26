@@ -1,5 +1,5 @@
 Thing('KilometerPerHour', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Velocity,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.METRIC,
@@ -8,6 +8,6 @@ Thing('KilometerPerHour', @UnitOfMeasureCategory,
 			MilesPerHour: {factor: 0.621371}
 		},
 		createFrom: [Unit(@Kilometer, @Hour)]
-})
+}))
 
 

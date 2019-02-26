@@ -1,5 +1,5 @@
 Thing('Turn', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Angle,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.OTHER,
@@ -10,6 +10,6 @@ Thing('Turn', @UnitOfMeasureCategory,
 			Gradian: {f: v=>v*400, factor: 400}
 		},
 		usedBy: [@RotationsPerMinute]
-})
+}))
 
 

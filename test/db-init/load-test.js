@@ -47,7 +47,8 @@ describe('Loader', function() {
 
   it('loads holidays', function() {
     return Promise.all([jelAssert.equalPromise('@Easter.matchesInYear(2005)', '[LocalDate(2005, 3, 27)]'),
-                        jelAssert.equalPromise('@MartinLutherKingJrDay.matchesInYear(2005)', '[LocalDate(2005, 1, 17)]')]);
+                        jelAssert.equalPromise('@MartinLutherKingJrDay.matchesInYear(2005)', '[LocalDate(2005, 1, 17)]'), 
+                        jelAssert.equalPromise('@StPatricksDay.matchesInYear(2015)', '[LocalDate(2015, 3, 17)]')]);
   });
 
   it('loads months', function() {

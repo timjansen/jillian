@@ -1,5 +1,5 @@
 Thing('FootPerSecond', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Velocity,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.IMPERIAL,
@@ -7,6 +7,6 @@ Thing('FootPerSecond', @UnitOfMeasureCategory,
 			MeterPerSecond: {factor: 0.3048}
 		},
 		createFrom: [Unit(@Foot, @Second)]
-})
+}))
 
 

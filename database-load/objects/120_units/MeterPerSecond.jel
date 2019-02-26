@@ -1,5 +1,5 @@
 Thing('MeterPerSecond', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Velocity,
 		isPrimaryUnit: true,
 		type: UnitTypeEnum.SI,
@@ -11,6 +11,6 @@ Thing('MeterPerSecond', @UnitOfMeasureCategory,
 		},
 		createFrom: [Unit(@Meter, @Second)],
 		usedBy: [@MeterPerSecondSquared]
-})
+}))
 
 

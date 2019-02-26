@@ -1,6 +1,6 @@
 Thing('SummerSolstice', @HolidayCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
     month: 6,
     day: 21
   }
-)
+))

@@ -1,5 +1,5 @@
 Thing('Second', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Time,
 		isPrimaryUnit: true,
 		type: UnitTypeEnum.SI,
@@ -17,6 +17,6 @@ Thing('Second', @UnitOfMeasureCategory,
 			Nanosecond: {factor: 1e9}
 		},
 		usedBy: [@MeterPerSecond, @MeterPerSecondSquared]
-})
+}))
 
 

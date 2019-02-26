@@ -1,5 +1,5 @@
 Thing('CubicKilometer', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Volume,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.METRIC,
@@ -8,6 +8,6 @@ Thing('CubicKilometer', @UnitOfMeasureCategory,
 			CubicMeter: {factor: 1e6}
 		},
 		createFrom: [Unit({Kilometer: 3}), Unit({Kilometer: 1, SquareKilometer: 1})]
-})
+}))
 
 

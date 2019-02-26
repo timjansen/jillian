@@ -1,5 +1,5 @@
 Thing('MetricHorsepower', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Power,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.OTHER,
@@ -8,6 +8,6 @@ Thing('MetricHorsepower', @UnitOfMeasureCategory,
 			Watt: {factor: 735.49875},
 			MetricHorsepower: {factor: 735.49875/745.69987158227022}
 		}
-})
+}))
 
 

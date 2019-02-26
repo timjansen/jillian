@@ -1,6 +1,6 @@
-Category('TranscriptCategory', properties={}, instanceProperties={
-  media: MediaReference,
-  sentences: Sentence[]
+Category('TranscriptCategory', factTypes={
+  media: SimpleType('MediaReference'),
+  sentences: SimpleType('Sentence')[]
   
   // Future: is the transcript complete or partial? which part has been recorded
 })

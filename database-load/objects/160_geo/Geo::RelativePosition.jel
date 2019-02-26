@@ -1,5 +1,4 @@
 class Geo::RelativePosition:
   
-  constructor(direction: Geo::Direction, distance: @Length) =>
-    {}
+  constructor(direction: Geo::Direction, distance: @Length)
   

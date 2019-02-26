@@ -6,6 +6,7 @@ import Database from './Database';
 import NotFoundError from './NotFoundError';
 import Context from '../jel/Context';
 import Dictionary from '../jel/types/Dictionary';
+import Timestamp from '../jel/types/time/Timestamp';
 import NamedObject from '../jel/types/NamedObject';
 import {IDbRef, IDbSession} from '../jel/IDatabase';
 
@@ -59,6 +60,14 @@ export default class DbSession implements IDbSession {
 			return o.then(p=>p.member(this.ctx, property) || null);
 		else
 			return o.member(this.ctx, property);
+  }
+	
+  getFactValue(distinctName: string, name: string, t?: Timestamp): Promise<any> | any {
+		const o = this.get(distinctName);
+		if (o instanceof Promise)
+			return o.then((p: any)=>p.getFactValue(this.ctx, name, t) || null);
+		else
+			return (o as any).getFactValue(this.ctx, name, t);
   }
 	
 	with<T>(distinctName: string, f: (o: NamedObject)=>T): Promise<T> | T {

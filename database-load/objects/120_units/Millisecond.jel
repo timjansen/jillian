@@ -1,5 +1,5 @@
 Thing('Millisecond', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Time,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.METRIC,
@@ -10,6 +10,6 @@ Thing('Millisecond', @UnitOfMeasureCategory,
 			Microsecond: {factor: 1e3},
 			Nanosecond: {factor: 1e6}
 		}
-})
+}))
 
 

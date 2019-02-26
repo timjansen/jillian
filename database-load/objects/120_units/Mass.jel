@@ -1,5 +1,5 @@
 Thing('Mass', @QuantityCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		primaryUnit: @Kilogramm,
 		imperialUnit: @Ounce
-})
+}))

@@ -1,5 +1,5 @@
 Thing('Hour', @UnitOfMeasureCategory,
-	properties={
+	facts=FactHelper.createRootFacts({
 		quantityCategory: @Time,
 		isPrimaryUnit: false,
 		type: UnitTypeEnum.METRIC,
@@ -15,6 +15,6 @@ Thing('Hour', @UnitOfMeasureCategory,
 			Nanosecond: {factor: 3600*1e9}
 		},
 		usedBy: [@MilesPerHour, @KilometerPerHour]
-})
+}))
 
 
