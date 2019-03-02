@@ -9,5 +9,5 @@ class FactList
 
   getBestFact(filter: function((element: any?, index: int(>=0))=>any?)?): Fact? =>
       let filtered = if filter then this.facts.filter(filter) else this.facts:
-          filtered.max(key='trustLevel')
+          filtered.filter(f=>f.!negative).max(key='trustLevel')
 

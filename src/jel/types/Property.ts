@@ -36,11 +36,11 @@ export default class Property extends NativeJelObject {
   
 	toString(): string {
     const prefix = `${this.isOverride ? 'override ' : ''}${this.isNative ? 'native ' : ''}${this.isAbstract ? 'abstract ' : ''}`;
-    if (!this.type && !this.defaultValueGenerator)
+    if ((this.isOverride || !this.type) && !this.defaultValueGenerator)
       return `${prefix}${this.name}`;
-    if (!this.type && this.defaultValueGenerator)
+    if ((this.isOverride || !this.type) && this.defaultValueGenerator)
       return `${prefix}${this.name} = ${this.defaultValueGenerator.expression.toString()}`;
-    else if (this.type && !this.defaultValueGenerator) 
+    if (this.type && !this.defaultValueGenerator) 
       return `${prefix}${this.name}: ${this.type.serializeType()}`;
     else
       return `${prefix}${this.name}: ${this.type!.serializeType()} = ${this.defaultValueGenerator!.expression.toString()}`;

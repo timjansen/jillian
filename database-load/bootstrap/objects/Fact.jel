@@ -5,6 +5,23 @@
  */
 abstract class Fact
   /**
+   * Defines how good the fact type is specifying the fact value. A ValueFact would be a 1, while a ValueRangeFact is less specific and a AssertionFact even less.
+   */
+  abstract factTypeSpecificness: number(0...1)
+
+  /**
+   * If true, the values represented by this fact are comprehensive. If false, other values are possible.
+   * This is mostly useful for Facts in categories, where a fact can be different for different instances of the category. 
+   * A fact like "X can only be A, B or C" would be a complete fact. But "X can be A, B or C" does exclude the existance of other values, and thus would not be complete.
+   */
+  comprehensive: bool
+  
+  /**
+   * If true, the fact is inverted and specifies a value that is not true.
+   */
+  negative: bool
+
+  /**
    * The owning object of this fact
    */
   owner: thing
@@ -62,7 +79,7 @@ abstract class Fact
    * @param dependencies the resolved values for the declared dependencies
    * @return true if the value is compatible, false otherwise
    */
-  abstract checkValue(v: any, dependencies: any{}): bool
+  abstract checkValue(v: any?, dependencies: any{}): bool
 
   /**
    * Retrieves the value of the fact, if possible, given the dependencies. May be a Range or Distribution if that's the best way to describe the fact.
@@ -77,4 +94,10 @@ abstract class Fact
    * @return if a value is available (e.g. this is not an assumption or a range fact), the computed or stored value.
    */
   abstract getSingleValue(dependencies: any{}): any?
+  
+  /**
+   * Checks whether this fact allows the given other fact to be true, and thus does not contradict it. For example, an assertion fact allows all facts that fulfill the assertion.
+   * This is a best effort function. It won't be able, for example, find out whether two assertions contradict each other.
+   */
+  abstract allows(thisDependencies: any{}, other: Fact, otherDependencies: any{}): bool
   

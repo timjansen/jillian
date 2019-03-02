@@ -26,20 +26,23 @@ native class LocalDateTime extends AbstractDate:
 
 	native toTimestamp(timeZone: TimeZone): Timestamp
 
- 
-  override native leapYear: bool
-  override native numberOfDays: SimpleType('UnitValue')
-  override native dayOfYear: int
-  override native dayOfWeek: int
-	override native isoWeek: int
-	override native isoWeeksInYear: int
-	override native quarter: int
-	override native century: int
-	override native millenium: int
-  override native allDays: AbstractDate[]
+  override native leapYear
+  override native numberOfDays
+  override native dayOfYear
+  override native dayOfWeek
+	override native isoWeek
+	override native isoWeeksInYear
+	override native quarter
+	override native century
+	override native millenium
+  override native allDays
 	override native diff(otherDate: AbstractDate, type: string | SimpleType('DbRef')): SimpleType('UnitValue')
 	
 
+  
+
+  
+  
   
 
   

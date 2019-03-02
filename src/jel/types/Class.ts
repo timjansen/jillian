@@ -83,7 +83,7 @@ export default class Class extends PackageContent implements SerializablePrimiti
       const override = superType && superType.allProperties.elements.has(lc.name);
       if (lc.type && override)
         throw new Error(`Class ${name}'s constructor is overriding ${superType!.name}'s property '${lc.name}'. It must not specify any type, as the type is inherited from the super class.`);
-      return [lc.name, new Property(lc.name, override ? (superType!.allProperties.elements.get(lc.name) as Property).type : lc.type, lc.defaultValueGenerator, isNative, override)];
+      return [lc.name, new Property(lc.name, lc.type, lc.defaultValueGenerator, isNative, override)];
     }));
     const getterProps = new Dictionary(reboundMethods.filter(e=>e.isGetter && !e.isStatic).map(e=>[e.name, new Property(e.name)]));
     const declaredLocalProps = new Dictionary(properties.elements.map((e: Property)=>[e.name, e]));
@@ -130,11 +130,11 @@ export default class Class extends PackageContent implements SerializablePrimiti
     return this.allProperties.elements.has(name) || this.allMethods.elements.has(name) || this.allGetters.elements.has(name);
   }
   
-  protected checkPropertyOverrides(): Promise<never>|undefined {
+  protected fixPropertyOverrides(): Promise<never>|undefined {
     if (!this.superType)
       return;
      
-    return Util.waitArray(this.localProperties.mapToArrayJs((name, property: Property)=>{
+    return Util.waitArray(this.localProperties.mapToArrayJs((name, property: Property): any=>{
       if (!this.superType!.has(name)) {
         if (property.isOverride)
           throw new Error(`Error overriding property '${name}' in ${this.name}: property not found in super type ${this.superType!.name}.`);
@@ -157,23 +157,13 @@ export default class Class extends PackageContent implements SerializablePrimiti
       
       if (!property.isOverride)
         throw new Error(`Error overriding property '${name}' in ${this.name}: overriding property needs an 'override' modifier.`);
-      
-      const origType = origin.type;
-      const ovrdType = property.type;
 
-      if ((!!ovrdType) != (!!origType)) {
-        if (ovrdType)
-          throw new Error(`Error overriding property '${name}' in ${this.name}: property has no type, but overriding property has ${ovrdType.toString()}.`);
-        else
-          throw new Error(`Error overriding property '${name}' in ${this.name}: property has return type '${origType!.toString()}', but overriding property has no return type.`);
+      if (origin.type) {
+        if (property.type)
+          throw new Error(`Error overriding property '${name}' in ${this.name}: overriding property must not specify a type if the super type already provided one.`);
+        property.type = origin.type
       }
-      if (!ovrdType)
-        return;
-      
-      return Util.resolveValue(TypeDescriptor.equals(this.classContext, ovrdType, origType), (retCheck: JelBoolean)=>{
-        if (!retCheck.toRealBoolean())
-          throw new Error(`Error overriding property '${name}' in ${this.name}: super type property type '${origType!.toString()}' is incompatible with overriding type '${ovrdType.toString()}'.`);
-      });
+      return;
     }));
   }
 
@@ -406,7 +396,7 @@ export default class Class extends PackageContent implements SerializablePrimiti
   }
 
   protected asyncInit(): Promise<Class>|Class {
-    return Util.resolveValues(()=>this.staticPropertyInit(), this.checkMethodOverrides(), this.checkGetterOverrides(), this.checkPropertyOverrides());
+    return Util.resolveValues(()=>this.staticPropertyInit(), this.checkMethodOverrides(), this.checkGetterOverrides(), this.fixPropertyOverrides());
   }
   
 	serializeToString(pretty: boolean, indent: number, spaces: string, serializer: (object: any, pretty: boolean, indent: number, spaces: string)=>string): string {

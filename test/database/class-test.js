@@ -117,8 +117,17 @@ describe('Class', function() {
   it('supports abstract superTypes', function() {
     jelAssert.equal(`let superType=abstract class SuperType: a=1 constructor(x=1)=>{a:x+5} abstract test(), subType=class SubType extends superType: constructor()=>super(9) override test()=>1, sub1=subType():
                         [sub1.a, sub1.test()]`, "[14,1]");
+
+    jelAssert.equal(`let superType=abstract class SuperType: abstract a: int abstract b: string? abstract c: int? constructor()=>{}, 
+                         subType=class SubType extends superType: override a  = 1 override b = 'foo' override c  constructor()=>{},
+                         sub1=subType():
+                        [sub1.a, sub1.b, sub1.c]`, "[1, 'foo', null]");
+
     return Promise.all([
       jelAssert.errorPromise(`let s = abstract class AC: constructor()=>{} : s()`, 'declared abstract'),
+      jelAssert.errorPromise(`let s = abstract class AC: constructor()=>{} abstract a = 1: s()`, 'must not have a default value'),
+      jelAssert.errorPromise(`let s = (abstract class AC: abstract a: int): abstract class X extends s: override a: int = 1`, 'overriding property must not specify a type'),
+      jelAssert.errorPromise(`let s = (abstract class AC: abstract a: int), x=(class X extends s: constructor()=>{}  override a): x()`, 'has no default'),
       jelAssert.errorPromise(`let superType=abstract class SuperType: a=1 constructor(x=1)=>{a:x+5} abstract test(), subType=class SubType extends superType: constructor()=>super(9): subType()`, 'Missing override')
     ]);
   });

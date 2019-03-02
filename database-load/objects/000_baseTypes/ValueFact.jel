@@ -2,16 +2,19 @@
  * A single, simple value that represents the actual value of the property.
  */
 class ValueFact extends Fact
+  override factTypeSpecificness = 1
+
   /**
    * @param values The value that represents the fact's actual value.
    */
-  constructor(value: any, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition)
+  constructor(value: any, comprehensive, negative, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition)
 
-  override checkValue(v: any, dependencies: any{}): bool => v == this.value
+  override checkValue(v: any?, dependencies: any{}): bool => v == this.value
 
   override getValue(dependencies: any{}): any? => this.value
   
   override getSingleValue(dependencies: any{}): any? => this.value
     
-    
+  override allows(thisDependencies: any{}, other: Fact, otherDependencies: any{}): bool => true
+
 

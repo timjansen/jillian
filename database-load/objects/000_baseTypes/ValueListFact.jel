@@ -1,16 +1,20 @@
 /**
- * A Fact that offers more than one possible values. Either one of them could be true, but the source wasn't sure which one. 
+ * A Fact that offers more than one possible values. Either one of them could be true, but the source wasn't sure which one. There is a 'complete' 
+ * property to signal whether the given values are all possible values, or whether there may be others. In this context, it makes sense to have a 
+ * ValueListFact that has only a single list, which would just signal that the list contains one possible value.
  * Alternatively the Fact can also be configured to list only those that are not true.
  */
 class ValueListFact extends Fact
+  override factTypeSpecificness = 0.5
+
   /**
    * @param values A list of values, one of those should be the right one.
    * (unless 'negative' is set, then it this is a list of values that are not the right one)
-   * @param negative If true, the value list contains values that are not the right one.
+   * @param negative if true, the value list contains values that are not the right one.
    */
-  constructor(values: any[], negative: bool = false, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition)
+  constructor(values: any[], comprehensive, negative, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition)
 
-  override checkValue(v: any, dependencies: any{}): bool =>
+  override checkValue(v: any?, dependencies: any{}): bool =>
     if this.negative then
       !(v in this.values) 
     else 
@@ -20,5 +24,4 @@ class ValueListFact extends Fact
 
   override getSingleValue(dependencies: any{}): any? => null
  
- 
- 
+  override allows(thisDependencies: any{}, other: Fact, otherDependencies: any{}): bool => true

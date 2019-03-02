@@ -784,20 +784,18 @@ export default class JEL {
                 new Lambda(tokens.peek(), args!, returnType, abstractModifier ? TRUE_LITERAL : JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop), varArgPos>=0);
         methods.push(new MethodDef(peek, methodName, impl, overrideModifier, nativeModifier, staticModifier, abstractModifier, false));
       }
-      else if (next.is(TokenType.Identifier) && (tokens.peekIs(TokenType.Operator, ':') || tokens.peekIs(TokenType.Operator, '='))) {
+      else if (next.is(TokenType.Identifier)) {
         const propertyName = next.value;
         if (nativeModifier && !isNative && !staticModifier)
-          JEL.throwParseException(tokens.last(), `Property ${propertyName} is native in a non-native class. In a non-native class, only static native properties are allowed.`);
+          JEL.throwParseException(next, `Property ${propertyName} is native in a non-native class. In a non-native class, only static native properties are allowed.`);
         if (staticModifier ? staticPropertyNames.has(propertyName) : propertyNames.has(propertyName))
-          JEL.throwParseException(tokens.last(), `${staticModifier ? 'Static property' : 'Property'} ${propertyName} is already declared`);
+          JEL.throwParseException(next, `${staticModifier ? 'Static property' : 'Property'} ${propertyName} is already declared`);
         (staticModifier ? staticPropertyNames : propertyNames).add(propertyName);
         
-        const separator = tokens.next();
-        
-        let defaultValue, typeDef = undefined;
-        if (separator.value == '=')
+        let defaultValue = undefined, typeDef = undefined;
+        if (tokens.nextIf(TokenType.Operator, '=')) 
           defaultValue = JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop);
-        else {
+        else if (tokens.nextIf(TokenType.Operator, ':')) {
           if (staticModifier && !nativeModifier)
             JEL.throwParseException(next, 'You must not set the type of a static property or declare a static property with type or without a value. Static properties require a value, but must not have an explicit type. Only native static can use a type.');
           typeDef = JEL.parseExpression(tokens, CLASS_PRECEDENCE, classTypeExpressionStop, true);

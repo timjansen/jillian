@@ -2,15 +2,18 @@
  * A Fact that offers a distribution of possible values
  */
  class ValueDistributionFact extends Fact
+   override factTypeSpecificness = 0.5
+
   /**
    * @param values The range of possible values.
    */
-  constructor(values: Distribution, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition)
+  constructor(values: Distribution, comprehensive, negative, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition)
 
-  override checkValue(v: any, dependencies: any{}): bool =>
+  override checkValue(v: any?, dependencies: any{}): bool =>
     v in this.values.range
 
   override getValue(dependencies: any{}): any? => this.values
   
   override getSingleValue(dependencies: any{}): any? => if this.values.min == this.values.max then this.values.min else null
   
+  override allows(thisDependencies: any{}, other: Fact, otherDependencies: any{}): bool => true

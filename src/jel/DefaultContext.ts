@@ -170,15 +170,17 @@ export default class DefaultContext {
     return ctxObject;
   }
 
-  private static async load(ctx: Context, dir: string, desc: any): Promise<any> {
-    if (desc[0])
-      return (await Promise.all(desc.map((dl: any)=>DefaultContext.load(ctx, dir, dl)))).reduce((a: any,b: any)=>Object.assign(a,b), {});
-    else if (desc.static)
-      return desc.static;
-    else if (desc.native)
-      return DefaultContext.extendContext({}, await DefaultContext.loadNativeClass(ctx, dir, desc.jel, desc.native));
-    else
-      return DefaultContext.extendContext({}, await DefaultContext.loadClass(ctx, dir, desc.jel));
+  // descriptor: [...] for parallel loading, or {jel?: 'relative path to jel file', native?: NativeClass, static?: {static object defs}}
+  private static async load(ctx: Context, dir: string, descriptor: any): Promise<any> {
+
+    if (descriptor[0])
+      return (await Promise.all(descriptor.map((dl: any)=>DefaultContext.load(ctx, dir, dl)))).reduce((a: any,b: any)=>Object.assign(a,b), {});
+    else if (descriptor.static)
+      return descriptor.static;
+    else if (descriptor.native)
+      return DefaultContext.extendContext({}, await DefaultContext.loadNativeClass(ctx, dir, descriptor.jel, descriptor.native));
+    else 
+      return DefaultContext.extendContext({}, await DefaultContext.loadClass(ctx, dir, descriptor.jel));
   }
   
   static async createBootContext(dir: string, bootScript: any, parentContext?: Context): Promise<Context> {

@@ -84,6 +84,7 @@ export default class DatabaseContext extends Context {
   private getFromDatabase(name: string): JelObject|null|undefined|Promise<JelObject|null|undefined> {
     if (this.cache.has(name)) 
       return this.cache.get(name);
+
     return Util.resolveValueAndError(this.dbSession!.get(name), dbe=> {
       if (dbe instanceof PackageContent) {
         this.cache.set(name, dbe);
@@ -93,9 +94,9 @@ export default class DatabaseContext extends Context {
         this.cache.set(name, undefined);
         return undefined;
       }
-    }, ()=>{
+    }, (e: any)=>{
       this.cache.set(name, undefined);
-      return undefined;
+      throw e;
     });
   }
   

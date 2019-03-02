@@ -6,6 +6,6 @@ class FactHelper
    * Creates a Dictionary of root facts.
    */
   static createRootFacts(dict: any{}): FactList{} =>
-    dict.map((name, value)=>FactList([ValueFact(value, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100)]))
+    dict.map((name, value)=>FactList([ValueFact(value, true, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100)]))
     
     

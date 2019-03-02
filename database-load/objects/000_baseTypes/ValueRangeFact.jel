@@ -2,15 +2,19 @@
  * A Fact that offers a range of possible values instead of the single correct value. Any of the values in the range can be the actual value.
  */
  class ValueRangeFact extends Fact
+  override factTypeSpecificness = 0.5
+
   /**
    * @param values The range of possible values.
+   * @param step if set, the step relative to the Range min or, if min==null, max. Only those values with the step are valid. Most common will be a step value of 1, to allow only integers.
    */
-  constructor(values: Range, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition)
+  constructor(values: Range, step: number?, comprehensive, negative, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition)
 
-  override checkValue(v: any, dependencies: any{}): bool =>
+  override checkValue(v: any?, dependencies: any{}): bool =>
     v in this.values
 
   override getValue(dependencies: any{}): any? => this.values
   
   override getSingleValue(dependencies: any{}): any? => if this.values.min == this.values.max then this.values.min else null
   
+  override allows(thisDependencies: any{}, other: Fact, otherDependencies: any{}): bool => true

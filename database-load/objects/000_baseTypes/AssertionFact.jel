@@ -1,6 +1,6 @@
 /**
  * AssertionFact is a Fact that does not provide a value, but is a mere assertion comparing the value to a constant or other properties, thus limiting the possible values.
- * It consists of a single function that returns a boolean to indicate whether a hypothetical value fulfills the assertion or not.
+ * It consists of a single function that returns a bool to indicate whether a hypothetical value fulfills the assertion or not.
  * The first argument given to the assertion is always the value to check. It can be any object. 
  * The assertion may have additional arguments which must correspond to other property names of the same database entry. They need to be declared in the dependencies property.
  * In addition to the Thing's facts, the following argument names are also supported and will be provided if included:
@@ -9,15 +9,27 @@
  *  * currentLocation - the current location which is being validated, as Geo::ElevatedPosition
  */
 class AssertionFact extends FunctionFact:
+  override factTypeSpecificness = 0.1
+
   firstArgName: string
 
-  override checkValue(v: any, dependencies: any{}): bool => this.func.call(dependencies.set(this.firstArgName, v))
+  override checkValue(v: any?, dependencies: any{}): bool => this.func.call(dependencies.set(this.firstArgName, v))
   override getValue(dependencies: any{}): any? => null
   override getSingleValue(dependencies: any{}): any? => null
   
-  constructor(func, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition) => 
+  constructor(func, comprehensive, negative, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition) => 
     {
       firstArgName: func.getArguments().first.name
     }
-    
-  
+
+  private allowsRange(thisDependencies: any{}, other: Range): bool =>
+    (other.minExclusive || this.checkValue(other.min, thisDependencies)) &&
+    (other.maxExclusive || this.checkValue(other.max, thisDependencies))
+
+
+  override allows(thisDependencies: any{}, other: Fact, otherDependencies: any{}): bool =>
+    if other instanceof AssertionFact then true
+    if other instanceof CalculatedFact|ValueFact then this.checkValue(other.getValue(otherDependencies), thisDependencies)
+    if other instanceof CalculatedRangeFact|ValueRangeFact then this.allowsRange(thisDependencies, other.getValue(otherDependencies))
+
+
