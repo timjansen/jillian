@@ -138,6 +138,9 @@ describe('Class', function() {
     jelAssert.equal(`let superType=class SuperType: constructor()=>{} incX(x): int=> x+1, subType=class SubType extends superType: constructor()=>{} override incX(x):int=>x+2, sup1=superType(), sub1=subType():
                         [sup1.incX(5), sub1.incX(10)]`, "[6, 12]");
 
+    jelAssert.equal(`let superType=class SuperType: constructor()=>{} a()=>5 b()=>this.a(), subType=class SubType extends superType: constructor()=>{} override a()=>10, sup1=superType(), sub1=subType():
+                        [sup1.a(), sub1.a()]`, "[5, 10]");
+
     return Promise.all([
       jelAssert.errorPromise(`let superType=abstract class SuperType: incX(x: int)=>x+1, subType=class SubType extends superType: constructor()=>{} override incX(x: number)=>x+2: subType()`, 'number'),
       jelAssert.errorPromise(`let superType=abstract class SuperType: incX(a,b,c,d,e,f)=>a+1, subType=class SubType extends superType: constructor()=>{} override incX(a,b,c,d,e,f,g)=>a+2: subType()`, '7'),

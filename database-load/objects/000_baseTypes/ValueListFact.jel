@@ -5,14 +5,17 @@
  * Alternatively the Fact can also be configured to list only those that are not true.
  */
 class ValueListFact extends Fact
-  override factTypeSpecificness = 0.5
-
   /**
    * @param values A list of values, one of those should be the right one.
    * (unless 'negative' is set, then it this is a list of values that are not the right one)
    * @param negative if true, the value list contains values that are not the right one.
    */
-  constructor(values: any[], comprehensive, negative, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition)
+  constructor(values: any[], comprehensive, negative, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition) =>
+  {
+    factTypeSpecificness: if negative then 0.2
+                          if comprehensive then 0.75
+                          else 0.6
+  }
 
   override checkValue(v: any?, dependencies: any{}): bool =>
     if this.negative then

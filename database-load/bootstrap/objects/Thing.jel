@@ -6,8 +6,10 @@ native class Thing extends DbEntry:
   native constructor(distinctName, 
                category: category?,
                facts = {},
+               defaultFacts: DefaultProperties[]?,
                reality = null,
 							 hashCode = null)
-               
+
   native isA(category: string|category): bool
   
+  override getAllFacts(name: string): Fact[] => (this.facts.get(name) || []).addAll(if this.category then this.category.getAllFacts(name) else [])

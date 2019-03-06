@@ -3,7 +3,7 @@
  */
 native class DbEntry:
   native constructor(distinctName: string, 
-               facts: FactList{} = {},
+               facts: Fact[]{} = {},
                reality: thing?,               // <<< TODO
 							 hashCode: string?)
 
@@ -24,18 +24,28 @@ native class DbEntry:
     if fact.precondition then fact.precondition.call(deps)
 
 
+
+  /**
+   * Returns all facts with the given name that are relevant to this DbEntry. On Categories, it will be just the list of direct facts. On Things, it will be Thing's own facts plus the Category facts.
+   */
+  getAllFacts(name: string): Fact[] => Jel.log('DbEntry.getAllFacts returning ', this.facts.get(name), ' for ', name, ' in ', this.distinctName) && (this.facts.get(name) || [])
+
+
+  getFilteredFacts(name: string, filter: function((element: any?, index: int(>=0))=>any?)?, max: int(>=0)?): Fact[] =>
+    let sorted = this.getAllFacts(name).sort(key='trustLevel', desc=true):
+      if filter then sorted.filter(filter, max) 
+      else if max != null then sorted.subLen(length=max)
+      else sorted
+
+
   getBestFacts(name: string, currentTime: time, metaProperties: any{}?, max: int(>=0)?, excludedProperties: Set?): Fact[] =>
-    let fl = this.facts.get(name):
-      if !fl then 
-        []
-      else
-        fl.getBestFacts(filter = f=>(if f.startTime then f.startTime <= currentTime) &&
-                                    (if f.endTime then f.endTime > currentTime) && 
-                                    (
-                                      let deps = this.getDependencies(f, currentTime, metaProperties, excludedProperties):
-                                        deps != null && this.checkPrecondition(f, deps)
-                                    ),
-                       max = max)
+    this.getFilteredFacts(name, filter = f=>(if f.startTime then f.startTime <= currentTime) &&
+                          (if f.endTime then f.endTime > currentTime) && 
+                          (
+                            let deps = this.getDependencies(f, currentTime, metaProperties, excludedProperties):
+                              deps != null && this.checkPrecondition(f, deps)
+                          ),
+             max = max)
 
 
   getBestValues(name: string, currentTime: time, metaProperties: any{}?, max: int(>=0)?, excludedProperties: Set?): FactResult[] =>

@@ -551,6 +551,16 @@ export default class Dictionary extends NativeJelObject implements SerializableP
 		return r + '}';
 	}
 
+  static merge(dicts?: Dictionary[]): Dictionary {
+    if (!dicts || !dicts.length)
+      return Dictionary.empty;
+    if (dists.length == 1)
+      return dicts[0];
+    let d = dicts[0];
+    for (let i = 1; i < dicts.length; i++)
+      d = d.putAll(dicts[i]);
+    return d;
+  }
 
 	static valueOf(data?: Map<string, any>, keepMap = false): Dictionary {
 		return new Dictionary(data, keepMap);

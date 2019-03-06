@@ -7,12 +7,16 @@
  *  - currentLocation: the current location which is being validated, as Geo::ElevatedPosition
  */
 class CalculatedFact extends FunctionFact
-  override factTypeSpecificness = 1
 
   /**
    * The function to calculate the fact. See above for description of possible arguments.
    */
-  constructor(func, comprehensive, negative, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition)
+  constructor(func, comprehensive, negative, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition) =>
+  {
+    factTypeSpecificness: if negative then 0.1
+                          if comprehensive then 1
+                          else 0.5
+  }
 
   override checkValue(v: any?, dependencies: any{}): bool => this.func.call(dependencies) == v
   

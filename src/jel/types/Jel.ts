@@ -52,8 +52,9 @@ export default class Jel extends NativeJelObject {
       logger(msg);
       return (args[args.length-1] as Callable).invoke(undefined, JelString.valueOf(msg));
     }
-    else
-      logger(Jel.buildMessage(ctx, args, args.length));
+
+    logger(Jel.buildMessage(ctx, args, args.length));
+    return true;
   }
   
   static log_jel_mapping = true

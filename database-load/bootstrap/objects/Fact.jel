@@ -7,7 +7,7 @@ abstract class Fact
   /**
    * Defines how good the fact type is specifying the fact value. A ValueFact would be a 1, while a ValueRangeFact is less specific and a AssertionFact even less.
    */
-  abstract factTypeSpecificness: number(0...1)
+  factTypeSpecificness: number(0...1)
 
   /**
    * If true, the values represented by this fact are comprehensive. If false, other values are possible.

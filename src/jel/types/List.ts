@@ -333,7 +333,10 @@ export default class List extends NativeJelObject implements SerializablePrimiti
   addAll_jel_mapping: Object;
 	addAll(ctx: Context, list0: any) {
     const list = TypeChecker.instance(List, list0, 'list');
-    return new List(this.elements.concat(list.elements));
+    if (list.elements.length)
+      return new List(this.elements.concat(list.elements));
+    else
+      return this;
   }
   
 	private partition(ctx: Context, l: any[], start: number, end: number, isLess: (a: any, b: any)=>boolean|Promise<boolean>): number | Promise<number> {

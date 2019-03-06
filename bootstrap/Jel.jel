@@ -2,9 +2,9 @@ native class Jel:
 
   static native throw(...args: any?[])
   
-	static native log(args: any?[]): any
+	static native log(...args: any?[]): any
 
-	static native error(args: any?[]): any
+	static native error(...args: any?[]): any
   
 	static native same(left: any?, right: any?): bool
 

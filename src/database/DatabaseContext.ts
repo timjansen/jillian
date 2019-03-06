@@ -13,6 +13,7 @@ import DbRef from './DbRef';
 import DbEntry from './DbEntry';
 import Category from './dbObjects/Category';
 import Thing from './dbObjects/Thing';
+import DefaultProperties from './dbObjects/DefaultProperties';
 import MixinProperty from './dbObjects/MixinProperty';
 import PackageContent from '../jel/types/PackageContent';
 import CategoryType from './dbTypes/CategoryType';
@@ -50,8 +51,10 @@ const BOOT_SCRIPT = [
     {jel: 'objects/Fact.jel'},
     {jel: 'objects/FactResult.jel'}
   ],
-  {jel: 'objects/FactList.jel'},
-  {jel: 'objects/DbEntry.jel', native: DbEntry},
+  [
+    {jel: 'objects/DbEntry.jel', native: DbEntry},
+    {jel: 'objects/DefaultProperties.jel', native: DefaultProperties},
+  ],
   {jel: 'objects/Category.jel', native: Category},
   [
     {jel: 'objects/FunctionFact.jel'},

@@ -1,5 +1,5 @@
 Category('QuantityCategory', 
-	facts=FactHelper.createRootFacts({
+	factTypes=FactHelper.createRootFacts({
 		primaryUnit: @UnitOfMeasureCategory,
 		imperialUnit: @UnitOfMeasureCategory?
 	}

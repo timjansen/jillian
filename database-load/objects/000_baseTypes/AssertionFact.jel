@@ -9,7 +9,7 @@
  *  * currentLocation - the current location which is being validated, as Geo::ElevatedPosition
  */
 class AssertionFact extends FunctionFact:
-  override factTypeSpecificness = 0.1
+  
 
   firstArgName: string
 
@@ -19,7 +19,8 @@ class AssertionFact extends FunctionFact:
   
   constructor(func, comprehensive, negative, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition) => 
     {
-      firstArgName: func.getArguments().first.name
+      firstArgName: func.getArguments().first.name,
+      factTypeSpecificness: 0.1
     }
 
   private allowsRange(thisDependencies: any{}, other: Range): bool =>

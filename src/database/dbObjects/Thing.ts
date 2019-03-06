@@ -25,8 +25,8 @@ export default class Thing extends DbEntry {
   static clazz: Class|undefined;
 
   
-  constructor(distinctName: string, category: Category|DbRef, facts?: Dictionary, reality?: DbRef, hashCode?: string) {
-    super('Thing', distinctName, facts, reality, hashCode);
+  constructor(distinctName: string, category: Category|DbRef, facts?: Dictionary, defaultFacts?: List, reality?: DbRef, hashCode?: string) {
+    super('Thing', distinctName, defaultFacts ? Dictionary.merge(defaultFacts.elements.map(df=>df.facts)).putAll(facts) : facts, reality, hashCode);
     this.category = category instanceof DbRef ? category : new DbRef(category);
   }
   
@@ -49,15 +49,17 @@ export default class Thing extends DbEntry {
 	}
 	
   getSerializationProperties(): any[] {
-    return [this.distinctName, this.category, this.facts, this.reality, this.hashCode];
+    return [this.distinctName, this.category, this.facts, this.defaultFacts, this.reality, this.hashCode];
   }
 
   static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]) {
     return new Thing(TypeChecker.realString(args[0], 'distinctName'), 
                      args[1] instanceof DbRef ? args[1] : TypeChecker.instance(Category, args[1], 'category'), 
-                     TypeChecker.instance(Dictionary, args[2], 'facts', Dictionary.empty), (TypeChecker.optionalDbRef(args[3], 'reality')||undefined) as any, 
-                     TypeChecker.optionalRealString(args[4], 'hashCode')||undefined);
+                     TypeChecker.instance(Dictionary, args[2], 'facts', Dictionary.empty), 
+                     TypeChecker.optionalInstance(List, args[3], 'defaultFacts') || undefined, 
+                     (TypeChecker.optionalDbRef(args[4], 'reality')||undefined) as any, 
+                     TypeChecker.optionalRealString(args[5], 'hashCode')||undefined);
   }
 }
 
