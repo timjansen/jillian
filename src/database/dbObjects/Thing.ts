@@ -49,7 +49,7 @@ export default class Thing extends DbEntry {
 	}
 	
   getSerializationProperties(): any[] {
-    return [this.distinctName, this.category, this.facts, this.defaultFacts, this.reality, this.hashCode];
+    return [this.distinctName, this.category, this.facts, undefined, this.reality, this.hashCode];
   }
 
   static create_jel_mapping = true;

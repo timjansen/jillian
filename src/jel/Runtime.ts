@@ -72,23 +72,23 @@ export default class Runtime {
   }
   
 	static instanceOf(ctx: Context, left: JelObject|null, right: JelObject|string|null): boolean {
-		if (!right || !left)
-			return false;
+    if (!right || !left)
+      return false;
     
     let rightName: string;
     if (typeof right == 'string')
       rightName = right; 
     else if ((right as any).iClass) 
       rightName = (right as any).name;
-		else if ((right as any).isIDBRef)
+    else if ((right as any).isIDBRef)
       rightName = (right as any).distinctName;
     else
       return false;
     
-    if (left instanceof BaseTypeRegistry.get('GenericJelObject'))
-      return Runtime.isClassCompatible(ctx, (left as any).clazz, rightName);      
-    else 
+    if (!(left as any).clazz)              // This can happen if class is not fully initialized yet
       return left.className == rightName;
+    
+    return Runtime.isClassCompatible(ctx, (left as any).clazz, rightName);      
 	}
   
   static callMethod(ctx: Context, obj: JelObject|null, name: string, args: any[], argObj?: any): JelObject|null|Promise<JelObject|null> {

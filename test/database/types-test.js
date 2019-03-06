@@ -194,6 +194,20 @@ describe('Types', function() {
     jelAssert.fuzzy('FunctionType(()=>1).checkType("eek")', 0);
   });
 
+  
+  it('checks all convertable typedefs', function() {
+    jelAssert.fuzzy('true instanceof typedef', 0);
+    jelAssert.fuzzy('"foo" instanceof typedef', 0);
+    jelAssert.fuzzy('null instanceof typedef', 0);
+    jelAssert.fuzzy('{a: any} instanceof typedef', 1);
+    jelAssert.fuzzy('1...10 instanceof typedef', 1);
+    jelAssert.fuzzy('any instanceof typedef', 1);
+    jelAssert.fuzzy('@Test instanceof typedef', 1);
+    jelAssert.fuzzy('String instanceof typedef', 1);
+    jelAssert.fuzzy('(enum AEnum: a, b, c) instanceof typedef', 1);
+    jelAssert.fuzzy('function(()=>1) instanceof typedef', 1);
+  });
+  
   it('checks categories', function() {
     return JEL.execute(`[Category('VehicleCategory'), Category('DummyCategory')]`, '(inline)', ctx).then(cats=>db.put(ctx, ...cats.elements))
       .then(()=>JEL.execute(`[Category('TrainCategory', @VehicleCategory)]`, '(inline)', ctx)).then(cats=>db.put(ctx, ...cats.elements))

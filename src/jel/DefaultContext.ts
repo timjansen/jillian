@@ -8,6 +8,7 @@ import TypedParameterValue from './TypedParameterValue';
 import Callable from './Callable';
 import NativeCallable from './NativeCallable';
 import LambdaCallable from './LambdaCallable';
+import JelObject from './JelObject';
 
 import ReferenceHelper from './types/ReferenceHelper';
 import JelBoolean from './types/JelBoolean';
@@ -31,6 +32,7 @@ import Class from '../jel/types/Class';
 import Package from '../jel/types/Package';
 import Method from '../jel/types/Method';
 import Property from '../jel/types/Property';
+import PackageContent from '../jel/types/PackageContent';
 
 import Duration from './types/time/Duration';
 import DurationRange from './types/time/DurationRange';
@@ -96,6 +98,7 @@ const BOOT_SCRIPT = [
     {jel: 'typeDescriptors/StringType.jel', native: StringType},
     {jel: 'typeDescriptors/DateType.jel', native: DateType},
     {jel: 'typeDescriptors/TimeType.jel', native: TimeType},
+    {jel: 'typeDescriptors/typedef.jel', name: 'typedef'}
   ],
   [
     {jel: 'typeDescriptors/ComplexType.jel', native: ComplexType},
@@ -155,22 +158,31 @@ export default class DefaultContext {
   
 
 
-  private static async loadClass(ctx: Context, basePath: string, classPath: string): Promise<Class> {
+  private static async loadExpression(ctx: Context, basePath: string, classPath: string): Promise<JelObject> {
     return JEL.execute(await fs.readFile(path.join(basePath, classPath), {encoding: 'utf-8'}), classPath, ctx);
   }
 
-  private static async loadNativeClass(ctx: Context, basePath: string, classPath: string, nativeClazzImpl: any): Promise<Class> {
-    const jelClass = await DefaultContext.loadClass(ctx, basePath, classPath);
+  private static async loadNativeClass(ctx: Context, basePath: string, classPath: string, nativeClazzImpl: any): Promise<JelObject> {
+    const jelClass = await DefaultContext.loadExpression(ctx, basePath, classPath);
     nativeClazzImpl.clazz = jelClass;
     return jelClass;
   }
   
-  private static extendContext(ctxObject: any, jelClass: Class): any {
-    ctxObject[jelClass.name] = jelClass;
+  private static extendContextWithClass(ctxObject: any, jelClass: JelObject): any {
+    if (jelClass instanceof PackageContent) 
+      ctxObject[jelClass.distinctName] = jelClass;
+    else
+      throw new Error('Expected class, but got ' + jelClass.toString());
+    return ctxObject;
+  }
+  
+    
+  private static extendContext(ctxObject: any, jelObject: JelObject, name: string): any {
+    ctxObject[name] = jelObject;
     return ctxObject;
   }
 
-  // descriptor: [...] for parallel loading, or {jel?: 'relative path to jel file', native?: NativeClass, static?: {static object defs}}
+  // descriptor: [...] for parallel loading, or {jel?: 'relative path to jel file', native?: NativeClass, static?: {static object defs}, name?: "name for unnamed expressions"}
   private static async load(ctx: Context, dir: string, descriptor: any): Promise<any> {
 
     if (descriptor[0])
@@ -178,9 +190,11 @@ export default class DefaultContext {
     else if (descriptor.static)
       return descriptor.static;
     else if (descriptor.native)
-      return DefaultContext.extendContext({}, await DefaultContext.loadNativeClass(ctx, dir, descriptor.jel, descriptor.native));
+      return DefaultContext.extendContextWithClass({}, await DefaultContext.loadNativeClass(ctx, dir, descriptor.jel, descriptor.native));
+    else if (descriptor.name)
+      return DefaultContext.extendContext({}, await DefaultContext.loadExpression(ctx, dir, descriptor.jel), descriptor.name);
     else 
-      return DefaultContext.extendContext({}, await DefaultContext.loadClass(ctx, dir, descriptor.jel));
+      return DefaultContext.extendContextWithClass({}, await DefaultContext.loadExpression(ctx, dir, descriptor.jel));
   }
   
   static async createBootContext(dir: string, bootScript: any, parentContext?: Context): Promise<Context> {

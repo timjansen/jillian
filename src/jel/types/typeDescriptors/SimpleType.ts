@@ -36,7 +36,7 @@ export default class SimpleType extends TypeDescriptor {
     return [this.type];
   }
   
-  serializeType(): string {  
+  serializeType(): string {
     return `SimpleType("${this.type}")`;
   }
   

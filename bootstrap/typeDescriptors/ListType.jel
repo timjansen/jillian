@@ -6,7 +6,7 @@ native class ListType extends TypeDescriptor:
    * Creates a new ListType with the given element type. 
    * @param types the type of the elements
    */
-  native constructor(types: any?)
+  native constructor(types: typedef?)
   
   override native checkType(value: any?): bool
 

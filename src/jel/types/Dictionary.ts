@@ -554,7 +554,7 @@ export default class Dictionary extends NativeJelObject implements SerializableP
   static merge(dicts?: Dictionary[]): Dictionary {
     if (!dicts || !dicts.length)
       return Dictionary.empty;
-    if (dists.length == 1)
+    if (dicts.length == 1)
       return dicts[0];
     let d = dicts[0];
     for (let i = 1; i < dicts.length; i++)
