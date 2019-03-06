@@ -2,7 +2,6 @@
  * A MixinProperty is a property that can be shared between categories.
  */
 native class MixinProperty extends NamedObject:
-  native constructor(distinctName, 
-               type: any,                   // TODO: TypeDescriptor or shortcuts
-							 category: CategoryType()?)
+  native constructor(distinctName, type: typedef)   // TODO: a definition for typedefs should be used instead of any
+               
                
