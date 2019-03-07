@@ -59,7 +59,6 @@ class LoadTracker {
       this.loaded.set(name, entry);
       if (entry instanceof PackageContent)
         this.packagesContent.push(entry);
-
       return db.put(ctx, entry as NamedObject).then(()=>entry);
     });
     this.beingLoaded.set(name, p);

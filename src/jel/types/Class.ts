@@ -389,9 +389,9 @@ export default class Class extends PackageContent implements SerializablePrimiti
            this.staticProperties];
   }
 
-  static valueOf(ctx: Context, name: string, c: Class, isAbstract: boolean, nativeClass: any, isNative: boolean, ctor: LambdaCallable|NativeCallable|null, properties: List,
+  static valueOf(ctx: Context, name: string, superClass: Class, isAbstract: boolean, nativeClass: any, isNative: boolean, ctor: LambdaCallable|NativeCallable|null, properties: List,
                  methods: List, staticProperties: List): Class|Promise<Class> {
-    const cl = new Class(ctx, name, c, isAbstract, nativeClass, isNative, ctor, properties, methods, staticProperties);
+    const cl = new Class(ctx, name, superClass, isAbstract, nativeClass, isNative, ctor, properties, methods, staticProperties);
     return cl.asyncInit();
   }
 
