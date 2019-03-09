@@ -1,6 +1,0 @@
-/**
- * A DefaultProperties is a set of default properties.
- */
-native class DefaultProperties extends NamedObject:
-  native constructor(distinctName, facts: Fact[]{})
-               

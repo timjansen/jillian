@@ -233,5 +233,15 @@ describe('Types', function() {
                             jelAssert.equalPromise('@GrumpyCat instanceof @Dummy2Category', 'false')]));
   });
 
+  it('checks references', function() {
+    return JEL.execute(`[MixinDefaults('testMixin', {})]`, '(inline)', ctx).then(objs=>db.put(ctx, ...objs.elements))
+      .then(()=>Promise.all([jelAssert.equalPromise('@testMixin instanceof RefType()', 'true'),
+                             jelAssert.equalPromise('@testMixin instanceof RefType(any)', 'true'),
+                             jelAssert.equalPromise('@testMixin instanceof RefType(MixinDefaults)', 'true'),
+                             jelAssert.equalPromise('@testMixin instanceof RefType(Category)', 'false'),
+                             jelAssert.equalPromise('true instanceof RefType()', 'false')]));
+  });
+
+  
 });
 

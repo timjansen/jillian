@@ -83,10 +83,6 @@ export default class DbRef extends NativeJelObject implements IDbRef, Serializab
     return this.with(ctx, o => o.withMember(ctx, name, f)) as Promise < T > | T;
   }
 
-  withFact < T > (ctx: Context, name: string, f: (v: any) => T): Promise < T > | T {
-    return this.with(ctx, (o: any) => o.withFact(ctx, name, f)) as Promise < T > | T;
-  }
-
   hasSameParameters(right: DbRef): boolean {
     if (!this.parameters != !right.parameters)
       return false;
@@ -110,10 +106,6 @@ export default class DbRef extends NativeJelObject implements IDbRef, Serializab
   // Returns the member value with the given name, possibly wrapped in a Promise
   member(ctx: Context, name: string): Promise < any > | any {
     return this.with(ctx, (o: NamedObject) => this.memberInternal(ctx, o, name));
-  }
-
-  getFactValue(ctx: Context, name: string, t ? : any): Promise < any > | any {
-    return this.with(ctx, (o: NamedObject) => this.getFactValue(ctx, name, t));
   }
 
   op(ctx: Context, operator: string, right: any): any {

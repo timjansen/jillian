@@ -63,7 +63,7 @@ export default class ListType extends TypeDescriptor {
     }
     if (!this.types)
       return new List([value]);
-    return new List([this.types.convert(ctx, value)]);
+    return Util.resolveValue(this.types.convert(ctx, value), v=>new List([v]));
   }
   
   getSerializationProperties(): any[] {

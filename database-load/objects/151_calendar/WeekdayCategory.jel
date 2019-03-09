@@ -11,5 +11,5 @@ Category('WeekdayCategory',
 	factTypes = {
     dayOfWeekNumber: int
 	},
-  mixins = ['order']
+  mixins = @order
 )

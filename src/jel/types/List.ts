@@ -27,6 +27,12 @@ export default class List extends NativeJelObject implements SerializablePrimiti
 	constructor(elements: List|any[]|IterableIterator<any> = []) {
 		super("List");
 		this.elements = elements instanceof List ? elements.elements : Array.isArray(elements) ? elements : Array.from(elements);
+    
+    for (let i = 0; i < this.elements.length; i++)
+      if (this.elements[i] instanceof Promise)
+        throw new Error('ELment '+i+' is a promise');
+    
+
 	}
   
   get clazz(): Class {

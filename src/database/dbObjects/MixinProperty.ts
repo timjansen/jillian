@@ -1,7 +1,7 @@
 import Category from './Category';
 import DbRef from '../DbRef';
 import Context from '../../jel/Context';
-import NamedObject from '../../jel/types/NamedObject';
+import DbEntry from '../DbEntry';
 import Class from '../../jel/types/Class';
 import TypeDescriptor from '../../jel/types/typeDescriptors/TypeDescriptor';
 import TypeHelper from '../../jel/types/typeDescriptors/TypeHelper';
@@ -16,7 +16,7 @@ import BaseTypeRegistry from '../../jel/BaseTypeRegistry';
 /**
  * Defines a property used by several categories, e.g. @size or @dimensions or @firstName
  */
-export default class MixinProperty extends NamedObject {
+export default class MixinProperty extends DbEntry {
   type_jel_property: boolean;
   categoryProperty_jel_property: boolean;
   public type: TypeDescriptor;

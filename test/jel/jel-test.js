@@ -142,8 +142,9 @@ describe('JEL', function () {
       jelAssert.equal("3 as Float|String", "3");
       jelAssert.equal("'hello' as Float|String", "'hello'");
       jelAssert.equal("null as Float|String?", "null");
-      jelAssert.equal("{a:1, b:2} as {a: int, b: int}", "{a:1, b:2}");
-      //return jelAssert.errorPromise("true as String|Float");
+      jelAssert.equal("[1, 2] as int[]", "[1,2]");
+      jelAssert.equal("5 as int[]", "[5]");
+      jelAssert.equal("null as int[]", "[]");
      });
 
      it('should support as for type conversion', function() {

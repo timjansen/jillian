@@ -1,0 +1,17 @@
+/**
+ * A type that allows references to database types.
+ */
+native class RefType extends TypeDescriptor:
+  /**
+   * Creates a new RefType.
+   * @param refType optional the type of the object that's being referred to
+   */
+  native constructor(type: typedef?)
+  
+  override native checkType(value: any?): bool
+
+  override native convert(value: any?): any?
+  
+  override native equals(other: TypeDescriptor?): bool
+  
+  override native serializeToString(): string

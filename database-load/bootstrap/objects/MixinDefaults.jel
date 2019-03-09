@@ -1,0 +1,6 @@
+/**
+ * A MixinDefaults is a set of default properties.
+ */
+native class MixinDefaults extends DbEntry:
+  native constructor(distinctName, facts)
+               

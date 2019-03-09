@@ -10,10 +10,8 @@ export interface IDbRef {
 	
 	with<T>(ctx: Context, f: (obj: any)=>T): Promise<T> | T;
 	withMember<T>(ctx: Context, name: string, f: (v: any)=>T): Promise<T> | T;
-	withFact<T>(ctx: Context, name: string, f: (v: any)=>T): Promise<T> | T;
 
   get(ctx: Context): Promise<any> | any;
-  getFactValue(ctx: Context, name: string, t?: any): Promise<any> | any;
 	member(ctx: Context, name: string): Promise<any> | any;
 }
 

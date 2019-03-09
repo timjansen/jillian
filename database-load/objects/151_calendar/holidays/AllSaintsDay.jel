@@ -4,5 +4,5 @@ Thing('AllSaintsDay', @HolidayCategory,
     day: 1,
     firstDate: LocalDate(1, 11, 1)
   }),
-  defaultFacts=[yearlyHoliday]
+  defaultFacts=@yearlyHoliday
 )

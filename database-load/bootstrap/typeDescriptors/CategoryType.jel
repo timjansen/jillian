@@ -6,7 +6,7 @@ native class CategoryType extends TypeDescriptor:
    * Creates a new CategoryType with the given super category
    * @param superCategory optional a super category to restrict the allowed categories, as reference or string
    */
-  native constructor(superCategory: any?)
+  native constructor(superCategory: category?)
   
   override native checkType(value: any?): bool
 
@@ -16,4 +16,4 @@ native class CategoryType extends TypeDescriptor:
   
   override native serializeToString(): string
   
-  native create(superCategory: any?): CategoryType
+  native create(superCategory: category?): CategoryType

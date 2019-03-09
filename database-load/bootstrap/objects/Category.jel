@@ -4,8 +4,8 @@
 native class Category extends DbEntry:
   native constructor(distinctName, 
                superCategory: category?,
-               factTypes: any{} = {},
+               factTypes: typedef{} = {},
                facts = {},
-               mixins: string[] = [],
+               mixins: RefType(MixinProperty)[] = [],
                reality)
                

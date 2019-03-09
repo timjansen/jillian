@@ -10,5 +10,5 @@ Category('MonthCategory',
 	factTypes = {
     monthNumber: int
 	},
-  mixins = ['order']
+  mixins = @order
 )

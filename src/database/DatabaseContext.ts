@@ -13,9 +13,10 @@ import DbRef from './DbRef';
 import DbEntry from './DbEntry';
 import Category from './dbObjects/Category';
 import Thing from './dbObjects/Thing';
-import DefaultProperties from './dbObjects/DefaultProperties';
+import MixinDefaults from './dbObjects/MixinDefaults';
 import MixinProperty from './dbObjects/MixinProperty';
 import PackageContent from '../jel/types/PackageContent';
+import RefType from './dbTypes/RefType';
 import CategoryType from './dbTypes/CategoryType';
 import ThingType from './dbTypes/ThingType';
 import UnitValueQuantityType from './dbTypes/UnitValueQuantityType';
@@ -30,8 +31,11 @@ import UnitValue from '../jel/types/UnitValue';
 
 const BOOT_SCRIPT = [
   {static: {duration: DurationType.instance, category: CategoryType.instance, thing: ThingType.instance}}, 
-  {jel: 'typeDescriptors/CategoryType.jel', native: CategoryType},
-  {jel: 'typeDescriptors/ThingType.jel', native: ThingType},
+  [
+    {jel: 'typeDescriptors/CategoryType.jel', native: CategoryType},
+    {jel: 'typeDescriptors/RefType.jel', native: RefType},
+    {jel: 'typeDescriptors/ThingType.jel', native: ThingType}
+  ],
   
   {jel: 'objects/Unit.jel', native: Unit},
   {jel: 'objects/UnitValue.jel', native: UnitValue},
@@ -51,17 +55,17 @@ const BOOT_SCRIPT = [
     {jel: 'objects/Fact.jel'},
     {jel: 'objects/FactResult.jel'}
   ],
+  {jel: 'objects/DbEntry.jel', native: DbEntry},
   [
-    {jel: 'objects/DbEntry.jel', native: DbEntry},
-    {jel: 'objects/DefaultProperties.jel', native: DefaultProperties},
+    {jel: 'objects/MixinProperty.jel', native: MixinProperty},
+    {jel: 'objects/MixinDefaults.jel', native: MixinDefaults}
   ],
   {jel: 'objects/Category.jel', native: Category},
   [
     {jel: 'objects/FunctionFact.jel'},
     {jel: 'objects/DbRef.jel', native: DbRef},
-    {jel: 'objects/MixinProperty.jel', native: MixinProperty},
     {jel: 'objects/Thing.jel', native: Thing}
-  ],
+  ]
 ];
 
 const BOOTSTRAP_DIR = path.join(__dirname, '../../database-load/bootstrap/');

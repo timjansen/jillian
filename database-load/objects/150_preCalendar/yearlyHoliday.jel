@@ -1,4 +1,4 @@
-DefaultProperties('yearlyHoliday',
+MixinDefaults('yearlyHoliday',
 	facts=FactHelper.createRootFacts({
     duration: 1 @Day,
     durationInYear: (year)=>1 @Day,

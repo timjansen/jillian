@@ -1,6 +1,6 @@
 import Category from './Category';
 import Context from '../../jel/Context';
-import NamedObject from '../../jel/types/NamedObject';
+import DbEntry from '../DbEntry';
 import Class from '../../jel/types/Class';
 import TypeDescriptor from '../../jel/types/typeDescriptors/TypeDescriptor';
 import TypeHelper from '../../jel/types/typeDescriptors/TypeHelper';
@@ -14,8 +14,7 @@ import BaseTypeRegistry from '../../jel/BaseTypeRegistry';
 /**
  * Defines a set of default values for a Thing.
  */
-export default class DefaultProperties extends NamedObject {
-  facts_jel_property: boolean;
+export default class MixinDefaults extends DbEntry {
   static clazz: Class|undefined;
 
 
@@ -25,13 +24,13 @@ export default class DefaultProperties extends NamedObject {
 	 * @param facts a Dictionary of values
 	 */
   constructor(distinctName: string, public facts: Dictionary) {
-    super('DefaultProperties', distinctName);
+    super('MixinDefaults', distinctName, facts);
 		if (!distinctName.match(/^[a-z]/))
-			throw Error('By convention, all DefaultProperties names must begin with a lower-case letter. Illegal name: ' + distinctName);
+			throw Error('By convention, all MixinDefaults names must begin with a lower-case letter. Illegal name: ' + distinctName);
   }
   
   get clazz(): Class {
-    return DefaultProperties.clazz!;
+    return MixinDefaults.clazz!;
   }  
   
   getSerializationProperties(): any[] {
@@ -40,12 +39,12 @@ export default class DefaultProperties extends NamedObject {
 
   static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]) {
-    return new DefaultProperties(TypeChecker.realString(args[0], 'distinctName'), TypeChecker.instance(Dictionary, args[1], 'facts'));
+    return new MixinDefaults(TypeChecker.realString(args[0], 'distinctName'), TypeChecker.instance(Dictionary, args[1], 'facts'));
   }
 }
 
-DefaultProperties.prototype.facts_jel_property = true;
+MixinDefaults.prototype.facts_jel_property = true;
 
-BaseTypeRegistry.register('DefaultProperties', DefaultProperties);
+BaseTypeRegistry.register('MixinDefaults', MixinDefaults);
 
 

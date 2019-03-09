@@ -6,7 +6,7 @@ native class Thing extends DbEntry:
   native constructor(distinctName, 
                category: category?,
                facts = {},
-               defaultFacts: DefaultProperties[]?,
+               defaultFacts: RefType(MixinDefaults)[]?,
                reality = null,
 							 hashCode = null)
 
