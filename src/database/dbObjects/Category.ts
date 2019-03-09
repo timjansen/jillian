@@ -75,7 +75,7 @@ export default class Category extends DbEntry {
 	}
 	
   getSerializationProperties(): any[] {
-		return [this.distinctName, this.superCategory, this.facts, this.facts, this.mixins, this.reality];
+		return [this.distinctName, this.superCategory, this.factTypes, this.facts, this.mixins, this.reality];
   }
     
   static create_jel_mapping = true;

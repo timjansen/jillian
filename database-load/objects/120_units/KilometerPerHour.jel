@@ -7,7 +7,7 @@ Thing('KilometerPerHour', @UnitOfMeasureCategory,
 			MeterPerSecond: {factor: 0.277778},
 			MilesPerHour: {factor: 0.621371}
 		},
-		createFrom: [Unit(@Kilometer, @Hour)]
+		createFrom: [Unit('Kilometer', 'Hour')]
 }))
 
 

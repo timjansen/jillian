@@ -28,7 +28,7 @@ native class DbEntry:
   /**
    * Returns all facts with the given name that are relevant to this DbEntry. On Categories, it will be just the list of direct facts. On Things, it will be Thing's own facts plus the Category facts.
    */
-  getAllFacts(name: string): Fact[] => Jel.log('DbEntry.getAllFacts returning ', this.facts.get(name), ' for ', name, ' in ', this.distinctName) && (this.facts.get(name) || [])
+  getAllFacts(name: string): Fact[] => (this.facts.get(name) || [])
 
 
   getFilteredFacts(name: string, filter: function((element: any?, index: int(>=0))=>any?)?, max: int(>=0)?): Fact[] =>

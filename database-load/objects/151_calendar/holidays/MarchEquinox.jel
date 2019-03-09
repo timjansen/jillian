@@ -2,5 +2,5 @@ Thing('MarchEquinox', @HolidayCategory,
 	facts=FactHelper.createRootFacts({
     month: 3,
     day: 20
-  }
-))
+  }),
+  defaultFacts=@yearlyHoliday)

@@ -1,6 +1,7 @@
 import Category from './Category';
 import DbEntry from '../DbEntry';
 import DbRef from '../DbRef';
+import MixinDefaults from './MixinDefaults';
 import DbIndexDescriptor from '../DbIndexDescriptor';
 import Dictionary from '../../jel/types/Dictionary';
 import Class from '../../jel/types/Class';
@@ -25,8 +26,8 @@ export default class Thing extends DbEntry {
   static clazz: Class|undefined;
 
   
-  constructor(distinctName: string, category: Category|DbRef, facts?: Dictionary, defaultFacts?: List, reality?: DbRef, hashCode?: string) {
-    super('Thing', distinctName, defaultFacts ? Dictionary.merge(defaultFacts.elements.map(df=>df.facts)).putAll(facts) : facts, reality, hashCode);
+  constructor(distinctName: string, category: Category|DbRef, facts?: Dictionary, defaultFacts?: MixinDefaults[], reality?: DbRef, hashCode?: string) {
+    super('Thing', distinctName, defaultFacts ? Dictionary.merge(defaultFacts.map(df=>df.facts)).setAllJs(facts) : facts, reality, hashCode);
     this.category = category instanceof DbRef ? category : new DbRef(category);
   }
   
@@ -54,12 +55,15 @@ export default class Thing extends DbEntry {
 
   static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]) {
-    return new Thing(TypeChecker.realString(args[0], 'distinctName'), 
+    const md = TypeChecker.optionalInstance(List, args[3], 'defaultFacts');
+    const mixinDefaultsP = md ? md.elements.map((m: any)=>(m instanceof DbRef) ? m.get(ctx) : m) : [];
+    
+    return Util.resolveArray(mixinDefaultsP, mixinDefaults=>new Thing(TypeChecker.realString(args[0], 'distinctName'), 
                      args[1] instanceof DbRef ? args[1] : TypeChecker.instance(Category, args[1], 'category'), 
                      TypeChecker.instance(Dictionary, args[2], 'facts', Dictionary.empty), 
-                     TypeChecker.optionalInstance(List, args[3], 'defaultFacts') || undefined, 
+                     mixinDefaults, 
                      (TypeChecker.optionalDbRef(args[4], 'reality')||undefined) as any, 
-                     TypeChecker.optionalRealString(args[5], 'hashCode')||undefined);
+                     TypeChecker.optionalRealString(args[5], 'hashCode')||undefined));
   }
 }
 

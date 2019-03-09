@@ -3,5 +3,6 @@ Thing('VeteransDay', @HolidayCategory,
     month: 11,
     day: 11,
     firstDate: LocalDate(1954, 11, 11)
-  }
-))
+  }),
+  defaultFacts=@yearlyHoliday
+)

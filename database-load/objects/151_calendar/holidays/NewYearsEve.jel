@@ -3,5 +3,5 @@ Thing('NewYearsEve', @HolidayCategory,
     month: 12,
     day: 31,
     firstDate: LocalDate(1, 12, 31)
-  }
-))
+  }),
+  defaultFacts=@yearlyHoliday)

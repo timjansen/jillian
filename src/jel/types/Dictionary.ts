@@ -124,7 +124,11 @@ export default class Dictionary extends NativeJelObject implements SerializableP
 
   setAll_jel_mapping: boolean;
   setAll(ctx: Context, other0: any): Dictionary {
-		const other = TypeChecker.optionalInstance(Dictionary, other0,'other');
+		const other = TypeChecker.optionalInstance(Dictionary, other0, 'other');
+    return this.setAllJs(other);
+  }
+  
+  setAllJs(other?: Dictionary): Dictionary {
     if (!other || other.isEmpty)
       return this;
     else if (this.isEmpty)
@@ -556,8 +560,10 @@ export default class Dictionary extends NativeJelObject implements SerializableP
       return Dictionary.empty;
     if (dicts.length == 1)
       return dicts[0];
-    let d = dicts[0];
-    for (let i = 1; i < dicts.length; i++)
+    if (dicts.length == 2 && dicts[0].isEmpty)
+      return dicts[1];
+    let d = new Dictionary();
+    for (let i = 0; i < dicts.length; i++)
       d = d.putAll(dicts[i]);
     return d;
   }

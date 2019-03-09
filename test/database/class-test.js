@@ -56,7 +56,7 @@ describe('Class', function() {
                         jelAssert.errorPromise('let myTestType=class MyTestType constructor(x: Float, y: String)=>{}, m=myTestType("wrong type", "foo"): [m.x, m.y]', 'type'),
                         jelAssert.errorPromise('let myTestType=class MyTestType constructor(x: number,y: string)=>{}, m=myTestType(): [m.x, m.y]', 'x is missing'),
                         jelAssert.errorPromise('let myTestType=class MyTestType: x: int constructor()=>{x: 0.5}, m=myTestType(): m.x', 'int'),
-                        jelAssert.errorPromise('let myTestType=class MyTestType: constructor()=>{x: 0.5}: myTestType()', 'returned undeclared property x')]);
+                        jelAssert.errorPromise('let myTestType=class MyTestType: constructor()=>{x: 0.5}: myTestType()', "returned property 'x'")]);
   });
 
   it('supports methods', function() {

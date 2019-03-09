@@ -351,14 +351,14 @@ export default class Class extends PackageContent implements SerializablePrimiti
       if (this.ctor instanceof LambdaCallable) {
         return Util.resolveValue(this.ctor.invoke(this, ...args), (ctorReturn: any)=>{
           if (!(ctorReturn instanceof Dictionary))
-            throw new Error(`Constructors must return a Dictionary.`);
+            throw new Error(`Constructors must return a Dictionary, but the constructor of class ${this.name} did not.`);
           const ctorPropValues: any|Promise<any>[] = [];
           const ctorPropsNames = Array.from(ctorReturn.elements.keys());
           if (!ctorReturn.isEmpty) {
             for (let key of ctorPropsNames) {
               const prop: Property|undefined = this.allProperties.elements.get(key) as any;
               if (!prop)
-                throw new Error(`Constructor returned undeclared property ${key}. All properties must be declared in the class.`);
+                throw new Error(`Constructor returned property '${key}' which is not defined for class ${this.name}. All properties must be declared in the class.`);
               
               if (prop.type)
                 ctorPropValues.push(prop.type.convert(this.classContext, ctorReturn.elements.get(key) || null, key));
