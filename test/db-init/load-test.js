@@ -1,8 +1,5 @@
 'use strict';
 
-// Note that this test is in the database dir because UnitValue requires DB objects
-//
-
 require('source-map-support').install();
 const Database = require('../../build/database/Database.js').default;
 const Loader = require('../../build/database/Loader.js').default;

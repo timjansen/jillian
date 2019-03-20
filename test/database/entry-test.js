@@ -93,7 +93,7 @@ describe('Database entries', function() {
       const cat = new Category('Cat5Category', animal);
       const grumpy = new Thing('GrumpyCat', cat);
       const rnd = new Thing('RandomAnimal', animal);
-      const al = new Thing('Alien', lf);		
+      const al = new Thing('Alien', lf);
 
       assert.equal(al.isA(ctx, 'LifeFormCategory').state, 1);
       assert.equal(al.isA(ctx, 'Cat5Category').state, 0);
