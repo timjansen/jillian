@@ -149,6 +149,15 @@ describe('JEL', function() {
       //return jelAssert.errorPromise("1 in 1");
      });
     
+     it('should support .?', function() {
+      jelAssert.equal("(null).?a", "null");
+      return jelAssert.equalPromise("(null).?a()", "null");
+      jelAssert.equal("(null).?a()", "null");
+      jelAssert.equal("(null).?a(1, 2, 3)", "null");
+      jelAssert.equal("let x = null: x.?a", "null");
+      jelAssert.equal("let x = null: x.?a(1, 2, 3)", "null");
+     });
+    
      it('should execute string literals', function() {
       jelAssert.equal("'abc'", '"abc"');
       jelAssert.equal("'abc{}def'", '"abc{}def"');
@@ -183,6 +192,7 @@ describe('JEL', function() {
       clsA = new JEL('native class A: native x: any native y: any').executeImmediately(clsCtx);
       
       jelAssert.equal(new JEL('a.x').executeImmediately(new Context().setAll({a:new A()})), 3);
+      jelAssert.equal(new JEL('a.?x').executeImmediately(new Context().setAll({a:new A()})), 3);
       jelAssert.equal(new JEL('(a).y').executeImmediately(new Context().setAll({a:new A()})), "'foo'");
       jelAssert.equal(new JEL('(a)["y"]').executeImmediately(new Context().setAll({a:new A()})), "'foo'");
       assert.throws(()=>new JEL('(a).z').executeImmediately(new Context().setAll({a:new A()})));
@@ -246,6 +256,7 @@ describe('JEL', function() {
       const ctx = new Context().plus({A: clsA});
       assert(new JEL('A()').executeImmediately(ctx) instanceof A);
       jelAssert.equal(new JEL('A().getX()').executeImmediately(ctx), 2);
+      jelAssert.equal(new JEL('A().?getX()').executeImmediately(ctx), 2);
       jelAssert.equal(new JEL('A()["getX"]()').executeImmediately(ctx), 2);
       jelAssert.equal(new JEL('A(a=55).getX()').executeImmediately(ctx), 55);
       jelAssert.equal(new JEL('A(55).getX()').executeImmediately(ctx), 55);

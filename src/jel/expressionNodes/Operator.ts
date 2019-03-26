@@ -41,6 +41,7 @@ export default class Operator extends CachableJelNode {
   executeUncached(ctx: Context): JelObject|null|Promise<JelObject|null> {
     switch (this.operator) {
     case '.':
+    case '.?':
     case '||':
     case '&&':
       return this.evaluateLeftFirstOp(ctx);
@@ -70,7 +71,9 @@ export default class Operator extends CachableJelNode {
   private leftFirstOps(ctx: Context, left: JelObject|null): JelObject|null|Promise<JelObject|null> {
     switch (this.operator) {
     case '.':
-      return this.readMember(ctx, left);
+      return this.readMember(ctx, left, false);
+    case '.?':
+      return this.readMember(ctx, left, true);
     case '||':
     	return BaseTypeRegistry.get('Boolean').toRealBoolean(left) ? left : this.right!.execute(ctx);
     case '&&':
@@ -80,10 +83,10 @@ export default class Operator extends CachableJelNode {
     }
   }
   
-  private readMember(ctx: Context, left: JelObject|null): JelObject|null|Promise<JelObject|null> {
+  private readMember(ctx: Context, left: JelObject|null, forgiving: boolean): JelObject|null|Promise<JelObject|null> {
     if (!(this.right instanceof Variable))
-        throw new Error('Operator "." must be followed by an identifier');
-      return Runtime.member(ctx, left, this.right.name);
+        throw new Error(`Operator "${this.operator}" must be followed by an identifier`);
+      return Runtime.member(ctx, left, this.right.name, forgiving);
   }
   
   private binaryOp(ctx: Context, left: JelObject|null, right: JelObject|null): JelObject|null|Promise<JelObject|null> {
@@ -102,7 +105,7 @@ export default class Operator extends CachableJelNode {
   
 	toString(): string {
 		if (this.right) {
-			if (this.operator == '.')
+			if (this.operator == '.' ||  this.operator == '.?')
 				return `${this.left.toString()}.${this.right.toString()}`;
 			else
 				return `(${this.left.toString()} ${this.operator} ${this.right.toString()})`;

@@ -50,6 +50,7 @@ import InstanceOf from './expressionNodes/InstanceOf';
 
 const binaryOperators: any = { // op->precedence
   '.': 50,
+  '.?': 50,
   '?': 40,
   '<>': 40,
   '[]': 40,
@@ -481,10 +482,10 @@ export default class JEL {
     
     tokens.next();
     
-    if (binOpToken.value == '.' && tokens.peekIs(TokenType.Identifier) && tokens.peekIs(TokenType.Operator, '(', 1)) {
+    if ((binOpToken.value == '.' || binOpToken.value == '.?') && tokens.peekIs(TokenType.Identifier) && tokens.peekIs(TokenType.Operator, '(', 1)) {
       const methodName = tokens.next();
       tokens.next(); 
-      return JEL.tryBinaryOps(tokens, JEL.parseCall(tokens, left, methodName.value), precedence, stopOps);
+      return JEL.tryBinaryOps(tokens, JEL.parseCall(tokens, left, methodName.value, binOpToken.value == '.?'), precedence, stopOps);
     }
     
     switch (binOpToken.value) {
@@ -828,19 +829,19 @@ export default class JEL {
   }
 
   
-  static parseCall(tokens: TokenReader, left: JelNode, methodName?: string): JelNode {
+  static parseCall(tokens: TokenReader, left: JelNode, methodName?: string, forgiving = false): JelNode {
     const argList: JelNode[] = [];
     const firstToken = tokens.last();
 
     if (tokens.nextIf(TokenType.Operator, ')')) 
-        return methodName ? new MethodCall(firstToken, left, methodName, argList) : new Call(firstToken, left, argList);
+        return methodName ? new MethodCall(firstToken, left, methodName, argList, undefined, forgiving) : new Call(firstToken, left, argList);
     
     while (!(tokens.peekIs(TokenType.Identifier) && tokens.peekIs(TokenType.Operator, '=', 1))) {
       argList.push(JEL.parseExpression(tokens, PARENS_PRECEDENCE, PARAMETER_STOP));
       
       const separator = JEL.expectOp(tokens, PARAMETER_STOP, "Expected ')' or ','");
       if (separator.value == ')')
-        return methodName ? new MethodCall(firstToken, left, methodName, argList) : new Call(firstToken,left, argList);
+        return methodName ? new MethodCall(firstToken, left, methodName, argList, undefined, forgiving) : new Call(firstToken,left, argList);
     }
  
     const argNames = new Set();           // for tracking dupes
@@ -857,7 +858,7 @@ export default class JEL {
       if (next.value == ')')
         break;
     }
-    return methodName ? new MethodCall(firstToken, left, methodName, argList, namedArgs) : new Call(firstToken, left, argList, namedArgs);
+    return methodName ? new MethodCall(firstToken, left, methodName, argList, namedArgs, forgiving) : new Call(firstToken, left, argList, namedArgs);
   }
   
   static parseGet(tokens: TokenReader, left: JelNode): Get {

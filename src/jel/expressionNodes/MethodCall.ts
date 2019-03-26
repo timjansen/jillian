@@ -32,7 +32,7 @@ function resolveValueObj(f: (e: Map<string,JelObject|null>|undefined)=>JelObject
  *     list.sort(key = a=>a.name)
  */
 export default class MethodCall extends CachableJelNode {
-  constructor(position: SourcePosition, public left: JelNode, public name: string, public argList: JelNode[]  = [], public namedArgs: Assignment[] = []) {
+  constructor(position: SourcePosition, public left: JelNode, public name: string, public argList: JelNode[]  = [], public namedArgs: Assignment[] = [], public forgiving = false) {
     super(position);
   }
   
@@ -42,10 +42,10 @@ export default class MethodCall extends CachableJelNode {
     
     if (this.namedArgs.length) {
       const argObjValues = this.namedArgs.map(a=>a.execute(ctx));
-      return resolveValueObj(objArgs=>Util.resolveArray(args, (listArgs: (JelObject|null)[])=>Runtime.callMethod(ctx, left, this.name, listArgs, objArgs)), this.namedArgs, argObjValues);
+      return resolveValueObj(objArgs=>Util.resolveArray(args, (listArgs: (JelObject|null)[])=>Runtime.callMethod(ctx, left, this.name, listArgs, objArgs, this.forgiving)), this.namedArgs, argObjValues);
     }
     else
-      return Util.resolveArray(args, (listArgs: (JelObject|null)[])=>Runtime.callMethod(ctx, left, this.name, listArgs));
+      return Util.resolveArray(args, (listArgs: (JelObject|null)[])=>Runtime.callMethod(ctx, left, this.name, listArgs, undefined, this.forgiving));
   }
   
   // override
@@ -69,6 +69,7 @@ export default class MethodCall extends CachableJelNode {
 		return other instanceof MethodCall &&
       this.left.equals(other.left) &&
       this.name == other.name &&
+      this.forgiving == other.forgiving &&
       this.argList.length == other.argList.length &&
       this.namedArgs.length == other.namedArgs.length && 
       !this.argList.find((l, i)=>!l.equals(other.argList[i])) &&
@@ -76,12 +77,13 @@ export default class MethodCall extends CachableJelNode {
 	}
 
 	toString(): string {
+    const op = this.forgiving ? '.?' : '.';
 		if (!this.namedArgs.length)
-			return `${this.left}.${this.name}(${this.argList.map(s=>s.toString()).join(', ')})`;
+			return `${this.left}${op}${this.name}(${this.argList.map(s=>s.toString()).join(', ')})`;
 		if (!this.argList.length)
-			return `${this.left}.${this.name}(${this.namedArgs.map(s=>s.toString()).join(', ')})`;
+			return `${this.left}${op}${this.name}(${this.namedArgs.map(s=>s.toString()).join(', ')})`;
 
-		return `${this.left}.${this.name}(${this.argList.map(s=>s.toString()).join(', ')}, ${this.namedArgs.map(s=>s.toString()).join(', ')})`;
+		return `${this.left}${op}${this.name}(${this.argList.map(s=>s.toString()).join(', ')}, ${this.namedArgs.map(s=>s.toString()).join(', ')})`;
 	}
 }
 

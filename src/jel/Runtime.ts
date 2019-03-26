@@ -91,9 +91,12 @@ export default class Runtime {
     return Runtime.isClassCompatible(ctx, (left as any).clazz, rightName);      
 	}
   
-  static callMethod(ctx: Context, obj: JelObject|null, name: string, args: any[], argObj?: any): JelObject|null|Promise<JelObject|null> {
-    if (!obj)
+  static callMethod(ctx: Context, obj: JelObject|null, name: string, args: any[], argObj?: any, forgiving = false): JelObject|null|Promise<JelObject|null> {
+    if (!obj) {
+      if (forgiving)
+        return null;
       throw new Error("Can't call method on null."); 
+    }
     
     const m = obj.method(ctx, name);
     if (m)
@@ -103,26 +106,31 @@ export default class Runtime {
       if (m instanceof Callable)
         return m.invokeWithObject(obj, args, argObj);
       else if (m)
-        throw new Error(`${name} in ${obj.className} is not a method that can be called, but appears to be a different type of property.`);
+        throw new Error(`'${name}' in ${obj.className} is not a method that can be called, but appears to be a different type of property.`);
       else if (name in obj) 
-        throw new Error(`Can not find method ${name} in ${obj.className}. Not declared in class.`);
+        throw new Error(`Can not find method ${name}() in ${obj.className}. Not mapped in native class.`);
       else 
-        throw new Error(`Can not find method ${name} in ${obj.className} ${(obj as any).isIDBRef ? '@' : ''}${(obj as any).distinctName || ''}.`);
+        throw new Error(`Can not find method ${name}() in ${obj.className} ${(obj as any).isIDBRef ? '@' : ''}${(obj as any).distinctName || ''}.`);
     });
   }
 
   
-	static member(ctx: Context, obj: JelObject|null, name: string): JelObject|null|Promise<JelObject|null> {
-    if (!obj)
-      throw new Error(`Can't get member ${name} of null.`);
-
+	static member(ctx: Context, obj: JelObject|null, name: string, forgiving = false): JelObject|null|Promise<JelObject|null> {
+    if (!obj) {
+      if (forgiving)
+        return null;
+      throw new Error(`Can't get member '${name}' of null.`);
+    }
+    if (!obj.member)
+      throw new Error(`Internal error: non-null object has no member function. Type: ${typeof obj} Ctor: ${obj.constructor.name} Object: ${obj.toString()}`);
+    
     const value = obj.member(ctx, name);
     if (value !== undefined)
       return value;
     else if (name in obj) 
-      throw new Error(`Can not find member ${name} in ${obj.className}. Not declared in class.`);
+      throw new Error(`Can not find member '${name}' in ${obj.className}. Not mapped in native class.`);
     else 
-      throw new Error(`Can not find member ${name} in ${obj.className} ${(obj as any).isIDBRef ? '@' : ''}${(obj as any).distinctName || ''}.`);
+      throw new Error(`Can not find member '${name}' in ${obj.className} ${(obj as any).isIDBRef ? '@' : ''}${(obj as any).distinctName || ''}.`);
 	}
 	
 }
