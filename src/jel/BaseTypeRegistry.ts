@@ -22,8 +22,14 @@ export default class BaseTypeRegistry {
         return null;
 
       const tv = typeof v;
-      if (tv == 'object')
-        return v;
+      if (tv == 'object') {
+        if (v.isJelObject)
+          return v;
+        else if (v instanceof Array)
+          return BaseTypeRegistry.get('List').valueOf(v);
+        
+        throw new Error('Function returned unsupported object: '+v.toString());
+      }
       if (typeof v == 'number')
         return BaseTypeRegistry.get('Float').valueOf(v);
       if (typeof v == 'string')

@@ -1,0 +1,16 @@
+Category('TestCategory',
+	facts=FactHelper.createRootFacts({
+    a: 1
+  }) + { 
+    sum: [CalculatedFact((a, b, ma, mb)=>a+b+ma+mb, true, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100)]
+  },
+	factTypes = {
+    a: int,
+    b: int,
+    c: int,
+    sum: int,
+    ma: int,
+    mb: int
+	},
+  mixins = @order
+)

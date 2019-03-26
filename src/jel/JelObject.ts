@@ -130,6 +130,7 @@ export default abstract class JelObject {
 JelObject.prototype.reverseOps = {};
 
 const p: any = JelObject.prototype;
+p.isJelObject = true;
 p.className_jel_property = true;
 p.op_jel_mapping = true;
 p.opReversed_jel_mapping = true;

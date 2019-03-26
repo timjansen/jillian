@@ -4,4 +4,4 @@
 abstract class FunctionFact extends Fact
   func: function
   
-  override get dependencies(): Set => this.func.getArguments().map(t=>t.name)
+  override get dependencies(): Set => Set(this.func.getArguments().map(t=>t.name))

@@ -37,10 +37,10 @@ export default class Category extends DbEntry {
   constructor(distinctName: string,
               superCategory?: DbRef|Category,
 							public factTypes = new Dictionary(),
-							public facts = new Dictionary(),
+							facts = new Dictionary(),
               public mixins = new List(),
               public reality?: DbRef) {
-    super('Category', distinctName);
+    super('Category', distinctName, facts);
 
     if (!distinctName.endsWith('Category'))
 			throw new Error('By convention, all Category names must end with "Category". Illegal name: ' + distinctName);

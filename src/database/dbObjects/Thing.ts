@@ -50,6 +50,7 @@ export default class Thing extends DbEntry {
 	}
 	
   getSerializationProperties(): any[] {
+    // note that the default facts have been merged into facts, and do not need to be saved again
     return [this.distinctName, this.category, this.facts, undefined, this.reality, this.hashCode];
   }
 

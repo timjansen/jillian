@@ -71,6 +71,8 @@ export default class TypedParameterValue extends NativeJelObject {
 }
 
 const p: any = TypedParameterValue.prototype;
+p.name_jel_property = true;
+p.type_jel_property = true;
 p.compatibleWith_jel_mapping = true;
 p.isNullable_jel_mapping = true;
 

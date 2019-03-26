@@ -25,7 +25,6 @@ export default abstract class NativeJelObject extends JelObject implements Seria
     
 	member(ctx: Context, name: string): JelObject|null|Promise<JelObject|null>|undefined {
     const c = (this.clazz as Class);
-
     if (c.allProperties.elements.has(name)) {
       const t: any = this;
       if (t[`${name}_jel_property`])

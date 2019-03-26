@@ -58,6 +58,35 @@ describe('Facts', function() {
     return jelAssert.equalPromise("@StPatricksDay.duration", '1 @Day');
   });
 
+  it('@TestFactA and @TestCategory are set up correctly', function() {
+    return Promise.all([jelAssert.equalPromise("@TestFactA.a", '1'), 
+                       jelAssert.equalPromise("@TestFactA.b", '8'), 
+                       jelAssert.equalPromise("@TestFactA.ma", '15'), 
+                       jelAssert.equalPromise("@TestFactA.mb", '2'),
+                       jelAssert.equalPromise("@TestCategory.a", '1')]);
+  });
+  
+  it('Things have methods to retrieve facts', function() {
+    return Promise.all([jelAssert.equalPromise("@TestFactA.getAllFacts('sum').length", '1'),
+      jelAssert.equalPromise("@TestFactA.getFilteredFacts('sum', (f,i)=>true, 5).length*2", '2'),
+      jelAssert.equalPromise("@TestFactA.getBestFacts('sum', Timestamp(0)).length*4", '4')]);
+  });
+
+  
+  it('values can not be calculated when fields are missing', function() {
+    return jelAssert.errorPromise("@TestCategory.sum", 'Can not find member');
+  });
+
+  it('values can be calculated', function() {
+    return jelAssert.equalPromise("@TestFactA.sum", '26');
+  });
+
+  // TODO:
+  // exclude values from calc
+  // use meta defaults for calc
+  // multi-fact evaluation
+  // check timestamp in facts
+
 });
 
 

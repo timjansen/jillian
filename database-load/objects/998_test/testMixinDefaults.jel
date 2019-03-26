@@ -1,0 +1,6 @@
+MixinDefaults('testMixinDefaults',
+	facts=FactHelper.createRootFacts({
+    ma: 1,
+    mb: 2
+  })
+)

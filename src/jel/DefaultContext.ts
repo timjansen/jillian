@@ -86,7 +86,8 @@ const BOOT_SCRIPT = [
     {jel: 'Method.jel', native: Method},
     {jel: 'TypedParameterValue.jel', native: TypedParameterValue},
     {jel: 'LambdaCallable.jel', native: LambdaCallable},
-    {jel: 'NativeCallable.jel', native: NativeCallable}
+    {jel: 'NativeCallable.jel', native: NativeCallable},
+    {jel: 'log.jel', name: 'log'}
   ],
   [
     {jel: 'typeDescriptors/AnyType.jel', native: AnyType},

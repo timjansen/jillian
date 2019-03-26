@@ -1,4 +1,8 @@
-native class NativeCallable:
+native class NativeCallable extends Callable:
 
-  native getArguments(): any[]?
-  native getReturnType(): any? 
+
+  override native getArguments(): TypedParameterValue[]?
+  override native getReturnType(): TypedParameterValue? 
+  override native call(argObj: any?{}): any?
+  
+  

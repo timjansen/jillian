@@ -1,0 +1,8 @@
+Thing('TestFactA', @TestCategory,
+	facts=FactHelper.createRootFacts({
+    b: 8,
+    c: 10,
+    ma: 15
+  }),
+  defaultFacts=@testMixinDefaults  //< ma and mb are set here
+)

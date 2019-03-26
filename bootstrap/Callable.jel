@@ -8,3 +8,4 @@ abstract class Callable:
    * The context of the callable ('this') will always be null.
    */
   abstract call(argObj: any?{}): any?
+  
