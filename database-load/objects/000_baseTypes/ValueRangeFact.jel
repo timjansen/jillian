@@ -19,6 +19,6 @@
 
   override getValue(dependencies: any{}): any? => this.values
   
-  override getSingleValue(dependencies: any{}): any? => if this.values.min == this.values.max then this.values.min else null
+  override getDiscreteValue(dependencies: any{}): any? => if this.values.min == this.values.max then this.values.min else null
   
   override allows(thisDependencies: any{}, other: Fact, otherDependencies: any{}): bool => true

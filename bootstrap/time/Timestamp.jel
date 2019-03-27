@@ -2,7 +2,9 @@
  * Describes a simple date, year/month/date, without timezone. Month and day are optional, so it can also describe a whole month or year.
  */
 native class Timestamp extends TimeDescriptor:
-
+  
+  static native EPOCH: Timestamp
+  
   native constructor(msSinceEpoch: int, precisionInMs: int = 0)
 
 	override native getStartTime(defaultTimeZone: SimpleType('TimeZone')): Timestamp

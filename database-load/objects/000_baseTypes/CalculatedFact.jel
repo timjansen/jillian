@@ -22,6 +22,6 @@ class CalculatedFact extends FunctionFact
   
   override getValue(dependencies: any{}): any? => this.func.call(dependencies)
   
-  override getSingleValue(dependencies: any{}): any? => this.getValue(dependencies)
+  override getDiscreteValue(dependencies: any{}): any? => this.getValue(dependencies)
   
   override allows(thisDependencies: any{}, other: Fact, otherDependencies: any{}): bool => true

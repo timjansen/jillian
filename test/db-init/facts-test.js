@@ -31,11 +31,11 @@ describe('Facts', function() {
   });  
   
   it('unknown facts can not be found', function() {
-    return jelAssert.equalPromise("@Monday.getBestValue('uNkNoWnFaCt', Timestamp(5000))", 'null');
+    return jelAssert.equalPromise("@Monday.getBestFactResult('uNkNoWnFaCt', Timestamp(5000))", 'null');
   });
 
   it('values can be read from the thing', function() {
-    return jelAssert.equalPromise("@Monday.getBestValue('dayOfWeekNumber', Timestamp(5000)).value", '1');
+    return jelAssert.equalPromise("@Monday.getBestFactResult('dayOfWeekNumber', Timestamp(5000)).value", '1');
   });
 
   it('values can be read as members', function() {
@@ -43,11 +43,11 @@ describe('Facts', function() {
   });
 
   it('value lists can be read from the thing', function() {
-    return jelAssert.equalPromise("let a = @Wednesday.getBestValues('dayOfWeekNumber', Timestamp(5000)): [a.size, a[0].value]", '[1,3]');
+    return jelAssert.equalPromise("let a = @Wednesday.getBestFactResults('dayOfWeekNumber', Timestamp(5000)): [a.size, a[0].value]", '[1,3]');
   });
 
   it('values can be inherited from the category', function() {
-    return jelAssert.equalPromise("@Monday.getBestValue('duration', Timestamp(5000)).value", '1 @Day');
+    return jelAssert.equalPromise("@Monday.getBestFactResult('duration', Timestamp(5000)).value", '1 @Day');
   });
 
   it('values can be functions', function() {
@@ -81,12 +81,27 @@ describe('Facts', function() {
     return jelAssert.equalPromise("@TestFactA.sum", '26');
   });
 
+  it('can exclude values', function() {
+    return Promise.all([jelAssert.equalPromise("@TestFactA.getBestFacts('sum', Timestamp.EPOCH, excludedProperties=Set.of('b'))", "[]"),
+                        jelAssert.equalPromise("@TestFactA.getBestFacts('sum', Timestamp.EPOCH, excludedProperties=Set.of('x')).length", "1")]);
+  });
+  
+  it('can use meta values', function() {
+    return Promise.all([jelAssert.equalPromise("@TestFactA.getBestFactResults('sum', Timestamp.EPOCH, metaProperties={x: 10}).map(r=>r.value)", "[26]"),
+                        jelAssert.equalPromise("@TestFactA.getBestFactResults('sum', Timestamp.EPOCH, metaProperties={a: 2}).map(r=>r.value)", "[27]"),
+                        jelAssert.equalPromise("@TestFactA.getBestFactResults('sum', Timestamp.EPOCH, metaProperties={a: 0, b: 12, ma: 35, mb: 13}).map(r=>r.value)", "[60]")]);
+  });
+
+  
   // TODO:
-  // exclude values from calc
-  // use meta defaults for calc
   // multi-fact evaluation
   // check timestamp in facts
-
+  // test assertionfact
+  // test rangefact
+  // test calcrangefact
+  // test listfact
+  // test distfact
+  // test negative facts
 });
 
 

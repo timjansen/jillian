@@ -26,7 +26,8 @@ import Moment = moment.Moment;
 export default class Timestamp extends TimeDescriptor {
   static clazz: Class|undefined;
 
-  static ZERO_TIME = new Timestamp(0);
+  static EPOCH_jel_property = true;
+  static EPOCH = new Timestamp(0);
 	
 	constructor(public msSinceEpoch: number, public precisionInMs = 0) {
 		super('Timestamp');

@@ -22,6 +22,6 @@ class CalculatedRangeFact extends FunctionFact
   
   override getValue(dependencies: any{}): any? => this.func.call(dependencies)
   
-  override getSingleValue(dependencies: any{}): any? => null
+  override getDiscreteValue(dependencies: any{}): any? => null
  
   override allows(thisDependencies: any{}, other: Fact, otherDependencies: any{}): bool => true

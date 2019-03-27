@@ -63,8 +63,8 @@ export default class DbEntry extends NamedObject {
     return Util.resolveValue(this.getFactValue(ctx, name), v=>v==null?undefined:v);
 	}
 
-  getFactValue(ctx: Context, name: string, t: Timestamp = Timestamp.ZERO_TIME): Promise<JelObject|null>|JelObject|null {
-    return this.withMember(ctx, 'getBestValue', callable=>Util.resolveValue(callable.invoke(this, JelString.valueOf(name), t), (factResult: any)=>factResult && factResult.member(ctx, 'value')));
+  getFactValue(ctx: Context, name: string, t: Timestamp = Timestamp.EPOCH): Promise<JelObject|null>|JelObject|null {
+    return this.withMember(ctx, 'getBestFactResult', callable=>Util.resolveValue(callable.invoke(this, JelString.valueOf(name), t), (factResult: any)=>factResult && factResult.member(ctx, 'value')));
   }
 
   	// Calls callback with value of member. If it's a DbRef, it's automatically resolved.

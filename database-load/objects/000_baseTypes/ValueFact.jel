@@ -17,7 +17,7 @@ class ValueFact extends Fact
 
   override getValue(dependencies: any{}): any? => this.value
   
-  override getSingleValue(dependencies: any{}): any? => this.value
+  override getDiscreteValue(dependencies: any{}): any? => this.value
     
   override allows(thisDependencies: any{}, other: Fact, otherDependencies: any{}): bool => true
 

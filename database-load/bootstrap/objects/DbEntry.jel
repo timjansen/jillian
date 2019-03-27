@@ -13,7 +13,7 @@ native class DbEntry:
     if fact.dependencies.isEmpty then {}
     if excludedProperties && !fact.dependencies.findCommon(excludedProperties).isEmpty then null
 
-    let r = fact.dependencies.mapToDictionary(prop=>metaProperties[prop] || this.getBestSingleValue(prop, currentTime, metaProperties, excludedProperties=fact.dependencies.addAll(excludedProperties)).?value):
+    let r = fact.dependencies.mapToDictionary(prop=>metaProperties[prop] || this.getBestDiscreteValue(prop, currentTime, metaProperties, excludedProperties=fact.dependencies.addAll(excludedProperties)).?value):
       if r.hasAny((k,v)=>v==null) then 
         null
        else 
@@ -47,7 +47,7 @@ native class DbEntry:
                           ),
              max = max)
 
-  getBestValues(name: string, currentTime: time, metaProperties: any{}?, max: int(>=0)?, excludedProperties: Set?): FactResult[] =>
+  getBestFactResults(name: string, currentTime: time, metaProperties: any{}?, max: int(>=0)?, excludedProperties: Set?): FactResult[] =>
     this.getBestFacts(name, currentTime, metaProperties, null, excludedProperties)
       .filter(f=>!f.negative)
       .map(f=>let r = f.getValue(this.getDependencies(f, currentTime, metaProperties, excludedProperties)):
@@ -56,20 +56,18 @@ native class DbEntry:
       .subLen(length=max)
 
   /**
-   * Returns the best fact result with the given name. Maybe a Range or Distribution... use getBestSingleValue() if you need a discrete value.
-   * TODO: rename in getBestFactResult? Note: it's used by DbEntry.ts as well.
+   * Returns the best fact result with the given name. Maybe a Range or Distribution... use getBestDiscreteValue() if you need a discrete value.
    */
-  getBestValue(name: string, currentTime: time, metaProperties: any{}?, excludedProperties: Set?): FactResult? => 
-    this.getBestValues(name, currentTime, metaProperties, 1, excludedProperties)[0]
+  getBestFactResult(name: string, currentTime: time, metaProperties: any{}?, excludedProperties: Set?): FactResult? => 
+    this.getBestFactResults(name, currentTime, metaProperties, 1, excludedProperties)[0]
 
   /**
    * Returns the best value that has the fact type, and is not a describing fact like a Range or Distribution.
-   * TODO: rename in getBestValue(), once the function above has been renamed.
    */
-  getBestSingleValue(name: string, currentTime: time, metaProperties: any{}?, excludedProperties: Set?): FactResult? => 
+  getBestDiscreteValue(name: string, currentTime: time, metaProperties: any{}?, excludedProperties: Set?): FactResult? => 
     this.getBestFacts(name, currentTime, metaProperties, null, excludedProperties)
       .filter(f=>!f.negative)
-      .map(f=>let r = f.getSingleValue(this.getDependencies(f, currentTime, metaProperties, excludedProperties)):
+      .map(f=>let r = f.getDiscreteValue(this.getDependencies(f, currentTime, metaProperties, excludedProperties)):
         if r != null then FactResult(f, r) else null)
       .filterNull()[0]
       

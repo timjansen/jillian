@@ -15,7 +15,7 @@ class AssertionFact extends FunctionFact:
 
   override checkValue(v: any?, dependencies: any{}): bool => this.func.call(dependencies.set(this.firstArgName, v))
   override getValue(dependencies: any{}): any? => null
-  override getSingleValue(dependencies: any{}): any? => null
+  override getDiscreteValue(dependencies: any{}): any? => null
   
   constructor(func, comprehensive, negative, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition) => 
     {
