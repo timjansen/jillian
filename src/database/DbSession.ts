@@ -14,7 +14,7 @@ const wp = new WorkerPool();
 
 export default class DbSession implements IDbSession {
 	readonly isIDBSession: boolean = true;
-  cacheByName: Map<string, NamedObject|null> = new Map();   // distinct name -> entry; stores null for entries that have not been found. 
+  cacheByName: Map<string, NamedObject|Promise<NamedObject>|null> = new Map();   // distinct name -> entry; stores null for entries that have not been found. 
   cacheByHash: Map<string, NamedObject> = new Map();        // hash code -> entry
   public ctx: Context;
   
@@ -34,13 +34,15 @@ export default class DbSession implements IDbSession {
 	}
 	
   // returns the entry, null if it does not exist, undefined if not in cache
-  getFromCache(distinctName: string): NamedObject | null | undefined {
+  getFromCache(distinctName: string): NamedObject | Promise<NamedObject> | null | undefined {
     return this.cacheByName.get(distinctName);
   }
 
   getFromDatabase(distinctName: string): Promise<NamedObject> {
-    return this.database.get(this.ctx, distinctName)
-      .then(dbEntry => this.storeInCache(dbEntry));
+    const p = this.database.get(this.ctx, distinctName).then(dbEntry => this.storeInCache(dbEntry));
+    if (!this.cacheByName.has(distinctName))
+      this.cacheByName.set(distinctName, p);
+    return p;
   }
   
   // return either a value or a Promise! Promise rejected with NotFoundError if not found.
@@ -72,8 +74,12 @@ export default class DbSession implements IDbSession {
 	
 	with<T>(distinctName: string, f: (o: NamedObject)=>T): Promise<T> | T {
     const cachedEntry = this.getFromCache(distinctName);
-    if (cachedEntry != null)
-      return f(cachedEntry);
+    if (cachedEntry != null) {
+      if (cachedEntry instanceof Promise)
+        return cachedEntry.then(v=>f(v));
+      else
+        return f(cachedEntry);
+    }
 		if (cachedEntry === null)
 			return Promise.reject(new NotFoundError(distinctName));
 
