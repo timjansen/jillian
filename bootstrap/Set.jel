@@ -81,7 +81,7 @@ class Set:
    */
   addAll(values: Set|String[]?): Set => 
     if values instanceof Set then
-      Set(this.values.setAll(values.values))
+      (if values.isEmpty then this else Set(this.values.setAll(values.values)))
     if values != null then
       Set(this.toList().addAll(values))
     else
@@ -162,4 +162,28 @@ class Set:
   hasOnly(f: function((value: any?, index: int(>=0))=>any?)): bool =>
     this.values.hasOnly((k,v, i)=>f(k, i))
 
+  /**
+   * Adds a Set of strings, an array of strings or a single string to the set.
+   * @param right the string(s) to add
+   * @return a new set that contains the additional elements if they were not in the Set yet
+   */
+  op+(right: Set|String[]|String): Set =>
+    if right instanceof String then
+      this.add(right)
+    else
+      this.addAll(right)
+
+  /**
+   * Removes a Set of strings, an array of strings or a single string from the set.
+   * @param right the string(s) to remove
+   * @return a new set that does not have the given element(s)
+   */
+  op-(right: Set|String[]|String): Set =>
+    if right instanceof String then
+      this.delete(right)
+    else
+      this.deleteAll(right)
+
+
+      
   

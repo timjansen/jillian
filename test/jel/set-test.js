@@ -50,6 +50,16 @@ describe('Set', function() {
     });
   });
   
+  describe('has operators', function() {
+    it('has +', function() {
+        jelAssert.equal('Set.of("1", "2", "3") + Set.of("3", "4", "5")', 'Set(Set.of("1", "2", "3", "4", "5").values)'); 
+        jelAssert.equal('Set.of("a", "b", "c") + "d"', 'Set(Set.of("a", "b", "c", "d").values)'); 
+    });
+    it('has -', function() {
+        jelAssert.equal('Set.of("1", "2", "3") - Set.of("3", "4", "5")', 'Set(Set.of("1", "2").values)'); 
+    });
+  });
+  
   describe('has methods', function() {
     it('has toList()', function() {
         jelAssert.equal('Set([]).toList()', '[]'); 

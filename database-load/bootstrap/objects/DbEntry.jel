@@ -19,10 +19,6 @@ native class DbEntry:
        else 
         r.setAll(metaProperties).set('currentTime', currentTime)
 
-  // evaluate condition
-  private checkPrecondition(fact: Fact, deps: any{}): bool => 
-    if fact.precondition then fact.precondition.call(deps)
-
 
 
   /**
@@ -43,9 +39,9 @@ native class DbEntry:
                           (if currentTime && f.endTime then f.endTime > currentTime) && 
                           (
                             let deps = this.getDependencies(f, currentTime, metaProperties, excludedProperties):
-                              deps != null && this.checkPrecondition(f, deps)
+                              deps != null && if f.precondition then f.precondition.call(deps)
                           ),
-             max = max)
+                          max = max)
 
   getBestFactResults(name: string, currentTime: time, metaProperties: any{}?, max: int(>=0)?, excludedProperties: Set?): FactResult[] =>
     this.getBestFacts(name, currentTime, metaProperties, null, excludedProperties)

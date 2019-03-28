@@ -71,7 +71,7 @@ abstract class Fact
   /**
    * A list of properties that must be available in the object in order to get a result.
    */
-  get dependencies(): Set => Set.empty
+  get dependencies(): Set => if this.precondition then Set(this.precondition.getArguments().map(t=>t.name)) else Set.empty
 
   /**
    * Checks whether the given value for the property is either the same value or compatible with the fact's value.

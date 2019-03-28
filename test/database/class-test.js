@@ -194,6 +194,11 @@ describe('Class', function() {
     jelAssert.equal('let myTestType=class MyTestType: constructor(x: Float)=>{} op+(right):Float=> this.x+right, m=myTestType(5): m+10', "15");
   });
 
+  it('allows typed ops', function() {
+    jelAssert.equal('let myTestType=class MyTestType constructor(x: Float)=>{} op+(right: int)=>myTestType(this.x+right), m=myTestType(5): (m+10).x', "15");
+    return jelAssert.errorPromise('let myTestType=class MyTestType constructor(x: Float)=>{} op+(right: int)=>myTestType(this.x+right), m=myTestType(5): m+"x"', "Failed to convert value");
+  });
+  
   it('can refer to itself as a type and supports circular dependencies', function() {
     return Promise.all([
       jelAssert.equalPromise('let myTestType=class MyTestType constructor(parent: MyTestType?)=>{} static hasParent(p: MyTestType)=>p.parent!=null, m=myTestType(), n=myTestType(m): [myTestType.hasParent(m), myTestType.hasParent(n)]', "[false,true]"),

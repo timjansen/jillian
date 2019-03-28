@@ -1,3 +1,4 @@
+// Testing simple facts and mixins
 Thing('TestFactA', @TestCategory,
 	facts=FactHelper.createRootFacts({
     b: 8,
