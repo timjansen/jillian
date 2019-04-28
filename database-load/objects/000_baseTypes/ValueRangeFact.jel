@@ -14,11 +14,11 @@
                           else 0.3
   }
 
-  override checkValue(v: any?, dependencies: any{}): bool =>
+  override checkValue(v: any?, dependencies: any{} = {}): bool =>
     v in this.values
 
-  override getValue(dependencies: any{}): any? => this.values
+  override getValue(dependencies: any{} = {}): any? => this.values
   
-  override getDiscreteValue(dependencies: any{}): any? => if this.values.min == this.values.max then this.values.min else null
+  override getDiscreteValue(dependencies: any{} = {}): any? => if this.values.min == this.values.max then this.values.min else null
   
-  override allows(thisDependencies: any{}, other: Fact, otherDependencies: any{}): bool => true
+  override allows(thisDependencies: any{} = {}, other: Fact, otherDependencies: any{} = {}): bool => true

@@ -259,7 +259,15 @@ export default class List extends NativeJelObject implements SerializablePrimiti
       }
     }, r=>r || null, index>0);
 	}
-
+  
+ 	firstMatchIndex_jel_mapping: Object;
+	firstMatchIndex(ctx: Context, f0: any): JelObject | null | Promise<JelObject | null> {
+		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(undefined, e, Float.valueOf(i)), (v, e, i)=>{
+      if (JelBoolean.toRealBoolean(v))
+          return Float.valueOf(i);
+    }, r=>r || null);	
+  }
   
   
 	// isBetter(a,b) checks whether a is better than b (must return false is both are equally good)
@@ -316,6 +324,8 @@ export default class List extends NativeJelObject implements SerializablePrimiti
 	sub(ctx: Context, start0?: any, end0?: any) {
 		const start = TypeChecker.optionalRealNumber(start0, 'start');
 		const end = TypeChecker.optionalRealNumber(end0, 'end');
+    if (start == end && start != null)
+      return List.empty;
 		return new List(this.elements.slice(start == null ? 0 : start >= 0 ? start : this.elements.length + start, 
 																				end == null ? this.elements.length : end >= 0 ? end : this.elements.length + end));
 	}
@@ -324,6 +334,8 @@ export default class List extends NativeJelObject implements SerializablePrimiti
 	subLen(ctx: Context, start0?: any, len0?: any) {
 		const start = TypeChecker.realNumber(start0, 'start', 0);
 		const len = TypeChecker.optionalRealNumber(len0, 'length');
+    if (len == 0)
+      return List.empty;
     const s = start >= 0 ? start : this.elements.length + start;
     return new List(this.elements.slice(s, len == null ? this.elements.length : s+len));
   }
@@ -558,6 +570,7 @@ List.prototype.reduce_jel_mapping = true;
 List.prototype.hasAny_jel_mapping = true;
 List.prototype.contains_jel_mapping = true;
 List.prototype.hasOnly_jel_mapping = true;
+List.prototype.firstMatchIndex_jel_mapping = true;
 List.prototype.firstMatch_jel_mapping = true;
 List.prototype.lastMatch_jel_mapping = true;
 List.prototype.nthMatch_jel_mapping = true;

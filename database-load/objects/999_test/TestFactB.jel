@@ -1,0 +1,24 @@
+// Testing multiple facts with different timestamps
+Thing('TestFactB', @TestCategory,
+	facts=FactHelper.createRootFacts({
+    a: 1,
+    ma: 15,
+    mb: 8
+  })
+   +
+   {
+   b: [
+    CalculatedFact((a, b, xxx)=>a+b+ma+mb, true, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100, Timestamp.EPOCH, Timestamp(1000)), // <can not be executed because there is no xxx
+    AssertionFact(a=>a<b, false, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 99, Timestamp.EPOCH, Timestamp(900)),
+    ValueFact(500, false, true, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 99, Timestamp.EPOCH, Timestamp(800)),
+    ValueFact(100, false, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 98, Timestamp.EPOCH, Timestamp(700)),
+    ValueFact(999, false, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 97, Timestamp(100), Timestamp(600))
+   ],
+   c: [
+    ValueRangeFact(500...600, null, false, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 99, Timestamp(20), Timestamp(600)),
+    ValueFact(100, false, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 98, Timestamp.EPOCH, Timestamp(800)),
+    ValueFact(999, false, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 97, Timestamp(100), Timestamp(700))
+   ] 
+   }
+  )
+  

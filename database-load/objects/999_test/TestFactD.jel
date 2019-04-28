@@ -1,0 +1,14 @@
+// Testing circular deps
+Thing('TestFactD', @TestCategory,
+	facts={
+   ma: [ValueFact(3, false, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100, precondition=mb=>mb!=0)], // precondition circular dependencies
+   mb: [ValueFact(5, false, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100, precondition=ma=>ma!=0)],
+   a: 
+    [CalculatedFact(b=>b+10, true, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100)],
+   b: 
+    [CalculatedFact(c=>c+1, true, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100)],
+   c: 
+    [CalculatedFact(b=>b+100, true, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100)]
+   }
+  )
+  

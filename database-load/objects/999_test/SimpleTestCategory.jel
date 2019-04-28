@@ -1,0 +1,13 @@
+Category('SimpleTestCategory',
+	facts=FactHelper.createRootFacts({
+    ca: 42,
+    cb: 'foo'
+  }),
+	factTypes = {
+    a: any,
+    b: any,
+    c: any,
+    ca: any,
+    cb: any
+	}
+)

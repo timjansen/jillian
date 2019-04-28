@@ -197,6 +197,11 @@ export default class JelBoolean extends NativeJelObject implements SerializableP
 		return JelBoolean.orJs(this, TypeChecker.boolean(a, 'a'));
 	}
 	
+	xor_jel_mapping: Object;
+	xor(ctx: Context, a: JelBoolean): JelBoolean {
+		return TypeChecker.realBoolean(a, 'a') ? this.negate() : this;
+	}
+	
 	static and_jel_mapping = true;
 	static and(ctx: Context, args: any): JelBoolean {
     return JelBoolean.andJs(...args.elements);
@@ -275,6 +280,7 @@ JelBoolean.init();
 JelBoolean.prototype.toBoolean_jel_mapping = true;
 JelBoolean.prototype.toAbsoluteBoolean_jel_mapping = true;
 JelBoolean.prototype.or_jel_mapping = true;
+JelBoolean.prototype.xor_jel_mapping = true;
 JelBoolean.prototype.and_jel_mapping = true;
 JelBoolean.prototype.negate_jel_mapping = true;
 JelBoolean.prototype.state_jel_property = true;

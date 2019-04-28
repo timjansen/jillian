@@ -13,12 +13,12 @@ class ValueFact extends Fact
                           else 0.5
   }
 
-  override checkValue(v: any?, dependencies: any{}): bool => v == this.value
+  override checkValue(v: any?, dependencies: any{} = {}): bool => v == this.value
 
-  override getValue(dependencies: any{}): any? => this.value
+  override getValue(dependencies: any{} = {}): any? => this.value
   
-  override getDiscreteValue(dependencies: any{}): any? => this.value
+  override getDiscreteValue(dependencies: any{} = {}): any? => this.value
     
-  override allows(thisDependencies: any{}, other: Fact, otherDependencies: any{}): bool => true
+  override allows(thisDependencies: any{} = {}, other: Fact, otherDependencies: any{} = {}): bool => true
 
 

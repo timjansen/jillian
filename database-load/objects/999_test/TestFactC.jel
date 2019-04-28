@@ -1,0 +1,21 @@
+// Testing preconditions
+Thing('TestFactC', @TestCategory,
+	facts=FactHelper.createRootFacts({
+    ma: 2,
+    mb: 3
+  })
+   +
+   {
+   c: [
+    ValueFact(100, false, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 99, precondition=a=>a!=1),  // false precondition
+    ValueFact(200, false, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 99, precondition=a=>a==1)  // true precondition
+   ],
+   b: [
+    ValueFact(100, false, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 90, precondition=a=>a==1),  // true precondition
+    ValueFact(200, false, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 99, precondition=a=>a!=1),  // false precondition
+    ValueFact(300, false, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 99, precondition=x=>x==1),  // impossible precondition
+    ValueFact(400, false, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100, precondition=(ma, mb)=>(ma+mb)==5)  // true precondition
+   ]
+   }
+  )
+  

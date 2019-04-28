@@ -46,6 +46,11 @@ native class Boolean:
    */
   native or(other: bool): bool
 
+ /**
+   * Inverts this instance if the other instance if truish (0.5 or higher). Otherwise it returns this instance.
+   */
+  native xor(other: bool): bool
+
 
   /**
    * Converts the given value into a boolean. If it is an object, it calls the toBoolean() instance method. 

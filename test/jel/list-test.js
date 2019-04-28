@@ -209,6 +209,19 @@ describe('jelList', function() {
       return jelAssert.equalPromise('[3, 2, 9].firstMatch((x,i)=>JelPromise(x>5 && i<1))', null); 
     });
   });
+  
+    describe('firstMatchIndex)', function() {
+    it('finds something', function() {
+      jelAssert.equal('[3, 2, 9, 5, 6, 8, 2, 4, 0, -2, 55, 22, 4, 1, 5, 2, 3].firstMatchIndex((x,i)=>x>2)', 0);
+      jelAssert.equal('[3, 2, 9, 5, 6, 8, 2, 4, 0, -2, 55, 22, 4, 1, 5, 2, 3].firstMatchIndex((x,i)=>x>2 && i>1)', 2); 
+      jelAssert.equal('[3, 2, 9, 5, 6, 8, 2, 4, 0, -2, 55, 22, 4, 1, 5, 2, 3].firstMatchIndex((x,i)=>x>9)', 10);
+      return jelAssert.equalPromise('[3, 8, 17, 39, 2, 9].firstMatchIndex((x,i)=>JelPromise(x>10))', 2); 
+    });
+    it('finds nothing', function() {
+      jelAssert.equal('[3, 2, 9].firstMatchIndex((x,i)=>x>10)', null); 
+      return jelAssert.equalPromise('[3, 2, 9].firstMatchIndex((x,i)=>JelPromise(x>5 && i<1))', null); 
+    });
+  });
 
   
   describe('bestMatch()', function() {
@@ -440,14 +453,14 @@ describe('jelList', function() {
 
   describe('subLen()', function() {
     it('handles small lists', function() {
-      jelAssert.equal('[].subLen(0, 100)', new List([]));
-      jelAssert.equal('[].subLen(-2, 5)', new List([]));
-      jelAssert.equal('[].subLen(0)', new List([]));
+      jelAssert.equal('[].subLen(0, 100)', List.empty);
+      jelAssert.equal('[].subLen(-2, 5)', List.empty);
+      jelAssert.equal('[].subLen(0)', List.empty);
       jelAssert.equal('[1].subLen(0,100)', new List([1].map(Float.valueOf)));
       jelAssert.equal('[1].subLen(-1,5)', new List([1].map(Float.valueOf)));
       jelAssert.equal('[1].subLen(-1)', new List([1].map(Float.valueOf)));
       jelAssert.equal('[1].subLen(-1, 1)', new List([1].map(Float.valueOf)));
-      jelAssert.equal('[1].subLen(0, 0)', new List([]));
+      jelAssert.equal('[1].subLen(0, 0)', List.empty);
     });
     it('allows flexible params', function() {
       jelAssert.equal('[3, 2, 9, 5].subLen(0, 5)', new List([3, 2, 9, 5].map(Float.valueOf)));
@@ -465,7 +478,56 @@ describe('jelList', function() {
       jelAssert.equal('[9, 2, 3, 5].subLen(-3, 1)', new List([2].map(Float.valueOf)));
     });
   });
+  
+  describe('until()', function() {
+    it('just works', function() {
+      jelAssert.equal('[].until((e,i)=>i>2)', List.empty);
+      jelAssert.equal('[1, 2, 3, 4, 5].until((e,i)=>true)', List.empty);
+      jelAssert.equal('[1, 2, 3, 4, 5].until((e,i)=>true, true)', new List([Float.valueOf(1)]));
+      jelAssert.equal('[1, 2, 3, 4, 5].until((e,i)=>i==0)', List.empty);
+      jelAssert.equal('[1, 2, 3, 4, 5].until((e,i)=>i==0, true)', new List([Float.valueOf(1)]));
+      jelAssert.equal('[2, 9, 5].until(()=>false)', new List([2, 9, 5].map(Float.valueOf)));
+      jelAssert.equal('[2, 9, 5].until((e,i)=>i>2)', new List([2, 9, 5].map(Float.valueOf)));
+      jelAssert.equal('[2, 9, 5, 4, 5, 6].until((e,i)=>i>2)', new List([2, 9, 5].map(Float.valueOf)));
+      jelAssert.equal('[2, 9, 5, 33].until((e,i)=>e == 33)', new List([2, 9, 5].map(Float.valueOf)));
+      jelAssert.equal('[2, 9, 5, 33, 3].until((e,i)=>e == 33)', new List([2, 9, 5].map(Float.valueOf)));
+      jelAssert.equal('[2, 9, 5, 33, 3].until((e,i)=>e == 33, true)', new List([2, 9, 5, 33].map(Float.valueOf)));
+      jelAssert.equal('[2, 9, 5, 33, 3].until((e,i)=>e == 2, true)', new List([2].map(Float.valueOf)));
+      jelAssert.equal('[2, 9, 5, 33, 3].until((e,i)=>e == 2, false)', List.empty);
+    });
+  });
 
+  describe('while()', function() {
+    it('just works', function() {
+      jelAssert.equal('[].while((e,i)=>i<2)', List.empty);
+      jelAssert.equal('[1, 2, 3, 4, 5].while((e,i)=>false)', List.empty);
+      jelAssert.equal('[1, 2, 3, 4, 5].while((e,i)=>i!=0)', List.empty);
+      jelAssert.equal('[2, 9, 5].while(()=>true)', new List([2, 9, 5].map(Float.valueOf)));
+      jelAssert.equal('[2, 9, 5].while((e,i)=>i<=2)', new List([2, 9, 5].map(Float.valueOf)));
+      jelAssert.equal('[2, 9, 5, 4, 5, 6].while((e,i)=>i<=2)', new List([2, 9, 5].map(Float.valueOf)));
+      jelAssert.equal('[2, 9, 5, 33].while((e,i)=>e != 33)', new List([2, 9, 5].map(Float.valueOf)));
+      jelAssert.equal('[2, 9, 5, 33, 3].while((e,i)=>e != 33)', new List([2, 9, 5].map(Float.valueOf)));
+      jelAssert.equal('[2, 9, 5, 33, 3].while((e,i)=>e != 2)', List.empty);
+    });
+  });
+  
+  describe('startWhen()', function() {
+    it('just works', function() {
+      jelAssert.equal('[].startWhen((e,i)=>i<2)', List.empty);
+      jelAssert.equal('[].startWhen((e,i)=>true)', List.empty);
+      jelAssert.equal('[].startWhen((e,i)=>false)', List.empty);
+      jelAssert.equal('[1, 2, 3, 4, 5].startWhen((e,i)=>false)', List.empty);
+      jelAssert.equal('[2, 9, 5].startWhen(()=>true)', new List([2, 9, 5].map(Float.valueOf)));
+      jelAssert.equal('[2, 9, 5].startWhen((e,i)=>i==1)', new List([9, 5].map(Float.valueOf)));
+      jelAssert.equal('[2, 9, 5, 4, 5, 6].startWhen((e,i)=>i==2)', new List([5, 4, 5, 6].map(Float.valueOf)));
+      jelAssert.equal('[2, 9, 5, 33].startWhen((e,i)=>e != 33)', new List([2, 9, 5, 33].map(Float.valueOf)));
+      jelAssert.equal('[2, 9, 5, 33].startWhen((e,i)=>e == 33)', new List([33].map(Float.valueOf)));
+      jelAssert.equal('[2, 9, 5, 33, 3].startWhen((e,i)=>e == 33)', new List([33, 3].map(Float.valueOf)));
+      jelAssert.equal('[11, 22, 33, 44, 55, 66].startWhen(e=>e > 20).until(e=>e > 50)', new List([22, 33, 44].map(Float.valueOf)));
+      jelAssert.equal('[11, 22, 33, 44, 55, 66].startWhen(e=>e > 20).until(e=>e > 50, true)', new List([22, 33, 44, 55].map(Float.valueOf)));
+      jelAssert.equal('[11, 22, 33, 44, 55, 66].startWhen(e=>e > 20).sub(1).until(e=>e > 50, true)', new List([33, 44, 55].map(Float.valueOf)));
+    });
+  });
   
 });
 

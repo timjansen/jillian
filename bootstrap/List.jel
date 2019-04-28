@@ -71,6 +71,7 @@ native class List:
   /**
    * Checks whether any list element fulfills the given condition. To do this, it calls the given 
    * function for each list member until it returns true for any of them.
+   * @param f the function to call
    * @return true if the callback function returned true once, false otherwise.
    */
   native hasAny(f: function((element: any?, index: int(>=0))=>any?)): bool
@@ -78,6 +79,7 @@ native class List:
   /**
    * Checks whether all list elements fulfill the given condition. To do this, it calls the given 
    * function for each list member until it returns false for any of them.
+   * @param f the function to call
    * @return false if the callback function returned false once, true otherwise.
    */
   native hasOnly(f: function((element: any?, index: int(>=0))=>any?)): bool
@@ -93,6 +95,12 @@ native class List:
    * @return the first element, or null if there is none
    */
   native firstMatch(f: function((element: any?, index: int(>=0))=>any?)): any?
+
+  /**
+   * Returns the index of first element that matches the given function.
+   * @return the index of first element, or null if there is none
+   */
+  native firstMatchIndex(f: function((element: any?, index: int(>=0))=>any?)): int(>=0)?
 
   /**
    * Returns the last element that matches the given function.
@@ -158,4 +166,35 @@ native class List:
    * @return the largest element, or null if the list was empty
    */
   native min(isLess: function((a: any?, b: any?)=>any?)?, key: string|function((a: any?)=>any?)?): any?
+
+  /**
+   * Creates a new List that copies all elements from this List until it reaches the first element for which the given function returns true. It stops then and returns a List
+   * containing all previous elements.
+   * @param f a function that is called for each List element until it returns true. The first argument is the element to check, the second is its index
+   * @param includeTriggerElement if true, the element that triggered the stop is included in the result
+   * @return a new List containing all elements until the trigger function returned true. The trigger element is included if includeTriggerElement is true. 
+   * Empty if the function returned true for the first element and includeTriggerElement is false. The complete List, if it never returned true.
+   */
+  until(f: function((element: any?, index: int(>=0))=>bool), includeTriggerElement: bool = false): List =>
+    let idx = this.firstMatchIndex(f):
+      if idx == null then this else this.sub(0, idx + if includeTriggerElement then 1 else 0)
+
+  /**
+   * Creates a new List that copies all elements from this List while the given function returns true for the elements. It stops as soon as the function returns false.
+   * @param f a function that is called for each List element until it returns false. The first argument is the element to check, the second is its index
+   * @return a new List containing all elements until the trigger function returned false. Empty if the function returned false for the first element. The complete List, if it never returned false.
+   */
+  while(f: function((element: any?, index: int(>=0))=>bool)): List =>
+    this.until((e,i)=>!f(e,i))
+
+  /**
+   * Creates a new List that begins with the first element for which the given function returns true, and contains all following elements.
+   * @param f a function that is called for each List element until it returns trye. The first argument is the element to check, the second is its index
+   * @return a new List containing all elements starting with the first element the trigger function returned true for. Empty if the function never returned true. 
+   */
+  startWhen(f: function((element: any?, index: int(>=0))=>bool)): List =>
+    let idx = this.firstMatchIndex(f):
+      if idx == null then [] else this.sub(idx)
+
+
 

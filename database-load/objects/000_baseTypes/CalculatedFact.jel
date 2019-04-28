@@ -18,10 +18,10 @@ class CalculatedFact extends FunctionFact
                           else 0.5
   }
 
-  override checkValue(v: any?, dependencies: any{}): bool => this.func.call(dependencies) == v
+  override checkValue(v: any?, dependencies: any{} = {}): bool => this.func.call(dependencies) == v
   
-  override getValue(dependencies: any{}): any? => this.func.call(dependencies)
+  override getValue(dependencies: any{} = {}): any? => this.func.call(dependencies)
   
-  override getDiscreteValue(dependencies: any{}): any? => this.getValue(dependencies)
+  override getDiscreteValue(dependencies: any{} = {}): any? => this.getValue(dependencies)
   
-  override allows(thisDependencies: any{}, other: Fact, otherDependencies: any{}): bool => true
+  override allows(thisDependencies: any{} = {}, other: Fact, otherDependencies: any{} = {}): bool => true

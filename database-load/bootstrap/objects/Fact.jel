@@ -79,21 +79,21 @@ abstract class Fact
    * @param dependencies the resolved values for the declared dependencies
    * @return true if the value is compatible, false otherwise
    */
-  abstract checkValue(v: any?, dependencies: any{}): bool
+  abstract checkValue(v: any?, dependencies: any{} = {}): bool
 
   /**
    * Retrieves the value of the fact, if possible, given the dependencies. May be a Range or Distribution if that's the best way to describe the fact.
    * @param dependencies the resolved values for the declared dependencies
    * @return if a value is available (e.g. this is not an assumption fact), the computed or stored value.
    */
-  abstract getValue(dependencies: any{}): any?
+  abstract getValue(dependencies: any{} = {}): any?
   
   /**
    * Retrieves the single non-range, non-List, non-Distribution value of the fact, if possible, given the dependencies and the fact type.
    * @param dependencies the resolved values for the declared dependencies
    * @return if a value is available (e.g. this is not an assumption or a range fact), the computed or stored value.
    */
-  abstract getDiscreteValue(dependencies: any{}): any?
+  abstract getDiscreteValue(dependencies: any{} = {}): any?
   
   /**
    * Checks whether this fact allows the given other fact to be true, and thus does not contradict it. For example, an assertion fact allows all facts that fulfill the assertion.

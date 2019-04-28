@@ -1,7 +1,7 @@
 /**
  * AssertionFact is a Fact that does not provide a value, but is a mere assertion comparing the value to a constant or other properties, thus limiting the possible values.
  * It consists of a single function that returns a bool to indicate whether a hypothetical value fulfills the assertion or not.
- * The first argument given to the assertion is always the value to check. It can be any object. 
+ * The first argument given to the assertion is always the value to check.
  * The assertion may have additional arguments which must correspond to other property names of the same database entry. They need to be declared in the dependencies property.
  * In addition to the Thing's facts, the following argument names are also supported and will be provided if included:
  *  * currentTime - the time for which the assertion should be validated, as timestamp
@@ -9,19 +9,20 @@
  *  * currentLocation - the current location which is being validated, as Geo::ElevatedPosition
  */
 class AssertionFact extends FunctionFact:
-  
-
   firstArgName: string
 
-  override checkValue(v: any?, dependencies: any{}): bool => this.func.call(dependencies.set(this.firstArgName, v))
-  override getValue(dependencies: any{}): any? => null
-  override getDiscreteValue(dependencies: any{}): any? => null
+  override checkValue(v: any?, dependencies: any{} = {}): bool => this.func.call(dependencies.set(this.firstArgName, v))
+  override getValue(dependencies: any{} = {}): any? => null
+  override getDiscreteValue(dependencies: any{} = {}): any? => null
   
   constructor(func, comprehensive, negative, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition) => 
     {
       firstArgName: func.getArguments().first.name,
       factTypeSpecificness: 0.1
     }
+
+  override get dependencies(): Set => Set(this.func.getArguments().map(t=>t.name)).delete(this.firstArgName) + if this.precondition then Set(this.precondition.getArguments().map(t=>t.name)) else Set.empty
+
 
   private allowsRange(thisDependencies: any{}, other: Range): bool =>
     (other.minExclusive || this.checkValue(other.min, thisDependencies)) &&

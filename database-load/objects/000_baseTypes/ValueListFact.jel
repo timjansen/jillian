@@ -17,14 +17,14 @@ class ValueListFact extends Fact
                           else 0.6
   }
 
-  override checkValue(v: any?, dependencies: any{}): bool =>
+  override checkValue(v: any?, dependencies: any{} = {}): bool =>
     if this.negative then
       !(v in this.values) 
     else 
       v in this.values
  
-  override getValue(dependencies: any{}): any? => if this.negative then null else this.values
+  override getValue(dependencies: any{} = {}): any? => if this.negative then null else this.values
 
-  override getDiscreteValue(dependencies: any{}): any? => null
+  override getDiscreteValue(dependencies: any{} = {}): any? => null
  
-  override allows(thisDependencies: any{}, other: Fact, otherDependencies: any{}): bool => true
+  override allows(thisDependencies: any{} = {}, other: Fact, otherDependencies: any{} = {}): bool => true

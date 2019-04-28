@@ -7,7 +7,6 @@ native class DbEntry:
                reality: thing?,               // <<< TODO
 							 hashCode: string?)
 
-
   // evaluate dependencies
   private getDependencies(fact: Fact, currentTime: time, metaProperties: any{}?, excludedProperties: Set?): any{}? => 
     if fact.dependencies.isEmpty then {}
@@ -19,6 +18,12 @@ native class DbEntry:
        else 
         r.setAll(metaProperties).set('currentTime', currentTime)
 
+  /**
+   * Checks whether the given value is possible for the fact.
+   */
+   // TODO: better algorithm
+  checkValue(name: string, currentTime: time, value: any): bool =>
+    this.getBestFacts(name, currentTime).until(f=>f.comprehensive, true).map(f=>f.checkValue(value).xor(f.negative)).reduce((v, i)=>Boolean.falsest(v, i), true)    
 
 
   /**
@@ -38,7 +43,7 @@ native class DbEntry:
     this.getFilteredFacts(name, filter = f=>(if currentTime && f.startTime then f.startTime <= currentTime) &&
                           (if currentTime && f.endTime then f.endTime > currentTime) && 
                           (
-                            let deps = this.getDependencies(f, currentTime, metaProperties, excludedProperties):
+                            let deps = this.getDependencies(f, currentTime, metaProperties, (excludedProperties || Set.empty) + name):
                               deps != null && if f.precondition then f.precondition.call(deps)
                           ),
                           max = max)
@@ -46,7 +51,7 @@ native class DbEntry:
   getBestFactResults(name: string, currentTime: time, metaProperties: any{}?, max: int(>=0)?, excludedProperties: Set?): FactResult[] =>
     this.getBestFacts(name, currentTime, metaProperties, null, excludedProperties)
       .filter(f=>!f.negative)
-      .map(f=>let r = f.getValue(this.getDependencies(f, currentTime, metaProperties, excludedProperties)):
+      .map(f=>let r = f.getValue(this.getDependencies(f, currentTime, metaProperties, (excludedProperties || Set.empty) + name)):
         if r != null then FactResult(f, r) else null)
       .filterNull()
       .subLen(length=max)
@@ -63,7 +68,7 @@ native class DbEntry:
   getBestDiscreteValue(name: string, currentTime: time, metaProperties: any{}?, excludedProperties: Set?): FactResult? => 
     this.getBestFacts(name, currentTime, metaProperties, null, excludedProperties)
       .filter(f=>!f.negative)
-      .map(f=>let r = f.getDiscreteValue(this.getDependencies(f, currentTime, metaProperties, excludedProperties)):
+      .map(f=>let r = f.getDiscreteValue(this.getDependencies(f, currentTime, metaProperties, (excludedProperties || Set.empty) + name)):
         if r != null then FactResult(f, r) else null)
       .filterNull()[0]
       
