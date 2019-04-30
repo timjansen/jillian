@@ -120,6 +120,7 @@ const TRANSLATOR_LAMBDA_STOP = {',': true, '}': true};
 const PARAMETER_STOP: any = {')': true, ',': true};
 const IF_STOP = {'then': true};
 const THEN_STOP: any = {'else': true, 'let': true, 'with': true, 'if': true, 'class': true, 'enum': true, abstract: true, static: true, native: true, override: true, private: true};
+const ELSE_STOP: any = {'else': true, 'let': true, 'with': true, 'if': true, 'class': true, 'enum': true};
 const LET_STOP = {':': true, ',': true};
 const WITH_STOP = {':': true, ',': true};
 const CLASS_EXTENDS_STOP = {':': true, ',': true, identifier: true, abstract: true, static: true, native: true, override: true, private: true};
@@ -289,7 +290,7 @@ export default class JEL {
     case '@': 
       const t2 = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier after '@' for reference.");
       if (tokens.nextIf(TokenType.Operator, '(')) {
-        const assignments: Assignment[] = JEL.parseParameters(tokens, PARENS_PRECEDENCE, PARAMETER_STOP, ')', "Expected comma or closing parens", 'parameter');
+        const assignments: Assignment[] = JEL.parseParameters(tokens, PARENS_PRECEDENCE, PARAMETER_STOP, ')', "Expected comma or closing parens while parsing reference parameters", 'parameter');
         return JEL.tryBinaryOps(tokens, new Reference(t2, t2.value, assignments), precedence, stopOps);
       }
       else
@@ -299,7 +300,7 @@ export default class JEL {
       JEL.expectOp(tokens, IF_STOP, "Expected 'then'");
       const allStop = Object.assign({}, THEN_STOP, stopOps);
       const thenV = JEL.parseExpression(tokens, IF_PRECEDENCE, allStop);
-      if (tokens.peekIs(TokenType.Operator) && (tokens.nextIf(TokenType.Operator, 'else') || THEN_STOP[tokens.peek().value]))
+      if (tokens.peekIs(TokenType.Operator) && (tokens.nextIf(TokenType.Operator, 'else') || ELSE_STOP[tokens.peek().value]))
         return JEL.tryBinaryOps(tokens, new Condition(firstToken, cond, thenV, JEL.parseExpression(tokens, IF_PRECEDENCE, stopOps)), precedence, stopOps);
       else
         return JEL.tryBinaryOps(tokens, new Condition(firstToken, cond, thenV, TRUE_LITERAL), precedence, stopOps);
@@ -316,7 +317,7 @@ export default class JEL {
     case 'enum':
       return JEL.tryBinaryOps(tokens, JEL.parseEnum(tokens, precedence, stopOps), precedence, stopOps);
     default:
-      JEL.throwParseException(firstToken, "Unexpected token");
+      JEL.throwParseException(firstToken, `Unexpected token while parsing operator "${operator}"`);
     }
 		return undefined as any; // this is a dummy return to make Typescript happy
   }

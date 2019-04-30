@@ -1,5 +1,5 @@
 // Testing assertion facts
-Thing('TestFactE', @SimpleTestCategory,
+Thing('TestFactAssertion', @SimpleTestCategory,
 	facts={
    a: 
     [AssertionFact(a=>a==4, true, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100)],

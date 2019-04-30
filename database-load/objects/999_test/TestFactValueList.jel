@@ -1,0 +1,14 @@
+// Testing value list facts
+Thing('TestFactValueList', @SimpleTestCategory,
+	facts={
+   a: 
+    [ValueListFact([1, 2, 3], true, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100)],
+   b: 
+    [ValueListFact([1, 2, 3], true, true, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100),
+    ValueListFact([1, 2, 3, 4], true, true, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 99)],
+   c: 
+    [ValueListFact([1], false, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100),
+     ValueListFact([5, 10], false, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 99)]
+   }
+  )
+  

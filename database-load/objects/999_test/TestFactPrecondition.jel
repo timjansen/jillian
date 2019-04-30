@@ -1,5 +1,5 @@
 // Testing preconditions
-Thing('TestFactC', @TestCategory,
+Thing('TestFactPrecondition', @TestCategory,
 	facts=FactHelper.createRootFacts({
     ma: 2,
     mb: 3

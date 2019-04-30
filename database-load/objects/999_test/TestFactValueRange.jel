@@ -1,0 +1,13 @@
+// Testing value range facts
+Thing('TestFactValueRange', @SimpleTestCategory,
+	facts={
+   a: 
+    [ValueRangeFact(3...10, null, true, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100)],
+   b: 
+    [ValueRangeFact(0...100, 10, false, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100)],
+   c: 
+    [ValueRangeFact(<=5, null, false, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100),
+     ValueRangeFact(>1, null, false, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 99)]
+   }
+  )
+  

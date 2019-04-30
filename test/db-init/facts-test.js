@@ -131,74 +131,110 @@ describe('Facts', function() {
   
   it('supports preconditions', function() {
     return Promise.all([
-      jelAssert.equalPromise("@TestFactC.getAllFacts('c').length", "2"),
-      jelAssert.equalPromise("@TestFactC.getBestFacts('c', Timestamp.EPOCH).length", "1"),
-      jelAssert.equalPromise("@TestFactC.getBestFactResults('c', Timestamp.EPOCH).map(v=>v.value)", "[200]"),
-      jelAssert.equalPromise("@TestFactC.getBestFactResult('c', Timestamp.EPOCH).value", "200"),
-      jelAssert.equalPromise("@TestFactC.getBestDiscreteValue('c', Timestamp.EPOCH).value", "200"),
+      jelAssert.equalPromise("@TestFactPrecondition.getAllFacts('c').length", "2"),
+      jelAssert.equalPromise("@TestFactPrecondition.getBestFacts('c', Timestamp.EPOCH).length", "1"),
+      jelAssert.equalPromise("@TestFactPrecondition.getBestFactResults('c', Timestamp.EPOCH).map(v=>v.value)", "[200]"),
+      jelAssert.equalPromise("@TestFactPrecondition.getBestFactResult('c', Timestamp.EPOCH).value", "200"),
+      jelAssert.equalPromise("@TestFactPrecondition.getBestDiscreteValue('c', Timestamp.EPOCH).value", "200"),
 
-      jelAssert.equalPromise("@TestFactC.getAllFacts('b').length", "4"),
-      jelAssert.equalPromise("@TestFactC.getFilteredFacts('b', (f, i)=>i != 1).length", "3"),
-      jelAssert.equalPromise("@TestFactC.getFilteredFacts('b', (f, i)=>f instanceof ValueFact).length", "4"),
-      jelAssert.equalPromise("@TestFactC.getBestFacts('b', Timestamp.EPOCH).length", "2"),
-      jelAssert.equalPromise("@TestFactC.getBestFacts('b', Timestamp.EPOCH, max=1).length", "1"),
-      jelAssert.equalPromise("@TestFactC.getBestFactResults('b', Timestamp.EPOCH).map(v=>v.value)", "[400, 100]"),
-      jelAssert.equalPromise("@TestFactC.getBestFactResults('b', Timestamp.EPOCH, max=1).map(v=>v.value)", "[400]"),
-      jelAssert.equalPromise("@TestFactC.getBestFactResult('b', Timestamp.EPOCH).value", "400"),
-      jelAssert.equalPromise("@TestFactC.getBestDiscreteValue('b', Timestamp.EPOCH).value", "400"),
+      jelAssert.equalPromise("@TestFactPrecondition.getAllFacts('b').length", "4"),
+      jelAssert.equalPromise("@TestFactPrecondition.getFilteredFacts('b', (f, i)=>i != 1).length", "3"),
+      jelAssert.equalPromise("@TestFactPrecondition.getFilteredFacts('b', (f, i)=>f instanceof ValueFact).length", "4"),
+      jelAssert.equalPromise("@TestFactPrecondition.getBestFacts('b', Timestamp.EPOCH).length", "2"),
+      jelAssert.equalPromise("@TestFactPrecondition.getBestFacts('b', Timestamp.EPOCH, max=1).length", "1"),
+      jelAssert.equalPromise("@TestFactPrecondition.getBestFactResults('b', Timestamp.EPOCH).map(v=>v.value)", "[400, 100]"),
+      jelAssert.equalPromise("@TestFactPrecondition.getBestFactResults('b', Timestamp.EPOCH, max=1).map(v=>v.value)", "[400]"),
+      jelAssert.equalPromise("@TestFactPrecondition.getBestFactResult('b', Timestamp.EPOCH).value", "400"),
+      jelAssert.equalPromise("@TestFactPrecondition.getBestDiscreteValue('b', Timestamp.EPOCH).value", "400"),
     ]);   
   });
   
   it('handles circular dependencies in function facts', function() {
     return Promise.all([
-      jelAssert.equalPromise("@TestFactD.getBestFactResults('a', Timestamp.EPOCH).length", "1"),
-      jelAssert.equalPromise("@TestFactD.getBestFactResults('b', Timestamp.EPOCH)", "[]"),
-      jelAssert.equalPromise("@TestFactD.getBestFactResults('c', Timestamp.EPOCH)", "[]"),
-      jelAssert.equalPromise("@TestFactD.getBestFactResults('mb', Timestamp.EPOCH)", "[]"),
-      jelAssert.equalPromise("@TestFactD.getBestFactResults('ma', Timestamp.EPOCH)", "[]")
+      jelAssert.equalPromise("@TestFactCircDep.getBestFactResults('a', Timestamp.EPOCH).length", "1"),
+      jelAssert.equalPromise("@TestFactCircDep.getBestFactResults('b', Timestamp.EPOCH)", "[]"),
+      jelAssert.equalPromise("@TestFactCircDep.getBestFactResults('c', Timestamp.EPOCH)", "[]"),
+      jelAssert.equalPromise("@TestFactCircDep.getBestFactResults('mb', Timestamp.EPOCH)", "[]"),
+      jelAssert.equalPromise("@TestFactCircDep.getBestFactResults('ma', Timestamp.EPOCH)", "[]")
     ]);   
   });
 
   it('suports AssertionFact', function() {
     return Promise.all([
-      jelAssert.equalPromise("@TestFactE.getAllFacts('a').length", "1"),
-      jelAssert.equalPromise("@TestFactE.getBestFacts('a', Timestamp.EPOCH).length", "1"),
-      jelAssert.equalPromise("@TestFactE.getBestFactResults('a', Timestamp.EPOCH).length", "0"),
-      jelAssert.equalPromise("@TestFactE.getBestFacts('a', Timestamp.EPOCH, max=1)[0].getValue({})", "null"),
-      jelAssert.equalPromise("@TestFactE.getBestFacts('a', Timestamp.EPOCH, max=1)[0].getDiscreteValue({})", "null"),
-      jelAssert.equalPromise("@TestFactE.getBestFacts('a', Timestamp.EPOCH, max=1)[0].checkValue(1, {})", "false"),
-      jelAssert.equalPromise("@TestFactE.getBestFacts('a', Timestamp.EPOCH, max=1)[0].checkValue(5, {})", "false"),
-      jelAssert.equalPromise("@TestFactE.getBestFacts('a', Timestamp.EPOCH, max=1)[0].checkValue(4, {})", "true"),
-      jelAssert.equalPromise("@TestFactE.getBestFacts('a', Timestamp.EPOCH, max=1)[0].checkValue(null, {})", "false"),
+      jelAssert.equalPromise("@TestFactAssertion.getAllFacts('a').length", "1"),
+      jelAssert.equalPromise("@TestFactAssertion.getBestFacts('a', Timestamp.EPOCH).length", "1"),
+      jelAssert.equalPromise("@TestFactAssertion.getBestFactResults('a', Timestamp.EPOCH).length", "0"),
+      jelAssert.equalPromise("@TestFactAssertion.getBestFacts('a', Timestamp.EPOCH, max=1)[0].getValue({})", "null"),
+      jelAssert.equalPromise("@TestFactAssertion.getBestFacts('a', Timestamp.EPOCH, max=1)[0].getDiscreteValue({})", "null"),
+      jelAssert.equalPromise("@TestFactAssertion.getBestFacts('a', Timestamp.EPOCH, max=1)[0].checkValue(1, {})", "false"),
+      jelAssert.equalPromise("@TestFactAssertion.getBestFacts('a', Timestamp.EPOCH, max=1)[0].checkValue(5, {})", "false"),
+      jelAssert.equalPromise("@TestFactAssertion.getBestFacts('a', Timestamp.EPOCH, max=1)[0].checkValue(4, {})", "true"),
+      jelAssert.equalPromise("@TestFactAssertion.getBestFacts('a', Timestamp.EPOCH, max=1)[0].checkValue(null, {})", "false"),
 
-      jelAssert.equalPromise("@TestFactE.checkValue('a', Timestamp.EPOCH, 1)", "false"),
-      jelAssert.equalPromise("@TestFactE.checkValue('a', Timestamp.EPOCH, 4)", "true"),
-      jelAssert.equalPromise("@TestFactE.checkValue('a', Timestamp.EPOCH, 5)", "false"),
+      jelAssert.equalPromise("@TestFactAssertion.checkValue('a', Timestamp.EPOCH, 1)", "false"),
+      jelAssert.equalPromise("@TestFactAssertion.checkValue('a', Timestamp.EPOCH, 4)", "true"),
+      jelAssert.equalPromise("@TestFactAssertion.checkValue('a', Timestamp.EPOCH, 5)", "false"),
 
-      jelAssert.equalPromise("@TestFactE.checkValue('b', Timestamp.EPOCH, 1)", "false"),
-      jelAssert.equalPromise("@TestFactE.checkValue('b', Timestamp.EPOCH, 4)", "true"),
-      jelAssert.equalPromise("@TestFactE.checkValue('b', Timestamp.EPOCH, 4.5)", "true"),
-      jelAssert.equalPromise("@TestFactE.checkValue('b', Timestamp.EPOCH, 5)", "false"),
-      jelAssert.equalPromise("@TestFactE.checkValue('b', Timestamp.EPOCH, 7)", "false"),
+      jelAssert.equalPromise("@TestFactAssertion.checkValue('b', Timestamp.EPOCH, 1)", "false"),
+      jelAssert.equalPromise("@TestFactAssertion.checkValue('b', Timestamp.EPOCH, 4)", "true"),
+      jelAssert.equalPromise("@TestFactAssertion.checkValue('b', Timestamp.EPOCH, 4.5)", "true"),
+      jelAssert.equalPromise("@TestFactAssertion.checkValue('b', Timestamp.EPOCH, 5)", "false"),
+      jelAssert.equalPromise("@TestFactAssertion.checkValue('b', Timestamp.EPOCH, 7)", "false"),
 
-      jelAssert.equalPromise("@TestFactE.checkValue('c', Timestamp.EPOCH, 0)", "true"),
-      jelAssert.equalPromise("@TestFactE.checkValue('c', Timestamp.EPOCH, 4)", "true"),
-      jelAssert.equalPromise("@TestFactE.checkValue('c', Timestamp.EPOCH, 5)", "false"),
-      jelAssert.equalPromise("@TestFactE.checkValue('c', Timestamp.EPOCH, 10)", "false")
+      jelAssert.equalPromise("@TestFactAssertion.checkValue('c', Timestamp.EPOCH, 0)", "true"),
+      jelAssert.equalPromise("@TestFactAssertion.checkValue('c', Timestamp.EPOCH, 4)", "true"),
+      jelAssert.equalPromise("@TestFactAssertion.checkValue('c', Timestamp.EPOCH, 5)", "false"),
+      jelAssert.equalPromise("@TestFactAssertion.checkValue('c', Timestamp.EPOCH, 10)", "false")
 
     ]);   
   });
   
-  it('suports RangeFact', function() {
+  it('suports ValueRangeFact', function() {
     return Promise.all([
-      
+      jelAssert.equalPromise("@TestFactValueRange.getAllFacts('a').length", "1"),
+      jelAssert.equalPromise("@TestFactValueRange.getBestFacts('a', Timestamp.EPOCH).length", "1"),
+      jelAssert.equalPromise("@TestFactValueRange.getBestFactResults('a', Timestamp.EPOCH)[0].value", "3...10"),
+      jelAssert.equalPromise("@TestFactValueRange.checkValue('a', Timestamp.EPOCH, 0)", "false"),
+      jelAssert.equalPromise("@TestFactValueRange.checkValue('a', Timestamp.EPOCH, 5.7)", "true"),  
+      jelAssert.equalPromise("@TestFactValueRange.checkValue('a', Timestamp.EPOCH, 11)", "false"),
+
+      jelAssert.equalPromise("@TestFactValueRange.checkValue('b', Timestamp.EPOCH, -10)", "false"),
+      jelAssert.equalPromise("@TestFactValueRange.checkValue('b', Timestamp.EPOCH, 0)", "true"),
+      jelAssert.equalPromise("@TestFactValueRange.checkValue('b', Timestamp.EPOCH, 57)", "false"),  
+      jelAssert.equalPromise("@TestFactValueRange.checkValue('b', Timestamp.EPOCH, 50)", "true"),  
+      jelAssert.equalPromise("@TestFactValueRange.checkValue('b', Timestamp.EPOCH, 200)", "false"),
+
+      jelAssert.equalPromise("@TestFactValueRange.checkValue('c', Timestamp.EPOCH, 0)", "false"),
+      jelAssert.equalPromise("@TestFactValueRange.checkValue('c', Timestamp.EPOCH, 1)", "false"),
+      jelAssert.equalPromise("@TestFactValueRange.checkValue('c', Timestamp.EPOCH, 3)", "true"),
+      jelAssert.equalPromise("@TestFactValueRange.checkValue('c', Timestamp.EPOCH, 5)", "true"),
+      jelAssert.equalPromise("@TestFactValueRange.checkValue('c', Timestamp.EPOCH, 6)", "false")
+    ]);   
+  });
+  
+  
+  it('suports CalculatedRangeFact', function() {
+    return Promise.all([
+      jelAssert.equalPromise("@TestFactCalcRange.getBestFactResults('c', Timestamp.EPOCH).length", "1"),
+      jelAssert.equalPromise("@TestFactCalcRange.getBestFactResults('c', Timestamp.EPOCH)[0].value", "9...40"),
+      jelAssert.equalPromise("@TestFactCalcRange.checkValue('c', Timestamp.EPOCH, 10)", "true"),
+      jelAssert.equalPromise("@TestFactCalcRange.checkValue('c', Timestamp.EPOCH, 100)", "false")
+    ]);   
+  });
+
+  it('suports ValueListFact', function() {
+    return Promise.all([
+      jelAssert.equalPromise("@TestFactValueList.getBestFactResults('a', Timestamp.EPOCH)[0].value", "[1, 2, 3]"),
+      jelAssert.equalPromise("@TestFactValueList.checkValue('b', Timestamp.EPOCH, 1)", "false"),
+      jelAssert.equalPromise("@TestFactValueList.checkValue('b', Timestamp.EPOCH, 4)", "true"),
+      jelAssert.equalPromise("@TestFactValueList.checkValue('b', Timestamp.EPOCH, 5)", "true"),
+      jelAssert.equalPromise("@TestFactValueList.checkValue('c', Timestamp.EPOCH, 1)", "true"),
+//      jelAssert.equalPromise("@TestFactValueList.checkValue('c', Timestamp.EPOCH, 5)", "true"),
+//      jelAssert.equalPromise("@TestFactValueList.checkValue('c', Timestamp.EPOCH, 15)", "false")
     ]);   
   });
   
   // TODO:
-  // test rangefact
-  // test calcrangefact
-  // test listfact
   // test distfact
   // test negative facts
   // test non-comprehensive facts

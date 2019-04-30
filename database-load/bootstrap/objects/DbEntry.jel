@@ -23,7 +23,11 @@ native class DbEntry:
    */
    // TODO: better algorithm
   checkValue(name: string, currentTime: time, value: any): bool =>
-    this.getBestFacts(name, currentTime).until(f=>f.comprehensive, true).map(f=>f.checkValue(value).xor(f.negative)).reduce((v, i)=>Boolean.falsest(v, i), true)    
+    this.getBestFacts(name, currentTime)
+      .until(f=>f.comprehensive, true)
+      .map(f=>f.checkValue(value, this.getDependencies(f, currentTime)).xor(f.negative) || (if f.comprehensive then false else null))
+      .reduce((v, i)=>if v == null then i 
+                      if i == null then v else Boolean.truest(v, i), null) || false
 
 
   /**

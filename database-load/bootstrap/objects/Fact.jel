@@ -75,9 +75,10 @@ abstract class Fact
 
   /**
    * Checks whether the given value for the property is either the same value or compatible with the fact's value.
+   * Please note that checkValue() does not consider the 'negative' property!
    * @param v the value to check
    * @param dependencies the resolved values for the declared dependencies
-   * @return true if the value is compatible, false otherwise
+   * @return true if the value is compatible, false if known to the incompatible, null if unknown
    */
   abstract checkValue(v: any?, dependencies: any{} = {}): bool
 

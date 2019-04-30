@@ -15,8 +15,11 @@
   }
 
   override checkValue(v: any?, dependencies: any{} = {}): bool =>
-    v in this.values
-
+    v in this.values && if this.step then (
+      if this.values.min != null then ((v - this.values.min) / this.step).isInteger()
+      if this.values.max != null then ((this.values.max - v) / this.step).isInteger()
+    )
+    
   override getValue(dependencies: any{} = {}): any? => this.values
   
   override getDiscreteValue(dependencies: any{} = {}): any? => if this.values.min == this.values.max then this.values.min else null

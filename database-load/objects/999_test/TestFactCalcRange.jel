@@ -1,0 +1,13 @@
+// Testing multiple facts with different timestamps
+Thing('TestFactCalcRange', @SimpleTestCategory,
+   facts = 
+   FactHelper.createRootFacts({
+   a: 40,
+   b: 9
+    }) + {
+     c: [
+      CalculatedRangeFact((a, b)=>b...a, true, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100)
+     ]
+    }
+  )
+  

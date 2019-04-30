@@ -18,10 +18,7 @@ class ValueListFact extends Fact
   }
 
   override checkValue(v: any?, dependencies: any{} = {}): bool =>
-    if this.negative then
-      !(v in this.values) 
-    else 
-      v in this.values
+    v in this.values
  
   override getValue(dependencies: any{} = {}): any? => if this.negative then null else this.values
 
