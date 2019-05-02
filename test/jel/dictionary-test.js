@@ -60,6 +60,7 @@ describe('jelDictionary', function() {
     it('creates dicts from lists', function() {
       jelAssert.equal(new JEL('{"t": 8}').executeImmediately(ctx).toObjectDebug(), {t: 8}); 
       jelAssert.equal(new JEL('{"t": 8}').executeImmediately(ctx).clazz.className, "Class"); 
+      jelAssert.equal(new JEL('{"t": 8, }').executeImmediately(ctx).toObjectDebug(), {t: 8}); 
     });
   });
   

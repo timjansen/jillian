@@ -51,6 +51,7 @@ describe('jelList', function() {
     });
     it('is equivalent to the built-in lists', function() {
       jelAssert.equal('[4, 2, 1]', new List([4, 2, 1].map(Float.valueOf))); 
+      jelAssert.equal('[4, 2, 1, ]', new List([4, 2, 1].map(Float.valueOf))); 
     });
   });
 

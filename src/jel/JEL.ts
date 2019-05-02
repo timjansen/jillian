@@ -336,14 +336,14 @@ export default class JEL {
 			if (separator.value == ':') {
 				assignments.push(new Assignment(separator, name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, DICT_VALUE_STOP)));
 
-				if (JEL.expectOp(tokens, DICT_VALUE_STOP, "Expecting comma or end of dictionary").value == '}')
+				if (JEL.expectOp(tokens, DICT_VALUE_STOP, "Expecting comma or end of dictionary").value == '}' || tokens.nextIf(TokenType.Operator, '}'))
 					return JEL.tryBinaryOps(tokens, new Dictionary(firstToken, assignments), precedence, stopOps);
 			}
 			else { // short notation {a}
 				if (name.type != TokenType.Identifier)
 					JEL.throwParseException(separator, "Dictionary entries require a value, unless an identifier is used in the short notation;");
 				assignments.push(new Assignment(name, name.value, new Variable(name, name.value)));
-				if (separator.value == '}')
+				if ((separator.value == '}') || (separator.value == ',' && tokens.nextIf(TokenType.Operator, '}')))
 					return JEL.tryBinaryOps(tokens, new Dictionary(firstToken, assignments), precedence, stopOps);
 			 }
 		}
@@ -422,7 +422,7 @@ export default class JEL {
 		const list: JelNode[] = [];
 		while (true) {
 			list.push(JEL.parseExpression(tokens, PARENS_PRECEDENCE, LIST_ENTRY_STOP));
-			if (JEL.expectOp(tokens, LIST_ENTRY_STOP, "Expecting comma or end of list").value == ']')
+			if (JEL.expectOp(tokens, LIST_ENTRY_STOP, "Expecting comma or end of list").value == ']' || tokens.nextIf(TokenType.Operator, ']'))
 				return JEL.tryBinaryOps(tokens, new List(firstToken, list), precedence, stopOps);
 		}
 	}

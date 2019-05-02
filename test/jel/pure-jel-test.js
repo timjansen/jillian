@@ -152,10 +152,6 @@ describe('JEL', function() {
      it('should support .?', function() {
       jelAssert.equal("(null).?a", "null");
       return jelAssert.equalPromise("(null).?a()", "null");
-      jelAssert.equal("(null).?a()", "null");
-      jelAssert.equal("(null).?a(1, 2, 3)", "null");
-      jelAssert.equal("let x = null: x.?a", "null");
-      jelAssert.equal("let x = null: x.?a(1, 2, 3)", "null");
      });
     
      it('should execute string literals', function() {
@@ -293,13 +289,13 @@ describe('JEL', function() {
       jelAssert.equal(new JEL("if 2<1 then 'foo' else 'bar'").executeImmediately(), "'bar'");
       jelAssert.equal(new JEL("if 2<1 then 'foo' else if 3>2 then 2 else 1").executeImmediately(), 2);
       jelAssert.equal(new JEL("if 2>1 then (if 3<2 then 2 else 1) else 6").executeImmediately(), 1);
-
-      jelAssert.equal(new JEL('if true then 7').executeImmediately(), 7);
-      assert.equal(new JEL('if false then 7').executeImmediately().state, 1);
     });
 
         
    it('supports conditions with implicit else', function() {
+      jelAssert.equal(new JEL('if true then 7').executeImmediately(), 7);
+      assert.equal(new JEL('if false then 7').executeImmediately().state, 1);
+     
       jelAssert.equal(new JEL('if true then 1 let a = 7: a').executeImmediately(), 1);
       jelAssert.equal(new JEL('if false then 1 let a = 7: a').executeImmediately(), 7);
       jelAssert.equal(new JEL('if true then 1 with 1<2: 7').executeImmediately(), 1);
@@ -315,15 +311,18 @@ describe('JEL', function() {
       assert(new JEL('[]').executeImmediately() instanceof JelList);
       assert.deepEqual(new JEL('[]').executeImmediately().elements, []);
       assert.deepEqual(new JEL('[1]').executeImmediately().elements, [Float.valueOf(1)]);
+      assert.deepEqual(new JEL('[1, 2, ]').executeImmediately().elements, [Float.valueOf(1), Float.valueOf(2)]);
       assert.deepEqual(new JEL('[7, 9-4, 7*3]').executeImmediately().elements, [7, 5, 21].map(Float.valueOf));
     });
     
     it('supports dictionary literals', function() {
       assert.deepEqual(new JEL('{}').executeImmediately().toObjectDebug(), {});
       assert.deepEqual(new JEL('{a: 3, b: 1}').executeImmediately().toObjectDebug(), {a: Float.valueOf(3), b: Float.valueOf(1)});
+      assert.deepEqual(new JEL('{a: 3, b: 1, }').executeImmediately().toObjectDebug(), {a: Float.valueOf(3), b: Float.valueOf(1)});
       assert.deepEqual(new JEL('{"a": 3, "b": 1}').executeImmediately().toObjectDebug(), {a: Float.valueOf(3), b: Float.valueOf(1)});
       assert.deepEqual(new JEL("{'a': 3, 'b': 1}").executeImmediately().toObjectDebug(), {a: Float.valueOf(3), b: Float.valueOf(1)});
       assert.deepEqual(new JEL('{a, b: 1, c}').executeImmediately(new Context().setAll({a:Float.valueOf(7),b:Float.valueOf(2),c:Float.valueOf(10)})).toObjectDebug(), {a:Float.valueOf(7),b:Float.valueOf(1),c:Float.valueOf(10)});
+      assert.deepEqual(new JEL('{a, b, c, }').executeImmediately(new Context().setAll({a:Float.valueOf(7),b:Float.valueOf(2),c:Float.valueOf(10)})).toObjectDebug(), {a:Float.valueOf(7),b:Float.valueOf(2),c:Float.valueOf(10)});
       assert.deepEqual(new JEL('{a: {b: 2}}').executeImmediately().toObjectDebug().a.toObjectDebug().b.value, 2);
       
       assert.throws(()=>new JEL('{a: 1, a: 2}').executeImmediately());
