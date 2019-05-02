@@ -6,15 +6,12 @@
   /**
    * @param values The range of possible values.
    */
-  constructor(values: Distribution, comprehensive, negative, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition) =>
+  constructor(values: Distribution, coverage, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition) =>
   {
-    factTypeSpecificness: if negative then 0.2
-                          if comprehensive then 0.8
-                          else 0.3
+    factTypeSpecificness: if coverage == FactCoverageEnum.COMPLETE_NEGATIVES || coverage == FactCoverageEnum.SOME_NEGATIVES then 0.2 else 0.3
   }
 
-  override checkValue(v: any?, dependencies: any{} = {}): bool =>
-    v in this.values.range
+  override matchesValue(v: any?, dependencies: any{} = {}): bool => v in this.values.range
 
   override getValue(dependencies: any{} = {}): any? => this.values
   

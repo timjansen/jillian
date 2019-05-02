@@ -10,15 +10,15 @@ class ValueListFact extends Fact
    * (unless 'negative' is set, then it this is a list of values that are not the right one)
    * @param negative if true, the value list contains values that are not the right one.
    */
-  constructor(values: any[], comprehensive, negative, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition) =>
+  constructor(values: any[], coverage, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition) =>
   {
-    factTypeSpecificness: if negative then 0.2
-                          if comprehensive then 0.75
+    factTypeSpecificness: if coverage == FactCoverageEnum.COMPLETE || coverage == FactCoverageEnum.COMPLETE_NEGATIVES then 0.75
+                          if coverage == FactCoverageEnum.SOME_NEGATIVES then 0.2
                           else 0.6
+
   }
 
-  override checkValue(v: any?, dependencies: any{} = {}): bool =>
-    v in this.values
+  override matchesValue(v: any?, dependencies: any{} = {}): bool => v in this.values
  
   override getValue(dependencies: any{} = {}): any? => if this.negative then null else this.values
 

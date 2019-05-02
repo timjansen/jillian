@@ -208,7 +208,8 @@ describe('Facts', function() {
       jelAssert.equalPromise("@TestFactValueRange.checkValue('c', Timestamp.EPOCH, 1)", "false"),
       jelAssert.equalPromise("@TestFactValueRange.checkValue('c', Timestamp.EPOCH, 3)", "true"),
       jelAssert.equalPromise("@TestFactValueRange.checkValue('c', Timestamp.EPOCH, 5)", "true"),
-      jelAssert.equalPromise("@TestFactValueRange.checkValue('c', Timestamp.EPOCH, 6)", "false")
+      jelAssert.equalPromise("@TestFactValueRange.checkValue('c', Timestamp.EPOCH, 6)", "false"),
+      jelAssert.equalPromise("@TestFactValueRange.checkValue('c', Timestamp.EPOCH, 16)", "false")
     ]);   
   });
   
@@ -226,18 +227,22 @@ describe('Facts', function() {
     return Promise.all([
       jelAssert.equalPromise("@TestFactValueList.getBestFactResults('a', Timestamp.EPOCH)[0].value", "[1, 2, 3]"),
       jelAssert.equalPromise("@TestFactValueList.checkValue('b', Timestamp.EPOCH, 1)", "false"),
-      jelAssert.equalPromise("@TestFactValueList.checkValue('b', Timestamp.EPOCH, 4)", "true"),
+      jelAssert.equalPromise("@TestFactValueList.checkValue('b', Timestamp.EPOCH, 4)", "false"),
       jelAssert.equalPromise("@TestFactValueList.checkValue('b', Timestamp.EPOCH, 5)", "true"),
-      jelAssert.equalPromise("@TestFactValueList.checkValue('c', Timestamp.EPOCH, 1)", "true"),
-//      jelAssert.equalPromise("@TestFactValueList.checkValue('c', Timestamp.EPOCH, 5)", "true"),
-//      jelAssert.equalPromise("@TestFactValueList.checkValue('c', Timestamp.EPOCH, 15)", "false")
+      jelAssert.equalPromise("@TestFactValueList.checkValue('c', Timestamp.EPOCH, 1)", "false"),
+      jelAssert.equalPromise("@TestFactValueList.checkValue('c', Timestamp.EPOCH, 5)", "false"),
+      jelAssert.equalPromise("@TestFactValueList.checkValue('c', Timestamp.EPOCH, 15)", "false")
     ]);   
   });
-  
-  // TODO:
-  // test distfact
-  // test negative facts
-  // test non-comprehensive facts
+
+  it('suports ValueListDistribuitions', function() {
+    return Promise.all([
+      jelAssert.equalPromise("@TestFactValueDist.getBestFactResults('a', Timestamp.EPOCH)[0].value", "Distribution(min=3, max=5)"),
+      jelAssert.equalPromise("@TestFactValueDist.checkValue('a', Timestamp.EPOCH, 2)", "false"),
+      jelAssert.equalPromise("@TestFactValueDist.checkValue('a', Timestamp.EPOCH, 5)", "true"),
+      jelAssert.equalPromise("@TestFactValueDist.checkValue('a', Timestamp.EPOCH, 1)", "false")
+    ]);   
+  });
 });
 
 

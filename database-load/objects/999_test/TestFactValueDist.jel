@@ -1,0 +1,8 @@
+// Testing value range facts
+Thing('TestFactValueDist', @SimpleTestCategory,
+	facts={
+   a: 
+    [ValueDistributionFact(Distribution(min=3, max=5), FactCoverageEnum.COMPLETE, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100)]
+  }
+)
+  

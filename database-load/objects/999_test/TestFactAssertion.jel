@@ -2,13 +2,14 @@
 Thing('TestFactAssertion', @SimpleTestCategory,
 	facts={
    a: 
-    [AssertionFact(a=>a==4, true, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100)],
+    [AssertionFact(a=>a==4, FactCoverageEnum.COMPLETE, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100)],
    b: 
-    [AssertionFact(b=>b<5, false, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100),
-     AssertionFact(b=>b>=4, false, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 99)],
+    [AssertionFact(b=>b>=5, FactCoverageEnum.SOME_NEGATIVES, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100),
+     AssertionFact(b=>b<4, FactCoverageEnum.SOME_NEGATIVES, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 99),
+     AssertionFact(b=>b in 0...100, FactCoverageEnum.SOME_POSITIVES, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 98)],
    c: 
-    [AssertionFact(c=>c<5, true, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100),
-     AssertionFact(c=>c>3, true, false, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 99)]
+    [AssertionFact(c=>c<5, FactCoverageEnum.COMPLETE, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 100),
+     AssertionFact(c=>c>3, FactCoverageEnum.COMPLETE, @Root, @BootstrapTranscript, 0, @Root, FactTypeEnum.Definition, 99)]
    }
   )
   

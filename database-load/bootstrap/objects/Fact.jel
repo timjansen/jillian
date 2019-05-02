@@ -10,17 +10,10 @@ abstract class Fact
   factTypeSpecificness: number(0...1)
 
   /**
-   * If true, the values represented by this fact are comprehensive. If false, other values are possible.
-   * This is mostly useful for Facts in categories, where a fact can be different for different instances of the category. 
-   * A fact like "X can only be A, B or C" would be a complete fact. But "X can be A, B or C" does exclude the existance of other values, and thus would not be complete.
+   * Defines whether the fact describes all possible values or just some, and whether the fact contains positives or negatives.
    */
-  comprehensive: bool
+  coverage: EnumType('FactCoverageEnum')
   
-  /**
-   * If true, the fact is inverted and specifies a value that is not true.
-   */
-  negative: bool
-
   /**
    * The owning object of this fact
    */
@@ -74,13 +67,42 @@ abstract class Fact
   get dependencies(): Set => if this.precondition then Set(this.precondition.getArguments().map(t=>t.name)) else Set.empty
 
   /**
-   * Checks whether the given value for the property is either the same value or compatible with the fact's value.
-   * Please note that checkValue() does not consider the 'negative' property!
+   * Returns true if the fact's value is inverted, thus it contains impossible values instead of possible values.
+   */
+  get negative(): bool => this.coverage == FactCoverageEnum.COMPLETE_NEGATIVES || this.coverage == FactCoverageEnum.SOME_NEGATIVES
+
+  /**
+   * Returns true if the fact covers all possible values, false if not.
+   */
+  get complete(): bool => this.coverage == FactCoverageEnum.COMPLETE || this.coverage == FactCoverageEnum.COMPLETE_NEGATIVES
+
+  /**
+   * Checks whether the given value for the property is either the same value or compatible with the fact's value. It can return either true or false, if the fact provides enough
+   * information, or null if the fact does not have enough information.
+   * It must use the 'coverage' value to make that decision. 
    * @param v the value to check
    * @param dependencies the resolved values for the declared dependencies
-   * @return true if the value is compatible, false if known to the incompatible, null if unknown
+   * @return true if the value is compatible, false if known to be incompatible, null if unknown
    */
-  abstract checkValue(v: any?, dependencies: any{} = {}): bool
+  checkValue(v: any?, dependencies: any{} = {}): bool? =>
+    let r = this.matchesValue(v, dependencies):
+      if this.coverage == FactCoverageEnum.COMPLETE then
+        r
+      if this.coverage == FactCoverageEnum.COMPLETE_NEGATIVES then
+        !r
+      if this.coverage == FactCoverageEnum.SOME_POSITIVES then
+        r || null
+      else // SOME_NEGATIVES
+        if r then false else null
+
+  /**
+   * Checks whether the given value matches the value represented by the fact. Ignores 'coverage'.
+   * @param v the value to check
+   * @param dependencies the resolved values for the declared dependencies
+   * @return true if the value is included, false otherwise
+   */
+  abstract matchesValue(v: any?, dependencies: any{} = {}): bool
+
 
   /**
    * Retrieves the value of the fact, if possible, given the dependencies. May be a Range or Distribution if that's the best way to describe the fact.
@@ -101,4 +123,6 @@ abstract class Fact
    * This is a best effort function. It won't be able, for example, find out whether two assertions contradict each other.
    */
   abstract allows(thisDependencies: any{}, other: Fact, otherDependencies: any{}): bool
+  
+  
   

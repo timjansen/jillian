@@ -48,6 +48,7 @@ const BOOT_SCRIPT = [
   ],
   [
     {jel: 'objects/FactRelationshipEnum.jel'},
+    {jel: 'objects/FactCoverageEnum.jel'},
     {jel: 'objects/FactTypeEnum.jel'},
     {jel: 'objects/PropertyTypeEnum.jel'},
   ],

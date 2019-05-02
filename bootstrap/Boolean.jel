@@ -78,6 +78,13 @@ native class Boolean:
    */
   static native falsest(a: bool, b: bool): bool
 
+  /**
+   * A falsest() that supports nulls. If one of the values is null, the other one is taken. 
+   */
+  static optionalFalsest(a: bool?, b: bool?): bool? => 
+    if a == null then b 
+    if b == null then a
+    else Boolean.falsest(a, b)
 
 
 

@@ -11,14 +11,14 @@ class CalculatedFact extends FunctionFact
   /**
    * The function to calculate the fact. See above for description of possible arguments.
    */
-  constructor(func, comprehensive, negative, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition) =>
+  constructor(func, coverage, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition) =>
   {
-    factTypeSpecificness: if negative then 0.1
-                          if comprehensive then 1
+    factTypeSpecificness: if coverage == FactCoverageEnum.COMPLETE || coverage == FactCoverageEnum.COMPLETE_NEGATIVES then 1 
+                          if coverage == FactCoverageEnum.SOME_NEGATIVES then 0.1
                           else 0.5
   }
 
-  override checkValue(v: any?, dependencies: any{} = {}): bool => this.func.call(dependencies) == v
+  override matchesValue(v: any?, dependencies: any{} = {}): bool => this.func.call(dependencies) == v
   
   override getValue(dependencies: any{} = {}): any? => this.func.call(dependencies)
   

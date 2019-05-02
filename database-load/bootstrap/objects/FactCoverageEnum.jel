@@ -1,0 +1,21 @@
+/**
+ * Defines how much of the possible values are covered by the fact.
+ */
+enum FactCoverageEnum:
+  /**
+   * A COMPLETE fact contains all possible values for the fact, and thus can be used to identify impossible facts as well.
+   */
+  COMPLETE,
+  /**
+   * Describes a fact that has one or more possible values for the fact, but can not guarantee to have all possible values.
+   */
+  SOME_POSITIVES,
+  /**
+   * Describes a fact that contains all the values that are NOT possible, and thus can beused to identify all possible facts as well.
+   */
+  COMPLETE_NEGATIVES,
+  /**
+   * Describes a fact that has one or more impossible values for the fact, but can not guarantee to have all possible values.
+   */
+  SOME_NEGATIVES
+  

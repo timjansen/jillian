@@ -6,14 +6,15 @@ class ValueFact extends Fact
   /**
    * @param values The value that represents the fact's actual value.
    */
-  constructor(value: any, comprehensive, negative, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition) =>
+  constructor(value: any, coverage, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition) =>
   {
-    factTypeSpecificness: if negative then 0.1
-                          if comprehensive then 1
+    factTypeSpecificness: if coverage == FactCoverageEnum.COMPLETE || coverage == FactCoverageEnum.COMPLETE_NEGATIVES then 1 
+                          if coverage == FactCoverageEnum.SOME_NEGATIVES then 0.1
                           else 0.5
+
   }
 
-  override checkValue(v: any?, dependencies: any{} = {}): bool => v == this.value
+  override matchesValue(v: any?, dependencies: any{} = {}): bool => v == this.value
 
   override getValue(dependencies: any{} = {}): any? => this.value
   

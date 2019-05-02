@@ -7,14 +7,15 @@
    * @param values The range of possible values.
    * @param step if set, the step relative to the Range min or, if min==null, max. Only those values with the step are valid. Most common will be a step value of 1, to allow only integers.
    */
-  constructor(values: Range, step: number?, comprehensive, negative, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition) =>
+  constructor(values: Range, step: number?, coverage, owner, transcript, transscriptSentence, creator, type, trustLevel, startTime, endTime, precondition) =>
   {
-    factTypeSpecificness: if negative then 0.2
-                          if comprehensive then 0.6
+    factTypeSpecificness: if coverage == FactCoverageEnum.COMPLETE || coverage == FactCoverageEnum.COMPLETE_NEGATIVES then 0.6
+                          if coverage == FactCoverageEnum.SOME_NEGATIVES then 0.2
                           else 0.3
+
   }
 
-  override checkValue(v: any?, dependencies: any{} = {}): bool =>
+  override matchesValue(v: any?, dependencies: any{} = {}): bool =>
     v in this.values && if this.step then (
       if this.values.min != null then ((v - this.values.min) / this.step).isInteger()
       if this.values.max != null then ((this.values.max - v) / this.step).isInteger()
