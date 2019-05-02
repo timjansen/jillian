@@ -33,6 +33,7 @@ import Reference from './expressionNodes/Reference';
 import Condition from './expressionNodes/Condition';
 import TypedParameterDefinition from './expressionNodes/TypedParameterDefinition';
 import Assignment from './expressionNodes/Assignment';
+import DynamicAssignment from './expressionNodes/DynamicAssignment';
 import MethodDef from './expressionNodes/MethodDef';
 import PropertyDef from './expressionNodes/PropertyDef';
 import PatternAssignment from './expressionNodes/PatternAssignment';
@@ -188,7 +189,7 @@ export default class JEL {
 			else
 	      return JEL.tryBinaryOps(tokens, new Literal(token, token.value), precedence, stopOps);
     case TokenType.TemplateString:
-        return JEL.parseTemplateString(tokens, token, precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, JEL.parseTemplateString(token), precedence, stopOps);
     case TokenType.Fraction:
 			if (tokens.peekIs(TokenType.Operator, '@'))
 				return JEL.parseUnitValue(tokens, new Fraction(token, (token as FractionToken).numerator, (token as FractionToken).denominator), precedence, stopOps);
@@ -210,7 +211,7 @@ export default class JEL {
 		return undefined as any; // this is a dummy return to make Typescript happy
   }
 
-  static parseTemplateString(tokens: TokenReader, stringToken: Token, precedence: number, stopOps: any): JelNode {
+  static parseTemplateString(stringToken: Token): Literal | TemplateString {
     const stringTokens = Tokenizer.tokenizeTemplateString(stringToken.line, stringToken.column, stringToken.src, stringToken.value);
     const fragments = [];
     const expressions = [];
@@ -231,12 +232,12 @@ export default class JEL {
     }
     
     if (!expressions.length)
-      return JEL.tryBinaryOps(tokens, new Literal(tokens.last(), fragments.join('')), precedence, stopOps);
+      return new Literal(stringToken, fragments.join(''));
     
     if (fragments.length == expressions.length)
       fragments.push('');
 
-    return JEL.tryBinaryOps(tokens, new TemplateString(tokens.last(), fragments, expressions), precedence, stopOps);
+    return new TemplateString(stringToken, fragments, expressions);
   }
 
   
@@ -323,6 +324,7 @@ export default class JEL {
 			return JEL.tryBinaryOps(tokens, EMPTY_DICT, precedence, stopOps);
 
 		const assignments: Assignment[] = [];
+		const dynAssignments: DynamicAssignment[] = [];
 		const usedNames: any = new Set();
 		while (true) {
 			const name = JEL.nextOrThrow(tokens, "Unexpected end of dictionary");
@@ -334,17 +336,21 @@ export default class JEL {
 
 			const separator = JEL.expectOp(tokens, DICT_KEY_STOP, "Expected ':', ',' or '}' in Dictionary.");
 			if (separator.value == ':') {
-				assignments.push(new Assignment(separator, name.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, DICT_VALUE_STOP)));
+        const nameExpr: Literal | TemplateString | Token = name.type != TokenType.TemplateString ? name : JEL.parseTemplateString(name);
+        if (nameExpr instanceof TemplateString)
+   				dynAssignments.push(new DynamicAssignment(separator, nameExpr, JEL.parseExpression(tokens, PARENS_PRECEDENCE, DICT_VALUE_STOP)));
+        else
+	  			assignments.push(new Assignment(separator, nameExpr.value, JEL.parseExpression(tokens, PARENS_PRECEDENCE, DICT_VALUE_STOP)));
 
 				if (JEL.expectOp(tokens, DICT_VALUE_STOP, "Expecting comma or end of dictionary").value == '}' || tokens.nextIf(TokenType.Operator, '}'))
-					return JEL.tryBinaryOps(tokens, new Dictionary(firstToken, assignments), precedence, stopOps);
+					return JEL.tryBinaryOps(tokens, new Dictionary(firstToken, assignments, dynAssignments), precedence, stopOps);
 			}
 			else { // short notation {a}
 				if (name.type != TokenType.Identifier)
 					JEL.throwParseException(separator, "Dictionary entries require a value, unless an identifier is used in the short notation;");
 				assignments.push(new Assignment(name, name.value, new Variable(name, name.value)));
 				if ((separator.value == '}') || (separator.value == ',' && tokens.nextIf(TokenType.Operator, '}')))
-					return JEL.tryBinaryOps(tokens, new Dictionary(firstToken, assignments), precedence, stopOps);
+					return JEL.tryBinaryOps(tokens, new Dictionary(firstToken, assignments, dynAssignments), precedence, stopOps);
 			 }
 		}
 	}

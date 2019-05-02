@@ -321,6 +321,11 @@ describe('JEL', function() {
       assert.deepEqual(new JEL('{a: 3, b: 1, }').executeImmediately().toObjectDebug(), {a: Float.valueOf(3), b: Float.valueOf(1)});
       assert.deepEqual(new JEL('{"a": 3, "b": 1}').executeImmediately().toObjectDebug(), {a: Float.valueOf(3), b: Float.valueOf(1)});
       assert.deepEqual(new JEL("{'a': 3, 'b': 1}").executeImmediately().toObjectDebug(), {a: Float.valueOf(3), b: Float.valueOf(1)});
+      assert.deepEqual(new JEL("{'a{{1}}': 3, 'b{{2+1}}': 1}").executeImmediately().toObjectDebug(), {a1: Float.valueOf(3), b3: Float.valueOf(1)});
+      assert.deepEqual(new JEL("{'a{{1+1+1}}': 1, 'a{{2+1}}': 2, 'a{{3*1}}': 3}").executeImmediately().toObjectDebug(), {a3: Float.valueOf(3)});
+      assert.deepEqual(new JEL("{'a{{2-1}}': 3, \"a{{1}}\": 1}").executeImmediately().toObjectDebug(), {a1: Float.valueOf(3), "a{{1}}": Float.valueOf(1)});
+      assert.deepEqual(new JEL("{'a{{1}}': 3, b: 1, a1: 9}").executeImmediately().toObjectDebug(), {a1: Float.valueOf(3), b: Float.valueOf(1)});
+
       assert.deepEqual(new JEL('{a, b: 1, c}').executeImmediately(new Context().setAll({a:Float.valueOf(7),b:Float.valueOf(2),c:Float.valueOf(10)})).toObjectDebug(), {a:Float.valueOf(7),b:Float.valueOf(1),c:Float.valueOf(10)});
       assert.deepEqual(new JEL('{a, b, c, }').executeImmediately(new Context().setAll({a:Float.valueOf(7),b:Float.valueOf(2),c:Float.valueOf(10)})).toObjectDebug(), {a:Float.valueOf(7),b:Float.valueOf(2),c:Float.valueOf(10)});
       assert.deepEqual(new JEL('{a: {b: 2}}').executeImmediately().toObjectDebug().a.toObjectDebug().b.value, 2);
