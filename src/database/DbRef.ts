@@ -19,14 +19,13 @@ import BaseTypeRegistry from '../jel/BaseTypeRegistry';
 
 export default class DbRef extends NativeJelObject implements IDbRef, SerializablePrimitive {
   distinctName_jel_property: boolean;
-  parameters_jel_property: boolean;
 
   distinctName: string;
   cached: NamedObject | undefined | null; // stores null for entries that have not been found, undefined if the existance is unknown
   readonly isIDBRef: boolean = true;
   static clazz: Class | undefined;
 
-  constructor(distinctNameOrEntry: string | JelString | NamedObject, public parameters ? : Dictionary) {
+  constructor(distinctNameOrEntry: string | JelString | NamedObject) {
     super('DbRef');
     if (distinctNameOrEntry instanceof NamedObject) {
       this.distinctName = distinctNameOrEntry.distinctName;
@@ -83,19 +82,6 @@ export default class DbRef extends NativeJelObject implements IDbRef, Serializab
     return this.with(ctx, o => o.withMember(ctx, name, f)) as Promise < T > | T;
   }
 
-  hasSameParameters(right: DbRef): boolean {
-    if (!this.parameters != !right.parameters)
-      return false;
-    if (!this.parameters || !right.parameters)
-      return true;
-    if (this.parameters.size != right.parameters.size)
-      return false;
-    for (let a in this.parameters.elements.keys())
-      if ((!right.parameters.elements.has(a)) || this.parameters.elements.get(a) !== right.parameters.elements.get(a))
-        return false;
-    return true;
-  }
-
   private memberInternal(ctx: Context, obj: NamedObject | null, name: string): any {
     if (obj === null)
       return null;
@@ -112,13 +98,11 @@ export default class DbRef extends NativeJelObject implements IDbRef, Serializab
     if (right instanceof DbRef) {
       switch (operator) {
         case '==':
+        case '===':
           return JelBoolean.valueOf(this.distinctName == right.distinctName);
         case '!=':
-          return JelBoolean.valueOf(this.distinctName != right.distinctName);
-        case '===':
-          return JelBoolean.fourWay(ctx, this.distinctName == right.distinctName, this.hasSameParameters(right));
         case '!==':
-          return JelBoolean.fourWay(ctx, this.distinctName == right.distinctName, this.hasSameParameters(right)).negate();
+          return JelBoolean.valueOf(this.distinctName != right.distinctName);
       }
     }
     return super.op(ctx, operator, right);
@@ -151,11 +135,11 @@ export default class DbRef extends NativeJelObject implements IDbRef, Serializab
   }
 
   getSerializationProperties(): any[] {
-    return this.parameters ? [this.distinctName, this.parameters] : [this.distinctName];
+    return [this.distinctName];
   }
 
   serializeToString(pretty: boolean, indent: number, spaces: string): string | undefined {
-    return this.parameters ? undefined : '@' + this.distinctName;
+    return '@' + this.distinctName;
   }
 
   static toPromise(ctx: Context, ref: DbRef | NamedObject): Promise < NamedObject | null > {
@@ -166,11 +150,10 @@ export default class DbRef extends NativeJelObject implements IDbRef, Serializab
   static create(ctx: Context, ...args: any[]): any {
     if (args[0] instanceof DbRef)
       return args[0];
-    return new DbRef(args[0], args[1] instanceof Map ? args[1] : (args[1] instanceof Dictionary ? args[1] : null));
+    return new DbRef(args[0]);
   }
 }
 
 DbRef.prototype.distinctName_jel_property = true;
-DbRef.prototype.parameters_jel_property = true;
 
 BaseTypeRegistry.register('DbRef', DbRef);

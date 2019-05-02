@@ -61,8 +61,7 @@ describe('JEL', function () {
 
     it('should support references', function() {
       assert.equal(new JEL('@Hello').executeImmediately(ctx).distinctName, 'Hello');
-      assert.equal(new JEL('@Fish(age= 10)').executeImmediately(ctx).distinctName, 'Fish');
-      assert.equal(new JEL('@Fish(age= 10)').executeImmediately(ctx).params.get('age'), 10);
+      assert.equal(new JEL('@Fish').executeImmediately(ctx).distinctName, 'Fish');
     });
 
     it('should support optional types', function() {

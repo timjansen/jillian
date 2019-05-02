@@ -289,12 +289,7 @@ export default class JEL {
         return JEL.parseTranslator(tokens, precedence, stopOps);
     case '@': 
       const t2 = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier after '@' for reference.");
-      if (tokens.nextIf(TokenType.Operator, '(')) {
-        const assignments: Assignment[] = JEL.parseParameters(tokens, PARENS_PRECEDENCE, PARAMETER_STOP, ')', "Expected comma or closing parens while parsing reference parameters", 'parameter');
-        return JEL.tryBinaryOps(tokens, new Reference(t2, t2.value, assignments), precedence, stopOps);
-      }
-      else
-        return JEL.tryBinaryOps(tokens, new Reference(t2, t2.value), precedence, stopOps);
+      return JEL.tryBinaryOps(tokens, new Reference(t2, t2.value), precedence, stopOps);
     case 'if':
       const cond = JEL.parseExpression(tokens, IF_PRECEDENCE, IF_STOP);
       JEL.expectOp(tokens, IF_STOP, "Expected 'then'");

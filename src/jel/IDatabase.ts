@@ -18,7 +18,7 @@ export interface IDbRef {
 export interface IDbSession {
 	isIDBSession: boolean;
 
-	createDbRef(distinctName: string, parameters?: Map<string, any>): any;
+	createDbRef(distinctName: string): any;
 
 	get(distinctName: string): any | Promise<any>;
   getMember(distinctName: string, property: string): Promise<any> | any;
