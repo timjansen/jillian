@@ -479,10 +479,25 @@ describe('JEL', function() {
      return Promise.all([
        jelAssert.errorPromise("((...a, x)=>a)", "as last argument"),
        jelAssert.errorPromise("((...a, ...b)=>a)", "as last argument")
-//       jelAssert.errorPromise("((...a = [1, 2, 3])=>a)", "default is always an empty List")
      ]);
    });
 
+  /**
+  TODO: this test should be executed, but currently it causes a UnhandledPromiseRejectionWarning...
+   it('does not allow calling functions with bad named arguments', function() {
+     return Promise.all([
+       jelAssert.errorPromise("((a, b, c)=>1)(a=1, b=2, d=3)", "Named argument 'd' not found in method definition"),
+       jelAssert.errorPromise("((a, b, c)=>2)(1, 2, 3, a=1)", "has been provided twice"),
+       jelAssert.errorPromise("((a, b, c)=>3)(a=1, b=2, c=0, d=3)", "Named argument 'd' not found in method definition"),
+       jelAssert.errorPromise("(()=>0)(a=1)", "Named argument 'a'"),
+       jelAssert.errorPromise("'abc'.trim(a=1)", "0 arguments"),
+       jelAssert.errorPromise("'abc'.contains(a='a')", "Can not set unknown named argument 'a'"),
+       jelAssert.errorPromise("'abc'.contains(s='a', x=1)", "1 argument, but got 2 for native function"),
+       jelAssert.errorPromise("'abc'.contains('a', s='a')", "1 argument, but got 2"),
+       jelAssert.errorPromise("'abc'.contains('a', x=1)", "1 argument, but got 2")
+     ]);
+   });
+   */
     
   });
 });

@@ -57,6 +57,7 @@ export default class LambdaCallable extends Callable implements SerializablePrim
     const openPromises: any[] = [];
     const varArgs: (JelObject|null)[] = [];
     
+    // Set regular arguments (ignore superfluous ones)
     args.forEach((arg, i) => {
       if (i >= varArgPos)
         varArgs.push(arg);
@@ -70,6 +71,7 @@ export default class LambdaCallable extends Callable implements SerializablePrim
       }
     });
 
+    // try to find missing arguments in object, or use defaults instead
     let addedObjArgs = 0;
     for (let i = args.length; i < Math.min(argDefs.length, varArgPos); i++) {
       const argDef = argDefs[i];
@@ -77,12 +79,13 @@ export default class LambdaCallable extends Callable implements SerializablePrim
       if (v !== undefined)
         addedObjArgs++;
       if (!v && !argDef.defaultValueGenerator && !argDef.isNullable(ctx))
-        throw new Error(`Argument ${argDef.name} has not been provided and has no default value.`);
+        throw new Error(`Argument '${argDef.name}' requires a non-null value, but it has not been provided and there is no default value.`);
       const p: Promise<any>|undefined = LambdaCallable.setVariable(ctx, newCtx, argDef, v);
       if (p)
         openPromises.push(p);
     }
     
+    // handle varargs
     if (varArgPos < argDefs.length) {
       const varArgDef = argDefs[varArgPos];
       let varArgsP: any;
@@ -104,12 +107,11 @@ export default class LambdaCallable extends Callable implements SerializablePrim
        newCtx.set(varArgDef.name, varArgsP);
     }
 
-
-    
-    if (argObj && argObj.size < addedObjArgs) {
+  
+    if (argObj && argObj.size > addedObjArgs) {
       for (let i = 0; i < Math.min(args.length, argDefs.length); i++)
         if (argObj.has(argDefs[i].name))
-          throw new Error(`Argument ${argDefs[i].name} has been provided twice, once as as regular argument and once as named argument.`);
+          throw new Error(`Argument '${argDefs[i].name}' has been provided twice, once as as regular argument and once as named argument.`);
       for (let namedArg of argObj.keys()) {
         let found = false;
         for (let argDef of argDefs)
@@ -118,7 +120,7 @@ export default class LambdaCallable extends Callable implements SerializablePrim
             break;
           }
         if (!found)
-          throw new Error(`Named argument ${namedArg} not found in method definition.`);
+          throw new Error(`Named argument '${namedArg}' not found in method definition. Provided arguments: ${Array.from(argObj.keys()).join(', ')}`);
       }
     }
 

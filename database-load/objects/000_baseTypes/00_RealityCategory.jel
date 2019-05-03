@@ -1,12 +1,7 @@
 Category('RealityCategory',
-	properties = {},
-  instanceDefaults = {
-    supernatural: false
-  }, 
-  instanceProperties = {
+  factTypes = {
     basedOn: @RealityCategory?,        // what the reality is based on. Null for @Real
     supernatural: bool,                // if physics are different compared to the base reality.
     startOfDivergence: time<>?         // at which approximate time the new reality started to diverge from the base reality
-  },
-  mixinProperties = {}
+  }
 )

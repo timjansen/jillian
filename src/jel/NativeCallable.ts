@@ -38,8 +38,9 @@ export default class NativeCallable extends Callable implements SerializablePrim
                          args: (JelObject|null)[], argObj: Map<string,JelObject|null>|undefined, varArgPos: number): JelObject|null|Promise<JelObject|null> {
 
     const varArg = varArgPos<argDefs.length;
-    if (args.length > argDefs.length && !varArg) 
-      throw new Error(`Expected up to ${argDefs.length} arguments, but got ${args.length} for native function ${name}() in ${self?self.className:'(unknown)'}: ${args.map(s=>s==null?'null':Serializer.serialize(s)).join(', ')}`);
+    const providedArgCount = args.length + (argObj ? argObj.size : 0);
+    if (providedArgCount > argDefs.length && !varArg) 
+      throw new Error(`Expected ${argDefs.length} argument${argDefs.length==1?'':'s'}, but got ${providedArgCount} for native function ${name}() in ${self?self.className:'(unknown)'}: ${args.map(s=>s==null?'null':Serializer.serialize(s)).join(', ')}`);
 
     let allArgs: (JelObject|null)[];
     
@@ -49,17 +50,18 @@ export default class NativeCallable extends Callable implements SerializablePrim
       allArgs = args.slice(0)
       let argsFound = 0;
       for (let i = args.length; i < lastRegularArg; i++) { 
-        const v = argDefs[i].name;
-        argsFound++;
-        allArgs[i] = argObj.get(v)||null;
+        const objArg = argObj.get(argDefs[i].name);
+        if (objArg !== undefined)
+          argsFound++;
+        allArgs[i] = objArg||null;
       }
       if (argsFound < argObj.size || argObj.size > lastRegularArg-args.length)
         for (let key of argObj.keys()) {
           const idx = argDefs.findIndex(argDef=>key==argDef.name);
           if (idx < 0)
-            throw new Error(`Can not set unknown named argument ${key} in method ${name}()`);
+            throw new Error(`Can not set unknown named argument '${key}' in method ${name}()`);
           else if (idx < args.length)
-            throw new Error(`Argument ${key} at index ${idx+1} has been specified twice`);
+            throw new Error(`Argument '${key}' at index ${idx+1} has been specified twice`);
         }
     }
     else

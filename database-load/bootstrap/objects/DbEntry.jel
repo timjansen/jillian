@@ -7,16 +7,18 @@ native class DbEntry:
                reality: thing?,               // <<< TODO
 							 hashCode: string?)
 
-  // evaluate dependencies
+  // evaluate dependencies. Returns null if not all dependencies can be provided.
   private getDependencies(fact: Fact, currentTime: time, metaProperties: any{}?, excludedProperties: Set?): any{}? => 
     if fact.dependencies.isEmpty then {}
     if excludedProperties && !fact.dependencies.findCommon(excludedProperties).isEmpty then null
 
-    let r = fact.dependencies.mapToDictionary(prop=>metaProperties[prop] || this.getBestDiscreteValue(prop, currentTime, metaProperties, excludedProperties=fact.dependencies.addAll(excludedProperties)).?value):
+    let r = fact.dependencies.mapToDictionary(prop=>if metaProperties[prop]!=null then metaProperties[prop]
+                                                    if prop == 'currentTime' then currentTime
+                                                    else this.getBestDiscreteValue(prop, currentTime, metaProperties, excludedProperties=fact.dependencies.addAll(excludedProperties)).?value):
       if r.hasAny((k,v)=>v==null) then 
         null
-       else 
-        r.setAll(metaProperties).set('currentTime', currentTime)
+      else
+        r
 
   /**
    * Checks whether the given value is possible for the fact.
