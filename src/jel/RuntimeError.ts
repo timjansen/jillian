@@ -5,7 +5,7 @@ export default class RuntimeError extends ChainableError {
   public readonly callstack: string[] = [];
   
 	constructor(public position: SourcePosition, public desc: string = "no error defined", cause?: Error) {
-		super(cause, `${desc} --> ${position.src}:${position.line} col ${position.column}`);
+		super(cause, `${desc} --> ${position.src}:${position.line}:${position.column}`);
 		(Error as any).captureStackTrace(this, RuntimeError);
 		this.redoStack();
 	}

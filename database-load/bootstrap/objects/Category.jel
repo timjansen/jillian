@@ -9,3 +9,14 @@ native class Category extends DbEntry:
                mixins: RefType(MixinProperty)[] = [],
                reality)
                
+
+  /**
+   * A dictionary of all fact types defined by this category, including mixins and super category fact types.
+   */
+  native allFactTypes: TypeDescriptor{}
+
+  /**
+   * A dictionary of all local fact types defined by this category, including mixins, but excluding super category fact types.
+   */
+  native localFactTypes: TypeDescriptor{}
+  

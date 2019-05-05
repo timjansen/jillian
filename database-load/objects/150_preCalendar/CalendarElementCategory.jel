@@ -1,7 +1,7 @@
 Category('CalendarElementCategory',
 	factTypes = {
 		duration: UnitValueType(@Day)<>, // duration of the element in days, e.g. 1 @Day
-    frequency: @CalendarFrequency,
+    calendarFrequency: CalendarFrequencyEnum,
 		isMatch: FunctionType((date: date): bool=>1),  // a function f(date) that returns whether the given date is part of the calendar element
 		matchesInYear: FunctionType((year: int): date=>date[]),     // a function f(year) that returns a list of all matching days in the given year
 		first: LocalDate?, // if there was a beginning

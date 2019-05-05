@@ -14,10 +14,14 @@ import TypeChecker from '../../jel/types/TypeChecker';
 import Context from '../../jel/Context';
 import Util from '../../util/Util';
 import BaseTypeRegistry from '../../jel/BaseTypeRegistry';
+import TypeDescriptor from '../../jel/types/typeDescriptors/TypeDescriptor';
+import MixinProperty from './MixinProperty';
 
 
 const DB_INDICES: Map<string, DbIndexDescriptor> = new Map();
 DB_INDICES.set('subCategories', {type: 'category', property: 'superCategory', includeParents: true});
+
+const MAX_VALIDATION_ERRORS = 20;
 
 export default class Category extends DbEntry {
   superCategory_jel_property: boolean;
@@ -26,14 +30,16 @@ export default class Category extends DbEntry {
   mixins_jel_property: boolean;
   
   superCategory: DbRef | null;
+  localFactTypesCache: Dictionary | Promise<Dictionary> | undefined;
   static clazz: Class|undefined;
+
 
 	/**
 	 * Creates a new Category.
 	 * @param factTypes a dictionary (name->type definition) to define the facts' base types.
 	 *                           Allows shortcuts, see TypeHelper.
 	 * @param instanceDefaults a dictionary (name->any) of root default values. Be careful with those and use sparingly, as these are root knowledge.
-	 */
+   */
   constructor(distinctName: string,
               superCategory?: DbRef|Category,
 							public factTypes = new Dictionary(),
@@ -51,8 +57,7 @@ export default class Category extends DbEntry {
   get clazz(): Class {
     return Category.clazz!;
   }  
-
-
+  
   // returns promise with all matching objects
   getInstances(ctx: Context, filterFunc: (o: DbEntry)=>boolean): Promise<Category[]> {
     return (ctx.getSession() as DbSession).getByIndex(this, 'catEntries', filterFunc) as Promise<Category[]>;
@@ -61,7 +66,39 @@ export default class Category extends DbEntry {
   get databaseIndices(): Map<string, DbIndexDescriptor> {
     return DB_INDICES;
   }
-	
+
+  localFactTypes_jel_mapping: Object;
+  localFactTypes(ctx: Context): Dictionary | Promise<Dictionary> {
+    if (this.localFactTypesCache)
+      return this.localFactTypesCache;
+  
+    const dct = this.factTypes.mapJs((k, v)=>TypeHelper.convertNullableFromAny(v, k));
+    if (this.mixins.isEmpty) {
+      this.localFactTypesCache = dct;
+      return dct;
+    }
+
+    this.localFactTypesCache = Util.resolveArray(this.mixins.elements.map(e=>e.get(ctx)), (mx: MixinProperty[])=>{
+      mx.forEach(m=> {
+        if (dct.elements.has(m.distinctName))
+          throw new Error(`Error in Category @${this.distinctName}: fact type ${m.distinctName} is defined both as category fact and as MixinProperty.`);
+        else
+          dct.elements.set(m.distinctName, m.type);
+      });
+      return dct;
+    });
+    if (this.localFactTypesCache instanceof Promise)
+      this.localFactTypesCache.then(r=>this.localFactTypesCache = r);
+    return this.localFactTypesCache!;
+  }
+  
+  allFactTypes_jel_mapping: Object;
+  allFactTypes(ctx: Context): Dictionary | Promise<Dictionary> {
+    if (this.superCategory)
+      return this.superCategory.with(ctx, (cat: Category)=>Util.resolveValues((superAll: any, localFactTypes: any)=>superAll.setAllJs(localFactTypes), cat.allFactTypes(ctx), this.localFactTypes(ctx)));
+    else
+      return this.localFactTypes(ctx);
+  }
 
 	isExtending_jel_mapping: Object;
 	isExtending(ctx: Context, otherCategory: string | JelString | DbRef): JelBoolean | Promise<JelBoolean> {
@@ -72,7 +109,19 @@ export default class Category extends DbEntry {
 		if (!this.superCategory)
 			return JelBoolean.FALSE;
 		return this.superCategory.distinctName == otherCategory ? JelBoolean.TRUE : (this.superCategory.with(ctx, (s: Category) =>s.isExtending(ctx, otherCategory)) as  JelBoolean | Promise<JelBoolean>);
-	}
+  }
+  
+  validate(ctx: Context): Promise<any>|any {
+    return Util.resolveValue(this.allFactTypes(ctx), factTypes=>
+        this.withMember(ctx, 'validateFacts', callable=>Util.resolveValue(callable.invoke(this, factTypes, JelString.valueOf(`@${this.distinctName}`)), (errors: List)=>{
+          if (errors.length == 1)
+            throw new Error(errors.elements[0].value);
+          else if (errors.length > 1)
+            throw new Error(`Found ${errors.length > MAX_VALIDATION_ERRORS ? '>'+MAX_VALIDATION_ERRORS : errors.length}} fact validation errors in @${this.distinctName}:\n${errors.elements.slice(0, MAX_VALIDATION_ERRORS).map(e=>e.value).join('\n----------\n')}`);
+        else
+            return true;
+        })));
+  }
 	
   getSerializationProperties(): any[] {
 		return [this.distinctName, this.superCategory, this.factTypes, this.facts, this.mixins, this.reality];
@@ -89,7 +138,9 @@ export default class Category extends DbEntry {
   }
 }
 
-Category.prototype.isExtending_jel_mapping = {category: 1}
+Category.prototype.allFactTypes_jel_mapping = true;
+Category.prototype.localFactTypes_jel_mapping = true;
+Category.prototype.isExtending_jel_mapping = true;
 Category.prototype.superCategory_jel_property = true;
 Category.prototype.factTypes_jel_property = true;
 Category.prototype.facts_jel_property = true;

@@ -69,9 +69,9 @@ export default abstract class TypeDescriptor extends NativeJelObject {
   
 }
 
-TypeDescriptor.prototype.checkType_jel_mapping = ['value'];
-TypeDescriptor.prototype.convert_jel_mapping = ['value', 'fieldMapping'];
+TypeDescriptor.prototype.checkType_jel_mapping = true;
+TypeDescriptor.prototype.convert_jel_mapping = true;
 TypeDescriptor.prototype.equals_jel_mapping = true;
 TypeDescriptor.prototype.serializeToString_jel_mapping = true;
-TypeDescriptor.prototype.isNullable_jel_mapping = [];
+TypeDescriptor.prototype.isNullable_jel_mapping = true;
 

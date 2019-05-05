@@ -216,26 +216,6 @@ export default class Dictionary extends NativeJelObject implements SerializableP
 		return new List(Array.from(this.elements.keys()).map(e=>JelString.valueOf(e)));
 	}
 
-	each_jel_mapping: boolean;
-	each(ctx: Context, f0: any): Dictionary | Promise<Dictionary> {
-		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
-		const self = this;
-		let i = 0;
-		const it = this.elements.keys();
-		function exec(): Promise<Dictionary> | Dictionary {
-			while (true) {
-				const next = it.next();
-				if (next.done)
-					return self;
-				const r = f.invoke(undefined, JelString.valueOf(next.value), self.elements.get(next.value) || null, Float.valueOf(i));
-				i++;
-				if (r instanceof Promise)
-					return r.then(exec);
-			}
-		}
-		return exec();
-	}
-
 	map_jel_mapping: boolean;
 	map(ctx: Context, f0: any): Dictionary | Promise<Dictionary> {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
@@ -591,7 +571,6 @@ Dictionary.prototype.set_jel_mapping = true;
 Dictionary.prototype.setAll_jel_mapping = true;
 Dictionary.prototype.delete_jel_mapping = true;
 Dictionary.prototype.deleteAll_jel_mapping = true;
-Dictionary.prototype.each_jel_mapping = true;
 Dictionary.prototype.map_jel_mapping = true;
 Dictionary.prototype.mapToList_jel_mapping = true;
 Dictionary.prototype.filter_jel_mapping = true;

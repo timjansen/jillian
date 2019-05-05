@@ -6,7 +6,7 @@ import ChainableError from '../util/ChainableError';
 export default class NotFoundError extends ChainableError {
 
 	constructor(identifier: string) {
-		super(identifier + " not found");
+		super(`@${identifier} not found in database`);
 		
 		Error.captureStackTrace(this, NotFoundError);
 	}

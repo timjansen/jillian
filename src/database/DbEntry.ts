@@ -78,6 +78,12 @@ export default class DbEntry extends NamedObject {
 			return f(v);
 	}
 
+  /**
+   * Validates the DB entry. Currently used for Things and Categories only. Throws exception on failure.
+   */
+  validate(ctx: Context): Promise<any>|any {
+
+  }
   
   getSerializationProperties(): any[] {
     return [this.distinctName, this.facts, this.reality, this.hashCode];

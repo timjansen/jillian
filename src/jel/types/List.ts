@@ -128,29 +128,25 @@ export default class List extends NativeJelObject implements SerializablePrimiti
 		return !this.elements.length;
 	}
 	
-	each_jel_mapping: Object;
-	each(ctx: Context, f0: any): List | Promise<List> {
-		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
-		const self = this;
-		let i = 0;
-		const len = this.elements.length;
-		function exec(): Promise<List> | List {
-			while (i < len) {
-				const r = f.invoke(undefined, self.elements[i], Float.valueOf(i));
-				i++;
-				if (r instanceof Promise)
-					return r.then(exec);
-			}
-			return self;
-		}
-		return exec();
-	}
-  
 	map_jel_mapping: Object;
 	map(ctx: Context, f0: any): List | Promise<List> {
 		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
 		const newList: any[] = [];
 		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(undefined, e, Float.valueOf(i)), v=>{newList.push(v);}, ()=>new List(newList));
+	}
+
+	collect_jel_mapping: Object;
+	collect(ctx: Context, f0: any): List | Promise<List> {
+		const f: Callable = TypeChecker.instance(Callable, f0, 'f');
+		const newList: any[] = [];
+		return Util.processPromiseList(this.elements, (e,i)=>f.invoke(undefined, e, Float.valueOf(i)), v=>{
+			if (v != null) {
+				if (v instanceof List)
+					newList.push(...v.elements);
+				else
+					newList.push(v);
+			}
+		}, ()=>new List(newList));
 	}
 
 	filter_jel_mapping: Object;
@@ -519,6 +515,20 @@ export default class List extends NativeJelObject implements SerializablePrimiti
 		return this.minMax(ctx, true, isLess, key);
 	}
 
+	flatten_jel_mapping: Object;
+	flatten(ctx: Context, f0: any): List | Promise<List> {
+		const newList: any[] = [];
+		for (let i = 0; i < this.elements.length; i++) {
+			const v = this.elements[i];
+			if (v != null) {
+				if (v instanceof List)
+					newList.push(...v.elements);
+				else
+					newList.push(v);
+			}
+		}
+		return new List(newList);
+	}
 	
 	toNullable(): List|null {
 		return this.elements.length ? this : null;
@@ -562,10 +572,11 @@ List.prototype.isEmpty_jel_property = true;
 List.prototype.get_jel_mapping = true;
 List.prototype.add_jel_mapping = true;
 List.prototype.addAll_jel_mapping = true;
-List.prototype.each_jel_mapping = true;
 List.prototype.map_jel_mapping = true;
 List.prototype.filter_jel_mapping = true;
 List.prototype.filterNull_jel_mapping = true;
+List.prototype.flatten_jel_mapping = true;
+List.prototype.collect_jel_mapping = true;
 List.prototype.reduce_jel_mapping = true;
 List.prototype.hasAny_jel_mapping = true;
 List.prototype.contains_jel_mapping = true;

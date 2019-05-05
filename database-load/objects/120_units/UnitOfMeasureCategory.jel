@@ -7,11 +7,11 @@ Category('UnitOfMeasureCategory',
 	factTypes = {
 		quantityCategory: @QuantityCategory,
 		isPrimaryUnit: bool,
-		type: @UnitTypeEnum, 
+		type: UnitTypeEnum, 
 		idealMin: number?,  // should be converted if lower (>= 0, absolute value)
 		idealMax: number?,  // should be converted if higher
 		granularity: number?, // if the unit can not easily be divided. E.g. For Dollar it would be 0.01, for Dozens it would be 0.5
-		convertsTo: {f: FunctionType(v=>1), factor: number?}{},
+		convertsTo: {f: FunctionType(v=>1)?, factor: number?}{},
 		createFrom: Unit[]?, // if this unit is a composite type, the underlying Units. E.g. MeterPerSecond is created from Unit(@Meter, @Second)
 		usedBy: @UnitOfMeasureCategory[] // List of units this unit is a composite type of, most desirable first.. E.g. In @Meter, this list includes @MeterPerSecond
 	}

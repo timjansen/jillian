@@ -8,6 +8,8 @@ Category('MonthCategory',
 		matchesInYear: (year)=>[LocalDate(year, this.monthNumber)]
   }),
 	factTypes = {
+    durationInYear: function((year: int)=>UnitValueType(@Day)),
+    calendarFrequency: CalendarFrequencyEnum,
     monthNumber: int
 	},
   mixins = @order

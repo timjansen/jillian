@@ -3,8 +3,9 @@ Category('HolidayCategory',
 	factTypes = {
    month: int<>,   // range if it can be in more than one month
    day: int?,               // null if not always on the same day
-   weekDay: @WeekdayCategory?   // null if it is not a fixed weekday
-   
+   weekDay: @WeekdayCategory?,   // null if it is not a fixed weekday
+   durationInYear: function((year: int): UnitValueType(@Day)=>1 @Day),
+
    // TODO: something to define 40 days after easter, or last thursday in november...
 	}
 )

@@ -9,3 +9,4 @@ abstract class TypeDescriptor:
   
   abstract serializeToString(): string
   
+  

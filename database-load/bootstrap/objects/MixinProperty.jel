@@ -2,6 +2,8 @@
  * A MixinProperty is a property that can be shared between categories.
  */
 native class MixinProperty extends DbEntry:
-  native constructor(distinctName, type: typedef)
+  native constructor(distinctName, typeDef: typedef)
   
+  native type: TypeDescriptor
+
                

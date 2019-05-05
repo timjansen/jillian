@@ -6,8 +6,8 @@ Thing('Kilowatt', @UnitOfMeasureCategory,
 		idealMin: 1,
 		idealMax: 1000,
 		convertsTo: {
-			Watt: 1e3,
-			Milliwatt: 1e6,
+			Watt: {factor: 1e3},
+			Milliwatt: {factor: 1e6},
 			Megawatt: {factor: Fraction(1, 1e3)},
 			Gigawatt: {factor: Fraction(1, 1e9)},
 			Terawatt: {factor: Fraction(1, 1e12)}

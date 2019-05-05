@@ -21,6 +21,25 @@ native class DbEntry:
         r
 
   /**
+   * Validates all facts of this entry against the given type descriptor.
+   * @param types a Dictionary of all names->types to validate against
+   * @return a list of alll of error messages
+   */
+  private validateFacts(types: TypeDescriptor{}, typeProvider: string): string[] =>
+    this.facts.mapToList((name, factList)=>
+        if types[name] != null then 
+          factList.collect(fact=>let v=fact.getTypeValidationValue(): 
+            if v == null || types[name].checkType(v) then 
+              null
+            else 
+              'Type validation of fact "{{name}}" in @{{this.distinctName}} failed: category {{typeProvider}} defined it as {{types[name]}}.\nValidation value:\n{{v}}\nFact:\n{{fact}}'
+            )
+      else
+        ['Fact "{{name}}" in {{typeProvider}} does not have a type definition']
+    ).flatten()
+   
+
+  /**
    * Checks whether the given value is possible for the fact.
    */
    // TODO: better algorithm
@@ -30,7 +49,7 @@ native class DbEntry:
       .map(f=>f.checkValue(value, this.getDependencies(f, currentTime)))
       .reduce((e, i)=>Boolean.optionalFalsest(e, i), null) || false
 
-
+  
   /**
    * Returns all facts with the given name that are relevant to this DbEntry. On Categories, it will be just the list of direct facts. On Things, it will be Thing's own facts plus the Category facts.
    */

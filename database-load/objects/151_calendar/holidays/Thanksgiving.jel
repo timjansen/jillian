@@ -1,8 +1,8 @@
 Thing('Thanksgiving', @HolidayCategory,
 	facts=FactHelper.createRootFacts({
     month: 11,
-    firstDate: LocalDate(1942, 11, 26),
+    first: LocalDate(1942, 11, 26),
  		isMatch: (date)=>let thanksgiving=this.matchesInYear(date.year).first: date == thanksgiving,
-		matchesInYear: (year)=>if year >= this.firstDate.year then [LocalDate(year, this.month).allDays.nthMatch(4, d=>d.dayOfWeek == 4)] else []
+		matchesInYear: (year)=>if year >= this.first.year then [LocalDate(year, this.month).allDays.nthMatch(4, d=>d.dayOfWeek == 4)] else []
   }
 ))

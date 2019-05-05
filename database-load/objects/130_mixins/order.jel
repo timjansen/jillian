@@ -1,7 +1,7 @@
 MixinProperty('order', 
   {
-    predecessor: @Thing?,
-    successor: @Thing?
+    predecessor: RefType(Thing)?,
+    successor: RefType(Thing)?
   }
  )
  

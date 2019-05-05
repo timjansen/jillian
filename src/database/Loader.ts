@@ -55,7 +55,7 @@ class LoadTracker {
         throw new Error(`${this.entries.get(name)} does not contain a named object.`);
       if (name.replace(/^\d+_/, '') != entry.distinctName)
         throw new Error(`Expected ${this.entries.get(name)} to contain an object called ${name.replace(/^\d+_/, '')}, but it was ${entry.distinctName}.`);
-      
+              
       this.loaded.set(name, entry);
       if (entry instanceof PackageContent)
         this.packagesContent.push(entry);
@@ -74,13 +74,18 @@ class LoadTracker {
   }
   
   loadEntries(ctx: Context, entryFiles: string[]): Promise<any> {
+    const db = (ctx.dbSession as any).database;
     const entryNames = entryFiles.map(file=>file.replace(/^.*\/|\.jel$/g, ''));
     for (let i = 0; i < entryFiles.length; i++)
       this.entries.set(entryNames[i], entryFiles[i]);
-    return this.pool.runJobIgnoreNull(Array.from(entryNames), name=>this.readEntry(new LoadContext(ctx, this, name), name));
+    const p: Promise<NamedObject[]> = this.pool.runJobIgnoreNull(Array.from(entryNames), name=>this.readEntry(new LoadContext(ctx, this, name), name));
+    if (db.config.validateEntries)
+      return p.then(objects=>this.pool.runJobIgnoreNull(objects.filter(obj=>obj instanceof DbEntry), obj=>Promise.resolve((obj as DbEntry).validate(ctx))));
+    else
+      return p;
   }
 }
-
+  
 
 /**
  * Special context used by the loader to load NamedObjects that depend on each other.
@@ -171,7 +176,7 @@ export default class Loader {
 		const pool = new WorkerPool();
     // returns Promise of [categoryFiles, entryFiles, dirs] for a single directory
     function getPaths(dir: string): Promise<string[][]> {
-      return (fs as any).readdir(dir, {withFileTypes: true}) // TODO: remove any when new readdir signature available
+      return (fs as any).readdir(dir, {withFileTypes: true}) // TODO: remove 'as any' when new readdir signature available
       .then((files: any[])=>files.map(stat=>[stat.name, stat.name.endsWith('.jel') && stat.isFile(), stat.name.endsWith('Category.jel'), stat.isDirectory()] as any)) // TODO: replace any->fs.Dirent when available
       .then((r: any)=>[r.filter((a: any)=>a[1] && a[2]).map((a: any)=>path.join(dir, a[0])), 
                 r.filter((a: any)=>a[1] && !a[2]).map((a: any)=>path.join(dir, a[0])),

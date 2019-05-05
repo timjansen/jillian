@@ -22,4 +22,4 @@ class ValueFact extends Fact
     
   override allows(thisDependencies: any{} = {}, other: Fact, otherDependencies: any{} = {}): bool => true
 
-
+  override getTypeValidationValue(): any? => this.value

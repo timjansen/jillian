@@ -1,23 +1,27 @@
-import Category from './Category';
-import DbEntry from '../DbEntry';
-import DbRef from '../DbRef';
-import MixinDefaults from './MixinDefaults';
-import DbIndexDescriptor from '../DbIndexDescriptor';
-import Dictionary from '../../jel/types/Dictionary';
-import Class from '../../jel/types/Class';
-import List from '../../jel/types/List';
-import JelString from '../../jel/types/JelString';
-import JelBoolean from '../../jel/types/JelBoolean';
-import TypeChecker from '../../jel/types/TypeChecker';
-import Context from '../../jel/Context';
-import Util from '../../util/Util';
 import BaseTypeRegistry from '../../jel/BaseTypeRegistry';
+import Context from '../../jel/Context';
+import JelObject from '../../jel/JelObject';
+import Class from '../../jel/types/Class';
+import Dictionary from '../../jel/types/Dictionary';
+import JelBoolean from '../../jel/types/JelBoolean';
+import List from '../../jel/types/List';
+import TypeChecker from '../../jel/types/TypeChecker';
+import TypeDescriptor from '../../jel/types/typeDescriptors/TypeDescriptor';
+import TypeHelper from '../../jel/types/typeDescriptors/TypeHelper';
+import Util from '../../util/Util';
+import DbEntry from '../DbEntry';
+import DbIndexDescriptor from '../DbIndexDescriptor';
+import DbRef from '../DbRef';
+import Category from './Category';
+import MixinDefaults from './MixinDefaults';
+import JelString from '../../jel/types/JelString';
 
 
 
 const DB_INDICES = new Map();
 DB_INDICES.set('catEntries', {type: 'category', property: 'category', includeParents: true});
 
+const MAX_VALIDATION_ERRORS = 20;
 
 // Base class for any kind of physical or immaterial instance of a category
 export default class Thing extends DbEntry {
@@ -48,7 +52,20 @@ export default class Thing extends DbEntry {
 			return JelBoolean.TRUE;
 		return this.category.with(ctx, (c: Category) =>c.isExtending(ctx, category)) as JelBoolean | Promise<JelBoolean>;
 	}
-	
+  
+  validate(ctx: Context): Promise<any>|any {
+    return this.category.with(ctx, category=>
+      Util.resolveValue((category as Category).allFactTypes(ctx), factTypes=>
+        this.withMember(ctx, 'validateFacts', callable=>Util.resolveValue(callable.invoke(this, factTypes, JelString.valueOf(`@${category.distinctName}`)), (errors: List)=>{
+          if (errors.length == 1)
+            throw new Error(errors.elements[0].value);
+          else if (errors.length > 1)
+            throw new Error(`Found ${errors.length > MAX_VALIDATION_ERRORS ? '>'+MAX_VALIDATION_ERRORS : errors.length}} fact validation errors in @${category.distinctName}:\n${errors.elements.slice(0, MAX_VALIDATION_ERRORS).map(e=>e.value).join('\n----------\n')}`);
+        else
+            return true;
+        }))));
+  }
+
   getSerializationProperties(): any[] {
     // note that the default facts have been merged into facts, and do not need to be saved again
     return [this.distinctName, this.category, this.facts, undefined, this.reality, this.hashCode];

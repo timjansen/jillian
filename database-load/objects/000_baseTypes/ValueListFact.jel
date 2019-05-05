@@ -25,3 +25,5 @@ class ValueListFact extends Fact
   override getDiscreteValue(dependencies: any{} = {}): any? => null
  
   override allows(thisDependencies: any{} = {}, other: Fact, otherDependencies: any{} = {}): bool => true
+
+  override getTypeValidationValue(): any? => this.values[0]

@@ -2,10 +2,10 @@ MixinDefaults('yearlyHoliday',
 	facts=FactHelper.createRootFacts({
     duration: 1 @Day,
     durationInYear: (year)=>1 @Day,
-    firstDate: null,
-    lastDate: null,
+    first: null,
+    last: null,
     calendarFrequency: CalendarFrequencyEnum.YEARLY,
- 		isMatch: (date)=>date >= this.firstDate && date.month==this.month && date.day==this.day && (this.firstDate == null || this.firstDate <= date),
-		matchesInYear: (year)=>if (this.firstDate == null || year >= this.firstDate.year) then [LocalDate(year, this.month, this.day)] else []
+ 		isMatch: (date)=>date >= this.first && date.month==this.month && date.day==this.day && (this.first == null || this.first <= date),
+		matchesInYear: (year)=>if (this.first == null || year >= this.first.year) then [LocalDate(year, this.month, this.day)] else []
   })
 )

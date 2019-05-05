@@ -2,7 +2,7 @@ Thing('GroundhogDay', @HolidayCategory,
 	facts=FactHelper.createRootFacts({
     month: 2,
     day: 2,
-    firstDate: LocalDate(1840, 2, 2)
+    first: LocalDate(1840, 2, 2)
   }),
   defaultFacts=@yearlyHoliday
 )

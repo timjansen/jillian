@@ -2,7 +2,7 @@ Thing('CubicMile', @UnitOfMeasureCategory,
 	facts=FactHelper.createRootFacts({
 		quantityCategory: @Volume,
 		isPrimaryUnit: false,
-		type: @UnitTypeEnum.IMPERIAL,
+		type: UnitTypeEnum.IMPERIAL,
 		idealMin: 1,
 		convertsTo: {
 			CubicMeter: {factor: 1609.344^3}

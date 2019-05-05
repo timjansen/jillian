@@ -90,12 +90,12 @@ export default class Database {
 
   get(ctx: Context, distinctName: string): Promise<NamedObject> {
     return this.getIfFound(ctx, distinctName)
-							 .then(p=>(p || Promise.reject(new NotFoundError(distinctName))) as any);
+      .then(p=>{ if (p) return p; else throw new NotFoundError(distinctName);});
   }
 	
   getByHash(ctx: Context, hash: string): Promise<NamedObject> {
     return this.init(config=>this.readEntry(ctx, hash, this.getFilePathForHash(config, hash))
-							 .then(p=>(p || Promise.reject(new NotFoundError(hash))) as any));
+							 .then(p=>{ if (p) return p; else throw new NotFoundError(hash);}));
   }
 
   exists(distinctName: string): Promise<boolean> {

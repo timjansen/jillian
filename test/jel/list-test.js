@@ -131,6 +131,12 @@ describe('jelList', function() {
     });
   });
 
+  describe('collect()', function() {
+    it('collects', function() {
+      jelAssert.equal('[3, 2, 9].collect((a,i)=>if i == 0 then a+1 if i == 1 then null else [a+11, 10, 1, i])', new List([4, 20, 10, 1, 2].map(Float.valueOf))); 
+    });
+  });
+
   describe('filterNull()', function() {
     it('filters', function() {
       jelAssert.equal('[3, null, null, 2, 9, null, 5, 2].filterNull()', '[3, 2, 9, 5, 2]'); 
@@ -138,6 +144,14 @@ describe('jelList', function() {
       jelAssert.equal('[].filterNull()', '[]'); 
     });
   });
+
+  describe('flatten()', function() {
+    it('flattens', function() {
+      jelAssert.equal('[3, null, null, [2, 9], [1, 2, 3, [4]], 5, 2].flatten()', '[3, 2, 9, 1, 2, 3, [4], 5, 2]');
+      jelAssert.equal('[].flatten()', '[]'); 
+    });
+  });
+  
   
   describe('filter()', function() {
     it('filters', function() {

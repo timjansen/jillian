@@ -56,7 +56,7 @@ export default class ReferenceDispatcherType extends TypeDescriptor {
           throw new Error(`Unsupported Thing ${dbe.distinctName} as reference type. Category: ${dbe.category.distinctName}.`);
       }
       else
-        throw new Error(`Unsupported database entry ${dbe.distinctName} as reference type.`);
+        throw new Error(`Unsupported database entry @${dbe.distinctName} as reference type. References are only supported for Things and Categories.`);
       return action(this.type!);
     });
   }

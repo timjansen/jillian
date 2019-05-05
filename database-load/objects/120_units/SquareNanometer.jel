@@ -8,7 +8,7 @@ Thing('SquareNanometer', @UnitOfMeasureCategory,
 			SquareMeter: {factor: 1e-18}
 		},
 		createFrom: [Unit({Nanometer: 2})],
-		usedBy: [@CubicNanometer]
+		usedBy: []
 }))
 
 

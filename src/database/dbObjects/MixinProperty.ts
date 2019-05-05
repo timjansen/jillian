@@ -18,7 +18,7 @@ import BaseTypeRegistry from '../../jel/BaseTypeRegistry';
  */
 export default class MixinProperty extends DbEntry {
   type_jel_property: boolean;
-  categoryProperty_jel_property: boolean;
+  typeDef_jel_property: boolean;
   public type: TypeDescriptor;
   static clazz: Class|undefined;
 
@@ -26,11 +26,11 @@ export default class MixinProperty extends DbEntry {
 	/**
 	 * Creates a new instance.
 	 * @param distinctName the mixin property name. Must start with lower-case letter.
-	 * @param type the TypeDescriptor that describes the allowed values. 
+	 * @param typeDef the TypeDescriptor that describes the allowed values. 
 	 */
-  constructor(distinctName: string, type: any) {
+  constructor(distinctName: string, public typeDef: any) {
     super('MixinProperty', distinctName);
-		this.type = TypeHelper.convertFromAny(type, 'type');
+		this.type = TypeHelper.convertFromAny(typeDef, 'typeDef');
 		if (!distinctName.match(/^[a-z]/))
 			throw Error('By convention, all MixinProperty names must begin with a lower-case letter. Illegal name: ' + distinctName);
   }
@@ -51,6 +51,7 @@ export default class MixinProperty extends DbEntry {
 }
 
 MixinProperty.prototype.type_jel_property = true;
+MixinProperty.prototype.typeDef_jel_property = true;
 
 
 BaseTypeRegistry.register('MixinProperty', MixinProperty);

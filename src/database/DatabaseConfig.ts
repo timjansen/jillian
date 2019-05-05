@@ -16,6 +16,7 @@ export default class DatabaseConfig extends NativeJelObject implements Serializa
   version: number;
   sizing: number;
   prettyPrint: boolean;
+  validateEntries: boolean;
 
   constructor(config = new Map<string, JelObject|null>()) {
     super('DatabaseConfig');
@@ -23,6 +24,7 @@ export default class DatabaseConfig extends NativeJelObject implements Serializa
     this.version = Float.toRealNumber(config.get('version')) || 1;
     this.sizing = Float.toRealNumber(config.get('sizing')) || 10000;
     this.prettyPrint = config.get('prettyPrint') == null ?  true : JelBoolean.toRealBoolean(config.get('prettyPrint'));
+    this.validateEntries = config.get('validateEntries') == null ?  true : JelBoolean.toRealBoolean(config.get('validateEntries'));
   }
   
   get clazz(): Class {
@@ -34,7 +36,7 @@ export default class DatabaseConfig extends NativeJelObject implements Serializa
   }
   
   getSerializationProperties(): Object {
-    return [Dictionary.fromObject({version: this.version, sizing: this.sizing, prettyPrint: this.prettyPrint})];
+    return [Dictionary.fromObject({version: this.version, sizing: this.sizing, prettyPrint: this.prettyPrint, validateEntries: this.validateEntries})];
   }
   
   static create_jel_mapping = true;
@@ -47,5 +49,6 @@ const p: any = DatabaseConfig.prototype;
 p.version_jel_mapping = true;
 p.sizing_jel_mapping = true;
 p.prettyPrint_jel_mapping = true;
+p.validateEntries_jel_mapping = true;
 
 BaseTypeRegistry.register('DatabaseConfig', DatabaseConfig);

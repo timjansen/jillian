@@ -119,6 +119,13 @@ abstract class Fact
   abstract getDiscreteValue(dependencies: any{} = {}): any?
   
   /**
+   * If the fact has a simple value that can be returned for type validation, this method returns it. If the fact describes multiple values, any
+   * random value can be returned.
+   */ 
+  getTypeValidationValue(): any? =>
+    null
+
+  /**
    * Checks whether this fact allows the given other fact to be true, and thus does not contradict it. For example, an assertion fact allows all facts that fulfill the assertion.
    * This is a best effort function. It won't be able, for example, find out whether two assertions contradict each other.
    */

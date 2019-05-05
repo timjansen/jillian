@@ -2,7 +2,7 @@ Thing('Easter', @HolidayCategory,
 	facts=FactHelper.createRootFacts({
     month: Range(3, 4),
     weekDay: @Sunday,
-    firstDate: LocalDate(1583, 3, 21), // gregorian calendar
+    first: LocalDate(1583, 3, 21), // gregorian calendar
   	isMatch: (date)=>let easter=this.matchesInYear(date.year)[0]: date == easter,
 		matchesInYear: year=>let a = year % 19,  // from https://en.wikipedia.org/wiki/Computus, Python algorithm
       b = Math.floor(year/4),

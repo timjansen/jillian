@@ -1,6 +1,6 @@
 Thing('Piece', @UnitOfMeasureCategory,
 	facts=FactHelper.createRootFacts({
-		quantityCategory: @Piece,
+		quantityCategory: @Pieces,
 		isPrimaryUnit: true,
 		type: UnitTypeEnum.OTHER,
 		convertsTo: {

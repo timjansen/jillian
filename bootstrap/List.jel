@@ -49,6 +49,14 @@ native class List:
   native map(f: function((element: any?, index: int(>=0))=>any?)): List
 
   /**
+   * Calls the given function for each list member and returns a new list by interpreting the return values:
+   * if the function returned null, the new list won't contain this values. If the function returned another List,
+   * the List content will be appended to the new List. If the function returned another value, the value itself
+   * will be appended.
+   */
+  native collect(f: function((element: any?, index: int(>=0))=>any?)): List
+
+  /**
    * Calls the given function for each list member and returns a new list containing only those values for which is returned a true value 
    * (either a true boolean or any object with a toBoolean() method that converts to true).
    * @param f the filter function
@@ -168,6 +176,11 @@ native class List:
   native min(isLess: function((a: any?, b: any?)=>any?)?, key: string|function((a: any?)=>any?)?): any?
 
   /**
+   * Flattens a nested list of lists. Any non-list elements will be kept. Nulls will be removed.
+   */ 
+  native flatten(): List
+  
+  /**
    * Creates a new List that copies all elements from this List until it reaches the first element for which the given function returns true. It stops then and returns a List
    * containing all previous elements.
    * @param f a function that is called for each List element until it returns true. The first argument is the element to check, the second is its index
@@ -195,6 +208,7 @@ native class List:
   startWhen(f: function((element: any?, index: int(>=0))=>bool)): List =>
     let idx = this.firstMatchIndex(f):
       if idx == null then [] else this.sub(idx)
+
 
 
 

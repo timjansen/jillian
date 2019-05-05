@@ -26,7 +26,7 @@ export default class TemplateString extends CachableJelNode {
   build(values: string[]): JelObject {
     let a = this.stringFragments[0]; 
     for (let i = 0; i < values.length; i++)
-      a += values[i].toString()+this.stringFragments[i+1];
+      a += (values[i] != null ? values[i].toString() : 'null')+this.stringFragments[i+1];
     return this.string.valueOf(a);  
   }
   
@@ -56,7 +56,7 @@ export default class TemplateString extends CachableJelNode {
 	toString(): string {
     let a = Literal.escapeString(this.stringFragments[0]);
     for (let i = 0; i < this.expressions.length; i++)
-      a += `{{${this.expressions[i].toString()}}}${Literal.escapeString(this.stringFragments[i+1])}`;
+      a += `{{${this.expressions[i] != null ? this.expressions[i].toString() : null}}}${Literal.escapeString(this.stringFragments[i+1])}`;
     return `'${a}'`;
 	}
 }

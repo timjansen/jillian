@@ -2,6 +2,6 @@ Thing('NewYearsDay', @HolidayCategory,
 	facts=FactHelper.createRootFacts({
     month: 1,
     day: 1,
-    firstDate: LocalDate(1, 1, 1)
+    first: LocalDate(1, 1, 1)
   }),
   defaultFacts=@yearlyHoliday)
