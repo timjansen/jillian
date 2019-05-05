@@ -184,11 +184,6 @@ export default class ApproximateNumber extends NativeJelObject implements Numeri
 		return this.value.toRealNumber();
 	}
 	
-	toBoolean_jel_mapping: boolean;
-	toBoolean(): boolean {
-		return this.value.toBoolean();
-	}
-	
 	toString(): string {
 		return this.value.toString() + '+-' + this.maxError.toString();
 	}
@@ -223,7 +218,6 @@ export default class ApproximateNumber extends NativeJelObject implements Numeri
 
 ApproximateNumber.prototype.reverseOps = Object.assign({'-':1, '/': 1, '+-': 1, '^': 1}, JelObject.SWAP_OPS);
 ApproximateNumber.prototype.toFloat_jel_mapping = true;
-ApproximateNumber.prototype.toBoolean_jel_mapping = true;
 ApproximateNumber.prototype.round_jel_mapping = true;
 ApproximateNumber.prototype.trunc_jel_mapping = true;
 ApproximateNumber.prototype.abs_jel_mapping = true;

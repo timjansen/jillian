@@ -25,18 +25,18 @@ export default class Float extends NativeJelObject implements SerializablePrimit
 		Float.DEFAULT_NUMBERS[NaN] = Float.NAN;
 	}
 	
-  static jelName = 'Float';
+ 	static jelName = 'Float';
   
-  static clazz: Class|undefined;
+ 	static clazz: Class|undefined;
 
   
 	constructor(public value: number) {
 		super('Float');
 	}
   
-  get clazz(): Class {
-    return Float.clazz!;
-  }
+ 	get clazz(): Class {
+		return Float.clazz!;
+	}
 	  
   
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
@@ -104,7 +104,7 @@ export default class Float extends NativeJelObject implements SerializablePrimit
 		return this.value >= 0 ? this : Float.valueOf(Math.abs(this.value));
 	}
 
-  round_jel_mapping: Object;
+	round_jel_mapping: Object;
 	round(ctx: Context): Float {
 		return Float.valueOf(Math.round(this.value));
 	}
@@ -114,10 +114,6 @@ export default class Float extends NativeJelObject implements SerializablePrimit
 		return Float.valueOf(Math.trunc(this.value));
 	}
 
-	toBoolean(): boolean {
-		return !!this.value;
-	}
-	
 	isInteger_jel_mapping: Object;
 	isInteger(): boolean {
 		return Number.isInteger(this.value);

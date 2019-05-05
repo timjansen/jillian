@@ -9,6 +9,11 @@ native class String:
   native length: int(>=0)
   
   /**
+   * Returns true if the string is empty.
+   */ 
+  native isEmpty: bool
+  
+  /**
    * Returns the string without whitespace at the beginning or end.
    */
   native trim(): String

@@ -62,9 +62,14 @@ export default class JelString extends NativeJelObject implements SerializablePr
 		return super.op(ctx, operator, right);
 	}
 	
- 	length_jel_property: boolean;
+	length_jel_property: boolean;
 	get length(): number {
 		return this.value.length;
+	}
+
+	isEmpty_jel_property: boolean;
+	get isEmpty(): boolean {
+		return !!this.value.length;
 	}
 	
 	trim_jel_mapping: boolean;
@@ -127,12 +132,7 @@ export default class JelString extends NativeJelObject implements SerializablePr
 		return JSON.stringify(this.value);
 	}
 	
-  toBoolean_jel_mapping: boolean;
-	toBoolean(): JelBoolean {
-		return JelBoolean.valueOf(!!this.value.length);
-	}
-
-	toFloat(): number {
+  toFloat(): number {
 		return this.value.length;
 	}
 
@@ -141,7 +141,7 @@ export default class JelString extends NativeJelObject implements SerializablePr
 	}
 }
 
-JelString.prototype.toBoolean_jel_mapping = true;
+JelString.prototype.isEmpty_jel_property = true;
 JelString.prototype.length_jel_property = true;
 JelString.prototype.trim_jel_mapping = true;
 JelString.prototype.contains_jel_mapping = true;

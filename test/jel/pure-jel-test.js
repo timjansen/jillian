@@ -119,9 +119,10 @@ describe('JEL', function() {
       assert.equal(new JEL('false||false').executeImmediately().state, 0);
       jelAssert.equal(new JEL('17||0').executeImmediately(), 17);
       jelAssert.equal(new JEL('15||"test"').executeImmediately(), 15);
-      jelAssert.equal(new JEL('""||"foo"').executeImmediately(), "'foo'");
-      jelAssert.equal(new JEL('0||1').executeImmediately(), 1);
-      jelAssert.equal(new JEL('0||""').executeImmediately(), "''");
+      jelAssert.equal(new JEL('null||"foo"').executeImmediately(), "'foo'");
+      jelAssert.equal(new JEL('0||1').executeImmediately(), 0);
+      jelAssert.equal(new JEL('0||null').executeImmediately(), "0");
+      jelAssert.equal(new JEL('null||null').executeImmediately(), "null");
     });
 
     it('should support logical AND (&&)', function() {
@@ -131,10 +132,11 @@ describe('JEL', function() {
       assert.equal(new JEL('false && false').executeImmediately().state, 0);
       jelAssert.equal(new JEL('17 && 0').executeImmediately(), 0);
       jelAssert.equal(new JEL('15 && "test"').executeImmediately(), "'test'");
-      jelAssert.equal(new JEL('"" && "foo"').executeImmediately(), "''");
-      jelAssert.equal(new JEL('0 && ""').executeImmediately(), 0);
+      jelAssert.equal(new JEL('null && "foo"').executeImmediately(), "null");
+      jelAssert.equal(new JEL('0 && null').executeImmediately(), 'null');
       jelAssert.equal(new JEL('1 && ""').executeImmediately(), "''");
       jelAssert.equal(new JEL('1 && 2').executeImmediately(), 2);
+      jelAssert.equal(new JEL('null&&null').executeImmediately(), "null");
     });
 
      it('should support in', function() {
@@ -282,9 +284,9 @@ describe('JEL', function() {
       jelAssert.equal(new JEL('if true then 1 else 2').executeImmediately(), 1);
       jelAssert.equal(new JEL('if false then 1 else 2').executeImmediately(), 2);
       jelAssert.equal(new JEL('if 8 then 1 else 2').executeImmediately(), 1);
-      jelAssert.equal(new JEL('if 0 then 1 else 2').executeImmediately(), 2);
+      jelAssert.equal(new JEL('if false then 1 else 2').executeImmediately(), 2);
       jelAssert.equal(new JEL('if "j" then 1 else 2').executeImmediately(), 1);
-      jelAssert.equal(new JEL('if "" then 1 else 2').executeImmediately(), 2);
+      jelAssert.equal(new JEL('if null then 1 else 2').executeImmediately(), 2);
       jelAssert.equal(new JEL("if 2>1 then 'foo' else 'bar'").executeImmediately(), "'foo'");
       jelAssert.equal(new JEL("if 2<1 then 'foo' else 'bar'").executeImmediately(), "'bar'");
       jelAssert.equal(new JEL("if 2<1 then 'foo' else if 3>2 then 2 else 1").executeImmediately(), 2);

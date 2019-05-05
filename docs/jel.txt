@@ -249,6 +249,7 @@ something else is true as well).
 Examples:
 	if a==12 then 'a dozen' else 'not a dozen'
 	if a==0 then 'none' else if a<10 then 'a few' else 'a lot'
+	if a then a else false                                  // a is true unless it is a boolean false or null
 	if @Frog.isCategoryOf(a) then a.capabilities.includes(@Jumping)
 	
 

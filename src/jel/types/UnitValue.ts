@@ -395,10 +395,6 @@ export default class UnitValue extends NativeJelObject implements Numeric {
     return new UnitValue(value, unit);
   }
 
-	toBoolean(): boolean {
-		return this.value.toBoolean();
-	}
-	
 	getSerializationProperties(): any[] {
 		return [this.value, this.unit];
 	}

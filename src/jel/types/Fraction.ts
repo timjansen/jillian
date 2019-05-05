@@ -36,9 +36,9 @@ export default class Fraction extends NativeJelObject implements Numeric {
 			throw Error("Denominator in Fraction must not be 0");
 	}
   
-  get clazz(): Class {
-    return Fraction.clazz!;
-  }
+	get clazz(): Class {
+		return Fraction.clazz!;
+	}
 	
 	equals(other: Fraction): boolean {
 		return this.numerator === other.numerator && this.denominator === other.denominator;
@@ -210,10 +210,6 @@ export default class Fraction extends NativeJelObject implements Numeric {
 
 	toRealNumber(): number {
 		return this.denominator !== 0 ? this.numerator / this.denominator : NaN;
-	}
-	
-	toBoolean(): boolean {
-		return !!this.numerator;
 	}
 	
 	toString(): string {
