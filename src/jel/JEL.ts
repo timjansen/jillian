@@ -111,7 +111,6 @@ const SQUARE_BRACE_STOP = {']': true};
 const LIST_ENTRY_STOP = {']': true, ',': true};
 const DICT_KEY_STOP = {':': true, '}': true, ',': true};
 const DICT_VALUE_STOP = {',': true, '}': true};
-const LAMBDA_KEY_STOP = {':': true, ')': true, ',': true};
 const LAMBDA_TYPE_STOP = {',': true, '=': true, ')': true};
 const LAMBDA_VALUE_STOP = {',': true, ')': true};
 const TRANSLATOR_META_STOP = {',': true, ':': true, '=': true};
@@ -119,7 +118,7 @@ const TRANSLATOR_META_VALUE_STOP = {',': true, ':': true};
 const TRANSLATOR_PATTERN_STOP = {'=>': true};
 const TRANSLATOR_LAMBDA_STOP = {',': true, '}': true};
 const PARAMETER_STOP: any = {')': true, ',': true};
-const IF_STOP = {'then': true};
+const IF_STOP = {'then': true, ':': true};
 const THEN_STOP: any = {'else': true, 'let': true, 'with': true, 'if': true, 'class': true, 'enum': true, abstract: true, static: true, native: true, override: true, private: true};
 const ELSE_STOP: any = {'else': true, 'let': true, 'with': true, 'if': true, 'class': true, 'enum': true};
 const LET_STOP = {':': true, ',': true};
@@ -293,7 +292,7 @@ export default class JEL {
       return JEL.tryBinaryOps(tokens, new Reference(t2, t2.value), precedence, stopOps);
     case 'if':
       const cond = JEL.parseExpression(tokens, IF_PRECEDENCE, IF_STOP);
-      JEL.expectOp(tokens, IF_STOP, "Expected 'then'");
+      JEL.expectOp(tokens, IF_STOP, "Expected 'then' or ':' to end 'if' condition");
       const allStop = Object.assign({}, THEN_STOP, stopOps);
       const thenV = JEL.parseExpression(tokens, IF_PRECEDENCE, allStop);
       if (tokens.peekIs(TokenType.Operator) && (tokens.nextIf(TokenType.Operator, 'else') || ELSE_STOP[tokens.peek().value]))

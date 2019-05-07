@@ -241,18 +241,6 @@ Examples:
 		verb: `run` => Running()}
 
 
-Conditions
--------------------
-JEL supports simple if/then/else expressions. The 'else' part can be omitted, it defaults to 'true'. This is mainly useful for inferences (if something is true, 
-something else is true as well).
-
-Examples:
-	if a==12 then 'a dozen' else 'not a dozen'
-	if a==0 then 'none' else if a<10 then 'a few' else 'a lot'
-	if a then a else false                                  // a is true unless it is a boolean false or null
-	if @Frog.isCategoryOf(a) then a.capabilities.includes(@Jumping)
-	
-
 Constants
 -------------------
 'let' allows you to define constants that can be used in the following expression.
@@ -261,6 +249,74 @@ Examples:
 	let a=2: a+3   // returns 5
 	let x=1, y=x+2, z=y*3: z*4+x   // returns 37
 	
+
+Conditions
+-------------------
+JEL supports simple if/then/else expressions. The 'else' part can be omitted, it defaults to 'true'. This is mainly useful for inferences (if something is true, 
+something else is true as well).
+
+Examples:
+	if a==12 then 'a dozen' else 'not a dozen'
+	if a==0 then 'none' if a<10 then 'a few' else 'a lot'   // 'else' can be omitted when 'if' is followed by a statement. 
+	if a==0 then 'none' let a = 10: a*a                     // for any statement, 'else' isn't needed (it looks better when spread over several lines)
+	if a then a else false                                  // a is true unless it is a boolean false or null
+	if a==12: 'a dozen' else 'not a dozen'                  // alternative syntax: use a color instead of 'then'. Mostly when the 'if' is spread over several lines.
+	if @Frog.isCategoryOf(a) then a.capabilities.includes(@Jumping) // if 'else' is missing and there is no other statement, it will return true if the condition is false.
+	
+
+Try/When Conditions
+----------------
+JEL's 'try' construct lets you execute conditions checks on an expression. It executes the 'try' expression and then executes all 'while'/'if'/'else'/'except'
+type conditions on the value. If any of them matches, the 'while' condition is executed and the result returned. 'else' conditions are executed when
+there was no previous match, and provide the return value. If there was no 'else', the try value is returned.
+
+try e = complexFunction()                           // assigns value to 'e'
+when string: gotAString(e)                          // type check
+when 0...10: got10andUnder(e)                       // type check with Range
+when >10: getOver10(e)
+if e is List and e.length > 10: handleLongList(e)   // generic condition
+except MyOwnException: showError(e)                 // exception handling
+else handleOtherTypes(e)                            // handle all other types
+
+
+This is a simple use of 'try':
+
+try getValue()                                 // the constant name is optional in 'try'.  
+when number: throw "Numbers not allowed"       
+when string: throw "Strings not allowed"
+
+
+
+
+Throwing Exceptions
+--------------------
+Throw Exceptions with the 'throw' statement. You can create your own exceptions by extending from 'Exception', or use the default 'Exception' class. 
+Generally, application-level issues should use 'Exception'. Errors in the language runtime use the class 'Error'.
+
+throw MyOwnException("This went wrong")
+throw "This went wrong"                   // automatically converted to the default 'Exception' class
+ 
+
+Handling Exceptions
+--------------------
+You can catch exceptions using the try/except mechanism.
+
+try e = somethingCouldGoWrong()                          // the exception will also be stored in 'e'!
+except MyOwnException: showError(e)                      // 'MyOwnException' describes the type
+except SomeOtherException | AnotherException: showAnotherError(e)   // You can use any type expression to define what exception you need to handle. 
+except: showFatalError(e)                                // handle all other exceptions. This is a shortcut for "expect any:".
+
+
+You can also combine 'if', 'when' 'except' and 'else' in a 'try' clause.
+
+try e = complexFunction()
+if e is List and e.length > 10: handleLongList(e)
+when >=0: gotPositive(e)  
+when string: gotAString(e)
+else handleOtherTypes(e)
+except MyOwnException: handleOwnException(e)
+except: handleGenericIssue()
+
 
 Assertions
 -------------------

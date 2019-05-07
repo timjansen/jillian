@@ -291,6 +291,9 @@ describe('JEL', function() {
       jelAssert.equal(new JEL("if 2<1 then 'foo' else 'bar'").executeImmediately(), "'bar'");
       jelAssert.equal(new JEL("if 2<1 then 'foo' else if 3>2 then 2 else 1").executeImmediately(), 2);
       jelAssert.equal(new JEL("if 2>1 then (if 3<2 then 2 else 1) else 6").executeImmediately(), 1);
+
+      jelAssert.equal(new JEL('if true: 1 else 2').executeImmediately(), 1);
+      jelAssert.equal(new JEL('if false : 1 else 2').executeImmediately(), 2);
     });
 
         
