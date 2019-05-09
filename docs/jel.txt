@@ -282,6 +282,9 @@ You can also use it like a classic switch/case:
 try getValue()                                 // the constant name is optional in 'try'.  
 case 1: doThis()
 case 2: doThat()
+case 3:                                        // fall-through
+case 4:
+  doMore()                                     // executed when value is 3 or 4
 else: doSomethingElse()
 
 
@@ -291,6 +294,7 @@ try e = complexFunction()                           // assigns value to 'e'
 when string: gotAString(e)                          // type check
 when 0...10: got10andUnder(e)                       // type check with Range
 when >10: getOver10(e)
+when >50:                                           // fall-though
 case 42: foundIt()                                  // equality check (operator '==')
 if e is List and e.length > 10: handleLongList(e)   // generic condition
 else handleOtherTypes(e)                            // handle all other types

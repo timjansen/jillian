@@ -19,8 +19,8 @@ import TryElement from './TryElement';
  */
 export default class TryCatch extends TryElement {
 
-  constructor(public type: JelNode|undefined, expression: JelNode) {
-    super(expression, true);
+  constructor(public type: JelNode|undefined) {
+    super(true);
   }
   
   // override
@@ -28,25 +28,25 @@ export default class TryCatch extends TryElement {
     if (this.type) 
       return Util.resolveValue(this.type.execute(ctx), (type: JelObject|null)=>{
         const td: any = this.typeHelper.convertFromAny(type, "'catch' type descriptor");
-        return Util.resolveValue(td.checkType(ctx, value), (s: any)=>s.toRealBoolean()?this.expression.execute(ctx): undefined);
+        return Util.resolveValue(td.checkType(ctx, value), (s: any)=>s.toRealBoolean()?this.expression!.execute(ctx): undefined);
       });
     else
-      this.expression.execute(ctx)
+      this.expression!.execute(ctx)
   }
   
   
   // override
   equals(other?: TryElement): boolean {
 		return (other instanceof TryCatch) &&
-    this.expression.equals(other.expression) && 
+    this.expression!.equals(other.expression) && 
     (this.type == other.type || (this.type != null && this.type.equals(other.type)));
 	}
   
 	toString(): string {
     if (this.type)
-      return `catch ${this.type.toString()}: ${this.expression.toString()}`;
+      return `catch ${this.type.toString()}: ${this.expression!.toString()}`;
     else
-    return `catch: ${this.expression.toString()}`;
+    return `catch: ${this.expression!.toString()}`;
 	}
 }
 

@@ -491,41 +491,45 @@ static parseOperatorExpression(tokens: TokenReader, operator: string, precedence
     const stops = Object.assign({}, stopOps, TRY_ELEMENT_STOP);
     const elements: TryElement[] = []; 
     while (true) {
-      const elType: Token = JEL.expectOp(tokens, TRY_ELEMENT_STOP, `'try' expression must be followed by 'when', 'catch', 'if' or 'else'.`);
+      const elType: Token = JEL.expectOp(tokens, TRY_ELEMENT_STOP, `'try' expression must be followed by 'when', 'catch', 'case', 'if' or 'else'.`);
       switch (elType.value) {
         case 'when': {
           const type = JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_STOP, true);
           JEL.expectOp(tokens, TRY_STOP, "Expected colon (':') after type definition of a 'try'/'when' clause");
-          elements.push(new TryWhen(type, JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_ELEMENT_STOP)));
+          elements.push(new TryWhen(type));
           break;
         }
         case 'case': {
           const comparisonValue = JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_STOP);
           JEL.expectOp(tokens, TRY_STOP, "Expected colon (':') after value of a 'try'/'case' clause");
-          elements.push(new TryCase(comparisonValue, JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_ELEMENT_STOP)));
+          elements.push(new TryCase(comparisonValue));
           break;
         }
         case 'catch': 
           if (tokens.nextIf(TokenType.Operator, ':'))
-            elements.push(new TryCatch(undefined, JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_ELEMENT_STOP)));
+            elements.push(new TryCatch(undefined));
           else {
             const type = JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_STOP, true);
             JEL.expectOp(tokens, TRY_STOP, "Expected colon (':') after type definition of a 'try'/'catch' clause");
-            elements.push(new TryCatch(type, JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_ELEMENT_STOP)));
+            elements.push(new TryCatch(type));
             break;
           }
         case 'if': {
           const condition = JEL.parseExpression(tokens, TRY_PRECEDENCE, IF_STOP);
           JEL.expectOp(tokens, IF_STOP, "Expected colon (':') or 'then' after condition of a 'try'/'if' clause");
-          elements.push(new TryIf(condition, JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_ELEMENT_STOP)));
+          elements.push(new TryIf(condition));
           break;
         }
         case 'else':
           tokens.nextIf(TokenType.Operator, ':');
-          elements.push(new TryElse(JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_ELEMENT_STOP)));
+          elements.push(new TryElse());
       }
-      if (!JEL.isOp(tokens, TRY_ELEMENT_STOP))
-        break;
+      if (!JEL.isOp(tokens, TRY_ELEMENT_STOP)) {
+        const expression = JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_ELEMENT_STOP);
+        elements.forEach(e=>e.expression || (e.expression = expression));
+        if (!JEL.isOp(tokens, TRY_ELEMENT_STOP))
+          break;
+      }
     }
     return new Try(startToken, varName ? varName.value : undefined, expression, elements);
 	}

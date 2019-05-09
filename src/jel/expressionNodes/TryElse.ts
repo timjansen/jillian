@@ -20,24 +20,24 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
  */
 export default class TryElse extends TryElement {
 
-  constructor(expression: JelNode) {
-    super(expression, false);
+  constructor() {
+    super(false);
   }
   
   // override
   execute(ctx:Context, value: JelObject|null): JelObject|null|Promise<JelObject|null|undefined>|undefined {
-    return this.expression.execute(ctx);
+    return this.expression!.execute(ctx);
   }
   
   
   // override
   equals(other?: TryElement): boolean {
 		return (other instanceof TryElse) &&
-    this.expression.equals(other.expression);
+    this.expression!.equals(other.expression);
 	}
   
 	toString(): string {
-		return `else ${this.expression.toString()}`;
+		return `else ${this.expression!.toString()}`;
 	}
 }
 

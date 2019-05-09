@@ -13,8 +13,9 @@ import Util from '../../util/Util';
  */
 export default abstract class TryElement {
 	protected typeHelper: any;	
+  public expression: JelNode|undefined;
 
-  constructor(public expression: JelNode, public exceptionHandler: boolean) {
+  constructor(public exceptionHandler: boolean) {
     this.typeHelper = BaseTypeRegistry.get('TypeHelper');
   }
 

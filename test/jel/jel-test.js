@@ -174,6 +174,9 @@ describe('JEL', function () {
 
       jelAssert.equal('try a = 5 when string: 1 if a<5: false when int:a+2 when Date: 3 else a', 7);
       jelAssert.equal('try a = 5 when string: 1 if a<=5: false when int:a+2 when Date: 3 else a', "false");
+
+      jelAssert.equal('try a = 5 when string: when int: when Date: 3 else a', 3);
+      jelAssert.equal('try a = 5 when string: when Date: 3 else a', 5);
     });
 
      it('should support in', function() {

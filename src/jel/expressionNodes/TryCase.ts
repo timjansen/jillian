@@ -15,18 +15,18 @@ import TryElement from './TryElement';
  */
 export default class TryCase extends TryElement {
 
-  constructor(public comparisonValue: JelNode, expression: JelNode) {
-    super(expression, false);
+  constructor(public comparisonValue: JelNode) {
+    super(false);
   }
   
   // override
   execute(ctx:Context, value: JelObject|null): JelObject|null|Promise<JelObject|null|undefined>|undefined {
     return Util.resolveValue(this.comparisonValue.execute(ctx), (comparisonValue: JelObject|null)=>{
       if (comparisonValue == value)
-        return this.expression.execute(ctx);
+        return this.expression!.execute(ctx);
       if (!comparisonValue || !value)
         return undefined;
-      return Util.resolveValue(comparisonValue.op(ctx, '==', value), (r: any)=>r.toRealBoolean()?this.expression.execute(ctx): undefined);
+      return Util.resolveValue(comparisonValue.op(ctx, '==', value), (r: any)=>r.toRealBoolean()?this.expression!.execute(ctx): undefined);
     });
   }
   
@@ -34,12 +34,12 @@ export default class TryCase extends TryElement {
   // override
   equals(other?: TryElement): boolean {
 		return (other instanceof TryCase) &&
-    this.expression.equals(other.expression) && 
+    this.expression!.equals(other.expression) && 
     this.comparisonValue.equals(other.comparisonValue);
 	}
   
 	toString(): string {
-		return `case ${this.comparisonValue.toString()}: ${this.expression.toString()}`;
+		return `case ${this.comparisonValue.toString()}: ${this.expression!.toString()}`;
 	}
 }
 

@@ -417,6 +417,10 @@ describe('JEL unit tests executed with empty context', function() {
 
       jelAssert.equal('try a = 5 case 5: a*2 case 0: a-1 else 1 ', 10);
       jelAssert.equal('try a = 5 if a == 6: 2 case 5: 99 else 4', 99);
+
+      jelAssert.equal('try 5 case -1: 0 case 1: case 2: case 5: 9 case 10: 99 case 11: 10 else 1', 9);
+      jelAssert.equal('try 5 case -1: 0 case 1: case 2: case 5: case 10: 99 case 11: 10 else 1', 99);
+      jelAssert.equal('try a = 5 case -1: 0 case 1: if false: case 2: case 5: a*9 case 10: 99 case 11: 10 else 1', 45);
     });
 
 

@@ -21,26 +21,26 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
 export default class TryIf extends TryElement {
   jelBoolean: any;
 
-  constructor(public condition: JelNode, expression: JelNode) {
-    super(expression, false);
+  constructor(public condition: JelNode) {
+    super(false);
     this.jelBoolean = BaseTypeRegistry.get('Boolean');
   }
   
   // override
   execute(ctx:Context, value: JelObject|null): JelObject|null|Promise<JelObject|null|undefined>|undefined {
-    return Util.resolveValue(this.condition.execute(ctx), (condition: JelObject|null)=>this.jelBoolean.toRealBoolean(condition)?this.expression.execute(ctx): undefined);
+    return Util.resolveValue(this.condition.execute(ctx), (condition: JelObject|null)=>this.jelBoolean.toRealBoolean(condition)?this.expression!.execute(ctx): undefined);
   }
   
   
   // override
   equals(other?: TryElement): boolean {
 		return (other instanceof TryIf) &&
-    this.expression.equals(other.expression) && 
+    this.expression!.equals(other.expression) && 
     this.condition.equals(other.condition);
 	}
   
 	toString(): string {
-		return `if ${this.condition.toString()}: ${this.expression.toString()}`;
+		return `if ${this.condition.toString()}: ${this.expression!.toString()}`;
 	}
 }
 
