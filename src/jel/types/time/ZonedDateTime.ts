@@ -15,11 +15,8 @@ import Duration from './Duration';
 import UnitValue from '../UnitValue';
 import JelBoolean from '../JelBoolean';
 import TypeChecker from '../TypeChecker';
-import NativeJelObject from '../NativeJelObject';
 import Class from '../Class';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
-import SourcePosition from '../../SourcePosition';
-import RuntimeError from '../../RuntimeError';
 
 /**
  * Represents a date.

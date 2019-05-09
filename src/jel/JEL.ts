@@ -48,6 +48,12 @@ import Get from './expressionNodes/Get';
 import UnitValue from './expressionNodes/UnitValue';
 import As from './expressionNodes/As';
 import InstanceOf from './expressionNodes/InstanceOf';
+import TryElement from './expressionNodes/TryElement';
+import Try from './expressionNodes/Try';
+import TryWhen from './expressionNodes/TryWhen';
+import TryCatch from './expressionNodes/TryCatch';
+import TryIf from './expressionNodes/TryIf';
+import TryElse from './expressionNodes/TryElse';
 
 const binaryOperators: any = { // op->precedence
   '.': 50,
@@ -100,6 +106,7 @@ const overloadableOperators: any = {'+': true, '-': true, '*': true, '/': true, 
 const overloadableSingleOps: any = {'+': true, '-': true, '!': true};
 
 const IF_PRECEDENCE = 4; 
+const TRY_PRECEDENCE = 4; 
 const PARENS_PRECEDENCE = 4; 
 const LET_PRECEDENCE = 4; 
 const WITH_PRECEDENCE = 4; 
@@ -119,10 +126,12 @@ const TRANSLATOR_PATTERN_STOP = {'=>': true};
 const TRANSLATOR_LAMBDA_STOP = {',': true, '}': true};
 const PARAMETER_STOP: any = {')': true, ',': true};
 const IF_STOP = {'then': true, ':': true};
-const THEN_STOP: any = {'else': true, 'let': true, 'with': true, 'if': true, 'class': true, 'enum': true, abstract: true, static: true, native: true, override: true, private: true};
-const ELSE_STOP: any = {'else': true, 'let': true, 'with': true, 'if': true, 'class': true, 'enum': true};
+const THEN_STOP: any = {'else': true, 'let': true, 'with': true, 'if': true, 'class': true, 'enum': true, 'try': true, 'throw': true, abstract: true, static: true, native: true, override: true, private: true};
+const ELSE_STOP: any = {'else': true, 'let': true, 'with': true, 'if': true, 'class': true, 'enum': true, 'try': true, 'throw': true};
 const LET_STOP = {':': true, ',': true};
 const WITH_STOP = {':': true, ',': true};
+const TRY_STOP = {':': true};
+const TRY_ELEMENT_STOP = {'when': true, 'catch': true, 'else': true, 'if': true};
 const CLASS_EXTENDS_STOP = {':': true, ',': true, identifier: true, abstract: true, static: true, native: true, override: true, private: true};
 const CLASS_EXPRESSION_STOP = {identifier: true, abstract: true, static: true, native: true, override: true, private: true};
 const CLASS_TYPE_EXPRESSION_STOP = {'=': true, identifier: true, abstract: true, static: true, native: true, override: true, private: true};
@@ -265,7 +274,7 @@ export default class JEL {
     }
   }
   
-  static parseOperatorExpression(tokens: TokenReader, operator: string, precedence: number, stopOps: any): JelNode {
+static parseOperatorExpression(tokens: TokenReader, operator: string, precedence: number, stopOps: any): JelNode {
     const firstToken = tokens.last();
     switch (operator) {
     case '(':
@@ -295,8 +304,10 @@ export default class JEL {
       JEL.expectOp(tokens, IF_STOP, "Expected 'then' or ':' to end 'if' condition");
       const allStop = Object.assign({}, THEN_STOP, stopOps);
       const thenV = JEL.parseExpression(tokens, IF_PRECEDENCE, allStop);
-      if (tokens.peekIs(TokenType.Operator) && (tokens.nextIf(TokenType.Operator, 'else') || ELSE_STOP[tokens.peek().value]))
+      if (tokens.peekIs(TokenType.Operator) && (tokens.nextIf(TokenType.Operator, 'else') || ELSE_STOP[tokens.peek().value])) {
+        tokens.nextIf(TokenType.Operator, ':');
         return JEL.tryBinaryOps(tokens, new Condition(firstToken, cond, thenV, JEL.parseExpression(tokens, IF_PRECEDENCE, stopOps)), precedence, stopOps);
+      }
       else
         return JEL.tryBinaryOps(tokens, new Condition(firstToken, cond, thenV, TRUE_LITERAL), precedence, stopOps);
     case 'let':
@@ -305,6 +316,8 @@ export default class JEL {
     case 'with':
       const assertions: JelNode[] = JEL.parseListOfExpressions(tokens, WITH_PRECEDENCE, WITH_STOP, ':', "Expected colon after last expression in 'with' assertion");
       return JEL.tryBinaryOps(tokens, new With(firstToken, assertions, JEL.parseExpression(tokens, WITH_PRECEDENCE, stopOps)), precedence, stopOps);
+    case 'try':
+      return JEL.tryBinaryOps(tokens, JEL.parseTryExpression(tokens, TRY_PRECEDENCE, stopOps), precedence, stopOps);
     case 'native':
     case 'abstract':
     case 'class':
@@ -412,7 +425,6 @@ export default class JEL {
 		const t2 = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier after '@' for reference / unit value.");
 		return JEL.tryBinaryOps(tokens, new UnitValue(t1, content, t2.value), precedence, stopOps);
 	}
-
 	
 	static parseList(tokens: TokenReader, precedence: number, stopOps: any): JelNode {
     const firstToken = tokens.last();
@@ -422,9 +434,9 @@ export default class JEL {
 		if (possibleEOL.type == TokenType.Operator && possibleEOL.value == ']') {
 			tokens.next();
 			return JEL.tryBinaryOps(tokens, EMPTY_LIST, precedence, stopOps);
-		}
+    }
 
-		const list: JelNode[] = [];
+    const list: JelNode[] = [];
 		while (true) {
 			list.push(JEL.parseExpression(tokens, PARENS_PRECEDENCE, LIST_ENTRY_STOP));
 			if (JEL.expectOp(tokens, LIST_ENTRY_STOP, "Expecting comma or end of list").value == ']' || tokens.nextIf(TokenType.Operator, ']'))
@@ -441,13 +453,16 @@ export default class JEL {
 		}
 	}
 
+  static checkVarName(name: Token, errorParamName: string): void {
+    if (/(^_$)|::/.test(name.value))
+      JEL.throwParseException(name, `Illegal name ${name.value}, a ${errorParamName} must not contain a double-colon ('::') or be the underscore.`);
+  }
 	
 	static parseParameters(tokens: TokenReader, precedence: number, stop: any, terminator: string, errorNoEnd: string, errorParamName: string): Assignment[] {
 		const assignments: Assignment[] = [];
 		while (true) {
 			const name = JEL.nextIsOrThrow(tokens, TokenType.Identifier, `Expected identifier for ${errorParamName}.`);
-			if (/(^_$)|::/.test(name.value))
-				JEL.throwParseException(name || tokens.last(), `Illegal name ${name.value}, a ${errorParamName} must not contain a double-colon ('::') or be the underscore.`);
+			JEL.checkVarName(name, errorParamName);
 			const eq = JEL.expectOp(tokens, EQUAL, `Expected equal sign after variable name.` + (tokens.peek().value == ':' ? ' Type annotations are not allowed here.': ''));
 			const expression = JEL.parseExpression(tokens, precedence, stop);
 			if (!expression)
@@ -459,6 +474,55 @@ export default class JEL {
 		}
 	}
    
+	static parseTryExpression(tokens: TokenReader, precedence: number, stopOps: any): JelNode {
+    const startToken = tokens.last();
+    let varName = null;
+	  if (tokens.peekIs(TokenType.Identifier) && tokens.peekIs(TokenType.Operator, '=', 1)) {
+      varName = tokens.next();
+      tokens.next();
+			JEL.checkVarName(varName, "variable name");
+    }
+
+    const expression = JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_ELEMENT_STOP);
+    if (!expression)
+      JEL.throwParseException(tokens.last(), "Try expression ended unexpectedly.");
+
+    const stops = Object.assign({}, stopOps, TRY_ELEMENT_STOP);
+    const elements: TryElement[] = []; 
+    while (true) {
+      const elType: Token = JEL.expectOp(tokens, TRY_ELEMENT_STOP, `'try' expression must be followed by 'when', 'catch', 'if' or 'else'.`);
+      switch (elType.value) {
+        case 'when': {
+          const type = JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_STOP, true);
+          JEL.expectOp(tokens, TRY_STOP, "Expected colon (':') after type definition of a 'try'/'when' clause");
+          elements.push(new TryWhen(type, JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_ELEMENT_STOP)));
+          break;
+        }
+        case 'catch': 
+          if (tokens.nextIf(TokenType.Operator, ':'))
+            elements.push(new TryCatch(undefined, JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_ELEMENT_STOP)));
+          else {
+            const type = JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_STOP, true);
+            JEL.expectOp(tokens, TRY_STOP, "Expected colon (':') after type definition of a 'try'/'catch' clause");
+            elements.push(new TryCatch(type, JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_ELEMENT_STOP)));
+            break;
+          }
+        case 'if': {
+          const condition = JEL.parseExpression(tokens, TRY_PRECEDENCE, IF_STOP);
+          JEL.expectOp(tokens, IF_STOP, "Expected colon (':') or 'then' after condition of a 'try'/'if' clause");
+          elements.push(new TryIf(condition, JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_ELEMENT_STOP)));
+          break;
+        }
+        case 'else':
+          tokens.nextIf(TokenType.Operator, ':');
+          elements.push(new TryElse(JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_ELEMENT_STOP)));
+      }
+      if (!JEL.isOp(tokens, TRY_ELEMENT_STOP))
+        break;
+    }
+    return new Try(startToken, varName ? varName.value : undefined, expression, elements);
+	}
+
   // called after an potential left operand for a binary op (or function call, or '?')
   static tryBinaryOps(tokens: TokenReader, left: JelNode, precedence: number, stopOps: any): JelNode {
     if (!tokens.hasNext())
@@ -875,6 +939,12 @@ export default class JEL {
     return op;
   }
  
+  static isOp(tokens: TokenReader, allowedTypes: any): boolean {
+    if (!tokens.peekIs(TokenType.Operator))
+      return false;
+    return tokens.peek().value in allowedTypes;
+  }
+
   static createPattern(value: string, jelToken?: Token): any {
 		const t = jelToken || new Token(1, 1, '(anonymous)', TokenType.Pattern, value);
     return BaseTypeRegistry.get('Pattern').valueOf(PatternParser.parsePattern(Tokenizer.tokenizePattern(t.line, t.column, t.src, value), t)!, value);

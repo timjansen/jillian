@@ -64,6 +64,7 @@ import SimpleType from './types/typeDescriptors/SimpleType';
 import StringType from './types/typeDescriptors/StringType';
 import TimeType from './types/typeDescriptors/TimeType';
 import JEL from './JEL';
+import RuntimeError from './types/RuntimeError';
 
 
 const BOOT_SCRIPT = [
@@ -130,6 +131,7 @@ const BOOT_SCRIPT = [
     {jel: 'time/TimeZone.jel', native: TimeZone}
   ],
   [
+    {jel: 'Throwable.jel'},
     {jel: 'Dictionary.jel', native: Dictionary},
     {jel: 'Fraction.jel', native: Fraction},
     {jel: 'DistributionPoint.jel', native: DistributionPoint}, 
@@ -139,10 +141,12 @@ const BOOT_SCRIPT = [
     {jel: 'time/Timestamp.jel', native: Timestamp}
   ],
   [
+    {jel: 'RuntimeError.jel', native: RuntimeError},
     {jel: 'Distribution.jel', native: Distribution},
     {jel: 'ApproximateNumber.jel', native: ApproximateNumber},
     {jel: 'Translator.jel', native: Translator},
     {jel: 'time/LocalDate.jel', native: LocalDate},
+    {jel: 'Exception.jel'},
     {jel: 'Set.jel'}
   ],
   [

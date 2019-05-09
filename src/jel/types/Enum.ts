@@ -47,7 +47,7 @@ export default class Enum extends PackageContent {
     return [this.name, this.values];
   }
 
-  static create_jel_mapping = ['name', 'values'];
+  static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]) {
     return new Enum(TypeChecker.realString(args[0], 'name'), 
                     TypeChecker.instance(List, args[1], 'values'));

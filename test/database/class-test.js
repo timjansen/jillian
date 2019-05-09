@@ -203,7 +203,7 @@ describe('Class', function() {
     return Promise.all([
       jelAssert.equalPromise('let myTestType=class MyTestType constructor(parent: MyTestType?)=>{} static hasParent(p: MyTestType)=>p.parent!=null, m=myTestType(), n=myTestType(m): [myTestType.hasParent(m), myTestType.hasParent(n)]', "[false,true]"),
       jelAssert.equalPromise('let a=class A constructor(b: B?), b=class B constructor(c: C), c = class C constructor(a: A?) n="C", x=a(b(c())): x.b.c.n', "'C'"),
-      jelAssert.errorPromise('let myTestType=class MyTestType constructor(parent: MyTestType?)=>{} static hasParent(p: MyTestType)=>p.parent!=null: myTestType(1)', 'to SimpleType("MyTestType")')
+      jelAssert.errorPromise('let myTestType=class MyTestType constructor(parent: MyTestType?)=>{} static hasParent(p: MyTestType)=>p.parent!=null: myTestType(1)', 'to SimpleType')
     ]);
   });
 

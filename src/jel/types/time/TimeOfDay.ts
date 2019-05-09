@@ -1,4 +1,3 @@
-import * as moment from 'moment';
 
 import Util from '../../../util/Util';
 import JelObject from '../../JelObject';
@@ -10,8 +9,6 @@ import TypeChecker from '../TypeChecker';
 import NativeJelObject from '../NativeJelObject';
 import Class from '../Class';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
-import SourcePosition from '../../SourcePosition';
-import RuntimeError from '../../RuntimeError';
 
 /**
  * Represents a time of day.
@@ -29,9 +26,9 @@ export default class TimeOfDay extends NativeJelObject {
 		super('TimeOfDay');
 	}
   
-  get clazz(): Class {
-    return TimeOfDay.clazz!;
-  }
+	get clazz(): Class {
+		return TimeOfDay.clazz!;
+	}
 	
 	isValid(): boolean {
 		return (this.hour >= 0 && this.hour <= 23) && 

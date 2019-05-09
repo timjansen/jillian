@@ -266,7 +266,7 @@ Examples:
 
 Try/When Conditions
 ----------------
-JEL's 'try' construct lets you execute conditions checks on an expression. It executes the 'try' expression and then executes all 'while'/'if'/'else'/'except'
+JEL's 'try' construct lets you execute conditions checks on an expression. It executes the 'try' expression and then executes all 'while'/'if'/'else'/'catch'
 type conditions on the value. If any of them matches, the 'while' condition is executed and the result returned. 'else' conditions are executed when
 there was no previous match, and provide the return value. If there was no 'else', the try value is returned.
 
@@ -275,7 +275,7 @@ when string: gotAString(e)                          // type check
 when 0...10: got10andUnder(e)                       // type check with Range
 when >10: getOver10(e)
 if e is List and e.length > 10: handleLongList(e)   // generic condition
-except MyOwnException: showError(e)                 // exception handling
+catch MyOwnException: showError(e)                 // exception handling
 else handleOtherTypes(e)                            // handle all other types
 
 
@@ -299,23 +299,23 @@ throw "This went wrong"                   // automatically converted to the defa
 
 Handling Exceptions
 --------------------
-You can catch exceptions using the try/except mechanism.
+You can catch exceptions using the try/catch mechanism.
 
 try e = somethingCouldGoWrong()                          // the exception will also be stored in 'e'!
-except MyOwnException: showError(e)                      // 'MyOwnException' describes the type
-except SomeOtherException | AnotherException: showAnotherError(e)   // You can use any type expression to define what exception you need to handle. 
-except: showFatalError(e)                                // handle all other exceptions. This is a shortcut for "expect any:".
+catch MyOwnException: showError(e)                      // 'MyOwnException' describes the type
+catch SomeOtherException | AnotherException: showAnotherError(e)   // You can use any type expression to define what exception you need to handle. 
+catch: showFatalError(e)                                // handle all other exceptions. This is a shortcut for "expect any:".
 
 
-You can also combine 'if', 'when' 'except' and 'else' in a 'try' clause.
+You can also combine 'if', 'when' 'catch' and 'else' in a 'try' clause. 'when' and 'else' will handle regular return values, and 'catch' handles exceptions.
 
 try e = complexFunction()
 if e is List and e.length > 10: handleLongList(e)
 when >=0: gotPositive(e)  
 when string: gotAString(e)
 else handleOtherTypes(e)
-except MyOwnException: handleOwnException(e)
-except: handleGenericIssue()
+catch MyOwnException: handleOwnException(e)
+catch: handleGenericIssue()
 
 
 Assertions

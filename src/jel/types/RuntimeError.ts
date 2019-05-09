@@ -32,6 +32,10 @@ export default class RuntimeError extends NativeJelObject {
     return [this.message, this.nativeStack, this.stack];
   }
 
+  toString(): string {
+    return this.message;
+  }
+
   static valueOf(message: string, nativeStack: string, stackFrame: string) {
     return new RuntimeError(message, nativeStack, new List([stackFrame]));
   }

@@ -28,7 +28,7 @@ export default class TryIf extends TryElement {
   
   // override
   execute(ctx:Context, value: JelObject|null): JelObject|null|Promise<JelObject|null|undefined>|undefined {
-    return Util.resolveValue(this.condition.execute(ctx), (condition: JelObject|null)=>(s: any)=>this.jelBoolean.toRealBoolean(condition)?this.expression.execute(ctx): undefined);
+    return Util.resolveValue(this.condition.execute(ctx), (condition: JelObject|null)=>this.jelBoolean.toRealBoolean(condition)?this.expression.execute(ctx): undefined);
   }
   
   

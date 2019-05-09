@@ -161,6 +161,21 @@ describe('JEL', function () {
       //return jelAssert.errorPromise("true as String|Float");
      });
 
+     it('supports try/when', function() {
+      jelAssert.equal('try null when string: 1 when int: 2 when Date: 3 else 4', 4);
+      jelAssert.equal('try null when string?: 1 when int: 2 when Date: 3 else 4', 1);
+      jelAssert.equal('try 5 when string: 1 when int: 2 when Date: 3 else 4', 2);
+      jelAssert.equal('try "x" when string: 1 when int: 2 when Date: 3 else 4', 1);
+      jelAssert.equal('try 2 else 0 when string: 1 when int: 2 when Date: 3', 0);
+      jelAssert.equal('try "test" when string[]: 1 when int: 2 when Date: 3', "'test'");
+
+      jelAssert.equal('try a = 5 when string: a when int:a+2 when Date: 3 else a', 7);
+      jelAssert.equal('try a = 5 when string: a when Date: 3 else a', 5);
+
+      jelAssert.equal('try a = 5 when string: 1 if a<5: false when int:a+2 when Date: 3 else a', 7);
+      jelAssert.equal('try a = 5 when string: 1 if a<=5: false when int:a+2 when Date: 3 else a', "false");
+    });
+
      it('should support in', function() {
       jelAssert.equal("2 in 1...10", "true");
       jelAssert.equal("1 in 1...10", "true");

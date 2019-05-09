@@ -44,7 +44,7 @@ export default class Try extends JelNode {
     else
       clauseCtx = ctx;
     
-    return Util.resolveValue(this.checkElements(ctx, value, 0), r=>r === undefined ? value : r);
+    return Util.resolveValue(this.checkElements(clauseCtx, value, 0), r=>r === undefined ? value : r);
   }
 
   private dispatchException(ctx: Context, exception: JelObject|null): JelObject|null|Promise<JelObject|null> {

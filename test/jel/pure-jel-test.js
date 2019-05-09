@@ -40,7 +40,7 @@ const jelAssert = new JelAssert();
 const ctx = new Context();
 jelAssert.setCtx(ctx);
 
-describe('JEL', function() {
+describe('JEL without type dependencies or promises', function() {
   describe('execute() without context', function() {
     
     it('should execute a simple literal', function() {
@@ -393,6 +393,18 @@ describe('JEL', function() {
       jelAssert.equal('let a=1: with a>0: a', 1);
       jelAssert.equal('let a=1: with a>0, 3>2: a', 1);
       return jelAssert.errorPromise('let a=1: with a>0, a<0: a', 'a < 0');
+    });
+
+    it('supports try/if/else', function() {
+      jelAssert.equal('try 5 if false then 2', 5);
+      jelAssert.equal('try 5 if false then 2 if true then 3 else 4', 3);
+      jelAssert.equal('try 5 if false then 2 if false then 3 else 4', 4);
+      jelAssert.equal('try 5 if false then 2 if false then 3', 5);
+
+      jelAssert.equal('try a = 5 if a == 5 then 2 if a > 0 then 3 else 4', 2);
+      jelAssert.equal('try a = 5 if a == 6 then 2 if a > 0 then 3 else 4', 3);
+      jelAssert.equal('try a = 5 if a == 6 then 2 if a < 0 then 3 else 4', 4);
+      jelAssert.equal('try a = 5 if a == 6 then 2 if a < 0 then 3', 5);
     });
 
     
