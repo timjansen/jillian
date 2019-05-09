@@ -1,0 +1,9 @@
+/**
+ * Represents a throwable exception/error.
+ */ 
+abstract class Throwable:
+  abstract message: string
+  abstract stack: string[]
+
+  abstract addStackFrame(stackFrame: string): Throwable
+

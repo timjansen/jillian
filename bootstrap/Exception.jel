@@ -1,0 +1,13 @@
+/**
+ * Represents a JEL exception, thrown by JEL code.
+ */ 
+class Exception extends Throwable:
+  constructor(message, cause: Throwable?, stack)
+
+  override addStackFrame(stackFrame: string): Throwable =>
+    if !this.stack then 
+      Exception(this.message, this.cause, this.stack.add(stackFrame))
+    else
+      Exception(this.message, this.cause, [stackFrame])
+
+

@@ -1,0 +1,10 @@
+/**
+ * Represents an error thrown by the runtime / interpreter.
+ */ 
+native class RuntimeError extends Throwable:
+  override native message
+  override native stack
+  
+  native nativeStack: string
+  
+  override native addStackFrame(stackFrame: string): Throwable

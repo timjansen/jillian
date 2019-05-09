@@ -15,8 +15,11 @@ import SourcePosition from '../SourcePosition';
  *     if c instanceof @Cat then c instanceof @Animal
  */
 export default class Condition extends CachableJelNode {
+  jelBoolean: any;
+
   constructor(position: SourcePosition, public condition: JelNode, public thenExp: JelNode, public elseExp: JelNode) {
     super(position);
+    this.jelBoolean = BaseTypeRegistry.get('Boolean');
   }
   
   // override
@@ -44,7 +47,7 @@ export default class Condition extends CachableJelNode {
   }
 
   private runOnValue(ctx: Context, cond: any): JelObject|null|Promise<JelObject|null> {
-    if (BaseTypeRegistry.get('Boolean').toRealBoolean(cond))
+    if (this.jelBoolean.toRealBoolean(cond))
       return this.thenExp.execute(ctx);
     else
       return this.elseExp.execute(ctx);
