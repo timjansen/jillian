@@ -18,15 +18,20 @@ import ScriptException from '../ScriptException';
  *   else a
  */
 export default class Try extends JelNode {
+  exceptionElements: TryElement[];
+  returnElements: TryElement[];
+
   constructor(position: SourcePosition, public varName: string|undefined, public expression: JelNode, public elements: TryElement[]) {
     super(position);
+    this.exceptionElements = elements.filter(e=>e.exceptionHandler);
+    this.returnElements = elements.filter(e=>!e.exceptionHandler);
   }
   
-  private checkElements(ctx: Context, value: JelObject|null, startAt: number): JelObject|null|undefined|Promise<JelObject|null|undefined> {
-    for (let i = startAt; i < this.elements.length; i++) {
-      const r = this.elements[i].execute(ctx, value);
+  private checkElements(ctx: Context, elements: TryElement[], value: JelObject|null, startAt: number): JelObject|null|undefined|Promise<JelObject|null|undefined> {
+    for (let i = startAt; i < elements.length; i++) {
+      const r = elements[i].execute(ctx, value);
       if (r instanceof Promise) {
-        return r.then(r=>r == undefined ? this.checkElements(ctx, value, i+1) : r);
+        return r.then(r=>r == undefined ? this.checkElements(ctx, elements, value, i+1) : r);
       }
       else if (r !== undefined)
         return r;
@@ -44,7 +49,7 @@ export default class Try extends JelNode {
     else
       clauseCtx = ctx;
     
-    return Util.resolveValue(this.checkElements(clauseCtx, value, 0), r=>r === undefined ? value : r);
+    return Util.resolveValue(this.checkElements(clauseCtx, isException ? this.exceptionElements : this.returnElements, value, 0), r=>r === undefined ? value : r);
   }
 
   private dispatchException(ctx: Context, exception: JelObject|null): JelObject|null|Promise<JelObject|null> {

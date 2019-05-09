@@ -54,6 +54,7 @@ import TryWhen from './expressionNodes/TryWhen';
 import TryCatch from './expressionNodes/TryCatch';
 import TryIf from './expressionNodes/TryIf';
 import TryElse from './expressionNodes/TryElse';
+import TryCase from './expressionNodes/TryCase';
 
 const binaryOperators: any = { // op->precedence
   '.': 50,
@@ -131,7 +132,7 @@ const ELSE_STOP: any = {'else': true, 'let': true, 'with': true, 'if': true, 'cl
 const LET_STOP = {':': true, ',': true};
 const WITH_STOP = {':': true, ',': true};
 const TRY_STOP = {':': true};
-const TRY_ELEMENT_STOP = {'when': true, 'catch': true, 'else': true, 'if': true};
+const TRY_ELEMENT_STOP = {'when': true, 'catch': true, 'else': true, 'if': true, 'case': true};
 const CLASS_EXTENDS_STOP = {':': true, ',': true, identifier: true, abstract: true, static: true, native: true, override: true, private: true};
 const CLASS_EXPRESSION_STOP = {identifier: true, abstract: true, static: true, native: true, override: true, private: true};
 const CLASS_TYPE_EXPRESSION_STOP = {'=': true, identifier: true, abstract: true, static: true, native: true, override: true, private: true};
@@ -496,6 +497,12 @@ static parseOperatorExpression(tokens: TokenReader, operator: string, precedence
           const type = JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_STOP, true);
           JEL.expectOp(tokens, TRY_STOP, "Expected colon (':') after type definition of a 'try'/'when' clause");
           elements.push(new TryWhen(type, JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_ELEMENT_STOP)));
+          break;
+        }
+        case 'case': {
+          const comparisonValue = JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_STOP);
+          JEL.expectOp(tokens, TRY_STOP, "Expected colon (':') after value of a 'try'/'case' clause");
+          elements.push(new TryCase(comparisonValue, JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_ELEMENT_STOP)));
           break;
         }
         case 'catch': 

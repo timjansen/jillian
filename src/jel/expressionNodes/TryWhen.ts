@@ -1,10 +1,6 @@
 import JelNode from './JelNode';
-import CachableJelNode from './CachableJelNode';
-import Assignment from './Assignment';
 import Context from '../Context';
 import JelObject from '../JelObject';
-import SourcePosition from '../SourcePosition';
-import BaseTypeRegistry from '../BaseTypeRegistry';
 import Util from '../../util/Util';
 import TryElement from './TryElement';
 
@@ -25,10 +21,10 @@ export default class TryWhen extends TryElement {
   
   // override
   execute(ctx:Context, value: JelObject|null): JelObject|null|Promise<JelObject|null|undefined>|undefined {
-    return Util.resolveValues((type: JelObject|null, v: JelObject|null)=>{
+    return Util.resolveValue(this.type.execute(ctx), (type: JelObject|null)=>{
       const td: any = this.typeHelper.convertFromAny(type, "'when' type descriptor");
-      return Util.resolveValue(td.checkType(ctx, v), (s: any)=>s.toRealBoolean()?this.expression.execute(ctx): undefined);
-    }, this.type.execute(ctx), value);
+      return Util.resolveValue(td.checkType(ctx, value), (s: any)=>s.toRealBoolean()?this.expression.execute(ctx): undefined);
+    });
   }
   
   

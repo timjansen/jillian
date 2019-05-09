@@ -21,7 +21,7 @@ export default abstract class JelNode implements SerializablePrimitive {
         throw this.addStackFrame(e);
       else {
         const runtimeError = BaseTypeRegistry.get('RuntimeError');
-        throw new ScriptException(runtimeError.valueOf(e.toString(), e instanceof ChainableError && e.stack ? e.stack : undefined, `at ${this.getSourcePosition()}`));
+       throw new ScriptException(runtimeError.valueOf(e.toString(), e instanceof ChainableError && e.stack ? e.stack : undefined, `at ${this.getSourcePosition()}`));
       }
     });
   }

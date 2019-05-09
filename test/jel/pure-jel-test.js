@@ -40,7 +40,7 @@ const jelAssert = new JelAssert();
 const ctx = new Context();
 jelAssert.setCtx(ctx);
 
-describe('JEL without type dependencies or promises', function() {
+describe('JEL unit tests executed with empty context', function() {
   describe('execute() without context', function() {
     
     it('should execute a simple literal', function() {
@@ -406,6 +406,19 @@ describe('JEL without type dependencies or promises', function() {
       jelAssert.equal('try a = 5 if a == 6 then 2 if a < 0 then 3 else 4', 4);
       jelAssert.equal('try a = 5 if a == 6 then 2 if a < 0 then 3', 5);
     });
+
+    it('supports try/case', function() {
+      jelAssert.equal('try 5 case 0: 9', 5);
+      jelAssert.equal('try 5 case 5: 9', 9);
+      jelAssert.equal('try 5 case -1: 0 case 1: 3 case 5: 9 case 10: 10 else 1', 9);
+      jelAssert.equal('try 5 case -1: 0 case 1: 3 case 5: 9 case 10: 10', 9);
+      jelAssert.equal('try null case -1: 0 case 1: 3 case null: 9 case 10: 10', 9);
+      jelAssert.equal('try "test" case "foo": 0 case "var": 3 case null: 9 case "bar": 10 else "ha"', "'ha'");
+
+      jelAssert.equal('try a = 5 case 5: a*2 case 0: a-1 else 1 ', 10);
+      jelAssert.equal('try a = 5 if a == 6: 2 case 5: 99 else 4', 99);
+    });
+
 
     
    it('supports constructors and static methods', function() {

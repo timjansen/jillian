@@ -264,28 +264,36 @@ Examples:
 	if @Frog.isCategoryOf(a) then a.capabilities.includes(@Jumping) // if 'else' is missing and there is no other statement, it will return true if the condition is false.
 	
 
-Try/When Conditions
+Try/When/If/Case Conditions
 ----------------
-JEL's 'try' construct lets you execute conditions checks on an expression. It executes the 'try' expression and then executes all 'while'/'if'/'else'/'catch'
+JEL's 'try' construct lets you execute conditions checks on an expression. It executes the 'try' expression and then executes all 'when'/'case'/'if'/'else'/'catch'
 type conditions on the value. If any of them matches, the 'while' condition is executed and the result returned. 'else' conditions are executed when
 there was no previous match, and provide the return value. If there was no 'else', the try value is returned.
 
-try e = complexFunction()                           // assigns value to 'e'
-when string: gotAString(e)                          // type check
-when 0...10: got10andUnder(e)                       // type check with Range
-when >10: getOver10(e)
-if e is List and e.length > 10: handleLongList(e)   // generic condition
-catch MyOwnException: showError(e)                 // exception handling
-else handleOtherTypes(e)                            // handle all other types
-
-
-This is a simple use of 'try':
+This is a simple use of 'try' with 'when' for checking types:
 
 try getValue()                                 // the constant name is optional in 'try'.  
 when number: throw "Numbers not allowed"       
 when string: throw "Strings not allowed"
 
 
+You can also use it like a classic switch/case:
+
+try getValue()                                 // the constant name is optional in 'try'.  
+case 1: doThis()
+case 2: doThat()
+else: doSomethingElse()
+
+
+Or you can combine everything: 
+
+try e = complexFunction()                           // assigns value to 'e'
+when string: gotAString(e)                          // type check
+when 0...10: got10andUnder(e)                       // type check with Range
+when >10: getOver10(e)
+case 42: foundIt()                                  // equality check (operator '==')
+if e is List and e.length > 10: handleLongList(e)   // generic condition
+else handleOtherTypes(e)                            // handle all other types
 
 
 Throwing Exceptions
@@ -307,12 +315,13 @@ catch SomeOtherException | AnotherException: showAnotherError(e)   // You can us
 catch: showFatalError(e)                                // handle all other exceptions. This is a shortcut for "expect any:".
 
 
-You can also combine 'if', 'when' 'catch' and 'else' in a 'try' clause. 'when' and 'else' will handle regular return values, and 'catch' handles exceptions.
+You can also combine 'if', 'when', 'case', 'catch' and 'else' in a 'try' clause. 'when' and 'else' will handle regular return values, and 'catch' handles exceptions.
 
 try e = complexFunction()
 if e is List and e.length > 10: handleLongList(e)
 when >=0: gotPositive(e)  
 when string: gotAString(e)
+case 42: specialCase()
 else handleOtherTypes(e)
 catch MyOwnException: handleOwnException(e)
 catch: handleGenericIssue()

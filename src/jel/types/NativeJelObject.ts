@@ -45,7 +45,6 @@ export default abstract class NativeJelObject extends JelObject implements Seria
     throw new Error(`You need to override getSerializationProperties() in ${this.className}`);
   }
 }
-NativeJelObject.prototype.reverseOps = JelObject.SWAP_OPS;
 
 BaseTypeRegistry.register('NativeJelObject', NativeJelObject);
 

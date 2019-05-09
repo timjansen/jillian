@@ -17,7 +17,6 @@ export default class Fraction extends NativeJelObject implements Numeric {
 	numerator: number;
   denominator_jel_property: boolean;
 	denominator: number;
-	reverseOps: Object;
   
   static clazz: Class|undefined;
 

@@ -128,17 +128,17 @@ export default class Float extends NativeJelObject implements SerializablePrimit
 		return typeof n == 'number' ? n : (n && (n as any).toRealNumber) ? (n as any).toRealNumber() : defaultValue;
 	}
 
-	static isInteger_jel_mapping = ['n'];
+	static isInteger_jel_mapping = true;
 	static isInteger(ctx: Context, n: any): boolean {
 		return Number.isInteger(Float.toRealNumber(n));
 	}
 
-	static isNumeric_jel_mapping = ['n'];
+	static isNumeric_jel_mapping = true;
 	static isNumeric(ctx: Context, n: JelObject|null): boolean {
 		return n && (n as any).toFloat;
 	}
 
-  static noUnit_jel_mapping = ['n'];
+  	static noUnit_jel_mapping = true;
 	static noUnit(ctx: Context, n: JelObject|null): boolean {
 		return n && (n as any).toFloat && n.className != 'UnitValue';
 	}
@@ -174,22 +174,6 @@ export default class Float extends NativeJelObject implements SerializablePrimit
 }
 
 Float.init();
-Float.prototype.reverseOps = {
-	'+': 1,
-	'*': 1,
-	'==': 1,
-	'!=': 1,
-	'===': 1,
-	'!==': 1,
-	'>': 1,
-	'>>': 1,
-	'<': 1,
-	'<<': 1,
-	'>=': 1,
-	'>>=': 1,
-	'<=': 1,
-	'<<=': 1,
-};
 Float.prototype.abs_jel_mapping = true;
 Float.prototype.negate_jel_mapping = true;
 Float.prototype.round_jel_mapping = true;
