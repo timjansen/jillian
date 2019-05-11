@@ -201,6 +201,7 @@ describe('JEL', function () {
       jelAssert.equalPromise('try "a" === 1 when Exception: 0 catch Exception: 1 catch RuntimeError: 2', "2"),
       jelAssert.equalPromise('try "a" === 1 if null: 0 catch Exception: 1 catch RuntimeError: 2', "2"),
       jelAssert.errorPromise('try "a" === 1 when int: 2', "not supported for type"),
+      jelAssert.equalPromise('try throw null catch RuntimeError: 2', "2"),
       jelAssert.equalPromise('try "a" === 1 if true: 0 catch: 2', "2")]);
     });
 

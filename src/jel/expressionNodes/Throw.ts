@@ -23,8 +23,12 @@ export default class Throw extends JelNode {
   
   // override
   executeImpl(ctx: Context): JelObject|null|Promise<JelObject|null> {
-    return Util.resolveValue(this.expression.execute(ctx), e=>
-      Promise.reject(new ScriptException(Runtime.instanceOf(ctx, e, 'Throwable') ? e : ctx.get('Exception').member(ctx, 'create').invoke(null, e)))
+    return Util.resolveValue(this.expression.execute(ctx), e=> {
+      const exE = Runtime.instanceOf(ctx, e, 'Throwable') ? e : (
+        Runtime.instanceOf(ctx, e, 'String') ? ctx.get('Exception').member(ctx, 'create').invoke(null, e) : 
+        BaseTypeRegistry.get('RuntimeError').valueOf(`Bad 'throw' statement. Argument must be Throwable or String.`));
+      return Promise.reject(new ScriptException(exE));
+    }
     );
   }
   
