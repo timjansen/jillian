@@ -72,7 +72,13 @@ export default class GenericJelObject extends JelObject implements Serializable 
 	}
   
   getSerializationProperties(): any[] {
-    return this.args;
+    let len = this.args.length;
+    while (len > 0 && !this.args[len-1])
+      len--;
+    if (len == this.args.length)
+      return this.args;
+    else
+      return this.args.slice(0, len);   
   }
 }
 GenericJelObject.prototype.reverseOps = JelObject.SWAP_OPS;
