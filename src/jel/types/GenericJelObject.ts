@@ -71,7 +71,6 @@ export default class GenericJelObject extends JelObject implements Serializable 
 		return Util.resolveValue(this.member(ctx, name), f);
 	}
   
- 
   getSerializationProperties(): any[] {
     return this.args;
   }

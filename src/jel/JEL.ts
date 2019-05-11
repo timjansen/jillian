@@ -55,6 +55,7 @@ import TryCatch from './expressionNodes/TryCatch';
 import TryIf from './expressionNodes/TryIf';
 import TryElse from './expressionNodes/TryElse';
 import TryCase from './expressionNodes/TryCase';
+import Throw from './expressionNodes/Throw';
 
 const binaryOperators: any = { // op->precedence
   '.': 50,
@@ -111,7 +112,8 @@ const TRY_PRECEDENCE = 4;
 const PARENS_PRECEDENCE = 4; 
 const LET_PRECEDENCE = 4; 
 const WITH_PRECEDENCE = 4; 
-const CLASS_PRECEDENCE = 4; 
+const CLASS_PRECEDENCE = 4;
+const THROW_PRECEDENCE = 4;
 
 const NO_STOP = {};
 const PARENS_STOP = {')': true};
@@ -323,9 +325,11 @@ static parseOperatorExpression(tokens: TokenReader, operator: string, precedence
     case 'abstract':
     case 'class':
       return JEL.tryBinaryOps(tokens, JEL.parseClass(tokens, precedence, stopOps), precedence, stopOps);
-    case 'enum':
-      return JEL.tryBinaryOps(tokens, JEL.parseEnum(tokens, precedence, stopOps), precedence, stopOps);
-    default:
+      case 'enum':
+        return JEL.tryBinaryOps(tokens, JEL.parseEnum(tokens, precedence, stopOps), precedence, stopOps);
+      case 'throw':
+        return JEL.tryBinaryOps(tokens, new Throw(firstToken, JEL.parseExpression(tokens, THROW_PRECEDENCE, stopOps)), precedence, stopOps);
+        default:
       JEL.throwParseException(firstToken, `Unexpected token while parsing operator "${operator}"`);
     }
 		return undefined as any; // this is a dummy return to make Typescript happy
@@ -512,8 +516,8 @@ static parseOperatorExpression(tokens: TokenReader, operator: string, precedence
             const type = JEL.parseExpression(tokens, TRY_PRECEDENCE, TRY_STOP, true);
             JEL.expectOp(tokens, TRY_STOP, "Expected colon (':') after type definition of a 'try'/'catch' clause");
             elements.push(new TryCatch(type));
-            break;
           }
+          break;
         case 'if': {
           const condition = JEL.parseExpression(tokens, TRY_PRECEDENCE, IF_STOP);
           JEL.expectOp(tokens, IF_STOP, "Expected colon (':') or 'then' after condition of a 'try'/'if' clause");

@@ -49,14 +49,16 @@ export default class Try extends JelNode {
     else
       clauseCtx = ctx;
     
-    return Util.resolveValue(this.checkElements(clauseCtx, isException ? this.exceptionElements : this.returnElements, value, 0), r=>r === undefined ? value : r);
+    return Util.resolveValue(this.checkElements(clauseCtx, isException ? this.exceptionElements : this.returnElements, value, 0), r=>r === undefined ? (isException ? undefined : value) : r);
   }
 
-  private dispatchException(ctx: Context, exception: JelObject|null): JelObject|null|Promise<JelObject|null> {
-    if (exception instanceof ScriptException)
-      return this.dispatch(ctx, exception.exception, true);
-    else
-      throw exception;
+  private dispatchException(ctx: Context, exception: ScriptException): JelObject|null|Promise<JelObject|null> {
+    if (exception instanceof ScriptException) {
+      const r = this.dispatch(ctx, exception.exception, true);
+      if (r !== undefined)
+        return r;
+    }
+    throw exception;
   }
 
   // override

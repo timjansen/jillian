@@ -306,7 +306,7 @@ Throw Exceptions with the 'throw' statement. You can create your own exceptions 
 Generally, application-level issues should use 'Exception'. Errors in the language runtime use the class 'Error'.
 
 throw MyOwnException("This went wrong")
-throw "This went wrong"                   // automatically converted to the default 'Exception' class
+throw "This went wrong"                   // automatically converted to the default 'Exception' class. Only string is allowed.
  
 
 Handling Exceptions

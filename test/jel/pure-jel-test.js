@@ -423,8 +423,6 @@ describe('JEL unit tests executed with empty context', function() {
       jelAssert.equal('try a = 5 case -1: 0 case 1: if false: case 2: case 5: a*9 case 10: 99 case 11: 10 else 1', 45);
     });
 
-
-    
    it('supports constructors and static methods', function() {
       const clsCtx = new Context().plus({any: AnyType.instance});
       let clsA;

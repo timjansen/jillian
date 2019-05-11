@@ -31,7 +31,7 @@ export default class TryCatch extends TryElement {
         return Util.resolveValue(td.checkType(ctx, value), (s: any)=>s.toRealBoolean()?this.expression!.execute(ctx): undefined);
       });
     else
-      this.expression!.execute(ctx)
+      return this.expression!.execute(ctx);
   }
   
   

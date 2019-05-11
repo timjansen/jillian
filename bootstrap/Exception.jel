@@ -11,3 +11,5 @@ class Exception extends Throwable:
       Exception(this.message, this.cause, [stackFrame])
 
 
+  toString(): string =>
+    '${this.className}: ${this.message}'

@@ -179,6 +179,32 @@ describe('JEL', function () {
       jelAssert.equal('try a = 5 when string: when Date: 3 else a', 5);
     });
 
+    it('supports throw and try/catch', function() {
+      jelAssert.equal('try 4 catch: 1', 4);
+      jelAssert.equal('try null catch: 1', null);
+      jelAssert.equal('try null catch: 1 else 2', 2);
+      jelAssert.equal('try 1 catch: 1 else 2', 2);
+      return Promise.all([jelAssert.equalPromise('try throw Exception() catch: 1 else 2', 1), 
+      jelAssert.equalPromise('try e = throw Exception("blaA") catch: e.message else 2', "'blaA'"),
+      jelAssert.errorPromise('try e = throw Exception("blaB") catch RuntimeError: e.message else 2', "blaB"),
+      jelAssert.equalPromise('try e = throw Exception("blaC") catch: e.message else 2', "'blaC'"),
+
+      jelAssert.equalPromise('try e = throw "bla1" catch: e.message else 2', "'bla1'"),
+      jelAssert.equalPromise('try e = throw "bla2" catch Exception: e.message else 2', "'bla2'"),
+      jelAssert.errorPromise('try e = throw "bla3" catch string: e.message else 2', "bla3"),
+      jelAssert.errorPromise('try e = throw "bla4" catch string: e.message', "bla4"),
+      jelAssert.equalPromise('try e = throw "bla5" catch any: e.message else 2', "'bla5'"),
+      jelAssert.equalPromise('try e = throw "bla6" catch any: e.message catch Exception: 2 else 2', "'bla6'"),
+      jelAssert.equalPromise('try e = throw "bla7" catch Exception: e.message catch any: 2 else 2', "'bla7'"),
+      jelAssert.equalPromise('try e = throw "bla8" catch RuntimeError: e.message catch any: 2 else 5', "2"),
+      jelAssert.equalPromise('try "a" === 1 catch Exception: 1 catch RuntimeError: 2', "2"),
+      jelAssert.equalPromise('try "a" === 1 when Exception: 0 catch Exception: 1 catch RuntimeError: 2', "2"),
+      jelAssert.equalPromise('try "a" === 1 if null: 0 catch Exception: 1 catch RuntimeError: 2', "2"),
+      jelAssert.errorPromise('try "a" === 1 when int: 2', "not supported for type"),
+      jelAssert.equalPromise('try "a" === 1 if true: 0 catch: 2', "2")]);
+    });
+
+
      it('should support in', function() {
       jelAssert.equal("2 in 1...10", "true");
       jelAssert.equal("1 in 1...10", "true");
