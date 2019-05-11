@@ -373,5 +373,31 @@ describe('JEL', function () {
 
      return Promise.all(l);
    });
+
+   it('has proper stacktraces for exceptions with method calls', function() {
+    return jelAssert.errorPromise(`let f = x=>x.fE(),\n
+     x = class X:\n
+      constructor()\n
+      fA()=>this.fB(1, "bla", LocalDate(2019, 3, 1))\n
+      fB(x, y, z)=>this.fC([1, 2, 3], {a:1, b:4})\n
+      fC(a, b, c)=>f(this)\n
+      fE()=>throw "Oops":\n
+        x().fA()`, ['Oops', 'TESTTEST']);
+   });
+
+   it('has proper stacktraces for exceptions with function calls', function() {
+    return jelAssert.errorPromise(`let f = ()=>throw "Oops",\n
+          e = (a, b, c)=>f(),\n
+          g = (x, y, z)=>e(1, "2", 2 @Meter):\n
+            g([1, 2], {r: 2, e: 2}, null)`, ['Oops', 'TESTTEST']);
+   });
+
+   it('has proper stacktraces for runtime errors', function() {
+    return jelAssert.errorPromise(`let f = ()=> null.a(),\n
+      e = (a, b, c)=>f(),\n
+      g = (x, y, z)=>e(1, "2", 2 @Meter):\n
+        g([1, 2], {r: 2, e: 2}, null)`, ['Oops', 'TESTTEST']);
+   });
+
   });
 });

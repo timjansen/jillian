@@ -4,11 +4,11 @@
 class Exception extends Throwable:
   constructor(message, cause: Throwable?, stack)
 
-  override addStackFrame(stackFrame: string): Throwable =>
-    if !this.stack then 
-      Exception(this.message, this.cause, this.stack.add(stackFrame))
+  override addStackEntry(entry: string): Throwable =>
+    if this.stack then 
+      Exception(this.message, this.cause, this.stack.add(entry))
     else
-      Exception(this.message, this.cause, [stackFrame])
+      Exception(this.message, this.cause, [entry])
 
 
   toString(): string =>

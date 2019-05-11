@@ -11,17 +11,20 @@ import ChainableError from '../../util/ChainableError';
  * Represents a node in a JEL expression.
  */
 export default abstract class JelNode implements SerializablePrimitive {
-  constructor(public position: SourcePosition) {
+  constructor(public position: SourcePosition, public parent: JelNode) {
   }
   
 	// Returns either a value or a Promise for a value!
 	execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
     return Util.handleError(()=>this.executeImpl(ctx), e=>{
       if (e instanceof ScriptException)
-        throw this.addStackFrame(e);
+        throw this.addStackFrame(ctx, e);
+
+      const runtimeError = BaseTypeRegistry.get('RuntimeError');
+      if (e instanceof runtimeError)
+        throw new ScriptException(e);
       else {
-        const runtimeError = BaseTypeRegistry.get('RuntimeError');
-       throw new ScriptException(runtimeError.valueOf(e.toString(), e instanceof ChainableError && e.stack ? e.stack : undefined, `at ${this.getSourcePosition()}`));
+       throw new ScriptException(runtimeError.valueOf(e.toString(), e instanceof ChainableError && e.stack ? e.stack : undefined, this.getSourcePosition(ctx)));
       }
     });
   }
@@ -37,12 +40,12 @@ export default abstract class JelNode implements SerializablePrimitive {
   // flushes the cache in the expression tree, e.g. after changing the DB.
   abstract flushCache(): void;
   
-  getSourcePosition(): string {
+  getSourcePosition(ctx: Context): string {
     return `(${this.position.src}:${this.position.line}:${this.position.column})`;
   }
 
-  // override to add a stack frame to the exception
-  addStackFrame(e: ScriptException): ScriptException {
+  // override to add a stack frame to the exception. Should be overriden by nodes that do calls.
+  addStackFrame(ctx: Context, e: ScriptException): ScriptException {
     return e;
   }
 

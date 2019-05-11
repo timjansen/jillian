@@ -5,6 +5,8 @@ import List from './List';
 import NativeJelObject from './NativeJelObject';
 import TypeChecker from './TypeChecker';
 import Runtime from '../Runtime';
+import TypeHelper from './typeDescriptors/TypeHelper';
+import JelString from './JelString';
 
 
 export default class RuntimeError extends NativeJelObject {
@@ -19,9 +21,10 @@ export default class RuntimeError extends NativeJelObject {
   
   }
   
-  addStackFrame_jel_mapping: boolean;
-  addStackFrame(ctx: Context, stackFrame: any) {
-    return new RuntimeError(this.message, this.nativeStack, this.stack.add(ctx, stackFrame));
+  addStackEntry_jel_mapping: boolean;
+  addStackEntry(ctx: Context, entry: any) {
+console.log('addStackEntry', entry);
+    return new RuntimeError(this.message, this.nativeStack, this.stack.add(ctx, entry));
   }
 
   get clazz(): Class {
@@ -33,18 +36,18 @@ export default class RuntimeError extends NativeJelObject {
   }
 
   toString(): string {
-    return this.message;
+    return `${this.message}\n at ${this.stack.elements.map(s=>s.value).join('\n at ')}`;
   }
 
   static valueOf(message: string, nativeStack: string, stackFrame: string) {
-    return new RuntimeError(message, nativeStack, new List([stackFrame]));
+    return new RuntimeError(message, nativeStack, stackFrame ? new List([JelString.valueOf(stackFrame)]) : List.empty);
   }
 }
 
 RuntimeError.prototype.message_jel_property = true;
 RuntimeError.prototype.nativeStack_jel_property = true;
 RuntimeError.prototype.stack_jel_property = true;
-RuntimeError.prototype.addStackFrame_jel_mapping = true;
+RuntimeError.prototype.addStackEntry_jel_mapping = true;
 
 BaseTypeRegistry.register('RuntimeError', RuntimeError);
 

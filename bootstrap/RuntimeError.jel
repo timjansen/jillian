@@ -7,4 +7,4 @@ native class RuntimeError extends Throwable:
   
   native nativeStack: string
   
-  override native addStackFrame(stackFrame: string): Throwable
+  override native addStackEntry(entry: string): Throwable

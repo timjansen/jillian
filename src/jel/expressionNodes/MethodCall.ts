@@ -6,6 +6,8 @@ import Runtime from '../Runtime';
 import Context from '../Context';
 import Util from '../../util/Util';
 import SourcePosition from '../SourcePosition';
+import ScriptException from '../ScriptException';
+import BaseTypeRegistry from '../BaseTypeRegistry';
 
 function resolveValueObj(f: (e: Map<string,JelObject|null>|undefined)=>JelObject|null|Promise<JelObject|null>, assignments: Assignment[], values: (JelObject|null|Promise<JelObject|null>)[]): JelObject|null|Promise<JelObject|null> {
 	if (!assignments.length)
@@ -56,7 +58,12 @@ export default class MethodCall extends CachableJelNode {
   isStaticUncached(ctx: Context): boolean {
     return this.left.isStatic(ctx) && !this.argList.find(a=>!a.isStatic(ctx)) && !this.namedArgs.find(a=>!a.isStatic(ctx));
   }
-  
+
+  // override  
+  addStackFrame(ctx: Context, e: ScriptException): ScriptException {
+    return new ScriptException((e.exception.member(ctx, 'addStackEntry') as any).invoke(e.exception, BaseTypeRegistry.get('String').valueOf(this.getSourcePosition(ctx))));
+  }
+
   flushCache(): void {
     this.left.flushCache();
     this.argList.forEach(a=>a.flushCache());
