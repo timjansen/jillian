@@ -21,7 +21,7 @@ import BaseTypeRegistry from '../BaseTypeRegistry';
 export default class TryElse extends TryElement {
 
   constructor() {
-    super(false);
+    super(undefined, false);
   }
   
   // override

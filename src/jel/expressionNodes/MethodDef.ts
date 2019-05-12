@@ -15,7 +15,8 @@ import SourcePosition from '../SourcePosition';
  */
 export default class MethodDef extends CachableJelNode {
   constructor(position: SourcePosition, public name: string, public expression: Lambda|NativeFunction, public isOverride: boolean, public isNative: boolean, public isStaticMethod: boolean, public isAbstract: boolean, public isGetter: boolean) {
-    super(position);
+    super(position, [expression]);
+    expression.children.forEach(element => element.parent = this);
   }
   
   // override
@@ -23,6 +24,15 @@ export default class MethodDef extends CachableJelNode {
     return Util.resolveValue(this.expression.execute(ctx), callable=>BaseTypeRegistry.get('Method').valueOf(this.name, callable, this.isNative, this.isStaticMethod, this.isAbstract, this.isOverride, this.isGetter));
   }
   
+  // override
+  getCurrentMethod(ctx: Context): string|undefined {
+    const c = this.getCurrentClass(ctx);
+    if (c) 
+      return `${c}.${this.name}()`;
+    else
+      return `${this.name}()`;
+  }
+
   // override
   isStaticUncached(ctx: Context): boolean {
     return this.expression.isStatic(ctx);

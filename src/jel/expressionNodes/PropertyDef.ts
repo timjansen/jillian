@@ -13,7 +13,7 @@ import SourcePosition from '../SourcePosition';
  */
 export default class PropertyDef extends CachableJelNode {
   constructor(position: SourcePosition, public name: string, public type?: JelNode, public defaultValueGenerator?: JelNode, public isNative = false, public isOverride = false, public isAbstract = false) {
-    super(position);
+    super(position, type ? (defaultValueGenerator ? [type, defaultValueGenerator]: [type]) : (defaultValueGenerator ? [defaultValueGenerator] : []));
   }
 
   // override

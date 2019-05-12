@@ -15,7 +15,7 @@ import SourcePosition from '../SourcePosition';
 export default class TypedParameterDefinition extends CachableJelNode {
  	private typeHelper: any;
   constructor(position: SourcePosition, public name: string, public defaultValue?: JelNode, public type?: JelNode, public varArgs = false ) {
-    super(position);
+    super(position, type ? (defaultValue ? [type, defaultValue] : [type]) : (defaultValue ? [defaultValue] : []));
     this.typeHelper = BaseTypeRegistry.get('TypeHelper');
   }
 

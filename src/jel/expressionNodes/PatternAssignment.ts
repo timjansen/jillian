@@ -16,7 +16,7 @@ import SourcePosition from '../SourcePosition';
  */
 export default class PatternAssignment extends CachableJelNode {
   constructor(position: SourcePosition, public name: any, public expression: JelNode, public meta: Assignment[]|undefined) {
-    super(position);
+    super(position, meta ? (meta as JelNode[]).concat(expression) : [expression]);
   }
 
   // override

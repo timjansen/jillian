@@ -17,7 +17,7 @@ export default class TemplateString extends CachableJelNode {
   string: any;
   // ctor must be called with expressions.length>0 and stringFragments.length==expressions.length+1, so there are interleaved string-expression-string-expression-string...
   constructor(position: SourcePosition, public stringFragments: string[], public expressions: JelNode[]) {
-    super(position);
+    super(position, expressions);
     if (stringFragments.length != expressions.length+1)
       throw new Error('Invalid number of stringFragments for the expressions.');
     this.string = BaseTypeRegistry.get('String');

@@ -11,7 +11,7 @@ import SourcePosition from '../SourcePosition';
 export default abstract class TypeCheck extends CachableJelNode {
 	
   constructor(position: SourcePosition, public left: JelNode, public right: JelNode) {
-    super(position);
+    super(position, [left, right]);
   }
 
   abstract executeTypeCheck(ctx: Context, left: JelObject|null, right: JelObject|null): JelObject|null|Promise<JelObject|null>;

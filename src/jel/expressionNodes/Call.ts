@@ -39,7 +39,7 @@ function resolveValueObj(f: (e: Map<string,JelObject|null>|undefined)=>JelObject
  */
 export default class Call extends CachableJelNode {
   constructor(position: SourcePosition, public left: JelNode, public argList: JelNode[]  = [], public namedArgs: Assignment[] = []) {
-    super(position);
+    super(position, argList.concat(left, namedArgs));
   }
   
   private callCallable(ctx: Context, callable: Callable): JelObject|null|Promise<JelObject|null> {
@@ -81,14 +81,10 @@ export default class Call extends CachableJelNode {
   isStaticUncached(ctx: Context): boolean {
     return this.left.isStatic(ctx) && !this.argList.find(a=>!a.isStatic(ctx)) && !this.namedArgs.find(a=>!a.isStatic(ctx));
   }
-  
-  getSourcePosition(): string {
-    return `(${this.position.src}:${this.position.line}:${this.position.column})`;
-  }
 
   // override  
   addStackFrame(ctx: Context, e: ScriptException): ScriptException {
-    return new ScriptException((e.exception.member(ctx, 'addStackEntry') as any).invoke(e.exception, BaseTypeRegistry.get('String').valueOf(this.getSourcePosition())));
+    return new ScriptException((e.exception.member(ctx, 'addStackEntry') as any).invoke(e.exception, BaseTypeRegistry.get('String').valueOf(this.getSourcePosition(ctx))));
   }
 
   flushCache(): void {

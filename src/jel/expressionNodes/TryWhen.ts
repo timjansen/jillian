@@ -16,7 +16,7 @@ import TryElement from './TryElement';
 export default class TryWhen extends TryElement {
 
   constructor(public type: JelNode) {
-    super(false);
+    super(type, false);
   }
   
   // override

@@ -11,7 +11,7 @@ import SourcePosition from '../SourcePosition';
  */
 export default class Assignment extends CachableJelNode   {
   constructor(position: SourcePosition, public name: string, public expression: JelNode) {
-    super(position);
+    super(position, [expression]);
   }
 
   // override

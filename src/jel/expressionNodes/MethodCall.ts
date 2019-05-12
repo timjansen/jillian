@@ -35,7 +35,7 @@ function resolveValueObj(f: (e: Map<string,JelObject|null>|undefined)=>JelObject
  */
 export default class MethodCall extends CachableJelNode {
   constructor(position: SourcePosition, public left: JelNode, public name: string, public argList: JelNode[]  = [], public namedArgs: Assignment[] = [], public forgiving = false) {
-    super(position);
+    super(position, argList.concat(left, namedArgs));
   }
   
   

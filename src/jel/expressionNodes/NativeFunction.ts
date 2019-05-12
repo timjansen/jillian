@@ -18,7 +18,7 @@ import SourcePosition from '../SourcePosition';
 export default class NativeFunction extends CachableJelNode {
  
   constructor(position: SourcePosition, public name: string, public className: string, public isStaticClass: boolean, public args: TypedParameterDefinition[], public returnType?: TypedParameterDefinition, public varArg = false) {
-		super(position);
+		super(position, args.concat(returnType || []));
   }
   
 	// override

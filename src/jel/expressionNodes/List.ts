@@ -18,7 +18,7 @@ export default class List extends CachableJelNode {
   private list: any;
 
   constructor(position: SourcePosition, public elements: JelNode[]) {
-    super(position);
+    super(position, elements);
     this.list = BaseTypeRegistry.get('List');
   }
 

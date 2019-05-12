@@ -18,7 +18,7 @@ export default class Condition extends CachableJelNode {
   jelBoolean: any;
 
   constructor(position: SourcePosition, public condition: JelNode, public thenExp: JelNode, public elseExp: JelNode) {
-    super(position);
+    super(position, [condition, thenExp, elseExp]);
     this.jelBoolean = BaseTypeRegistry.get('Boolean');
   }
   

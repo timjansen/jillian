@@ -17,7 +17,7 @@ import SourcePosition from '../SourcePosition';
  */
 export default class Translator extends CachableJelNode {
   constructor(position: SourcePosition, public elements: PatternAssignment[] = []) {
-    super(position);
+    super(position, elements);
   }
 
   // override

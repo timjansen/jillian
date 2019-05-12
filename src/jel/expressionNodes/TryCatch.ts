@@ -20,7 +20,7 @@ import TryElement from './TryElement';
 export default class TryCatch extends TryElement {
 
   constructor(public type: JelNode|undefined) {
-    super(true);
+    super(type, true);
   }
   
   // override

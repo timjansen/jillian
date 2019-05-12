@@ -18,7 +18,7 @@ import SourcePosition from '../SourcePosition';
 export default class With extends CachableJelNode {
   bool: any;
   constructor(position: SourcePosition, public assertions: JelNode[], public expression: JelNode) {
-    super(position);
+    super(position, assertions.concat(expression));
     this.bool = BaseTypeRegistry.get('Boolean');
   }
   

@@ -13,15 +13,14 @@ import Util from '../../util/Util';
  */
 export default abstract class TryElement {
 	protected typeHelper: any;	
-  public expression: JelNode|undefined;
+  public expression: JelNode|undefined; // this is set only when Try() is being created
 
-  constructor(public exceptionHandler: boolean) {
+  constructor(public condition: JelNode|undefined, public exceptionHandler: boolean) {
     this.typeHelper = BaseTypeRegistry.get('TypeHelper');
   }
 
   // Executes clause for given value. Returns result, or undefined if condition failed.
   abstract execute(ctx:Context, value: JelObject|null): JelObject|null|Promise<JelObject|null|undefined>|undefined;
-  
   
   abstract equals(other?: TryElement): boolean;
   

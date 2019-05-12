@@ -17,7 +17,7 @@ import SourcePosition from '../SourcePosition';
 export default class In extends CachableJelNode {
   falseBool: any;
   constructor(position: SourcePosition, public left: JelNode, public right: JelNode) {
-    super(position);
+    super(position, [left, right]);
     this.falseBool = BaseTypeRegistry.get('Boolean').FALSE;
   }
   

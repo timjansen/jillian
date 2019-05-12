@@ -22,7 +22,7 @@ export default class Try extends JelNode {
   returnElements: TryElement[];
 
   constructor(position: SourcePosition, public varName: string|undefined, public expression: JelNode, public elements: TryElement[]) {
-    super(position);
+    super(position, [expression].concat(elements.map(e=>e.expression!), elements.map(e=>e.condition).filter(e=>!!e) as JelNode[]));
     this.exceptionElements = elements.filter(e=>e.exceptionHandler);
     this.returnElements = elements.filter(e=>!e.exceptionHandler);
   }

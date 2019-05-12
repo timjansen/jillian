@@ -15,7 +15,7 @@ import SourcePosition from '../SourcePosition';
  */
 export default class DictType extends CachableJelNode {
   constructor(position: SourcePosition, public left: JelNode) {
-    super(position);
+    super(position, [left]);
   }
   
   // override

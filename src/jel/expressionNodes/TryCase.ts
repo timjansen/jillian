@@ -16,7 +16,7 @@ import TryElement from './TryElement';
 export default class TryCase extends TryElement {
 
   constructor(public comparisonValue: JelNode) {
-    super(false);
+    super(comparisonValue, false);
   }
   
   // override

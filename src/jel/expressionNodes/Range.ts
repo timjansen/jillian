@@ -20,7 +20,7 @@ export default class Range extends CachableJelNode {
   private range: any;
   
   constructor(position: SourcePosition, public left: JelNode|undefined, public right: JelNode|undefined, public minExclusive: boolean = false, public maxExclusive: boolean = false) {
-    super(position);
+    super(position, left ? (right ? [left, right] : [left]) : (right ? [right] : []));
     this.range = BaseTypeRegistry.get('Range');
   }
 

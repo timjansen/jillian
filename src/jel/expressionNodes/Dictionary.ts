@@ -24,7 +24,7 @@ import SourcePosition from '../SourcePosition';
 export default class Dictionary extends CachableJelNode {
   private dictionary: any;
   constructor(token: SourcePosition, public elements: Assignment[] = [], public dynamicElements: DynamicAssignment[] = []) {
-    super(token);
+    super(token, (elements as JelNode[]).concat(dynamicElements));
     this.dictionary = BaseTypeRegistry.get('Dictionary');
   }
 

@@ -375,28 +375,28 @@ describe('JEL', function () {
    });
 
    it('has proper stacktraces for exceptions with method calls', function() {
-    return jelAssert.errorPromise(`let f = x=>x.fE(),\n
-     x = class X:\n
-      constructor()\n
-      fA()=>this.fB(1, "bla", LocalDate(2019, 3, 1))\n
-      fB(x, y, z)=>this.fC([1, 2, 3], {a:1, b:4})\n
-      fC(a, b, c)=>f(this)\n
-      fE()=>throw "Oops":\n
-        x().fA()`, ['Oops', 'TESTTEST']);
+    return jelAssert.errorPromise(`let f = x=>x.fE(),
+     x = class X:
+      constructor()
+      fA()=>this.fB(1, "bla", LocalDate(2019, 3, 1))
+      fB(x, y, z)=>this.fC([1, 2, 3], {a:1, b:4})
+      fC(a, b, c)=>f(this)
+      fE()=>throw "Oops":
+        x().fA()`, ['Oops', 'X.fA', 'X.fB', 'X.fC', 'X.fE', '(x)=>...', '(inline):1:']);
    });
 
    it('has proper stacktraces for exceptions with function calls', function() {
     return jelAssert.errorPromise(`let f = ()=>throw "Oops",\n
-          e = (a, b, c)=>f(),\n
+          e = (a, b, c): int=>f(),\n
           g = (x, y, z)=>e(1, "2", 2 @Meter):\n
-            g([1, 2], {r: 2, e: 2}, null)`, ['Oops', 'TESTTEST']);
+            g([1, 2], {r: 2, e: 2}, null)`, ['Oops', '(a, b, c)']);
    });
 
    it('has proper stacktraces for runtime errors', function() {
-    return jelAssert.errorPromise(`let f = ()=> null.a(),\n
+    return jelAssert.errorPromise(`let f = ():any=> null.a(),\n
       e = (a, b, c)=>f(),\n
       g = (x, y, z)=>e(1, "2", 2 @Meter):\n
-        g([1, 2], {r: 2, e: 2}, null)`, ['Oops', 'TESTTEST']);
+        g([1, 2], {r: 2, e: 2}, null)`, ['method on null', '(a, b, c)', '():any']);
    });
 
   });

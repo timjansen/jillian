@@ -34,7 +34,7 @@ import SourcePosition from '../SourcePosition';
 export default class Operator extends CachableJelNode {
 		
   constructor(position: SourcePosition, public operator: string, public left: JelNode, public right?: JelNode) {
-    super(position);
+    super(position, right ? [left, right] : [left]);
   }
 
   // override

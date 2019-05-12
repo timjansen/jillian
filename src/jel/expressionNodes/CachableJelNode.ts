@@ -15,8 +15,8 @@ export default abstract class CachableJelNode extends JelNode  {
 
   abstract isStaticUncached(ctx: Context): boolean;
   
-  constructor(position: SourcePosition) {
-    super(position);
+  constructor(position: SourcePosition, children: JelNode[] = []) {
+    super(position, children);
   }
   
   isStatic(ctx: Context): boolean {

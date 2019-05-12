@@ -23,7 +23,6 @@ export default class RuntimeError extends NativeJelObject {
   
   addStackEntry_jel_mapping: boolean;
   addStackEntry(ctx: Context, entry: any) {
-console.log('addStackEntry', entry);
     return new RuntimeError(this.message, this.nativeStack, this.stack.add(ctx, entry));
   }
 

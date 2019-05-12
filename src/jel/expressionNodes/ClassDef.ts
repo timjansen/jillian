@@ -22,7 +22,7 @@ export default class ClassDef extends JelNode {
   
   constructor(position: SourcePosition, public name: string, public superName?: JelNode, public ctor?: Lambda|NativeFunction, public propertyDefs: PropertyDef[] = [], public methodDefs: MethodDef[] = [], 
                public staticPropertyDefs: PropertyDef[] = [], public isAbstract = false, public hasNative = false) {
-		super(position);
+		super(position, (propertyDefs as JelNode[]).concat(methodDefs, staticPropertyDefs, ctor||[], superName ||[]));
     this.isNative = this.ctor instanceof NativeFunction;
   }
   
@@ -54,6 +54,10 @@ export default class ClassDef extends JelNode {
     this.staticPropertyDefs.forEach(a=>a.flushCache());
   }
 
+  // override
+  getCurrentClass(ctx: Context): string|undefined {
+    return this.name;
+  }
   
 	// override
   equals(other?: JelNode): boolean {

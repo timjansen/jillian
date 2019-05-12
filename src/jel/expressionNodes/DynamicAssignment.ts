@@ -13,7 +13,7 @@ import Util from '../../util/Util';
  */
 export default class DynamicAssignment extends CachableJelNode   {
   constructor(position: SourcePosition, public name: JelNode, public expression: JelNode) {
-    super(position);
+    super(position, [name, expression]);
   }
 
   // override

@@ -15,7 +15,7 @@ import SourcePosition from '../SourcePosition';
  */
 export default class Options extends CachableJelNode {
   constructor(position: SourcePosition, public options: JelNode[]) {
-    super(position);
+    super(position, options);
   }
   
   // override

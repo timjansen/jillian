@@ -11,9 +11,13 @@ import ChainableError from '../../util/ChainableError';
  * Represents a node in a JEL expression.
  */
 export default abstract class JelNode implements SerializablePrimitive {
-  constructor(public position: SourcePosition, public parent: JelNode) {
+  public parent: JelNode;
+
+  constructor(public position: SourcePosition, public children: JelNode[] = []) {
+    for (let c of children) 
+      c.parent = this;
   }
-  
+
 	// Returns either a value or a Promise for a value!
 	execute(ctx: Context): JelObject|null|Promise<JelObject|null> {
     return Util.handleError(()=>this.executeImpl(ctx), e=>{
@@ -41,8 +45,21 @@ export default abstract class JelNode implements SerializablePrimitive {
   abstract flushCache(): void;
   
   getSourcePosition(ctx: Context): string {
-    return `(${this.position.src}:${this.position.line}:${this.position.column})`;
+    const m = this.getCurrentMethod(ctx);
+    if (m)
+      return `${m} [${this.position.src}:${this.position.line}:${this.position.column}]`;
+    else
+      return `[${this.position.src}:${this.position.line}:${this.position.column}]`;
   }
+
+  getCurrentMethod(ctx: Context): string|undefined {
+    return this.parent && this.parent.getCurrentMethod(ctx);
+  }
+
+  getCurrentClass(ctx: Context): string|undefined {
+    return this.parent && this.parent.getCurrentClass(ctx);
+  }
+
 
   // override to add a stack frame to the exception. Should be overriden by nodes that do calls.
   addStackFrame(ctx: Context, e: ScriptException): ScriptException {

@@ -23,7 +23,7 @@ import SourcePosition from '../SourcePosition';
 export default class Lambda extends CachableJelNode {
  
   constructor(position: SourcePosition, public args: TypedParameterDefinition[], public returnType: TypedParameterDefinition|undefined, public expression: JelNode, public varArg: boolean) {
-		super(position);
+		super(position, (args as JelNode[]).concat(returnType||[], expression));
   }
   
 	// override
@@ -46,7 +46,13 @@ export default class Lambda extends CachableJelNode {
     if (this.returnType) this.returnType.flushCache();
     this.args.forEach(a=>a.flushCache());
   }
-  
+
+  // override
+  getCurrentMethod(ctx: Context): string|undefined {
+    return `${this.toArgumentString()}${this.toReturnString()}=>...`;
+  }
+
+
 	// override
   equals(other?: JelNode): boolean {
 		return other instanceof Lambda &&

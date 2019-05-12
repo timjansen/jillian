@@ -17,7 +17,7 @@ import SourcePosition from '../SourcePosition';
 export default class Get extends CachableJelNode {
   float: any;
   constructor(position: SourcePosition, public left: JelNode, public name: JelNode) {
-    super(position);
+    super(position, [left, name]);
     this.float = BaseTypeRegistry.get('Float');
   }
   
