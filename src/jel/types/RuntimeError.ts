@@ -16,7 +16,7 @@ export default class RuntimeError extends NativeJelObject {
 
   static clazz: Class|undefined;
 
-  constructor(public message: string, public nativeStack: string|undefined, public stack: List) {
+  constructor(public message: string, public nativeStack?: string, public stack: List = List.empty) {
     super('RuntimeError');
   
   }
@@ -24,6 +24,10 @@ export default class RuntimeError extends NativeJelObject {
   addStackEntry_jel_mapping: boolean;
   addStackEntry(ctx: Context, entry: any) {
     return new RuntimeError(this.message, this.nativeStack, this.stack.add(ctx, entry));
+  }
+
+  addStackEntryJs(ctx: Context, entry: string) {
+    return new RuntimeError(this.message, this.nativeStack, this.stack.add(ctx, JelString.valueOf(entry)));
   }
 
   get clazz(): Class {

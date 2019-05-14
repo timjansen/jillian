@@ -386,18 +386,29 @@ describe('JEL', function () {
    });
 
    it('has proper stacktraces for exceptions with function calls', function() {
-    return jelAssert.errorPromise(`let f = ()=>throw "Oops",\n
-          e = (a, b, c): int=>f(),\n
-          g = (x, y, z)=>e(1, "2", 2 @Meter):\n
+    return jelAssert.errorPromise(`let f = ()=>throw "Oops",
+          e = (a, b, c): int=>f(),
+          g = (x, y, z)=>e(1, "2", 2 @Meter):
             g([1, 2], {r: 2, e: 2}, null)`, ['Oops', '(a, b, c)']);
    });
 
    it('has proper stacktraces for runtime errors', function() {
-    return jelAssert.errorPromise(`let f = ():any=> null.a(),\n
-      e = (a, b, c)=>f(),\n
-      g = (x, y, z)=>e(1, "2", 2 @Meter):\n
+    return jelAssert.errorPromise(`let f = ():any=> null.a(),
+      e = (a, b, c)=>f(),
+      g = (x, y, z)=>e(1, "2", 2 @Meter):
         g([1, 2], {r: 2, e: 2}, null)`, ['method on null', '(a, b, c)', '():any']);
    });
+
+   it('has proper stacktraces for bad return values, showing the callee', function() {
+    return jelAssert.errorPromise(`let f = ():int=>"Oops":
+          f()`, '(inline):1:');
+   });
+
+   it('has proper stacktraces for bad arguments, showing the caller', function() {
+    return jelAssert.errorPromise(`let f = (a: string):int=>0:
+          f(1)`, '(inline):2:');
+   });
+
 
   });
 });

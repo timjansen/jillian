@@ -131,11 +131,7 @@ export default class LambdaCallable extends Callable implements SerializablePrim
     
     return Util.resolveArray(openPromises, ()=> {
       newCtx.freeze();
-      const r = expression.execute(newCtx);
-      if (returnType && returnType.type) 
-        return Util.resolveValue(r, ret=>returnType.type!.convert(ctx, ret, 'return value'));
-      else 
-        return r;
+      return expression.execute(newCtx);
     });
   }
   

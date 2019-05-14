@@ -7,6 +7,7 @@ import Context from '../Context';
 import LambdaCallable from '../LambdaCallable';
 import Util from '../../util/Util';
 import SourcePosition from '../SourcePosition';
+import FunctionTypeCheck from './FunctionTypeCheck';
 
 
 /**
@@ -30,7 +31,11 @@ export default class Lambda extends CachableJelNode {
   executeUncached(ctx: Context): JelObject|null|Promise<JelObject|null> {
     if (this.returnType) {
       const eList = [this.returnType.execute(ctx)].concat(this.args.map(a=>a.execute(ctx)));
-      return Util.resolveArray(eList, eListResolved=>new LambdaCallable(eListResolved.slice(1), this.expression, ctx, "(anonymous lambda)", ctx.get('this'), undefined, eListResolved[0], this.varArg));
+      return Util.resolveArray(eList, eListResolved=>{
+        const typeCheckExpression = eListResolved[0].type ? new FunctionTypeCheck(this.position, this.expression, eListResolved[0].type) : this.expression;
+        typeCheckExpression.parent = this;
+        return new LambdaCallable(eListResolved.slice(1), typeCheckExpression, ctx, "(anonymous lambda)", ctx.get('this'), undefined, eListResolved[0], this.varArg);
+      });
     }
     else
       return Util.resolveArray(this.args.map(a=>a.execute(ctx)), args=>new LambdaCallable(args, this.expression, ctx, "(anonymous lambda)", ctx.get('this'), undefined, undefined, this.varArg));

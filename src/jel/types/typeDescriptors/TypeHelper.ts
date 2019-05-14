@@ -1,7 +1,6 @@
 import TypeDescriptor from './TypeDescriptor';
 import SimpleType from './SimpleType';
 import InRangeType from './InRangeType';
-import OptionType from './OptionType';
 import EnumType from './EnumType';
 import ComplexType from './ComplexType';
 import NumberType from './NumberType';
@@ -15,7 +14,6 @@ import Fraction from '../Fraction';
 import UnitValue from '../UnitValue';
 import Dictionary from '../Dictionary';
 import TypeChecker from '../TypeChecker';
-import List from '../List';
 
 export default class TypeHelper {
   

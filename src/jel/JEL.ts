@@ -699,13 +699,13 @@ static parseOperatorExpression(tokens: TokenReader, operator: string, precedence
       const varArgPos = args.findIndex(a=>a.varArgs);
       if (varArgPos >= 0 && varArgPos != args.length-1)
         JEL.throwParseException(tokens.last(), `Varargs are only possible as last argument.`);
-      const asCheck = JEL.tryParseLambdaTypeCheck(tok, LAMBDA);
+      const returnValueType = JEL.tryParseLambdaTypeCheck(tok, LAMBDA);
       if (!tok.peekIs(TokenType.Operator, '=>'))
         return undefined;
       JEL.checkTypedParameters(args, tok.next());     
       
       TokenReader.copyInto(tok, tokens);
-      return new Lambda(tokens.peek(), args, asCheck, JEL.parseExpression(tokens, precedence, stopOps), varArgPos >= 0);
+      return new Lambda(tokens.peek(), args, returnValueType, JEL.parseExpression(tokens, precedence, stopOps), varArgPos >= 0);
     }
   }
   
@@ -804,9 +804,9 @@ static parseOperatorExpression(tokens: TokenReader, operator: string, precedence
         propertyNames.add(propertyName);
         JEL.expectOp(tokens, OPEN_ARGS, `Expected '()' following declaration of getter`);
         JEL.expectOp(tokens, CLOSE_ARGS, `Expected '()' following declaration of getter. Getters can't take any arguments.`);
-        const asCheck = JEL.tryParseLambdaTypeCheck(tokens, LAMBDA);
+        const returnValueType = JEL.tryParseLambdaTypeCheck(tokens, LAMBDA);
         JEL.nextIsValueOrThrow(tokens, TokenType.Operator, '=>',  "Getter expression must be preceded by '=>'.");
-        methods.push(new MethodDef(peek, propertyName, new Lambda(peek, [], asCheck, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop), false), overrideModifier, nativeModifier, false, false, true));
+        methods.push(new MethodDef(peek, propertyName, new Lambda(peek, [], returnValueType, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop), false), overrideModifier, nativeModifier, false, false, true));
       }
       else if ((next.is(TokenType.Identifier, 'op') ||  next.is(TokenType.Identifier, 'singleOp')) && tokens.peekIs(TokenType.Operator) && !tokens.peekIs(TokenType.Operator, '(')) {
         if (staticModifier)
@@ -839,9 +839,9 @@ static parseOperatorExpression(tokens: TokenReader, operator: string, precedence
         if (args!.length > argsMax)
           JEL.throwParseException(tokens.last(), argsMax == 0 ? `Single operator overload ${methodName} must not take any arguments` : `Too many arguments for operator overload ${methodName}, can have only one.`);
 
-        const asCheck = JEL.tryParseLambdaTypeCheck(tokens, LAMBDA);
+        const returnValueType = JEL.tryParseLambdaTypeCheck(tokens, LAMBDA);
         const lambdaToken = JEL.nextIsValueOrThrow(tokens, TokenType.Operator, '=>',  "Operator expression must be preceded by '=>'.");
-        methods.push(new MethodDef(peek, methodName, new Lambda(lambdaToken, args!, asCheck, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop), false), overrideModifier, nativeModifier, false, false, false));
+        methods.push(new MethodDef(peek, methodName, new Lambda(lambdaToken, args!, returnValueType, JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop), false), overrideModifier, nativeModifier, false, false, false));
       }
       else if (next.is(TokenType.Identifier) && tokens.nextIf(TokenType.Operator, '(')) {
         const methodName = next.value;
@@ -854,15 +854,15 @@ static parseOperatorExpression(tokens: TokenReader, operator: string, precedence
           JEL.throwParseException(tokens.last(), `Can not parse argument list for method ${methodName}()`);
         else if (varArgPos >= 0 && args!.findIndex(a=>a.varArgs) < args!.length-1)
           JEL.throwParseException(tokens.last(), `Varargs are only supported for the last argument.`);
-        const returnType = JEL.tryParseLambdaTypeCheck(tokens, (nativeModifier || abstractModifier) ? CLASS_EXPRESSION_STOP : LAMBDA);
+        const returnValueType = JEL.tryParseLambdaTypeCheck(tokens, (nativeModifier || abstractModifier) ? CLASS_EXPRESSION_STOP : LAMBDA);
         
         if (!abstractModifier && !nativeModifier)
           JEL.nextIsValueOrThrow(tokens, TokenType.Operator, '=>',  "Method expression must be preceded by '=>'.");
         else if (tokens.peekIs(TokenType.Operator, '=>'))
           throw new Error("Abstract or native methods must not use lambda operator ('=>')");
 
-        const impl = nativeModifier ? new NativeFunction(peek, methodName, className.value, staticModifier, args!, returnType, varArgPos>=0) : 
-                new Lambda(tokens.peek(), args!, returnType, abstractModifier ? TRUE_LITERAL : JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop), varArgPos>=0);
+        const impl = nativeModifier ? new NativeFunction(peek, methodName, className.value, staticModifier, args!, returnValueType, varArgPos>=0) : 
+                new Lambda(tokens.peek(), args!, returnValueType, abstractModifier ? TRUE_LITERAL : JEL.parseExpression(tokens, CLASS_PRECEDENCE, classExpressionStop), varArgPos>=0);
         methods.push(new MethodDef(peek, methodName, impl, overrideModifier, nativeModifier, staticModifier, abstractModifier, false));
       }
       else if (next.is(TokenType.Identifier)) {
