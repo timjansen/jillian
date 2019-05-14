@@ -1,5 +1,6 @@
 #!/bin/sh
 
+alias mocha=./node_modules/mocha/bin/mocha
 cd "$(dirname "$0")"
 
 if [ -n "$1" ]; then
