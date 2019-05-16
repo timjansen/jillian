@@ -23,9 +23,9 @@ export default class Pattern extends NativeJelObject implements SerializablePrim
 		super("Pattern");
 	}
 	
-  get clazz(): Class {
-    return Pattern.clazz!;
-  }
+	get clazz(): Class {
+		return Pattern.clazz!;
+	}
 
   
 	// returns Promise!

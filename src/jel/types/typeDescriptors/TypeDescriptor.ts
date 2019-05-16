@@ -3,6 +3,8 @@ import NativeJelObject from '../NativeJelObject';
 import Context from '../../Context';
 import JelBoolean from '../JelBoolean';
 import Util from '../../../util/Util';
+import TypeHelper from './TypeHelper';
+import BaseTypeRegistry from '../../BaseTypeRegistry';
 
 /**
  * Abstract prototype to define the type of a value.
@@ -65,8 +67,14 @@ export default abstract class TypeDescriptor extends NativeJelObject {
   serializeToString_jel_mapping: Object;
   serializeToString() : string {
 		return this.serializeType();
-	}
+  }
   
+  static create_jel_mapping = true;
+  static create(ctx: Context, ...args: any[]): any {
+    if (args[0] instanceof TypeDescriptor)
+      return args[0];
+    return BaseTypeRegistry.get('TypeHelper').convertFromAny(args[0], 'spec');
+  }
 }
 
 TypeDescriptor.prototype.checkType_jel_mapping = true;
@@ -75,3 +83,4 @@ TypeDescriptor.prototype.equals_jel_mapping = true;
 TypeDescriptor.prototype.serializeToString_jel_mapping = true;
 TypeDescriptor.prototype.isNullable_jel_mapping = true;
 
+BaseTypeRegistry.register('TypeDescriptor', TypeDescriptor);

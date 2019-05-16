@@ -47,7 +47,7 @@ export default class UnitValueQuantityType extends TypeDescriptor {
     return JelBoolean.valueOf(other instanceof UnitValueQuantityType && this.quantityCategory.distinctName == other.quantityCategory.distinctName);
   }
   
-  static create_jel_mapping = {quantityCategory: 1};
+  static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]) {
     return new UnitValueQuantityType(TypeChecker.dbRef(args[0], 'quantityCategory'));
   }

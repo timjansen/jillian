@@ -47,7 +47,7 @@ export default class EnumType extends TypeDescriptor  implements SerializablePri
     return JelBoolean.valueOf(other instanceof EnumType && this.enumName == other.enumName);
   }
   
-  static create_jel_mapping = ['enumRef'];
+  static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]) {
     return new EnumType(args[0] instanceof Enum ? args[0].distinctName : TypeChecker.realString(args[0], 'enumRef'));
   }

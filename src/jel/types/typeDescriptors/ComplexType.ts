@@ -81,7 +81,7 @@ export default class ComplexType extends TypeDescriptor {
     return this.fields.hasOnlyWithPromises((k, v)=>JelBoolean.andWithPromises(JelBoolean.valueOf(other.fields.elements.get(k) != null), (other.fields.elements.get(k) as any).equals(ctx, this.fields.elements.get(k)!)));
   }
 
-  static create_jel_mapping = ['fields'];
+  static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]) {
     return new ComplexType(TypeChecker.instance(Dictionary, args[0], 'fields'));
   }

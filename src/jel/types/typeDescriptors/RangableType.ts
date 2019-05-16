@@ -63,7 +63,7 @@ export default class RangableType extends TypeDescriptor {
     return new RangableType(e);
   }
 
-  static create_jel_mapping = ['types'];
+  static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]) {
     return new RangableType(args[0]);
   }

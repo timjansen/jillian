@@ -242,6 +242,11 @@ describe('Types', function() {
                              jelAssert.equalPromise('true instanceof RefType()', 'false')]));
   });
 
-  
+  it('can convert typedefs to TypeDescriptor in JEL', function() {
+    jelAssert.equal('TypeDescriptor(SimpleType("Float"))', 'SimpleType("Float")');
+    jelAssert.equal('TypeDescriptor(int)', 'int');
+    return jelAssert.equalPromise('TypeDescriptor(Float)', 'SimpleType("Float")');
+  });
+
 });
 

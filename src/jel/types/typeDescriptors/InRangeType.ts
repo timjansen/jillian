@@ -42,7 +42,7 @@ export default class InRangeType extends TypeDescriptor  implements Serializable
     return other instanceof InRangeType ? Runtime.op(ctx, '===', this.range, other.range) as any : JelBoolean.FALSE;
   }
   
-  static create_jel_mapping = ['range'];
+  static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]): InRangeType {
     if (!(args[0] instanceof Range))
       throw new Error('InRangeType requires a Range as first argument.');

@@ -117,7 +117,7 @@ export default class Class extends PackageContent implements SerializablePrimiti
       this.ctor = (ctor instanceof LambdaCallable && superType.ctor instanceof LambdaCallable) ? ctor.bindSuper(superType.ctor) : ctor;
     }
     
-    if (this.staticMethods.elements.has('create'))
+    if (this.staticMethods.elements.has('create') && !isAbstract)
       throw new Error(`You must not provide the static method create() in ${name}. It is reserved for accessing the constructor.`);
   }
   

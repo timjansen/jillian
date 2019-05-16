@@ -60,7 +60,7 @@ export default class OptionalType extends TypeDescriptor {
     return true;
   }
   
-  static create_jel_mapping = ['type'];
+  static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]) {
     return new OptionalType(args[0]);
   }

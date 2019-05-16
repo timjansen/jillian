@@ -83,7 +83,7 @@ export default class ListType extends TypeDescriptor {
   }
 
 
-  static create_jel_mapping = ['types'];
+  static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]) {
     return new ListType(args[0]);
   }

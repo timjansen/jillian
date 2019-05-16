@@ -84,7 +84,7 @@ export default class DictionaryType extends TypeDescriptor {
     return other instanceof DictionaryType ? TypeDescriptor.equals(ctx, this.valueTypes, other.valueTypes) : JelBoolean.FALSE;
   }
   
-  static create_jel_mapping = ['valueTypes'];
+  static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]) {
     return new DictionaryType(args[0]);
   }

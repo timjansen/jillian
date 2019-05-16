@@ -49,7 +49,7 @@ export default class StringType extends TypeDescriptor implements SerializablePr
     return JelBoolean.valueOf(other instanceof StringType && this.allowEmpty == other.allowEmpty);
   }
   
-  static create_jel_mapping = ['allowEmpty'];
+  static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]): any {
     if (TypeChecker.optionalRealBoolean(args[0], 'allowEmpty'))
       return StringType.allowEmpty;

@@ -107,9 +107,14 @@ Examples:
 	cond1 && cond2
 	cond1 || cond2
 	obj.property   // note that if obj is null, it throws an exception
-	obj.?property  // returns null if obj is null
-	obj.property > 2 || obj.property < 0
+  obj.property > 2 || obj.property < 0
 	mul(6, 7)
+	
+
+JEL also comes with a few operators that do not exist like that in JavaScript:
+
+Examples:
+	obj.?property  // returns null if obj is null, otherwise the content of the property
 	obj.print("hello")   // throws an exception if obj is null
 	obj.?print("hello")  // returns null if obj is null
 	200 +- 10      // Creates an approximate number with an max error of 10
@@ -205,40 +210,6 @@ Examples:
 	[1, 2, 3].map(e => 2*e)  // returns the list [2, 4, 6]
   (...a: any[])=>a.length  // varargs
 
-
-
-Patterns
--------------------
-Patterns are expressions that match a sentence or a phrase. They are somewhat similar to regular expressions, but instead of character-by-character they work word-by-word.
-They can embed translators with regular expressions though.
-
-Examples:
-	`foot`                      // matches the word 'foot'
-	`he went away`              // matches the sentence 'he went away'
-	`[it|he|she] walked away`   // matches the sentences 'it walked away', 'he walked away' and 'she walked away'
-	`he [quickly]? walked away`   // matches the sentences 'he walked away' and 'he quickly walked away'
-	`he [slowly|quickly]? walked away`   // matches the sentences 'he walked away', 'he quickly walked away' and 'he slowly walked away'
-	`he went {{destination}}`            // matches the words 'he went' and then calls a Translator called 'destination' for the third
-	`my name is {{n: name}}`             // uses the Translator 'name', and returns the translator's result as variable 'n'
-	`my favorite color is {{col: color}}`      
-	`I like {{a: animal.plural}}`        // specifies that only Translator matches with the meta property 'plural' are used
-	`I like {{a: animal.plural :: @Bird.isCategoryOf(a)}}`        // conditional translator usage: limits matches to instances of @Bird
-  `This is number {{n: /[0-9]+/ :: Number.parse(n) > 0}}`       // Regular expression match
-  `{{date: /([0-9]+)-([0-9]+)-([0-9]+)/ }}`                     // RE with groups: returns a List containing the three numbers
-  `{{date: /[0-9]+/ /[0-9]+/ /[0-9]+/ }}`                       // Three REs, to match three words. Also returns list.
-
-
-
-Translators
--------------------
-Translators are a special kind of dictionaries that use Patterns instead of keys, and use Lambda expressions instead of a value. The lambda expressions get the Pattern template values as
-arguments. They can have one or more meta properties.
-
-Examples:
-	${`one` => 1, `two` => 2}}
-	${verb: `walk` => Walking(), 
-	  verb, tense="past": `walked`=> Walking(past=true), 
-		verb: `run` => Running()}
 
 
 Constants
@@ -384,6 +355,38 @@ enum FactType:
   Guess
   
 
+Patterns
+-------------------
+Patterns are expressions that match a sentence or a phrase. They are somewhat similar to regular expressions, but instead of character-by-character they work word-by-word.
+Patterns can embed translators as templates for additional options. Using templates, they can also get embed regular expressions.
+
+Examples:
+	`foot`                      // matches the word 'foot'
+	`he went away`              // matches the sentence 'he went away'
+	`[it|he|she] walked away`   // matches the sentences 'it walked away', 'he walked away' and 'she walked away'
+	`he [quickly]? walked away`   // matches the sentences 'he walked away' and 'he quickly walked away'
+	`he [slowly|quickly]? walked away`   // matches the sentences 'he walked away', 'he quickly walked away' and 'he slowly walked away'
+	`he went {{destination}}`            // using a template: matches the words 'he went' and then calls a Translator called 'destination' as template for the third
+	`my name is {{n: name}}`             // uses the template 'name', and returns the translator's result as variable 'n'
+	`my favorite color is {{col: color}}`      
+	`I like {{a: animal.plural}}`        // specifies that only template matches with the meta property 'plural' are used
+	`I like {{a: animal.plural :: @Bird.isCategoryOf(a)}}`        // conditional template usage: limits matches to instances of @Bird
+  `This is number {{n: /[0-9]+/ :: Number.parse(n) > 0}}`       // Regular expression match
+  `{{date: /([0-9]+)-([0-9]+)-([0-9]+)/ }}`                     // RE with groups: returns a List containing the three numbers
+  `{{date: /[0-9]+/ /[0-9]+/ /[0-9]+/ }}`                       // Three REs, to match three words. Also returns list.
+
+
+
+Translators
+-------------------
+Translators are a special kind of dictionaries that use Patterns instead of keys, and use Lambda expressions instead of a value. The lambda expressions get the Pattern template values as
+arguments. They can have one or more meta properties.
+
+Examples:
+	${`one` => 1, `two` => 2}}
+	${verb: `walk` => Walking(), 
+	  verb, tense="past": `walked`=> Walking(past=true), 
+		verb: `run` => Running()}
 
 
 

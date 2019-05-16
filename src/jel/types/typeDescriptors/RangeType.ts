@@ -50,7 +50,7 @@ export default class RangeType extends TypeDescriptor {
     return other instanceof RangeType ? TypeDescriptor.equals(ctx, this.types, other.types) : JelBoolean.FALSE;
   }
 
-  static create_jel_mapping = ['types'];
+  static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]) {
     return new RangeType(args[0]);
   }

@@ -1,8 +1,5 @@
 'use strict';
 
-import Runtime from '../Runtime';
-import JelObject from '../JelObject';
-import Callable from '../Callable';
 import Context from '../Context';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import NativeJelObject from './NativeJelObject';
@@ -14,10 +11,9 @@ import Dictionary from './Dictionary';
 import Pattern from './Pattern';
 
 import Util from '../../util/Util';
-import PatternNode from '../patternNodes/PatternNode';
 import TranslatorNode from '../patternNodes/TranslatorNode';
 import LambdaResultNode from '../patternNodes/LambdaResultNode';
-import StaticResultNode from '../patternNodes/LambdaResultNode';
+import JelNode from '../expressionNodes/JelNode';
 
 
 export default class Translator extends NativeJelObject {
@@ -33,8 +29,8 @@ export default class Translator extends NativeJelObject {
     return Translator.clazz!;
   }
   
-	addPattern(pattern: Pattern, value: any, metaMap: Dictionary): Translator {
-		pattern.tree.merge(this.tree, new LambdaResultNode(value, metaMap));
+	addPattern(pattern: Pattern, valueExpression: JelNode, metaMap: Dictionary): Translator {
+		pattern.tree.merge(this.tree, new LambdaResultNode(valueExpression, metaMap));
 		return this;
 	}
 	

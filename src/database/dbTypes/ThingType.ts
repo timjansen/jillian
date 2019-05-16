@@ -66,7 +66,7 @@ export default class ThingType extends TypeDescriptor {
     return ThingType.create(ctx, ...args);
   }
   
-  static create_jel_mapping = {category: 1};
+  static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]) {
     if (!args[0])
       return ThingType.instance;

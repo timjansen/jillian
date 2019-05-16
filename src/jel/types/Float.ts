@@ -77,6 +77,10 @@ export default class Float extends NativeJelObject implements SerializablePrimit
 		}
 		return super.op(ctx, operator, right);
 	}
+
+	add(right: any) {
+		if (right instanceof Float) return Float.valueOf(this.value + right.value);
+	}
 	
 	static valueOf(n: number): Float {
 		return Float.DEFAULT_NUMBERS[n + Float.DEFAULT_NUMBERS_RANGE] || new Float(n);

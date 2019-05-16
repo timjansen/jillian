@@ -56,7 +56,7 @@ export default class AnyType extends TypeDescriptor {
 		return this.serializeType();
 	}
   
-  static create_jel_mapping =true;
+  static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]) {
     return AnyType.instance;
   }

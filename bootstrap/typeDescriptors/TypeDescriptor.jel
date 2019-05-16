@@ -8,5 +8,7 @@ abstract class TypeDescriptor:
   abstract equals(other: TypeDescriptor?): bool
   
   abstract serializeToString(): string
-  
+
+  static native create(spec: any): TypeDescriptor
+    
   

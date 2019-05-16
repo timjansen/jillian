@@ -75,7 +75,7 @@ export default class UnitValueType extends TypeDescriptor {
     return new UnitValueType(unit, range);
   }
   
-  static create_jel_mapping = ['unit', 'range'];
+  static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]) {
     return new UnitValueType(args[0] instanceof Unit ? args[0] : Unit.create(ctx, args[0]), TypeChecker.optionalInstance(Range, args[1], 'range'));
   }
