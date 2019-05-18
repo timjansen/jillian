@@ -14,6 +14,9 @@ import Fraction from '../Fraction';
 import UnitValue from '../UnitValue';
 import Dictionary from '../Dictionary';
 import TypeChecker from '../TypeChecker';
+import GenericJelObject from '../GenericJelObject';
+import GenericTypeAdaptor from './GenericTypeAdaptor';
+
 
 export default class TypeHelper {
   
@@ -26,6 +29,8 @@ export default class TypeHelper {
 	static convertToTypeDescriptor(l: JelObject, name: string): TypeDescriptor {
     if (l instanceof TypeDescriptor)
       return l;
+    else if (l instanceof GenericJelObject)
+      return new GenericTypeAdaptor(l);
 		else if (TypeChecker.isIDbRef(l))
 			return BaseTypeRegistry.get('ReferenceDispatcherType').valueOf(l);
     else if (l instanceof Dictionary)
@@ -41,9 +46,9 @@ export default class TypeHelper {
     else if (l instanceof Enum)
       return new EnumType(l.distinctName);
 		else if (l instanceof Class)
-			return new SimpleType((l as any).name);
+      return new SimpleType((l as any).name);
   
-    throw new Error(`Expected Class or Enum or DbRef or Dictionary or List or Range in ${name}. But it is ` + (l==null?'null.' : `${l.className? l.className : 'Native: '+l.constructor.name}: ${l}`));
+    throw new Error(`Expected TypeDescriptor or Class or Enum or DbRef or Dictionary or List or Range in ${name}. But it is ` + (l==null?'null.' : `${l.className? l.className : 'Native: '+l.constructor.name}: ${l}`));
   }
   
   static convertFromAny(l: any, name: string): TypeDescriptor {

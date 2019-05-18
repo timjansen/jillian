@@ -61,7 +61,7 @@ export default class Runtime {
 		return Util.resolveValue(left, (left: any)=>Runtime.singleOp(ctx, operator, left));
 	}
 
-  // checks whether left is assignable to right
+  // checks whether the class 'left' is assignable to right
 	static isClassCompatible(ctx: Context, left: any, className: string): boolean {
     if (left.name == className)
       return true;
@@ -70,7 +70,7 @@ export default class Runtime {
     else
       return false;
   }
-  
+
 	static instanceOf(ctx: Context, left: JelObject|null, right: JelObject|string|null): boolean {
     if (!right || !left)
       return false;

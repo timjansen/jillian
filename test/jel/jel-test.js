@@ -409,6 +409,24 @@ describe('JEL', function () {
           f(1)`, '(inline):2:');
    });
 
+  });
 
+  describe('types', function() {  
+   it('allows creating new TypeDescriptors in JEL', function() {
+    return JEL.execute(`class EqNumberType extends TypeDescriptor:
+      constructor(eqVal: any) 
+
+      override checkType(value: any?): bool => value == this.eqVal
+      override convert(value: any?): any? => if this.checkType(value) then value else throw "Bad type"
+      override equals(other: TypeDescriptor?): bool => (other instanceof EqNumberType) && this.eqVal == other.eqVal
+      override serializeToString(): string => 'EqNumberType({{this.eqVal}})'        
+   `, '(inline class)', defaultContext).then(td=>{
+      const ja = new JelAssert(defaultContext.plus({EqNumberType: td}));
+      ja.equal("0 instanceof EqNumberType(0)", "true");
+      ja.equal("0 instanceof EqNumberType(1)", "false");
+      ja.equal("5 as EqNumberType(5)", "5");
+      return ja.errorPromise("2 as EqNumberType(0)", "Bad type");
+      });
+    });
   });
 });
