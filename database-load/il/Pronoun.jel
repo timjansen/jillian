@@ -1,5 +1,5 @@
 class IL::Pronoun extends IL::Object:
     constructor(pronoun: @PronounCategory, clauses)
 
-// TODO: set quantity and determiner in super class based on pronoun
+// TODO: set quantity and determiner based on pronoun
 

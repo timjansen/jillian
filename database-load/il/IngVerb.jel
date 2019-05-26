@@ -1,7 +1,11 @@
 /**
- * Like 'I like gardening' or 'I have never tried driving'.
+ * Like 'I like laughing' or 'I have never tried driving'.
+ * Can have subjects, objects, adverbs, prepositions, like a full sentence... 'I like him doing it thoroughly by the book.'
+ *
+ * Examples:
+ * I like laughing => IL::Statement(verb=Verb(@Like), subject=IL::Pronoun(@I), object=IL::IngVerb(IL::Sentence(Verb(@Laugh))))
  */
 class IL::IngVerb extends IL::Object:
-    constructor(verb: @VerbCategory, determiner, adjectives, possessor, clauses)
+    constructor(sentence: IL::Sentence, determiner, adjectives, possessor, clauses)
 
 

@@ -1,0 +1,8 @@
+/**
+ * An adjective as object, as in 'It is red', or 'I am interested in...'.
+ * @param prepositions prepositions that refer to the adjective, as in 'i am interested _in_elephants_.
+ */ 
+class IL::AdjectiveObject extends IL::Object:
+    constructor(adjective: Adjective, prepositions: Preposition[] = [])
+
+

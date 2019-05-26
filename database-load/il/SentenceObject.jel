@@ -1,0 +1,11 @@
+/**
+ * A sentence that's used like an object. Like 'I like that you wrote that mail' or 'I see you already arrived'.
+ *
+ * Examples:
+ * I like that you wrote that mail => IL::Statement(verb=Verb(@Like), subject=IL::Pronoun(@I), 
+                                        object=IL::SentenceObject(IL::Sentence(verb=Verb(@Laugh), subject=IL::Pronoun(@You), object=IL::Noun(@Mail, determiner=DeterminerEnum.FAR_DEMONSTRATIVE))))
+ */
+class IL::SentenceObject extends IL::Object:
+    constructor(sentence: IL::Sentence)
+
+
