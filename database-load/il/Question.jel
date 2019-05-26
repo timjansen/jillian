@@ -1,0 +1,5 @@
+class IL::Question extends IL::Sentence:
+    constructor(verb, subject, object, adverbial)
+
+
+

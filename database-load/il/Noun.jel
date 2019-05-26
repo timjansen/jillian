@@ -1,0 +1,4 @@
+class IL::Noun extends IL::Object:
+    constructor(noun: ThingType()|CatgoryType(), quantity, determiner, adjectives, possessor, clauses)
+
+

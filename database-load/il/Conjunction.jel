@@ -1,0 +1,5 @@
+class IL::Conjunction:
+    constructor(conjunction: @ConjunctionCategory, sentence: IL::Sentence|IL::Conjunction, clause: IL::Statement)
+
+// https://www.smart-words.org/linking-words/conjunctions.html
+

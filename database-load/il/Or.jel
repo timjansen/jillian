@@ -1,0 +1,7 @@
+class IL::Or extends IL::Element
+    /**
+     * @completeness whether there was a hint that the values are merely possible (plain 'or', 0.2) or whether they are complete ('either...or', 1)
+     * @element the elements that can be true
+     */
+    constructor(completeness = number(0...1), ...elements: IL::Element[])
+

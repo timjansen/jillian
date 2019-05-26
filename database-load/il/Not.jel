@@ -1,0 +1,2 @@
+class IL::Not extends IL::Element
+    constructor(element: IL::Element[])

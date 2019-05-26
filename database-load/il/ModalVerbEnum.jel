@@ -1,0 +1,10 @@
+enum ModelVerbEnum:
+    CAN,
+    MAY,
+    MUST,
+    SHALL,
+    WILL,
+    COULD,
+    MIGHT,
+    SHOULD,
+    WOULD

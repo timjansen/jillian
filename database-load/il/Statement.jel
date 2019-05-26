@@ -1,0 +1,5 @@
+class IL::Statement extends IL::Sentence:
+    constructor(verb, subject, object, adverbial)
+
+
+

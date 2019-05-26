@@ -1,0 +1,23 @@
+class AndOr extends TypeDescriptor:
+  constructor(baseType: typedef) =>
+    {
+        baseTypeDescriptor: TypeDescriptor(baseType)
+    }
+
+  overide checkType(value: any?): bool => 
+    try value
+    case IL::And|IL::Or: 
+      value.elements.hasOnly(e=>e instanceof this.baseTypeDescriptor)
+    case IL::Not:
+      value.element instanceof this.baseTypeDescriptor
+    else
+        value instanceof this.baseTypeDescriptor
+
+  overide convert(value: any?): any? => if this.checkType(value) then value else throw 'Can not convert to AndOr with base type {{this.baseTypeDescriptor}}'
+  
+  overide equals(other: TypeDescriptor?): bool => (other instanceof AndOr) && other.baseTypeDescriptor.equals(this.baseTypeDescriptor)
+  
+  overide serializeToString(): string => 'AndOr({{this.baseTypeDescriptor}})'
+
+    
+  

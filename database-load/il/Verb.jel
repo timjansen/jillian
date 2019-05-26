@@ -1,0 +1,4 @@
+class IL::Verb extends IL::Element:
+    constructor(verb: @VerbCategory, tense: TenseEnum = TenseEnum.PRESENCE, negate: bool = false, modal: ModalVerbEnum?, active: bool = true, continous: bool = false, perfect: bool = false)
+
+

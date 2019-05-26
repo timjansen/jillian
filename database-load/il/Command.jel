@@ -1,0 +1,5 @@
+class IL::Command extends IL::Sentence:
+    constructor(verb, subject, object, adverbial)
+
+
+

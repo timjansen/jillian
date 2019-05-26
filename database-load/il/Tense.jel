@@ -1,0 +1,6 @@
+enum Tense
+    PAST,
+    PRESENCE,
+    FUTURE
+
+    

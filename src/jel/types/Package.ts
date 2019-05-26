@@ -29,6 +29,7 @@ function createDictionary(packageName: string, content: List): Dictionary {
 export default class Package extends PackageContent {
   public packageContent: Dictionary;
   static clazz: Class|undefined;
+  private packageCache: Map<string, JelObject|null|Promise<JelObject|null>>;
 
   /**
    * Creates a new Package.
@@ -38,6 +39,7 @@ export default class Package extends PackageContent {
   constructor(packageName: string, public content: List = new List()) {
     super('Package', packageName);
     this.packageContent = createDictionary(packageName, content);
+    this.packageCache = new Map();
   }
   
   get clazz(): Class {
@@ -45,6 +47,10 @@ export default class Package extends PackageContent {
   } 
   
 	member(ctx: Context, name: string): JelObject|null|Promise<JelObject|null>|undefined {
+    const cached = this.packageCache.get(name);
+    if (cached)
+      return cached;
+
     const ref: any = this.packageContent.elements.get(name);
     if (!ref)
       return undefined;
@@ -52,12 +58,16 @@ export default class Package extends PackageContent {
     if (!TypeChecker.isIDbRef(ref))
       throw new Error(`Unsupported property in ${name}. Requires DbRef, but it is ${ref.className}.`);
     
-		return ref.with(ctx, (type: any)=>{
-      if (type instanceof Class || type instanceof Enum || type instanceof Package)
+		const result = ref.with(ctx, (type: any)=>{
+      if (type instanceof Class || type instanceof Enum || type instanceof Package) {
+        this.packageCache.set(name, type);
         return type;
+      }
       else
         throw new Error(`Can not resolve package member ${name}. Package, Class or Enum required, but it has the type ${type && type.className}.`);
     });
+    this.packageCache.set(name, result);
+    return result;
 	}
   
   getSerializationProperties(): any[] {

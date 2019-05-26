@@ -1,0 +1,2 @@
+class IL::And extends IL::Element
+    constructor(...elements: IL::Element[])

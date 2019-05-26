@@ -1,0 +1,8 @@
+class IL::Preposition:
+    /**
+     * @param preposition the preposition, language-dependent, e.g. a EnglishPrepositionEnum. This is used as key in the @VerbCategory
+     * @param object the object
+     */
+    constructor(preposition: EnumType(), object: IL::AndOr(IL::Object))
+
+    

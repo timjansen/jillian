@@ -1,0 +1,7 @@
+/**
+ * Like 'I like gardening' or 'I have never tried driving'.
+ */
+class IL::IngVerb extends IL::Object:
+    constructor(verb: @VerbCategory, determiner, adjectives, possessor, clauses)
+
+

@@ -1,0 +1,4 @@
+class IL::QuestionWord extends IL::Object:
+    constructor(questionWord: @QuestionWordCategory, subject: IL::AndOr(IL::Object)?)
+
+

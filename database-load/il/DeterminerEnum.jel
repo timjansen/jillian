@@ -1,0 +1,7 @@
+enum IL::DeterminerEnum:
+    DEFINITE, // 'the'
+    GENERAL,  // 'any'
+    OTHER,    // 'other', 'another'
+    NEAR_DEMONSTRATIVE,  // 'this', 'these'
+    FAR_DEMONSTRATIVE    // 'that', 'those'
+

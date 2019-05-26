@@ -18,9 +18,9 @@ import Class from '../Class';
  */
 export default class EnumType extends TypeDescriptor  implements SerializablePrimitive {
   static clazz: Class|undefined;
-
+  static empty = new EnumType();
   
-  constructor(public enumName: string) {
+  constructor(public enumName?: string) {
     super('Enum');
   }
   
@@ -31,12 +31,12 @@ export default class EnumType extends TypeDescriptor  implements SerializablePri
   // note: constants and types are not checked yet. That would become async.
   checkType(ctx: Context, value: JelObject|null): JelBoolean {
     if (value instanceof EnumValue)
-      return JelBoolean.valueOf(value.parent.distinctName == this.enumName);        
+      return JelBoolean.valueOf(!this.enumName || (value.parent.distinctName == this.enumName));
     return JelBoolean.FALSE;
   }
   
   serializeType(): string {
-    return `EnumType(${this.enumName})`;
+    return this.enumName ? `EnumType(${this.enumName})` : 'EnumType()';
   }
   
   serializeToString() : string {
@@ -49,6 +49,8 @@ export default class EnumType extends TypeDescriptor  implements SerializablePri
   
   static create_jel_mapping = true;
   static create(ctx: Context, ...args: any[]) {
+    if (!args[0])
+      return EnumType.empty;
     return new EnumType(args[0] instanceof Enum ? args[0].distinctName : TypeChecker.realString(args[0], 'enumRef'));
   }
 }

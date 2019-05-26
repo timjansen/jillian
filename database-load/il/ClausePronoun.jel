@@ -1,0 +1,14 @@
+/**
+ * Represents the 'that', 'who' or 'whose' in a dependent clause. Each clause must have one.
+ * - 'that' is a ClausePronoun(false)
+ * - 'who' is a ClausePronoun(true)
+ * - 'whose' is a ClausePronoun() that is used as an object's posessor
+ */
+class IL::ClausePronoun extends IL::Object:
+    /**
+     * @param person true if it refers to a person ('who'), false if not, null if undetermined
+     */
+    constructor(person: bool?)
+
+
+

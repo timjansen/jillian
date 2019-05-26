@@ -1,0 +1,9 @@
+enum IL::PrepositionEnum
+    FOR,
+    FROM,
+    IN,
+    OF,
+    ON,
+    TO,
+    WITH
+    

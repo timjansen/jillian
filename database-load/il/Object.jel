@@ -1,0 +1,12 @@
+abstract class IL::Object extends IL::Element:
+    /**
+     * @param quantity the quantity of the word, if known
+     * @param determiner an optional determiner of the object
+     * @param possessor an optional possessor (her, John's...)
+     * @param clauses optional descriptors of the object. Adjectives are encoded here as well. ('that is red', 'who started last week', 'whose sister was also present').
+              Either the subject, the object or a preposition must be an ClausePronoun (that represents the 'that', 'who', 'which' or 'whose')
+     */
+    constructor(quantity: IL::QuantityEnum?, determiner: IL::DeterminerEnum?, possessor: IL::AndOr(IL::Object)?, clauses: IL::AndOr(IL::Statement)?)
+
+
+
