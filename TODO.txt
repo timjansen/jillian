@@ -1,0 +1,168 @@
+Next steps
+===========
+
+0. IL
+- support clauses with 'but...', 'except...' ...
+- support complex objects like '...not fast, but slowly'
+- support prepositions ('from here', 'to there', 'without this')
+- support 'he is interested in learning X'
+
+He walked home.
+      Sentence(verb=Verb(@Walking, #PAST), subject=Pronoun(@He), object=Noun(@Home))
+
+She is going home by bike.
+      Sentence(verb=Verb(@Going, continous=true), subject=Pronoun(@She), object=Noun(@Home), prepositions=Preposition(EnglishPrepositionEnum.BY, Noun(@BikeCategory)))
+
+He drove home and went to bed.
+      Conjunction(@And, Sentence(verb=Verb(@Driving, #PAST), subject=Pronoun(@He), object=Noun(@Home)), 
+            Sentence(verb=Verb(@Going, #PAST), subject=ClausePronoun(), prepositions=Preposition(EnglishPrepositionEnum.TO, Noun(@BedCategory)))
+
+They are always used in pairs and denote equality.
+      Conjunction(@And, Sentence(verb=Verb(@Using, active=false), adverbial=Adverbial(@Always), subject=Pronoun(@They), prepositions=Preposition(EnglishPrepositionEnum.IN, Noun(@Pairs))), 
+            Sentence(verb=Verb(@Denote), subject=ClausePronoun(), objects=Noun(@Equality))
+
+She is interested in learning math.
+      Sentence(verb=Verb(@Being), subject=Pronoun(@She), prepositions=Preposition(EnglishPrepositionEnum.IN, IngVerb(Sentence(Verb(@Learn), object=Noun(@Math)))))
+
+I like that you wrote that mail.
+I like you wrote that mail.
+      Statement(verb=Verb(@Liking), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Laugh), subject=Pronoun(@You), object=Noun(@Mail, determiner=#FAR_DEMONSTRATIVE))))
+
+Make sure operations never throw exceptions, but just return false.
+      Command(verb=Verb(@Making), adverbial=Adverbial(@Sure), Conjunction(@But, IL::Statement(verb=Verb(@Throwing), adverbial=Adverbial(@Never), object=Noun(@Exception, QuantityEnum.MANY)), 
+                                                            Statement(verb=Verb(@Return, adverbial=Adverbial(@Just), subject=ClausePronoun(), object=Noun(@False)))))
+
+Farming is growing crops or keeping animals by people for food and raw materials. 
+      Statement(verb=Verb(@Being), subject=Noun(@Farming), object=Or(IngVerb(Sentence(Verb(@Growing), object=Noun(@Crop, #MANY)), IngVerb(Sentence(Verb(@Keeping), object=Noun(@AnimalCategory, #MANY))))),
+            prepositions=Preposition(EnglishPrepositionEnum.FOR, And(Noun(@Food), Noun(@Material, #MANY, adjective=Adjective(@Raw)))))
+
+Farming is a part of agriculture.
+I like to see you laughing.
+I see you already arrived.
+Agriculture started thousands of years ago, but no one knows for sure how old it is.
+The development of farming gave rise to the Neolithic Revolution whereby people gave up nomadic hunting and became settlers in what became cities.
+The Empire State Building is a skyscraper in New York City, United States.
+It is 381 meters tall and has 102 floors, and the height to its pinnacle is 1454 feet. 
+Named after the popular nickname for New York, The Empire State, it is one of the most famous landmarks in the US.
+Designed by the architects named Shreve, Lamb & Harmon Associates, it was built at a time when many people were trying to make the world's tallest building, but the Empire State Building won. 
+It was completed in 410 days. 
+It opened on May 1, 1931, when United States President Herbert Hoover pushed a button in Washington, D.C. to turn on the lights. 
+The Empire State Building's design was based on the 21-story Reynolds Building in Winston-Salem, which was built in 1929.
+The Empire State Building became the tallest building in New York City and the world, holding this record for forty-one years, until the first World Trade Center towers opened in 1973. 
+When these towers were brought down in the September 11, 2001 attacks, the Empire State Building was again the tallest building in New York. 
+It lost this title in April 2013 when the new One World Trade Center surpassed it, which is now the tallest building in the US and the Western Hemisphere.
+On Saturday, July 28, 1945, the B-25 Empire State Building crash started a fire.
+The building was not structurally compromised. 
+14 people were killed in the accident.
+Equality operations never throw exceptions.
+
+https://learnenglish.britishcouncil.org/english-grammar
+
+4. Rename 'with' to 'assert'
+
+5. Make sure equality ops never throw exceptions, but just return false
+
+6. Allow types to check for equality, and have a negation type. Together with method overloading, that would allow something like
+
+fib(n: 0)=>0
+fib(n: 1)=>1
+fib(n: number) => this.fib(n-1) + this.fib(n-2)
+
+Alternative syntax:
+fib(n: eq(0))=>0
+fib(n: eq(1))=>1
+fib(n: number) => this.fib(n-1) + this.fib(n-2)
+
+Make arg name optional?
+fib(0)=>0
+fib(1)=>1
+fib(n: number) => this.fib(n-1) + this.fib(n-2)
+
+
+7. Method overloading:
+if two or more methods have the same name, but different signature, create an overloading method that dispatches to the implementation.
+
+
+8. Allow operator overriding only to be implemented in JEL!? Even native classes should implement them as JEL, and provide native methods to allow implementing them.
+
+10. Add function parameter to stacktrace
+- JelObject needs new toDetailedString(l: DetailLevel) with DetailLevel.VERY, SOME... etc... numbers are always printed, string and lists only up to a certain length. Most JelObjects default to CTORNAME(...)
+
+
+
+19. Find a way to document types: /** */ Javdocs supported in Tokenizer. Read them in JEL.parseClass and store in new ClassDef field.
+   Use 'private' modifier in docs.
+
+20. Create a database manipulation layer to be able to undo or modify changes to the DB.
+Example conversation:
+The ball is red.          => upsert a Fact that the ball is red 
+Or blue.                  => change the previous fact to red OR blue
+But that's just a guess.  => change the certainty of the previous fact.
+
+30. Write translators
+
+50. Improve Fact evaluations. when determining a fact, check whether the Fact is compatible with all Facts with higher trustworthyness. Aim for the most specific Fact that passes the test.
+
+
+Colors
+======
+Class to store color (RGB?). 
+Name color and hue.
+https://www.color-blindness.com/color-name-hu
+
+
+
+Reader
+=======
+Uses Translators to translate english into JIL.
+
+Use new natural.TreebankWordTokenizer() for tokenization?  // https://github.com/NaturalNode/natural
+
+
+
+JEL Improvements
+================
+Python-like list comprehension? 
+[x for x in y if x>1]
+
+Or pipelines??
+
+myList as m -> m.age>=18 -> m.name
+means myList.filter(m=>m.age>=18).map(m=>m.name) 
+
+
+
+Fact Evaluation
+================
+The Fact evaluation should be much better. It should evaluate all facts and identify contradictions, especially between Thing and Category facts
+
+
+
+Long Term Todos and Shortcuts taken
+====================================
+- ApproximateNumber does not always calculate the error correctly, e.g. not for the ^ operator
+- Fractions could make better use of ^ operator
+
+
+
+Test sentences
+================
+
+Winnie the Pooh Test Sentence:
+In after-years he liked to think that he had been in Very Great Danger during the Terrible Flood, but the only danger he had 
+really been in was the last half-hour of his imprisonment, when Owl, who had just flown up, sat on a branch of his tree to comfort him, 
+and told him a very long story about an aunt who had once laid a seagull's egg by mistake, and the story went on and on, rather like this 
+sentence, until Piglet who was listening out of his window without much hope, went to sleep quietly and naturally, slipping slowly out of 
+the window towards the water until he was only hanging on by his toes, at which moment, luckily, a sudden loud squawk from Owl, which was 
+really part of the story, being what his aunt said, woke the Piglet up and just gave him time to jerk himself back into safety and say, 
+"How interesting, and did she?" when — well, you can imagine his joy when at last he saw the good ship, Brain of Pooh coming over the sea to rescue him...
+
+Understanding
+----------------
+ The ball didn’t fit in the brown suitcase because it was too
+       a. small
+       b. big
+
+ Does it refer to the ball or the suitcase?
+ 
+ 
