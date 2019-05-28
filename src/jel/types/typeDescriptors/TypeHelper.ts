@@ -44,7 +44,7 @@ export default class TypeHelper {
         return new InRangeType(l);
     }
     else if (l instanceof Enum)
-      return new EnumType(l.distinctName);
+      return new EnumType(l);
 		else if (l instanceof Class)
       return new SimpleType((l as any).name);
   

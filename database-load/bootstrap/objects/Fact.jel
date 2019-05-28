@@ -12,7 +12,7 @@ abstract class Fact
   /**
    * Defines whether the fact describes all possible values or just some, and whether the fact contains positives or negatives.
    */
-  coverage: EnumType('FactCoverageEnum')
+  coverage: EnumType(FactCoverageEnum)
   
   /**
    * The owning object of this fact

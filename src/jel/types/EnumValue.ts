@@ -25,9 +25,9 @@ export default class EnumValue extends NativeJelObject {
       throw new Error(`Illegal property value name "${value}", does not follow identifier rules`);
 	}
   
-  get clazz(): Class {
-    return EnumValue.clazz!;
-  }
+  	get clazz(): Class {
+    	return EnumValue.clazz!;
+  	}
 	
 	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
 		if (right instanceof EnumValue) {
@@ -54,6 +54,10 @@ export default class EnumValue extends NativeJelObject {
     return `${this.parent.distinctName}.${this.value}`;
   }
   
+  static valueOf(name: string, parent: Enum): EnumValue {
+	return new EnumValue(name, parent);
+  }
+
   serializeToString(pretty: boolean, indent: number, spaces: string) : string {
 		return this.toString();
 	}

@@ -354,6 +354,15 @@ enum FactType:
   Definition,
   Guess
   
+And then use them as members:
+  FactType.Sample
+
+You can also use the anonymous enum operator '#' when the type is converted:
+
+#Sample as FactType == FactType.Sample
+
+When calling a method that expects a certain enum, you can use '#' as a shortcut so you don't need to type the enum's name.
+
 
 Patterns
 -------------------

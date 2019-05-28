@@ -159,6 +159,8 @@ describe('Types', function() {
     jelAssert.fuzzy('let e1 = enum AEnum a,b,c: EnumType(e1).checkType(6)', 0);
     jelAssert.fuzzy('let e1 = enum AEnum a,b,c: let e2 = enum BEnum a,b,c: EnumType(e2).checkType(e1.a)', 0);
     jelAssert.fuzzy('let e1 = enum AEnum a,b,c: (e1)?.checkType(e1.a)', 1);
+    jelAssert.fuzzy('let e1 = enum AEnum a,b,c: (e1)?.checkType(#a)', 1);
+    jelAssert.fuzzy('let e1 = enum AEnum a,b,c: (e1)?.checkType(#x)', 0);
   });
 
   it('checks functions', function() {
@@ -246,6 +248,11 @@ describe('Types', function() {
     jelAssert.equal('TypeDescriptor(SimpleType("Float"))', 'SimpleType("Float")');
     jelAssert.equal('TypeDescriptor(int)', 'int');
     return jelAssert.equalPromise('TypeDescriptor(Float)', 'SimpleType("Float")');
+  });
+
+  it('can convert', function() {
+    jelAssert.equal('let e1 = enum AEnum a,b,c: (e1)?.convert(#a)', 'let e1 = enum AEnum a,b,c: e1.a');
+    jelAssert.equal('(int[]).convert(5)', '[5]');
   });
 
 });

@@ -6,6 +6,6 @@
  * I like laughing => IL::Statement(verb=Verb(@Like), subject=IL::Pronoun(@I), object=IL::IngVerb(IL::Sentence(Verb(@Laugh))))
  */
 class IL::IngVerb extends IL::Object:
-    constructor(sentence: IL::Sentence, determiner, adjectives, possessor, clauses)
+    constructor(sentence: IL::Sentence, determiner, adjective, prepositions, possessor, clauses)
 
 

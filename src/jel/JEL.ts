@@ -56,6 +56,7 @@ import TryIf from './expressionNodes/TryIf';
 import TryElse from './expressionNodes/TryElse';
 import TryCase from './expressionNodes/TryCase';
 import Throw from './expressionNodes/Throw';
+import AnonEnum from './expressionNodes/AnonEnum';
 
 const binaryOperators: any = { // op->precedence
   '.': 50,
@@ -300,8 +301,11 @@ static parseOperatorExpression(tokens: TokenReader, operator: string, precedence
     case '${': 
         return JEL.parseTranslator(tokens, precedence, stopOps);
     case '@': 
-      const t2 = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier after '@' for reference.");
-      return JEL.tryBinaryOps(tokens, new Reference(t2, t2.value), precedence, stopOps);
+        const t2 = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier after '@' for reference.");
+        return JEL.tryBinaryOps(tokens, new Reference(t2, t2.value), precedence, stopOps);
+    case '#': 
+      const tHash = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier after '#' for anonymous enum.");
+      return JEL.tryBinaryOps(tokens, new AnonEnum(tHash, tHash.value), precedence, stopOps);
     case 'if':
       const cond = JEL.parseExpression(tokens, IF_PRECEDENCE, IF_STOP);
       JEL.expectOp(tokens, IF_STOP, "Expected 'then' or ':' to end 'if' condition");

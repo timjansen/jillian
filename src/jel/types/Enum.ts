@@ -18,6 +18,8 @@ export default class Enum extends PackageContent {
   public valueMap: Dictionary;
   static clazz: Class|undefined;
 
+  static anonymous: Enum = new Enum('AnonymousEnum', List.empty);
+
 	/**
 	 * @param values a List of strings with the possible values of the enum.
 	 */
@@ -41,7 +43,11 @@ export default class Enum extends PackageContent {
 			return this.valueMap.get(ctx, name);
     else
       return super.member(ctx, name);
-	}
+  }
+  
+  hasJs(name: string): boolean {
+    return this.valueMap.elements.has(name);
+  }
   
   getSerializationProperties(): any[] {
     return [this.name, this.values];
