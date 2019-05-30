@@ -1,11 +1,14 @@
 /**
  * A sentence that's used like an object. Like 'I like that you wrote that mail' or 'I see you already arrived'.
+ * Also used to represent infinitive ('I like _to_go_swimming_')
  *
  * Examples:
  * I like that you wrote that mail => IL::Statement(verb=Verb(@Like), subject=IL::Pronoun(@I), 
                                         object=IL::SentenceObject(IL::Sentence(verb=Verb(@Laugh), subject=IL::Pronoun(@You), object=IL::Noun(@Mail, determiner=DeterminerEnum.FAR_DEMONSTRATIVE))))
+ *
+ * I like to go swimming => IL::Statement(verb=Verb(@Like), subject=IL::Pronoun(@I), object=IL::SentenceObject(IL::Sentence(verb=IL::Verb(@Go), object=IL::IngVerb(IL::Sentence(verb=IL::Verb(@Swimming)))), true))
  */
 class IL::SentenceObject extends IL::Object:
-    constructor(sentence: IL::Sentence)
+    constructor(sentence: IL::Sentence, infinitive: bool = false)
 
 

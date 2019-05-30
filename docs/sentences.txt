@@ -1,0 +1,98 @@
+Collection of Test Sentences
+============================
+
+This collection is currently used to validate the completeness of IL and other mechanisms. Eventually it will be turned into automatic tests.
+
+
+He walked home.
+      Sentence(verb=Verb(@Walking, #PAST), subject=Pronoun(@He), object=Noun(@Home))
+
+She is going home by bike.
+      Sentence(verb=Verb(@Going, continous=true), subject=Pronoun(@She), object=Noun(@Home), prepositions=Preposition(EnglishPrepositionEnum.BY, Noun(@BikeCategory)))
+
+He drove home and went to bed.
+      Conjunction(@And, Sentence(verb=Verb(@Driving, #PAST), subject=Pronoun(@He), object=Noun(@Home)), 
+            Sentence(verb=Verb(@Going, #PAST), subject=ClausePronoun(), prepositions=Preposition(EnglishPrepositionEnum.TO, Noun(@BedCategory)))
+
+They are always used in pairs and denote equality.
+      Conjunction(@And, Sentence(verb=Verb(@Using, active=false), adverbial=AdjectiveAdverbial(@Always), subject=Pronoun(@They), prepositions=Preposition(EnglishPrepositionEnum.IN, Noun(@Pairs))), 
+            Sentence(verb=Verb(@Denote), subject=ClausePronoun(), objects=Noun(@Equality))
+
+She is interested in learning math.
+      Sentence(verb=Verb(@Being), subject=Pronoun(@She), prepositions=Preposition(EnglishPrepositionEnum.IN, IngVerb(Sentence(Verb(@Learn), object=Noun(@Math)))))
+
+I like that you wrote that mail.
+I like you wrote that mail.
+      Statement(verb=Verb(@Liking), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Laugh), subject=Pronoun(@You), object=Noun(@Mail, determiner=#FAR_DEMONSTRATIVE))))
+
+Make sure operations never throw exceptions, but just return false.
+      Command(verb=Verb(@Making), adverbial=AdjectiveAdverbial(@Sure), Conjunction(@But, IL::Statement(verb=Verb(@Throwing), adverbial=AdjectiveAdverbial(@Never), object=Noun(@Exception, QuantityEnum.MANY)), 
+                                                            Statement(verb=Verb(@Return, adverbial=AdjectiveAdverbial(@Just), subject=ClausePronoun(), object=Noun(@False)))))
+
+Farming is growing crops or keeping animals by people for food and raw materials. 
+      Statement(verb=Verb(@Being), subject=Noun(@Farming), object=Or(IngVerb(Sentence(Verb(@Growing), object=Noun(@Crop, #MANY)), IngVerb(Sentence(Verb(@Keeping), object=Noun(@AnimalCategory, #MANY))))),
+            prepositions=Preposition(EnglishPrepositionEnum.FOR, And(Noun(@Food), Noun(@Material, #MANY, adjective=Adjective(@Raw)))))
+
+Farming is a part of agriculture.
+      Statement(verb=Verb(@Being), subject=IngVerb(Sentence(@Farming)), object=Noun(@Part, #ONE, #GENERAL, prepositions=Preposition(EnglishPrepositionEnum.OF, Noun(@Agriculture))))
+
+I like to see you laughing.
+      Statement(verb=Verb(@Liking), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Seeing), object=IngVerb(Sentence(verb=@Laughing, subject=Pronoun(@You)))), true))
+
+I see you have already arrived.
+      Statement(verb=Verb(@Seeing), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Arriving, #PAST, perfect=true), subject=Pronoun(@You), adverbial=AdjectiveAdverbial(@Already))))
+
+Agriculture started thousands of years ago.
+      Statement(verb=Verb(@Starting), subject=Noun(@Agriculture), prepositions=Preposition(DurationPrepositionEnum.AGO, Value(1000, quantity=#MANY, object=Noun(@Year, #MANY))))
+
+There are two sides to every story.
+      Statement(verb=Verb(@Being), subject=Pronoun(@There), object=Value(2, Noun(@Side, #MANY)), prepositions=Preposition(EnglishPrepositionEnum.TO, Noun(@Story, adjective=Adjective(@Every))))
+
+She is the fifth child of her father.
+      Statement(verb=Verb(@Being), subject=Pronoun(@She), object=Noun(@Child, adjective=Adjective(@Ordinal, compareObject=Value(5)), prepositions=Preposition(EnglishPrepositionEnum.OF, Noun(@Father, possessor=Pronoun(@She)))))
+
+I went three times to that restaurant.
+      Statement(verb=Verb(@Being, #PAST), subject=Pronoun(@I), object=Value(3 @Times), prepositions=Preposition(EnglishPrepositionEnum.TO, Noun(@Restaurant, determiner=#FAR_DEMONSTRATIVE)))
+
+My favorite number is 5.
+      Statement(verb=Verb(@Being), subject=Noun(@Number, adjective=Adjective(@Favorite), possessor=Pronoun(@I)), object=Value(5))
+
+She's 6 foot tall.
+      Statement(verb=Verb(@Being), subject=Pronoun(@She), object=Value(6 @Foot, object=AdjectiveObject(@Tall)))
+
+The kitchen table's height is 40cm.
+      Statement(verb=Verb(@Being), subject=Noun(@Height, possessor=Noun(@KitchenTable, determiner=#DEFINITE)), object=Value(40 @Centimeter))
+
+The kitchen is downstairs.
+      Statement(verb=Verb(@Being), subject=Noun(@Kitchen, determiner=#DEFINITE)), object=Noun(@Downstairs))
+
+I lost my watch yesterday, not last week.
+Perhaps the weather will be fine.
+I forget things more often nowadays.
+No one knows for sure how old it is.
+I forget things more often than I used to.
+I forget things more often since last year.
+It slowly started three days ago.
+Three weeks ago I was on vacation.
+There are two of them.
+You told me last week.
+I have been there before.
+I hid under the table.
+You walked from New York to Philadephia?
+I promised to do it in five years.
+He's flying above the clouds.
+The development of farming gave rise to the Neolithic Revolution whereby people gave up nomadic hunting and became settlers in what became cities.
+The Empire State Building is a skyscraper in New York City, United States.
+It is 381 meters tall and has 102 floors, and the height to its pinnacle is 1454 feet. 
+Named after the popular nickname for New York, The Empire State, it is one of the most famous landmarks in the US.
+Designed by the architects named Shreve, Lamb & Harmon Associates, it was built at a time when many people were trying to make the world's tallest building, but the Empire State Building won. 
+It was completed in 410 days. 
+It opened on May 1, 1931, when United States President Herbert Hoover pushed a button in Washington, D.C. to turn on the lights. 
+The Empire State Building's design was based on the 21-story Reynolds Building in Winston-Salem, which was built in 1929.
+The Empire State Building became the tallest building in New York City and the world, holding this record for forty-one years, until the first World Trade Center towers opened in 1973. 
+When these towers were brought down in the September 11, 2001 attacks, the Empire State Building was again the tallest building in New York. 
+It lost this title in April 2013 when the new One World Trade Center surpassed it, which is now the tallest building in the US and the Western Hemisphere.
+On Saturday, July 28, 1945, the B-25 Empire State Building crash started a fire.
+The building was not structurally compromised. 
+14 people were killed in the accident.
+Equality operations never throw exceptions.

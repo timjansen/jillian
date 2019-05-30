@@ -1,0 +1,14 @@
+/**
+ * An adverbial object denoting complex time. Note that for one-word adverbials like 'yesterday' you should use AdjectiveAdverbial.
+ * 'He disappeared _four_days_ago_'. 
+ * 'She ran better _this_year_ than in 2014.'
+ */
+class IL::TimeAdverbial:
+    /**
+     * @param adjective
+     * @param comparison more/less/as ('he walks faster', 'he walks less fast', 'he walks as fast as...')
+     * @param modifiers an intensifier ('very', 'extremely') or mitigator ('hardly', 'quite')
+     * @param compareObject objects to compare to ('he walks faster than a turtle')
+     */
+    constructor(adjective: @AdjectiveCategory, modifiers: @ModifierCategory[] = [], comparison: IL::ComparativeEnum?, compareObject: IL::AndOr(@Object)?)
+

@@ -1,0 +1,9 @@
+/**
+ * Represents numbers, dates and other things.
+ * @param value a number, unit value, coordinates etc
+ * @param object optional an object connected to the value. Depends on type of value.
+ */
+class IL::Value extends IL::Object:
+    constructor(value: any, object: IL::Object?, quantity, determiner, adjective, prepositions, possessor, clauses)
+
+

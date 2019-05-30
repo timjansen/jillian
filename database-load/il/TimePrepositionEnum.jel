@@ -1,0 +1,8 @@
+enum IL::TimePrepositionEnum
+    ON,
+    UNTIL,
+    SINCE,
+    BY,
+    BEFORE,
+    AFTER
+

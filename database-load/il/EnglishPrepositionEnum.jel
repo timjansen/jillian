@@ -1,4 +1,4 @@
-enum IL::PrepositionEnum
+enum IL::EnglishPrepositionEnum
     FOR,
     FROM,
     IN,
@@ -6,5 +6,10 @@ enum IL::PrepositionEnum
     ON,
     TO,
     WITH,
-    BY
+    BY,
+    AGO,
+    SINCE,
+    UNTIL,
+    BEFORE
+
     

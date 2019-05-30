@@ -2,13 +2,9 @@
  * An adverb and everything that belongs to it. 
  * 'He disappeared _quickly_'. 
  * 'She ran _faster_than_anybody_else_.'
+ * 'I did this last year'.
+ * 'I did this last year'.
  */
-class IL::Adverbial:
-    /**
-     * @param adjective
-     * @param comparison more/less/as ('he walks faster', 'he walks less fast', 'he walks as fast as...')
-     * @param modifiers an intensifier ('very', 'extremely') or mitigator ('hardly', 'quite')
-     * @param compareObject objects to compare to ('he walks faster than a turtle')
-     */
-    constructor(adjective: @AdjectiveCategory, modifiers: @ModifierCategory[] = [], comparison: IL::ComparativeEnum?, compareObject: IL::AndOr(@Object)?)
+abstract class IL::Adverbial:
+    constructor()
 
