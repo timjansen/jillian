@@ -1,0 +1,14 @@
+/**
+ * NotType inverts the result of any type check.
+ */
+native class NotType extends TypeDescriptor:
+  native constructor(type: typedef)
+  
+  override native checkType(value: any?): bool
+
+  override native convert(value: any?): any?
+  
+  override native equals(other: TypeDescriptor?): bool
+  
+  override native serializeToString(): string
+  

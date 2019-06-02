@@ -69,7 +69,7 @@ export default class IntType extends TypeDescriptor  implements SerializablePrim
 
 }
 
-IntType.prototype.create_jel_mapping = {range: 1, min: 1, max: 2};
+IntType.prototype.create_jel_mapping = true;
 
 
 BaseTypeRegistry.register('IntType', IntType);

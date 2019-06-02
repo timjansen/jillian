@@ -57,6 +57,7 @@ import TryElse from './expressionNodes/TryElse';
 import TryCase from './expressionNodes/TryCase';
 import Throw from './expressionNodes/Throw';
 import AnonEnum from './expressionNodes/AnonEnum';
+import Not from './expressionNodes/Not';
 
 const binaryOperators: any = { // op->precedence
   '.': 50,
@@ -102,7 +103,8 @@ const unaryOperators: any = { // op->precedence
   '>=': 18,
   '<=': 18,
   '>': 18,
-  '<': 18
+  '<': 18,
+  '^': 21
 };
 
 const overloadableOperators: any = {'+': true, '-': true, '*': true, '/': true, '%': true, '==': true, '===': true, '!=': true, '!==': true, '<': true, '<<': true, '<=': true, '<<=': true, '>': true, '>>': true, '>=': true, '>>=': true, '^': true};
@@ -273,6 +275,8 @@ export default class JEL {
         return JEL.tryBinaryOps(tokens, new Range(tokens.last(), JEL.parseExpression(tokens, unaryOperators[operator], stopOps), undefined, true, false), precedence, stopOps);
       case "<":
         return JEL.tryBinaryOps(tokens, new Range(tokens.last(), undefined, JEL.parseExpression(tokens, unaryOperators[operator], stopOps), false, true), precedence, stopOps);
+      case "^":
+        return JEL.tryBinaryOps(tokens, new Not(tokens.last(), JEL.parseExpression(tokens, unaryOperators[operator], stopOps, true)), precedence, stopOps);
       default:
         return JEL.tryBinaryOps(tokens, new Operator(tokens.last(),  operator, JEL.parseExpression(tokens, unaryOperators[operator], stopOps)), precedence, stopOps);
     }

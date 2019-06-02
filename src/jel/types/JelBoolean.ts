@@ -109,7 +109,7 @@ export default class JelBoolean extends NativeJelObject implements SerializableP
 	}
 
 	negate_jel_mapping: boolean;
-	negate():JelBoolean {
+	negate(): JelBoolean {
 		return JelBoolean.NEGATE.get(this.state) || new JelBoolean(JelBoolean.TRUE_VALUE - this.state);
 	}
 		

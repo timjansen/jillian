@@ -1,10 +1,9 @@
-import JelObject from '../../JelObject';
-import NativeJelObject from '../NativeJelObject';
-import Context from '../../Context';
-import JelBoolean from '../JelBoolean';
 import Util from '../../../util/Util';
-import TypeHelper from './TypeHelper';
 import BaseTypeRegistry from '../../BaseTypeRegistry';
+import Context from '../../Context';
+import JelObject from '../../JelObject';
+import JelBoolean from '../JelBoolean';
+import NativeJelObject from '../NativeJelObject';
 
 /**
  * Abstract prototype to define the type of a value.

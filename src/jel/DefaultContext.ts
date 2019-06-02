@@ -52,6 +52,7 @@ import DictionaryType from './types/typeDescriptors/DictionaryType';
 import EnumType from './types/typeDescriptors/EnumType';
 import FunctionType from './types/typeDescriptors/FunctionType';
 import IntType from './types/typeDescriptors/IntType';
+import NotType from './types/typeDescriptors/NotType';
 import InRangeType from './types/typeDescriptors/InRangeType';
 import ListType from './types/typeDescriptors/ListType';
 import NumberType from './types/typeDescriptors/NumberType';
@@ -108,6 +109,7 @@ const BOOT_SCRIPT = [
     {jel: 'typeDescriptors/EnumType.jel', native: EnumType},
     {jel: 'typeDescriptors/InRangeType.jel', native: InRangeType},
     {jel: 'typeDescriptors/ListType.jel', native: ListType},
+    {jel: 'typeDescriptors/NotType.jel', native: NotType},
     {jel: 'typeDescriptors/OptionalType.jel', native: OptionalType},
     {jel: 'typeDescriptors/OptionType.jel', native: OptionType},
     {jel: 'typeDescriptors/RangableType.jel', native: RangableType},

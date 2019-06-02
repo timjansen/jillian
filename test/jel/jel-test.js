@@ -8,28 +8,13 @@ const DefaultContext = require('../../build/jel/DefaultContext.js').default;
 const BaseTypeRegistry = require('../../build/jel/BaseTypeRegistry.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
 const Callable = require('../../build/jel/Callable.js').default;
-const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
-const JelObject = require('../../build/jel/JelObject.js').default;
 const NativeJelObject = require('../../build/jel/types/NativeJelObject.js').default;
-const JelString = require('../../build/jel/types/JelString.js').default;
 const Float = require('../../build/jel/types/Float.js').default;
-const JelList = require('../../build/jel/types/List.js').default;
-const JelDictionary = require('../../build/jel/types/Dictionary.js').default;
 const Fraction = require('../../build/jel/types/Fraction.js').default;
 const UnitValue = require('../../build/jel/types/UnitValue.js').default;
 const OptionalType = require('../../build/jel/types/typeDescriptors/OptionalType.js').default;
+const NotType = require('../../build/jel/types/typeDescriptors/NotType.js').default;
 const TypeHelper = require('../../build/jel/types/typeDescriptors/TypeHelper.js').default;
-const JelNode = require('../../build/jel/expressionNodes/JelNode.js').default;
-const Literal = require('../../build/jel/expressionNodes/Literal.js').default;
-const Variable = require('../../build/jel/expressionNodes/Variable.js').default;
-const Operator = require('../../build/jel/expressionNodes/Operator.js').default;
-const List = require('../../build/jel/expressionNodes/List.js').default;
-const Reference = require('../../build/jel/expressionNodes/Reference.js').default;
-const Condition = require('../../build/jel/expressionNodes/Condition.js').default;
-const Assignment = require('../../build/jel/expressionNodes/Assignment.js').default;
-const Let = require('../../build/jel/expressionNodes/Let.js').default;
-const Lambda = require('../../build/jel/expressionNodes/Lambda.js').default;
-const Call = require('../../build/jel/expressionNodes/Call.js').default;
 
 const {plus, JelAssert, JelPromise, JelConsole, MockSession, PromiseType} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
@@ -68,6 +53,14 @@ describe('JEL', function () {
       assert.ok(new JEL('Float?').executeImmediately(ctx) instanceof OptionalType);
       assert.equal(new JEL('Float?').executeImmediately(ctx).type.type, 'Float');
       assert.equal(new JEL('(Float)?').executeImmediately(ctx).type.type, 'Float');
+    });
+
+    it('should support inverted types', function() {
+      assert.ok(new JEL('^Float').executeImmediately(ctx) instanceof NotType);
+      jelAssert.equal("^Float", "NotType(Float)");
+      jelAssert.equal("^int", "NotType(int)");
+      jelAssert.equal("3 instanceof ^number", "false");
+      jelAssert.equal("3 instanceof ^string", "true");
     });
 
     it('should convert convenience types automatically', function() {
@@ -115,6 +108,13 @@ describe('JEL', function () {
       jelAssert.equal("'hello' instanceof Float|String", "true");
       jelAssert.equal("true instanceof Float|String", "false");
       jelAssert.equal("null instanceof Float|String?", "true");
+
+      jelAssert.equal("3 instanceof NotType(Float)", "false");
+      jelAssert.equal("3 instanceof NotType(String)", "true");
+      jelAssert.equal("3 instanceof ^Float", "false");
+      jelAssert.equal("3 instanceof ^String", "true");
+      jelAssert.equal("1/2 instanceof ^(Float|String)", "true");
+      jelAssert.equal("0.5 instanceof ^(Float|String)", "false");
 
       jelAssert.equal("3 instanceof number<>", "true");
       jelAssert.equal("2.3 instanceof int<>", "false");
