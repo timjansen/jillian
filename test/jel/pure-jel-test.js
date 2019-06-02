@@ -303,8 +303,8 @@ describe('JEL unit tests executed with empty context', function() {
      
       jelAssert.equal(new JEL('if true then 1 let a = 7: a').executeImmediately(), 1);
       jelAssert.equal(new JEL('if false then 1 let a = 7: a').executeImmediately(), 7);
-      jelAssert.equal(new JEL('if true then 1 with 1<2: 7').executeImmediately(), 1);
-      jelAssert.equal(new JEL('if false then 1 with 1<2: 7').executeImmediately(), 7);
+      jelAssert.equal(new JEL('if true then 1 assert 1<2: 7').executeImmediately(), 1);
+      jelAssert.equal(new JEL('if false then 1 assert 1<2: 7').executeImmediately(), 7);
       jelAssert.equal(new JEL('if true then 1 if true then 2 else 3').executeImmediately(), 1);
       jelAssert.equal(new JEL('if false then 1 if true then 2 else 3').executeImmediately(), 2);
       jelAssert.equal(new JEL('if false then 1 if false then 2 else 3').executeImmediately(), 3);
@@ -389,10 +389,10 @@ describe('JEL unit tests executed with empty context', function() {
       jelAssert.equal(new JEL('3+2*let a=1: a*10').executeImmediately(), 23);
     });
 
-    it('supports with', function() {
-      jelAssert.equal('let a=1: with a>0: a', 1);
-      jelAssert.equal('let a=1: with a>0, 3>2: a', 1);
-      return jelAssert.errorPromise('let a=1: with a>0, a<0: a', 'a < 0');
+    it('supports assert', function() {
+      jelAssert.equal('let a=1: assert a>0: a', 1);
+      jelAssert.equal('let a=1: assert a>0, 3>2: a', 1);
+      return jelAssert.errorPromise('let a=1: assert a>0, a<0: a', 'a < 0');
     });
 
     it('supports try/if/else', function() {

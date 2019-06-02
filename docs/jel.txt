@@ -304,12 +304,12 @@ catch: handleGenericIssue()
 
 Assertions
 -------------------
-'with' allows you to define assertions that will be checked before the child expression has been executed. If the assertions fail, an exception will be thrown.
+'assert' allows you to define assertions that will be checked before the child expression has been executed. If the assertions fail, an exception will be thrown.
 Assertions are mostly meant to be used at the top of class methods, to document and check any assertions made.
 
 Examples:
-	with a>=b, b>0, a>0: a/b
-	with a in 0...16: a/16
+	assert a>=b, b>0, a>0: a/b
+	assert a in 0...16: a/16
   
 	
 Classes

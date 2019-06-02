@@ -10,8 +10,6 @@ Next steps
 
 https://learnenglish.britishcouncil.org/english-grammar
 
-4. Rename 'with' to 'assert'
-
 5. Make sure equality ops never throw exceptions, but just return false
 
 6. Allow types to check for equality, and have a negation type. Together with method overloading, that would allow something like

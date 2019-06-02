@@ -38,7 +38,7 @@ import MethodDef from './expressionNodes/MethodDef';
 import PropertyDef from './expressionNodes/PropertyDef';
 import PatternAssignment from './expressionNodes/PatternAssignment';
 import Let from './expressionNodes/Let';
-import With from './expressionNodes/With';
+import Assert from './expressionNodes/Assert';
 import Lambda from './expressionNodes/Lambda';
 import Call from './expressionNodes/Call';
 import MethodCall from './expressionNodes/MethodCall';
@@ -112,7 +112,7 @@ const IF_PRECEDENCE = 4;
 const TRY_PRECEDENCE = 4; 
 const PARENS_PRECEDENCE = 4; 
 const LET_PRECEDENCE = 4; 
-const WITH_PRECEDENCE = 4; 
+const ASSERT_PRECEDENCE = 4; 
 const CLASS_PRECEDENCE = 4;
 const THROW_PRECEDENCE = 4;
 
@@ -130,10 +130,10 @@ const TRANSLATOR_PATTERN_STOP = {'=>': true};
 const TRANSLATOR_LAMBDA_STOP = {',': true, '}': true};
 const PARAMETER_STOP: any = {')': true, ',': true};
 const IF_STOP = {'then': true, ':': true};
-const THEN_STOP: any = {'else': true, 'let': true, 'with': true, 'if': true, 'class': true, 'enum': true, 'try': true, 'throw': true, abstract: true, static: true, native: true, override: true, private: true};
-const ELSE_STOP: any = {'else': true, 'let': true, 'with': true, 'if': true, 'class': true, 'enum': true, 'try': true, 'throw': true};
+const THEN_STOP: any = {'else': true, 'let': true, 'assert': true, 'if': true, 'class': true, 'enum': true, 'try': true, 'throw': true, abstract: true, static: true, native: true, override: true, private: true};
+const ELSE_STOP: any = {'else': true, 'let': true, 'assert': true, 'if': true, 'class': true, 'enum': true, 'try': true, 'throw': true};
 const LET_STOP = {':': true, ',': true};
-const WITH_STOP = {':': true, ',': true};
+const ASSERT_STOP = {':': true, ',': true};
 const TRY_STOP = {':': true};
 const TRY_ELEMENT_STOP = {'when': true, 'catch': true, 'else': true, 'if': true, 'case': true};
 const CLASS_EXTENDS_STOP = {':': true, ',': true, identifier: true, abstract: true, static: true, native: true, override: true, private: true};
@@ -320,9 +320,9 @@ static parseOperatorExpression(tokens: TokenReader, operator: string, precedence
     case 'let':
       const assignments: Assignment[] = JEL.parseParameters(tokens, LET_PRECEDENCE, LET_STOP, ':', "Expected colon or equal sign after expression in 'let' statement,", 'constant');
       return JEL.tryBinaryOps(tokens, new Let(firstToken, assignments, JEL.parseExpression(tokens, LET_PRECEDENCE, stopOps)), precedence, stopOps);
-    case 'with':
-      const assertions: JelNode[] = JEL.parseListOfExpressions(tokens, WITH_PRECEDENCE, WITH_STOP, ':', "Expected colon after last expression in 'with' assertion");
-      return JEL.tryBinaryOps(tokens, new With(firstToken, assertions, JEL.parseExpression(tokens, WITH_PRECEDENCE, stopOps)), precedence, stopOps);
+    case 'assert':
+      const assertions: JelNode[] = JEL.parseListOfExpressions(tokens, ASSERT_PRECEDENCE, ASSERT_STOP, ':', "Expected colon after last expression in 'assert' assertion");
+      return JEL.tryBinaryOps(tokens, new Assert(firstToken, assertions, JEL.parseExpression(tokens, ASSERT_PRECEDENCE, stopOps)), precedence, stopOps);
     case 'try':
       return JEL.tryBinaryOps(tokens, JEL.parseTryExpression(tokens, TRY_PRECEDENCE, stopOps), precedence, stopOps);
     case 'native':
