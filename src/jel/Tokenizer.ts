@@ -30,8 +30,8 @@ export default class Tokenizer {
 	}
 	
   static tokenize(input: string, src = "(inline)"): TokenReader {
-    //          line comment   full comment                | Fraction                               |Number                        Operator                                                                                                                             Identifier-like                    pattern           single-quoted      double-quoted        illegal
-    const re = /\/\/.*(?:\n|$)|\/\*(?:[^\*]+|\*+[^\/])*\*\/|(\d+\s*\/\s*[1-9]\d*(?![e.][0-9]|[0-9]))|(\d+(?:\.\d+)?(?:e[+-]?\d+)?)|([\(\)\]\}:,\*\/^%@~#]|\.\.\.|\.\?|\.|\+-|\+|-|\{\}|\[\]|\$\{|\{|\[|=>|===|==|=|<>|<<=|>>=|>=|<=|>>|<<|>|<|!==|!=|!|\|\||\&\&|\||\?)|([a-zA-Z_](?:[\w_]|\:\:[a-zA-Z])*)|(`(?:\\.|[^`])*`)|('(?:\\.|[^'])*')|("(?:\\.|[^"])*")|\s+|(.+)/g;
+    //          line comment   full comment                | Fraction                               |Number                        Operator                                                                                                                                Identifier-like                    pattern           single-quoted      double-quoted        illegal
+    const re = /\/\/.*(?:\n|$)|\/\*(?:[^\*]+|\*+[^\/])*\*\/|(\d+\s*\/\s*[1-9]\d*(?![e.][0-9]|[0-9]))|(\d+(?:\.\d+)?(?:e[+-]?\d+)?)|([\(\)\]\}:,\*\/^%@~#]|\.\.\.|\.\?|\.|\+-|\+|-|\{\}|\[\]|\$\{|\{|\[|=>|===|==|=|<>|<<=|>>=|>=|<=|>>|<<|>|<|!==|!=|!|\|\||\&\&|\||\&|\?)|([a-zA-Z_](?:[\w_]|\:\:[a-zA-Z])*)|(`(?:\\.|[^`])*`)|('(?:\\.|[^'])*')|("(?:\\.|[^"])*")|\s+|(.+)/g;
     // groups:
     // group 1: fraction
     // group 2: number

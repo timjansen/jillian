@@ -35,9 +35,13 @@ export default class NotType extends TypeDescriptor  implements SerializablePrim
   checkType(ctx: Context, value: JelObject|null): JelBoolean | Promise<JelBoolean> {
     return Util.resolveValue(this.type.checkType(ctx, value), v=>v.negate());
   }
+
+  isNullable(ctx: Context): boolean {
+    return !this.type.isNullable(ctx);
+  }
   
   serializeType(): string {
-    return `Not(${this.type.serializeType()})`
+    return `NotType(${this.type.serializeType()})`
   }
   
   equals(ctx: Context, other: TypeDescriptor|null): JelBoolean|Promise<JelBoolean> {

@@ -115,6 +115,8 @@ describe('JEL', function () {
       jelAssert.equal("3 instanceof ^String", "true");
       jelAssert.equal("1/2 instanceof ^(Float|String)", "true");
       jelAssert.equal("0.5 instanceof ^(Float|String)", "false");
+      jelAssert.equal("1/2 instanceof number&^int", "true");
+      jelAssert.equal("1 instanceof number&^int", "false");
 
       jelAssert.equal("3 instanceof number<>", "true");
       jelAssert.equal("2.3 instanceof int<>", "false");

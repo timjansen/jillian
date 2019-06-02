@@ -19,12 +19,11 @@ export default class OptionType extends TypeDescriptor {
   static clazz: Class|undefined;
 
 	options: List; // of TypeDescriptor or null
-  nullable: boolean;
+  nullable: boolean|undefined;
 	
   constructor(options: JelObject|null) {
     super('OptionType');
 		this.options = new List(options instanceof List ? options.elements.map(e=>TypeHelper.convertNullableFromAny(e, 'list of property types')) : [TypeHelper.convertNullableFromAny(options, 'list of property types')]);
-    this.nullable = this.options.elements.findIndex(l=>l==null||l.isNullable())>=0;
   }
   
   get clazz(): Class {
@@ -67,6 +66,8 @@ export default class OptionType extends TypeDescriptor {
   }
 
   isNullable(ctx: Context): boolean {
+    if (this.nullable == null)
+      this.nullable = this.options.elements.findIndex(l=>l==null||l.isNullable(ctx))>=0;
     return this.nullable;
   }
   

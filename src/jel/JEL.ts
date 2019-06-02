@@ -58,6 +58,7 @@ import TryCase from './expressionNodes/TryCase';
 import Throw from './expressionNodes/Throw';
 import AnonEnum from './expressionNodes/AnonEnum';
 import Not from './expressionNodes/Not';
+import ReqTypes from './expressionNodes/ReqTypes';
 
 const binaryOperators: any = { // op->precedence
   '.': 50,
@@ -67,6 +68,7 @@ const binaryOperators: any = { // op->precedence
   '[]': 40,
   '{}': 40,
 	'|': 20,  // must be higher than instanceof/as, but lower than ?/[]/{}/()
+	'&': 21,  // must be higher than instanceof/as, but lower than ?/[]/{}/()
   '==': 10,
   '<': 11,
   '>': 11,
@@ -598,11 +600,12 @@ static parseOperatorExpression(tokens: TokenReader, operator: string, precedence
       case '<>':
         return JEL.tryBinaryOps(tokens, new Rangable(binOpToken, left), precedence, stopOps);
       case '|': 
+      case '&': 
         const elements: JelNode[] = [left, JEL.parseExpression(tokens, binaryOperators[binOpToken.value] as number, stopOps)];
         while (tokens.hasNext(2) && tokens.nextIf(TokenType.Operator, binOpToken.value))
           elements.push(JEL.parseExpression(tokens, binaryOperators[binOpToken.value] as number, stopOps));
 
-        return JEL.tryBinaryOps(tokens, new Options(binOpToken, elements), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, binOpToken.value == '|' ? new Options(binOpToken, elements) : new ReqTypes(binOpToken, elements), precedence, stopOps);
       default:
         return JEL.tryBinaryOps(tokens, new Operator(binOpToken, binOpToken.value, left, JEL.parseExpression(tokens, binaryOperators[binOpToken.value] as number, stopOps)), precedence, stopOps);
     }

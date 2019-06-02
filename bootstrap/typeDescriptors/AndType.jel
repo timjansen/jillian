@@ -1,0 +1,18 @@
+/**
+ * AndType requires all of the given types
+ */
+native class AndType extends TypeDescriptor:
+  /**
+   * Creates a new AndType with the given required types. 
+   * @param types the required types
+   */
+  native constructor(types: any[])
+  
+  override native checkType(value: any?): bool
+
+  override native convert(value: any?): any?
+  
+  override native equals(other: TypeDescriptor?): bool
+  
+  override native serializeToString(): string
+  

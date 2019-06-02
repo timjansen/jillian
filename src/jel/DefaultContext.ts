@@ -66,6 +66,7 @@ import StringType from './types/typeDescriptors/StringType';
 import TimeType from './types/typeDescriptors/TimeType';
 import JEL from './JEL';
 import RuntimeError from './types/RuntimeError';
+import AndType from './types/typeDescriptors/AndType';
 
 
 const BOOT_SCRIPT = [
@@ -104,6 +105,7 @@ const BOOT_SCRIPT = [
     {jel: 'typeDescriptors/typedef.jel', name: 'typedef'}
   ],
   [
+    {jel: 'typeDescriptors/AndType.jel', native: AndType},
     {jel: 'typeDescriptors/ComplexType.jel', native: ComplexType},
     {jel: 'typeDescriptors/DictionaryType.jel', native: DictionaryType},
     {jel: 'typeDescriptors/EnumType.jel', native: EnumType},

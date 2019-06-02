@@ -47,10 +47,6 @@ export default class AnyType extends TypeDescriptor {
   equals(ctx: Context, other: TypeDescriptor|null): JelBoolean {
     return JelBoolean.valueOf(other instanceof AnyType);
   }
-
-  isNullable(ctx: Context): boolean {
-    return false;
-  }
   
   serializeToString() : string {
 		return this.serializeType();
