@@ -15,7 +15,7 @@ He drove home and went to bed.
             Sentence(verb=Verb(@Going, #PAST), subject=ClausePronoun(), prepositions=Preposition(EnglishPrepositionEnum.TO, Noun(@BedCategory)))
 
 They are always used in pairs and denote equality.
-      Conjunction(@And, Sentence(verb=Verb(@Using, active=false), adverbial=AdjectiveAdverbial(@Always), subject=Pronoun(@They), prepositions=Preposition(EnglishPrepositionEnum.IN, Noun(@Pairs))), 
+      Conjunction(@And, Sentence(verb=Verb(@Using, active=false), adverbial=Adjective(@Always), subject=Pronoun(@They), prepositions=Preposition(EnglishPrepositionEnum.IN, Noun(@Pairs))), 
             Sentence(verb=Verb(@Denote), subject=ClausePronoun(), objects=Noun(@Equality))
 
 She is interested in learning math.
@@ -26,8 +26,8 @@ I like you wrote that mail.
       Statement(verb=Verb(@Liking), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Laugh), subject=Pronoun(@You), object=Noun(@Mail, determiner=#FAR_DEMONSTRATIVE))))
 
 Make sure operations never throw exceptions, but just return false.
-      Command(verb=Verb(@Making), adverbial=AdjectiveAdverbial(@Sure), Conjunction(@But, IL::Statement(verb=Verb(@Throwing), adverbial=AdjectiveAdverbial(@Never), object=Noun(@Exception, QuantityEnum.MANY)), 
-                                                            Statement(verb=Verb(@Return, adverbial=AdjectiveAdverbial(@Just), subject=ClausePronoun(), object=Noun(@False)))))
+      Command(verb=Verb(@Making), adverbial=Adjective(@Sure), Conjunction(@But, IL::Statement(verb=Verb(@Throwing), adverbial=Adjective(@Never), object=Noun(@Exception, QuantityEnum.MANY)), 
+                                                            Statement(verb=Verb(@Return, adverbial=Adjective(@Just), subject=ClausePronoun(), object=Noun(@False)))))
 
 Farming is growing crops or keeping animals by people for food and raw materials. 
       Statement(verb=Verb(@Being), subject=Noun(@Farming), object=Or(IngVerb(Sentence(Verb(@Growing), object=Noun(@Crop, #MANY)), IngVerb(Sentence(Verb(@Keeping), object=Noun(@AnimalCategory, #MANY))))),
@@ -40,7 +40,7 @@ I like to see you laughing.
       Statement(verb=Verb(@Liking), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Seeing), object=IngVerb(Sentence(verb=@Laughing, subject=Pronoun(@You)))), true))
 
 I see you have already arrived.
-      Statement(verb=Verb(@Seeing), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Arriving, #PAST, perfect=true), subject=Pronoun(@You), adverbial=AdjectiveAdverbial(@Already))))
+      Statement(verb=Verb(@Seeing), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Arriving, #PAST, perfect=true), subject=Pronoun(@You), adverbial=Adjective(@Already))))
 
 Agriculture started thousands of years ago.
       Statement(verb=Verb(@Starting), subject=Noun(@Agriculture), prepositions=Preposition(DurationPrepositionEnum.AGO, Value(1000, quantity=#MANY, object=Noun(@Year, #MANY))))
@@ -66,22 +66,67 @@ The kitchen table's height is 40cm.
 The kitchen is downstairs.
       Statement(verb=Verb(@Being), subject=Noun(@Kitchen, determiner=#DEFINITE)), object=Noun(@Downstairs))
 
+I went home last week.
+      Statement(verb=Verb(@Going), subject=Pronoun(@I), object=Noun(@Home), prepositions=Preposition(TimePrepositionEnum.ON, Noun(@Week, adjective=Adjective(@Last))))
+
 I lost my watch yesterday, not last week.
+      Conjunction(@CommaSeparated, Statement(verb=Verb(@Losing), subject=Pronoun(@I), object=Noun(@Watch, possessor=Pronoun(@I)), prepositions=Preposition(TimePrepositionEnum.ON, Noun(@Yesterday))),
+            Statement(verb=Verb(@Losing), subject=Pronoun(@I), object=Noun(@Watch, possessor=Pronoun(@I)), prepositions=Not(Preposition(TimePrepositionEnum.ON, Noun(@Week, adjective=Adjective(@Last)))))
+
 Perhaps the weather will be fine.
-I forget things more often nowadays.
+      Statement(verb=Verb(@Being, #FUTURE), subject=Noun(@Weather, determiner=#DEFINITE), object=AdjectiveObject(@Fine), adverbial=Adjective(@Perhaps))
+
 No one knows for sure how old it is.
+      Statement(verb=Verb(@Knowing), subject=Pronoun(@One, adjective=Adjective(@No)), prepositions=Preposition(EnglishPrepositionEnum.FOR, Noun(@Sure)), 
+            object=SentenceObject(Statement(verb=Verb(@Being), subject=Pronoun(@It), object=QuestionWord(@How, AdjectiveObject(@Old)))))
+
+I forget things more often nowadays.
+      Statement(verb=Verb(@Forgetting), subject=Pronoun(@I), object=Noun(@Thing, #MANY), adverbial=Adjective(@Often, @More), prepositions=Preposition(TimePrepositionEnum.ON, Noun(@Nowadays)))
+
 I forget things more often than I used to.
+      Statement(verb=Verb(@Forgetting), subject=Pronoun(@I), object=Noun(@Thing, #MANY), adverbial=Adjective(@Often, comparison=#MORE, 
+            compareObject=SentenceObject(verb=@UseTo, subject=Pronoun(@I))))
+
 I forget things more often since last year.
-It slowly started three days ago.
+      Statement(verb=Verb(@Forgetting), subject=Pronoun(@I), object=Noun(@Thing, #MANY), adverbial=Adjective(@Often, @More), prepositions=Preposition(TimePrepositionEnum.AGO, Value(3 @Day)))
+
 Three weeks ago I was on vacation.
+      Statement(verb=Verb(@Being, #PAST), subject=Pronoun(@I), prepositions=And(Preposition(TimePrepositionEnum.AGO, Value(3 @Week), Preposition(EnglishPrepositionEnum.ON, Noun(@Vacation)))))
+
 There are two of them.
+      Statement(verb=Verb(@Being), subject=Pronoun(@There), object=Value(2, prepositions=Preposition(EnglishPrepositionEnum.OF, Pronoun(@Them))))
+
 You told me last week.
+      Statement(verb=Verb(@Telling), subject=Pronoun(You), object=Pronoun(@I), prepositions(TimePrepositionEnum.ON, Noun(@Week, adjective=Adjective(@Last)))
+
+It slowly started three days ago.
+      Statement(verb=Verb(@Being), subject=Pronoun(@It), adverbial=Adjective(@Slow), prepositions=Preposition(TimePrepositionEnum.AGO, Value(3 @Day)))
+
 I have been there before.
+      Statement(verb=Verb(@Being, #PAST, perfect=true), subject=Pronoun(@I), object=Pronoun(@There), adverbial=Adjective(@Before))
+
 I hid under the table.
+      Statement(verb=Verb(@Hiding, #PAST), prepositions=Preposition(EnglishPrepositionEnum.UNDER, Noun(@Table, determiner=#DEFINITE)))
+      
 You walked from New York to Philadephia?
+      Question(verb=Verb(@Walking, #PAST), subject=Pronoun(@You), prepositions=[Preposition(EnglishPrepositionEnum.FROM, Noun(@NewYork)), Preposition(EnglishPrepositionEnum.TO, Noun(@Philadephia))])
+
 I promised to do it in five years.
+      Statement(verb=Verb(@Promising, #PAST), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Doing), object=Pronoun(@It), prepositions=Preposition(EnglishPrepositionEnum.IN, Value(5 @Year)), true)))
+      Statement(verb=Verb(@Promising, #PAST), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Doing), object=Pronoun(@It)), true), prepositions=Preposition(EnglishPrepositionEnum.IN, Value(5 @Year)))
+
 He's flying above the clouds.
+      Statement(verb=Verb(@Flying, continous=true), subject=Pronoun(@He), prepositions=Preposition(EnglishPrepositionEnum.ABOVE, Noun(@Cloud, #MANY, determiner=true)))
+
 The development of farming gave rise to the Neolithic Revolution whereby people gave up nomadic hunting and became settlers in what became cities.
+      Statement(verb=Verb(@Giving, #PAST), 
+            subject=Noun(@Farming, possessor=Noun(@Development, determiner=#DEFINITE)),
+            object=Noun(@Rise), 
+            prepositions=Preposition(EnglishPrepositionEnum.TO, Noun(@NeolithicRevolusion, 
+                  clauses=Statement(verb=Verb(@GivingUp, #PAST), subject=Noun(@People), object=Noun(@NomadicHunting))))) // TODO: ..and became...
+
+
+
 The Empire State Building is a skyscraper in New York City, United States.
 It is 381 meters tall and has 102 floors, and the height to its pinnacle is 1454 feet. 
 Named after the popular nickname for New York, The Empire State, it is one of the most famous landmarks in the US.
@@ -96,3 +141,14 @@ On Saturday, July 28, 1945, the B-25 Empire State Building crash started a fire.
 The building was not structurally compromised. 
 14 people were killed in the accident.
 Equality operations never throw exceptions.
+The world of energy is changing, and that transformation is occurring at a rapidly expanding rate.
+Although the continued and growing use of fossil fuel is not the only area of concern, it is at the heart of the protests. 
+Although not amongst the global top 20 when it comes to revenue, we have witnessed the recent rebranding of a Norwegian oil major, Statoil as Equinor.
+Chad Haag considered living in a cave to escape his student debt. 
+He had a friend doing it. 
+But after some plotting, he settled on what he considered a less risky plan. 
+This year, he relocated to a jungle in India. 
+The first work he found after he left the University of Northern Colorado in 2011 — when the recession’s effects were still palpable — was on-again, off-again hours at a factory, unloading trucks and constructing toy rockets on an assembly line.
+He then went back to school to pursue a master’s degree in comparative literature at the University of Colorado Boulder.
+After that, he tried to make it as an adjunct professor, but still he could barely scrape a living together with the one class a semester he was assigned.
+

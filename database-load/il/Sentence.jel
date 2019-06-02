@@ -1,5 +1,5 @@
 class IL::Sentence extends IL::Element:
-    constructor(verb: IL::AndOr(IL::Verb), subject: IL::AndOr(IL::Object)?, object: IL::AndOr(IL::Object)?, prepositions: IL::Preposition[]?, adverbial: IL::(AndOr(IL::Adverbial)))
+    constructor(verb: IL::AndOr(IL::Verb), subject: IL::AndOr(IL::Object)?, object: IL::AndOr(IL::Object)?, prepositions: IL::AndOr(IL::Preposition)?, adverbial: IL::(AndOr(IL::Adjective)))
 
 
 

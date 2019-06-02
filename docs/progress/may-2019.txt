@@ -1,0 +1,14 @@
+Progress 2019
+
+Done:
+- JEL is done. Some only smaller changes are expected at this point.
+- Database, Facts are working.
+- mostly completed IL. Currently trying to identify issues.
+
+Next: 
+- Define categories for IL
+- Start working on English->IL translator
+
+
+
+
