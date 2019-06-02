@@ -3,8 +3,6 @@
 require('source-map-support').install();
 const Database = require('../../build/database/Database.js').default;
 const DbSession = require('../../build/database/DbSession.js').default;
-const DatabaseContext = require('../../build/database/DatabaseContext.js').default;
-const DbRef = require('../../build/database/DbRef.js').default;
 const AnyType = require('../../build/jel/types/typeDescriptors/AnyType.js').default;
 const SimpleType = require('../../build/jel/types/typeDescriptors/SimpleType.js').default;
 const ComplexType = require('../../build/jel/types/typeDescriptors/ComplexType.js').default;
@@ -15,9 +13,6 @@ const OptionType = require('../../build/jel/types/typeDescriptors/OptionType.js'
 const OptionalType = require('../../build/jel/types/typeDescriptors/OptionalType.js').default;
 const CategoryType = require('../../build/database/dbTypes/CategoryType.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
-const Context = require('../../build/jel/Context.js').default;
-const Float = require('../../build/jel/types/Float.js').default;
-const JelString = require('../../build/jel/types/JelString.js').default;
 const Dictionary = require('../../build/jel/types/Dictionary.js').default;
 const List = require('../../build/jel/types/List.js').default;
 const assert = require('assert');
@@ -146,6 +141,13 @@ describe('Types', function() {
     jelAssert.fuzzy('(Float|null).checkType(100)', 1);
     jelAssert.fuzzy('(Float|null).checkType(null)', 1);
     jelAssert.fuzzy('(Float|null).checkType("a")', 0);
+
+    jelAssert.fuzzy('(Float&String&null).checkType(null)', 0);
+    jelAssert.fuzzy('(Float&null).checkType(100)', 0);
+    jelAssert.fuzzy('(Float&null).checkType(null)', 0);
+    jelAssert.fuzzy('(Float&int).checkType("a")', 0);
+    jelAssert.fuzzy('(Float&int).checkType(1.5)', 0);
+    jelAssert.fuzzy('(Float&int).checkType(1)', 1);
 
     jelAssert.fuzzy('OptionalType(Float).checkType(1)', 1);
     jelAssert.fuzzy('OptionalType(Float).checkType(null)', 1);
