@@ -16,6 +16,7 @@ import Dictionary from '../Dictionary';
 import TypeChecker from '../TypeChecker';
 import GenericJelObject from '../GenericJelObject';
 import GenericTypeAdaptor from './GenericTypeAdaptor';
+import EqType from './EqType';
 
 
 export default class TypeHelper {
@@ -47,9 +48,9 @@ export default class TypeHelper {
       return new EnumType(l);
 		else if (l instanceof Class)
       return new SimpleType((l as any).name);
-  
-    throw new Error(`Expected TypeDescriptor or Class or Enum or DbRef or Dictionary or List or Range in ${name}. But it is ` + (l==null?'null.' : `${l.className? l.className : 'Native: '+l.constructor.name}: ${l}`));
-  }
+    else
+      return new EqType(l);
+    }
   
   static convertFromAny(l: any, name: string): TypeDescriptor {
     return TypeHelper.convertToTypeDescriptor(l, name);

@@ -12,7 +12,7 @@ https://learnenglish.britishcouncil.org/english-grammar
 
 5. Make sure equality ops never throw exceptions, but just return false
 
-6. Allow types to check for equality, and have a negation type. Together with method overloading, that would allow something like
+6. Add method overloading, to allow something like
 
 fib(n: 0)=>0
 fib(n: 1)=>1

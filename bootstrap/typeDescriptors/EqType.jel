@@ -1,0 +1,15 @@
+/**
+ * EqType tests equality.
+ */
+native class EqType extends TypeDescriptor:
+  native constructor(eq: any?, sameType: bool = false, strict: bool = false)
+  
+  override native checkType(value: any?): bool
+
+  override native convert(value: any?): any?
+  
+  override native equals(other: TypeDescriptor?): bool
+  
+  override native serializeToString(): string
+  
+  native create(eq: any?, sameType: bool = false, strict: bool = false): EqType

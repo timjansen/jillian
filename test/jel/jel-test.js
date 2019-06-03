@@ -118,6 +118,17 @@ describe('JEL', function () {
       jelAssert.equal("1/2 instanceof number&^int", "true");
       jelAssert.equal("1 instanceof number&^int", "false");
 
+      jelAssert.equal("1 instanceof eq(1)", "true");
+      jelAssert.equal("1 instanceof eq(2)", "false");
+      jelAssert.equal("1/2 instanceof eq(0.5)", "true");
+      jelAssert.equal("1/2 instanceof eq(0.5, sameType=true)", "false");
+      jelAssert.equal("1/2 instanceof eq(1/2, sameType=true)", "true");
+      jelAssert.equal("1 instanceof 1", "true");
+      jelAssert.equal("1 instanceof 2", "false");
+      jelAssert.equal("3 instanceof 1|2|3|4|5", "true");
+      jelAssert.equal("'a' instanceof 'c'|'b'|'d'", "false");
+      jelAssert.equal("'a' instanceof 'c'|'b'|'a'", "true");
+
       jelAssert.equal("3 instanceof number<>", "true");
       jelAssert.equal("2.3 instanceof int<>", "false");
       jelAssert.equal("'str' instanceof number<>", "false");

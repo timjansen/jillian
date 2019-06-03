@@ -67,12 +67,13 @@ import TimeType from './types/typeDescriptors/TimeType';
 import JEL from './JEL';
 import RuntimeError from './types/RuntimeError';
 import AndType from './types/typeDescriptors/AndType';
+import EqType from './types/typeDescriptors/EqType';
 
 
 const BOOT_SCRIPT = [
   {static: {any: AnyType.instance, int: IntType.instance, bool: BoolType.instance, function: FunctionType.instance, 
             number: NumberType.instance, numeric: NumericType.instance, string: StringType.instance, 
-            date: DateType.instance, time: TimeType.instance}},
+            date: DateType.instance, time: TimeType.instance, eq: EqType.instance}},
   [
     {jel: 'typeDescriptors/TypeDescriptor.jel'},
     {jel: 'NamedObject.jel'},
@@ -95,6 +96,7 @@ const BOOT_SCRIPT = [
   [
     {jel: 'typeDescriptors/AnyType.jel', native: AnyType},
     {jel: 'typeDescriptors/BoolType.jel', native: BoolType},
+    {jel: 'typeDescriptors/EqType.jel', native: EqType},
     {jel: 'typeDescriptors/FunctionType.jel', native: FunctionType},
     {jel: 'typeDescriptors/IntType.jel', native: IntType},
     {jel: 'typeDescriptors/NumberType.jel', native: NumberType},

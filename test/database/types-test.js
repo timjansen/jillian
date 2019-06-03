@@ -200,9 +200,9 @@ describe('Types', function() {
 
   
   it('checks all convertable typedefs', function() {
-    jelAssert.fuzzy('true instanceof typedef', 0);
-    jelAssert.fuzzy('"foo" instanceof typedef', 0);
-    jelAssert.fuzzy('null instanceof typedef', 0);
+    jelAssert.fuzzy('true instanceof typedef', 1);
+    jelAssert.fuzzy('"foo" instanceof typedef', 1);
+    jelAssert.fuzzy('null instanceof typedef', 1);
     jelAssert.fuzzy('{a: any} instanceof typedef', 1);
     jelAssert.fuzzy('1...10 instanceof typedef', 1);
     jelAssert.fuzzy('any instanceof typedef', 1);

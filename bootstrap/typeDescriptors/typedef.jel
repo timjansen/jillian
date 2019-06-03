@@ -1,2 +1,2 @@
-// Defines allowed values for type descriptors
-SimpleType("TypeDescriptor")|SimpleType("Class")|SimpleType("Enum")|SimpleType("Dictionary")|SimpleType("Range")|SimpleType("DbRef")
+// Defines allowed values for type descriptors (now allows everything, because of eq() :)
+any?
