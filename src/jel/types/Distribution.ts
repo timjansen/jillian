@@ -168,7 +168,7 @@ export default class Distribution extends NativeJelObject {
 		}, Runtime.op(ctx, '<', value, this.min(ctx)), Runtime.op(ctx, '>', value, this.max(ctx)));
 	}
 	
-	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
+	op(ctx: Context, operator: string, right: JelObject, isReversal: boolean = false): JelObject|Promise<JelObject> {
 		if (right instanceof Distribution) {
 			switch (operator) {
 				case '==': 
@@ -232,7 +232,7 @@ export default class Distribution extends NativeJelObject {
 					return Runtime.op(ctx, operator, this.min(ctx), right);
 			}		
 		}
-		return super.op(ctx, operator, right);
+		return super.op(ctx, operator, right, isReversal);
 	}
 	
 	getSerializationProperties(): any[] {

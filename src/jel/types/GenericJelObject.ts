@@ -32,11 +32,11 @@ export default class GenericJelObject extends JelObject implements Serializable 
     });
   }
   
-  op(ctx: Context, operator: string, right: JelObject|null): JelObject|Promise<JelObject> {
+  op(ctx: Context, operator: string, right: JelObject|null, isReversal: boolean = false): JelObject|Promise<JelObject> {
     const m: Method|undefined = (this.clazz as Class).allMethods.elements.get('op'+operator) as any;
     if (m)
       return GenericJelObject.forbidNull(m.callable.invoke(this, right));
-    return super.op(ctx, operator, right);
+    return super.op(ctx, operator, right, isReversal);
   }
 	
 	opReversed(ctx: Context, operator: string, left: JelObject): JelObject|Promise<JelObject> {

@@ -102,7 +102,7 @@ export default class Unit extends NativeJelObject {
     return Unit.clazz!;
   }
 
-	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
+	op(ctx: Context, operator: string, right: JelObject, isReversal: boolean = false): JelObject|Promise<JelObject> {
 		if (right instanceof Unit) {
 			switch (operator) {
 			case '==': 
@@ -126,7 +126,7 @@ export default class Unit extends NativeJelObject {
 				return this;
 			}
 		}
-		return super.op(ctx, operator, right);
+		return super.op(ctx, operator, right, isReversal);
 	}
 
 	equals(right: Unit): boolean {

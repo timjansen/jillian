@@ -110,7 +110,7 @@ export default class LocalDate extends AbstractDate {
 	}
 	
 	
-	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
+	op(ctx: Context, operator: string, right: JelObject, isReversal: boolean = false): JelObject|Promise<JelObject> {
 		if (right instanceof LocalDate) {
 			switch (operator) {
 				case '==':
@@ -161,7 +161,7 @@ export default class LocalDate extends AbstractDate {
 			}
 		}
 		
-		return super.op(ctx, operator, right);
+		return super.op(ctx, operator, right, isReversal);
 	}
 
 	toZonedDate_jel_mapping: boolean;

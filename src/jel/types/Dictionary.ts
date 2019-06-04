@@ -54,7 +54,7 @@ export default class Dictionary extends NativeJelObject implements SerializableP
   }
 
 	
-	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
+	op(ctx: Context, operator: string, right: JelObject, isReversal: boolean = false): JelObject|Promise<JelObject> {
 		if (right == null)
 			return this;
 		if (right instanceof Dictionary) {
@@ -76,7 +76,7 @@ export default class Dictionary extends NativeJelObject implements SerializableP
           return this.deleteAll(ctx, right);
 			}
 		}
-		return super.op(ctx, operator, right);
+		return super.op(ctx, operator, right, isReversal);
 	}
 	
 	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {

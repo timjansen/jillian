@@ -497,6 +497,18 @@ describe('JEL unit tests executed with empty context', function() {
      ]);
    });
 
+   it('handles reversed ops without running into infinite loops', function() {
+    jelAssert.equal('(class A: constructor())()==(class B: constructor())()', 'false');
+    jelAssert.equal('(class A: constructor())()!==(class B: constructor())()', 'true');
+  });
+  
+  it('doesnt throw exceptions for unsupposed equality ops', function() {
+    jelAssert.equal('let a=(class A: constructor()): a()==a()', 'false');
+    jelAssert.equal('let a=(class A: constructor()): a()===a()', 'false');
+    jelAssert.equal('let a=(class A: constructor()): a()!=a()', 'true');
+    jelAssert.equal('let a=(class A: constructor()): a()!==a()', 'true');
+  });
+
 
   /**
   TODO: this test should be executed, but currently it causes a UnhandledPromiseRejectionWarning...

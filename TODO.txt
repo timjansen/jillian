@@ -10,8 +10,6 @@ Next steps
 
 https://learnenglish.britishcouncil.org/english-grammar
 
-5. Make sure equality ops never throw exceptions, but just return false
-
 6. Add method overloading, to allow something like
 
 fib(n: 0)=>0

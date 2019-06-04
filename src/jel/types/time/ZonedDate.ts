@@ -76,7 +76,7 @@ export default class ZonedDate extends AbstractDate {
 		return new ZonedDate(timeZone, this.date);
 	}
 	
-	op(ctx: Context, operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: any, isReversal: boolean = false): any {
 		if (right instanceof ZonedDate) {
 			switch (operator) {
 				case '===':
@@ -99,7 +99,7 @@ export default class ZonedDate extends AbstractDate {
 					return new ZonedDate(this.timeZone, Runtime.op(ctx, operator, this.date, right) as LocalDate);
 			}
 		}
-		return super.op(ctx, operator, right);
+		return super.op(ctx, operator, right, isReversal);
 	}
 
 	opReversed(ctx: Context, operator: string, left: JelObject): JelObject|Promise<JelObject> {

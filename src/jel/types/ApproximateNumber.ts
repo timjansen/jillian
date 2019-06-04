@@ -32,7 +32,7 @@ export default class ApproximateNumber extends NativeJelObject implements Numeri
     return ApproximateNumber.clazz!;
   }
   
-	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
+	op(ctx: Context, operator: string, right: JelObject, isReversal: boolean = false): JelObject|Promise<JelObject> {
 		if (right instanceof ApproximateNumber) {
 			switch (operator) {
 				case '==': 
@@ -129,7 +129,7 @@ export default class ApproximateNumber extends NativeJelObject implements Numeri
 					return new ApproximateNumber(this.value, right);
 			}		
 		}
-		return super.op(ctx, operator, right);
+		return super.op(ctx, operator, right, isReversal);
 	}
 	
 	opReversed(ctx: Context, operator: string, left: JelObject): JelObject|Promise<JelObject> {

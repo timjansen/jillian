@@ -56,7 +56,7 @@ export default class TimeZone extends NativeJelObject {
 		return true;
 	}
 	
-	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
+	op(ctx: Context, operator: string, right: JelObject, isReversal: boolean = false): JelObject|Promise<JelObject> {
 		if (right instanceof TimeZone) {
 			switch (operator) {
 				case '===':
@@ -65,7 +65,7 @@ export default class TimeZone extends NativeJelObject {
 					return JelBoolean.valueOf(TimeZone.isIdenticalZone(this.getMomentZone(), right.getMomentZone())); // matches if zones are identical, even if names are different
 			}
 		}
-		return super.op(ctx, operator, right);
+		return super.op(ctx, operator, right, isReversal);
 	}
 
 	getSerializationProperties(): any[] {

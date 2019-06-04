@@ -74,7 +74,7 @@ export default class JelBoolean extends NativeJelObject implements SerializableP
     return JelBoolean.clazz!;
   }
 	
-	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
+	op(ctx: Context, operator: string, right: JelObject, isReversal: boolean = false): JelObject|Promise<JelObject> {
 		if (right instanceof JelBoolean) {
 			switch (operator) {
 				case '==': 
@@ -97,7 +97,7 @@ export default class JelBoolean extends NativeJelObject implements SerializableP
 					return jn.valueOf(this.state).op(ctx, operator, jn.valueOf(right.state));
 			}
 		}
-		return super.op(ctx, operator, right);
+		return super.op(ctx, operator, right, isReversal);
 	}
 	
 	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {

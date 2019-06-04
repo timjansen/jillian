@@ -56,7 +56,7 @@ export default class TimeOfDay extends NativeJelObject {
 		return new TimeOfDay(h, m, this.seconds == null ? null : s);
 	}
 	
-	op(ctx: Context, operator: string, right: JelObject): any {
+	op(ctx: Context, operator: string, right: JelObject, isReversal: boolean = false): any {
 		if (right instanceof TimeOfDay) {
 			switch (operator) {
 				case '==':
@@ -87,7 +87,7 @@ export default class TimeOfDay extends NativeJelObject {
 					return Util.resolveValue(right.convertTo(ctx, 'Second'), seconds=>this.op(ctx, operator, new Duration(0,0,0, 0,0,seconds)));
 			}
 		}
-		return super.op(ctx, operator, right);
+		return super.op(ctx, operator, right, isReversal);
 	}
 
 	toString(): string {

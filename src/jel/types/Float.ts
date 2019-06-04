@@ -39,7 +39,7 @@ export default class Float extends NativeJelObject implements SerializablePrimit
 	}
 	  
   
-	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
+	op(ctx: Context, operator: string, right: JelObject, isReversal: boolean = false): JelObject|Promise<JelObject> {
 		if (right instanceof Float) {
 			switch (operator) {
 				case '+': 
@@ -75,7 +75,7 @@ export default class Float extends NativeJelObject implements SerializablePrimit
 					return BaseTypeRegistry.get('ApproximateNumber').fromNumber(this, right);
 			};
 		}
-		return super.op(ctx, operator, right);
+		return super.op(ctx, operator, right, isReversal);
 	}
 
 	add(right: any) {

@@ -210,12 +210,12 @@ describe('JEL', function () {
       jelAssert.equalPromise('try e = throw "bla6" catch any: e.message catch Exception: 2 else 2', "'bla6'"),
       jelAssert.equalPromise('try e = throw "bla7" catch Exception: e.message catch any: 2 else 2', "'bla7'"),
       jelAssert.equalPromise('try e = throw "bla8" catch RuntimeError: e.message catch any: 2 else 5', "2"),
-      jelAssert.equalPromise('try "a" === 1 catch Exception: 1 catch RuntimeError: 2', "2"),
-      jelAssert.equalPromise('try "a" === 1 when Exception: 0 catch Exception: 1 catch RuntimeError: 2', "2"),
-      jelAssert.equalPromise('try "a" === 1 if null: 0 catch Exception: 1 catch RuntimeError: 2', "2"),
-      jelAssert.errorPromise('try "a" === 1 when int: 2', "not supported for type"),
+      jelAssert.equalPromise('try "a" > 1 catch Exception: 1 catch RuntimeError: 2', "2"),
+      jelAssert.equalPromise('try "a" > 1 when Exception: 0 catch Exception: 1 catch RuntimeError: 2', "2"),
+      jelAssert.equalPromise('try "a" > 1 if null: 0 catch Exception: 1 catch RuntimeError: 2', "2"),
+      jelAssert.errorPromise('try "a" > 1 when int: 2', "not supported for type"),
       jelAssert.equalPromise('try throw null catch RuntimeError: 2', "2"),
-      jelAssert.equalPromise('try "a" === 1 if true: 0 catch: 2', "2")]);
+      jelAssert.equalPromise('try "a" > 1 if true: 0 catch: 2', "2")]);
     });
 
 

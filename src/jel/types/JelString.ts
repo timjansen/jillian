@@ -28,7 +28,7 @@ export default class JelString extends NativeJelObject implements SerializablePr
     return JelString.clazz!;
   }
   
-	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
+	op(ctx: Context, operator: string, right: JelObject, isReversal: boolean = false): JelObject|Promise<JelObject> {
 		if (right instanceof JelString) {
 			switch (operator) {
 				case '+': 
@@ -59,7 +59,7 @@ export default class JelString extends NativeJelObject implements SerializablePr
 					return JelString.valueOf(this.value + right.toString());
 			};
 		}
-		return super.op(ctx, operator, right);
+		return super.op(ctx, operator, right, isReversal);
 	}
 	
 	length_jel_property: boolean;

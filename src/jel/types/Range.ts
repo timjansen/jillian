@@ -37,7 +37,7 @@ export default class Range extends NativeJelObject {
     return Range.clazz!;
   }
 	
-	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
+	op(ctx: Context, operator: string, right: JelObject, isReversal: boolean = false): JelObject|Promise<JelObject> {
 		if (operator == '!==')
 			return (this.op(ctx, '===', right) as JelBoolean).negate();
 		else if (operator == '!=')
@@ -94,7 +94,7 @@ export default class Range extends NativeJelObject {
 														 this.max != null ? Runtime.op(ctx, operator, this.max, right) as any: this.max);
 			}
 		}
-		return super.op(ctx, operator, right);
+		return super.op(ctx, operator, right, isReversal);
 	}
 	
   get minInt(): number|null {

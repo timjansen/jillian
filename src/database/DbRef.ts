@@ -94,7 +94,7 @@ export default class DbRef extends NativeJelObject implements IDbRef, Serializab
     return this.with(ctx, (o: NamedObject) => this.memberInternal(ctx, o, name));
   }
 
-  op(ctx: Context, operator: string, right: any): any {
+  op(ctx: Context, operator: string, right: any, isReversal: boolean = false): any {
     if (right instanceof DbRef) {
       switch (operator) {
         case '==':
@@ -105,7 +105,7 @@ export default class DbRef extends NativeJelObject implements IDbRef, Serializab
           return JelBoolean.valueOf(this.distinctName != right.distinctName);
       }
     }
-    return super.op(ctx, operator, right);
+    return super.op(ctx, operator, right, isReversal);
   }
 
   getAsync(ctx: Context): Promise < NamedObject | null > {

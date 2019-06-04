@@ -42,7 +42,7 @@ export default abstract class JelObject {
 	constructor(public className: string) {
 	}
  
-  abstract get clazz(): any;
+  	abstract get clazz(): any;
 
 	/*
 	 * Ops that may be implemented:
@@ -52,16 +52,24 @@ export default abstract class JelObject {
 	 * Note that when you override this method, but still call it for unsupported operators, 
 	 * you only need to implement '==', '===', '>' and '>>' for a complete set of comparisons.
 	 */
-	op(ctx: Context, operator: string, right: JelObject|null): JelObject|Promise<JelObject> {
+	op(ctx: Context, operator: string, right: JelObject|null, isReversal: boolean = false): JelObject|Promise<JelObject> {
 		if (right != null) {
-			if (right.reverseOps && operator in right.reverseOps && right.className != this.className)
+			if (right.reverseOps && operator in right.reverseOps && !isReversal && right.className != this.className)
 				return right.opReversed(ctx, operator, this);
 			if (operator in JelObject.INVERTIBLE_OPS)
 				return BaseTypeRegistry.get('Boolean').negate(this.op(ctx, JelObject.INVERTIBLE_OPS[operator], right));
-			if (operator == '<')
+			switch (operator) {
+			case '<':
 				return BaseTypeRegistry.get('Boolean').truest(ctx, this.op(ctx, '>', right), this.op(ctx, '==', right)).negate();
-			if (operator == '<<')
+			case '<<':
 				return BaseTypeRegistry.get('Boolean').truest(ctx, this.op(ctx, '>>', right), this.op(ctx, '===', right)).negate();
+			case '==':
+			case '===':
+				return BaseTypeRegistry.get('Boolean').FALSE;
+			case '!=':
+			case '!==':
+				return BaseTypeRegistry.get('Boolean').TRUE;
+			}
 		}
 		throw new Error(`Operator "${operator}" is not supported for type "${this.className}" as left operand and right operand "${right == null ? 'null' : right.className}"`);
 	}
@@ -73,7 +81,7 @@ export default abstract class JelObject {
 	opReversed_jel_mapping: boolean;
 	opReversed(ctx: Context, operator: string, left: JelObject): JelObject|Promise<JelObject> {
 		if (this.reverseOps && operator in this.reverseOps && operator in JelObject.SWAP_OPS)
-			return this.op(ctx, JelObject.SWAP_OPS[operator], left);
+			return this.op(ctx, JelObject.SWAP_OPS[operator], left, true);
 		throw new Error(`Operator "${operator}" is not supported for type "${this.className}" (in reversed operation)`);
 	}
 

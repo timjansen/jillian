@@ -43,7 +43,7 @@ export default class Fraction extends NativeJelObject implements Numeric {
 		return this.numerator === other.numerator && this.denominator === other.denominator;
 	}
 	
-	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
+	op(ctx: Context, operator: string, right: JelObject, isReversal: boolean = false): JelObject|Promise<JelObject> {
 		if (right instanceof Float) {
 			if (!Number.isInteger(right.value))
 				return this.toFloat().op(ctx, operator, right);
@@ -144,7 +144,7 @@ export default class Fraction extends NativeJelObject implements Numeric {
 					return Runtime.op(ctx, operator, this.toFloat(), right.toFloat());
 			}
 		}
-		return super.op(ctx, operator, right);
+		return super.op(ctx, operator, right, isReversal);
 	}
 
 	opReversed(ctx: Context, operator: string, left: JelObject): JelObject|Promise<JelObject> {	

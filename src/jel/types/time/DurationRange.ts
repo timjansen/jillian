@@ -30,7 +30,7 @@ export default class DurationRange extends Range {
     return DurationRange.clazz!;
   }
   
-	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
+	op(ctx: Context, operator: string, right: JelObject, isReversal: boolean = false): JelObject|Promise<JelObject> {
 		if ((right instanceof Duration) || (right instanceof UnitValue)) {
 			switch (operator) {
 				case '+':
@@ -54,7 +54,7 @@ export default class DurationRange extends Range {
 					return new DurationRange(Runtime.op(ctx, operator, this.min, right) as Duration, Runtime.op(ctx, operator, this.max, right) as Duration);
 			}
 		}
-		return super.op(ctx, operator, right);
+		return super.op(ctx, operator, right, isReversal);
 	}
 
 	contains_jel_mapping: boolean;

@@ -83,7 +83,7 @@ export default class ZonedDateTime extends AbstractDate {
 		return JelBoolean.TRUE;
 	}
 
-	op(ctx: Context, operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: any, isReversal: boolean = false): any {
 		if (right instanceof ZonedDateTime) {
 			if (this.timeZone.tz == right.timeZone.tz) 
 				return this.toLocalDateTime().op(ctx, operator, right.toLocalDateTime());
@@ -111,7 +111,7 @@ export default class ZonedDateTime extends AbstractDate {
 					return new ZonedDateTime(this.timeZone, lt.date, lt.time);
 			}
 		}
-		return super.op(ctx, operator, right);
+		return super.op(ctx, operator, right, isReversal);
 	}
 
 	opReversed(ctx: Context, operator: string, left: JelObject): JelObject|Promise<JelObject> {

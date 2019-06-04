@@ -76,7 +76,7 @@ export default class Duration extends NativeJelObject {
     return Duration.clazz!;
   }
 	
-	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
+	op(ctx: Context, operator: string, right: JelObject, isReversal: boolean = false): JelObject|Promise<JelObject> {
 		if (right instanceof Duration) {
 			switch (operator) {
 				case '+':
@@ -166,7 +166,7 @@ export default class Duration extends NativeJelObject {
 					return r ? new Duration(this.years / r, this.months / r, this.days / r, this.hours / r, this.minutes / r, this.seconds / r).simplify() : new Duration(0);
 			}
 		}
-		return super.op(ctx, operator, right);
+		return super.op(ctx, operator, right, isReversal);
 	}
 	
 	singleOp(ctx: Context, operator: string): JelObject|Promise<JelObject> {

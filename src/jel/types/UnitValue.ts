@@ -43,7 +43,7 @@ export default class UnitValue extends NativeJelObject implements Numeric {
     return UnitValue.clazz!;
   }
 
-	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
+	op(ctx: Context, operator: string, right: JelObject, isReversal: boolean = false): JelObject|Promise<JelObject> {
 		if (right instanceof UnitValue) {
 			if (this.unit.equals(right.unit)) {
 				switch (operator) {
@@ -110,7 +110,7 @@ export default class UnitValue extends NativeJelObject implements Numeric {
 						return this.toApproxNumber(right);
 				}
 		}
-		return super.op(ctx, operator, right);
+		return super.op(ctx, operator, right, isReversal);
 	}
 	
 	private toApproxNumber(newError: Float | Fraction): UnitValue {

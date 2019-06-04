@@ -38,7 +38,7 @@ export default class Timestamp extends TimeDescriptor {
 		return Math.abs(this.msSinceEpoch - other.msSinceEpoch) <= (this.precisionInMs + other.precisionInMs);
 	}
 	
-	op(ctx: Context, operator: string, right: JelObject): JelObject|Promise<JelObject> {
+	op(ctx: Context, operator: string, right: JelObject, isReversal: boolean = false): JelObject|Promise<JelObject> {
 		if (right instanceof Timestamp) {
 			switch (operator) {
 				case '===':
@@ -84,7 +84,7 @@ export default class Timestamp extends TimeDescriptor {
 					case '+-':
 						return new Timestamp(this.msSinceEpoch, Float.toRealNumber(v));
 				}
-				return super.op(ctx, operator, right);
+				return super.op(ctx, operator, right, isReversal);
 			});
 		}
 		else if (right instanceof Float) {
@@ -97,7 +97,7 @@ export default class Timestamp extends TimeDescriptor {
 					return new Timestamp(this.msSinceEpoch, right.value);
 			}
 		}
-		return super.op(ctx, operator, right);
+		return super.op(ctx, operator, right, isReversal);
 	}
 	
 	opReversed(ctx: Context, operator: string, left: JelObject): JelObject|Promise<JelObject> {

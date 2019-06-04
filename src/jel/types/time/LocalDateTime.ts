@@ -79,7 +79,7 @@ export default class LocalDateTime extends AbstractDate {
   }
 
 	
-	op(ctx: Context, operator: string, right: any): any {
+	op(ctx: Context, operator: string, right: any, isReversal: boolean = false): any {
 		if (right instanceof LocalDateTime) {
 			switch(operator) {
 				case '==':
@@ -140,7 +140,7 @@ export default class LocalDateTime extends AbstractDate {
 						return Util.resolveValue(right.convertTo(ctx, 'Second'), seconds=>this.op(ctx, operator, new Duration(0,0,0, 0,0,Float.toRealNumber(seconds))));
 			}
 		}
-		return super.op(ctx, operator, right);
+		return super.op(ctx, operator, right, isReversal);
 	}
 	
 	toZonedDate(ctx: Context, timeZone: any): ZonedDate {
