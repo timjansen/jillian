@@ -123,16 +123,16 @@ describe('JEL', function() {
     });  
     
     it('should support let', function() {
-      jelAssert.equal(new JEL('let a=1: a').parseTree, new Let(D, [new Assignment(D, 'a', new Literal(D, 1))], new Variable(D, 'a')));
-      jelAssert.equal(new JEL('let a=1,b=2:b').parseTree, new Let(D, [new Assignment(D, 'a', new Literal(D, 1)), new Assignment(D, 'b', new Literal(D, 2))], new Variable(D, 'b')));
-      jelAssert.equal(new JEL('let a=1, b=a + 2: b').parseTree, new Let(D, [new Assignment(D, 'a', new Literal(D, 1)), new Assignment(D, 'b', new Operator(D, '+', new Variable(D, 'a'), new Literal(D, 2)))], new Variable(D, 'b')));
-      jelAssert.equal(new JEL('let a=1 : a=>2').parseTree, new Let(D, [new Assignment(D, 'a', new Literal(D, 1))], new Lambda(D, [new TypedParameterDefinition(D, 'a')], undefined, new Literal(D, 2))));
-      jelAssert.equal(new JEL('let a=1, b=c=>d : b').parseTree, new Let(D, [new Assignment(D, 'a', new Literal(D, 1)), new Assignment(D, 'b', new Lambda(D, [new TypedParameterDefinition(D, 'c')], undefined, new Variable(D, 'd')))], new Variable(D, 'b')));
+      jelAssert.equal(new JEL('do let a=1: a').parseTree, new Let(D, [new Assignment(D, 'a', new Literal(D, 1))], new Variable(D, 'a')));
+      jelAssert.equal(new JEL('do let a=1,b=2:b').parseTree, new Let(D, [new Assignment(D, 'a', new Literal(D, 1)), new Assignment(D, 'b', new Literal(D, 2))], new Variable(D, 'b')));
+      jelAssert.equal(new JEL('do let a=1, b=a + 2: b').parseTree, new Let(D, [new Assignment(D, 'a', new Literal(D, 1)), new Assignment(D, 'b', new Operator(D, '+', new Variable(D, 'a'), new Literal(D, 2)))], new Variable(D, 'b')));
+      jelAssert.equal(new JEL('do let a=1 : a=>2').parseTree, new Let(D, [new Assignment(D, 'a', new Literal(D, 1))], new Lambda(D, [new TypedParameterDefinition(D, 'a')], undefined, new Literal(D, 2))));
+      jelAssert.equal(new JEL('do let a=1, b=c=>d : b').parseTree, new Let(D, [new Assignment(D, 'a', new Literal(D, 1)), new Assignment(D, 'b', new Lambda(D, [new TypedParameterDefinition(D, 'c')], undefined, new Variable(D, 'd')))], new Variable(D, 'b')));
     });
 
     it('allows only lower-case variables', function() {
-      assert.throws(()=>new JEL('let A= 1 => a').parseTree);
-      assert.throws(()=>new JEL('let _=2 => 2').parseTree);
+      assert.throws(()=>new JEL('do let A= 1 => a').parseTree);
+      assert.throws(()=>new JEL('do let _=2 => 2').parseTree);
     });
 
     it('should support lists', function() {

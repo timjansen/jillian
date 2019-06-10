@@ -4,12 +4,15 @@ import JelObject from '../JelObject';
 import Callable from '../Callable';
 import Context from '../Context';
 import SourcePosition from '../SourcePosition';
+import DeclaringStatement from './DeclaringStatement';
 
 
 /**
  * Represents an assignment, which is a helper construct for with and calls.
  */
-export default class Assignment extends CachableJelNode   {
+export default class Assignment extends CachableJelNode  implements DeclaringStatement {
+  isDeclaringStatement = true;
+
   constructor(position: SourcePosition, public name: string, public expression: JelNode) {
     super(position, [expression]);
   }

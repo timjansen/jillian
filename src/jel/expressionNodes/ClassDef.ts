@@ -11,13 +11,15 @@ import TypedParameterValue from '../TypedParameterValue';
 import Util from '../../util/Util';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import SourcePosition from '../SourcePosition';
+import DeclaringStatement from './DeclaringStatement';
 
 
 /**
  * Represents a class definition. 
  *
  */ 
-export default class ClassDef extends JelNode {
+export default class ClassDef extends JelNode implements DeclaringStatement {
+  isDeclaringStatement = true;
   isNative: boolean;
   
   constructor(position: SourcePosition, public name: string, public superName?: JelNode, public ctor?: Lambda|NativeFunction, public propertyDefs: PropertyDef[] = [], public methodDefs: MethodDef[] = [], 

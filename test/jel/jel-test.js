@@ -237,8 +237,8 @@ describe('JEL', function () {
       jelAssert.equal("'abc{{5}}def'", '"abc5def"');
       jelAssert.equal("'abc{{1+2}}def'", '"abc3def"');
       jelAssert.equal("'{{1}}{{2}}{{3}}'", '"123"');
-      jelAssert.equal("let a=1: '{{a}}'", '"1"');
-      jelAssert.equal("let a='x', b='y': '{{a}} {{b}}'", '"x y"');
+      jelAssert.equal("do let a=1: '{{a}}'", '"1"');
+      jelAssert.equal("do let a='x', b='y': '{{a}} {{b}}'", '"x y"');
      });
 
      it('should support Promises in Types', function() {
@@ -388,7 +388,7 @@ describe('JEL', function () {
    });
 
    it('has proper stacktraces for exceptions with method calls', function() {
-    return jelAssert.errorPromise(`let f = x=>x.fE(),
+    return jelAssert.errorPromise(`do let f = x=>x.fE(),
      x = class X:
       constructor()
       fA()=>this.fB(1, "bla", LocalDate(2019, 3, 1))
@@ -399,26 +399,26 @@ describe('JEL', function () {
    });
 
    it('has proper stacktraces for exceptions with function calls', function() {
-    return jelAssert.errorPromise(`let f = ()=>throw "Oops",
+    return jelAssert.errorPromise(`do let f = ()=>throw "Oops",
           e = (a, b, c): int=>f(),
           g = (x, y, z)=>e(1, "2", 2 @Meter):
             g([1, 2], {r: 2, e: 2}, null)`, ['Oops', '(a, b, c)']);
    });
 
    it('has proper stacktraces for runtime errors', function() {
-    return jelAssert.errorPromise(`let f = ():any=> null.a(),
+    return jelAssert.errorPromise(`do let f = ():any=> null.a(),
       e = (a, b, c)=>f(),
       g = (x, y, z)=>e(1, "2", 2 @Meter):
         g([1, 2], {r: 2, e: 2}, null)`, ['method on null', '(a, b, c)', '():any']);
    });
 
    it('has proper stacktraces for bad return values, showing the callee', function() {
-    return jelAssert.errorPromise(`let f = ():int=>"Oops":
+    return jelAssert.errorPromise(`do let f = ():int=>"Oops":
           f()`, '(inline):1:');
    });
 
    it('has proper stacktraces for bad arguments, showing the caller', function() {
-    return jelAssert.errorPromise(`let f = (a: string):int=>0:
+    return jelAssert.errorPromise(`do let f = (a: string):int=>0:
           f(1)`, '(inline):2:');
    });
 

@@ -145,8 +145,8 @@ describe('JEL unit tests executed with empty context', function() {
       jelAssert.equal("'abc{{5}}def'", '"abc5def"');
       jelAssert.equal("'abc{{1+2}}def'", '"abc3def"');
       jelAssert.equal("'{{1}}{{2}}{{3}}'", '"123"');
-      jelAssert.equal("let a=1: '{{a}}'", '"1"');
-      jelAssert.equal("let a='x', b='y': '{{a}} {{b}}'", '"x y"');
+      jelAssert.equal("do let a=1: '{{a}}'", '"1"');
+      jelAssert.equal("do let a='x', b='y': '{{a}} {{b}}'", '"x y"');
      });
     
  		
@@ -364,18 +364,18 @@ describe('JEL unit tests executed with empty context', function() {
     });
     
     it('supports let', function() {
-      jelAssert.equal(new JEL('let a=1: a').executeImmediately(), 1);
-      jelAssert.equal(new JEL('let a=1, b=2: a+b').executeImmediately(), 3);
-      jelAssert.equal(new JEL('let a=1, b=a+1, c=b*3, d=c*4, e=d/6: [a,b,c,d,e]').executeImmediately().elements, "[1,2,6,24,4]");
+      jelAssert.equal(new JEL('do let a=1: a').executeImmediately(), 1);
+      jelAssert.equal(new JEL('do let a=1, b=2: a+b').executeImmediately(), 3);
+      jelAssert.equal(new JEL('do let a=1, b=a+1, c=b*3, d=c*4, e=d/6: [a,b,c,d,e]').executeImmediately().elements, "[1,2,6,24,4]");
       jelAssert.equal(new JEL('3+(let a=1: a)+10').executeImmediately(), 14);
       jelAssert.equal(new JEL('3+(let a=1: a)*10').executeImmediately(), 13);
       jelAssert.equal(new JEL('3+2*let a=1: a*10').executeImmediately(), 23);
     });
 
     it('supports assert', function() {
-      jelAssert.equal('let a=1: assert a>0: a', 1);
-      jelAssert.equal('let a=1: assert a>0, 3>2: a', 1);
-      return jelAssert.errorPromise('let a=1: assert a>0, a<0: a', 'a < 0');
+      jelAssert.equal('do let a=1: assert a>0: a', 1);
+      jelAssert.equal('do let a=1: assert a>0, 3>2: a', 1);
+      return jelAssert.errorPromise('do let a=1: assert a>0, a<0: a', 'a < 0');
     });
 
     it('supports try/if/else', function() {
@@ -503,10 +503,10 @@ describe('JEL unit tests executed with empty context', function() {
   });
   
   it('doesnt throw exceptions for unsupposed equality ops', function() {
-    jelAssert.equal('let a=(class A: constructor()): a()==a()', 'false');
-    jelAssert.equal('let a=(class A: constructor()): a()===a()', 'false');
-    jelAssert.equal('let a=(class A: constructor()): a()!=a()', 'true');
-    jelAssert.equal('let a=(class A: constructor()): a()!==a()', 'true');
+    jelAssert.equal('do let a=(class A: constructor()): a()==a()', 'false');
+    jelAssert.equal('do let a=(class A: constructor()): a()===a()', 'false');
+    jelAssert.equal('do let a=(class A: constructor()): a()!=a()', 'true');
+    jelAssert.equal('do let a=(class A: constructor()): a()!==a()', 'true');
   });
 
 

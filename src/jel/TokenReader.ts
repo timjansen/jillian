@@ -8,7 +8,7 @@ export default class TokenReader {
 		return !!this.tokens[this.startPos+count-1];
 	}
 	
-  next(): Token {
+	next(): Token {
 		return this.tokens[this.startPos++];
 	}
   
@@ -23,9 +23,9 @@ export default class TokenReader {
 
  	nextIf(type: TokenType, value?: any, offset=0): Token|undefined {
 		const t = this.peekIs(type, value, offset);
-    if(t)
-      this.startPos+=offset+1;
-    return t;
+		if(t)
+			this.startPos+=offset+1;
+		return t;
 	}
 
   

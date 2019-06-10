@@ -43,7 +43,7 @@ describe('Facts', function() {
   });
 
   it('value lists can be read from the thing', function() {
-    return jelAssert.equalPromise("let a = @Wednesday.getBestFactResults('dayOfWeekNumber', Timestamp(5000)): [a.size, a[0].value]", '[1,3]');
+    return jelAssert.equalPromise("do let a = @Wednesday.getBestFactResults('dayOfWeekNumber', Timestamp(5000)): [a.size, a[0].value]", '[1,3]');
   });
 
   it('values can be inherited from the category', function() {

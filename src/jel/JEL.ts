@@ -59,6 +59,9 @@ import Throw from './expressionNodes/Throw';
 import AnonEnum from './expressionNodes/AnonEnum';
 import Not from './expressionNodes/Not';
 import ReqTypes from './expressionNodes/ReqTypes';
+import Import from './expressionNodes/Import';
+import FunctionDef from './expressionNodes/FunctionDef';
+import Program from './expressionNodes/Program';
 
 const binaryOperators: any = { // op->precedence
   '.': 50,
@@ -149,6 +152,7 @@ const LAMBDA = {'=>': true};
 const OPEN_ARGS = {'(': true};
 const CLOSE_ARGS = {')': true};
 
+const PROGRAM_STATEMENTS: any = {'import': true, 'let': true, 'class': true, 'enum': true, 'function': true, 'do': true};
 const CLASS_MEMBER_MODIFIERS: any = {abstract: true, native: true, override: true, private: true, static: true};
 
 const DUMMY_TOKEN = new Token(0, 0, '(you should never see this)', TokenType.Literal, null);
@@ -160,8 +164,14 @@ export default class JEL {
 	parseTree: JelNode;
 	
   constructor(input: string, src: string = "(inline)") {
-    this.parseTree = JEL.parseExpression(Tokenizer.tokenize(input, src));
-  }
+    const tokens = Tokenizer.tokenize(input, src);
+    const program = JEL.parseProgram(tokens);
+    if (program)
+      this.parseTree = program;
+    else 
+      this.parseTree = JEL.parseExpression(tokens);
+      JEL.validateStreamEnd(tokens, !program);
+    }
   
   // returns value if available, otherwise promise
   executeImmediately(context = new Context()): any {
@@ -193,9 +203,101 @@ export default class JEL {
 			return tokens.next();
 		JEL.throwParseException(tokens.last(), msg);
 		return undefined as any; // just to make Typescript happy
-	}
-
+  }
   
+  static validateStreamEnd(tokens: TokenReader, expressionOnly: boolean): void {
+    if (!tokens.hasNext())
+      return;
+    JEL.throwParseException(tokens.peek(), expressionOnly ? `Unexpected token after end of expression. A simple program can have only a single expression.` : 
+      `Unexpected token after last program statement. The program should either end here, or have another statement.`);
+  }
+
+  static parseProgram(tokens: TokenReader): Program|undefined {
+    if (!JEL.isOp(tokens, PROGRAM_STATEMENTS))
+      return undefined;
+    
+    const statements: JelNode[] = [];
+    while (tokens.hasNext()) {
+      const stmt = JEL.expectOp(tokens, PROGRAM_STATEMENTS, "Expected 'import', 'class', 'enum', 'function', 'let' or 'do' as statement.");
+      switch (stmt.value) {
+        case 'import':
+          statements.push(...JEL.parseImports(tokens));
+          break;
+        case 'class':
+          statements.push(JEL.parseClass(tokens, 0, PROGRAM_STATEMENTS));
+          break;
+        case 'enum':
+          statements.push(JEL.parseEnum(tokens, 0, PROGRAM_STATEMENTS));
+          break;
+        case 'function':
+          statements.push(JEL.parseFunction(tokens));
+          break;
+        case 'let':
+          statements.push(...JEL.parseLet(tokens));
+          break;
+        case 'do':
+          statements.push(JEL.parseExpression(tokens));
+      }
+    }
+    return new Program(tokens.last(), statements);
+  }
+
+  static parseImports(tokens: TokenReader): Import[] {
+    if (!tokens.peekIs(TokenType.Identifier)) 
+      JEL.throwParseException(tokens.peek(), "Expected identifier of object to import after 'import' statement.");
+
+    const imports: Import[] = [];
+    while (true) {
+      const name = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier in 'import' statement.");
+      if (!/::/.test(name.value))
+        JEL.throwParseException(name, `Can not import "${name.value}": only package content can be imported, thus names that contain a "::" separator. Top-level elements do not need an 'import' statement.`);
+      imports.push(new Import(name, name.value.replace(/::$/, ''), name.value.endsWith('::') && !!tokens.nextIf(TokenType.Operator, '*')));
+
+      if (!tokens.nextIf(TokenType.Operator, ','))
+        return imports;
+    }
+  }
+
+  static parseFunction(tokens: TokenReader): FunctionDef {
+    const name = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected function name.");
+    const args = JEL.checkTypedParameters(JEL.tryParseTypedParameters(tokens, 0, NO_STOP), name);
+    const varArgPos = args ? args!.findIndex(a=>a.varArgs) : -1;
+    if (args == null)
+      JEL.throwParseException(tokens.last(), `Can not parse argument list for function ${name.value}()`);
+    else if (varArgPos >= 0 && args!.findIndex(a=>a.varArgs) < args!.length-1)
+      JEL.throwParseException(tokens.last(), `Varargs are only supported as the last argument.`);
+    const returnValueType = JEL.tryParseLambdaTypeCheck(tokens, LAMBDA);
+    JEL.nextIsValueOrThrow(tokens, TokenType.Operator, '=>',  "Function expression must be preceded by '=>'.");
+    return new FunctionDef(name, name.value, new Lambda(tokens.peek(), args!, returnValueType, JEL.parseExpression(tokens, 0, PROGRAM_STATEMENTS), varArgPos>=0));
+  }
+
+  static parseLet(tokens: TokenReader): Assignment[] {
+    const isStart = !tokens.startPos;
+    const stopOps = Object.assign({':': true, PROGRAM_STATEMENTS});
+    if (!tokens.peekIs(TokenType.Identifier)) 
+      JEL.throwParseException(tokens.peek(), "Expected constant name in 'let' statement.");
+
+      const assignments: Assignment[] = [];
+      while (true) {
+        const name = JEL.nextIsOrThrow(tokens, TokenType.Identifier, `Expected constant name.`);
+        JEL.checkVarName(name, "constant");
+        const eq = JEL.expectOp(tokens, EQUAL, `Expected equal sign after variable name.` + (tokens.peek().value == ':' ? ' Type annotations are not allowed here.': ''));
+        const expression = JEL.parseExpression(tokens, 0, stopOps);
+        if (!expression)
+          JEL.throwParseException(eq, "Expression ended unexpectedly.");
+        assignments.push(new Assignment(eq, name.value, expression));
+
+        if (!tokens.nextIf(TokenType.Operator, ',')) 
+          break;
+      }
+
+      if (tokens.peekIs(TokenType.Operator, ':'))
+        JEL.throwParseException(tokens.peek(), isStart ? `Found a 'let' statement with ':' terminator at the beginning of the program. If you want your program to be a single expression and it starts with a 'let', you need to prefix your program with a 'do' to (as in "do let a=1..."). Otherwise, just remove the ':', as it is only allowed when the 'let' is embedding an expression.` : 
+          `A 'let' statement in a program must not be terminated with a ':'. You should remove the colon.`);
+      return assignments;
+  }
+
+
   static parseExpression(tokens: TokenReader, precedence = 0, stopOps = NO_STOP, isTypeDef=false): JelNode {
     const token = JEL.nextOrThrow(tokens, "Unexpected end, expected another token");
     switch (token.type) {
@@ -864,7 +966,7 @@ static parseOperatorExpression(tokens: TokenReader, operator: string, precedence
         if (args == null)
           JEL.throwParseException(tokens.last(), `Can not parse argument list for method ${methodName}()`);
         else if (varArgPos >= 0 && args!.findIndex(a=>a.varArgs) < args!.length-1)
-          JEL.throwParseException(tokens.last(), `Varargs are only supported for the last argument.`);
+          JEL.throwParseException(tokens.last(), `Varargs are only supported as the last argument.`);
         const returnValueType = JEL.tryParseLambdaTypeCheck(tokens, (nativeModifier || abstractModifier) ? CLASS_EXPRESSION_STOP : LAMBDA);
         
         if (!abstractModifier && !nativeModifier)

@@ -48,7 +48,7 @@ describe('EnumValue', function() {
     jelAssert.equal('#TEST==#TEST', 'true');
     jelAssert.equal('#TEST==#TOAST', 'false');
 
-    jelAssert.equal(`let SomeEnum = (enum SomeEnum: A, B, C): [(#A as SomeEnum).value, (#A as SomeEnum).parent.name, #A instanceof SomeEnum]`, '["A", "SomeEnum", true]');
-    return jelAssert.errorPromise("let SomeEnum = (enum SomeEnum: A, B, C): #X as SomeEnum", "convert to EnumType(SomeEnum)");
+    jelAssert.equal(`do let SomeEnum = (enum SomeEnum: A, B, C): [(#A as SomeEnum).value, (#A as SomeEnum).parent.name, #A instanceof SomeEnum]`, '["A", "SomeEnum", true]');
+    return jelAssert.errorPromise("do let SomeEnum = (enum SomeEnum: A, B, C): #X as SomeEnum", "convert to EnumType(SomeEnum)");
   });
 });
