@@ -5,150 +5,266 @@ This collection is currently used to validate the completeness of IL and other m
 
 
 He walked home.
-      Sentence(verb=Verb(@Walking, #PAST), subject=Pronoun(@He), object=Noun(@Home))
+      Statement(Verb(@Walking, #PAST), subject=Pronoun(@He), object=Noun(@Home))
 
 She is going home by bike.
-      Sentence(verb=Verb(@Going, continous=true), subject=Pronoun(@She), object=Noun(@Home), prepositions=Preposition(EnglishPrepositionEnum.BY, Noun(@BikeCategory)))
+      Statement(Verb(@Going, continous=true), subject=Pronoun(@She), object=Noun(@Home), prepositions=Preposition(EnglishPrepositionEnum.BY, Noun(@BikeCategory)))
 
 He drove home and went to bed.
-      Conjunction(@And, Sentence(verb=Verb(@Driving, #PAST), subject=Pronoun(@He), object=Noun(@Home)), 
-            Sentence(verb=Verb(@Going, #PAST), subject=ClausePronoun(), prepositions=Preposition(EnglishPrepositionEnum.TO, Noun(@BedCategory)))
+      Conjunction(@And, Statement(Verb(@Driving, #PAST), subject=Pronoun(@He), object=Noun(@Home)), 
+            Statement(Verb(@Going, #PAST), subject=ClausePronoun(), prepositions=Preposition(EnglishPrepositionEnum.TO, Noun(@BedCategory)))
 
 They are always used in pairs and denote equality.
-      Conjunction(@And, Sentence(verb=Verb(@Using, active=false), adverbial=Adjective(@Always), subject=Pronoun(@They), prepositions=Preposition(EnglishPrepositionEnum.IN, Noun(@Pairs))), 
-            Sentence(verb=Verb(@Denote), subject=ClausePronoun(), objects=Noun(@Equality))
+      Conjunction(@And, Statement(Verb(@Using, active=false), adverbial=Adjective(@Always), subject=Pronoun(@They), prepositions=Preposition(EnglishPrepositionEnum.IN, Noun(@Pairs))), 
+            Statement(Verb(@Denote), subject=ClausePronoun(), objects=Noun(@Equality))
 
 She is interested in learning math.
-      Sentence(verb=Verb(@Being), subject=Pronoun(@She), prepositions=Preposition(EnglishPrepositionEnum.IN, IngVerb(Sentence(Verb(@Learn), object=Noun(@Math)))))
+      Statement(Verb(@Being), subject=Pronoun(@She), prepositions=Preposition(EnglishPrepositionEnum.IN, IngVerb(Sentence(Verb(@Learn), object=Noun(@Math)))))
 
 I like that you wrote that mail.
 I like you wrote that mail.
-      Statement(verb=Verb(@Liking), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Laugh), subject=Pronoun(@You), object=Noun(@Mail, determiner=#FAR_DEMONSTRATIVE))))
+      Statement(Verb(@Liking), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Laugh), subject=Pronoun(@You), object=Noun(@Mail, determiner=#FAR_DEMONSTRATIVE))))
 
 Make sure operations never throw exceptions, but just return false.
-      Command(verb=Verb(@Making), adverbial=Adjective(@Sure), Conjunction(@But, IL::Statement(verb=Verb(@Throwing), adverbial=Adjective(@Never), object=Noun(@Exception, QuantityEnum.MANY)), 
-                                                            Statement(verb=Verb(@Return, adverbial=Adjective(@Just), subject=ClausePronoun(), object=Noun(@False)))))
+      Command(verb=Verb(@Making), adverbial=Adjective(@Sure), Conjunction(@But, IL::Statement(Verb(@Throwing), adverbial=Adjective(@Never), object=Noun(@Exception, QuantityEnum.MANY)), 
+                                                            Statement(Verb(@Return, adverbial=Adjective(@Just), subject=ClausePronoun(), object=Noun(@False)))))
 
 Farming is growing crops or keeping animals by people for food and raw materials. 
-      Statement(verb=Verb(@Being), subject=Noun(@Farming), object=Or(IngVerb(Sentence(Verb(@Growing), object=Noun(@Crop, #MANY)), IngVerb(Sentence(Verb(@Keeping), object=Noun(@AnimalCategory, #MANY))))),
+      Statement(Verb(@Being), subject=Noun(@Farming), object=Or(IngVerb(Sentence(Verb(@Growing), object=Noun(@Crop, #MANY)), IngVerb(Sentence(Verb(@Keeping), object=Noun(@AnimalCategory, #MANY))))),
             prepositions=Preposition(EnglishPrepositionEnum.FOR, And(Noun(@Food), Noun(@Material, #MANY, adjective=Adjective(@Raw)))))
 
 Farming is a part of agriculture.
-      Statement(verb=Verb(@Being), subject=IngVerb(Sentence(@Farming)), object=Noun(@Part, #ONE, #GENERAL, prepositions=Preposition(EnglishPrepositionEnum.OF, Noun(@Agriculture))))
+      Statement(Verb(@Being), subject=IngVerb(Sentence(@Farming)), object=Noun(@Part, #ONE, #GENERAL, prepositions=Preposition(EnglishPrepositionEnum.OF, Noun(@Agriculture))))
 
 I like to see you laughing.
-      Statement(verb=Verb(@Liking), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Seeing), object=IngVerb(Sentence(verb=@Laughing, subject=Pronoun(@You)))), true))
+      Statement(Verb(@Liking), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Seeing), object=IngVerb(Sentence(verb=@Laughing, subject=Pronoun(@You)))), true))
 
 I see you have already arrived.
-      Statement(verb=Verb(@Seeing), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Arriving, #PAST, perfect=true), subject=Pronoun(@You), adverbial=Adjective(@Already))))
+      Statement(Verb(@Seeing), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Arriving, #PAST, perfect=true), subject=Pronoun(@You), adverbial=Adjective(@Already))))
 
 Agriculture started thousands of years ago.
-      Statement(verb=Verb(@Starting), subject=Noun(@Agriculture), prepositions=Preposition(DurationPrepositionEnum.AGO, Value(1000, quantity=#MANY, object=Noun(@Year, #MANY))))
+      Statement(Verb(@Starting), subject=Noun(@Agriculture), prepositions=Preposition(DurationPrepositionEnum.AGO, Value(1000, quantity=#MANY, object=Noun(@Year, #MANY))))
 
 There are two sides to every story.
-      Statement(verb=Verb(@Being), subject=Pronoun(@There), object=Value(2, Noun(@Side, #MANY)), prepositions=Preposition(EnglishPrepositionEnum.TO, Noun(@Story, adjective=Adjective(@Every))))
+      Statement(Verb(@Being), subject=Pronoun(@There), object=Value(2, Noun(@Side, #MANY)), prepositions=Preposition(EnglishPrepositionEnum.TO, Noun(@Story, adjective=Adjective(@Every))))
 
 She is the fifth child of her father.
-      Statement(verb=Verb(@Being), subject=Pronoun(@She), object=Noun(@Child, adjective=Adjective(@Ordinal, compareObject=Value(5)), prepositions=Preposition(EnglishPrepositionEnum.OF, Noun(@Father, possessor=Pronoun(@She)))))
+      Statement(Verb(@Being), subject=Pronoun(@She), object=Noun(@Child, adjective=Adjective(@Ordinal, compareObject=Value(5)), prepositions=Preposition(EnglishPrepositionEnum.OF, Noun(@Father, possessor=Pronoun(@She)))))
 
 I went three times to that restaurant.
-      Statement(verb=Verb(@Being, #PAST), subject=Pronoun(@I), object=Value(3 @Times), prepositions=Preposition(EnglishPrepositionEnum.TO, Noun(@Restaurant, determiner=#FAR_DEMONSTRATIVE)))
+      Statement(Verb(@Being, #PAST), subject=Pronoun(@I), object=Value(3 @Times), prepositions=Preposition(EnglishPrepositionEnum.TO, Noun(@Restaurant, determiner=#FAR_DEMONSTRATIVE)))
 
 My favorite number is 5.
-      Statement(verb=Verb(@Being), subject=Noun(@Number, adjective=Adjective(@Favorite), possessor=Pronoun(@I)), object=Value(5))
+      Statement(Verb(@Being), subject=Noun(@Number, adjective=Adjective(@Favorite), possessor=Pronoun(@I)), object=Value(5))
 
 She's 6 foot tall.
-      Statement(verb=Verb(@Being), subject=Pronoun(@She), object=Value(6 @Foot, object=AdjectiveObject(@Tall)))
+      Statement(Verb(@Being), subject=Pronoun(@She), object=Value(6 @Foot, object=AdjectiveObject(@Tall)))
 
 The kitchen table's height is 40cm.
-      Statement(verb=Verb(@Being), subject=Noun(@Height, possessor=Noun(@KitchenTable, determiner=#DEFINITE)), object=Value(40 @Centimeter))
+      Statement(Verb(@Being), subject=Noun(@Height, possessor=Noun(@KitchenTable, determiner=#DEFINITE)), object=Value(40 @Centimeter))
 
 The kitchen is downstairs.
-      Statement(verb=Verb(@Being), subject=Noun(@Kitchen, determiner=#DEFINITE)), object=Noun(@Downstairs))
+      Statement(Verb(@Being), subject=Noun(@Kitchen, determiner=#DEFINITE)), object=Noun(@Downstairs))
 
 I went home last week.
-      Statement(verb=Verb(@Going), subject=Pronoun(@I), object=Noun(@Home), prepositions=Preposition(TimePrepositionEnum.ON, Noun(@Week, adjective=Adjective(@Last))))
+      Statement(Verb(@Going), subject=Pronoun(@I), object=Noun(@Home), prepositions=Preposition(TimePrepositionEnum.ON, Noun(@Week, adjective=Adjective(@Last))))
 
 I lost my watch yesterday, not last week.
-      Conjunction(@CommaSeparated, Statement(verb=Verb(@Losing), subject=Pronoun(@I), object=Noun(@Watch, possessor=Pronoun(@I)), prepositions=Preposition(TimePrepositionEnum.ON, Noun(@Yesterday))),
-            Statement(verb=Verb(@Losing), subject=Pronoun(@I), object=Noun(@Watch, possessor=Pronoun(@I)), prepositions=Not(Preposition(TimePrepositionEnum.ON, Noun(@Week, adjective=Adjective(@Last)))))
+      Conjunction(@CommaSeparated, Statement(Verb(@Losing), subject=Pronoun(@I), object=Noun(@Watch, possessor=Pronoun(@I)), prepositions=Preposition(TimePrepositionEnum.ON, Noun(@Yesterday))),
+            Statement(Verb(@Losing), subject=Pronoun(@I), object=Noun(@Watch, possessor=Pronoun(@I)), prepositions=Not(Preposition(TimePrepositionEnum.ON, Noun(@Week, adjective=Adjective(@Last)))))
 
 Perhaps the weather will be fine.
-      Statement(verb=Verb(@Being, #FUTURE), subject=Noun(@Weather, determiner=#DEFINITE), object=AdjectiveObject(@Fine), adverbial=Adjective(@Perhaps))
+      Statement(Verb(@Being, #FUTURE), subject=Noun(@Weather, determiner=#DEFINITE), object=AdjectiveObject(@Fine), adverbial=Adjective(@Perhaps))
 
 No one knows for sure how old it is.
-      Statement(verb=Verb(@Knowing), subject=Pronoun(@One, adjective=Adjective(@No)), prepositions=Preposition(EnglishPrepositionEnum.FOR, Noun(@Sure)), 
-            object=SentenceObject(Statement(verb=Verb(@Being), subject=Pronoun(@It), object=QuestionWord(@How, AdjectiveObject(@Old)))))
+      Statement(Verb(@Knowing), subject=Pronoun(@One, adjective=Adjective(@No)), prepositions=Preposition(EnglishPrepositionEnum.FOR, Noun(@Sure)), 
+            object=SentenceObject(Statement(Verb(@Being), subject=Pronoun(@It), object=QuestionWord(@How, AdjectiveObject(@Old)))))
 
 I forget things more often nowadays.
-      Statement(verb=Verb(@Forgetting), subject=Pronoun(@I), object=Noun(@Thing, #MANY), adverbial=Adjective(@Often, @More), prepositions=Preposition(TimePrepositionEnum.ON, Noun(@Nowadays)))
+      Statement(Verb(@Forgetting), subject=Pronoun(@I), object=Noun(@Thing, #MANY), adverbial=Adjective(@Often, @More), prepositions=Preposition(TimePrepositionEnum.ON, Noun(@Nowadays)))
 
 I forget things more often than I used to.
-      Statement(verb=Verb(@Forgetting), subject=Pronoun(@I), object=Noun(@Thing, #MANY), adverbial=Adjective(@Often, comparison=#MORE, 
+      Statement(Verb(@Forgetting), subject=Pronoun(@I), object=Noun(@Thing, #MANY), adverbial=Adjective(@Often, comparison=#MORE, 
             compareObject=SentenceObject(verb=@UseTo, subject=Pronoun(@I))))
 
 I forget things more often since last year.
-      Statement(verb=Verb(@Forgetting), subject=Pronoun(@I), object=Noun(@Thing, #MANY), adverbial=Adjective(@Often, @More), prepositions=Preposition(TimePrepositionEnum.AGO, Value(3 @Day)))
+      Statement(Verb(@Forgetting), subject=Pronoun(@I), object=Noun(@Thing, #MANY), adverbial=Adjective(@Often, @More), prepositions=Preposition(TimePrepositionEnum.AGO, Value(3 @Day)))
 
 Three weeks ago I was on vacation.
-      Statement(verb=Verb(@Being, #PAST), subject=Pronoun(@I), prepositions=And(Preposition(TimePrepositionEnum.AGO, Value(3 @Week), Preposition(EnglishPrepositionEnum.ON, Noun(@Vacation)))))
+      Statement(Verb(@Being, #PAST), subject=Pronoun(@I), prepositions=And(Preposition(TimePrepositionEnum.AGO, Value(3 @Week), Preposition(EnglishPrepositionEnum.ON, Noun(@Vacation)))))
 
 There are two of them.
-      Statement(verb=Verb(@Being), subject=Pronoun(@There), object=Value(2, prepositions=Preposition(EnglishPrepositionEnum.OF, Pronoun(@Them))))
+      Statement(Verb(@Being), subject=Pronoun(@There), object=Value(2, prepositions=Preposition(EnglishPrepositionEnum.OF, Pronoun(@Them))))
 
 You told me last week.
-      Statement(verb=Verb(@Telling), subject=Pronoun(You), object=Pronoun(@I), prepositions(TimePrepositionEnum.ON, Noun(@Week, adjective=Adjective(@Last)))
+      Statement(Verb(@Telling), subject=Pronoun(You), object=Pronoun(@I), prepositions(TimePrepositionEnum.ON, Noun(@Week, adjective=Adjective(@Last)))
 
 It slowly started three days ago.
-      Statement(verb=Verb(@Being), subject=Pronoun(@It), adverbial=Adjective(@Slow), prepositions=Preposition(TimePrepositionEnum.AGO, Value(3 @Day)))
+      Statement(Verb(@Being), subject=Pronoun(@It), adverbial=Adjective(@Slow), prepositions=Preposition(TimePrepositionEnum.AGO, Value(3 @Day)))
 
 I have been there before.
-      Statement(verb=Verb(@Being, #PAST, perfect=true), subject=Pronoun(@I), object=Pronoun(@There), adverbial=Adjective(@Before))
+      Statement(Verb(@Being, #PAST, perfect=true), subject=Pronoun(@I), object=Pronoun(@There), adverbial=Adjective(@Before))
 
 I hid under the table.
-      Statement(verb=Verb(@Hiding, #PAST), prepositions=Preposition(EnglishPrepositionEnum.UNDER, Noun(@Table, determiner=#DEFINITE)))
+      Statement(Verb(@Hiding, #PAST), prepositions=Preposition(EnglishPrepositionEnum.UNDER, Noun(@Table, determiner=#DEFINITE)))
       
 You walked from New York to Philadephia?
       Question(verb=Verb(@Walking, #PAST), subject=Pronoun(@You), prepositions=[Preposition(EnglishPrepositionEnum.FROM, Noun(@NewYork)), Preposition(EnglishPrepositionEnum.TO, Noun(@Philadephia))])
 
 I promised to do it in five years.
-      Statement(verb=Verb(@Promising, #PAST), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Doing), object=Pronoun(@It), prepositions=Preposition(EnglishPrepositionEnum.IN, Value(5 @Year)), true)))
-      Statement(verb=Verb(@Promising, #PAST), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Doing), object=Pronoun(@It)), true), prepositions=Preposition(EnglishPrepositionEnum.IN, Value(5 @Year)))
+      Statement(Verb(@Promising, #PAST), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Doing), object=Pronoun(@It), prepositions=Preposition(EnglishPrepositionEnum.IN, Value(5 @Year)), true)))
+      Statement(Verb(@Promising, #PAST), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Doing), object=Pronoun(@It)), true), prepositions=Preposition(EnglishPrepositionEnum.IN, Value(5 @Year)))
 
 He's flying above the clouds.
-      Statement(verb=Verb(@Flying, continous=true), subject=Pronoun(@He), prepositions=Preposition(EnglishPrepositionEnum.ABOVE, Noun(@Cloud, #MANY, determiner=true)))
+      Statement(Verb(@Flying, continous=true), subject=Pronoun(@He), prepositions=Preposition(EnglishPrepositionEnum.ABOVE, Noun(@Cloud, #MANY, determiner=true)))
 
 The development of farming gave rise to the Neolithic Revolution whereby people gave up nomadic hunting and became settlers in what became cities.
-      Statement(verb=Verb(@Giving, #PAST), 
+      Statement(Verb(@Giving, #PAST), 
             subject=Noun(@Farming, possessor=Noun(@Development, determiner=#DEFINITE)),
             object=Noun(@Rise), 
             prepositions=Preposition(EnglishPrepositionEnum.TO, Noun(@NeolithicRevolusion, 
-                  clauses=Statement(verb=Verb(@GivingUp, #PAST), subject=Noun(@People), object=Noun(@NomadicHunting))))) // TODO: ..and became...
-
-
+                  clauses=Statement(Verb(@GivingUp, #PAST), subject=Noun(@People), object=Noun(@NomadicHunting))))) // TODO: ..and became...
 
 The Empire State Building is a skyscraper in New York City, United States.
+      Statement(Verb(@Being), subject=Noun(@EmpireStateBuilding, #DEFINITE), object=Noun(@SkyscraperCategory, determiner=#GENERAL), prepositions=Preposition(EnglishPrepositionEnum.IN, 
+            Noun(@NewYorkCity, prepositions=Preposition(EnglishPrepositionEnum.COMMA_SEPARATED, Noun(@UnitedStates)))))
+      Statement(Verb(@Being), subject=Noun(@EmpireStateBuilding, #DEFINITE), object=Noun(@SkyscraperCategory, determiner=#GENERAL), prepositions=[
+            Preposition(EnglishPrepositionEnum.IN, Noun(@NewYorkCity)), Preposition(EnglishPrepositionEnum.COMMA_SEPARATED, Noun(@UnitedStates))])
+
 It is 381 meters tall and has 102 floors, and the height to its pinnacle is 1454 feet. 
+      Conjunction(@And, 
+            Conjunction(@And, Statement(Verb(@Being), subject=Pronoun(@It), object=Value(381 @Meter, object=AdjectiveObject(Adjective(@Tall)))),
+                  Statement(Verb(@Being), subject=ClausePronoun(), object=Value(102, Noun(@FloorCategory, #MANY)))),
+            Statement(Verb(@Being), subject=Noun(@Height, determiner=#DEFINITE, prepositions=Preposition(EnglishPrepositionEnum.TO, Noun(@Pinnable, possessor=Pronoun(@It)))), object=Value(1454 @Foot)))
+
 Named after the popular nickname for New York, The Empire State, it is one of the most famous landmarks in the US.
-Designed by the architects named Shreve, Lamb & Harmon Associates, it was built at a time when many people were trying to make the world's tallest building, but the Empire State Building won. 
+      Conjunction(@CommaInjunction, Statement(Verb(@Naming, active=false), subject=ClausePronoun(),
+            prepositions=Preposition(EnglishPrepositionEnum.AFTER, Noun(@Nickname, #DEFINITE, adjective=Adjective(@Popular), 
+                  prepositions=Preposition(EnglishPrepositionEnum.FOR, Noun(@NewYork, prepositions=Preposition(EnglishPrepositionEnum.COMMA_SEPARATED, Noun(@EmpireState, #DEFINITE))))))),
+                  Statement(Verb(@Being), subject=Pronoun(@It), Value(1, prepositions=Preposition(EnglishPrepositionEnum.OF, 
+                        Noun(@Landmark, #MANY, #DEFINITE, adjective=Adjective(@Famous, @Superlative, prepositions=Preposition(EnglishPrepositionEnum.IN, Noun(@UnitedStates, determiner=#DEFINITE))))))))
+
+Designed by the architects named "Shreve, Lamb & Harmon Associates", it was built at a time when many people were trying to make the world's tallest building, but the Empire State Building won. 
+      Conjunction(@But, 
+            Conjunction(@CommaInjunction, Statement(Verb(@Designing, #PAST, active=false), subject=ClausePronoun(),
+                  prepositions=Preposition(EnglishPrepositionEnum.BY, Noun(@Architect, #MANY, #DEFINITE, clause=Statement(Verb(@Naming, active=false), object=Value("Shreve, Lamb & Harmon Associates"))))),
+                  Statement(Verb(@Building, #PAST, active=true), subject=Pronoun(@It), prepositions=Preposition(Noun(@Time, determiner=#GENERAL, clauses=
+                        Statement(Verb(@Trying, #PAST, continous=true), subject=QuestionWord(@When, Noun(@People, adjective=Adjective(@Many))), 
+                              SentenceObject(Sentence(verb=Verb(@Making), object=Noun(@Building, adjective=Adjective(@Tall, @Superlative)), possessor=Noun(@World, determiner=#DEFINITE)), true)))))),
+            Statement(Verb(@Winning, #PAST), subject=Noun(@EmpireStateBuilding, determiner=#DEFINITE)))
+
 It was completed in 410 days. 
+      Statement(Verb(@Completing, #PAST, active=false, perfect=true), subject=Pronoun(@It), prepositions=Preposition(EnglishPrepositionEnum.IN, Value(410 @Day)))
+
+It is one of the best known examples for design.
+      Statement(Verb(@Being), object=Value(1, prepositions=Preposition(EnglishPrepositionEnum.OF, 
+            Noun(@Example, #MANY, adjective=Adjective(@Known, @BestModifier), prepositions=Preposition(EnglishPrepositionEnum.FOR, Noun(@Design))))))
+
 It opened on May 1, 1931, when United States President Herbert Hoover pushed a button in Washington, D.C. to turn on the lights. 
+      Statement(Verb(@OpeningVerb, #PAST), subject=Pronoun(@It), 
+            prepositions=Preposition(EnglishPrepositionEnum.ON, Value(LocalDate(1931, 5, 1), clause=Statement(Verb(@Pushing, #PAST), subject=CompoundNoun(@UnitedStates, CompoundNoun(@President, Value("Herbert Hoover"))),
+            object=Noun(@Button, determiner=#GENERAL), prepositions=[Preposition(EnglishPrepositionEnum.IN, Noun(@Washington, prepositions=Preposition(EnglishPrepositionEnum.COMMA_SEPARATED, Noun(@DC)))),
+                                                                     Preposition(EnglishPrepositionEnum.TO, SentenceObject(verb=Verb(@TurningOn), object=Noun(@Light, #MANY, #DEFINITE)))]))))
+
 The Empire State Building's design was based on the 21-story Reynolds Building in Winston-Salem, which was built in 1929.
-The Empire State Building became the tallest building in New York City and the world, holding this record for forty-one years, until the first World Trade Center towers opened in 1973. 
+      Statement(Verb(@Basing, #PAST, active=false), subject=Noun(@Design, possessor=Noun(@EmpireStateBuilding)),
+            prepositions=Preposition(EnglishPrepositionEnum.ON, Value("Reynolds Building", adjective=Adjective(@ValueOnly, value=Value(21, object=Noun(@Story))), 
+                        prepositions=Preposition(EnglishPrepositionEnum.IN, Value("Winston-Salem", 
+                              clause=Statement(Verb(@Being, #PAST, active=false), subject=QuestionWord(@Which), prepositions=Preposition(EnglishPrepositionEnum.IN, Value(1929))))))))
+
+The 10ft tall tree is 10 years old.
+      Statement(Verb(@Being), subject=Noun(@Tree, determiner=#DEFINITE, adjective=Adjective(@Tall, value=Value(10 @Foot))), object=Value(10 @Year, object=AdjectiveObject(Adjective(@Old))))
+
+The 7ft man didn't fit.
+      Statement(Verb(@Fitting, #PAST, true), subject=Noun(@Man, adjective=Adjective(@ValueOnly, value=Value(7 @Foot))))
+
+The Empire State Building became the tallest building in New York City and the world, holding this record for forty-one years, until the first World Trade Center towers opened in 1973.
+      Conjunction(@Until, 
+            Conjunction(@CommaInjunction, 
+                  Statement(Verb(@Becoming, #PAST), subject=Noun(@EmpireStateBuilding, determiner=#DEFINITE), object=Noun(@Building, determiner=#DEFINITE, adjective=Adjective(@Tall, @Superlative), 
+                        prepositions=Preposition(EnglishPrepositionEnum.IN, And(Noun(@NewYorkCity), Noun(@World, determiner=#DEFINITE)))))
+                  Statement(Verb(@Holding, continous=true), subject=ClausePronoun(), object=Noun(@Record, determiner=#NEAR_DEMONSTRATIVE), prepositions=Preposition(EnglishPrepositionEnum.FOR, Value(41 @Year)))
+            ),
+            Statement(Verb(@Opening, #PAST), subject=Noun(@WorldTradeCenter, determiner=#DEFINITE, adjective=Adjective(@First)), prepositions=Preposition(EnglishPrepositionEnum.IN, Value(1973)))
+      )
+
 When these towers were brought down in the September 11, 2001 attacks, the Empire State Building was again the tallest building in New York. 
-It lost this title in April 2013 when the new One World Trade Center surpassed it, which is now the tallest building in the US and the Western Hemisphere.
+      Conjunction(@When, Statement(Verb(@Being), subject=Noun(@EmpireStateBuilding, determiner=#DEFINITE), 
+                        adverbial=Adjective(@Again), object=Noun(@Building, determiner=#DEFINITE, prepositions=Preposition(EnglishPrepositionEnum.IN, Noun(@NewYork)))),
+            Statement(Verb(@BringingDown, #PAST, active=false), object=Noun(@Tower, #MANY, #FAR_DEMONSTRATIVE), 
+                  prepositions=Preposition(EnglishPrepositionEnum.IN, Noun(@Attack, #MANY, #DEFINITE, adjective=Adjective(@ValueOnly, value=Value(LocalDate(2001, 9, 11)))))))
+
 On Saturday, July 28, 1945, the B-25 Empire State Building crash started a fire.
+      Statement(Verb(@Start, #PAST), subject=Noun(@EmpireStateBuilding, adjective=Adjective(@ValueOnly, value=Value("B-25"))), object=Noun(@Fire, determiner=#GENERAL), 
+            prepositions=Preposition(EnglishPrepositionEnum.ON, Value(LocalDate(1945, 7, 28))))
+
 The building was not structurally compromised. 
+      Statement(Verb(@Being, #PAST), subject=Noun(@Building, determiner=#DEFINITE), object=AdjectiveObject(Adjective(@Compromised, @Structurally)))
+
 14 people were killed in the accident.
+      Statement(Verb(@Killing, #PAST, active=true), subject=Value(14, object=Noun(@People)), prepositions=Preposition(EnglishPrepositionEnum.IN, Noun(@Accident, determiner=#DEFINITE)))
+      
 Equality operations never throw exceptions.
+      Statement(Verb(@Throwing), subject=CompoundNoun(@Equality, @Operations, @MANY), adverbial=Adjective(@Never), object=Noun(@Exceptions, #MANY))
+
 The world of energy is changing, and that transformation is occurring at a rapidly expanding rate.
+      Conjunction(@And,
+            Statement(Verb(@Changing, continous=true), subject=Noun(@World, determiner=#DEFINITE, prepositions=Preposition(EnglishPrepositionEnum.OF, Noun(@Energy))))
+            Statement(Verb(@Occurring, continous=true), subject=Noun(@Transformation, determiner=#NEAR_DEMONSTRATIVE), 
+                  prepositions=Preposition(EnglishPrepositionEnum.AT, Noun(@Rate, determiner=#GENERAL, adjective=VerbAdjective(Sentence(Verb(@Expanding), adverbial=Adjective(@Rapid))))))
+      )
+
 Although the continued and growing use of fossil fuel is not the only area of concern, it is at the heart of the protests. 
-Although not amongst the global top 20 when it comes to revenue, we have witnessed the recent rebranding of a Norwegian oil major, Statoil as Equinor.
+      Conjunction(@Although, 
+            Statement(Verb(@Being), subject=Pronoun(@It), 
+                  prepositions=Preposition(EnglishPrepositionEnum.AT, Noun(@Heart, determiner=#DEFINITE, prepositions=Preposition(EnglishPrepositionEnum.OF, Noun(@Protests, determiner=#DEFINITE))))),
+            Statement(Verb(@Being), subject=Noun(@Use, determiner=#DEFINITE, 
+                  adjective=And(VerbAdjective(Sentence(verb=Verb(@Continuing, active=false))), VerbAdjective(Sentence(verb=Verb(@Grow)))), 
+                  prepositions=Preposition(EnglishPrepositionEnum.OF, Noun(@FossilFuel)))))
+
+
+Although not amongst the global top 20 when it comes to revenue, we have witnessed the rebranding of a Norwegian oil major, Statoil as Equinor.
+      Conjunction(@Although, 
+            Statement(Verb(@Witnessing, #PAST, perfect=true, active=false), subject=Pronoun(@We), object=Noun(@Rebranding, 
+                  prepositions=Preposition(EnglishPrepositionEnum.OF, CompoundNoun(@OilMajor, "Statoil", adjective=Adjective(@Norwegian), prepositions=Preposition(EnglishPrepositionEnum.AS, Value("Equinor")))))),
+            Statement(Verb(@Being, negate=true), prepositions=Preposition(EnglishPrepositionEnum.AMONGST, Value(20, adjective=And(Adjective(@Global), Adjective(@Top)))), 
+                  clauses=Statement(Verb(@Coming), subject=QuestionWord(@When, Pronoun(@It), prepositions=Preposition(EnglishPrepositionEnum.TO, Noun(@Revenue))))))
+
 Chad Haag considered living in a cave to escape his student debt. 
+      Statement(Verb(@Considering, #PAST), Value("Chad Haag"), IngVerb(Sentence(Verb(@Living, prepositions=Preposition(EnglishPrepositionEnum.IN, Noun(@Cave, determiner=#GENERAL))), 
+            prepositions=Preposition(EnglishPrepositionEnum.TO, SentenceObject(Sentence(Verb(@Escaping), object=CompoundNoun(@Student, @Debt, possessor=Pronoun(@He))))))))
+
 He had a friend doing it. 
+      Statement(Verb(@Having, #PAST), Pronoun(@He), Noun(@Friend, determiner=#GENERAL, clause=Statement(Verb(@Doing), ClausePronoun(), Pronoun(@It))))
+
+I have an appointment next week.
+      Statement(Verb(@Having), Pronoun(@I), Noun(@Appointment, determiner=#GENERAL), prepositions=Preposition(TimePrepositionEnum.ON, Noun(@Week, adjective=Adjective(@Next))))
+      
 But after some plotting, he settled on what he considered a less risky plan. 
+      Statement(Verb(@Settling), Pronoun(@He), prepositions=[Preposition(EnglishPrepositionEnum.AFTER, IngVerb(Sentence(@Plotting), adverbial=Adjective(@Some))), 
+                                                             Preposition(EnglishPrepositionEnum.ON, Statement(Verb(@Considering), Pronoun(@He), ClausePronoun(), 
+                                                                  Preposition(LogicPrepositionEnum.TARGET, Noun(@Plan, adjective=Adjective(@Risky, comparison=#LESS)))))])
+
 This year, he relocated to a jungle in India. 
-The first work he found after he left the University of Northern Colorado in 2011 — when the recession’s effects were still palpable — was on-again, off-again hours at a factory, unloading trucks and constructing toy rockets on an assembly line.
+      Statement(Verb(@Relocating, #PAST), Pronoun(@He), prepositions=[Preposition(TimePrepositionEnum.ON, Noun(@Year, adjective=(@This))), 
+                                                                      Preposition(EnglishPrepositionEnum.TO, Noun(@Jungle, determiner=#GENERAL, 
+                                                                                    prepositions=Preposition(EnglishPrepositionEnum.IN, Noun(@India))))])
+
 He then went back to school to pursue a master’s degree in comparative literature at the University of Colorado Boulder.
-After that, he tried to make it as an adjunct professor, but still he could barely scrape a living together with the one class a semester he was assigned.
+      Statement(Verb(@Going, #PAST), Pronoun(@He), AdjectiveObject(Adjective(@Back), prepositions=[
+            Preposition(EnglishPrepositionEnum.TO, Noun(@School)),
+            Preposition(EnglishPrepositionEnum.TO, SentenceObject(Statement(Verb(@Pursueing), object=Noun(@Degree, determiner=#GENERAL, possessor=@Noun(@Master), 
+                  prepositions=[
+                        Preposition(EnglishPrepositionEnum.IN, CompoundNoun(@Comparative, @Literature)),
+                        Preposition(EnglishPrepositionEnum.AT, Noun(@UniversityOfColoradoBoulder))
+                  ]))))
+      ]))
+
+After that, he tried to make it as an adjunct professor.
+      Statement(Verb(Trying, #PAST), Pronoun(@He), SentenceObject(Verb(@Making), object=Pronoun(@It), prepositions=[
+            Preposition(EnglishPrepositionEnum.AFTER, Pronoun(@That)),
+            Preposition(EnglishPrepositionEnum.AS, Noun(@Professor, adjective=Adjective(@Adjunct)))
+      ]))
+
+
 

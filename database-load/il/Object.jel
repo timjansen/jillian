@@ -7,7 +7,7 @@ abstract class IL::Object extends IL::Element:
      * @param clauses optional descriptors of the object. Adjectives are encoded here as well. ('that is red', 'who started last week', 'whose sister was also present').
               Either the subject, the object or a preposition must be an ClausePronoun (that represents the 'that', 'who', 'which' or 'whose')
      */
-    constructor(quantity: IL::QuantityEnum?, determiner: IL::DeterminerEnum?, adjective: IL::AndOr(IL::Adjective)?, prepositions: IL::Preposition[] = [], possessor: IL::AndOr(IL::Object)?, clauses: IL::AndOr(IL::Statement)?)
+    constructor(quantity: IL::QuantityEnum?, determiner: IL::DeterminerEnum?, adjective: IL::AndOr(IL::Adjective|IL::VerbAdjective)?, prepositions: IL::Preposition[] = [], possessor: IL::AndOr(IL::Object)?, clauses: IL::AndOr(IL::Statement)?)
 
 
 

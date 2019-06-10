@@ -1,10 +1,14 @@
 /**
  * An adjective for a noun, like 'the _red_ horse'.
- * @param modifiers an intensifier ('very', 'extremely') or mitigator ('hardly', 'quite'), or negator ('not', 'never'), or 'ordinal' with a number as object for something like 5th. Negative number for last, second last...
+ * @param adjective the adjective used. @ValueOnly if only the value was given.
+ * @param modifiers an intensifier ('very', 'extremely') or mitigator ('hardly', 'quite'), 
+ *      or negator ('not', 'never'), or 'ordinal' with a number as object for something like 5th. Negative number for last, second last... or @Superlative
  * @param comparison more/less/as ('It is hotter than fire', 'he is less interested then..', 'it is as good as.')
  * @param compareObject objects to compare to ('he walks faster than a turtle', 'she made the 5th place') 
+ * @param value an optional value associated with the adjective, e.g. 'the 3 ft tall tower'.
  */ 
 class IL::Adjective:
-    constructor(adjective: @AdjectiveCategory, modifiers: @ModifierCategory[] = [], comparison: IL::ComparativeEnum?, compareObject: IL::AndOr(@Object)?, clauses)
+    constructor(adjective: @AdjectiveCategory, modifiers: @ModifierCategory[] = [], comparison: IL::ComparativeEnum?, compareObject: IL::AndOr(@Object)?, 
+        value: IL::Value?, clauses)
 
 

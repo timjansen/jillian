@@ -1,0 +1,9 @@
+/**
+ * An adjective for a noun that's based on a verb, like 'growing' or 'continued'.
+ * @param sentence a sentence with the verb and optionally other sentence constructs
+ * @param value an optional value associated with the adjective, e.g. 'the 3 mp/h driving car'.
+ */ 
+class IL::VerbAdjective:
+    constructor(sentence: Sentence, value: IL::Value?, clauses)
+
+

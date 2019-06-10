@@ -10,6 +10,9 @@ enum IL::EnglishPrepositionEnum
     AGO,
     SINCE,
     UNTIL,
-    BEFORE
+    BEFORE,
+    AFTER,
+    AMONGST,
+    COMMA_SEPARATED
 
     

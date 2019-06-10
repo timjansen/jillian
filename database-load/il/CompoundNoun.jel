@@ -1,0 +1,4 @@
+class IL::CompoundNoun extends IL::Object:
+    constructor(first: ThingType()|CatgoryType(), second: ThingType()|CatgoryType()|string, quantity, determiner, adjective, prepositions, possessor, clauses)
+
+

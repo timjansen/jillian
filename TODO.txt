@@ -1,55 +1,98 @@
 Next steps
 ===========
 
-0. IL
+1. Have several declaring sections (let, class, function) and then a final 'do' for the main expression? That would make JEL a complete programming language.
+
+let PI=3.14
+
+class A: 
+      constructor(a, b, c)
+
+function add(a, b) => a+b
+
+do
+      A(1, 2, add(1, 3))
+
+
+2. Also add 'import' statement???
+
+import IL::Verb   // same as let Verb=IL::Verb
+import IL::*      // imports all of IL
+
+
+
+3. IL
+-> Merge IngVerb and SentenceObject!
+-> construct for calendar elements relative to now, e.g. next week, last week, next 2 weeks, in 4 weeks...
+
 - support clauses with 'but...', 'except...' ...
 - support complex objects like '...not fast, but slowly'
 - support prepositions ('from here', 'to there', 'without this')
 - support 'he is interested in learning X'
 
-
 https://learnenglish.britishcouncil.org/english-grammar
 
-6. Add method overloading, to allow something like
 
-fib(n: 0)=>0
-fib(n: 1)=>1
-fib(n: number) => this.fib(n-1) + this.fib(n-2)
+5. Use regular context in translators, get rid of translatorDict
 
-Alternative syntax:
-fib(n: eq(0))=>0
-fib(n: eq(1))=>1
-fib(n: number) => this.fib(n-1) + this.fib(n-2)
+6. Split repository into JEL/Ed?
 
-Make arg name optional?
-fib(0)=>0
-fib(1)=>1
-fib(n: number) => this.fib(n-1) + this.fib(n-2)
+7. write translators English->IL
 
 
-7. Method overloading:
-if two or more methods have the same name, but different signature, create an overloading method that dispatches to the implementation.
+9. write IL simplifier:
+      - replace pronouns
+      - simplify sentences and put them on a timeline
+      - translate simplified IL into new DB manipulation language
 
-
-8. Allow operator overriding only to be implemented in JEL!? Even native classes should implement them as JEL, and provide native methods to allow implementing them.
-
-10. Add function parameter to stacktrace
-- JelObject needs new toDetailedString(l: DetailLevel) with DetailLevel.VERY, SOME... etc... numbers are always printed, string and lists only up to a certain length. Most JelObjects default to CTORNAME(...)
-
-
-
-19. Find a way to document types: /** */ Javdocs supported in Tokenizer. Read them in JEL.parseClass and store in new ClassDef field.
-   Use 'private' modifier in docs.
-
-20. Create a database manipulation layer to be able to undo or modify changes to the DB.
 Example conversation:
 The ball is red.          => upsert a Fact that the ball is red 
 Or blue.                  => change the previous fact to red OR blue
 But that's just a guess.  => change the certainty of the previous fact.
 
-30. Write translators
+
+11. Add method overloading, to allow something like
+
+fib(n: 0)=>0
+fib(n: 1)=>1
+fib(n: number) => this.fib(n-1) + this.fib(n-2)
+
+If two or more methods have the same name, but different signature, create an overloading method that dispatches to the implementation.
+Must have same arg names.
+
+
+12. 'function' keyword???
+
+function add(a, b)=>a+b
+
+For overloading:
+
+function fib(n: 0)=>0
+         fib(n: 1)=>1
+         fib(n: number) => this.fib(n-1) + this.fib(n-2)
+
+or new operator '|>'?
+
+function fib(n: 0)=>0
+|>          (n: 1)=>1
+|>          (n: number) => this.fib(n-1) + this.fib(n-2)
+
+
+
+18. Allow operator overriding only to be implemented in JEL!? Even native classes should implement them as JEL, and provide native methods to allow implementing them.
+
+
+19. Add function parameter to stacktrace
+- JelObject needs new toDetailedString(l: DetailLevel) with DetailLevel.VERY, SOME... etc... numbers are always printed, string and lists only up to a certain length. Most JelObjects default to CTORNAME(...)
+
+
+20. Find a way to document types: /** */ Javadocs supported in Tokenizer. Read them in JEL.parseClass and store in new ClassDef field.
+   Use 'private' modifier in docs
+   
 
 50. Improve Fact evaluations. when determining a fact, check whether the Fact is compatible with all Facts with higher trustworthyness. Aim for the most specific Fact that passes the test.
+
+
 
 
 Colors

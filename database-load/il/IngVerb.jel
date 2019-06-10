@@ -1,5 +1,5 @@
 /**
- * A Gerund, like 'I like laughing' or 'I have never tried driving'.
+ * A Gerund, like 'I like laughing' or 'I have never tried driving'. Also for passive forms like 'the _continued_ use'.
  * Can have subjects, objects, adverbs, prepositions, like a full sentence... 'I like him doing it thoroughly by the book.'
  *
  * Examples:
