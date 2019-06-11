@@ -250,9 +250,10 @@ export default class JEL {
     const imports: Import[] = [];
     while (true) {
       const name = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier in 'import' statement.");
-      if (!/::/.test(name.value))
+      const wildcard = !!tokens.nextIfOps([':', ':', '*']);
+      if (!wildcard && !/::/.test(name.value))
         JEL.throwParseException(name, `Can not import "${name.value}": only package content can be imported, thus names that contain a "::" separator. Top-level elements do not need an 'import' statement.`);
-      imports.push(new Import(name, name.value.replace(/::$/, ''), name.value.endsWith('::') && !!tokens.nextIf(TokenType.Operator, '*')));
+      imports.push(new Import(name, name.value, wildcard));
 
       if (!tokens.nextIf(TokenType.Operator, ','))
         return imports;
@@ -891,7 +892,7 @@ static parseOperatorExpression(tokens: TokenReader, operator: string, precedence
         if (overrideModifier)
           JEL.throwParseException(next, `Constructors can not use the 'override' modifier.`);
         if (isNative && !nativeModifier)
-          JEL.throwParseException(next, `A native class requires a native constructor, but this constructor does not have the native property.`);
+          JEL.throwParseException(next, `A native class requires a native constructor, but this constructor does not have the 'native' modifier.`);
         if (!isNative && nativeModifier)
           JEL.throwParseException(next, `A native constructor requires a native class, but the class has no 'native' modifier.`);
         

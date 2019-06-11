@@ -83,7 +83,7 @@ describe('Class', function() {
   });
  
   it('supports packages', function() {
-    jelAssert.equal('do let myTestType=class My::Test::Type: : myTestType.packageName', "'My::Test'");
+    jelAssert.equal('class My::Test::Type: do My::Test::Type.packageName', "'My::Test'");
   });
 
   it('supports serialization of instances', function() {

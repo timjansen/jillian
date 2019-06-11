@@ -1,26 +1,20 @@
 import PackageContent from './PackageContent';
 import ReferenceHelper from './ReferenceHelper';
 import BaseTypeRegistry from '../BaseTypeRegistry';
-import TypeDescriptor from './typeDescriptors/TypeDescriptor';
-import AnyType from './typeDescriptors/AnyType';
-import TypeHelper from './typeDescriptors/TypeHelper';
 import GenericJelObject from './GenericJelObject';
 import Dictionary from './Dictionary';
 import List from './List';
 import JelString from './JelString';
 import JelBoolean from './JelBoolean';
-import TypeChecker from './TypeChecker';
 import JelObject from '../JelObject';
 import Method from './Method';
 import Property from './Property';
 import LambdaCallable from '../LambdaCallable';
 import NativeCallable from '../NativeCallable';
 import TypedParameterValue from '../TypedParameterValue';
-import Serializable from '../Serializable';
 import SerializablePrimitive from '../SerializablePrimitive';
 import Callable from '../Callable';
 import Context from '../Context';
-import StaticContext from '../StaticContext';
 import Util from '../../util/Util';
 
 

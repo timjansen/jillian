@@ -519,7 +519,7 @@ export default class Dictionary extends NativeJelObject implements SerializableP
 		let r = '{';
 		let i = 0;
 		const last = this.elements.size-1;
-		this.elements.forEach((value, key) => {
+		const addElement = (value: any, key: string) => {
 			if (pretty)
 				r += '\n'+spaces.substr(0, 2);
 			if (typeof key == 'string' && /^[a-zA-Z_]\w*$/.test(key))
@@ -529,9 +529,13 @@ export default class Dictionary extends NativeJelObject implements SerializableP
 			r += (pretty ? ': ' : ':') + serializer(value, pretty, indent, spaces);
 			if (i++ < last)
 				r += pretty ? ', ' : ',';
-		});
-		if (pretty)
+		};
+		if (pretty) {
 			r += '\n';
+			Array.from(this.elements.keys()).sort().forEach(k=>addElement(this.elements.get(k), k));
+		}
+		else
+			this.elements.forEach(addElement);
 		return r + '}';
 	}
 

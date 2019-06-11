@@ -89,7 +89,16 @@ export default class Runtime {
       return left.className == rightName;
     
     return Runtime.isClassCompatible(ctx, (left as any).clazz, rightName);      
-	}
+  }
+  
+  static identify(obj: JelObject|null): string {
+    if (!obj)
+      return "null";
+    if ((obj as any).distinctName)
+      return `${obj.className}(${(obj as any).distinctName})`;
+    else
+      return obj.className;
+  }
   
   static callMethod(ctx: Context, obj: JelObject|null, name: string, args: any[], argObj?: any, forgiving = false): JelObject|null|Promise<JelObject|null> {
     if (!obj) {
@@ -108,9 +117,9 @@ export default class Runtime {
       else if (m)
         throw new Error(`'${name}' in ${obj.className} is not a method that can be called, but appears to be a different type of property.`);
       else if (name in obj) 
-        throw new Error(`Can not find method ${name}() in ${obj.className}. Not mapped in native class.`);
+        throw new Error(`Can not find method ${name}() in ${Runtime.identify(obj)}. Not mapped in native class.`);
       else 
-        throw new Error(`Can not find method ${name}() in ${obj.className} ${(obj as any).isIDBRef ? '@' : ''}${(obj as any).distinctName || ''}.`);
+        throw new Error(`Can not find method ${name}() in ${Runtime.identify(obj)} ${(obj as any).isIDBRef ? '@' : ''}${(obj as any).distinctName || ''}.`);
     });
   }
 
@@ -127,10 +136,11 @@ export default class Runtime {
     const value = obj.member(ctx, name);
     if (value !== undefined)
       return value;
-    else if (name in obj) 
-      throw new Error(`Can not find member '${name}' in ${obj.className}. Not mapped in native class.`);
+    else if (name in obj) {
+      throw new Error(`Can not find member '${name}' in ${Runtime.identify(obj)}. Not mapped in native class. ${(obj as any).distinctName}`);
+    }
     else 
-      throw new Error(`Can not find member '${name}' in ${obj.className} ${(obj as any).isIDBRef ? '@' : ''}${(obj as any).distinctName || ''}.`);
+      throw new Error(`Can not find member '${name}' in ${Runtime.identify(obj)} ${(obj as any).isIDBRef ? '@' : ''}${(obj as any).distinctName || ''}.`);
 	}
 	
 }

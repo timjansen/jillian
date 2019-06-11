@@ -206,9 +206,9 @@ export default class TypeChecker {
 			return BaseTypeRegistry.get('List').empty;
 		
 		if ((value.className || '') == 'List') {
-      for (let s of value.elements)
-        TypeChecker.string(s, name);
-      return value;
+		for (let s of value.elements)
+        	TypeChecker.string(s, name);
+		return value;
     }
     
     return BaseTypeRegistry.get('List').valueOf([TypeChecker.string(value, name)]);

@@ -29,7 +29,20 @@ export default class Import extends CachableJelNode  implements DeclaringStateme
       return Util.resolveValue(ctx.get(this.fullName), pkg=>{
         if (pkg.className != 'Package')
           throw new Error(`Can not load '${this.fullName}' with wildcard: it is not a Package, but a ${pkg.className}. Only packages are allowed.`);
-        return pkg.packageContent;
+        const openPromises: Promise<any>[] = [];
+        const dict = pkg.packageContent.mapJs((k: string, v: any)=>{
+          const lookedUp = ctx.get(v.value);
+          if (lookedUp instanceof Promise) {
+            openPromises.push(lookedUp);
+            return lookedUp.then(resolved=>{dict.elements.set(k, resolved); return resolved;});
+          }
+          else
+            return lookedUp;
+        });
+        if (openPromises.length)
+          return Promise.all(openPromises).then(()=>dict);
+        else
+          return dict;
       });
     else
       return ctx.get(this.fullName);

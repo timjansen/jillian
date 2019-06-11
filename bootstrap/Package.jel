@@ -1,5 +1,6 @@
 /**
  * Package is used to organize classes and enums
  */
-abstract class Package extends PackageContent:
+native class Package extends PackageContent:
+    native constructor(packageName, content: string[])
   

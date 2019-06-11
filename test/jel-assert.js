@@ -37,7 +37,7 @@ class JelAssert {
 			a0.then(e=>console.log('Equal returned promise: ', e), e=>console.log('Equal returned rejected promise: ', e));
 		if (b0 instanceof Promise)
 			b0.then(e=>console.log('Equal returned promise: ', e), e=>console.log('Equal returned rejected promise: ', e));
-		assert.equal(Serializer.serialize(a0), Serializer.serialize(b0), c);
+		assert.equal(Serializer.serialize(a0, true), Serializer.serialize(b0, true), c);
 	}
 
 	equalWithContext(ctx, a, b, c) {
@@ -47,17 +47,17 @@ class JelAssert {
 			a0.then(e=>console.log('Equal returned promise: ', e), e=>console.log('Equal returned rejected promise: ', e));
 		if (b0 instanceof Promise)
 			b0.then(e=>console.log('Equal returned promise: ', e), e=>console.log('Equal returned rejected promise: ', e));
-		assert.equal(Serializer.serialize(a0), Serializer.serialize(b0), c);
+		assert.equal(Serializer.serialize(a0, true), Serializer.serialize(b0, true), c);
 	}
 
   
 	notEqual(a, b, c) {
-		assert.notEqual(Serializer.serialize(this.exec(a)), Serializer.serialize(this.exec(b)), c);
+		assert.notEqual(Serializer.serialize(this.exec(a), true), Serializer.serialize(this.exec(b), true), c);
 	}
 
 	equalPromise(a, b, c) {
 		const a0 = this.execPromise(a), b0 = this.execPromise(b);
-		return Promise.all([a0, b0]).then(x=>this.equal(Serializer.serialize(x[0]), Serializer.serialize(x[1]), c));
+		return Promise.all([a0, b0]).then(x=>this.equal(Serializer.serialize(x[0], true), Serializer.serialize(x[1], true), c));
 	}
 
  	errorPromise(a, snippet) {
@@ -72,14 +72,14 @@ class JelAssert {
 			return Promise.resolve(e);
 		}
 
-    try {
-  		return this.execPromise(a).then(v=>{
-        assert.fail("expected error / rejected promise, but got response: " + v);
-      }, handleError);
-    }
-    catch (e) {
-      handleError(e);
-    }
+		try {
+			return this.execPromise(a).then(v=>{
+			assert.fail("expected error / rejected promise, but got response: " + v);
+		}, handleError);
+		}
+		catch (e) {
+		handleError(e);
+		}
 	}
 
   

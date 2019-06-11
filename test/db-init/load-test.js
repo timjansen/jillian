@@ -56,5 +56,13 @@ describe('Loader', function() {
     return jelAssert.equalPromise('@Sunday.order.successor', '@Monday');
   });
 
+
+  it('loads Geo classes', function() {
+    return jelAssert.equalPromise('import Geo::Coordinate do Coordinate(1, 2).longitude', '2');
+  });
+
+  it('loads the Geo package', function() {
+    return jelAssert.equalPromise('import Geo::* do Coordinate(1, 2).longitude', '2');
+  });
   
 });

@@ -18,7 +18,7 @@ export default class TokenReader {
 
  	peekIs(type: TokenType, value?: any, offset=0): Token|undefined {
 		const t = this.tokens[this.startPos+offset];
-    return (t && t.is(type, value)) ? t : undefined;
+	    return (t && t.is(type, value)) ? t : undefined;
 	}
 
 	peekOps(ops: string[], offset=0): boolean {
@@ -30,8 +30,15 @@ export default class TokenReader {
 
  	nextIf(type: TokenType, value?: any, offset=0): Token|undefined {
 		const t = this.peekIs(type, value, offset);
-		if(t)
+		if (t)
 			this.startPos+=offset+1;
+		return t;
+	}
+
+	nextIfOps(ops: string[], offset=0): boolean {
+		const t = this.peekOps(ops, offset);
+		if (t)
+			this.startPos+=offset+ops.length;
 		return t;
 	}
 

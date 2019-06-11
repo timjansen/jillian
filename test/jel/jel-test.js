@@ -9,8 +9,11 @@ const BaseTypeRegistry = require('../../build/jel/BaseTypeRegistry.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
 const Callable = require('../../build/jel/Callable.js').default;
 const NativeJelObject = require('../../build/jel/types/NativeJelObject.js').default;
+const JelString = require('../../build/jel/types/JelString.js').default;
 const Float = require('../../build/jel/types/Float.js').default;
 const Fraction = require('../../build/jel/types/Fraction.js').default;
+const Package = require('../../build/jel/types/Package.js').default;
+const List = require('../../build/jel/types/List.js').default;
 const UnitValue = require('../../build/jel/types/UnitValue.js').default;
 const OptionalType = require('../../build/jel/types/typeDescriptors/OptionalType.js').default;
 const NotType = require('../../build/jel/types/typeDescriptors/NotType.js').default;
@@ -358,6 +361,17 @@ describe('JEL', function () {
     
    it('supports functions', function() {
     jelAssert.equal(`def f(a: int):int => a*3 def g(a: int): int => a+9 do f(g(2))`, "33");
+  });
+
+  it('supports imports', function() {
+    const c1 = new JEL(`class Test::T1: static x = 10`).executeImmediately(ctx);
+    const c2 = new JEL(`class Test::T2: static y = 20`).executeImmediately(ctx);
+    const pkg = new Package('Test', new List(['Test::T1', 'Test::T2'].map(JelString.valueOf)));
+    const ja = new JelAssert(ctx.plus({'Test::T1': c1, 'Test::T2': c2, 'Test': pkg}));
+    ja.equal(`import Test::T1 do T1.x`, "10");
+    ja.equal(`import Test::T1 import Test::T2 do [T1.x, T2.y]`, "[10, 20]");
+    ja.equal(`import Test::* do [T1.x, T2.y]`, "[10, 20]");
+    ja.equal(`import Test::* import Test::T2 do [T1.x, T2.y]`, "[10, 20]");
   });
 
    it('supports promises', function() {

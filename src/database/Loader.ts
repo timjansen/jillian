@@ -1,27 +1,21 @@
 import Util from '../util/Util';
 
 import DbEntry from './DbEntry';
-import DbRef from './DbRef';
-import DatabaseConfig from './DatabaseConfig';
 import DatabaseError from './DatabaseError';
-import NotFoundError from './NotFoundError';
-import DatabaseContext from './DatabaseContext';
 import Database from './Database';
 import DbSession from './DbSession';
 import WorkerPool from './WorkerPool';
-import Category from './dbObjects/Category';
 import JelObject from '../jel/JelObject';
 import Package from '../jel/types/Package';
 import PackageContent from '../jel/types/PackageContent';
 import NamedObject from '../jel/types/NamedObject';
 
-import JEL from '../jel/JEL';
 import Context from '../jel/Context';
 import List from '../jel/types/List';
-import serializer from '../jel/Serializer';
 
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import JelString from '../jel/types/JelString';
 
 /**
  * Used internally during load to track what is loaded, being loaded and what interdepencies exist.
@@ -68,9 +62,9 @@ class LoadTracker {
   writePackages(ctx: Context): Promise<any> {
     const db = (ctx.dbSession as any).database;
     const typeByPackage = new Map<string, PackageContent[]>();
-    this.packagesContent.filter(pc=>pc.packageName.includes('::'))
+    this.packagesContent.filter(pc=>pc.distinctName.includes('::'))
       .forEach(pc=>typeByPackage.has(pc.packageName)?typeByPackage.get(pc.packageName)!.push(pc):typeByPackage.set(pc.packageName, [pc]));
-    return this.pool.runJob(Array.from(typeByPackage.keys()), pkg=>db.exists(pkg).then((e: any)=>e || db.put(ctx, new Package(pkg, new List(typeByPackage.get(pkg) as any)))));
+    return this.pool.runJob(Array.from(typeByPackage.keys()), pkg=>db.exists(pkg).then((e: any)=>e || db.put(ctx, new Package(pkg, new List(typeByPackage.get(pkg)!.map(e=>JelString.valueOf(e.distinctName)) as any)))));
   }
   
   loadEntries(ctx: Context, entryFiles: string[]): Promise<any> {

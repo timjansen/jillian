@@ -1,14 +1,6 @@
 Next steps
 ===========
 
-1. 
-- import IL::Verb   // same as let Verb=IL::Verb
-- import IL::*      // imports all of IL
-- document
-
-
-
-
 3. IL
 -> Merge IngVerb and SentenceObject!
 -> construct for calendar elements relative to now, e.g. next week, last week, next 2 weeks, in 4 weeks...
