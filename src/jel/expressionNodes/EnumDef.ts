@@ -4,6 +4,7 @@ import Context from '../Context';
 import Util from '../../util/Util';
 import BaseTypeRegistry from '../BaseTypeRegistry';
 import SourcePosition from '../SourcePosition';
+import DeclaringStatement from './DeclaringStatement';
 
 
 /**
@@ -13,7 +14,8 @@ import SourcePosition from '../SourcePosition';
  * enum FactType
  *   Sample, Definition, Estimate
  */ 
-export default class EnumDef extends JelNode {
+export default class EnumDef extends JelNode implements DeclaringStatement {
+  isDeclaringStatement = true;
   value: JelObject|undefined;
   
   constructor(position: SourcePosition, public name: string, public values: string[]) {

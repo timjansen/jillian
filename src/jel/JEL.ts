@@ -2,7 +2,6 @@
  * Parser and Interpreter for JEL
  */
 
-import Util from '../util/Util';
 import Tokenizer from './Tokenizer';
 import {Token, TokenType, TemplateToken, RegExpToken, FractionToken} from './Token';
 import TokenReader from './TokenReader';
@@ -152,7 +151,7 @@ const LAMBDA = {'=>': true};
 const OPEN_ARGS = {'(': true};
 const CLOSE_ARGS = {')': true};
 
-const PROGRAM_STATEMENTS: any = {'import': true, 'let': true, 'class': true, 'enum': true, 'function': true, 'do': true};
+const PROGRAM_STATEMENTS: any = {'import': true, 'let': true, 'class': true, 'abstract': true, 'native': true, 'enum': true, 'def': true, 'do': true};
 const CLASS_MEMBER_MODIFIERS: any = {abstract: true, native: true, override: true, private: true, static: true};
 
 const DUMMY_TOKEN = new Token(0, 0, '(you should never see this)', TokenType.Literal, null);
@@ -170,8 +169,8 @@ export default class JEL {
       this.parseTree = program;
     else 
       this.parseTree = JEL.parseExpression(tokens);
-      JEL.validateStreamEnd(tokens, !program);
-    }
+    JEL.validateStreamEnd(tokens, !program);
+  }
   
   // returns value if available, otherwise promise
   executeImmediately(context = new Context()): any {
@@ -218,18 +217,20 @@ export default class JEL {
     
     const statements: JelNode[] = [];
     while (tokens.hasNext()) {
-      const stmt = JEL.expectOp(tokens, PROGRAM_STATEMENTS, "Expected 'import', 'class', 'enum', 'function', 'let' or 'do' as statement.");
+      const stmt = JEL.expectOp(tokens, PROGRAM_STATEMENTS, "Expected 'import', 'class', 'enum', 'def', 'let' or 'do' as statement.");
       switch (stmt.value) {
         case 'import':
           statements.push(...JEL.parseImports(tokens));
           break;
         case 'class':
+        case 'abstract':
+        case 'native':
           statements.push(JEL.parseClass(tokens, 0, PROGRAM_STATEMENTS));
           break;
         case 'enum':
-          statements.push(JEL.parseEnum(tokens, 0, PROGRAM_STATEMENTS));
+          statements.push(JEL.parseEnum(tokens));
           break;
-        case 'function':
+        case 'def':
           statements.push(JEL.parseFunction(tokens));
           break;
         case 'let':
@@ -260,6 +261,7 @@ export default class JEL {
 
   static parseFunction(tokens: TokenReader): FunctionDef {
     const name = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected function name.");
+    JEL.nextIsValueOrThrow(tokens, TokenType.Operator, '(', `Expected function argument list for function '${name.value}'.`);
     const args = JEL.checkTypedParameters(JEL.tryParseTypedParameters(tokens, 0, NO_STOP), name);
     const varArgPos = args ? args!.findIndex(a=>a.varArgs) : -1;
     if (args == null)
@@ -273,7 +275,7 @@ export default class JEL {
 
   static parseLet(tokens: TokenReader): Assignment[] {
     const isStart = !tokens.startPos;
-    const stopOps = Object.assign({':': true, PROGRAM_STATEMENTS});
+    const stopOps = Object.assign({':': true, ',': true}, PROGRAM_STATEMENTS);
     if (!tokens.peekIs(TokenType.Identifier)) 
       JEL.throwParseException(tokens.peek(), "Expected constant name in 'let' statement.");
 
@@ -438,7 +440,7 @@ static parseOperatorExpression(tokens: TokenReader, operator: string, precedence
     case 'class':
       return JEL.tryBinaryOps(tokens, JEL.parseClass(tokens, precedence, stopOps), precedence, stopOps);
       case 'enum':
-        return JEL.tryBinaryOps(tokens, JEL.parseEnum(tokens, precedence, stopOps), precedence, stopOps);
+        return JEL.tryBinaryOps(tokens, JEL.parseEnum(tokens), precedence, stopOps);
       case 'throw':
         return JEL.tryBinaryOps(tokens, new Throw(firstToken, JEL.parseExpression(tokens, THROW_PRECEDENCE, stopOps)), precedence, stopOps);
         default:
@@ -848,8 +850,10 @@ static parseOperatorExpression(tokens: TokenReader, operator: string, precedence
     
     while (true) {
       const peek = tokens.peek();
-      if (!peek || (peek.type == TokenType.Operator && stopOps[peek.value])) 
-        return new ClassDef(classToken, className.value, superType, ctor, properties, methods, staticProperties, isAbstract, hasNative);
+      if (!peek || (peek.type == TokenType.Operator && stopOps[peek.value])) {
+        if (!peek || (peek.value != 'abstract' && peek.value != 'native') || tokens.peekOps(['abstract', 'class']) || tokens.peekOps(['native', 'abstract', 'class']) || tokens.peekOps(['native', 'class']))
+          return new ClassDef(classToken, className.value, superType, ctor, properties, methods, staticProperties, isAbstract, hasNative);
+      }
 
       const modifiers = new Set();
       let p: Token = tokens.next();
@@ -1008,7 +1012,7 @@ static parseOperatorExpression(tokens: TokenReader, operator: string, precedence
     }
   }
   
-  static parseEnum(tokens: TokenReader, precedence: number, stopOps: any): EnumDef {
+  static parseEnum(tokens: TokenReader): EnumDef {
     const enumName = JEL.nextIsOrThrow(tokens, TokenType.Identifier, "Expected identifier after 'enum' declaration");
     tokens.nextIf(TokenType.Operator, ':');
     

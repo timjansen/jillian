@@ -1,7 +1,7 @@
 JEL Feature by Feature
 ===========================
 
-JEL is a TypeScript-inspired expression language with a functional design. 
+JEL is a TypeScript-inspired language with a functional design. 
 
 
 Literals
@@ -402,5 +402,37 @@ Examples:
 		verb: `run` => Running()}
 
 
+Program Structure
+--------------------
+While a simple expression can be executed as a program, it's more convenient to use the full program structure.
+It adds the statements 'import' to import classes and 'def' to declare a function. It returns either the value of the last declaration,
+or the expression following a 'do' statement at the end.
+The following statements are supported:
+  - import     to rename elements. See below.
+  - class      declares a class. Circular dependencies withing a program are possible if all classes are in the same file.
+  - enum       declares an enum
+  - def        declares a function
+  - let        defines a constant. Note that, when used outside of expressions, you must not end it with a colon.
+  - do         optional expression to execute. Must be the last statement.
 
+Example:
+import Geo::Coordinate
+
+let halfway = 180
+def move(c: Coordinate, x: number, y: number) => Coordinate(c.latitude+x, c.longitude+y)
+
+do
+  move(Coordinate(100, 51), halfway, 0)
+
+
+Imports
+-------------------
+When you follow the program structure, you can either import a single element or a whole package. Only package content can be imported. 
+Please note that all that 'import' does is give those elements a more convenient syntax. It is not required to import anything.
+
+Examples:
+import IL::Sentence  // makes IL::Sentence available as 'Sentence'
+import IL::*         // makes all content of IL available using their short name, e.g. IL::Verb becomes 'Verb'
+
+let il = IL          // this is an alternative to importing. You would then write il.Sentence. 
 

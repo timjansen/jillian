@@ -356,6 +356,10 @@ describe('JEL', function () {
      ])
    });
     
+   it('supports functions', function() {
+    jelAssert.equal(`def f(a: int):int => a*3 def g(a: int): int => a+9 do f(g(2))`, "33");
+  });
+
    it('supports promises', function() {
      let clsA
 

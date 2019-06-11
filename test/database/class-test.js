@@ -3,19 +3,11 @@
 require('source-map-support').install();
 const Database = require('../../build/database/Database.js').default;
 const DbSession = require('../../build/database/DbSession.js').default;
-const DatabaseContext = require('../../build/database/DatabaseContext.js').default;
-const DbRef = require('../../build/database/DbRef.js').default;
 const Class = require('../../build/jel/types/Class.js').default;
 const JEL = require('../../build/jel/JEL.js').default;
 const BaseTypeRegistry = require('../../build/jel/BaseTypeRegistry.js').default;
 const Serializer = require('../../build/jel/Serializer.js').default;
-const JelObject = require('../../build/jel/JelObject.js').default;
 const NativeJelObject = require('../../build/jel/types/NativeJelObject.js').default;
-const Context = require('../../build/jel/Context.js').default;
-const DefaultContext = require('../../build/jel/DefaultContext.js').default;
-const Util = require('../../build/util/Util.js').default;
-const JelString = require('../../build/jel/types/JelString.js').default;
-const Dictionary = require('../../build/jel/types/Dictionary.js').default;
 const assert = require('assert');
 const {JelAssert, JelPromise, JelConsole} = require('../jel-assert.js');
 const jelAssert = new JelAssert();
@@ -37,6 +29,8 @@ describe('Class', function() {
 
   it('can be created', function() {
     jelAssert.equal('(class MyTestType: constructor(x, y)=> {} a: number b: string add()=>this.a+this.b).methods.size', '1'); 
+    jelAssert.equal('do let x=class MyTestType: constructor(x, y)=> {} a: number b: string add()=>this.a+this.b: x', 
+                    'class MyTestType: constructor(x, y)=> {} a: number b: string add()=>this.a+this.b');
     jelAssert.equal('class MyTestType: constructor(x, y)=> {} a: number b: string add()=>this.a+this.b', 
                     'class MyTestType: constructor(x, y)=> {} a: number b: string add()=>this.a+this.b');
     jelAssert.equal('class MyTestType constructor(x, y) a: Float b: String c: number add()=>this.a+this.b', 
@@ -44,13 +38,13 @@ describe('Class', function() {
   });
 
   it('supports properties set in the constructor', function() {
-    jelAssert.equal('do let myTestType=class MyTestType constructor(x: Float|String, y: Float|String)=>{}, m=myTestType(5, "foo"): [m.x, m.y]', "[5, 'foo']");
-    jelAssert.equal('do let myTestType=class MyTestType constructor(x: Float, y: String)=>{}, m=myTestType(5, "foo"): [m.x, m.y]', "[5, 'foo']");
+    jelAssert.equal('class MyTestType constructor(x: Float|String, y: Float|String)=>{} do let m=MyTestType(5, "foo"): [m.x, m.y]', "[5, 'foo']");
+    jelAssert.equal('class MyTestType constructor(x: Float, y: String)=>{} do let m=MyTestType(5, "foo"): [m.x, m.y]', "[5, 'foo']");
 
-    jelAssert.equal('do let myTestType=class MyTestType: constructor(x: Float, y: String)=>{}, m=myTestType(y="foo", x=2): [m.x, m.y]', "[2, 'foo']");
-    jelAssert.equal('do let myTestType=class MyTestType: x: int constructor()=>{x: 5}, m=myTestType(): m.x', "5");
-    jelAssert.equal('do let myTestType=class MyTestType: x: int = 17 constructor()=>{}, m=myTestType(): m.x', "17");
-    jelAssert.equal('do let myTestType=class MyTestType: x: int = 15 constructor()=>{x:17}, m=myTestType(): m.x', "17");
+    jelAssert.equal('class MyTestType: constructor(x: Float, y: String)=>{} do let m=MyTestType(y="foo", x=2): [m.x, m.y]', "[2, 'foo']");
+    jelAssert.equal('class MyTestType: x: int constructor()=>{x: 5} do let m=MyTestType(): m.x', "5");
+    jelAssert.equal('class MyTestType: x: int = 17 constructor()=>{} do let m=MyTestType(): m.x', "17");
+    jelAssert.equal('class MyTestType: x: int = 15 constructor()=>{x:17} do let m=MyTestType(): m.x', "17");
 
     return Promise.all([jelAssert.errorPromise('do let myTestType=class MyTestType constructor(x,y)=>{} x: Float y: String, m=myTestType("wrong type", "foo"): [m.x, m.y]', 'redundant local declarations'),
                         jelAssert.errorPromise('do let myTestType=class MyTestType constructor(x: Float, y: String)=>{}, m=myTestType("wrong type", "foo"): [m.x, m.y]', 'type'),
@@ -60,30 +54,30 @@ describe('Class', function() {
   });
 
   it('supports methods', function() {
-    jelAssert.equal('do let myTestType=class MyTestType constructor(x: Float, y: Float)=>{} add()=>this.x+this.y, m=myTestType(5, 12): m.add()', "17");
-    jelAssert.equal('do let myTestType=class MyTestType constructor(x: Float, y: Float)=>{} add(a, b)=>this.x+this.y+a/b, m=myTestType(5, 12): m.add(20, 4)', "22");
-    jelAssert.equal('do let myTestType=class MyTestType constructor(x: Float, y: Float)=>{} add(a, b)=>this.x+this.y+a/b, m=myTestType(5, 12): m.add(b=4, a=20)', "22");
-    jelAssert.equal('do let myTestType=class MyTestType constructor(x: Float, y: Float)=>{} add(a=20, b=4)=>this.x+this.y+a/b, m=myTestType(5, 12): m.add()', "22");
-    jelAssert.equal('do let myTestType=class MyTestType constructor(x: Float, y: Float)=>{} add(a, b)=>this.x+this.y+a/b, m=myTestType(15, 12), add=m.add: add(b=4, a=20)', "32");
+    jelAssert.equal('class MyTestType constructor(x: Float, y: Float)=>{} add()=>this.x+this.y do let m=MyTestType(5, 12): m.add()', "17");
+    jelAssert.equal('class MyTestType constructor(x: Float, y: Float)=>{} add(a, b)=>this.x+this.y+a/b do let m=MyTestType(5, 12): m.add(20, 4)', "22");
+    jelAssert.equal('class MyTestType constructor(x: Float, y: Float)=>{} add(a, b)=>this.x+this.y+a/b do let m=MyTestType(5, 12): m.add(b=4, a=20)', "22");
+    jelAssert.equal('class MyTestType constructor(x: Float, y: Float)=>{} add(a=20, b=4)=>this.x+this.y+a/b do let m=MyTestType(5, 12): m.add()', "22");
+    jelAssert.equal('class MyTestType constructor(x: Float, y: Float)=>{} add(a, b)=>this.x+this.y+a/b do let m=MyTestType(15, 12), add=m.add: add(b=4, a=20)', "32");
 
-    jelAssert.equal('do let myTestType=class MyTestType: constructor(x: Float, y: Float) => {} add(a, b)=>this.x+this.y+a/b, m=myTestType(15, 12), add=m.add: add(b=4, a=20)', "32");
-    jelAssert.equal('do let myTestType=class MyTestType: constructor(x: Float, y: Float) => {} add(a, b): Float=>this.x+this.y+a/b, m=myTestType(15, 12), add=m.add: add(b=4, a=20)', "32");
-    jelAssert.equal('do let myTestType=class MyTestType: constructor() => {} add(a: number, b: number?): number =>a + if b==null then 30 else b, m=myTestType(): [m.add(5, 10), m.add(10)]', "[15, 40]");
+    jelAssert.equal('class MyTestType: constructor(x: Float, y: Float) => {} add(a, b)=>this.x+this.y+a/b do let m=MyTestType(15, 12), add=m.add: add(b=4, a=20)', "32");
+    jelAssert.equal('class MyTestType: constructor(x: Float, y: Float) => {} add(a, b): Float=>this.x+this.y+a/b do let m=MyTestType(15, 12), add=m.add: add(b=4, a=20)', "32");
+    jelAssert.equal('class MyTestType: constructor() => {} add(a: number, b: number?): number =>a + if b==null then 30 else b do let m=MyTestType(): [m.add(5, 10), m.add(10)]', "[15, 40]");
 
-    jelAssert.equal('do let myTestType=class MyTestType constructor()=>{}  div(a, b)=>a/b, m=myTestType(), div=m.div: m.div(60, 10) + div(40, 10)', "10");
+    jelAssert.equal('class MyTestType constructor()=>{}  div(a, b)=>a/b do let m=MyTestType(), div=m.div: m.div(60, 10) + div(40, 10)', "10");
   });
 
   it('supports vararg methods', function() {
-    jelAssert.equal('do let myTestType=class MyTestType constructor() test(a, ...b)=>[a, b], m=myTestType(): m.test(5, 12)', "[5, [12]]");
-    jelAssert.equal('do let myTestType=class MyTestType constructor() test(a, ...b)=>[a, b], m=myTestType(): m.test(5)', "[5, []]");
-    jelAssert.equal('do let myTestType=class MyTestType constructor() test(a, ...b: int[])=>[a, b], m=myTestType(): m.test(5, 1, 2)', "[5, [1, 2]]");
+    jelAssert.equal('class MyTestType constructor() test(a, ...b)=>[a, b] do let m=MyTestType(): m.test(5, 12)', "[5, [12]]");
+    jelAssert.equal('class MyTestType constructor() test(a, ...b)=>[a, b] do let m=MyTestType(): m.test(5)', "[5, []]");
+    jelAssert.equal('class MyTestType constructor() test(a, ...b: int[])=>[a, b] do let m=MyTestType(): m.test(5, 1, 2)', "[5, [1, 2]]");
   
-    jelAssert.equal('do let myTestType=class MyTestType constructor() test(a: int?, ...b: int[])=>[a, b], m=myTestType(): m.test(b=[6, 3])', "[null, [6, 3]]");
+    jelAssert.equal('class MyTestType constructor() test(a: int?, ...b: int[])=>[a, b] do let m=MyTestType(): m.test(b=[6, 3])', "[null, [6, 3]]");
     
-    jelAssert.equal('do let myTestType=class MyTestType constructor() static test(...b: int[])=>b: myTestType.test()', "[]");
-    jelAssert.equal('do let myTestType=class MyTestType constructor() static test(...b: int[])=>b: myTestType.test(1, 2)', "[1, 2]");
-    jelAssert.equal('do let myTestType=class MyTestType constructor() static test(...b: int[])=>b: myTestType.test(b=[])', "[]");
-    jelAssert.equal('do let myTestType=class MyTestType constructor() static test(...b: int[])=>b: myTestType.test(b=[6, 2])', "[6, 2]");
+    jelAssert.equal('class MyTestType constructor() static test(...b: int[])=>b do MyTestType.test()', "[]");
+    jelAssert.equal('class MyTestType constructor() static test(...b: int[])=>b do MyTestType.test(1, 2)', "[1, 2]");
+    jelAssert.equal('class MyTestType constructor() static test(...b: int[])=>b do MyTestType.test(b=[])', "[]");
+    jelAssert.equal('class MyTestType constructor() static test(...b: int[])=>b do MyTestType.test(b=[6, 2])', "[6, 2]");
 
     return jelAssert.errorPromise('do let myTestType=class MyTestType constructor() static test(...b, a)=>b: myTestType.test(1, 2)', 'only supported as the last argument');
   });
@@ -101,26 +95,29 @@ describe('Class', function() {
   });
 
   it('supports superTypes', function() {
-    jelAssert.equal(`do let superType=class SuperType: constructor(x: Float, y: Float)=> {} add(a, b=1)=>a+b sub(a, b=1)=>a-b,
-                          subType=class SubType extends superType: constructor(x, y, z)=> {} override add(a,b=2)=>a+b+10 mul(a,b=1)=>a*b,
-                          s1 = superType(4, 6),
-                          s2 = subType(8, 10, 20): 
+    jelAssert.equal(`class SuperType: constructor(x: Float, y: Float)=> {} add(a, b=1)=>a+b sub(a, b=1)=>a-b
+                     class SubType extends SuperType: constructor(x, y, z)=> {} override add(a,b=2)=>a+b+10 mul(a,b=1)=>a*b
+                     do let s1 = SuperType(4, 6), s2 = SubType(8, 10, 20): 
                         [s1.x, s1.y, s2.x, s2.y, s2.z, s1.add(5), s1.sub(4), s2.add(6), s2.sub(33), s2.mul(9, 9)]`, "[4, 6, 8, 10, 20, 6, 3, 18, 32, 81]");
 
-    jelAssert.equal(`do let superType=class SuperType: a=1 constructor()=>{}, subType=class SubType extends superType: b=1 constructor()=>{}, other=class Other: c=1 constructor()=>{},
-                      super1=superType(), sub1=subType(), o=other():
-                        [super1 instanceof superType, super1 instanceof subType, super1 instanceof other,
-                         sub1 instanceof superType, sub1 instanceof subType, sub1 instanceof other,
-                         o instanceof superType, o instanceof subType, o instanceof other]`, "[true, false, false, true, true, false, false, false, true]");
+    jelAssert.equal(`class SuperType: a=1 constructor()=>{}
+                     class SubType extends SuperType: b=1 constructor()=>{}
+                     class Other: c=1 constructor()=>{}
+                     do let super1=SuperType(), sub1=SubType(), o=Other():
+                        [super1 instanceof SuperType, super1 instanceof SubType, super1 instanceof Other,
+                         sub1 instanceof SuperType, sub1 instanceof SubType, sub1 instanceof Other,
+                         o instanceof SuperType, o instanceof SubType, o instanceof Other]`, "[true, false, false, true, true, false, false, false, true]");
   });
 
   it('supports abstract superTypes', function() {
-    jelAssert.equal(`do let superType=abstract class SuperType: a=1 constructor(x=1)=>{a:x+5} abstract test(), subType=class SubType extends superType: constructor()=>super(9) override test()=>1, sub1=subType():
-                        [sub1.a, sub1.test()]`, "[14,1]");
+    jelAssert.equal(`abstract class SuperType: a=1 constructor(x=1)=>{a:x+5} abstract test()
+                     class SubType extends SuperType: constructor()=>super(9) override test()=>1
+                     do let sub1=SubType():
+                      [sub1.a, sub1.test()]`, "[14,1]");
 
-    jelAssert.equal(`do let superType=abstract class SuperType: abstract a: int abstract b: string? abstract c: int? constructor()=>{}, 
-                         subType=class SubType extends superType: override a  = 1 override b = 'foo' override c  constructor()=>{},
-                         sub1=subType():
+    jelAssert.equal(`abstract class SuperType: abstract a: int abstract b: string? abstract c: int? constructor()=>{}
+                     class SubType extends SuperType: override a  = 1 override b = 'foo' override c  constructor()=>{}
+                        do let sub1=SubType():
                         [sub1.a, sub1.b, sub1.c]`, "[1, 'foo', null]");
 
     return Promise.all([
@@ -133,12 +130,18 @@ describe('Class', function() {
   });
 
   it('allows overriding methods', function() {
-    jelAssert.equal(`do let superType=class SuperType: constructor()=>{} incX(x)=>x+1, subType=class SubType extends superType: constructor()=>{} override incX(x)=>x+2, sup1=superType(), sub1=subType():
+    jelAssert.equal(`class SuperType: constructor()=>{} incX(x)=>x+1
+                     class SubType extends SuperType: constructor()=>{} override incX(x)=>x+2
+                     do let sup1=SuperType(), sub1=SubType():
                         [sup1.incX(5), sub1.incX(10)]`, "[6, 12]");
-    jelAssert.equal(`do let superType=class SuperType: constructor()=>{} incX(x): int=> x+1, subType=class SubType extends superType: constructor()=>{} override incX(x):int=>x+2, sup1=superType(), sub1=subType():
+    jelAssert.equal(`class SuperType: constructor()=>{} incX(x): int=> x+1
+                     class SubType extends SuperType: constructor()=>{} override incX(x):int=>x+2
+                     do let sup1=SuperType(), sub1=SubType():
                         [sup1.incX(5), sub1.incX(10)]`, "[6, 12]");
 
-    jelAssert.equal(`do let superType=class SuperType: constructor()=>{} a()=>5 b()=>this.a(), subType=class SubType extends superType: constructor()=>{} override a()=>10, sup1=superType(), sub1=subType():
+    jelAssert.equal(`class SuperType: constructor()=>{} a()=>5 b()=>this.a()
+                     class SubType extends SuperType: constructor()=>{} override a()=>10
+                     do let sup1=SuperType(), sub1=SubType():
                         [sup1.a(), sub1.a()]`, "[5, 10]");
 
     return Promise.all([
@@ -152,30 +155,32 @@ describe('Class', function() {
 
 
   it('supports static properties', function() {
-    jelAssert.equal('do let myTestType=class MyTestType: static add(a,b):Float=>a+b static ft = 42: myTestType.ft + myTestType.add(1, 2)', "45");
-    jelAssert.equal('do let myTestType=class MyTestType: static add(a: number,b: number?):number=>a+ if b==null then 100 else b: myTestType.add(1, 2)+myTestType.add(5)', "108");
+    jelAssert.equal('class MyTestType: static add(a,b):Float=>a+b static ft = 42 do MyTestType.ft + MyTestType.add(1, 2)', "45");
+    jelAssert.equal('class MyTestType: static add(a: number,b: number?):number=>a+ if b==null then 100 else b do MyTestType.add(1, 2)+MyTestType.add(5)', "108");
   });
 
   it('supports static properties that use the constructor or other elements', function() {
-    jelAssert.equal('do let myTestType=class MyTestType: static a = 1 static b=MyTestType.a+1 static c=MyTestType.b+MyTestType.a: [myTestType.a, myTestType.b, myTestType.c]', "[1, 2, 3]");
-    jelAssert.equal('do let myTestType=class MyTestType1: static ft = 44 static ft1=MyTestType1.ft+1: myTestType.ft1', "45");
-    jelAssert.equal('do let myTestType=class MyTestType2: static add(a,b): number=>a+b static ft = MyTestType2.add(1, 3): myTestType.ft', "4");
-    jelAssert.equal('do let myTestType=class MyTestType3: constructor(a: int)=> {} static ft = MyTestType3(42): myTestType.ft.a', "42");
-    jelAssert.equal('do let myTestType=class MyTestType4: x: int constructor()=> {x: MyTestType4.X} static X = 100: myTestType().x', "100");
-    jelAssert.equal('do let myTestType=class MyTestType4: x: int constructor()=> {x: this.X} static X = 100: myTestType().x', "100");
+    jelAssert.equal('class MyTestType: static a = 1 static b=MyTestType.a+1 static c=MyTestType.b+MyTestType.a do [MyTestType.a, MyTestType.b, MyTestType.c]', "[1, 2, 3]");
+    jelAssert.equal('class MyTestType1: static ft = 44 static ft1=MyTestType1.ft+1 do MyTestType1.ft1', "45");
+    jelAssert.equal('class MyTestType2: static add(a,b): number=>a+b static ft = MyTestType2.add(1, 3) do MyTestType2.ft', "4");
+    jelAssert.equal('class MyTestType3: constructor(a: int)=> {} static ft = MyTestType3(42) do MyTestType3.ft.a', "42");
+    jelAssert.equal('class MyTestType4: x: int constructor()=> {x: MyTestType4.X} static X = 100 do MyTestType4().x', "100");
+    jelAssert.equal('class MyTestType4: x: int constructor()=> {x: this.X} static X = 100 do MyTestType4().x', "100");
   });
 
   it('allows access to static properties in all default values', function() {
-    jelAssert.equal('do let myTestType=class MyTestType static X=42 x=MyTestType.X constructor() : myTestType().x', "42");
-    jelAssert.equal('do let myTestType=class MyTestType static X=42 constructor() ret(i=MyTestType.X)=>i: myTestType().ret()', "42");
-    jelAssert.equal('do let myTestType=class MyTestType static X=42 constructor(y=MyTestType.X): myTestType().y', "42");
-    jelAssert.equal('do let myTestType=class MyTestType static X=42 static ret(i=MyTestType.X)=>i: myTestType.ret()', "42");
+    jelAssert.equal('class MyTestType static X=42 x=MyTestType.X constructor() do MyTestType().x', "42");
+    jelAssert.equal('class MyTestType static X=42 constructor() ret(i=MyTestType.X)=>i do MyTestType().ret()', "42");
+    jelAssert.equal('class MyTestType static X=42 constructor(y=MyTestType.X) do MyTestType().y', "42");
+    jelAssert.equal('class MyTestType static X=42 static ret(i=MyTestType.X)=>i do MyTestType.ret()', "42");
   });
 
   it('supports getter', function() {
-    jelAssert.equal('do let myTestType=class MyTestType: constructor(y: Float)=>{} get x():Float=>8 get z()=>4, m=myTestType(5): m.x/m.z', "2");
+    jelAssert.equal('class MyTestType: constructor(y: Float)=>{} get x():Float=>8 get z()=>4 do let m=MyTestType(5): m.x/m.z', "2");
 
-    jelAssert.equal(`do let superType=class SuperType: constructor()=>{} get x()=>1, subType=class SubType extends superType: constructor()=>{} override get x()=>42, sup1=superType(), sub1=subType():
+    jelAssert.equal(`class SuperType: constructor()=>{} get x()=>1
+                     class SubType extends SuperType: constructor()=>{} override get x()=>42
+                     do let sup1=SuperType(), sub1=SubType():
                         [sup1.x, sub1.x]`, "[1, 42]");
 
     return Promise.all([
@@ -187,16 +192,16 @@ describe('Class', function() {
   });
 
   it('supports ops', function() {
-    jelAssert.equal('do let myTestType=class MyTestType constructor(x: Float)=>{} op+(right)=>myTestType(this.x+right), m=myTestType(5): (m+10).x', "15");
-    jelAssert.equal('do let myTestType=class MyTestType constructor(x: Float)=>{} singleOp-()=>myTestType(-this.x*2), m=myTestType(5): (-m).x', "-10");
+    jelAssert.equal('class MyTestType constructor(x: Float)=>{} op+(right)=>MyTestType(this.x+right) do let m=MyTestType(5): (m+10).x', "15");
+    jelAssert.equal('class MyTestType constructor(x: Float)=>{} singleOp-()=>MyTestType(-this.x*2) do let m=MyTestType(5): (-m).x', "-10");
 
-    jelAssert.equal('do let myTestType=class MyTestType: constructor(x: Float)=>{} op+(right)=> myTestType(this.x+right), m=myTestType(5): (m+10).x', "15");
-    jelAssert.equal('do let myTestType=class MyTestType: constructor(x: Float)=>{} op+(right):Float=> this.x+right, m=myTestType(5): m+10', "15");
+    jelAssert.equal('class MyTestType: constructor(x: Float)=>{} op+(right)=> MyTestType(this.x+right) do let m=MyTestType(5): (m+10).x', "15");
+    jelAssert.equal('class MyTestType: constructor(x: Float)=>{} op+(right):Float=> this.x+right do let m=MyTestType(5): m+10', "15");
   });
 
   it('allows typed ops', function() {
-    jelAssert.equal('do let myTestType=class MyTestType constructor(x: Float)=>{} op+(right: int)=>myTestType(this.x+right), m=myTestType(5): (m+10).x', "15");
-    return jelAssert.errorPromise('do let myTestType=class MyTestType constructor(x: Float)=>{} op+(right: int)=>myTestType(this.x+right), m=myTestType(5): m+"x"', "Failed to convert value");
+    jelAssert.equal('class MyTestType constructor(x: Float)=>{} op+(right: int)=>MyTestType(this.x+right) do let m=MyTestType(5): (m+10).x', "15");
+    return jelAssert.errorPromise('class MyTestType constructor(x: Float)=>{} op+(right: int)=>MyTestType(this.x+right) do let m=MyTestType(5): m+"x"', "Failed to convert value");
   });
   
   it('can refer to itself as a type and supports circular dependencies', function() {
@@ -207,7 +212,13 @@ describe('Class', function() {
     ]);
   });
 
-
+  it('allows circular references in a single program', function() {
+    jelAssert.equal(`
+class A: constructor(x: B?, y: C?) v: int = 6
+class B: constructor(z: int)
+class C: constructor(a: A?)
+do [A().v, B(1).z, C(A()).a.v, A(y=C(A(B(15)))).y.a.x.z]`, '[6, 1, 6, 15]');
+  });
 
 
   it('can be loaded from DB and used like a native type', function() {

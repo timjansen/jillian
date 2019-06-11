@@ -9,6 +9,8 @@ import Import from './Import';
 import Util from '../../util/Util';
 import ClassDef from './ClassDef';
 import BaseTypeRegistry from '../BaseTypeRegistry';
+import Assignment from './Assignment';
+import { EIDRM } from 'constants';
 
 
 /**
@@ -23,7 +25,6 @@ export default class Program extends CachableJelNode {
   // optimized path for imports
   executeMultiImports(ctx: Context, pos: number = 0): JelObject|null|Promise<JelObject|null> {
     let p = pos;
-    const l = [];
     while (this.expressions[p] instanceof Import)
       p++;
     const imports: Import[] = this.expressions.slice(pos, p) as any;
@@ -43,9 +44,8 @@ export default class Program extends CachableJelNode {
     const expr = this.expressions[pos];
     if (!expr)
       return lastValue;
-    if (!((expr as any).isDeclaredStatement))
+    if (!((expr as any).isDeclaringStatement))
       return expr.execute(ctx);
-
     if (expr instanceof Import)
       return this.executeMultiImports(ctx, pos);
     
@@ -93,7 +93,13 @@ export default class Program extends CachableJelNode {
   }
 	
 	toString(separator='\n'): string {
-		return this.expressions.map(e=>e.toString()).join(separator);
+    return this.expressions.map(e=>{
+      if (e instanceof Assignment)
+        return `let ${e.toString()}`;
+      else if (!(e as any).isDeclaringStatement)
+        return `do ${e.toString()}`;
+      return e.toString();
+    }).join(separator);
 	}
 }
 

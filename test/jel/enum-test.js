@@ -24,7 +24,8 @@ describe('EnumValue', function() {
   
   it('creates and serializes', function() {
     jelAssert.equal(new Enum("SomeEnum", new List(['A', 'B', 'C'])), 'Enum("SomeEnum", ["A", "B", "C"])');
-    jelAssert.equal('enum SomeEnum: A, B, C', 'Enum("SomeEnum", ["A", "B", "C"])');
+    jelAssert.equal('(enum SomeEnum: A, B, C)', 'Enum("SomeEnum", ["A", "B", "C"])');
+    jelAssert.equal('enum SomeEnum: A, B, C do SomeEnum', 'Enum("SomeEnum", ["A", "B", "C"])');
   });
 
   it('supports EnumValue<->EnumValue comparisons', function() {
@@ -48,7 +49,7 @@ describe('EnumValue', function() {
     jelAssert.equal('#TEST==#TEST', 'true');
     jelAssert.equal('#TEST==#TOAST', 'false');
 
-    jelAssert.equal(`do let SomeEnum = (enum SomeEnum: A, B, C): [(#A as SomeEnum).value, (#A as SomeEnum).parent.name, #A instanceof SomeEnum]`, '["A", "SomeEnum", true]');
-    return jelAssert.errorPromise("do let SomeEnum = (enum SomeEnum: A, B, C): #X as SomeEnum", "convert to EnumType(SomeEnum)");
+    jelAssert.equal(`enum SomeEnum: A, B, C do [(#A as SomeEnum).value, (#A as SomeEnum).parent.name, #A instanceof SomeEnum]`, '["A", "SomeEnum", true]');
+    return jelAssert.errorPromise("enum SomeEnum: A, B, C do #X as SomeEnum", "convert to EnumType(SomeEnum)");
   });
 });

@@ -1,23 +1,11 @@
 Next steps
 ===========
 
-1. Have several declaring sections (let, class, function) and then a final 'do' for the main expression? That would make JEL a complete programming language.
+1. 
+- import IL::Verb   // same as let Verb=IL::Verb
+- import IL::*      // imports all of IL
+- document
 
-let PI=3.14
-
-class A: 
-      constructor(a, b, c)
-
-function add(a, b) => a+b
-
-do
-      A(1, 2, add(1, 3))
-
-
-2. Also add 'import' statement???
-
-import IL::Verb   // same as let Verb=IL::Verb
-import IL::*      // imports all of IL
 
 
 

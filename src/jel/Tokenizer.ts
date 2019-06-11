@@ -7,7 +7,7 @@ import Util from '../util/Util';
 import TokenReader from './TokenReader';
 import {TokenType, Token, TemplateToken, RegExpToken, FractionToken} from './Token';
 
-const wordOperators: any = new Set(['instanceof', 'if', 'then', 'else', 'let', 'class', 'enum', 'as', 'in',  'assert', 'abstract', 'static', 'native', 
+const wordOperators: any = new Set(['instanceof', 'if', 'then', 'else', 'let', 'class', 'enum', 'def', 'as', 'in',  'assert', 'abstract', 'static', 'native', 
 	'override', 'private', 'try', 'catch', 'when', 'case', 'throw', 'import', 'do']);
 const constantMapping: any = {'null': null, 'true': true, 'false': false};
 const constants: any = new Map(Object.keys(constantMapping).map(x=>[x, constantMapping[x]]) as any);

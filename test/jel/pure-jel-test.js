@@ -509,6 +509,26 @@ describe('JEL unit tests executed with empty context', function() {
     jelAssert.equal('do let a=(class A: constructor()): a()!==a()', 'true');
   });
 
+  it('supports full programs', function() {
+    jelAssert.equal(`do 5`, "5");
+    jelAssert.equal('let obvious=5 do obvious+8', '13');
+    jelAssert.equal(`let a=1,b=4 do a+b`, "5");
+    jelAssert.equal(`let a=1,b=4 do let c=2, d=a: a+b+c+d`, "8");
+    jelAssert.equal(`let a=1 let b=4 do let c=2: a+b+c`, "7");
+  });
+
+  it('supports functions', function() {
+    jelAssert.equal(`def test() => 2 do test()`, "2");
+    jelAssert.equal(`def f(a) => a*3 do f(5)`, "15");
+    jelAssert.equal(`def f(a) => a*3 def g(a) => a+9 do f(g(2))`, "33");
+    jelAssert.equal(`let x = 2 def f(a) => a*x def g(a) => a+9 do f(g(2))`, "22");
+  });
+
+  it('supports enum', function() {
+    jelAssert.equal(`enum TestEnum: A, B, C do TestEnum.A.value+'!'`, "'A!'");
+    jelAssert.equal(`enum TestEnum: A, B, C def test() => TestEnum.B do test().value`, "'B'");
+  });
+
 
   /**
   TODO: this test should be executed, but currently it causes a UnhandledPromiseRejectionWarning...

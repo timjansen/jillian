@@ -21,6 +21,13 @@ export default class TokenReader {
     return (t && t.is(type, value)) ? t : undefined;
 	}
 
+	peekOps(ops: string[], offset=0): boolean {
+		for (let i = 0; i < ops.length; i++)
+			if (!this.peekIs(TokenType.Operator, ops[i], offset+i))
+				return false;
+		return true;
+	}
+
  	nextIf(type: TokenType, value?: any, offset=0): Token|undefined {
 		const t = this.peekIs(type, value, offset);
 		if(t)
