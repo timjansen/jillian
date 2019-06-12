@@ -19,7 +19,7 @@ They are always used in pairs and denote equality.
             Statement(Verb(@Denote), subject=ClausePronoun(), objects=Noun(@Equality))
 
 She is interested in learning math.
-      Statement(Verb(@Being), subject=Pronoun(@She), prepositions=Preposition(EnglishPrepositionEnum.IN, IngVerb(Sentence(Verb(@Learn), object=Noun(@Math)))))
+      Statement(Verb(@Being), subject=Pronoun(@She), prepositions=Preposition(EnglishPrepositionEnum.IN, SentenceObject(Sentence(Verb(@Learn), object=Noun(@Math)), #ING)))
 
 I like that you wrote that mail.
 I like you wrote that mail.
@@ -30,14 +30,14 @@ Make sure operations never throw exceptions, but just return false.
                                                             Statement(Verb(@Return, adverbial=Adjective(@Just), subject=ClausePronoun(), object=Noun(@False)))))
 
 Farming is growing crops or keeping animals by people for food and raw materials. 
-      Statement(Verb(@Being), subject=Noun(@Farming), object=Or(IngVerb(Sentence(Verb(@Growing), object=Noun(@Crop, #MANY)), IngVerb(Sentence(Verb(@Keeping), object=Noun(@AnimalCategory, #MANY))))),
+      Statement(Verb(@Being), subject=Noun(@Farming), object=Or(SentenceObject(Sentence(Verb(@Growing), object=Noun(@Crop, #MANY)), #ING), SentenceObject(Sentence(Verb(@Keeping), object=Noun(@AnimalCategory, #MANY)), #ING)),
             prepositions=Preposition(EnglishPrepositionEnum.FOR, And(Noun(@Food), Noun(@Material, #MANY, adjective=Adjective(@Raw)))))
 
 Farming is a part of agriculture.
-      Statement(Verb(@Being), subject=IngVerb(Sentence(@Farming)), object=Noun(@Part, #ONE, #GENERAL, prepositions=Preposition(EnglishPrepositionEnum.OF, Noun(@Agriculture))))
+      Statement(Verb(@Being), subject=IngVerb(Sentence(@Farming), #ING), object=Noun(@Part, #ONE, #GENERAL, prepositions=Preposition(EnglishPrepositionEnum.OF, Noun(@Agriculture))))
 
 I like to see you laughing.
-      Statement(Verb(@Liking), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Seeing), object=IngVerb(Sentence(verb=@Laughing, subject=Pronoun(@You)))), true))
+      Statement(Verb(@Liking), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Seeing), object=IngVerb(Sentence(verb=@Laughing, subject=Pronoun(@You)), #ING)), #INFINITE))
 
 I see you have already arrived.
       Statement(Verb(@Seeing), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Arriving, #PAST, perfect=true), subject=Pronoun(@You), adverbial=Adjective(@Already))))
@@ -112,8 +112,8 @@ You walked from New York to Philadephia?
       Question(verb=Verb(@Walking, #PAST), subject=Pronoun(@You), prepositions=[Preposition(EnglishPrepositionEnum.FROM, Noun(@NewYork)), Preposition(EnglishPrepositionEnum.TO, Noun(@Philadephia))])
 
 I promised to do it in five years.
-      Statement(Verb(@Promising, #PAST), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Doing), object=Pronoun(@It), prepositions=Preposition(EnglishPrepositionEnum.IN, Value(5 @Year)), true)))
-      Statement(Verb(@Promising, #PAST), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Doing), object=Pronoun(@It)), true), prepositions=Preposition(EnglishPrepositionEnum.IN, Value(5 @Year)))
+      Statement(Verb(@Promising, #PAST), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Doing), object=Pronoun(@It), prepositions=Preposition(EnglishPrepositionEnum.IN, Value(5 @Year)))))
+      Statement(Verb(@Promising, #PAST), subject=Pronoun(@I), object=SentenceObject(Sentence(verb=Verb(@Doing), object=Pronoun(@It)), INTINITE), prepositions=Preposition(EnglishPrepositionEnum.IN, Value(5 @Year)))
 
 He's flying above the clouds.
       Statement(Verb(@Flying, continous=true), subject=Pronoun(@He), prepositions=Preposition(EnglishPrepositionEnum.ABOVE, Noun(@Cloud, #MANY, determiner=true)))
@@ -150,7 +150,7 @@ Designed by the architects named "Shreve, Lamb & Harmon Associates", it was buil
                   prepositions=Preposition(EnglishPrepositionEnum.BY, Noun(@Architect, #MANY, #DEFINITE, clause=Statement(Verb(@Naming, active=false), object=Value("Shreve, Lamb & Harmon Associates"))))),
                   Statement(Verb(@Building, #PAST, active=true), subject=Pronoun(@It), prepositions=Preposition(Noun(@Time, determiner=#GENERAL, clauses=
                         Statement(Verb(@Trying, #PAST, continous=true), subject=QuestionWord(@When, Noun(@People, adjective=Adjective(@Many))), 
-                              SentenceObject(Sentence(verb=Verb(@Making), object=Noun(@Building, adjective=Adjective(@Tall, @Superlative)), possessor=Noun(@World, determiner=#DEFINITE)), true)))))),
+                              SentenceObject(Sentence(verb=Verb(@Making), object=Noun(@Building, adjective=Adjective(@Tall, @Superlative)), possessor=Noun(@World, determiner=#DEFINITE)), #INFINITE)))))),
             Statement(Verb(@Winning, #PAST), subject=Noun(@EmpireStateBuilding, determiner=#DEFINITE)))
 
 It was completed in 410 days. 
@@ -232,7 +232,7 @@ Although not amongst the global top 20 when it comes to revenue, we have witness
 
 Chad Haag considered living in a cave to escape his student debt. 
       Statement(Verb(@Considering, #PAST), Value("Chad Haag"), IngVerb(Sentence(Verb(@Living, prepositions=Preposition(EnglishPrepositionEnum.IN, Noun(@Cave, determiner=#GENERAL))), 
-            prepositions=Preposition(EnglishPrepositionEnum.TO, SentenceObject(Sentence(Verb(@Escaping), object=CompoundNoun(@Student, @Debt, possessor=Pronoun(@He))))))))
+            prepositions=Preposition(EnglishPrepositionEnum.TO, SentenceObject(Sentence(Verb(@Escaping), object=CompoundNoun(@Student, @Debt, possessor=Pronoun(@He)))))), #ING))
 
 He had a friend doing it. 
       Statement(Verb(@Having, #PAST), Pronoun(@He), Noun(@Friend, determiner=#GENERAL, clause=Statement(Verb(@Doing), ClausePronoun(), Pronoun(@It))))
@@ -241,7 +241,7 @@ I have an appointment next week.
       Statement(Verb(@Having), Pronoun(@I), Noun(@Appointment, determiner=#GENERAL), prepositions=Preposition(TimePrepositionEnum.ON, Noun(@Week, adjective=Adjective(@Next))))
       
 But after some plotting, he settled on what he considered a less risky plan. 
-      Statement(Verb(@Settling), Pronoun(@He), prepositions=[Preposition(EnglishPrepositionEnum.AFTER, IngVerb(Sentence(@Plotting), adverbial=Adjective(@Some))), 
+      Statement(Verb(@Settling), Pronoun(@He), prepositions=[Preposition(EnglishPrepositionEnum.AFTER, IngVerb(Sentence(@Plotting), #ING, adverbial=Adjective(@Some))), 
                                                              Preposition(EnglishPrepositionEnum.ON, Statement(Verb(@Considering), Pronoun(@He), ClausePronoun(), 
                                                                   Preposition(LogicPrepositionEnum.TARGET, Noun(@Plan, adjective=Adjective(@Risky, comparison=#LESS)))))])
 

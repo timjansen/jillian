@@ -2,16 +2,7 @@ Next steps
 ===========
 
 3. IL
--> Merge IngVerb and SentenceObject!
 -> construct for calendar elements relative to now, e.g. next week, last week, next 2 weeks, in 4 weeks...
-
-- support clauses with 'but...', 'except...' ...
-- support complex objects like '...not fast, but slowly'
-- support prepositions ('from here', 'to there', 'without this')
-- support 'he is interested in learning X'
-
-https://learnenglish.britishcouncil.org/english-grammar
-
 
 5. Use regular context in translators, get rid of translatorDict
 

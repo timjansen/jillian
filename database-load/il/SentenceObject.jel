@@ -1,14 +1,15 @@
 /**
  * A sentence that's used like an object. Like 'I like that you wrote that mail' or 'I see you already arrived'.
- * Also used to represent infinitive ('I like _to_go_swimming_')
+ * Also used to represent infinitive ('I like _to_go_.') and the ing form ('I like _swimming_').
  *
  * Examples:
- * I like that you wrote that mail => IL::Statement(verb=Verb(@Like), subject=IL::Pronoun(@I), 
-                                        object=IL::SentenceObject(IL::Sentence(verb=Verb(@Laugh), subject=IL::Pronoun(@You), object=IL::Noun(@Mail, determiner=DeterminerEnum.FAR_DEMONSTRATIVE))))
+ * I like that you wrote that mail => Statement(Verb(@Like), Pronoun(@I), SentenceObject(Sentence(verb=Verb(@Laugh), Pronoun(@You), Noun(@Mail, determiner=#FAR_DEMONSTRATIVE))))
  *
- * I like to go swimming => IL::Statement(verb=Verb(@Like), subject=IL::Pronoun(@I), object=IL::SentenceObject(IL::Sentence(verb=IL::Verb(@Go), object=IL::IngVerb(IL::Sentence(verb=IL::Verb(@Swimming)))), true))
+ * I like laughing => Statement(Verb(@Like), Pronoun(@I), SentenceObject(Sentence(Verb(@Laugh)), #ING))
+ *
+ * I like to go swimming => Statement(Verb(@Like), Pronoun(@I), SentenceObject(Sentence(Verb(@Go), object=SentenceObject(Sentence(Verb(@Swimming), #ING))), #INFINITE))
  */
 class IL::SentenceObject extends IL::Object:
-    constructor(sentence: IL::Sentence, infinitive: bool = false)
+    constructor(sentence: IL::Sentence, verbType: VerbTypeEnum = VerbTypeEnum.REGULAR, determiner, adjective, prepositions, possessor, clauses)
 
 

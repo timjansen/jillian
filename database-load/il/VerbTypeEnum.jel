@@ -1,0 +1,20 @@
+/**
+ * Describes the type of verb in a SentenceObject.
+ */ 
+enum VerbTypeEnum:
+    /**
+     * A regular verb.
+     * Example: He wrote that he _went_ home.
+     */
+    REGULAR,
+    /**
+     * An infinite verb (to ...).
+     * Example: He said it's better _to_wait_.
+     */
+    INFINITE,
+
+    /**
+     * A verb in an 'ing' form.
+     * Example: He said he likes _waiting_.
+     */
+    ING
