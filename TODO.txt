@@ -2,9 +2,6 @@ Next steps
 ===========
 
 3. IL
--> construct for calendar elements relative to now, e.g. next week, last week, next 2 weeks, in 4 weeks...
-
-5. Use regular context in translators, get rid of translatorDict
 
 6. Split repository into JEL/Ed?
 

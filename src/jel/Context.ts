@@ -1,5 +1,3 @@
-import Util from '../util/Util';
-import BaseTypeRegistry from './BaseTypeRegistry';
 import {IDbSession} from './IDatabase';
 
 
@@ -8,20 +6,18 @@ import {IDbSession} from './IDatabase';
  */
 export default class Context {
 	dbSession: IDbSession | undefined;
-	translationDict: any; // Dictionary
 	
 	protected frame: Map<string, any>; // string->JelObject|null
 	protected frozen: boolean;
 	protected staticScope: boolean;
 	
-	constructor(public parent?: Context, dbSession?: IDbSession, translationDict?: any) {
+	constructor(public parent?: Context, dbSession?: IDbSession) {
 		this.dbSession = dbSession || (parent && parent.dbSession);
-		this.translationDict = translationDict || (parent && parent.translationDict) || BaseTypeRegistry.get('Dictionary').create();
 		this.frame = new Map();
-    if (!this.parent)
-      this.frame.set('this', "(dummy this)");
+    	if (!this.parent)
+      		this.frame.set('this', "(dummy this)");
 		this.frozen = false;
-    this.staticScope = false;
+    	this.staticScope = false;
 	}
 	
 	get(name: string): any {
@@ -38,7 +34,7 @@ export default class Context {
 				return true;
 		if (this.parent)
 			return this.parent.has(name);
-    return false;
+    	return false;
 	}
   
  	hasInThisScope(name: string): boolean {
@@ -75,8 +71,6 @@ export default class Context {
 	plus(obj: any, staticScope=false): Context {
 		if (obj.isIDBSession)
 			return new Context(this, obj as IDbSession);
-		else if (obj.constructor.name == 'Dictionary')
-			return new Context(this, undefined, obj);
 		else
 			return new Context(this).setAll(obj as any, staticScope);
 	}
@@ -89,12 +83,12 @@ export default class Context {
 	
 	freeze(staticScope=false): Context {
 		this.frozen = true;
-    this.staticScope = staticScope;
+    	this.staticScope = staticScope;
 		return this;
 	}
 	
 	toString(): string {
 		const vars = Array.from(this.frame.keys()).map((n: string)=>`${n}=${this.frame.get(n)}`).join(', ');
-		return `Context(frame={${vars}}, dbSession=${!!this.dbSession}, translationDict=${!!this.translationDict}, \n   parent=${this.parent})`;
+		return `Context(frame={${vars}}, dbSession=${!!this.dbSession}, parent=${this.parent})`;
 	}
 }

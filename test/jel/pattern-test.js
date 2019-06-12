@@ -8,7 +8,6 @@ const JEL = require('../../build/jel/JEL.js').default;
 const Pattern = require('../../build/jel/types/Pattern.js').default;
 const Dictionary = require('../../build/jel/types/Dictionary.js').default;
 const JelBoolean = require('../../build/jel/types/JelBoolean.js').default;
-const Translator = require('../../build/jel/types/Translator.js').default;
 const PatternNode = require('../../build/jel/patternNodes/PatternNode.js').default;
 const TemplateNode = require('../../build/jel/patternNodes/TemplateNode.js').default;
 const RegExpNode = require('../../build/jel/patternNodes/RegExpNode.js').default;
@@ -25,6 +24,14 @@ function mnt(token, next = TERMINATOR) {
 
 
 describe('jelPatterns', function() {
+  let ctx;
+  before(function(){
+    return DefaultContext.get().then(dc=> {
+      ctx = dc;
+    });
+
+  });
+
   describe('parse()', function() {
     
     it('should parse an empty string', function() {
@@ -81,9 +88,7 @@ describe('jelPatterns', function() {
 
   });
   
-  describe('match()', function() {
-    const ctx = DefaultContext.get();
-    
+  describe('match()', function() { 
      it('match artificial patterns', function() {
       assert.equal(JelBoolean.FALSE, new Pattern(mnt('x'), "x").match(ctx, []));
       assert.equal(JelBoolean.TRUE, new Pattern(mnt('x'), "x").match(ctx, ['x']));
@@ -163,38 +168,35 @@ describe('jelPatterns', function() {
         const tpl0 = exec('${`a` => 1}');
         const tpl1 = exec('${`a` => 1, x: `b` => 2, y: `b` => 12, x, y: `b` => 22}');
         const tpl2 = exec('${`a [b [c]?]?` => 3, `a b c` => 4, `d e` => 5, `f {{tpl1}}` => 6}');
-        const dict = new Dictionary({tpl0, tpl1, tpl2});
-        const ctx = new Context(DefaultContext.get(), null, dict);
+        const ctx2 = ctx.plus({tpl0, tpl1, tpl2});
 
-        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{tpl0}}').match(ctx, 'a'));
-        assert.equal(JelBoolean.TRUE, JEL.createPattern('j {{tpl0}}').match(ctx, 'j a '));
+        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{tpl0}}').match(ctx2, 'a'));
+        assert.equal(JelBoolean.TRUE, JEL.createPattern('j {{tpl0}}').match(ctx2, 'j a '));
       
-        assert.equal(JelBoolean.TRUE, JEL.createPattern('a {{tpl0}}').match(ctx, 'a a'));
-        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{tpl0}} k').match(ctx, ' a k'));
-        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{tpl0}}{{tpl0}}').match(ctx, 'a a'));
-        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{tpl0}} {{tpl0}}').match(ctx, 'a a'));
-        assert.equal(JelBoolean.FALSE, JEL.createPattern('{{tpl0}}').match(ctx, 'b'));
+        assert.equal(JelBoolean.TRUE, JEL.createPattern('a {{tpl0}}').match(ctx2, 'a a'));
+        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{tpl0}} k').match(ctx2, ' a k'));
+        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{tpl0}}{{tpl0}}').match(ctx2, 'a a'));
+        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{tpl0}} {{tpl0}}').match(ctx2, 'a a'));
+        assert.equal(JelBoolean.FALSE, JEL.createPattern('{{tpl0}}').match(ctx2, 'b'));
       
-        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{tpl1}}').match(ctx, 'a'));
-        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{tpl1}}').match(ctx, 'b'));
-        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{tpl1.x}}').match(ctx, 'b'));
-        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{tpl1.x.y}}').match(ctx, 'b'));
-        assert.equal(JelBoolean.FALSE, JEL.createPattern('{{tpl1}}').match(ctx, 'nope'));
-        assert.equal(JelBoolean.FALSE, JEL.createPattern('{{tpl1.x}}').match(ctx, 'a'));
-        assert.equal(JelBoolean.FALSE, JEL.createPattern('{{tpl1.x.y.z}}').match(ctx, 'b'));
+        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{tpl1}}').match(ctx2, 'a'));
+        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{tpl1}}').match(ctx2, 'b'));
+        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{tpl1.x}}').match(ctx2, 'b'));
+        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{tpl1.x.y}}').match(ctx2, 'b'));
+        assert.equal(JelBoolean.FALSE, JEL.createPattern('{{tpl1}}').match(ctx2, 'nope'));
+        assert.equal(JelBoolean.FALSE, JEL.createPattern('{{tpl1.x}}').match(ctx2, 'a'));
+        assert.equal(JelBoolean.FALSE, JEL.createPattern('{{tpl1.x.y.z}}').match(ctx2, 'b'));
 
-        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{t: tpl1 :: t == 12}}').match(ctx, 'b'));
-        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{t: tpl1 :: t == 22}}').match(ctx, 'b'));
-        assert.equal(JelBoolean.FALSE, JEL.createPattern('{{t: tpl1 :: t == 0}}').match(ctx, 'b'));
-        assert.equal(JelBoolean.FALSE, JEL.createPattern('{{t: tpl1.x :: t == 12}}').match(ctx, 'b'));
-        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{t: tpl1.x :: t == 22}}').match(ctx, 'b'));
-        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{test: tpl1 :: test == 1}}').match(ctx, 'a'));
-        assert.equal(JelBoolean.FALSE, JEL.createPattern('{{test: tpl1 :: test > 1}}').match(ctx, 'a'));
+        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{t: tpl1 :: t == 12}}').match(ctx2, 'b'));
+        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{t: tpl1 :: t == 22}}').match(ctx2, 'b'));
+        assert.equal(JelBoolean.FALSE, JEL.createPattern('{{t: tpl1 :: t == 0}}').match(ctx2, 'b'));
+        assert.equal(JelBoolean.FALSE, JEL.createPattern('{{t: tpl1.x :: t == 12}}').match(ctx2, 'b'));
+        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{t: tpl1.x :: t == 22}}').match(ctx2, 'b'));
+        assert.equal(JelBoolean.TRUE, JEL.createPattern('{{test: tpl1 :: test == 1}}').match(ctx2, 'a'));
+        assert.equal(JelBoolean.FALSE, JEL.createPattern('{{test: tpl1 :: test > 1}}').match(ctx2, 'a'));
     });
 
     it('should match regexp templates', function() {
-        const ctx = DefaultContext.get();
-
         assert.equal(JelBoolean.TRUE, JEL.createPattern('{{/a+/}}').match(ctx, 'aa'));
         assert.equal(JelBoolean.TRUE, JEL.createPattern('j {{/a+/}}').match(ctx, 'j aaa '));
       

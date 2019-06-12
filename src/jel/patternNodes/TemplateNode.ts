@@ -24,30 +24,28 @@ export default class TemplateNode extends ComplexNode {
 
 	// override
 	match(ctx: Context, tokens: string[], idx: number, metaFilter?: Set<string>, incompleteMatch = false): any {
-		if (!ctx.translationDict || !ctx.translationDict.get)
-			throw new Error("Templates in patterns require 'translationDict' in Context");
-		
-		const template = ctx.translationDict.get(ctx, this.template);
-		if (!template)
-			throw new Error(`Can not find template ${this.template} in translation dictionary`);
+		return Util.resolveValue(ctx.get(this.template), template=>{
+			if (!template)
+				throw new Error(`Can not find template "${this.template}" in context`);
 
-		const templateMatches = template.matchAtPosition(ctx, tokens, idx, this.metaFilter, true);
+			const templateMatches = template.matchAtPosition(ctx, tokens, idx, this.metaFilter, true);
 
-		return Util.resolveNestedValues(templateMatches, match=>{
-			const tplCtx = this.name ? new Context(ctx) : ctx;
-			if (this.name)
-				tplCtx.set(this.name, match.value) 
-							.set(this.name + '_meta', BaseTypeRegistry.get('Dictionary').valueOf(match.meta, true))
-							.freeze();
+			return Util.resolveNestedValues(templateMatches, match=>{
+				const tplCtx = this.name ? new Context(ctx) : ctx;
+				if (this.name)
+					tplCtx.set(this.name, match.value) 
+								.set(this.name + '_meta', BaseTypeRegistry.get('Dictionary').valueOf(match.meta, true))
+								.freeze();
 
-			if (this.expression) {
-				const result = this.expression.execute(tplCtx)
-				if (!this.isResultTrue(result))
-					return null;
-				else if (result instanceof Promise)
-					return result.then(r=>this.isResultTrue(r) ? this.next!.match(tplCtx, tokens, match.index, this.metaFilter, incompleteMatch) : undefined);
-			}
-			return this.next!.match(tplCtx, tokens, match.index, this.metaFilter, incompleteMatch);
+				if (this.expression) {
+					const result = this.expression.execute(tplCtx)
+					if (!this.isResultTrue(result))
+						return null;
+					else if (result instanceof Promise)
+						return result.then(r=>this.isResultTrue(r) ? this.next!.match(tplCtx, tokens, match.index, this.metaFilter, incompleteMatch) : undefined);
+				}
+				return this.next!.match(tplCtx, tokens, match.index, this.metaFilter, incompleteMatch);
+			});
 		});
 	}
 	

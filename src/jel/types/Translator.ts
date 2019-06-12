@@ -18,16 +18,16 @@ import JelNode from '../expressionNodes/JelNode';
 
 export default class Translator extends NativeJelObject {
 	tree: TranslatorNode = new TranslatorNode();
-  static clazz: Class|undefined;
+	static clazz: Class|undefined;
 
   
 	constructor() {
 		super('Translator');
 	}
 
-  get clazz(): Class {
-    return Translator.clazz!;
-  }
+	get clazz(): Class {
+		return Translator.clazz!;
+	}
   
 	addPattern(pattern: Pattern, valueExpression: JelNode, metaMap: Dictionary): Translator {
 		pattern.tree.merge(this.tree, new LambdaResultNode(valueExpression, metaMap));
@@ -46,8 +46,8 @@ export default class Translator extends NativeJelObject {
 	match(ctx: Context, input: JelString | string | string[], metaFilter?: Set<string>|List|null): List | Promise<List> { 
 		if (input instanceof JelString)
 			return this.match(ctx, input.value, metaFilter);
-    if (metaFilter instanceof List)
-      return this.match(ctx, input, new Set<string>(metaFilter.elements));
+		if (metaFilter instanceof List)
+			return this.match(ctx, input, new Set<string>(metaFilter.elements));
 		if (typeof input == 'string') {
 			const trimmed = input.trim();
 			return this.match(ctx, trimmed ? trimmed.split(/\s+/g) : [], metaFilter);
@@ -63,9 +63,9 @@ export default class Translator extends NativeJelObject {
 		return Promise.resolve(this.match(ctx, input, metaFilter));
 	}
 	
-  static create(): Translator {
-    return new Translator();
-  }
+	static create(): Translator {
+		return new Translator();
+	}
   
 	toString(): string {
 		return `Translator(${this.tree})`;
